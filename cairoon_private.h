@@ -10,6 +10,10 @@ typedef struct {
 } CairoonSurface;
 
 typedef struct {
+  cairo_device_t *ptr;
+} CairoonDevice;
+
+typedef struct {
   cairo_surface_t *base;
   cairo_surface_t *mapped;
   void *base_object;
@@ -56,6 +60,8 @@ typedef struct {
 
 CairoonSurface *cairoon_surface_wrap_owned(cairo_surface_t *ptr);
 CairoonSurface *cairoon_surface_wrap_borrowed(cairo_surface_t *ptr);
+CairoonDevice *cairoon_device_wrap_owned(cairo_device_t *ptr);
+CairoonDevice *cairoon_device_wrap_borrowed(cairo_device_t *ptr);
 CairoonMappedImageSurface *cairoon_mapped_image_surface_wrap_owned(
   cairo_surface_t *base,
   cairo_surface_t *mapped,
@@ -92,6 +98,7 @@ cairo_status_t cairoon_text_clusters_from_fields(
   int *count_out);
 
 cairo_status_t cairoon_surface_status(CairoonSurface *surface);
+cairo_status_t cairoon_device_status(CairoonDevice *device);
 cairo_status_t cairoon_mapped_image_surface_status(CairoonMappedImageSurface *surface);
 cairo_status_t cairoon_context_status(CairoonContext *ctx);
 cairo_status_t cairoon_path_status(CairoonPath *path);

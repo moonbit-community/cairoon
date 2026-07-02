@@ -3,6 +3,7 @@ test "portable enum constructors expose cairo names" {
   let antialias : Antialias = AntialiasDefault
   let content : Content = ContentColorAlpha
   let surface_type : SurfaceType = SurfaceTypeImage
+  let device_type : DeviceType = DeviceTypeScript
   let fill : FillRule = FillEvenOdd
   let hint_metrics : HintMetrics = HintMetricsOn
   let color_mode : ColorMode = ColorModeColor
@@ -28,6 +29,7 @@ test "portable enum constructors expose cairo names" {
   debug_inspect(antialias, content="AntialiasDefault")
   debug_inspect(content, content="ContentColorAlpha")
   debug_inspect(surface_type, content="SurfaceTypeImage")
+  debug_inspect(device_type, content="DeviceTypeScript")
   debug_inspect(fill, content="FillEvenOdd")
   debug_inspect(hint_metrics, content="HintMetricsOn")
   debug_inspect(color_mode, content="ColorModeColor")

@@ -123,6 +123,20 @@ pub fn Surface::get_type(self : Surface) -> SurfaceType raise CairoError {
 }
 
 ///|
+pub fn Surface::get_device(self : Surface) -> Device? raise CairoError {
+  let has_device = Ref(0)
+  let status = Ref(Success)
+  let device = surface_get_device_ffi(self, has_device, status)
+  check_status(status.val)
+  if has_device.val == 0 {
+    None
+  } else {
+    check_status(device_status_ffi(device))
+    Some(device)
+  }
+}
+
+///|
 pub fn Surface::finish(self : Surface) -> Unit raise CairoError {
   check_status(surface_finish_ffi(self))
 }

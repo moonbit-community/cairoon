@@ -9,7 +9,7 @@ Implemented in this workspace:
 - C FFI glue split by Cairo object family, following pycairo's
   `private.h` plus per-family C file architecture. GC-managed external objects
   currently cover `Surface`, `MappedImageSurface`, `Context`, `Path`,
-  `Pattern`, `FontOptions`, `FontFace`, `ScaledFont`, and `Region`.
+  `Pattern`, `FontOptions`, `FontFace`, `ScaledFont`, `Region`, and `Device`.
 - `Context` retains its target `Surface` with `moonbit_incref` and releases it
   in the finalizer.
 - `Context::new_for_mapped_image` retains its target `MappedImageSurface` with
@@ -46,8 +46,11 @@ Implemented in this workspace:
   SVGSurface
   filename/no-output constructor, version helper, version restriction, and
   document-unit APIs, Cairo tag string constants,
+  Device/ScriptDevice status/type/equal/hash, finish/flush/acquire/release,
+  scoped acquire helper, script mode/comment helpers, recording-surface replay,
+  and ScriptSurface creation/proxy helpers,
   portable `Surface` base helpers for `create_similar`,
-  `create_similar_image`, content/type queries, dirty markers, device
+  `create_similar_image`, content/type/get_device queries, dirty markers, device
   offset/scale, fallback resolution, show-text-glyphs support checks, and
   mapped image surface readback/unmap helpers, plus Surface MIME data
   set/get/clear/support checks that copy data across the MoonBit/C boundary,
@@ -86,6 +89,9 @@ Implemented in this workspace:
   version restriction, page size, metadata, custom metadata, page label,
   thumbnail, single-flag outline behavior, finished-surface errors, invalid
   string validation, and subtype-mismatch errors,
+  image surfaces returning no device, script device lifecycle and device
+  reference equality, script mode/comment validation, recording replay,
+  script-surface proxy rendering behavior, and `DeviceFinished` propagation,
   PS surface level helper behavior, no-output and filename construction, EPS
   mode, level restriction, size/DSC helpers, finished-surface errors, invalid
   DSC/path validation, and subtype-mismatch errors,
@@ -124,9 +130,9 @@ Implemented in this workspace:
 
 2026-07-02:
 
-- `moon -C cairoon test --target native -v`: 179 tests passed.
+- `moon -C cairoon test --target native -v`: 185 tests passed.
 - `run-asan.py --repo-root /Users/caimeo/code/pycairo/cairoon --pkg moon.pkg`:
-  ran the 179-test native suite after the MeshPattern slice
+  ran the 185-test native suite after the Device/ScriptSurface slice
   and failed during LeakSanitizer reporting. The reported allocations are rooted in
   `cairo_toy_font_face_create`, `cairo_select_font_face`, macOS
   FontRegistry/CoreGraphics frames, and scaled-font Quartz/CoreText paths such
@@ -138,9 +144,10 @@ Implemented in this workspace:
   no AddressSanitizer invalid-access report appeared before LSan failed and no
   text-to-glyphs native result finalizer, glyph/cluster marshaling helper,
   RecordingSurface helper, PDFSurface helper, PSSurface helper, SVGSurface
-  helper, MeshPattern/Pattern helper, Context text/tag/group, or MIME-data stub
-  ownership stack appeared in the visible leak roots.
-  Summary: `89269 byte(s) leaked in 474 allocation(s)`. The helper still emits
+  helper, MeshPattern/Pattern helper, Device/ScriptSurface helper, Context
+  text/tag/group, or MIME-data stub ownership stack appeared in the visible
+  leak roots.
+  Summary: `89205 byte(s) leaked in 476 allocation(s)`. The helper still emits
   a `moon.mod.json` lookup warning because this package uses `moon.mod`, but it
   correctly patched and restored the DSL `moon.pkg` and MoonBit runtime object
   for this package.

@@ -139,6 +139,22 @@ test {
 
 ///|
 test {
+  let device = Device::script("/tmp/cairoon_readme_script.cs")
+  debug_inspect(device.get_type(), content="DeviceTypeScript")
+  let acquired_type = device.with_acquired(() => device.get_type())
+  debug_inspect(acquired_type, content="DeviceTypeScript")
+
+  let surface = Surface::script(device, ContentColorAlpha, 4.0, 4.0)
+  match surface.get_device() {
+    Some(other) => inspect(device.equal(other), content="true")
+    None => fail("expected script surface device")
+  }
+  device.script_write_comment("README smoke")
+  device.flush()
+}
+
+///|
+test {
   let recording = Surface::recording(
     ContentColorAlpha,
     extents=Some(Rectangle::new(0.0, 0.0, 1.0, 1.0)),

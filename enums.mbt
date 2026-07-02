@@ -46,6 +46,18 @@ pub(all) enum SurfaceType {
 } derive(Eq, Debug)
 
 ///|
+pub(all) enum DeviceType {
+  DeviceTypeDrm = 0
+  DeviceTypeGl = 1
+  DeviceTypeScript = 2
+  DeviceTypeXcb = 3
+  DeviceTypeXlib = 4
+  DeviceTypeXml = 5
+  DeviceTypeCogl = 6
+  DeviceTypeWin32 = 7
+} derive(Eq, Debug)
+
+///|
 pub(all) enum FillRule {
   FillWinding = 0
   FillEvenOdd = 1

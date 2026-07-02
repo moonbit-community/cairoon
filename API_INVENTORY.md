@@ -21,6 +21,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 | Status and error mapping | Partial | `Status`, `CairoError`, `run_cairo`; needs all pycairo exception parity |
 | Matrix | Done | Pure value equivalent with field access, transform/translate/scale/rotate/multiply/invert/component tests |
 | Image surface basics | Partial | Create, similar-image create, map/unmap to image, buffer-backed create-for-data, PNG path load/save, MIME data, status, finish, flush, width/height/stride/format, copied data |
+| Device basics | Done | External object ownership, status/type/equal/hash, finish/flush/acquire/release, scoped acquire helper, `Surface::get_device`, and script-backed tests |
 | Recording surface | Done | Constructor with optional extents, extents/ink-extents queries, subtype-mismatch checks, and replay through surface patterns |
 | PDF surface | Partial | Filename/no-output constructor, supported versions, version strings, version restriction, page size, metadata, custom metadata, page labels, thumbnails, and single-flag outlines; stream callbacks, flag-combination ergonomics, and normalized vector-output comparison remain |
 | PS surface | Partial | Filename/no-output constructor, supported levels, level strings, level restriction, EPS mode, page size, and DSC comments; stream callbacks and normalized vector-output comparison remain |
@@ -48,6 +49,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 | `Antialias` | Done | Constructors use `Antialias*` prefixes |
 | `Content` | Done | Cairo bit values preserved |
 | `SurfaceType` | Done | Values through Cairo 1.18.4 are listed for `Surface::get_type` |
+| `DeviceType` | Done | Valid non-negative values through Cairo 1.18.4 are listed for `Device::get_type`; `INVALID = -1` is not represented by the enum |
 | `FillRule` | Done | Constructors use `Fill*` prefixes |
 | `Format` | Partial | Image formats and `stride_for_width`; `INVALID = -1` is not represented by the enum |
 | `HintMetrics` | Done | Constructors use `HintMetrics*` prefixes |
@@ -111,8 +113,8 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 
 | pycairo API | cairoon status | Notes |
 |---|---|---|
-| `Device` | Todo | Finish/flush/acquire/release and scoped usage |
-| `Surface` base methods | Partial | Finish/flush/copy_page/show_page/write_to_png(path), create_similar/create_similar_image, content/type, dirty markers, device offset/scale, fallback resolution, show-text-glyphs support query, MIME data, and get_font_options exist; device/metadata/backend APIs remain |
+| `Device` | Done | Exposed as opaque `Device` with script constructor, status/type/equal/hash, finish/flush/acquire/release, and `with_acquired`; tests cover pycairo device reference/equality behavior and `DeviceFinished` after finish |
+| `Surface` base methods | Partial | Finish/flush/copy_page/show_page/write_to_png(path), create_similar/create_similar_image, content/type, get_device, dirty markers, device offset/scale, fallback resolution, show-text-glyphs support query, MIME data, and get_font_options exist; metadata/backend APIs remain |
 | `ImageSurface` | Partial | Basic creation, buffer-backed creation, PNG path loading, and readback only |
 | `ImageSurface.create_for_data` | Partial | Exposed as `Surface::image_for_data` for `FixedArray[Byte]`; retains the MoonBit buffer, validates size/stride, and covers zero-size buffers, but still needs differential coverage and a clean ASan/LSan gate |
 | `ImageSurface.create_from_png/write_to_png` | Partial | Filename APIs exposed as `Surface::image_from_png` and `Surface::write_to_png`; stream/file-object callbacks deferred by `AGENTS.md` |
@@ -122,7 +124,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 | `PSSurface` | Partial | Exposed as `Surface::ps`, `PSLevel::supported`, `PSLevel::to_string`, `Surface::ps_restrict_to_level`, EPS get/set, size, and DSC helpers. Filename and no-output constructors are covered; stream/file-object callback output and normalized PS output tests remain. |
 | `SVGSurface` | Partial | Exposed as `Surface::svg`, `SVGVersion::supported`, `SVGVersion::to_string`, `Surface::svg_restrict_to_version`, and document-unit get/set. Filename and no-output constructors are covered; stream/file-object callback output and normalized SVG output tests remain. |
 | `RecordingSurface` | Done | Exposed as `Surface::recording`, `Surface::recording_get_extents`, and `Surface::recording_ink_extents`; tests cover bounded/unbounded extents, replay through `Pattern::for_surface`, and `SurfaceTypeMismatch` for non-recording surfaces |
-| `ScriptDevice` / `ScriptSurface` | Todo | File/stream output and recording replay |
+| `ScriptDevice` / `ScriptSurface` | Partial | File-path `Device::script`, mode, comments, recording replay, `Surface::script`, and `Surface::script_for_target` exist; stream/file-object callbacks remain deferred by `AGENTS.md` |
 | `TeeSurface` | Decision | Depends on Cairo backend availability and subtype policy |
 | `Win32Surface` / `Win32PrintingSurface` | Decision | Platform-specific; cannot be validated on this macOS workspace |
 | `XCBSurface` / `XlibSurface` | Decision | Platform-specific; requires X11/XCB headers and test environment |

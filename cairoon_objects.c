@@ -10,6 +10,14 @@ static void cairoon_surface_finalize(void *self) {
   }
 }
 
+static void cairoon_device_finalize(void *self) {
+  CairoonDevice *device = (CairoonDevice *)self;
+  if (device->ptr != NULL) {
+    cairo_device_destroy(device->ptr);
+    device->ptr = NULL;
+  }
+}
+
 static void cairoon_mapped_image_surface_finalize(void *self) {
   CairoonMappedImageSurface *surface = (CairoonMappedImageSurface *)self;
   if (surface->mapped != NULL) {
@@ -111,6 +119,20 @@ CairoonSurface *cairoon_surface_wrap_borrowed(cairo_surface_t *ptr) {
     cairo_surface_reference(ptr);
   }
   return cairoon_surface_wrap_owned(ptr);
+}
+
+CairoonDevice *cairoon_device_wrap_owned(cairo_device_t *ptr) {
+  CairoonDevice *device = (CairoonDevice *)moonbit_make_external_object(
+    cairoon_device_finalize, sizeof(CairoonDevice));
+  device->ptr = ptr;
+  return device;
+}
+
+CairoonDevice *cairoon_device_wrap_borrowed(cairo_device_t *ptr) {
+  if (ptr != NULL) {
+    cairo_device_reference(ptr);
+  }
+  return cairoon_device_wrap_owned(ptr);
 }
 
 CairoonMappedImageSurface *cairoon_mapped_image_surface_wrap_owned(

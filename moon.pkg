@@ -15,6 +15,7 @@ options(
   "native-stub": [
     "cairoon_objects.c",
     "cairoon_misc.c",
+    "cairoon_device.c",
     "cairoon_surface.c",
     "cairoon_pdf_surface.c",
     "cairoon_ps_surface.c",

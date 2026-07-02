@@ -49,6 +49,7 @@ cairoon/
   ffi.mbt
   error.mbt
   types.mbt
+  device.mbt
   matrix.mbt
   surface.mbt
   pattern.mbt
@@ -58,6 +59,7 @@ cairoon/
   cairoon_private.h
   cairoon_objects.c
   cairoon_misc.c
+  cairoon_device.c
   cairoon_surface.c
   cairoon_pdf_surface.c
   cairoon_ps_surface.c
@@ -84,6 +86,7 @@ options(
   "native-stub": [
     "cairoon_objects.c",
     "cairoon_misc.c",
+    "cairoon_device.c",
     "cairoon_surface.c",
     "cairoon_pdf_surface.c",
     "cairoon_ps_surface.c",
@@ -121,6 +124,8 @@ payload types and cross-file helpers declared in `cairoon_private.h`.
   other lifetime primitives shared by object families.
 - `cairoon_misc.c`: version/status string helpers and small module-level C
   exports.
+- `cairoon_device.c`: `Device`, script-device, script-surface, and
+  `Surface::get_device` exports.
 - `cairoon_surface.c`: `Surface`, image-surface, and recording-surface exports.
 - `cairoon_pdf_surface.c`: PDF surface exports.
 - `cairoon_ps_surface.c`: PostScript surface exports.
@@ -194,6 +199,11 @@ Subtype-specific surface methods, such as recording/PDF/SVG/PS helpers, must
 first check `cairo_surface_status`, then check `cairo_surface_get_type` in the C
 stub. A valid surface of the wrong subtype must return
 `CAIRO_STATUS_SURFACE_TYPE_MISMATCH` and surface in MoonBit as `CairoError`.
+
+Subtype-specific device methods, such as script-device helpers, must first
+check `cairo_device_status`, then check `cairo_device_get_type` in the C stub.
+A valid device of the wrong subtype must return
+`CAIRO_STATUS_DEVICE_TYPE_MISMATCH` and surface in MoonBit as `CairoError`.
 
 Matrix methods use MoonBit value semantics. Methods corresponding to pycairo's
 mutating `translate`, `scale`, `rotate`, and `invert` return a transformed copy
