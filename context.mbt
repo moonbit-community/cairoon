@@ -32,6 +32,29 @@ pub fn Context::restore(self : Context) -> Unit raise CairoError {
 }
 
 ///|
+pub fn Context::tag_begin(
+  self : Context,
+  tag_name : String,
+  attributes : String,
+) -> Unit raise CairoError {
+  check_status(
+    context_tag_begin_ffi(
+      self,
+      checked_c_string_bytes(tag_name),
+      checked_c_string_bytes(attributes),
+    ),
+  )
+}
+
+///|
+pub fn Context::tag_end(
+  self : Context,
+  tag_name : String,
+) -> Unit raise CairoError {
+  check_status(context_tag_end_ffi(self, checked_c_string_bytes(tag_name)))
+}
+
+///|
 pub fn Context::get_target(self : Context) -> Surface raise CairoError {
   let status = Ref(Success)
   let surface = context_get_target_ffi(self, status)

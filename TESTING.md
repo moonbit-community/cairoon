@@ -150,7 +150,7 @@ stub files, opaque external-object wrappers for `Surface`,
 `MappedImageSurface`, `Context`, `Path`, `Pattern`, `FontOptions`, `FontFace`,
 `ScaledFont`, and `Region`, pure value types, many portable enums, expanded
 Context path, painting/page, target/source borrowed returns, clip, matrix,
-drawing-state, group APIs, hit-testing/extents APIs, typed Path segment iteration and
+drawing-state, group APIs, tag APIs, hit-testing/extents APIs, typed Path segment iteration and
 stringification, PNG filename load/save and buffer-backed creation for image
 surfaces, portable Surface base helpers such as similar-surface creation,
 content/type queries, dirty markers, device offset/scale, fallback resolution,
@@ -164,7 +164,7 @@ multi-rectangle construction plus predicates and boolean operations.
 Verified on 2026-07-02:
 
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native -v`: 131 tests passed.
+- `moon -C cairoon test --target native -v`: 136 tests passed.
 - ASan/LSan via `run-asan.py`: ran the 108-test native suite after the PNG
   filename API slice, the 113-test native suite after the
   `Surface::image_for_data` slice, and the 114-test native suite after the
@@ -172,14 +172,15 @@ Verified on 2026-07-02:
   portable Surface base API slice, the 122-test native suite after the
   mapped image surface slice, and the 127-test native suite after the Surface
   MIME data slice, and the 131-test native suite after the Context group API
-  slice; these runs failed in LeakSanitizer. The most
+  slice, and the 136-test native suite after the Context tag API slice; these
+  runs failed in LeakSanitizer. The most
   recent leak report is rooted in `cairo_toy_font_face_create`,
   `cairo_select_font_face`, macOS
   FontRegistry/CoreGraphics frames, and scaled-font Quartz/CoreText paths such
   as `cairo_scaled_font_create`, `CGFontCopyURL`, and `CTFontCreateWithGraphicsFont`;
   no AddressSanitizer invalid-access report appeared before LSan failed and no
-  Context group or MIME-data stub stack appeared in the leak roots.
-  Summary: `91525 byte(s) leaked in 1303 allocation(s)`.
+  Context tag/group or MIME-data stub stack appeared in the leak roots.
+  Summary: `91445 byte(s) leaked in 1303 allocation(s)`.
 
 The missing reliability pieces are substantial: automated differential tests,
 the open macOS toy-font/scaled-font LSan failure, finalizer stress tests, CI

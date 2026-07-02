@@ -685,6 +685,18 @@ extern "C" fn context_get_target_ffi(
 ) -> Surface = "cairoon_context_get_target"
 
 ///|
+#borrow(ctx, tag_name, attributes)
+extern "C" fn context_tag_begin_ffi(
+  ctx : Context,
+  tag_name : Bytes,
+  attributes : Bytes,
+) -> Status = "cairoon_context_tag_begin"
+
+///|
+#borrow(ctx, tag_name)
+extern "C" fn context_tag_end_ffi(ctx : Context, tag_name : Bytes) -> Status = "cairoon_context_tag_end"
+
+///|
 #borrow(ctx, status)
 extern "C" fn context_get_source_ffi(
   ctx : Context,

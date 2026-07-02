@@ -35,7 +35,8 @@ Implemented in this workspace:
   current-point queries, path copy/append plus typed path segment iteration and
   stringification, referenced borrowed returns for target/source, core
   painting/page methods, and matrix/coordinate-conversion methods,
-  Context group target/push/pop APIs,
+  Context group target/push/pop APIs, Context tag begin/end APIs, Cairo tag
+  string constants,
   portable `Surface` base helpers for `create_similar`,
   `create_similar_image`, content/type queries, dirty markers, device
   offset/scale, fallback resolution, show-text-glyphs support checks, and
@@ -61,7 +62,8 @@ Implemented in this workspace:
   conversion, drawing-state behavior, path current-point,
   relative/arc, copy/append, stringification, and iteration behavior,
   borrowed target/source/group-target lifetime behavior, group push/pop and
-  pop-to-source rendering behavior,
+  pop-to-source rendering behavior, tag begin/end smoke behavior, tag string
+  constants, and tag input validation,
   mapped image whole-surface and rectangle-extents writeback behavior,
   wrong-base and double-unmap errors, core painting/page behavior, hit testing
   and extents, MIME data storage/clear behavior including embedded NUL bytes
@@ -95,16 +97,16 @@ Implemented in this workspace:
 
 2026-07-02:
 
-- `moon -C cairoon test --target native -v`: 131 tests passed.
+- `moon -C cairoon test --target native -v`: 136 tests passed.
 - `run-asan.py --repo-root /Users/caimeo/code/pycairo/cairoon --pkg moon.pkg`:
-  ran the 131-test native suite after the Context group API slice
+  ran the 136-test native suite after the Context tag API slice
   and failed during LeakSanitizer reporting. The reported allocations are rooted in
   `cairo_toy_font_face_create`, `cairo_select_font_face`, macOS
   FontRegistry/CoreGraphics frames, and scaled-font Quartz/CoreText paths such
   as `cairo_scaled_font_create`, `CGFontCopyURL`, and `CTFontCreateWithGraphicsFont`;
   no AddressSanitizer invalid-access report appeared before LSan failed and no
-  Context group or MIME-data stub stack appeared in the leak roots.
-  Summary: `91525 byte(s) leaked in 1303 allocation(s)`. The helper still emits
+  Context tag/group or MIME-data stub stack appeared in the leak roots.
+  Summary: `91445 byte(s) leaked in 1303 allocation(s)`. The helper still emits
   a `moon.mod.json` lookup warning because this package uses `moon.mod`, but it
   correctly patched and restored the DSL `moon.pkg` and MoonBit runtime object
   for this package.

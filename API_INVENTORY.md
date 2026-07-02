@@ -21,7 +21,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 | Status and error mapping | Partial | `Status`, `CairoError`, `run_cairo`; needs all pycairo exception parity |
 | Matrix | Done | Pure value equivalent with field access, transform/translate/scale/rotate/multiply/invert/component tests |
 | Image surface basics | Partial | Create, similar-image create, map/unmap to image, buffer-backed create-for-data, PNG path load/save, MIME data, status, finish, flush, width/height/stride/format, copied data |
-| Context basics | Partial | Creation, status, save/restore, CTM transforms, drawing state, clip APIs, group APIs, path primitives, source colors, paint/fill/stroke |
+| Context basics | Partial | Creation, status, save/restore, CTM transforms, drawing state, clip APIs, group APIs, tag APIs, path primitives, source colors, paint/fill/stroke |
 | Pattern basics | Partial | Solid/surface pattern constructors, source setting, RGBA, extend/filter/dither/matrix state, and referenced surface return |
 | Font faces | Done | Base external object, toy constructor/getters, Context get/set/select, borrowed-return references |
 | Font options | Done | External object, copy/merge/equal/hash, all portable state fields, and Surface/Context accessors |
@@ -70,6 +70,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 | `ScriptMode` | Done | Needed by script device |
 | `TextClusterFlags` | Done | Cairo bit value preserved |
 | `SurfaceObserverMode` | Done | Enum exists; Tee/observer surface APIs remain a product decision |
+| Tag string constants | Done | `TAG_DEST`, `TAG_LINK`, `TAG_CONTENT`, and `TAG_CONTENT_REF` expose Cairo tag names |
 
 ## Value Types
 
@@ -139,7 +140,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 | Text and fonts | Partial | font options get/set, font face get/set/select, toy font, font matrix/size/extents, and scaled font basics exist; glyph arrays and Context text APIs remain |
 | Path copy/append | Done | `copy_path`, `copy_path_flat`, `append_path`, `Path::segments`, `Path::iter`, and `Path::to_string` |
 | Hit testing and extents | Done | `in_clip`, `in_fill`, `in_stroke`, `clip_extents`, `fill_extents`, `stroke_extents`, `path_extents` |
-| Tags | Todo | tag begin/end with UTF-8 attributes |
+| Tags | Partial | `tag_begin`/`tag_end` exist with UTF-8/NUL validation, tag constants, and context-error propagation tests; tag-aware vector output and nesting `TagError` coverage need PDF/SVG/PS backends |
 | Page APIs | Done | `copy_page` and `show_page` on `Context` |
 
 ## Font And Text APIs

@@ -6,6 +6,14 @@ import {
 }
 
 // Values
+pub const TAG_CONTENT : String = "cairo.content"
+
+pub const TAG_CONTENT_REF : String = "cairo.content_ref"
+
+pub const TAG_DEST : String = "cairo.dest"
+
+pub const TAG_LINK : String = "Link"
+
 pub fn cairo_version() -> Int
 
 pub fn cairo_version_string() -> String
@@ -136,6 +144,8 @@ pub fn Context::status(Self) -> Status
 pub fn Context::stroke(Self) -> Unit raise CairoError
 pub fn Context::stroke_extents(Self) -> (Double, Double, Double, Double) raise CairoError
 pub fn Context::stroke_preserve(Self) -> Unit raise CairoError
+pub fn Context::tag_begin(Self, String, String) -> Unit raise CairoError
+pub fn Context::tag_end(Self, String) -> Unit raise CairoError
 pub fn Context::transform(Self, Matrix) -> Unit raise CairoError
 pub fn Context::translate(Self, Double, Double) -> Unit raise CairoError
 pub fn Context::user_to_device(Self, Double, Double) -> (Double, Double) raise CairoError

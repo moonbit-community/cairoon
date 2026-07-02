@@ -71,6 +71,14 @@ test {
 
 ///|
 test {
+  let ctx = Context::new(Surface::image(Argb32, 1, 1))
+  ctx.tag_begin("foo", "")
+  ctx.tag_end("foo")
+  inspect(TAG_DEST, content="cairo.dest")
+}
+
+///|
+test {
   let path = "/tmp/cairoon_readme_png_roundtrip.png"
   let surface = Surface::image(Argb32, 1, 1)
   let ctx = Context::new(surface)

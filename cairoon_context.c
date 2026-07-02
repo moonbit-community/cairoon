@@ -41,6 +41,37 @@ cairo_status_t cairoon_context_restore(CairoonContext *ctx) {
 }
 
 MOONBIT_FFI_EXPORT
+cairo_status_t cairoon_context_tag_begin(
+  CairoonContext *ctx,
+  moonbit_bytes_t tag_name,
+  moonbit_bytes_t attributes) {
+  cairo_status_t status = cairoon_context_status(ctx);
+  if (status != CAIRO_STATUS_SUCCESS) {
+    return status;
+  }
+  if (tag_name == NULL || attributes == NULL) {
+    return CAIRO_STATUS_NULL_POINTER;
+  }
+  cairo_tag_begin(ctx->ptr, (const char *)tag_name, (const char *)attributes);
+  return cairo_status(ctx->ptr);
+}
+
+MOONBIT_FFI_EXPORT
+cairo_status_t cairoon_context_tag_end(
+  CairoonContext *ctx,
+  moonbit_bytes_t tag_name) {
+  cairo_status_t status = cairoon_context_status(ctx);
+  if (status != CAIRO_STATUS_SUCCESS) {
+    return status;
+  }
+  if (tag_name == NULL) {
+    return CAIRO_STATUS_NULL_POINTER;
+  }
+  cairo_tag_end(ctx->ptr, (const char *)tag_name);
+  return cairo_status(ctx->ptr);
+}
+
+MOONBIT_FFI_EXPORT
 CairoonSurface *cairoon_context_get_target(CairoonContext *ctx, cairo_status_t *status_out) {
   cairo_status_t status = cairoon_context_status(ctx);
   *status_out = status;
