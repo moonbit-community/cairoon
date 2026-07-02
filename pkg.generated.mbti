@@ -426,6 +426,19 @@ pub fn Pattern::get_radial_circles(Self) -> (Double, Double, Double, Double, Dou
 pub fn Pattern::get_rgba(Self) -> (Double, Double, Double, Double) raise CairoError
 pub fn Pattern::get_surface(Self) -> Surface raise CairoError
 pub fn Pattern::linear(Double, Double, Double, Double) -> Self raise CairoError
+pub fn Pattern::mesh() -> Self raise CairoError
+pub fn Pattern::mesh_begin_patch(Self) -> Unit raise CairoError
+pub fn Pattern::mesh_curve_to(Self, Double, Double, Double, Double, Double, Double) -> Unit raise CairoError
+pub fn Pattern::mesh_end_patch(Self) -> Unit raise CairoError
+pub fn Pattern::mesh_get_control_point(Self, Int, Int) -> (Double, Double) raise CairoError
+pub fn Pattern::mesh_get_corner_color_rgba(Self, Int, Int) -> (Double, Double, Double, Double) raise CairoError
+pub fn Pattern::mesh_get_patch_count(Self) -> Int raise CairoError
+pub fn Pattern::mesh_get_path(Self, Int) -> Path raise CairoError
+pub fn Pattern::mesh_line_to(Self, Double, Double) -> Unit raise CairoError
+pub fn Pattern::mesh_move_to(Self, Double, Double) -> Unit raise CairoError
+pub fn Pattern::mesh_set_control_point(Self, Int, Double, Double) -> Unit raise CairoError
+pub fn Pattern::mesh_set_corner_color_rgb(Self, Int, Double, Double, Double) -> Unit raise CairoError
+pub fn Pattern::mesh_set_corner_color_rgba(Self, Int, Double, Double, Double, Double) -> Unit raise CairoError
 pub fn Pattern::radial(Double, Double, Double, Double, Double, Double) -> Self raise CairoError
 pub fn Pattern::set_dither(Self, Dither) -> Unit raise CairoError
 pub fn Pattern::set_extend(Self, Extend) -> Unit raise CairoError

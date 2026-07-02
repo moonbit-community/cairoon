@@ -246,6 +246,23 @@ test {
 
 ///|
 test {
+  let pattern = Pattern::mesh()
+  pattern.mesh_begin_patch()
+  pattern.mesh_move_to(0.0, 0.0)
+  pattern.mesh_line_to(2.0, 0.0)
+  pattern.mesh_line_to(0.0, 2.0)
+  pattern.mesh_set_corner_color_rgba(0, 1.0, 0.0, 0.0, 1.0)
+  pattern.mesh_set_corner_color_rgba(1, 1.0, 0.0, 0.0, 1.0)
+  pattern.mesh_set_corner_color_rgba(2, 1.0, 0.0, 0.0, 1.0)
+  pattern.mesh_end_patch()
+
+  inspect(pattern.mesh_get_patch_count(), content="1")
+  let path = pattern.mesh_get_path(0)
+  inspect(path.length() > 0, content="true")
+}
+
+///|
+test {
   let surface = Surface::image(Argb32, 8, 8)
   let ctx = Context::new(surface)
   ctx.line_to(1.0, 2.0)

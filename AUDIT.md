@@ -51,9 +51,10 @@ Implemented in this workspace:
   offset/scale, fallback resolution, show-text-glyphs support checks, and
   mapped image surface readback/unmap helpers, plus Surface MIME data
   set/get/clear/support checks that copy data across the MoonBit/C boundary,
-  initial solid/surface/linear/radial `Pattern` APIs with
-  extend/filter/dither/matrix/gradient state, and complete portable `Region`
-  APIs including multi-rectangle construction.
+  initial solid/surface/linear/radial/mesh `Pattern` APIs with
+  extend/filter/dither/matrix/gradient state, mesh patch lifecycle/query
+  helpers, and complete portable `Region` APIs including multi-rectangle
+  construction.
 - `FontOptions` external object with copy/merge/equal/hash, variations,
   Cairo 1.18 color font options, classic antialias/subpixel/hint state, and
   Surface/Context font-options accessors.
@@ -92,8 +93,9 @@ Implemented in this workspace:
   document-unit behavior, finished-surface errors, invalid path validation, and
   subtype-mismatch errors,
   clip behavior including non-rectangular clip status propagation,
-  pattern RGBA, gradient
-  geometry/color-stop behavior, pattern state behavior, explicit pattern
+  pattern RGBA, gradient geometry/color-stop behavior, mesh patch construction,
+  control/corner/path queries, invalid-index and lifecycle errors, non-mesh
+  mismatch, painting smoke behavior, pattern state behavior, explicit pattern
   sources, surface-pattern borrowed surface returns, font-options behavior,
   font-face and scaled-font behavior with context error propagation, region
   behavior, and error-status mapping.
@@ -122,9 +124,9 @@ Implemented in this workspace:
 
 2026-07-02:
 
-- `moon -C cairoon test --target native -v`: 173 tests passed.
+- `moon -C cairoon test --target native -v`: 179 tests passed.
 - `run-asan.py --repo-root /Users/caimeo/code/pycairo/cairoon --pkg moon.pkg`:
-  ran the 173-test native suite after the PDFSurface slice
+  ran the 179-test native suite after the MeshPattern slice
   and failed during LeakSanitizer reporting. The reported allocations are rooted in
   `cairo_toy_font_face_create`, `cairo_select_font_face`, macOS
   FontRegistry/CoreGraphics frames, and scaled-font Quartz/CoreText paths such
@@ -136,16 +138,16 @@ Implemented in this workspace:
   no AddressSanitizer invalid-access report appeared before LSan failed and no
   text-to-glyphs native result finalizer, glyph/cluster marshaling helper,
   RecordingSurface helper, PDFSurface helper, PSSurface helper, SVGSurface
-  helper, Context text/tag/group, or MIME-data stub ownership stack appeared in
-  the visible leak roots.
-  Summary: `90101 byte(s) leaked in 483 allocation(s)`. The helper still emits
+  helper, MeshPattern/Pattern helper, Context text/tag/group, or MIME-data stub
+  ownership stack appeared in the visible leak roots.
+  Summary: `89269 byte(s) leaked in 474 allocation(s)`. The helper still emits
   a `moon.mod.json` lookup warning because this package uses `moon.mod`, but it
   correctly patched and restored the DSL `moon.pkg` and MoonBit runtime object
   for this package.
 
 ## Known Gaps
 
-- No mesh/raster-source patterns, stream/callback APIs, PDF outline
+- No raster-source patterns, stream/callback APIs, PDF outline
   flag-combination helper, normalized PDF/SVG/PS output comparison, or direct
   mutable image data view binding yet.
 - `Surface::copy_data` copies the Cairo image data into MoonBit `Bytes`; it

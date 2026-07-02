@@ -164,16 +164,16 @@ single-flag outline helpers, PSSurface filename/no-output constructor, level
 helpers, level restriction, EPS mode, size and DSC helpers, SVGSurface
 filename/no-output constructor, version helpers, version restriction, and
 document-unit helpers,
-surface-pattern borrowed surface returns, FontOptions state/accessor APIs,
-FontFace/ToyFontFace APIs, ScaledFont basics including glyph extents and
-text-to-glyphs, and
+surface-pattern borrowed surface returns, MeshPattern patch lifecycle/query
+APIs, FontOptions state/accessor APIs, FontFace/ToyFontFace APIs, ScaledFont
+basics including glyph extents and text-to-glyphs, and
 initial tests. Region now covers empty, single-rectangle, and
 multi-rectangle construction plus predicates and boolean operations.
 
 Verified on 2026-07-02:
 
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native -v`: 173 tests passed.
+- `moon -C cairoon test --target native -v`: 179 tests passed.
 - ASan/LSan via `run-asan.py`: ran the 108-test native suite after the PNG
   filename API slice, the 113-test native suite after the
   `Surface::image_for_data` slice, and the 114-test native suite after the
@@ -188,7 +188,8 @@ Verified on 2026-07-02:
   suite after the RecordingSurface slice, and the 161-test native suite after
   the SVGSurface slice, and the 167-test native suite after the PSSurface
   slice, and the 173-test native suite after the PDFSurface slice; these runs
-  failed in LeakSanitizer. The most
+  failed in LeakSanitizer, as did the 179-test native suite after the
+  MeshPattern slice. The most
   recent leak report is rooted in `cairo_toy_font_face_create`,
   `cairo_select_font_face`, macOS
   FontRegistry/CoreGraphics frames, and scaled-font Quartz/CoreText paths such
@@ -200,9 +201,9 @@ Verified on 2026-07-02:
   no AddressSanitizer invalid-access report appeared before LSan failed and no
   text-to-glyphs native result finalizer, glyph/cluster marshaling helper,
   RecordingSurface helper, PDFSurface helper, PSSurface helper, SVGSurface
-  helper, Context text/tag/group, or MIME-data stub ownership stack appeared in
-  the visible leak roots.
-  Summary: `90101 byte(s) leaked in 483 allocation(s)`.
+  helper, MeshPattern/Pattern helper, Context text/tag/group, or MIME-data stub
+  ownership stack appeared in the visible leak roots.
+  Summary: `89269 byte(s) leaked in 474 allocation(s)`.
 
 The missing reliability pieces are substantial: automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering

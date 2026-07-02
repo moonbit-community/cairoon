@@ -26,7 +26,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 | PS surface | Partial | Filename/no-output constructor, supported levels, level strings, level restriction, EPS mode, page size, and DSC comments; stream callbacks and normalized vector-output comparison remain |
 | SVG surface | Partial | Filename/no-output constructor, supported versions, version strings, version restriction, and document units; stream callbacks and normalized vector-output comparison remain |
 | Context basics | Partial | Creation, status, save/restore, CTM transforms, drawing state, clip APIs, group APIs, tag APIs, path primitives, source colors, paint/fill/stroke |
-| Pattern basics | Partial | Solid/surface pattern constructors, source setting, RGBA, extend/filter/dither/matrix state, and referenced surface return |
+| Pattern basics | Partial | Solid/surface/mesh pattern constructors, source setting, RGBA, extend/filter/dither/matrix state, gradient state, mesh patch lifecycle/query APIs, and referenced surface return |
 | Font faces | Done | Base external object, toy constructor/getters, Context get/set/select, borrowed-return references |
 | Font options | Done | External object, copy/merge/equal/hash, all portable state fields, and Surface/Context accessors |
 | Scaled fonts | Partial | External object, constructor, matrices/options/font-face getters, text extents, and Context get/set |
@@ -104,7 +104,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 | `Gradient.get_color_stops_rgba` | Done | Returns `Array[(Double, Double, Double, Double, Double)]` |
 | `LinearGradient` | Done | Exposed as `Pattern::linear` plus `get_linear_points` |
 | `RadialGradient` | Done | Exposed as `Pattern::radial` plus `get_radial_circles` |
-| `MeshPattern` | Todo | Patch lifecycle methods and path extraction |
+| `MeshPattern` | Done | Exposed as `Pattern::mesh` and `Pattern::mesh_*` methods for patch lifecycle, move/line/curve commands, control points, corner colors, patch count, path extraction, and query helpers; tests cover pycairo examples, invalid indexes, lifecycle errors, non-mesh mismatch, and painting smoke |
 | `RasterSourcePattern` | Decision | Requires callback trampoline and retained MoonBit closures |
 
 ## Surface And Device APIs
