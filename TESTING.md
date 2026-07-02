@@ -152,19 +152,22 @@ Context path, painting/page, target/source borrowed returns, clip, matrix,
 drawing-state, hit-testing/extents APIs, typed Path segment iteration and
 stringification, surface-pattern borrowed surface returns, FontOptions
 state/accessor APIs, FontFace/ToyFontFace APIs, ScaledFont basics, and initial
-tests.
+tests. Region now covers empty, single-rectangle, and multi-rectangle
+construction plus predicates and boolean operations.
 
 Verified on 2026-07-02:
 
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native -v`: 104 tests passed.
-- ASan/LSan via `run-asan.py`: ran the 104-test native suite after the Path
-  data/iteration slice and failed in LeakSanitizer. The leak report is rooted
+- `moon -C cairoon test --target native -v`: 106 tests passed.
+- ASan/LSan via `run-asan.py`: ran the 106-test native suite after the Region
+  multi-rectangle constructor slice and failed in LeakSanitizer. The leak
+  report is rooted
   in
   `cairo_toy_font_face_create`, `cairo_select_font_face`, macOS
   FontRegistry/CoreGraphics frames, and scaled-font Quartz/CoreText paths such
   as `cairo_scaled_font_create`, `CGFontCopyURL`, and `CTFontCreateWithGraphicsFont`;
   no AddressSanitizer invalid-access report appeared before LSan failed.
+  Summary: `91925 byte(s) leaked in 1311 allocation(s)`.
 
 The missing reliability pieces are substantial: automated differential tests,
 the open macOS toy-font/scaled-font LSan failure, finalizer stress tests, CI

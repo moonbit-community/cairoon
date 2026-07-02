@@ -1,5 +1,8 @@
 #include "cairoon_private.h"
 
+#include <stdint.h>
+#include <stdlib.h>
+
 MOONBIT_FFI_EXPORT
 CairoonRegion *cairoon_region_create(void) {
   return cairoon_region_wrap_owned(cairo_region_create());
@@ -13,6 +16,58 @@ CairoonRegion *cairoon_region_create_rectangle(
   int32_t height) {
   cairo_rectangle_int_t rect = { x, y, width, height };
   return cairoon_region_wrap_owned(cairo_region_create_rectangle(&rect));
+}
+
+MOONBIT_FFI_EXPORT
+CairoonRegion *cairoon_region_create_rectangles(
+  int32_t *xs,
+  int32_t *ys,
+  int32_t *widths,
+  int32_t *heights,
+  cairo_status_t *status_out) {
+  *status_out = CAIRO_STATUS_SUCCESS;
+  if (xs == NULL || ys == NULL || widths == NULL || heights == NULL) {
+    *status_out = CAIRO_STATUS_NULL_POINTER;
+    return cairoon_region_wrap_owned(NULL);
+  }
+
+  int32_t count = (int32_t)Moonbit_array_length(xs);
+  if ((int32_t)Moonbit_array_length(ys) != count ||
+      (int32_t)Moonbit_array_length(widths) != count ||
+      (int32_t)Moonbit_array_length(heights) != count) {
+    *status_out = CAIRO_STATUS_INVALID_SIZE;
+    return cairoon_region_wrap_owned(NULL);
+  }
+
+  if (count == 0) {
+    return cairoon_region_wrap_owned(cairo_region_create());
+  }
+
+  if ((size_t)count > SIZE_MAX / sizeof(cairo_rectangle_int_t)) {
+    *status_out = CAIRO_STATUS_NO_MEMORY;
+    return cairoon_region_wrap_owned(NULL);
+  }
+  cairo_rectangle_int_t *rects =
+    (cairo_rectangle_int_t *)malloc((size_t)count * sizeof(cairo_rectangle_int_t));
+  if (rects == NULL) {
+    *status_out = CAIRO_STATUS_NO_MEMORY;
+    return cairoon_region_wrap_owned(NULL);
+  }
+
+  for (int32_t i = 0; i < count; i++) {
+    rects[i].x = xs[i];
+    rects[i].y = ys[i];
+    rects[i].width = widths[i];
+    rects[i].height = heights[i];
+  }
+  cairo_region_t *region = cairo_region_create_rectangles(rects, count);
+  free(rects);
+  if (region == NULL) {
+    *status_out = CAIRO_STATUS_NO_MEMORY;
+    return cairoon_region_wrap_owned(NULL);
+  }
+  *status_out = cairo_region_status(region);
+  return cairoon_region_wrap_owned(region);
 }
 
 MOONBIT_FFI_EXPORT

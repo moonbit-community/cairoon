@@ -23,7 +23,8 @@ Implemented in this workspace:
   stringification, referenced borrowed returns for target/source, core
   painting/page methods, and matrix/coordinate-conversion methods,
   initial solid/surface/linear/radial `Pattern` APIs with
-  extend/filter/dither/matrix/gradient state, and initial `Region` APIs.
+  extend/filter/dither/matrix/gradient state, and complete portable `Region`
+  APIs including multi-rectangle construction.
 - `FontOptions` external object with copy/merge/equal/hash, variations,
   Cairo 1.18 color font options, classic antialias/subpixel/hint state, and
   Surface/Context font-options accessors.
@@ -69,23 +70,24 @@ Implemented in this workspace:
 
 2026-07-02:
 
-- `moon -C cairoon test --target native -v`: 104 tests passed.
+- `moon -C cairoon test --target native -v`: 106 tests passed.
 - `run-asan.py --repo-root /Users/caimeo/code/pycairo/cairoon --pkg moon.pkg`:
-  ran the 104-test native suite after the Path data/iteration slice and failed
-  during LeakSanitizer reporting. The reported allocations are rooted in
+  ran the 106-test native suite after the Region multi-rectangle constructor
+  slice and failed during LeakSanitizer reporting. The reported allocations are
+  rooted in
   `cairo_toy_font_face_create`, `cairo_select_font_face`, macOS
   FontRegistry/CoreGraphics frames, and scaled-font Quartz/CoreText paths such
   as `cairo_scaled_font_create`, `CGFontCopyURL`, and `CTFontCreateWithGraphicsFont`;
-  no AddressSanitizer invalid-access report appeared before LSan failed. The
-  helper still emits a `moon.mod.json` lookup warning because this package uses
-  `moon.mod`, but it correctly patched and restored the DSL `moon.pkg` and
-  MoonBit runtime object for this package.
+  no AddressSanitizer invalid-access report appeared before LSan failed.
+  Summary: `91925 byte(s) leaked in 1311 allocation(s)`. The helper still emits
+  a `moon.mod.json` lookup warning because this package uses `moon.mod`, but it
+  correctly patched and restored the DSL `moon.pkg` and MoonBit runtime object
+  for this package.
 
 ## Known Gaps
 
 - No mesh/raster-source patterns, ScaledFont glyph arrays/text-to-glyphs,
   PDF/SVG/PS, stream, callback, or `ImageSurface.create_for_data` binding yet.
-  `Region` is partial and lacks the multi-rectangle constructor.
 - `Surface::copy_data` copies the Cairo image data into MoonBit `Bytes`; it
   intentionally does not expose a mutable view yet.
 - The package currently records Homebrew Cairo 1.18.4 paths. A portable setup

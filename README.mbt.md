@@ -87,6 +87,20 @@ test {
 
 ///|
 test {
+  let region = Region::from_rectangles([
+    RectangleInt::new(x=0, y=0, width=2, height=2),
+    RectangleInt::new(x=10, y=0, width=3, height=2),
+  ])
+  inspect(region.num_rectangles(), content="2")
+  debug_inspect(
+    region.get_extents(),
+    content="{ x: 0, y: 0, width: 13, height: 2 }",
+  )
+  inspect(region.contains_point(10, 1), content="true")
+}
+
+///|
+test {
   let options = FontOptions::new()
   options.set_antialias(AntialiasGray)
   options.set_hint_style(HintStyleSlight)

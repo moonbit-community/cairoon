@@ -422,6 +422,7 @@ pub fn Region::contains_rectangle(Self, RectangleInt) -> RegionOverlap
 pub fn Region::copy(Self) -> Self raise CairoError
 pub fn Region::equal(Self, Self) -> Bool
 pub fn Region::from_rectangle(RectangleInt) -> Self raise CairoError
+pub fn Region::from_rectangles(ArrayView[RectangleInt]) -> Self raise CairoError
 pub fn Region::get_extents(Self) -> RectangleInt raise CairoError
 pub fn Region::get_rectangle(Self, Int) -> RectangleInt raise CairoError
 pub fn Region::intersect(Self, Self) -> Unit raise CairoError

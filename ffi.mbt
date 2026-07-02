@@ -1239,6 +1239,16 @@ extern "C" fn region_create_rectangle_ffi(
 ) -> Region = "cairoon_region_create_rectangle"
 
 ///|
+#borrow(xs, ys, widths, heights, status)
+extern "C" fn region_create_rectangles_ffi(
+  xs : FixedArray[Int],
+  ys : FixedArray[Int],
+  widths : FixedArray[Int],
+  heights : FixedArray[Int],
+  status : Ref[Status],
+) -> Region = "cairoon_region_create_rectangles"
+
+///|
 #borrow(region)
 extern "C" fn region_copy_ffi(region : Region) -> Region = "cairoon_region_copy"
 

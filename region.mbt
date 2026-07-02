@@ -20,6 +20,24 @@ pub fn Region::from_rectangle(
 }
 
 ///|
+pub fn Region::from_rectangles(
+  rectangles : ArrayView[RectangleInt],
+) -> Region raise CairoError {
+  let count = rectangles.length()
+  let status = Ref(Success)
+  let region = region_create_rectangles_ffi(
+    FixedArray::makei(count, index => rectangles[index].x),
+    FixedArray::makei(count, index => rectangles[index].y),
+    FixedArray::makei(count, index => rectangles[index].width),
+    FixedArray::makei(count, index => rectangles[index].height),
+    status,
+  )
+  check_status(status.val)
+  check_status(region_status_ffi(region))
+  region
+}
+
+///|
 pub fn Region::copy(self : Region) -> Region raise CairoError {
   let region = region_copy_ffi(self)
   check_status(region_status_ffi(region))

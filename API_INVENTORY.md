@@ -27,7 +27,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 | Font options | Done | External object, copy/merge/equal/hash, all portable state fields, and Surface/Context accessors |
 | Scaled fonts | Partial | External object, constructor, matrices/options/font-face getters, text extents, and Context get/set |
 | Docs | Partial | README smoke example and AGENTS spec exist; no full reference docs yet |
-| Tests | Partial | Native and ASan test runs cover the current slice only |
+| Tests | Partial | Native and ASan test runs cover the current migrated slices only |
 
 ## Top-Level Functions
 
@@ -156,8 +156,8 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 
 | pycairo API | cairoon status | Notes |
 |---|---|---|
-| `Region` | Partial | External object, empty/rectangle constructors, copy, extents, rectangles, predicates |
-| Region boolean ops | Partial | intersect/subtract/union/xor implemented for region and rectangle operands; multi-rectangle constructor still Todo |
+| `Region` | Done | External object, empty/single/multi-rectangle constructors, copy, extents, rectangle access, predicates, equality, and translate |
+| Region boolean ops | Done | intersect/subtract/union/xor implemented for region and rectangle operands |
 | `RegionOverlap` | Done | Enum implemented |
 
 ## Product Decisions Required

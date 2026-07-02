@@ -18,6 +18,32 @@ test "region empty and rectangle construction" {
 }
 
 ///|
+test "region construction from multiple rectangles" {
+  let empty_rectangles : Array[RectangleInt] = []
+  let empty = Region::from_rectangles(empty_rectangles)
+  inspect(empty.is_empty(), content="true")
+  inspect(empty.num_rectangles(), content="0")
+
+  let region = Region::from_rectangles([
+    RectangleInt::new(x=0, y=0, width=2, height=2),
+    RectangleInt::new(x=10, y=0, width=3, height=2),
+  ])
+  inspect(region.is_empty(), content="false")
+  inspect(region.num_rectangles(), content="2")
+  debug_inspect(
+    region.get_extents(),
+    content="{ x: 0, y: 0, width: 13, height: 2 }",
+  )
+  inspect(region.contains_point(1, 1), content="true")
+  inspect(region.contains_point(11, 1), content="true")
+  inspect(region.contains_point(5, 1), content="false")
+  debug_inspect(
+    region.contains_rectangle(RectangleInt::new(x=0, y=0, width=13, height=2)),
+    content="RegionOverlapPart",
+  )
+}
+
+///|
 test "region get_rectangle invalid index maps to cairo error" {
   let region = Region::from_rectangle(
     RectangleInt::new(x=0, y=0, width=10, height=10),
