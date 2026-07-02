@@ -160,8 +160,9 @@ show-text-glyphs support checks, MIME data storage/query/clear support, and
 RecordingSurface constructor/extents/ink-extents plus replay, mapped image
 surface mapping/unmapping, PDFSurface filename/no-output constructor, version
 helpers, version restriction, size, metadata, page-label, thumbnail, and
-single-flag outline helpers, PSSurface filename/no-output constructor, level
-helpers, level restriction, EPS mode, size and DSC helpers, SVGSurface
+single-flag and combined-flag outline helpers, PSSurface filename/no-output
+constructor, level helpers, level restriction, EPS mode, size and DSC helpers,
+SVGSurface
 filename/no-output constructor, version helpers, version restriction, and
 document-unit helpers,
 surface-pattern borrowed surface returns, MeshPattern patch lifecycle/query
@@ -194,9 +195,9 @@ Verified on 2026-07-02:
   slice, and the 173-test native suite after the PDFSurface slice; these runs
   failed in LeakSanitizer, as did the 179-test native suite after the
   MeshPattern slice and the 185-test native suite after the
-  Device/ScriptSurface slice. The most
-  recent leak report is rooted in `cairo_toy_font_face_create`,
-  `cairo_select_font_face`, macOS
+  Device/ScriptSurface slice and the 185-test native suite after the PDF
+  outline flag-set slice. The most recent leak report is rooted in
+  `cairo_toy_font_face_create`, `cairo_select_font_face`, macOS
   FontRegistry/CoreGraphics frames, and scaled-font Quartz/CoreText paths such
   as `cairo_scaled_font_create`, `CGFontCopyURL`, and
   `CTFontCreateWithGraphicsFont`, plus toy-text rendering caches reached
@@ -206,16 +207,15 @@ Verified on 2026-07-02:
   no AddressSanitizer invalid-access report appeared before LSan failed and no
   text-to-glyphs native result finalizer, glyph/cluster marshaling helper,
   RecordingSurface helper, PDFSurface helper, PSSurface helper, SVGSurface
-  helper, MeshPattern/Pattern helper, Device/ScriptSurface helper, Context
-  text/tag/group, or MIME-data stub ownership stack appeared in the visible
-  leak roots.
+  helper, PDF outline helper, MeshPattern/Pattern helper,
+  Device/ScriptSurface helper, Context text/tag/group, or MIME-data stub
+  ownership stack appeared in the visible leak roots.
   Summary: `89205 byte(s) leaked in 476 allocation(s)`.
 
 The missing reliability pieces are substantial: automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering
 LSan failure, finalizer stress tests, CI wiring, vector-output normalization,
-PDF/PS stream output, PDF outline flag-combination ergonomics, and the
-remaining API families from `API_INVENTORY.md`.
+PDF/PS stream output, and the remaining API families from `API_INVENTORY.md`.
 
 ## Porting pycairo Tests
 

@@ -40,8 +40,9 @@ Implemented in this workspace:
   ScaledFont text-to-glyphs, Context show-text-glyphs APIs,
   RecordingSurface constructor/extents/ink-extents APIs, PDFSurface
   filename/no-output constructor, version helpers, version restriction,
-  page-size, metadata, custom metadata, page-label, thumbnail, and
-  single-flag outline APIs, PSSurface filename/no-output constructor, level
+  page-size, metadata, custom metadata, page-label, thumbnail, single-flag
+  outline compatibility, and typed outline flag-set APIs, PSSurface
+  filename/no-output constructor, level
   helpers, level restriction, EPS mode, page-size, and DSC comment/setup APIs,
   SVGSurface
   filename/no-output constructor, version helper, version restriction, and
@@ -87,8 +88,9 @@ Implemented in this workspace:
   replay-through-surface-pattern behavior, subtype-mismatch errors,
   PDF surface version helper behavior, no-output and filename construction,
   version restriction, page size, metadata, custom metadata, page label,
-  thumbnail, single-flag outline behavior, finished-surface errors, invalid
-  string validation, and subtype-mismatch errors,
+  thumbnail, single-flag and combined-flag outline behavior,
+  finished-surface errors, invalid string validation, and subtype-mismatch
+  errors,
   image surfaces returning no device, script device lifecycle and device
   reference equality, script mode/comment validation, recording replay,
   script-surface proxy rendering behavior, and `DeviceFinished` propagation,
@@ -132,8 +134,8 @@ Implemented in this workspace:
 
 - `moon -C cairoon test --target native -v`: 185 tests passed.
 - `run-asan.py --repo-root /Users/caimeo/code/pycairo/cairoon --pkg moon.pkg`:
-  ran the 185-test native suite after the Device/ScriptSurface slice
-  and failed during LeakSanitizer reporting. The reported allocations are rooted in
+  ran the 185-test native suite after the PDF outline flag-set slice and
+  failed during LeakSanitizer reporting. The reported allocations are rooted in
   `cairo_toy_font_face_create`, `cairo_select_font_face`, macOS
   FontRegistry/CoreGraphics frames, and scaled-font Quartz/CoreText paths such
   as `cairo_scaled_font_create`, `CGFontCopyURL`, and
@@ -144,9 +146,9 @@ Implemented in this workspace:
   no AddressSanitizer invalid-access report appeared before LSan failed and no
   text-to-glyphs native result finalizer, glyph/cluster marshaling helper,
   RecordingSurface helper, PDFSurface helper, PSSurface helper, SVGSurface
-  helper, MeshPattern/Pattern helper, Device/ScriptSurface helper, Context
-  text/tag/group, or MIME-data stub ownership stack appeared in the visible
-  leak roots.
+  helper, PDF outline helper, MeshPattern/Pattern helper,
+  Device/ScriptSurface helper, Context text/tag/group, or MIME-data stub
+  ownership stack appeared in the visible leak roots.
   Summary: `89205 byte(s) leaked in 476 allocation(s)`. The helper still emits
   a `moon.mod.json` lookup warning because this package uses `moon.mod`, but it
   correctly patched and restored the DSL `moon.pkg` and MoonBit runtime object
@@ -154,9 +156,8 @@ Implemented in this workspace:
 
 ## Known Gaps
 
-- No raster-source patterns, stream/callback APIs, PDF outline
-  flag-combination helper, normalized PDF/SVG/PS output comparison, or direct
-  mutable image data view binding yet.
+- No raster-source patterns, stream/callback APIs, normalized PDF/SVG/PS
+  output comparison, or direct mutable image data view binding yet.
 - `Surface::copy_data` copies the Cairo image data into MoonBit `Bytes`; it
   intentionally does not expose a mutable view yet.
 - The package currently records Homebrew Cairo 1.18.4 paths. A portable setup

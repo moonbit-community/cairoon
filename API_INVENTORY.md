@@ -23,7 +23,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 | Image surface basics | Partial | Create, similar-image create, map/unmap to image, buffer-backed create-for-data, PNG path load/save, MIME data, status, finish, flush, width/height/stride/format, copied data |
 | Device basics | Done | External object ownership, status/type/equal/hash, finish/flush/acquire/release, scoped acquire helper, `Surface::get_device`, and script-backed tests |
 | Recording surface | Done | Constructor with optional extents, extents/ink-extents queries, subtype-mismatch checks, and replay through surface patterns |
-| PDF surface | Partial | Filename/no-output constructor, supported versions, version strings, version restriction, page size, metadata, custom metadata, page labels, thumbnails, and single-flag outlines; stream callbacks, flag-combination ergonomics, and normalized vector-output comparison remain |
+| PDF surface | Partial | Filename/no-output constructor, supported versions, version strings, version restriction, page size, metadata, custom metadata, page labels, thumbnails, single-flag outline compatibility, and typed outline flag sets; stream callbacks and normalized vector-output comparison remain |
 | PS surface | Partial | Filename/no-output constructor, supported levels, level strings, level restriction, EPS mode, page size, and DSC comments; stream callbacks and normalized vector-output comparison remain |
 | SVG surface | Partial | Filename/no-output constructor, supported versions, version strings, version restriction, and document units; stream callbacks and normalized vector-output comparison remain |
 | Context basics | Partial | Creation, status, save/restore, CTM transforms, drawing state, clip APIs, group APIs, tag APIs, path primitives, source colors, paint/fill/stroke |
@@ -72,7 +72,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 | `SVGVersion` | Done | Needed by `SVGSurface` |
 | `SVGUnit` | Done | Needed by `SVGSurface` |
 | `PDFMetadata` | Done | Needed by `PDFSurface` metadata |
-| `PDFOutlineFlags` | Done | Cairo bit values preserved |
+| `PDFOutlineFlags`, `PDFOutlineFlagSet` | Done | Cairo bit values preserved; `PDFOutlineFlagSet` provides typed combinations for outline APIs |
 | `ScriptMode` | Done | Needed by script device |
 | `TextClusterFlags` | Done | Cairo bit value preserved |
 | `SurfaceObserverMode` | Done | Enum exists; Tee/observer surface APIs remain a product decision |
@@ -120,7 +120,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 | `ImageSurface.create_from_png/write_to_png` | Partial | Filename APIs exposed as `Surface::image_from_png` and `Surface::write_to_png`; stream/file-object callbacks deferred by `AGENTS.md` |
 | `Surface.map_to_image/unmap_image` | Partial | `MappedImageSurface` has a dedicated payload retaining the base `Surface`, explicit and finalizer unmap support, extent mapping, Context construction, and double/wrong-base checks; still needs GC stress and clean ASan/LSan gate |
 | `Surface.get_mime_data/set_mime_data/supports_mime_type` | Partial | Exposed on `Surface`; data is copied into C-owned storage on set and copied back into MoonBit `Bytes` on get. This intentionally does not preserve pycairo's Python object identity for data set through the binding. Backend-specific support/output behavior still needs differential vector-output tests. |
-| `PDFSurface` | Partial | Exposed as `Surface::pdf`, `PDFVersion::supported`, `PDFVersion::to_string`, `Surface::pdf_restrict_to_version`, size, metadata, custom metadata, page label, thumbnail, and single-flag outline helpers. Filename and no-output constructors are covered; stream/file-object callback output, outline flag-combination ergonomics, and normalized PDF output tests remain. |
+| `PDFSurface` | Partial | Exposed as `Surface::pdf`, `PDFVersion::supported`, `PDFVersion::to_string`, `Surface::pdf_restrict_to_version`, size, metadata, custom metadata, page label, thumbnail, single-flag outline compatibility, and typed outline flag sets. Filename and no-output constructors are covered; stream/file-object callback output and normalized PDF output tests remain. |
 | `PSSurface` | Partial | Exposed as `Surface::ps`, `PSLevel::supported`, `PSLevel::to_string`, `Surface::ps_restrict_to_level`, EPS get/set, size, and DSC helpers. Filename and no-output constructors are covered; stream/file-object callback output and normalized PS output tests remain. |
 | `SVGSurface` | Partial | Exposed as `Surface::svg`, `SVGVersion::supported`, `SVGVersion::to_string`, `Surface::svg_restrict_to_version`, and document-unit get/set. Filename and no-output constructors are covered; stream/file-object callback output and normalized SVG output tests remain. |
 | `RecordingSurface` | Done | Exposed as `Surface::recording`, `Surface::recording_get_extents`, and `Surface::recording_ink_extents`; tests cover bounded/unbounded extents, replay through `Pattern::for_surface`, and `SurfaceTypeMismatch` for non-recording surfaces |

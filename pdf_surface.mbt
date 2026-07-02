@@ -40,6 +40,62 @@ pub fn PDFVersion::to_string(self : PDFVersion) -> String raise CairoError {
 }
 
 ///|
+pub struct PDFOutlineFlagSet {
+  bits : Int
+} derive(Eq, @debug.Debug)
+
+///|
+pub fn PDFOutlineFlags::bits(self : PDFOutlineFlags) -> Int {
+  match self {
+    PdfOutlineOpen => 0x01
+    PdfOutlineBold => 0x02
+    PdfOutlineItalic => 0x04
+  }
+}
+
+///|
+pub fn PDFOutlineFlagSet::none() -> PDFOutlineFlagSet {
+  { bits: 0 }
+}
+
+///|
+pub fn PDFOutlineFlagSet::of(flag : PDFOutlineFlags) -> PDFOutlineFlagSet {
+  { bits: flag.bits() }
+}
+
+///|
+pub fn PDFOutlineFlagSet::combine(
+  flags : ArrayView[PDFOutlineFlags],
+) -> PDFOutlineFlagSet {
+  let mut bits = 0
+  for flag in flags {
+    bits = bits.lor(flag.bits())
+  }
+  { bits, }
+}
+
+///|
+pub fn PDFOutlineFlagSet::add(
+  self : PDFOutlineFlagSet,
+  flag : PDFOutlineFlags,
+) -> PDFOutlineFlagSet {
+  { bits: self.bits.lor(flag.bits()) }
+}
+
+///|
+pub fn PDFOutlineFlagSet::contains(
+  self : PDFOutlineFlagSet,
+  flag : PDFOutlineFlags,
+) -> Bool {
+  self.bits.land(flag.bits()) != 0
+}
+
+///|
+pub fn PDFOutlineFlagSet::bits(self : PDFOutlineFlagSet) -> Int {
+  self.bits
+}
+
+///|
 pub fn Surface::pdf_restrict_to_version(
   self : Surface,
   version : PDFVersion,
@@ -116,13 +172,29 @@ pub fn Surface::pdf_add_outline(
   link_attributes : String,
   flags : PDFOutlineFlags,
 ) -> Int raise CairoError {
+  self.pdf_add_outline_with_flags(
+    parent_id,
+    title,
+    link_attributes,
+    PDFOutlineFlagSet::of(flags),
+  )
+}
+
+///|
+pub fn Surface::pdf_add_outline_with_flags(
+  self : Surface,
+  parent_id : Int,
+  title : String,
+  link_attributes : String,
+  flags : PDFOutlineFlagSet,
+) -> Int raise CairoError {
   let status = Ref(Success)
-  let id = pdf_surface_add_outline_ffi(
+  let id = pdf_surface_add_outline_bits_ffi(
     self,
     parent_id,
     checked_c_string_bytes(title),
     checked_c_string_bytes(link_attributes),
-    flags,
+    flags.bits(),
     status,
   )
   check_status(status.val)

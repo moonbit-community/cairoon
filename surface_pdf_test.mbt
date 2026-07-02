@@ -38,6 +38,18 @@ test "pdf surface no-output constructor exposes page and document APIs" {
   surface.pdf_set_custom_metadata("ISBN", None)
   surface.pdf_set_page_label("page one")
   surface.pdf_set_thumbnail_size(4, 4)
+  let outline_kinds : Array[PDFOutlineFlags] = [
+    PdfOutlineOpen,
+    PdfOutlineBold,
+    PdfOutlineItalic,
+  ]
+  let outline_flags = PDFOutlineFlagSet::combine(outline_kinds[:])
+  inspect(outline_flags.bits(), content="7")
+  inspect(outline_flags.contains(PdfOutlineOpen), content="true")
+  inspect(outline_flags.contains(PdfOutlineBold), content="true")
+  inspect(outline_flags.contains(PdfOutlineItalic), content="true")
+  inspect(PDFOutlineFlagSet::none().contains(PdfOutlineBold), content="false")
+  inspect(PDFOutlineFlagSet::none().add(PdfOutlineItalic).bits(), content="4")
   let outline_id = surface.pdf_add_outline(
     PDF_OUTLINE_ROOT,
     "chapter",
@@ -45,6 +57,13 @@ test "pdf surface no-output constructor exposes page and document APIs" {
     PdfOutlineOpen,
   )
   inspect(outline_id > PDF_OUTLINE_ROOT, content="true")
+  let combined_outline_id = surface.pdf_add_outline_with_flags(
+    PDF_OUTLINE_ROOT,
+    "appendix",
+    "page=1 pos=[2 2]",
+    outline_flags,
+  )
+  inspect(combined_outline_id > outline_id, content="true")
   surface.finish()
 
   expect_pdf_surface_finished(run_cairo(() => surface.pdf_set_size(1.0, 1.0)))
@@ -93,11 +112,11 @@ test "pdf surface validates metadata outline and path strings" {
   inspect(reserved_name is Err(_), content="true")
 
   let outline = run_cairo(() => {
-    let _ = surface.pdf_add_outline(
+    let _ = surface.pdf_add_outline_with_flags(
       PDF_OUTLINE_ROOT,
       "bad\u{0}title",
       "page=1",
-      PdfOutlineOpen,
+      PDFOutlineFlagSet::of(PdfOutlineOpen),
     )
     ()
   })
@@ -145,11 +164,11 @@ test "pdf surface methods reject other surface types" {
   )
   expect_pdf_surface_type_mismatch(
     run_cairo(() => {
-      let _ = image.pdf_add_outline(
+      let _ = image.pdf_add_outline_with_flags(
         PDF_OUTLINE_ROOT,
         "nope",
         "page=1",
-        PdfOutlineOpen,
+        PDFOutlineFlagSet::of(PdfOutlineOpen),
       )
       ()
     }),

@@ -389,11 +389,22 @@ pub(all) enum PDFMetadata {
   PdfMetadataModDate
 } derive(Eq, @debug.Debug)
 
+pub struct PDFOutlineFlagSet {
+  bits : Int
+} derive(Eq, @debug.Debug)
+pub fn PDFOutlineFlagSet::add(Self, PDFOutlineFlags) -> Self
+pub fn PDFOutlineFlagSet::bits(Self) -> Int
+pub fn PDFOutlineFlagSet::combine(ArrayView[PDFOutlineFlags]) -> Self
+pub fn PDFOutlineFlagSet::contains(Self, PDFOutlineFlags) -> Bool
+pub fn PDFOutlineFlagSet::none() -> Self
+pub fn PDFOutlineFlagSet::of(PDFOutlineFlags) -> Self
+
 pub(all) enum PDFOutlineFlags {
   PdfOutlineOpen
   PdfOutlineBold
   PdfOutlineItalic
 } derive(Eq, @debug.Debug)
+pub fn PDFOutlineFlags::bits(Self) -> Int
 
 pub(all) enum PDFVersion {
   PdfVersion1_4
@@ -651,6 +662,7 @@ pub fn Surface::mark_dirty(Self) -> Unit raise CairoError
 pub fn Surface::mark_dirty_rectangle(Self, Int, Int, Int, Int) -> Unit raise CairoError
 pub fn Surface::pdf(Double, Double, path? : String?) -> Self raise CairoError
 pub fn Surface::pdf_add_outline(Self, Int, String, String, PDFOutlineFlags) -> Int raise CairoError
+pub fn Surface::pdf_add_outline_with_flags(Self, Int, String, String, PDFOutlineFlagSet) -> Int raise CairoError
 pub fn Surface::pdf_restrict_to_version(Self, PDFVersion) -> Unit raise CairoError
 pub fn Surface::pdf_set_custom_metadata(Self, String, String?) -> Unit raise CairoError
 pub fn Surface::pdf_set_metadata(Self, PDFMetadata, String) -> Unit raise CairoError

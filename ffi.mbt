@@ -636,12 +636,12 @@ extern "C" fn pdf_surface_set_thumbnail_size_ffi(
 
 ///|
 #borrow(surface, title, link_attributes, status)
-extern "C" fn pdf_surface_add_outline_ffi(
+extern "C" fn pdf_surface_add_outline_bits_ffi(
   surface : Surface,
   parent_id : Int,
   title : Bytes,
   link_attributes : Bytes,
-  flags : PDFOutlineFlags,
+  flags : Int,
   status : Ref[Status],
 ) -> Int = "cairoon_pdf_surface_add_outline"
 

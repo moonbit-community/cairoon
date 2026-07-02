@@ -202,11 +202,13 @@ test {
   surface.pdf_set_metadata(PdfMetadataTitle, "Cairoon PDF")
   surface.pdf_set_page_label("page one")
   surface.pdf_set_thumbnail_size(2, 2)
-  let outline_id = surface.pdf_add_outline(
+  let outline_kinds : Array[PDFOutlineFlags] = [PdfOutlineOpen, PdfOutlineBold]
+  let outline_flags = PDFOutlineFlagSet::combine(outline_kinds[:])
+  let outline_id = surface.pdf_add_outline_with_flags(
     PDF_OUTLINE_ROOT,
     "chapter",
     "page=1",
-    PdfOutlineOpen,
+    outline_flags,
   )
   inspect(outline_id > PDF_OUTLINE_ROOT, content="true")
   let ctx = Context::new(surface)
