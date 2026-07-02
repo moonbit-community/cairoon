@@ -52,8 +52,9 @@ Implemented in this workspace:
   scoped acquire helper, script mode/comment helpers, recording-surface replay,
   and ScriptSurface creation/proxy helpers,
   portable `Surface` base helpers for `create_similar`,
-  `create_similar_image`, `create_for_rectangle`, content/type/get_device
-  queries, dirty markers, device offset/scale, fallback resolution,
+  `create_similar_image`, `create_for_rectangle` with retained parent-wrapper
+  lifetime, content/type/get_device queries, dirty markers, device
+  offset/scale, fallback resolution,
   show-text-glyphs support checks, and
   mapped image surface readback/unmap helpers, plus Surface MIME data
   set/get/clear/support checks that copy data across the MoonBit/C boundary,
@@ -137,10 +138,12 @@ Implemented in this workspace:
 2026-07-02:
 
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native -v`: 192 tests passed.
+- `moon -C cairoon test --target native -v`: 193 tests passed.
 - `run-asan.py --repo-root /Users/caimeo/code/pycairo/cairoon --pkg moon.pkg`:
-  ran the native suite after the hairline Context-state slice and failed during
-  LeakSanitizer reporting. The reported allocations are rooted in
+  most recently ran the native suite after the hairline Context-state slice and
+  failed during LeakSanitizer reporting. ASan for the retained-parent
+  subsurface lifetime hardening is pending. The reported allocations are rooted
+  in
   `cairo_toy_font_face_create`, `cairo_select_font_face`, macOS
   FontRegistry/CoreGraphics frames, and scaled-font Quartz/CoreText paths such
   as `cairo_scaled_font_create`, `CGFontCopyURL`, and

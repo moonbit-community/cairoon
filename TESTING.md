@@ -157,7 +157,7 @@ text APIs, glyph array APIs, text-to-glyphs/show-text-glyphs APIs,
 hit-testing/extents APIs, typed Path segment iteration and stringification,
 PNG filename load/save and buffer-backed creation for image surfaces, portable
 Surface base helpers such as similar-surface creation, rectangular child
-surface creation, content/type queries,
+surface creation with retained parent-wrapper lifetime, content/type queries,
 dirty markers, device offset/scale, fallback resolution, show-text-glyphs
 support checks, MIME constants, MIME data storage/query/clear support, and
 RecordingSurface constructor/extents/ink-extents plus replay, mapped image
@@ -180,12 +180,14 @@ operations.
 Verified on 2026-07-02:
 
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native -v`: 192 tests passed.
-- ASan/LSan via `run-asan.py`: failed only on known macOS
+- `moon -C cairoon test --target native -v`: 193 tests passed.
+- ASan/LSan via `run-asan.py`: most recently ran after the hairline Context
+  state slice and failed only on known macOS
   FontRegistry/CoreGraphics/CoreText/ColorSync leak roots
-  (`90213 byte(s) leaked in 487 allocation(s)` on this run). The full log was
-  scanned for the new hairline C glue and did not include those symbols in
-  leak roots.
+  (`90213 byte(s) leaked in 487 allocation(s)`). The full log was scanned for
+  the new hairline C glue and did not include those symbols in leak roots. The
+  retained-parent subsurface lifetime hardening has not yet been rerun under
+  ASan/LSan.
 - ASan/LSan via `run-asan.py`: ran the 108-test native suite after the PNG
   filename API slice, the 113-test native suite after the
   `Surface::image_for_data` slice, and the 114-test native suite after the
@@ -208,7 +210,8 @@ Verified on 2026-07-02:
   with the expanded 190-test native suite, and after the `set_source_surface`
   slice with the expanded 192-test native suite, and after the
   `Context::set_hairline/get_hairline` slice with the same 192-test native
-  suite. The most recent leak report is rooted in
+  suite. ASan for the retained-parent subsurface lifetime hardening is pending.
+  The most recent leak report is rooted in
   `cairo_toy_font_face_create`, `cairo_select_font_face`, macOS
   FontRegistry/CoreGraphics frames, and scaled-font Quartz/CoreText paths such
   as `cairo_scaled_font_create`, `CGFontCopyURL`, and

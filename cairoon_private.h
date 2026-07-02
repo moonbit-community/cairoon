@@ -7,6 +7,7 @@
 
 typedef struct {
   cairo_surface_t *ptr;
+  void *base;
 } CairoonSurface;
 
 typedef struct {
@@ -59,6 +60,9 @@ typedef struct {
 } CairoonTextToGlyphs;
 
 CairoonSurface *cairoon_surface_wrap_owned(cairo_surface_t *ptr);
+CairoonSurface *cairoon_surface_wrap_owned_with_base(
+  cairo_surface_t *ptr,
+  void *base);
 CairoonSurface *cairoon_surface_wrap_borrowed(cairo_surface_t *ptr);
 CairoonDevice *cairoon_device_wrap_owned(cairo_device_t *ptr);
 CairoonDevice *cairoon_device_wrap_borrowed(cairo_device_t *ptr);

@@ -231,7 +231,7 @@ CairoonSurface *cairoon_surface_create_for_rectangle(
     return cairoon_surface_wrap_owned(NULL);
   }
   *status_out = cairo_surface_status(surface);
-  return cairoon_surface_wrap_owned(surface);
+  return cairoon_surface_wrap_owned_with_base(surface, target);
 }
 
 MOONBIT_FFI_EXPORT

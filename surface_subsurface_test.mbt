@@ -15,6 +15,12 @@ fn expect_argb32_transparent_pixel(data : Bytes, offset : Int) -> Unit raise {
 }
 
 ///|
+fn child_surface_from_local_parent() -> Surface raise CairoError {
+  let parent = Surface::image(Argb32, 4, 4)
+  parent.create_for_rectangle(1.0, 1.0, 2.0, 2.0)
+}
+
+///|
 test "subsurface clips and translates drawing into parent surface" {
   let parent = Surface::image(Argb32, 4, 4)
   let child = parent.create_for_rectangle(1.0, 1.0, 2.0, 2.0)
@@ -32,4 +38,14 @@ test "subsurface clips and translates drawing into parent surface" {
   expect_argb32_red_pixel(data, stride * 2 + 8)
   expect_argb32_transparent_pixel(data, stride)
   expect_argb32_transparent_pixel(data, stride * 3 + 12)
+}
+
+///|
+test "subsurface keeps parent wrapper alive after local scope exits" {
+  let child = child_surface_from_local_parent()
+  let ctx = Context::new(child)
+  ctx.set_source_rgba(0.0, 0.0, 1.0, 1.0)
+  ctx.paint()
+  child.flush()
+  inspect(child.status().is_success(), content="true")
 }
