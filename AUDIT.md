@@ -16,8 +16,9 @@ Implemented in this workspace:
   wrapper that can outlive the pattern wrapper.
 - Public `Status`, `CairoError`, version helpers, portable Cairo enum types,
   `Format::stride_for_width`, pure `Matrix` parity operations, pure rectangle,
-  glyph, text-cluster, and extents values, image `Surface`, core `Context`
-  drawing state including dash, clip APIs including rectangle-list copying,
+  glyph, text-cluster, and extents values, image `Surface` including PNG
+  filename load/save, core `Context` drawing state including dash, clip APIs
+  including rectangle-list copying,
   hit testing, geometric extents, absolute/relative/arc path drawing,
   current-point queries, path copy/append plus typed path segment iteration and
   stringification, referenced borrowed returns for target/source, core
@@ -36,8 +37,9 @@ Implemented in this workspace:
   matrix getters, text extents, and `Context` font matrix/size/extents plus
   scaled-font get/set wrappers.
 - Initial parity tests for version, enum exposure, pure value types, matrix
-  behavior, image surface properties, deterministic pixel rendering, context
-  CTM, coordinate conversion, drawing-state behavior, path current-point,
+  behavior, image surface properties, PNG filename round trips and invalid path
+  validation, deterministic pixel rendering, context CTM, coordinate
+  conversion, drawing-state behavior, path current-point,
   relative/arc, copy/append, stringification, and iteration behavior,
   borrowed target/source lifetime behavior,
   core painting/page behavior, hit testing and extents, clip behavior including
@@ -70,16 +72,15 @@ Implemented in this workspace:
 
 2026-07-02:
 
-- `moon -C cairoon test --target native -v`: 106 tests passed.
+- `moon -C cairoon test --target native -v`: 108 tests passed.
 - `run-asan.py --repo-root /Users/caimeo/code/pycairo/cairoon --pkg moon.pkg`:
-  ran the 106-test native suite after the Region multi-rectangle constructor
-  slice and failed during LeakSanitizer reporting. The reported allocations are
-  rooted in
+  ran the 108-test native suite after the PNG filename API slice and failed
+  during LeakSanitizer reporting. The reported allocations are rooted in
   `cairo_toy_font_face_create`, `cairo_select_font_face`, macOS
   FontRegistry/CoreGraphics frames, and scaled-font Quartz/CoreText paths such
   as `cairo_scaled_font_create`, `CGFontCopyURL`, and `CTFontCreateWithGraphicsFont`;
   no AddressSanitizer invalid-access report appeared before LSan failed.
-  Summary: `91925 byte(s) leaked in 1311 allocation(s)`. The helper still emits
+  Summary: `91317 byte(s) leaked in 1299 allocation(s)`. The helper still emits
   a `moon.mod.json` lookup warning because this package uses `moon.mod`, but it
   correctly patched and restored the DSL `moon.pkg` and MoonBit runtime object
   for this package.
@@ -87,7 +88,8 @@ Implemented in this workspace:
 ## Known Gaps
 
 - No mesh/raster-source patterns, ScaledFont glyph arrays/text-to-glyphs,
-  PDF/SVG/PS, stream, callback, or `ImageSurface.create_for_data` binding yet.
+  PDF/SVG/PS, stream/callback APIs, or `ImageSurface.create_for_data` binding
+  yet.
 - `Surface::copy_data` copies the Cairo image data into MoonBit `Bytes`; it
   intentionally does not expose a mutable view yet.
 - The package currently records Homebrew Cairo 1.18.4 paths. A portable setup

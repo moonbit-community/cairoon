@@ -59,6 +59,19 @@ test {
 
 ///|
 test {
+  let path = "/tmp/cairoon_readme_png_roundtrip.png"
+  let surface = Surface::image(Argb32, 1, 1)
+  let ctx = Context::new(surface)
+  ctx.set_source_rgba(0.0, 1.0, 0.0, 0.5)
+  ctx.paint()
+  surface.write_to_png(path)
+  let loaded = Surface::image_from_png(path)
+  inspect(loaded.get_width(), content="1")
+  inspect(loaded.copy_data() == surface.copy_data(), content="true")
+}
+
+///|
+test {
   let gradient = Pattern::linear(0.0, 0.0, 10.0, 0.0)
   gradient.add_color_stop_rgb(0.0, 1.0, 0.0, 0.0)
   gradient.add_color_stop_rgba(1.0, 0.0, 0.0, 1.0, 0.5)

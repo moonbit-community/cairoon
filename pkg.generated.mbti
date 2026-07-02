@@ -551,8 +551,10 @@ pub fn Surface::get_height(Self) -> Int
 pub fn Surface::get_stride(Self) -> Int
 pub fn Surface::get_width(Self) -> Int
 pub fn Surface::image(Format, Int, Int) -> Self raise CairoError
+pub fn Surface::image_from_png(String) -> Self raise CairoError
 pub fn Surface::show_page(Self) -> Unit raise CairoError
 pub fn Surface::status(Self) -> Status
+pub fn Surface::write_to_png(Self, String) -> Unit raise CairoError
 
 pub(all) enum SurfaceObserverMode {
   SurfaceObserverNormal

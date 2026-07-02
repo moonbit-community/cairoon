@@ -20,7 +20,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 | Version helpers | Done | `cairo_version`, `cairo_version_string` |
 | Status and error mapping | Partial | `Status`, `CairoError`, `run_cairo`; needs all pycairo exception parity |
 | Matrix | Done | Pure value equivalent with field access, transform/translate/scale/rotate/multiply/invert/component tests |
-| Image surface basics | Partial | Create, status, finish, flush, width/height/stride/format, copied data |
+| Image surface basics | Partial | Create, PNG path load/save, status, finish, flush, width/height/stride/format, copied data |
 | Context basics | Partial | Creation, status, save/restore, CTM transforms, drawing state, clip APIs, path primitives, source colors, paint/fill/stroke |
 | Pattern basics | Partial | Solid/surface pattern constructors, source setting, RGBA, extend/filter/dither/matrix state, and referenced surface return |
 | Font faces | Done | Base external object, toy constructor/getters, Context get/set/select, borrowed-return references |
@@ -106,10 +106,10 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 | pycairo API | cairoon status | Notes |
 |---|---|---|
 | `Device` | Todo | Finish/flush/acquire/release and scoped usage |
-| `Surface` base methods | Partial | Finish/flush/copy_page/show_page/get_font_options only; many metadata, device, MIME, and similar-surface APIs missing |
-| `ImageSurface` | Partial | Basic creation and readback only |
+| `Surface` base methods | Partial | Finish/flush/copy_page/show_page/write_to_png(path)/get_font_options only; many metadata, device, MIME, and similar-surface APIs missing |
+| `ImageSurface` | Partial | Basic creation, PNG path loading, and readback only |
 | `ImageSurface.create_for_data` | Todo | Requires owned mutable buffer retention and stride validation |
-| `ImageSurface.create_from_png/write_to_png` | Todo | File path and stream/callback design required |
+| `ImageSurface.create_from_png/write_to_png` | Partial | Filename APIs exposed as `Surface::image_from_png` and `Surface::write_to_png`; stream/file-object callbacks deferred by `AGENTS.md` |
 | `Surface.map_to_image/unmap_image` | Todo | Requires mapped-image payload retaining base surface |
 | `PDFSurface` | Todo | File/stream output, metadata, outline, versions |
 | `PSSurface` | Todo | File/stream output, DSC, EPS, levels |

@@ -380,6 +380,13 @@ extern "C" fn image_surface_create_ffi(
 ) -> Surface = "cairoon_image_surface_create"
 
 ///|
+#borrow(filename, status)
+extern "C" fn image_surface_create_from_png_ffi(
+  filename : Bytes,
+  status : Ref[Status],
+) -> Surface = "cairoon_image_surface_create_from_png"
+
+///|
 extern "C" fn format_stride_for_width_ffi(format : Format, width : Int) -> Int = "cairo_format_stride_for_width"
 
 ///|
@@ -401,6 +408,13 @@ extern "C" fn surface_copy_page_ffi(surface : Surface) -> Status = "cairoon_surf
 ///|
 #borrow(surface)
 extern "C" fn surface_show_page_ffi(surface : Surface) -> Status = "cairoon_surface_show_page"
+
+///|
+#borrow(surface, filename)
+extern "C" fn surface_write_to_png_ffi(
+  surface : Surface,
+  filename : Bytes,
+) -> Status = "cairoon_surface_write_to_png"
 
 ///|
 #borrow(surface)
