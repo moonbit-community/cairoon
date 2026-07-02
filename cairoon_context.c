@@ -1,5 +1,7 @@
 #include "cairoon_private.h"
 
+#include <stdlib.h>
+
 MOONBIT_FFI_EXPORT
 CairoonContext *cairoon_context_create(CairoonSurface *surface) {
   if (surface == NULL || surface->ptr == NULL) {
@@ -403,6 +405,82 @@ cairo_status_t cairoon_context_text_path(
     return CAIRO_STATUS_NULL_POINTER;
   }
   cairo_text_path(ctx->ptr, (const char *)text);
+  return cairo_status(ctx->ptr);
+}
+
+MOONBIT_FFI_EXPORT
+cairo_status_t cairoon_context_glyph_extents(
+  CairoonContext *ctx,
+  uint32_t *indices,
+  double *xs,
+  double *ys,
+  double *x_bearing,
+  double *y_bearing,
+  double *width,
+  double *height,
+  double *x_advance,
+  double *y_advance) {
+  cairo_status_t status = cairoon_context_status(ctx);
+  if (status != CAIRO_STATUS_SUCCESS) {
+    return status;
+  }
+  cairo_glyph_t *glyphs = NULL;
+  int count = 0;
+  status = cairoon_glyphs_from_fields(indices, xs, ys, &glyphs, &count);
+  if (status != CAIRO_STATUS_SUCCESS) {
+    return status;
+  }
+  cairo_text_extents_t extents;
+  cairo_glyph_extents(ctx->ptr, glyphs, count, &extents);
+  free(glyphs);
+  *x_bearing = extents.x_bearing;
+  *y_bearing = extents.y_bearing;
+  *width = extents.width;
+  *height = extents.height;
+  *x_advance = extents.x_advance;
+  *y_advance = extents.y_advance;
+  return cairo_status(ctx->ptr);
+}
+
+MOONBIT_FFI_EXPORT
+cairo_status_t cairoon_context_glyph_path(
+  CairoonContext *ctx,
+  uint32_t *indices,
+  double *xs,
+  double *ys) {
+  cairo_status_t status = cairoon_context_status(ctx);
+  if (status != CAIRO_STATUS_SUCCESS) {
+    return status;
+  }
+  cairo_glyph_t *glyphs = NULL;
+  int count = 0;
+  status = cairoon_glyphs_from_fields(indices, xs, ys, &glyphs, &count);
+  if (status != CAIRO_STATUS_SUCCESS) {
+    return status;
+  }
+  cairo_glyph_path(ctx->ptr, glyphs, count);
+  free(glyphs);
+  return cairo_status(ctx->ptr);
+}
+
+MOONBIT_FFI_EXPORT
+cairo_status_t cairoon_context_show_glyphs(
+  CairoonContext *ctx,
+  uint32_t *indices,
+  double *xs,
+  double *ys) {
+  cairo_status_t status = cairoon_context_status(ctx);
+  if (status != CAIRO_STATUS_SUCCESS) {
+    return status;
+  }
+  cairo_glyph_t *glyphs = NULL;
+  int count = 0;
+  status = cairoon_glyphs_from_fields(indices, xs, ys, &glyphs, &count);
+  if (status != CAIRO_STATUS_SUCCESS) {
+    return status;
+  }
+  cairo_show_glyphs(ctx->ptr, glyphs, count);
+  free(glyphs);
   return cairo_status(ctx->ptr);
 }
 

@@ -1,6 +1,7 @@
 #include "cairoon_private.h"
 
 #include <stdint.h>
+#include <stdlib.h>
 
 MOONBIT_FFI_EXPORT
 CairoonFontOptions *cairoon_font_options_create(void) {
@@ -549,3 +550,36 @@ cairo_status_t cairoon_scaled_font_text_extents(
   return cairo_scaled_font_status(scaled_font->ptr);
 }
 
+MOONBIT_FFI_EXPORT
+cairo_status_t cairoon_scaled_font_glyph_extents(
+  CairoonScaledFont *scaled_font,
+  uint32_t *indices,
+  double *xs,
+  double *ys,
+  double *x_bearing,
+  double *y_bearing,
+  double *width,
+  double *height,
+  double *x_advance,
+  double *y_advance) {
+  cairo_status_t status = cairoon_scaled_font_status(scaled_font);
+  if (status != CAIRO_STATUS_SUCCESS) {
+    return status;
+  }
+  cairo_glyph_t *glyphs = NULL;
+  int count = 0;
+  status = cairoon_glyphs_from_fields(indices, xs, ys, &glyphs, &count);
+  if (status != CAIRO_STATUS_SUCCESS) {
+    return status;
+  }
+  cairo_text_extents_t extents;
+  cairo_scaled_font_glyph_extents(scaled_font->ptr, glyphs, count, &extents);
+  free(glyphs);
+  *x_bearing = extents.x_bearing;
+  *y_bearing = extents.y_bearing;
+  *width = extents.width;
+  *height = extents.height;
+  *x_advance = extents.x_advance;
+  *y_advance = extents.y_advance;
+  return cairo_scaled_font_status(scaled_font->ptr);
+}

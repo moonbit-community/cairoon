@@ -91,6 +91,8 @@ pub fn Context::get_scaled_font(Self) -> ScaledFont raise CairoError
 pub fn Context::get_source(Self) -> Pattern raise CairoError
 pub fn Context::get_target(Self) -> Surface raise CairoError
 pub fn Context::get_tolerance(Self) -> Double raise CairoError
+pub fn Context::glyph_extents(Self, ArrayView[Glyph]) -> TextExtents raise CairoError
+pub fn Context::glyph_path(Self, ArrayView[Glyph]) -> Unit raise CairoError
 pub fn Context::has_current_point(Self) -> Bool raise CairoError
 pub fn Context::identity_matrix(Self) -> Unit raise CairoError
 pub fn Context::in_clip(Self, Double, Double) -> Bool raise CairoError
@@ -139,6 +141,7 @@ pub fn Context::set_source(Self, Pattern) -> Unit raise CairoError
 pub fn Context::set_source_rgb(Self, Double, Double, Double) -> Unit raise CairoError
 pub fn Context::set_source_rgba(Self, Double, Double, Double, Double) -> Unit raise CairoError
 pub fn Context::set_tolerance(Self, Double) -> Unit raise CairoError
+pub fn Context::show_glyphs(Self, ArrayView[Glyph]) -> Unit raise CairoError
 pub fn Context::show_page(Self) -> Unit raise CairoError
 pub fn Context::show_text(Self, String) -> Unit raise CairoError
 pub fn Context::status(Self) -> Status
@@ -500,6 +503,7 @@ pub fn ScaledFont::get_font_face(Self) -> FontFace raise CairoError
 pub fn ScaledFont::get_font_matrix(Self) -> Matrix raise CairoError
 pub fn ScaledFont::get_font_options(Self) -> FontOptions raise CairoError
 pub fn ScaledFont::get_scale_matrix(Self) -> Matrix raise CairoError
+pub fn ScaledFont::glyph_extents(Self, ArrayView[Glyph]) -> TextExtents raise CairoError
 pub fn ScaledFont::hash(Self) -> UInt64
 pub fn ScaledFont::new(FontFace, Matrix, Matrix, FontOptions) -> Self raise CairoError
 pub fn ScaledFont::status(Self) -> Status

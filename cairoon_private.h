@@ -63,6 +63,12 @@ CairoonScaledFont *cairoon_scaled_font_wrap_borrowed(cairo_scaled_font_t *ptr);
 CairoonRegion *cairoon_region_wrap_owned(cairo_region_t *ptr);
 
 moonbit_bytes_t cairoon_copy_c_string(const char *str);
+cairo_status_t cairoon_glyphs_from_fields(
+  uint32_t *indices,
+  double *xs,
+  double *ys,
+  cairo_glyph_t **glyphs_out,
+  int *count_out);
 
 cairo_status_t cairoon_surface_status(CairoonSurface *surface);
 cairo_status_t cairoon_mapped_image_surface_status(CairoonMappedImageSurface *surface);

@@ -60,6 +60,7 @@ cairoon/
   cairoon_misc.c
   cairoon_surface.c
   cairoon_context.c
+  cairoon_glyph.c
   cairoon_path.c
   cairoon_pattern.c
   cairoon_font.c
@@ -82,6 +83,7 @@ options(
     "cairoon_misc.c",
     "cairoon_surface.c",
     "cairoon_context.c",
+    "cairoon_glyph.c",
     "cairoon_path.c",
     "cairoon_pattern.c",
     "cairoon_font.c",
@@ -115,6 +117,8 @@ payload types and cross-file helpers declared in `cairoon_private.h`.
   exports.
 - `cairoon_surface.c`: `Surface` and image-surface exports.
 - `cairoon_context.c`: `Context` exports.
+- `cairoon_glyph.c`: shared `cairo_glyph_t` array marshaling helpers used by
+  context and scaled-font exports.
 - `cairoon_path.c`: `Path` data decoding, stringification, and status/equality
   helpers.
 - `cairoon_pattern.c`: `Pattern` exports.
@@ -233,6 +237,12 @@ Concrete requirements:
   MoonBit-owned array, capture the Cairo status, destroy the Cairo container
   before returning, and let the public MoonBit wrapper rebuild pure value
   objects such as `Rectangle`.
+- Temporary Cairo input arrays such as `cairo_glyph_t[]` and
+  `cairo_text_cluster_t[]` must be built inside C stubs from primitive
+  MoonBit-owned arrays. Public wrappers accept `ArrayView[Glyph]` or
+  `ArrayView[TextCluster]`, split them into FixedArrays of primitive fields,
+  borrow those arrays for one synchronous FFI call, and the C helper frees any
+  temporary Cairo array before returning.
 - Mapped image surfaces require a dedicated payload containing the base surface
   and mapped surface. Its finalizer must call `cairo_surface_unmap_image(base,
   mapped)` if the mapping is still active. The base `Surface` object must be

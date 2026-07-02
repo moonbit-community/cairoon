@@ -238,6 +238,44 @@ pub fn Context::text_path(
 }
 
 ///|
+pub fn Context::glyph_extents(
+  self : Context,
+  glyphs : ArrayView[Glyph],
+) -> TextExtents raise CairoError {
+  let (indices, xs, ys) = glyph_field_arrays(glyphs)
+  text_extents_from_output((
+    x_bearing,
+    y_bearing,
+    width,
+    height,
+    x_advance,
+    y_advance,
+  ) => {
+    context_glyph_extents_ffi(
+      self, indices, xs, ys, x_bearing, y_bearing, width, height, x_advance, y_advance,
+    )
+  })
+}
+
+///|
+pub fn Context::glyph_path(
+  self : Context,
+  glyphs : ArrayView[Glyph],
+) -> Unit raise CairoError {
+  let (indices, xs, ys) = glyph_field_arrays(glyphs)
+  check_status(context_glyph_path_ffi(self, indices, xs, ys))
+}
+
+///|
+pub fn Context::show_glyphs(
+  self : Context,
+  glyphs : ArrayView[Glyph],
+) -> Unit raise CairoError {
+  let (indices, xs, ys) = glyph_field_arrays(glyphs)
+  check_status(context_show_glyphs_ffi(self, indices, xs, ys))
+}
+
+///|
 pub fn Context::get_scaled_font(self : Context) -> ScaledFont raise CairoError {
   let status = Ref(Success)
   let scaled_font = context_get_scaled_font_ffi(self, status)

@@ -36,7 +36,8 @@ Implemented in this workspace:
   stringification, referenced borrowed returns for target/source, core
   painting/page methods, and matrix/coordinate-conversion methods,
   Context group target/push/pop APIs, Context tag begin/end APIs, Context toy
-  text show/path/extents APIs, Cairo tag string constants,
+  text show/path/extents APIs, Context glyph array extents/path/show APIs,
+  Cairo tag string constants,
   portable `Surface` base helpers for `create_similar`,
   `create_similar_image`, content/type queries, dirty markers, device
   offset/scale, fallback resolution, show-text-glyphs support checks, and
@@ -53,8 +54,8 @@ Implemented in this workspace:
   font-face get/set/select wrappers.
 - `ScaledFont` external object with finalizer ownership, pointer equality/hash,
   constructor from `FontFace`/`Matrix`/`FontOptions`, font face/options and
-  matrix getters, text extents, and `Context` font matrix/size/extents plus
-  scaled-font get/set wrappers.
+  matrix getters, text and glyph extents, and `Context` font
+  matrix/size/extents plus scaled-font get/set wrappers.
 - Initial parity tests for version, enum exposure, pure value types, matrix
   behavior, image surface properties, buffer-backed image surface sharing and
   Cairo-reference lifetime behavior, PNG filename round trips and invalid path
@@ -64,7 +65,8 @@ Implemented in this workspace:
   borrowed target/source/group-target lifetime behavior, group push/pop and
   pop-to-source rendering behavior, tag begin/end smoke behavior, tag string
   constants, tag input validation, Context toy text extents/current-point/path
-  behavior, and text input validation,
+  behavior, text input validation, Context glyph array extents/path/show
+  behavior, empty glyph arrays, and glyph context-error propagation,
   mapped image whole-surface and rectangle-extents writeback behavior,
   wrong-base and double-unmap errors, core painting/page behavior, hit testing
   and extents, MIME data storage/clear behavior including embedded NUL bytes
@@ -91,34 +93,36 @@ Implemented in this workspace:
 - Gate 4 memory and lifetime: partial. Stub ownership follows the documented
   external-object pattern, but the current font stack exposes macOS
   Cairo/Quartz/CoreText LeakSanitizer reports through toy-font, scaled-font,
-  and toy-text rendering paths. These must be resolved or intentionally
-  suppressed before claiming this gate. Finalizer stress tests still need to be
-  broadened.
+  toy-text rendering, and glyph rendering/path paths. These must be resolved or
+  intentionally suppressed before claiming this gate. Finalizer stress tests
+  still need to be broadened.
 
 ## Last Verified
 
 2026-07-02:
 
-- `moon -C cairoon test --target native -v`: 142 tests passed.
+- `moon -C cairoon test --target native -v`: 148 tests passed.
 - `run-asan.py --repo-root /Users/caimeo/code/pycairo/cairoon --pkg moon.pkg`:
-  ran the 142-test native suite after the Context toy text API slice
+  ran the 148-test native suite after the glyph array API slice
   and failed during LeakSanitizer reporting. The reported allocations are rooted in
   `cairo_toy_font_face_create`, `cairo_select_font_face`, macOS
   FontRegistry/CoreGraphics frames, and scaled-font Quartz/CoreText paths such
   as `cairo_scaled_font_create`, `CGFontCopyURL`, and
   `CTFontCreateWithGraphicsFont`, plus toy-text rendering caches reached
-  through `cairo_show_text`, `CTFontDrawGlyphs`, CoreGraphics, and ColorSync;
+  through `cairo_show_text`, and glyph rendering/path caches reached through
+  `cairo_show_glyphs`, `cairo_glyph_path`, `CTFontDrawGlyphs`, CoreGraphics,
+  and ColorSync;
   no AddressSanitizer invalid-access report appeared before LSan failed and no
-  Context text/tag/group or MIME-data stub ownership stack appeared in the leak
-  roots.
-  Summary: `158194 byte(s) leaked in 1474 allocation(s)`. The helper still emits
+  glyph marshaling helper, Context text/tag/group, or MIME-data stub ownership
+  stack appeared in the leak roots.
+  Summary: `65205 byte(s) leaked in 409 allocation(s)`. The helper still emits
   a `moon.mod.json` lookup warning because this package uses `moon.mod`, but it
   correctly patched and restored the DSL `moon.pkg` and MoonBit runtime object
   for this package.
 
 ## Known Gaps
 
-- No mesh/raster-source patterns, ScaledFont glyph arrays/text-to-glyphs,
+- No mesh/raster-source patterns, ScaledFont text-to-glyphs,
   PDF/SVG/PS, stream/callback APIs, or direct mutable image data view binding
   yet.
 - `Surface::copy_data` copies the Cairo image data into MoonBit `Bytes`; it
@@ -127,5 +131,5 @@ Implemented in this workspace:
   script or generated config should replace this before publishing.
 - ASan was run manually for the current expanded slice; CI automation has not
   been wired into this repository yet. The current LSan failure on macOS
-  toy-font, scaled-font, and toy-text rendering paths is an open reliability
-  item.
+  toy-font, scaled-font, toy-text rendering, and glyph rendering/path paths is
+  an open reliability item.

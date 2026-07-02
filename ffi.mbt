@@ -376,6 +376,21 @@ extern "C" fn scaled_font_text_extents_ffi(
 ) -> Status = "cairoon_scaled_font_text_extents"
 
 ///|
+#borrow(scaled_font, indices, xs, ys, x_bearing, y_bearing, width, height, x_advance, y_advance)
+extern "C" fn scaled_font_glyph_extents_ffi(
+  scaled_font : ScaledFont,
+  indices : FixedArray[UInt],
+  xs : FixedArray[Double],
+  ys : FixedArray[Double],
+  x_bearing : Ref[Double],
+  y_bearing : Ref[Double],
+  width : Ref[Double],
+  height : Ref[Double],
+  x_advance : Ref[Double],
+  y_advance : Ref[Double],
+) -> Status = "cairoon_scaled_font_glyph_extents"
+
+///|
 extern "C" fn image_surface_create_ffi(
   format : Format,
   width : Int,
@@ -832,6 +847,39 @@ extern "C" fn context_text_extents_ffi(
 ///|
 #borrow(ctx, text)
 extern "C" fn context_text_path_ffi(ctx : Context, text : Bytes) -> Status = "cairoon_context_text_path"
+
+///|
+#borrow(ctx, indices, xs, ys, x_bearing, y_bearing, width, height, x_advance, y_advance)
+extern "C" fn context_glyph_extents_ffi(
+  ctx : Context,
+  indices : FixedArray[UInt],
+  xs : FixedArray[Double],
+  ys : FixedArray[Double],
+  x_bearing : Ref[Double],
+  y_bearing : Ref[Double],
+  width : Ref[Double],
+  height : Ref[Double],
+  x_advance : Ref[Double],
+  y_advance : Ref[Double],
+) -> Status = "cairoon_context_glyph_extents"
+
+///|
+#borrow(ctx, indices, xs, ys)
+extern "C" fn context_glyph_path_ffi(
+  ctx : Context,
+  indices : FixedArray[UInt],
+  xs : FixedArray[Double],
+  ys : FixedArray[Double],
+) -> Status = "cairoon_context_glyph_path"
+
+///|
+#borrow(ctx, indices, xs, ys)
+extern "C" fn context_show_glyphs_ffi(
+  ctx : Context,
+  indices : FixedArray[UInt],
+  xs : FixedArray[Double],
+  ys : FixedArray[Double],
+) -> Status = "cairoon_context_show_glyphs"
 
 ///|
 #borrow(ctx, status)

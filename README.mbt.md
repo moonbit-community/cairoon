@@ -249,6 +249,21 @@ test {
 
 ///|
 test {
+  let surface = Surface::image(Rgb24, 32, 16)
+  let ctx = Context::new(surface)
+  ctx.select_font_face("serif")
+  ctx.set_font_size(12.0)
+  let glyphs = [Glyph::new(0U, 2.0, 12.0)]
+  inspect(
+    ctx.glyph_extents(glyphs) == ctx.get_scaled_font().glyph_extents(glyphs),
+    content="true",
+  )
+  ctx.glyph_path(glyphs)
+  ctx.show_glyphs(glyphs)
+}
+
+///|
+test {
   let face = FontFace::toy("serif", weight=FontWeightBold)
   let options = FontOptions::new()
   options.set_antialias(AntialiasGray)
