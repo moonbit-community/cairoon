@@ -754,6 +754,24 @@ double cairoon_context_get_line_width(CairoonContext *ctx) {
 }
 
 MOONBIT_FFI_EXPORT
+cairo_status_t cairoon_context_set_hairline(CairoonContext *ctx, int32_t set_hairline) {
+  cairo_status_t status = cairoon_context_status(ctx);
+  if (status != CAIRO_STATUS_SUCCESS) {
+    return status;
+  }
+  cairo_set_hairline(ctx->ptr, set_hairline);
+  return cairo_status(ctx->ptr);
+}
+
+MOONBIT_FFI_EXPORT
+int32_t cairoon_context_get_hairline(CairoonContext *ctx) {
+  if (cairoon_context_status(ctx) != CAIRO_STATUS_SUCCESS) {
+    return 0;
+  }
+  return cairo_get_hairline(ctx->ptr) ? 1 : 0;
+}
+
+MOONBIT_FFI_EXPORT
 cairo_status_t cairoon_context_set_line_cap(CairoonContext *ctx, cairo_line_cap_t cap) {
   cairo_status_t status = cairoon_context_status(ctx);
   if (status != CAIRO_STATUS_SUCCESS) {

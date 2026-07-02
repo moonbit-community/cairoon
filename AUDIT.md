@@ -31,7 +31,7 @@ Implemented in this workspace:
   `Format::stride_for_width`, pure `Matrix` parity operations, pure rectangle,
   glyph, text-cluster, and extents values, image `Surface` including PNG
   filename load/save and buffer-backed creation, core `Context` drawing state
-  including dash, clip APIs including rectangle-list copying,
+  including dash and hairline mode, clip APIs including rectangle-list copying,
   hit testing, geometric extents, absolute/relative/arc path drawing,
   current-point queries, path copy/append plus typed path segment iteration and
   stringification, referenced borrowed returns for target/source, source-surface
@@ -136,9 +136,10 @@ Implemented in this workspace:
 
 2026-07-02:
 
-- `moon -C cairoon test --target native -v`: 189 tests passed.
+- `moon -C cairoon check --target native`: passed.
+- `moon -C cairoon test --target native -v`: 192 tests passed.
 - `run-asan.py --repo-root /Users/caimeo/code/pycairo/cairoon --pkg moon.pkg`:
-  ran the native suite after the module-constants slice and failed during
+  ran the native suite after the hairline Context-state slice and failed during
   LeakSanitizer reporting. The reported allocations are rooted in
   `cairo_toy_font_face_create`, `cairo_select_font_face`, macOS
   FontRegistry/CoreGraphics frames, and scaled-font Quartz/CoreText paths such
@@ -152,9 +153,10 @@ Implemented in this workspace:
   RecordingSurface helper, PDFSurface helper, PSSurface helper, SVGSurface
   helper, PDF outline helper, MeshPattern/Pattern helper,
   Device/ScriptSurface helper, Context text/tag/group, MIME-data stub, or
-  compile-time constant helper ownership stack appeared in the visible leak
-  roots.
-  Summary: `89557 byte(s) leaked in 478 allocation(s)`. The helper still emits
+  compile-time constant helper ownership stack, Surface `create_for_rectangle`
+  helper, Context `set_source_surface` helper, or Context hairline helper
+  appeared in the visible leak roots.
+  Summary: `90213 byte(s) leaked in 487 allocation(s)`. The helper still emits
   a `moon.mod.json` lookup warning because this package uses `moon.mod`, but it
   correctly patched and restored the DSL `moon.pkg` and MoonBit runtime object
   for this package.

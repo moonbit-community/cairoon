@@ -481,6 +481,20 @@ pub fn Context::get_line_width(self : Context) -> Double raise CairoError {
 }
 
 ///|
+pub fn Context::set_hairline(
+  self : Context,
+  set_hairline : Bool,
+) -> Unit raise CairoError {
+  check_status(context_set_hairline_ffi(self, set_hairline))
+}
+
+///|
+pub fn Context::get_hairline(self : Context) -> Bool raise CairoError {
+  check_status(context_status_ffi(self))
+  context_get_hairline_ffi(self)
+}
+
+///|
 pub fn Context::set_line_cap(
   self : Context,
   cap : LineCap,

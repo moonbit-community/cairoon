@@ -23,6 +23,8 @@ test {
   ctx.scale(2.0, 3.0)
   ctx.set_dash([2.0, 1.0], offset=0.5)
   inspect(ctx.get_dash_count(), content="2")
+  ctx.set_hairline(true)
+  inspect(ctx.get_hairline(), content="true")
   debug_inspect(ctx.user_to_device(1.0, 1.0), content="(7, 10)")
   ctx.identity_matrix()
   ctx.move_to(1.0, 1.0)

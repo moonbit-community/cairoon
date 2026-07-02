@@ -1421,6 +1421,17 @@ extern "C" fn context_get_line_width_ffi(ctx : Context) -> Double = "cairoon_con
 
 ///|
 #borrow(ctx)
+extern "C" fn context_set_hairline_ffi(
+  ctx : Context,
+  set_hairline : Bool,
+) -> Status = "cairoon_context_set_hairline"
+
+///|
+#borrow(ctx)
+extern "C" fn context_get_hairline_ffi(ctx : Context) -> Bool = "cairoon_context_get_hairline"
+
+///|
+#borrow(ctx)
 extern "C" fn context_set_line_cap_ffi(ctx : Context, cap : LineCap) -> Status = "cairoon_context_set_line_cap"
 
 ///|

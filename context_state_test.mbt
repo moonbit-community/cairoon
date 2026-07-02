@@ -18,6 +18,7 @@ test "context default drawing state mirrors cairo" {
   debug_inspect(ctx.get_line_cap(), content="LineCapButt")
   debug_inspect(ctx.get_line_join(), content="LineJoinMiter")
   debug_inspect(ctx.get_operator(), content="OperatorOver")
+  inspect(ctx.get_hairline(), content="false")
   assert_state_close(ctx.get_line_width(), 2.0)
   assert_state_close(ctx.get_tolerance(), 0.1)
   assert_state_close(ctx.get_miter_limit(), 10.0)
@@ -34,11 +35,16 @@ test "context drawing state setters round trip" {
   ctx.set_line_width(4.5)
   ctx.set_tolerance(0.25)
   ctx.set_miter_limit(2.5)
+  ctx.set_hairline(true)
   debug_inspect(ctx.get_antialias(), content="AntialiasSubpixel")
   debug_inspect(ctx.get_fill_rule(), content="FillEvenOdd")
   debug_inspect(ctx.get_line_cap(), content="LineCapSquare")
   debug_inspect(ctx.get_line_join(), content="LineJoinBevel")
   debug_inspect(ctx.get_operator(), content="OperatorSource")
+  inspect(ctx.get_hairline(), content="true")
+  assert_state_close(ctx.get_line_width(), 0.0)
+  ctx.set_hairline(false)
+  inspect(ctx.get_hairline(), content="false")
   assert_state_close(ctx.get_line_width(), 4.5)
   assert_state_close(ctx.get_tolerance(), 0.25)
   assert_state_close(ctx.get_miter_limit(), 2.5)
@@ -49,14 +55,20 @@ test "context save restore preserves drawing state" {
   let ctx = Context::new(context_state_surface())
   ctx.set_line_width(3.0)
   ctx.set_operator(OperatorOver)
+  ctx.set_hairline(true)
   ctx.save()
+  ctx.set_hairline(false)
   ctx.set_line_width(7.0)
   ctx.set_operator(OperatorClear)
   assert_state_close(ctx.get_line_width(), 7.0)
   debug_inspect(ctx.get_operator(), content="OperatorClear")
+  inspect(ctx.get_hairline(), content="false")
   ctx.restore()
-  assert_state_close(ctx.get_line_width(), 3.0)
   debug_inspect(ctx.get_operator(), content="OperatorOver")
+  inspect(ctx.get_hairline(), content="true")
+  assert_state_close(ctx.get_line_width(), 0.0)
+  ctx.set_hairline(false)
+  assert_state_close(ctx.get_line_width(), 3.0)
 }
 
 ///|
@@ -113,6 +125,18 @@ test "context drawing state getters propagate cairo error" {
   let get_result = run_cairo(() => ctx.get_line_width())
   inspect(get_result is Err(_), content="true")
   match get_result {
+    Err(CairoInvalidArgument(InvalidMatrix, _)) => ()
+    _ => @test.fail("expected InvalidMatrix")
+  }
+  let get_hairline_result = run_cairo(() => ctx.get_hairline())
+  inspect(get_hairline_result is Err(_), content="true")
+  match get_hairline_result {
+    Err(CairoInvalidArgument(InvalidMatrix, _)) => ()
+    _ => @test.fail("expected InvalidMatrix")
+  }
+  let set_hairline_result = run_cairo(() => ctx.set_hairline(true))
+  inspect(set_hairline_result is Err(_), content="true")
+  match set_hairline_result {
     Err(CairoInvalidArgument(InvalidMatrix, _)) => ()
     _ => @test.fail("expected InvalidMatrix")
   }

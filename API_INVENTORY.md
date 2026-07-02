@@ -26,7 +26,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 | PDF surface | Partial | Filename/no-output constructor, supported versions, version strings, version restriction, page size, metadata, custom metadata, page labels, thumbnails, single-flag outline compatibility, and typed outline flag sets; stream callbacks and normalized vector-output comparison remain |
 | PS surface | Partial | Filename/no-output constructor, supported levels, level strings, level restriction, EPS mode, page size, and DSC comments; stream callbacks and normalized vector-output comparison remain |
 | SVG surface | Partial | Filename/no-output constructor, supported versions, version strings, version restriction, and document units; stream callbacks and normalized vector-output comparison remain |
-| Context basics | Partial | Creation, status, save/restore, CTM transforms, drawing state, clip APIs, group APIs, tag APIs, path primitives, source colors/surfaces, paint/fill/stroke |
+| Context basics | Partial | Creation, status, save/restore, CTM transforms, drawing state including hairline mode, clip APIs, group APIs, tag APIs, path primitives, source colors/surfaces, paint/fill/stroke |
 | Pattern basics | Partial | Solid/surface/mesh pattern constructors, source setting, RGBA, extend/filter/dither/matrix state, gradient state, mesh patch lifecycle/query APIs, and referenced surface return |
 | Font faces | Done | Base external object, toy constructor/getters, Context get/set/select, borrowed-return references |
 | Font options | Done | External object, copy/merge/equal/hash, all portable state fields, and Surface/Context accessors |
@@ -146,7 +146,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 | Sources | Partial | solid colors, explicit `Pattern`, `set_source_surface`, and `get_source` borrowed-return wrapper; tests cover source-surface pixel sampling, invalid context errors, and source surface lifetime after the original wrapper scope exits |
 | Transformations | Done | scale, translate, rotate, transform, user/device coordinate conversions |
 | Clip APIs | Done | `clip`, `clip_preserve`, `reset_clip`, `clip_extents`, `in_clip`, and `copy_clip_rectangle_list` |
-| Stroke/fill state | Done | line width/cap/join, miter limit, fill rule, tolerance, operator, antialias, dash |
+| Stroke/fill state | Done | line width/cap/join, miter limit, fill rule, tolerance, operator, antialias, dash, hairline mode |
 | Matrix APIs | Done | get/set/identity/translate/rotate/transform and user/device coordinate conversions |
 | Groups | Done | `push_group`, `push_group_with_content`, `pop_group`, `pop_group_to_source`, and `get_group_target` with pixel and unmatched-pop tests |
 | Text and fonts | Partial | font options get/set, font face get/set/select, toy font, font matrix/size/extents, toy text APIs, glyph arrays, `text_to_glyphs`, and `show_text_glyphs` exist; tag-aware vector-output coverage remains |

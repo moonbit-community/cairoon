@@ -157,6 +157,7 @@ pub fn Context::get_font_face(Self) -> FontFace raise CairoError
 pub fn Context::get_font_matrix(Self) -> Matrix raise CairoError
 pub fn Context::get_font_options(Self) -> FontOptions raise CairoError
 pub fn Context::get_group_target(Self) -> Surface raise CairoError
+pub fn Context::get_hairline(Self) -> Bool raise CairoError
 pub fn Context::get_line_cap(Self) -> LineCap raise CairoError
 pub fn Context::get_line_join(Self) -> LineJoin raise CairoError
 pub fn Context::get_line_width(Self) -> Double raise CairoError
@@ -206,6 +207,7 @@ pub fn Context::set_font_face(Self, FontFace?) -> Unit raise CairoError
 pub fn Context::set_font_matrix(Self, Matrix) -> Unit raise CairoError
 pub fn Context::set_font_options(Self, FontOptions) -> Unit raise CairoError
 pub fn Context::set_font_size(Self, Double) -> Unit raise CairoError
+pub fn Context::set_hairline(Self, Bool) -> Unit raise CairoError
 pub fn Context::set_line_cap(Self, LineCap) -> Unit raise CairoError
 pub fn Context::set_line_join(Self, LineJoin) -> Unit raise CairoError
 pub fn Context::set_line_width(Self, Double) -> Unit raise CairoError
