@@ -1354,6 +1354,24 @@ cairo_status_t cairoon_context_set_source(CairoonContext *ctx, CairoonPattern *p
 }
 
 MOONBIT_FFI_EXPORT
+cairo_status_t cairoon_context_set_source_surface(
+  CairoonContext *ctx,
+  CairoonSurface *surface,
+  double x,
+  double y) {
+  cairo_status_t status = cairoon_context_status(ctx);
+  if (status != CAIRO_STATUS_SUCCESS) {
+    return status;
+  }
+  status = cairoon_surface_status(surface);
+  if (status != CAIRO_STATUS_SUCCESS) {
+    return status;
+  }
+  cairo_set_source_surface(ctx->ptr, surface->ptr, x, y);
+  return cairo_status(ctx->ptr);
+}
+
+MOONBIT_FFI_EXPORT
 cairo_status_t cairoon_context_paint(CairoonContext *ctx) {
   cairo_status_t status = cairoon_context_status(ctx);
   if (status != CAIRO_STATUS_SUCCESS) {

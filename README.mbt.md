@@ -54,6 +54,8 @@ test {
   inspect(source.status().is_success(), content="true")
   ctx.paint_with_alpha(0.5)
   ctx.mask_surface(mask)
+  ctx.set_source_surface(mask)
+  ctx.paint()
   ctx.copy_page()
   ctx.show_page()
   inspect(ctx.get_target().get_width(), content="1")

@@ -149,8 +149,9 @@ pycairo-style C glue split into private shared declarations plus per-family
 stub files, opaque external-object wrappers for `Surface`,
 `MappedImageSurface`, `Context`, `Path`, `Pattern`, `FontOptions`, `FontFace`,
 `ScaledFont`, `Region`, and `Device`, pure value types, many portable enums,
-expanded Context path, painting/page, target/source borrowed returns, clip,
-matrix, drawing-state, compile-time Cairo constants, group APIs, tag APIs, toy
+expanded Context path, painting/page, target/source borrowed returns,
+source-surface convenience, clip, matrix, drawing-state, compile-time Cairo
+constants, group APIs, tag APIs, toy
 text APIs, glyph array APIs, text-to-glyphs/show-text-glyphs APIs,
 hit-testing/extents APIs, typed Path segment iteration and stringification,
 PNG filename load/save and buffer-backed creation for image surfaces, portable
@@ -178,11 +179,11 @@ operations.
 Verified on 2026-07-02:
 
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native -v`: 190 tests passed.
+- `moon -C cairoon test --target native -v`: 192 tests passed.
 - ASan/LSan via `run-asan.py`: failed only on known macOS
   FontRegistry/CoreGraphics/CoreText/ColorSync leak roots
-  (`90133 byte(s) leaked in 483 allocation(s)` on this run). The full log was
-  scanned for the new `create_for_rectangle` C glue and did not include those
+  (`90213 byte(s) leaked in 487 allocation(s)` on this run). The full log was
+  scanned for the new `set_source_surface` C glue and did not include those
   symbols in leak roots.
 - ASan/LSan via `run-asan.py`: ran the 108-test native suite after the PNG
   filename API slice, the 113-test native suite after the
@@ -203,7 +204,8 @@ Verified on 2026-07-02:
   Device/ScriptSurface slice and the 185-test native suite after the PDF
   outline flag-set slice, then failed after the module-constants slice with the
   expanded 189-test native suite, and after the `create_for_rectangle` slice
-  with the expanded 190-test native suite. The most recent leak report is rooted in
+  with the expanded 190-test native suite, and after the `set_source_surface`
+  slice with the expanded 192-test native suite. The most recent leak report is rooted in
   `cairo_toy_font_face_create`, `cairo_select_font_face`, macOS
   FontRegistry/CoreGraphics frames, and scaled-font Quartz/CoreText paths such
   as `cairo_scaled_font_create`, `CGFontCopyURL`, and
@@ -217,8 +219,9 @@ Verified on 2026-07-02:
   helper, PDF outline helper, MeshPattern/Pattern helper,
   Device/ScriptSurface helper, Context text/tag/group, MIME-data stub, or
   compile-time constant helper ownership stack, or Surface
-  `create_for_rectangle` helper appeared in the visible leak roots.
-  Summary: `90133 byte(s) leaked in 483 allocation(s)`.
+  `create_for_rectangle` helper, or Context `set_source_surface` helper
+  appeared in the visible leak roots.
+  Summary: `90213 byte(s) leaked in 487 allocation(s)`.
 
 The missing reliability pieces are substantial: automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering

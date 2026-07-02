@@ -34,8 +34,8 @@ Implemented in this workspace:
   including dash, clip APIs including rectangle-list copying,
   hit testing, geometric extents, absolute/relative/arc path drawing,
   current-point queries, path copy/append plus typed path segment iteration and
-  stringification, referenced borrowed returns for target/source, core
-  painting/page methods, and matrix/coordinate-conversion methods,
+  stringification, referenced borrowed returns for target/source, source-surface
+  convenience, core painting/page methods, and matrix/coordinate-conversion methods,
   Context group target/push/pop APIs, Context tag begin/end APIs, Context toy
   text show/path/extents APIs, Context glyph array extents/path/show APIs,
   ScaledFont text-to-glyphs, Context show-text-glyphs APIs,

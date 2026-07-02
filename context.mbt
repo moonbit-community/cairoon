@@ -905,6 +905,16 @@ pub fn Context::set_source(
 }
 
 ///|
+pub fn Context::set_source_surface(
+  self : Context,
+  surface : Surface,
+  x? : Double = 0.0,
+  y? : Double = 0.0,
+) -> Unit raise CairoError {
+  check_status(context_set_source_surface_ffi(self, surface, x, y))
+}
+
+///|
 pub fn Context::paint(self : Context) -> Unit raise CairoError {
   check_status(context_paint_ffi(self))
 }

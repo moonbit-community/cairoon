@@ -26,7 +26,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 | PDF surface | Partial | Filename/no-output constructor, supported versions, version strings, version restriction, page size, metadata, custom metadata, page labels, thumbnails, single-flag outline compatibility, and typed outline flag sets; stream callbacks and normalized vector-output comparison remain |
 | PS surface | Partial | Filename/no-output constructor, supported levels, level strings, level restriction, EPS mode, page size, and DSC comments; stream callbacks and normalized vector-output comparison remain |
 | SVG surface | Partial | Filename/no-output constructor, supported versions, version strings, version restriction, and document units; stream callbacks and normalized vector-output comparison remain |
-| Context basics | Partial | Creation, status, save/restore, CTM transforms, drawing state, clip APIs, group APIs, tag APIs, path primitives, source colors, paint/fill/stroke |
+| Context basics | Partial | Creation, status, save/restore, CTM transforms, drawing state, clip APIs, group APIs, tag APIs, path primitives, source colors/surfaces, paint/fill/stroke |
 | Pattern basics | Partial | Solid/surface/mesh pattern constructors, source setting, RGBA, extend/filter/dither/matrix state, gradient state, mesh patch lifecycle/query APIs, and referenced surface return |
 | Font faces | Done | Base external object, toy constructor/getters, Context get/set/select, borrowed-return references |
 | Font options | Done | External object, copy/merge/equal/hash, all portable state fields, and Surface/Context accessors |
@@ -143,7 +143,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 | Save/restore/status | Partial | Basic behavior and invalid-restore error test exist |
 | Paths | Done | move/rel-move/line/rel-line/curve/rel-curve/rectangle/arc/arc-negative, close/new path, current-point queries, and path data copying |
 | Painting | Done | `paint`, `paint_with_alpha`, `fill`, `fill_preserve`, `stroke`, `stroke_preserve`, `mask`, and `mask_surface` |
-| Sources | Partial | solid colors, explicit `Pattern`, and `get_source` borrowed-return wrapper |
+| Sources | Partial | solid colors, explicit `Pattern`, `set_source_surface`, and `get_source` borrowed-return wrapper; tests cover source-surface pixel sampling, invalid context errors, and source surface lifetime after the original wrapper scope exits |
 | Transformations | Done | scale, translate, rotate, transform, user/device coordinate conversions |
 | Clip APIs | Done | `clip`, `clip_preserve`, `reset_clip`, `clip_extents`, `in_clip`, and `copy_clip_rectangle_list` |
 | Stroke/fill state | Done | line width/cap/join, miter limit, fill rule, tolerance, operator, antialias, dash |

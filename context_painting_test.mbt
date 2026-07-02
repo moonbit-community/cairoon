@@ -64,6 +64,30 @@ test "context mask and mask_surface apply alpha masks" {
 }
 
 ///|
+test "context set_source_surface samples surface at user-space origin" {
+  let source = Surface::image(Argb32, 1, 1)
+  let source_ctx = Context::new(source)
+  source_ctx.set_source_rgba(1.0, 0.0, 0.0, 1.0)
+  source_ctx.paint()
+
+  let target = Surface::image(Argb32, 3, 3)
+  let ctx = Context::new(target)
+  ctx.set_source_surface(source, x=1.0, y=1.0)
+  ctx.paint()
+
+  let data = target.copy_data()
+  let stride = target.get_stride()
+  inspect(data[0].to_int(), content="0")
+  inspect(data[1].to_int(), content="0")
+  inspect(data[2].to_int(), content="0")
+  inspect(data[3].to_int(), content="0")
+  inspect(data[stride + 4].to_int(), content="0")
+  inspect(data[stride + 5].to_int(), content="0")
+  inspect(data[stride + 6].to_int(), content="255")
+  inspect(data[stride + 7].to_int(), content="255")
+}
+
+///|
 test "context fill_preserve and stroke_preserve keep current path" {
   let fill_surface = Surface::image(Argb32, 4, 4)
   let fill_ctx = Context::new(fill_surface)
@@ -107,6 +131,9 @@ test "context painting and page methods propagate cairo error" {
   expect_painting_invalid_matrix(run_cairo(() => ctx.mask(pattern)))
   expect_painting_invalid_matrix(
     run_cairo(() => ctx.mask_surface(mask_surface)),
+  )
+  expect_painting_invalid_matrix(
+    run_cairo(() => ctx.set_source_surface(mask_surface)),
   )
   expect_painting_invalid_matrix(run_cairo(() => ctx.fill_preserve()))
   expect_painting_invalid_matrix(run_cairo(() => ctx.stroke_preserve()))

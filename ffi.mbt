@@ -1758,6 +1758,15 @@ extern "C" fn context_set_source_ffi(
 ) -> Status = "cairoon_context_set_source"
 
 ///|
+#borrow(ctx, surface)
+extern "C" fn context_set_source_surface_ffi(
+  ctx : Context,
+  surface : Surface,
+  x : Double,
+  y : Double,
+) -> Status = "cairoon_context_set_source_surface"
+
+///|
 #borrow(ctx)
 extern "C" fn context_paint_ffi(ctx : Context) -> Status = "cairoon_context_paint"
 
