@@ -106,6 +106,21 @@ test {
 
 ///|
 test {
+  let surface = Surface::image(Rgb24, 2, 1)
+  let mapped = surface.map_to_image(
+    extents=Some(RectangleInt::new(x=0, y=0, width=1, height=1)),
+  )
+  let ctx = Context::new_for_mapped_image(mapped)
+  ctx.set_source_rgb(1.0, 1.0, 1.0)
+  ctx.paint()
+  mapped.unmap()
+  let data = surface.copy_data()
+  inspect(data[0].to_int(), content="255")
+  inspect(data[4].to_int(), content="0")
+}
+
+///|
+test {
   let gradient = Pattern::linear(0.0, 0.0, 10.0, 0.0)
   gradient.add_color_stop_rgb(0.0, 1.0, 0.0, 0.0)
   gradient.add_color_stop_rgba(1.0, 0.0, 0.0, 1.0, 0.5)

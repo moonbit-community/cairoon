@@ -6,6 +6,17 @@ pub fn Context::new(target : Surface) -> Context raise CairoError {
 }
 
 ///|
+pub fn Context::new_for_mapped_image(
+  target : MappedImageSurface,
+) -> Context raise CairoError {
+  let status = Ref(Success)
+  let ctx = context_create_for_mapped_image_ffi(target, status)
+  check_status(status.val)
+  check_status(context_status_ffi(ctx))
+  ctx
+}
+
+///|
 pub fn Context::status(self : Context) -> Status {
   context_status_ffi(self)
 }

@@ -92,6 +92,7 @@ pub fn Context::mask(Self, Pattern) -> Unit raise CairoError
 pub fn Context::mask_surface(Self, Surface, x? : Double, y? : Double) -> Unit raise CairoError
 pub fn Context::move_to(Self, Double, Double) -> Unit raise CairoError
 pub fn Context::new(Surface) -> Self raise CairoError
+pub fn Context::new_for_mapped_image(MappedImageSurface) -> Self raise CairoError
 pub fn Context::new_path(Self) -> Unit raise CairoError
 pub fn Context::new_sub_path(Self) -> Unit raise CairoError
 pub fn Context::paint(Self) -> Unit raise CairoError
@@ -264,6 +265,16 @@ pub(all) enum LineJoin {
   LineJoinRound
   LineJoinBevel
 } derive(Eq, @debug.Debug)
+
+type MappedImageSurface
+pub fn MappedImageSurface::copy_data(Self) -> Bytes raise CairoError
+pub fn MappedImageSurface::flush(Self) -> Unit raise CairoError
+pub fn MappedImageSurface::get_format(Self) -> Format raise CairoError
+pub fn MappedImageSurface::get_height(Self) -> Int raise CairoError
+pub fn MappedImageSurface::get_stride(Self) -> Int raise CairoError
+pub fn MappedImageSurface::get_width(Self) -> Int raise CairoError
+pub fn MappedImageSurface::status(Self) -> Status
+pub fn MappedImageSurface::unmap(Self) -> Unit raise CairoError
 
 pub struct Matrix {
   xx : Double
@@ -561,6 +572,7 @@ pub fn Surface::has_show_text_glyphs(Self) -> Bool raise CairoError
 pub fn Surface::image(Format, Int, Int) -> Self raise CairoError
 pub fn Surface::image_for_data(FixedArray[Byte], Format, Int, Int, stride? : Int) -> Self raise CairoError
 pub fn Surface::image_from_png(String) -> Self raise CairoError
+pub fn Surface::map_to_image(Self, extents? : RectangleInt?) -> MappedImageSurface raise CairoError
 pub fn Surface::mark_dirty(Self) -> Unit raise CairoError
 pub fn Surface::mark_dirty_rectangle(Self, Int, Int, Int, Int) -> Unit raise CairoError
 pub fn Surface::set_device_offset(Self, Double, Double) -> Unit raise CairoError
@@ -568,6 +580,7 @@ pub fn Surface::set_device_scale(Self, Double, Double) -> Unit raise CairoError
 pub fn Surface::set_fallback_resolution(Self, Double, Double) -> Unit raise CairoError
 pub fn Surface::show_page(Self) -> Unit raise CairoError
 pub fn Surface::status(Self) -> Status
+pub fn Surface::unmap_image(Self, MappedImageSurface) -> Unit raise CairoError
 pub fn Surface::write_to_png(Self, String) -> Unit raise CairoError
 
 pub(all) enum SurfaceObserverMode {

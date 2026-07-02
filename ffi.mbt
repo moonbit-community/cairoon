@@ -2,6 +2,9 @@
 type Surface
 
 ///|
+type MappedImageSurface
+
+///|
 type Context
 
 ///|
@@ -419,11 +422,42 @@ extern "C" fn surface_create_similar_image_ffi(
 ) -> Surface = "cairoon_surface_create_similar_image"
 
 ///|
+#borrow(surface, status)
+extern "C" fn surface_map_to_image_ffi(
+  surface : Surface,
+  has_extents : Bool,
+  x : Int,
+  y : Int,
+  width : Int,
+  height : Int,
+  status : Ref[Status],
+) -> MappedImageSurface = "cairoon_surface_map_to_image"
+
+///|
 extern "C" fn format_stride_for_width_ffi(format : Format, width : Int) -> Int = "cairo_format_stride_for_width"
 
 ///|
 #borrow(surface)
 extern "C" fn surface_status_ffi(surface : Surface) -> Status = "cairoon_surface_status"
+
+///|
+#borrow(surface)
+extern "C" fn mapped_image_surface_status_ffi(
+  surface : MappedImageSurface,
+) -> Status = "cairoon_mapped_image_surface_status"
+
+///|
+#borrow(surface, mapped)
+extern "C" fn surface_unmap_image_ffi(
+  surface : Surface,
+  mapped : MappedImageSurface,
+) -> Status = "cairoon_surface_unmap_image"
+
+///|
+#borrow(mapped)
+extern "C" fn mapped_image_surface_unmap_ffi(
+  mapped : MappedImageSurface,
+) -> Status = "cairoon_mapped_image_surface_unmap"
 
 ///|
 #borrow(surface)
@@ -546,6 +580,42 @@ extern "C" fn image_surface_get_format_ffi(surface : Surface) -> Format = "cairo
 extern "C" fn image_surface_copy_data_ffi(surface : Surface) -> Bytes = "cairoon_image_surface_copy_data"
 
 ///|
+#borrow(surface)
+extern "C" fn mapped_image_surface_flush_ffi(
+  surface : MappedImageSurface,
+) -> Status = "cairoon_mapped_image_surface_flush"
+
+///|
+#borrow(surface)
+extern "C" fn mapped_image_surface_get_width_ffi(
+  surface : MappedImageSurface,
+) -> Int = "cairoon_mapped_image_surface_get_width"
+
+///|
+#borrow(surface)
+extern "C" fn mapped_image_surface_get_height_ffi(
+  surface : MappedImageSurface,
+) -> Int = "cairoon_mapped_image_surface_get_height"
+
+///|
+#borrow(surface)
+extern "C" fn mapped_image_surface_get_stride_ffi(
+  surface : MappedImageSurface,
+) -> Int = "cairoon_mapped_image_surface_get_stride"
+
+///|
+#borrow(surface)
+extern "C" fn mapped_image_surface_get_format_ffi(
+  surface : MappedImageSurface,
+) -> Format = "cairoon_mapped_image_surface_get_format"
+
+///|
+#borrow(surface)
+extern "C" fn mapped_image_surface_copy_data_ffi(
+  surface : MappedImageSurface,
+) -> Bytes = "cairoon_mapped_image_surface_copy_data"
+
+///|
 #borrow(surface, status)
 extern "C" fn surface_get_font_options_ffi(
   surface : Surface,
@@ -555,6 +625,13 @@ extern "C" fn surface_get_font_options_ffi(
 ///|
 #borrow(surface)
 extern "C" fn context_create_ffi(surface : Surface) -> Context = "cairoon_context_create"
+
+///|
+#borrow(surface, status)
+extern "C" fn context_create_for_mapped_image_ffi(
+  surface : MappedImageSurface,
+  status : Ref[Status],
+) -> Context = "cairoon_context_create_for_mapped_image"
 
 ///|
 #borrow(ctx)

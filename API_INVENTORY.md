@@ -20,7 +20,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 | Version helpers | Done | `cairo_version`, `cairo_version_string` |
 | Status and error mapping | Partial | `Status`, `CairoError`, `run_cairo`; needs all pycairo exception parity |
 | Matrix | Done | Pure value equivalent with field access, transform/translate/scale/rotate/multiply/invert/component tests |
-| Image surface basics | Partial | Create, similar-image create, buffer-backed create-for-data, PNG path load/save, status, finish, flush, width/height/stride/format, copied data |
+| Image surface basics | Partial | Create, similar-image create, map/unmap to image, buffer-backed create-for-data, PNG path load/save, status, finish, flush, width/height/stride/format, copied data |
 | Context basics | Partial | Creation, status, save/restore, CTM transforms, drawing state, clip APIs, path primitives, source colors, paint/fill/stroke |
 | Pattern basics | Partial | Solid/surface pattern constructors, source setting, RGBA, extend/filter/dither/matrix state, and referenced surface return |
 | Font faces | Done | Base external object, toy constructor/getters, Context get/set/select, borrowed-return references |
@@ -111,7 +111,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 | `ImageSurface` | Partial | Basic creation, buffer-backed creation, PNG path loading, and readback only |
 | `ImageSurface.create_for_data` | Partial | Exposed as `Surface::image_for_data` for `FixedArray[Byte]`; retains the MoonBit buffer, validates size/stride, and covers zero-size buffers, but still needs differential coverage and a clean ASan/LSan gate |
 | `ImageSurface.create_from_png/write_to_png` | Partial | Filename APIs exposed as `Surface::image_from_png` and `Surface::write_to_png`; stream/file-object callbacks deferred by `AGENTS.md` |
-| `Surface.map_to_image/unmap_image` | Todo | Requires mapped-image payload retaining base surface |
+| `Surface.map_to_image/unmap_image` | Partial | `MappedImageSurface` has a dedicated payload retaining the base `Surface`, explicit and finalizer unmap support, extent mapping, Context construction, and double/wrong-base checks; still needs GC stress and clean ASan/LSan gate |
 | `PDFSurface` | Todo | File/stream output, metadata, outline, versions |
 | `PSSurface` | Todo | File/stream output, DSC, EPS, levels |
 | `SVGSurface` | Todo | File/stream output, version/unit |
@@ -125,7 +125,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 
 | pycairo area | cairoon status | Notes |
 |---|---|---|
-| Construction and target lifetime | Partial | `Context::new(Surface)` retains target surface; `get_target` returns a referenced `Surface` wrapper |
+| Construction and target lifetime | Partial | `Context::new(Surface)` retains target surface; `Context::new_for_mapped_image(MappedImageSurface)` retains mapped image wrappers; `get_target` returns a referenced `Surface` wrapper |
 | Save/restore/status | Partial | Basic behavior and invalid-restore error test exist |
 | Paths | Done | move/rel-move/line/rel-line/curve/rel-curve/rectangle/arc/arc-negative, close/new path, current-point queries, and path data copying |
 | Painting | Done | `paint`, `paint_with_alpha`, `fill`, `fill_preserve`, `stroke`, `stroke_preserve`, `mask`, and `mask_surface` |

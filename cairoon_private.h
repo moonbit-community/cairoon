@@ -10,6 +10,12 @@ typedef struct {
 } CairoonSurface;
 
 typedef struct {
+  cairo_surface_t *base;
+  cairo_surface_t *mapped;
+  void *base_object;
+} CairoonMappedImageSurface;
+
+typedef struct {
   cairo_t *ptr;
   void *target_surface;
 } CairoonContext;
@@ -41,6 +47,10 @@ typedef struct {
 
 CairoonSurface *cairoon_surface_wrap_owned(cairo_surface_t *ptr);
 CairoonSurface *cairoon_surface_wrap_borrowed(cairo_surface_t *ptr);
+CairoonMappedImageSurface *cairoon_mapped_image_surface_wrap_owned(
+  cairo_surface_t *base,
+  cairo_surface_t *mapped,
+  void *base_object);
 CairoonContext *cairoon_context_wrap_owned(cairo_t *ptr, void *target_surface);
 CairoonPath *cairoon_path_wrap_owned(cairo_path_t *ptr);
 CairoonPattern *cairoon_pattern_wrap_owned(cairo_pattern_t *ptr, void *base);
@@ -55,6 +65,7 @@ CairoonRegion *cairoon_region_wrap_owned(cairo_region_t *ptr);
 moonbit_bytes_t cairoon_copy_c_string(const char *str);
 
 cairo_status_t cairoon_surface_status(CairoonSurface *surface);
+cairo_status_t cairoon_mapped_image_surface_status(CairoonMappedImageSurface *surface);
 cairo_status_t cairoon_context_status(CairoonContext *ctx);
 cairo_status_t cairoon_path_status(CairoonPath *path);
 cairo_status_t cairoon_pattern_status(CairoonPattern *pattern);

@@ -9,6 +9,18 @@ CairoonContext *cairoon_context_create(CairoonSurface *surface) {
 }
 
 MOONBIT_FFI_EXPORT
+CairoonContext *cairoon_context_create_for_mapped_image(
+  CairoonMappedImageSurface *surface,
+  cairo_status_t *status_out) {
+  cairo_status_t status = cairoon_mapped_image_surface_status(surface);
+  *status_out = status;
+  if (status != CAIRO_STATUS_SUCCESS) {
+    return cairoon_context_wrap_owned(cairo_create(NULL), NULL);
+  }
+  return cairoon_context_wrap_owned(cairo_create(surface->mapped), surface);
+}
+
+MOONBIT_FFI_EXPORT
 cairo_status_t cairoon_context_status(CairoonContext *ctx) {
   if (ctx == NULL || ctx->ptr == NULL) {
     return CAIRO_STATUS_NULL_POINTER;
@@ -1164,4 +1176,3 @@ cairo_status_t cairoon_context_show_page(CairoonContext *ctx) {
   cairo_show_page(ctx->ptr);
   return cairo_status(ctx->ptr);
 }
-

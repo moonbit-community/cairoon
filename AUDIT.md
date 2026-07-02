@@ -8,13 +8,21 @@ Implemented in this workspace:
 - System Cairo 1.18.4 linkage through `pkg-config`-derived flags.
 - C FFI glue split by Cairo object family, following pycairo's
   `private.h` plus per-family C file architecture. GC-managed external objects
-  currently cover `Surface`, `Context`, `Path`, `Pattern`, and `Region`.
+  currently cover `Surface`, `MappedImageSurface`, `Context`, `Path`,
+  `Pattern`, `FontOptions`, `FontFace`, `ScaledFont`, and `Region`.
 - `Context` retains its target `Surface` with `moonbit_incref` and releases it
   in the finalizer.
+- `Context::new_for_mapped_image` retains its target `MappedImageSurface` with
+  the same context payload mechanism, so a mapped image wrapper cannot be
+  finalized while a context created from it is still live.
 - `Surface::image_for_data` stores its backing `FixedArray[Byte]` as an owned
   Cairo surface user-data payload, so the buffer lives until the last
   `cairo_surface_t` reference is destroyed, including referenced wrappers
   returned through APIs such as `Pattern::get_surface`.
+- `Surface::map_to_image` returns a dedicated `MappedImageSurface` external
+  object. Its payload stores the base surface pointer, mapped image surface
+  pointer, and retained base MoonBit `Surface` wrapper; explicit unmap and the
+  finalizer call `cairo_surface_unmap_image` exactly once.
 - `Pattern::for_surface` retains its base `Surface` wrapper while the pattern
   wrapper exists, and `Pattern::get_surface` returns a referenced `Surface`
   wrapper that can outlive the pattern wrapper.
@@ -29,7 +37,8 @@ Implemented in this workspace:
   painting/page methods, and matrix/coordinate-conversion methods,
   portable `Surface` base helpers for `create_similar`,
   `create_similar_image`, content/type queries, dirty markers, device
-  offset/scale, fallback resolution, and show-text-glyphs support checks,
+  offset/scale, fallback resolution, show-text-glyphs support checks, and
+  mapped image surface readback/unmap helpers,
   initial solid/surface/linear/radial `Pattern` APIs with
   extend/filter/dither/matrix/gradient state, and complete portable `Region`
   APIs including multi-rectangle construction.
@@ -50,8 +59,10 @@ Implemented in this workspace:
   conversion, drawing-state behavior, path current-point,
   relative/arc, copy/append, stringification, and iteration behavior,
   borrowed target/source lifetime behavior,
-  core painting/page behavior, hit testing and extents, clip behavior including
-  non-rectangular clip status propagation, pattern RGBA, gradient
+  mapped image whole-surface and rectangle-extents writeback behavior,
+  wrong-base and double-unmap errors, core painting/page behavior, hit testing
+  and extents, clip behavior including non-rectangular clip status propagation,
+  pattern RGBA, gradient
   geometry/color-stop behavior, pattern state behavior, explicit pattern
   sources, surface-pattern borrowed surface returns, font-options behavior,
   font-face and scaled-font behavior with context error propagation, region
@@ -80,15 +91,15 @@ Implemented in this workspace:
 
 2026-07-02:
 
-- `moon -C cairoon test --target native -v`: 117 tests passed.
+- `moon -C cairoon test --target native -v`: 122 tests passed.
 - `run-asan.py --repo-root /Users/caimeo/code/pycairo/cairoon --pkg moon.pkg`:
-  ran the 117-test native suite after the portable Surface base API slice
+  ran the 122-test native suite after the mapped image surface slice
   and failed during LeakSanitizer reporting. The reported allocations are rooted in
   `cairo_toy_font_face_create`, `cairo_select_font_face`, macOS
   FontRegistry/CoreGraphics frames, and scaled-font Quartz/CoreText paths such
   as `cairo_scaled_font_create`, `CGFontCopyURL`, and `CTFontCreateWithGraphicsFont`;
   no AddressSanitizer invalid-access report appeared before LSan failed.
-  Summary: `91605 byte(s) leaked in 1305 allocation(s)`. The helper still emits
+  Summary: `91797 byte(s) leaked in 1305 allocation(s)`. The helper still emits
   a `moon.mod.json` lookup warning because this package uses `moon.mod`, but it
   correctly patched and restored the DSL `moon.pkg` and MoonBit runtime object
   for this package.
@@ -96,8 +107,8 @@ Implemented in this workspace:
 ## Known Gaps
 
 - No mesh/raster-source patterns, ScaledFont glyph arrays/text-to-glyphs,
-  PDF/SVG/PS, stream/callback APIs, mapped image surfaces, or direct mutable
-  image data view binding yet.
+  PDF/SVG/PS, stream/callback APIs, or direct mutable image data view binding
+  yet.
 - `Surface::copy_data` copies the Cairo image data into MoonBit `Bytes`; it
   intentionally does not expose a mutable view yet.
 - The package currently records Homebrew Cairo 1.18.4 paths. A portable setup
