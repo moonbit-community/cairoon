@@ -161,6 +161,22 @@ test {
 
 ///|
 test {
+  let version : SVGVersion = SvgVersion1_2
+  inspect(SVGVersion::supported().any(item => item == version), content="true")
+  inspect(version.to_string().contains("SVG"), content="true")
+
+  let surface = Surface::svg(12.0, 12.0)
+  surface.svg_set_document_unit(SvgUnitPx)
+  debug_inspect(surface.svg_get_document_unit(), content="SvgUnitPx")
+  surface.svg_restrict_to_version(version)
+  let ctx = Context::new(surface)
+  ctx.set_source_rgb(0.0, 0.0, 1.0)
+  ctx.paint()
+  surface.finish()
+}
+
+///|
+test {
   let surface = Surface::image(Rgb24, 2, 1)
   let mapped = surface.map_to_image(
     extents=Some(RectangleInt::new(x=0, y=0, width=1, height=1)),
