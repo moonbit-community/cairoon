@@ -45,6 +45,15 @@ typedef struct {
   cairo_region_t *ptr;
 } CairoonRegion;
 
+typedef struct {
+  cairo_status_t status;
+  cairo_glyph_t *glyphs;
+  int32_t num_glyphs;
+  cairo_text_cluster_t *clusters;
+  int32_t num_clusters;
+  cairo_text_cluster_flags_t flags;
+} CairoonTextToGlyphs;
+
 CairoonSurface *cairoon_surface_wrap_owned(cairo_surface_t *ptr);
 CairoonSurface *cairoon_surface_wrap_borrowed(cairo_surface_t *ptr);
 CairoonMappedImageSurface *cairoon_mapped_image_surface_wrap_owned(
@@ -61,6 +70,13 @@ CairoonFontFace *cairoon_font_face_wrap_borrowed(cairo_font_face_t *ptr);
 CairoonScaledFont *cairoon_scaled_font_wrap_owned(cairo_scaled_font_t *ptr);
 CairoonScaledFont *cairoon_scaled_font_wrap_borrowed(cairo_scaled_font_t *ptr);
 CairoonRegion *cairoon_region_wrap_owned(cairo_region_t *ptr);
+CairoonTextToGlyphs *cairoon_text_to_glyphs_wrap_owned(
+  cairo_status_t status,
+  cairo_glyph_t *glyphs,
+  int32_t num_glyphs,
+  cairo_text_cluster_t *clusters,
+  int32_t num_clusters,
+  cairo_text_cluster_flags_t flags);
 
 moonbit_bytes_t cairoon_copy_c_string(const char *str);
 cairo_status_t cairoon_glyphs_from_fields(
@@ -68,6 +84,11 @@ cairo_status_t cairoon_glyphs_from_fields(
   double *xs,
   double *ys,
   cairo_glyph_t **glyphs_out,
+  int *count_out);
+cairo_status_t cairoon_text_clusters_from_fields(
+  int32_t *num_bytes,
+  int32_t *num_glyphs,
+  cairo_text_cluster_t **clusters_out,
   int *count_out);
 
 cairo_status_t cairoon_surface_status(CairoonSurface *surface);

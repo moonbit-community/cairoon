@@ -137,7 +137,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 | Stroke/fill state | Done | line width/cap/join, miter limit, fill rule, tolerance, operator, antialias, dash |
 | Matrix APIs | Done | get/set/identity/translate/rotate/transform and user/device coordinate conversions |
 | Groups | Done | `push_group`, `push_group_with_content`, `pop_group`, `pop_group_to_source`, and `get_group_target` with pixel and unmatched-pop tests |
-| Text and fonts | Partial | font options get/set, font face get/set/select, toy font, font matrix/size/extents, Context toy text APIs, Context glyph arrays, and scaled font basics exist; text-to-glyphs and `show_text_glyphs` remain |
+| Text and fonts | Partial | font options get/set, font face get/set/select, toy font, font matrix/size/extents, toy text APIs, glyph arrays, `text_to_glyphs`, and `show_text_glyphs` exist; tag-aware vector-output coverage remains |
 | Path copy/append | Done | `copy_path`, `copy_path_flat`, `append_path`, `Path::segments`, `Path::iter`, and `Path::to_string` |
 | Hit testing and extents | Done | `in_clip`, `in_fill`, `in_stroke`, `clip_extents`, `fill_extents`, `stroke_extents`, `path_extents` |
 | Tags | Partial | `tag_begin`/`tag_end` exist with UTF-8/NUL validation, tag constants, and context-error propagation tests; tag-aware vector output and nesting `TagError` coverage need PDF/SVG/PS backends |
@@ -150,10 +150,10 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 | `FontFace` | Done | External object with finalizer, status, pointer equality/hash, and Context get/set |
 | `ToyFontFace` | Done | Exposed as `FontFace::toy` plus family/slant/weight accessors on `FontFace` |
 | `FontOptions` | Done | External object, copy/merge/equal/hash, variations, color mode/palette/custom colors, antialias, subpixel, hint style, hint metrics |
-| `ScaledFont` | Partial | Constructor, status, equality/hash, extents, font face/options, font matrix, ctm, scale matrix, text extents, and glyph extents implemented; text-to-glyphs remains |
-| `Glyph` arrays | Partial | `ArrayView[Glyph]` marshaling exists for `Context::glyph_extents`, `Context::glyph_path`, `Context::show_glyphs`, and `ScaledFont::glyph_extents`; text-to-glyphs output marshaling remains |
-| `TextCluster` arrays | Todo | `TextCluster` value type exists; sequence marshaling still needed |
-| UTF-8 text input | Partial | Toy font family, context font-family inputs, `Context::show_text/text_extents/text_path`, and `ScaledFont::text_extents` encode to UTF-8 and reject embedded NUL; glyph-array text APIs remain |
+| `ScaledFont` | Partial | Constructor, status, equality/hash, extents, font face/options, font matrix, ctm, scale matrix, text extents, glyph extents, and text-to-glyphs implemented; differential coverage and clean ASan remain |
+| `Glyph` arrays | Done | `ArrayView[Glyph]` marshaling exists for `Context::glyph_extents`, `Context::glyph_path`, `Context::show_glyphs`, `Context::show_text_glyphs`, `ScaledFont::glyph_extents`, and `ScaledFont::text_to_glyphs` output |
+| `TextCluster` arrays | Done | `ArrayView[TextCluster]` marshaling exists for `Context::show_text_glyphs`; `ScaledFont::text_to_glyphs` returns copied `TextCluster` values |
+| UTF-8 text input | Partial | Toy font family, context font-family inputs, `Context::show_text/text_extents/text_path/show_text_glyphs`, and `ScaledFont::text_extents/text_to_glyphs` encode to UTF-8 and reject embedded NUL |
 
 ## Region APIs
 

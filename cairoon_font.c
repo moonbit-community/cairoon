@@ -583,3 +583,39 @@ cairo_status_t cairoon_scaled_font_glyph_extents(
   *y_advance = extents.y_advance;
   return cairo_scaled_font_status(scaled_font->ptr);
 }
+
+MOONBIT_FFI_EXPORT
+CairoonTextToGlyphs *cairoon_scaled_font_text_to_glyphs(
+  CairoonScaledFont *scaled_font,
+  double x,
+  double y,
+  moonbit_bytes_t text) {
+  cairo_status_t status = cairoon_scaled_font_status(scaled_font);
+  if (status != CAIRO_STATUS_SUCCESS) {
+    return cairoon_text_to_glyphs_wrap_owned(
+      status, NULL, 0, NULL, 0, (cairo_text_cluster_flags_t)0);
+  }
+  if (text == NULL) {
+    return cairoon_text_to_glyphs_wrap_owned(
+      CAIRO_STATUS_NULL_POINTER, NULL, 0, NULL, 0, (cairo_text_cluster_flags_t)0);
+  }
+
+  cairo_glyph_t *glyphs = NULL;
+  int num_glyphs = 0;
+  cairo_text_cluster_t *clusters = NULL;
+  int num_clusters = 0;
+  cairo_text_cluster_flags_t flags = (cairo_text_cluster_flags_t)0;
+  status = cairo_scaled_font_text_to_glyphs(
+    scaled_font->ptr,
+    x,
+    y,
+    (const char *)text,
+    -1,
+    &glyphs,
+    &num_glyphs,
+    &clusters,
+    &num_clusters,
+    &flags);
+  return cairoon_text_to_glyphs_wrap_owned(
+    status, glyphs, (int32_t)num_glyphs, clusters, (int32_t)num_clusters, flags);
+}

@@ -485,6 +485,54 @@ cairo_status_t cairoon_context_show_glyphs(
 }
 
 MOONBIT_FFI_EXPORT
+cairo_status_t cairoon_context_show_text_glyphs(
+  CairoonContext *ctx,
+  moonbit_bytes_t text,
+  uint32_t *indices,
+  double *xs,
+  double *ys,
+  int32_t *cluster_num_bytes,
+  int32_t *cluster_num_glyphs,
+  cairo_text_cluster_flags_t flags) {
+  cairo_status_t status = cairoon_context_status(ctx);
+  if (status != CAIRO_STATUS_SUCCESS) {
+    return status;
+  }
+  if (text == NULL) {
+    return CAIRO_STATUS_NULL_POINTER;
+  }
+
+  cairo_glyph_t *glyphs = NULL;
+  int glyph_count = 0;
+  status = cairoon_glyphs_from_fields(indices, xs, ys, &glyphs, &glyph_count);
+  if (status != CAIRO_STATUS_SUCCESS) {
+    return status;
+  }
+
+  cairo_text_cluster_t *clusters = NULL;
+  int cluster_count = 0;
+  status = cairoon_text_clusters_from_fields(
+    cluster_num_bytes, cluster_num_glyphs, &clusters, &cluster_count);
+  if (status != CAIRO_STATUS_SUCCESS) {
+    free(glyphs);
+    return status;
+  }
+
+  cairo_show_text_glyphs(
+    ctx->ptr,
+    (const char *)text,
+    -1,
+    glyphs,
+    glyph_count,
+    clusters,
+    cluster_count,
+    flags);
+  free(glyphs);
+  free(clusters);
+  return cairo_status(ctx->ptr);
+}
+
+MOONBIT_FFI_EXPORT
 CairoonScaledFont *cairoon_context_get_scaled_font(
   CairoonContext *ctx,
   cairo_status_t *status_out) {

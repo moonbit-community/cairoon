@@ -120,6 +120,17 @@ pub fn TextCluster::components(self : TextCluster) -> (Int, Int) {
 }
 
 ///|
+fn text_cluster_field_arrays(
+  clusters : ArrayView[TextCluster],
+) -> (FixedArray[Int], FixedArray[Int]) {
+  let count = clusters.length()
+  (
+    FixedArray::makei(count, index => clusters[index].num_bytes),
+    FixedArray::makei(count, index => clusters[index].num_glyphs),
+  )
+}
+
+///|
 pub fn TextCluster::component(
   self : TextCluster,
   index : Int,
@@ -181,6 +192,29 @@ pub fn TextExtents::component(
     5 => self.y_advance
     _ => raise CairoInvalidArgument(InvalidIndex, InvalidIndex.message())
   }
+}
+
+///|
+pub struct TextGlyphRun {
+  glyphs : Array[Glyph]
+  clusters : Array[TextCluster]
+  flags : TextClusterFlags
+} derive(Eq, Debug)
+
+///|
+pub fn TextGlyphRun::new(
+  glyphs : Array[Glyph],
+  clusters : Array[TextCluster],
+  flags : TextClusterFlags,
+) -> TextGlyphRun {
+  { glyphs, clusters, flags }
+}
+
+///|
+pub fn TextGlyphRun::components(
+  self : TextGlyphRun,
+) -> (Array[Glyph], Array[TextCluster], TextClusterFlags) {
+  (self.glyphs, self.clusters, self.flags)
 }
 
 ///|

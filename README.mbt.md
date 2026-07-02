@@ -260,6 +260,9 @@ test {
   )
   ctx.glyph_path(glyphs)
   ctx.show_glyphs(glyphs)
+  let run = ctx.get_scaled_font().text_to_glyphs(2.0, 12.0, "a")
+  inspect(run.glyphs.length(), content="1")
+  ctx.show_text_glyphs("a", run.glyphs, run.clusters, flags=run.flags)
 }
 
 ///|

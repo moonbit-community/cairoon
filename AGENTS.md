@@ -243,6 +243,11 @@ Concrete requirements:
   `ArrayView[TextCluster]`, split them into FixedArrays of primitive fields,
   borrow those arrays for one synchronous FFI call, and the C helper frees any
   temporary Cairo array before returning.
+- Cairo-allocated output arrays such as the result of
+  `cairo_scaled_font_text_to_glyphs` must be wrapped in an internal temporary
+  external object whose finalizer calls the matching Cairo free functions. The
+  public MoonBit wrapper must copy the arrays into pure values before exposing
+  them.
 - Mapped image surfaces require a dedicated payload containing the base surface
   and mapped surface. Its finalizer must call `cairo_surface_unmap_image(base,
   mapped)` if the mapping is still active. The base `Surface` object must be

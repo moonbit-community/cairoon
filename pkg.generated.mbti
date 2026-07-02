@@ -144,6 +144,7 @@ pub fn Context::set_tolerance(Self, Double) -> Unit raise CairoError
 pub fn Context::show_glyphs(Self, ArrayView[Glyph]) -> Unit raise CairoError
 pub fn Context::show_page(Self) -> Unit raise CairoError
 pub fn Context::show_text(Self, String) -> Unit raise CairoError
+pub fn Context::show_text_glyphs(Self, String, ArrayView[Glyph], ArrayView[TextCluster], flags? : TextClusterFlags) -> Unit raise CairoError
 pub fn Context::status(Self) -> Status
 pub fn Context::stroke(Self) -> Unit raise CairoError
 pub fn Context::stroke_extents(Self) -> (Double, Double, Double, Double) raise CairoError
@@ -508,6 +509,7 @@ pub fn ScaledFont::hash(Self) -> UInt64
 pub fn ScaledFont::new(FontFace, Matrix, Matrix, FontOptions) -> Self raise CairoError
 pub fn ScaledFont::status(Self) -> Status
 pub fn ScaledFont::text_extents(Self, String) -> TextExtents raise CairoError
+pub fn ScaledFont::text_to_glyphs(Self, Double, Double, String) -> TextGlyphRun raise CairoError
 
 pub(all) enum ScriptMode {
   ScriptModeAscii
@@ -650,6 +652,7 @@ pub fn TextCluster::components(Self) -> (Int, Int)
 pub fn TextCluster::new(Int, Int) -> Self
 
 pub(all) enum TextClusterFlags {
+  TextClusterNone
   TextClusterBackward
 } derive(Eq, @debug.Debug)
 
@@ -664,6 +667,14 @@ pub struct TextExtents {
 pub fn TextExtents::component(Self, Int) -> Double raise CairoError
 pub fn TextExtents::components(Self) -> (Double, Double, Double, Double, Double, Double)
 pub fn TextExtents::new(Double, Double, Double, Double, Double, Double) -> Self
+
+pub struct TextGlyphRun {
+  glyphs : Array[Glyph]
+  clusters : Array[TextCluster]
+  flags : TextClusterFlags
+} derive(Eq, @debug.Debug)
+pub fn TextGlyphRun::components(Self) -> (Array[Glyph], Array[TextCluster], TextClusterFlags)
+pub fn TextGlyphRun::new(Array[Glyph], Array[TextCluster], TextClusterFlags) -> Self
 
 // Type aliases
 

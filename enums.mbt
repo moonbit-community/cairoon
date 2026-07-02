@@ -245,6 +245,7 @@ pub(all) enum ScriptMode {
 
 ///|
 pub(all) enum TextClusterFlags {
+  TextClusterNone = 0
   TextClusterBackward = 0x00000001
 } derive(Eq, Debug)
 

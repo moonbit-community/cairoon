@@ -87,6 +87,18 @@ static void cairoon_region_finalize(void *self) {
   }
 }
 
+static void cairoon_text_to_glyphs_finalize(void *self) {
+  CairoonTextToGlyphs *result = (CairoonTextToGlyphs *)self;
+  if (result->glyphs != NULL) {
+    cairo_glyph_free(result->glyphs);
+    result->glyphs = NULL;
+  }
+  if (result->clusters != NULL) {
+    cairo_text_cluster_free(result->clusters);
+    result->clusters = NULL;
+  }
+}
+
 CairoonSurface *cairoon_surface_wrap_owned(cairo_surface_t *ptr) {
   CairoonSurface *surface = (CairoonSurface *)moonbit_make_external_object(
     cairoon_surface_finalize, sizeof(CairoonSurface));
@@ -194,6 +206,26 @@ CairoonRegion *cairoon_region_wrap_owned(cairo_region_t *ptr) {
     cairoon_region_finalize, sizeof(CairoonRegion));
   region->ptr = ptr;
   return region;
+}
+
+CairoonTextToGlyphs *cairoon_text_to_glyphs_wrap_owned(
+  cairo_status_t status,
+  cairo_glyph_t *glyphs,
+  int32_t num_glyphs,
+  cairo_text_cluster_t *clusters,
+  int32_t num_clusters,
+  cairo_text_cluster_flags_t flags) {
+  CairoonTextToGlyphs *result =
+    (CairoonTextToGlyphs *)moonbit_make_external_object(
+      cairoon_text_to_glyphs_finalize,
+      sizeof(CairoonTextToGlyphs));
+  result->status = status;
+  result->glyphs = glyphs;
+  result->num_glyphs = num_glyphs;
+  result->clusters = clusters;
+  result->num_clusters = num_clusters;
+  result->flags = flags;
+  return result;
 }
 
 moonbit_bytes_t cairoon_copy_c_string(const char *str) {

@@ -26,6 +26,9 @@ type Path
 type Region
 
 ///|
+priv type TextToGlyphsNative
+
+///|
 #borrow(path)
 extern "C" fn path_status_ffi(path : Path) -> Status = "cairoon_path_status"
 
@@ -389,6 +392,43 @@ extern "C" fn scaled_font_glyph_extents_ffi(
   x_advance : Ref[Double],
   y_advance : Ref[Double],
 ) -> Status = "cairoon_scaled_font_glyph_extents"
+
+///|
+#borrow(scaled_font, text)
+extern "C" fn scaled_font_text_to_glyphs_ffi(
+  scaled_font : ScaledFont,
+  x : Double,
+  y : Double,
+  text : Bytes,
+) -> TextToGlyphsNative = "cairoon_scaled_font_text_to_glyphs"
+
+///|
+#borrow(result)
+extern "C" fn text_to_glyphs_status_ffi(result : TextToGlyphsNative) -> Status = "cairoon_text_to_glyphs_status"
+
+///|
+#borrow(result)
+extern "C" fn text_to_glyphs_indices_ffi(
+  result : TextToGlyphsNative,
+) -> FixedArray[Int] = "cairoon_text_to_glyphs_indices"
+
+///|
+#borrow(result)
+extern "C" fn text_to_glyphs_positions_ffi(
+  result : TextToGlyphsNative,
+) -> FixedArray[Double] = "cairoon_text_to_glyphs_positions"
+
+///|
+#borrow(result)
+extern "C" fn text_to_glyphs_clusters_ffi(
+  result : TextToGlyphsNative,
+) -> FixedArray[Int] = "cairoon_text_to_glyphs_clusters"
+
+///|
+#borrow(result)
+extern "C" fn text_to_glyphs_flags_ffi(
+  result : TextToGlyphsNative,
+) -> TextClusterFlags = "cairoon_text_to_glyphs_flags"
 
 ///|
 extern "C" fn image_surface_create_ffi(
@@ -880,6 +920,19 @@ extern "C" fn context_show_glyphs_ffi(
   xs : FixedArray[Double],
   ys : FixedArray[Double],
 ) -> Status = "cairoon_context_show_glyphs"
+
+///|
+#borrow(ctx, text, indices, xs, ys, cluster_num_bytes, cluster_num_glyphs)
+extern "C" fn context_show_text_glyphs_ffi(
+  ctx : Context,
+  text : Bytes,
+  indices : FixedArray[UInt],
+  xs : FixedArray[Double],
+  ys : FixedArray[Double],
+  cluster_num_bytes : FixedArray[Int],
+  cluster_num_glyphs : FixedArray[Int],
+  flags : TextClusterFlags,
+) -> Status = "cairoon_context_show_text_glyphs"
 
 ///|
 #borrow(ctx, status)

@@ -276,6 +276,32 @@ pub fn Context::show_glyphs(
 }
 
 ///|
+pub fn Context::show_text_glyphs(
+  self : Context,
+  text : String,
+  glyphs : ArrayView[Glyph],
+  clusters : ArrayView[TextCluster],
+  flags? : TextClusterFlags = TextClusterNone,
+) -> Unit raise CairoError {
+  let (indices, xs, ys) = glyph_field_arrays(glyphs)
+  let (cluster_num_bytes, cluster_num_glyphs) = text_cluster_field_arrays(
+    clusters,
+  )
+  check_status(
+    context_show_text_glyphs_ffi(
+      self,
+      checked_c_string_bytes(text),
+      indices,
+      xs,
+      ys,
+      cluster_num_bytes,
+      cluster_num_glyphs,
+      flags,
+    ),
+  )
+}
+
+///|
 pub fn Context::get_scaled_font(self : Context) -> ScaledFont raise CairoError {
   let status = Ref(Success)
   let scaled_font = context_get_scaled_font_ffi(self, status)

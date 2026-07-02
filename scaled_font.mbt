@@ -209,3 +209,45 @@ pub fn ScaledFont::glyph_extents(
     )
   })
 }
+
+///|
+fn text_glyph_run_from_native(
+  result : TextToGlyphsNative,
+) -> TextGlyphRun raise CairoError {
+  check_status(text_to_glyphs_status_ffi(result))
+  let indices = text_to_glyphs_indices_ffi(result)
+  let positions = text_to_glyphs_positions_ffi(result)
+  if positions.length() != indices.length() * 2 {
+    raise CairoInvalidArgument(InvalidSize, InvalidSize.message())
+  }
+  let glyphs = Array::makei(indices.length(), index => {
+    let offset = index * 2
+    Glyph::new(
+      indices[index].reinterpret_as_uint(),
+      positions[offset],
+      positions[offset + 1],
+    )
+  })
+
+  let cluster_values = text_to_glyphs_clusters_ffi(result)
+  if cluster_values.length() % 2 != 0 {
+    raise CairoInvalidArgument(InvalidSize, InvalidSize.message())
+  }
+  let clusters = Array::makei(cluster_values.length() / 2, index => {
+    let offset = index * 2
+    TextCluster::new(cluster_values[offset], cluster_values[offset + 1])
+  })
+  TextGlyphRun::new(glyphs, clusters, text_to_glyphs_flags_ffi(result))
+}
+
+///|
+pub fn ScaledFont::text_to_glyphs(
+  self : ScaledFont,
+  x : Double,
+  y : Double,
+  text : String,
+) -> TextGlyphRun raise CairoError {
+  text_glyph_run_from_native(
+    scaled_font_text_to_glyphs_ffi(self, x, y, checked_c_string_bytes(text)),
+  )
+}
