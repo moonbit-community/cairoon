@@ -138,6 +138,9 @@ test {
   debug_inspect(image.get_type(), content="SurfaceTypeImage")
   debug_inspect(image.get_format(), content="Rgb24")
   inspect(image.get_height(), content="3")
+
+  let child = surface.create_for_rectangle(1.0, 1.0, 2.0, 2.0)
+  inspect(child.status().is_success(), content="true")
 }
 
 ///|

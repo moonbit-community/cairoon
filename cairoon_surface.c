@@ -212,6 +212,29 @@ CairoonSurface *cairoon_surface_create_similar_image(
 }
 
 MOONBIT_FFI_EXPORT
+CairoonSurface *cairoon_surface_create_for_rectangle(
+  CairoonSurface *target,
+  double x,
+  double y,
+  double width,
+  double height,
+  cairo_status_t *status_out) {
+  cairo_status_t status = cairoon_surface_status(target);
+  *status_out = status;
+  if (status != CAIRO_STATUS_SUCCESS) {
+    return cairoon_surface_wrap_owned(NULL);
+  }
+  cairo_surface_t *surface =
+    cairo_surface_create_for_rectangle(target->ptr, x, y, width, height);
+  if (surface == NULL) {
+    *status_out = CAIRO_STATUS_NO_MEMORY;
+    return cairoon_surface_wrap_owned(NULL);
+  }
+  *status_out = cairo_surface_status(surface);
+  return cairoon_surface_wrap_owned(surface);
+}
+
+MOONBIT_FFI_EXPORT
 CairoonMappedImageSurface *cairoon_surface_map_to_image(
   CairoonSurface *surface,
   int32_t has_extents,

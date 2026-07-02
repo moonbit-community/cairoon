@@ -711,6 +711,7 @@ pub(all) enum SubpixelOrder {
 type Surface
 pub fn Surface::copy_data(Self) -> Bytes raise CairoError
 pub fn Surface::copy_page(Self) -> Unit raise CairoError
+pub fn Surface::create_for_rectangle(Self, Double, Double, Double, Double) -> Self raise CairoError
 pub fn Surface::create_similar(Self, Content, Int, Int) -> Self raise CairoError
 pub fn Surface::create_similar_image(Self, Format, Int, Int) -> Self raise CairoError
 pub fn Surface::finish(Self) -> Unit raise CairoError

@@ -120,7 +120,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 | pycairo API | cairoon status | Notes |
 |---|---|---|
 | `Device` | Done | Exposed as opaque `Device` with script constructor, status/type/equal/hash, finish/flush/acquire/release, and `with_acquired`; tests cover pycairo device reference/equality behavior and `DeviceFinished` after finish |
-| `Surface` base methods | Partial | Finish/flush/copy_page/show_page/write_to_png(path), create_similar/create_similar_image, content/type, get_device, dirty markers, device offset/scale, fallback resolution, show-text-glyphs support query, MIME data, and get_font_options exist; metadata/backend APIs remain |
+| `Surface` base methods | Partial | Finish/flush/copy_page/show_page/write_to_png(path), create_similar/create_similar_image/create_for_rectangle, content/type, get_device, dirty markers, device offset/scale, fallback resolution, show-text-glyphs support query, MIME data, and get_font_options exist; metadata/backend APIs remain. `create_for_rectangle` is covered through parent-surface clipping/translation rather than backend-dependent surface type. |
 | `ImageSurface` | Partial | Basic creation, buffer-backed creation, PNG path loading, and readback only |
 | `ImageSurface.create_for_data` | Partial | Exposed as `Surface::image_for_data` for `FixedArray[Byte]`; retains the MoonBit buffer, validates size/stride, and covers zero-size buffers, but still needs differential coverage and a clean ASan/LSan gate |
 | `ImageSurface.create_from_png/write_to_png` | Partial | Filename APIs exposed as `Surface::image_from_png` and `Surface::write_to_png`; stream/file-object callbacks deferred by `AGENTS.md` |

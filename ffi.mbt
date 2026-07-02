@@ -798,6 +798,17 @@ extern "C" fn surface_create_similar_image_ffi(
 
 ///|
 #borrow(surface, status)
+extern "C" fn surface_create_for_rectangle_ffi(
+  surface : Surface,
+  x : Double,
+  y : Double,
+  width : Double,
+  height : Double,
+  status : Ref[Status],
+) -> Surface = "cairoon_surface_create_for_rectangle"
+
+///|
+#borrow(surface, status)
 extern "C" fn surface_map_to_image_ffi(
   surface : Surface,
   has_extents : Bool,

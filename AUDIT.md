@@ -52,8 +52,9 @@ Implemented in this workspace:
   scoped acquire helper, script mode/comment helpers, recording-surface replay,
   and ScriptSurface creation/proxy helpers,
   portable `Surface` base helpers for `create_similar`,
-  `create_similar_image`, content/type/get_device queries, dirty markers, device
-  offset/scale, fallback resolution, show-text-glyphs support checks, and
+  `create_similar_image`, `create_for_rectangle`, content/type/get_device
+  queries, dirty markers, device offset/scale, fallback resolution,
+  show-text-glyphs support checks, and
   mapped image surface readback/unmap helpers, plus Surface MIME data
   set/get/clear/support checks that copy data across the MoonBit/C boundary,
   initial solid/surface/linear/radial/mesh `Pattern` APIs with

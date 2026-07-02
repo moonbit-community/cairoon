@@ -1,0 +1,35 @@
+///|
+fn expect_argb32_red_pixel(data : Bytes, offset : Int) -> Unit raise {
+  inspect(data[offset].to_int(), content="0")
+  inspect(data[offset + 1].to_int(), content="0")
+  inspect(data[offset + 2].to_int(), content="255")
+  inspect(data[offset + 3].to_int(), content="255")
+}
+
+///|
+fn expect_argb32_transparent_pixel(data : Bytes, offset : Int) -> Unit raise {
+  inspect(data[offset].to_int(), content="0")
+  inspect(data[offset + 1].to_int(), content="0")
+  inspect(data[offset + 2].to_int(), content="0")
+  inspect(data[offset + 3].to_int(), content="0")
+}
+
+///|
+test "subsurface clips and translates drawing into parent surface" {
+  let parent = Surface::image(Argb32, 4, 4)
+  let child = parent.create_for_rectangle(1.0, 1.0, 2.0, 2.0)
+  inspect(child.status().is_success(), content="true")
+  debug_inspect(child.get_content(), content="ContentColorAlpha")
+
+  let ctx = Context::new(child)
+  ctx.set_source_rgba(1.0, 0.0, 0.0, 1.0)
+  ctx.paint()
+  child.flush()
+
+  let data = parent.copy_data()
+  let stride = parent.get_stride()
+  expect_argb32_red_pixel(data, stride + 4)
+  expect_argb32_red_pixel(data, stride * 2 + 8)
+  expect_argb32_transparent_pixel(data, stride)
+  expect_argb32_transparent_pixel(data, stride * 3 + 12)
+}
