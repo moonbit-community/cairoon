@@ -1,0 +1,81 @@
+///|
+test "rectangle values expose fields and components" {
+  let rect = Rectangle::new(0.0, 0.5, 0.25, 0.75)
+  inspect(rect.x, content="0")
+  inspect(rect.y, content="0.5")
+  inspect(rect.width, content="0.25")
+  inspect(rect.height, content="0.75")
+  debug_inspect(rect.components(), content="(0, 0.5, 0.25, 0.75)")
+  inspect(rect.component(1), content="0.5")
+  let result = run_cairo(() => rect.component(4))
+  inspect(result is Err(_), content="true")
+  match result {
+    Err(CairoInvalidArgument(InvalidIndex, _)) => ()
+    _ => @test.fail("expected InvalidIndex")
+  }
+}
+
+///|
+test "rectangle int defaults and components" {
+  let default_rect = RectangleInt::new()
+  debug_inspect(default_rect.components(), content="(0, 0, 0, 0)")
+  let rect = RectangleInt::new(x=1, y=2, width=3, height=4)
+  inspect(rect.x, content="1")
+  inspect(rect.y, content="2")
+  inspect(rect.width, content="3")
+  inspect(rect.height, content="4")
+  debug_inspect(rect.components(), content="(1, 2, 3, 4)")
+  inspect(rect.component(2), content="3")
+}
+
+///|
+test "glyph uses unsigned index and double offsets" {
+  let glyph = Glyph::new(42U, 0.5, 0.25)
+  inspect(glyph.index.to_string(), content="42")
+  inspect(glyph.x, content="0.5")
+  inspect(glyph.y, content="0.25")
+  debug_inspect(glyph.components(), content="(42, 0.5, 0.25)")
+}
+
+///|
+test "text cluster values expose tuple order" {
+  let cluster = TextCluster::new(2, 1)
+  inspect(cluster.num_bytes, content="2")
+  inspect(cluster.num_glyphs, content="1")
+  debug_inspect(cluster.components(), content="(2, 1)")
+  inspect(cluster.component(0), content="2")
+  let result = run_cairo(() => cluster.component(2))
+  inspect(result is Err(_), content="true")
+  match result {
+    Err(CairoInvalidArgument(InvalidIndex, _)) => ()
+    _ => @test.fail("expected InvalidIndex")
+  }
+}
+
+///|
+test "text extents values expose pycairo field order" {
+  let extents = TextExtents::new(0.0, 0.5, 0.25, 0.75, 0.5, 0.125)
+  inspect(extents.x_bearing, content="0")
+  inspect(extents.y_bearing, content="0.5")
+  inspect(extents.width, content="0.25")
+  inspect(extents.height, content="0.75")
+  inspect(extents.x_advance, content="0.5")
+  inspect(extents.y_advance, content="0.125")
+  debug_inspect(
+    extents.components(),
+    content="(0, 0.5, 0.25, 0.75, 0.5, 0.125)",
+  )
+  inspect(extents.component(5), content="0.125")
+}
+
+///|
+test "font extents values expose cairo field order" {
+  let extents = FontExtents::new(1.0, 2.0, 3.0, 4.0, 5.0)
+  inspect(extents.ascent, content="1")
+  inspect(extents.descent, content="2")
+  inspect(extents.height, content="3")
+  inspect(extents.max_x_advance, content="4")
+  inspect(extents.max_y_advance, content="5")
+  debug_inspect(extents.components(), content="(1, 2, 3, 4, 5)")
+  inspect(extents.component(3), content="4")
+}

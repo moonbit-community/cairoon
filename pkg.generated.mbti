@@ -1,0 +1,571 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "caimeo/cairoon"
+
+import {
+  "moonbitlang/core/debug",
+}
+
+// Values
+pub fn cairo_version() -> Int
+
+pub fn cairo_version_string() -> String
+
+pub fn check_status(Status) -> Unit raise CairoError
+
+pub fn[T] run_cairo(() -> T raise CairoError) -> Result[T, CairoError]
+
+// Errors
+pub suberror CairoError {
+  CairoError(Status, String)
+  CairoMemoryError(Status, String)
+  CairoIOError(Status, String)
+  CairoInvalidArgument(Status, String)
+} derive(@debug.Debug)
+
+// Types and methods
+pub(all) enum Antialias {
+  AntialiasDefault
+  AntialiasNone
+  AntialiasGray
+  AntialiasSubpixel
+  AntialiasFast
+  AntialiasGood
+  AntialiasBest
+} derive(Eq, @debug.Debug)
+
+pub(all) enum ColorMode {
+  ColorModeDefault
+  ColorModeNoColor
+  ColorModeColor
+} derive(Eq, @debug.Debug)
+
+pub(all) enum Content {
+  ContentColor
+  ContentAlpha
+  ContentColorAlpha
+} derive(Eq, @debug.Debug)
+
+type Context
+pub fn Context::append_path(Self, Path) -> Unit raise CairoError
+pub fn Context::arc(Self, Double, Double, Double, Double, Double) -> Unit raise CairoError
+pub fn Context::arc_negative(Self, Double, Double, Double, Double, Double) -> Unit raise CairoError
+pub fn Context::clip(Self) -> Unit raise CairoError
+pub fn Context::clip_extents(Self) -> (Double, Double, Double, Double) raise CairoError
+pub fn Context::clip_preserve(Self) -> Unit raise CairoError
+pub fn Context::close_path(Self) -> Unit raise CairoError
+pub fn Context::copy_clip_rectangle_list(Self) -> Array[Rectangle] raise CairoError
+pub fn Context::copy_page(Self) -> Unit raise CairoError
+pub fn Context::copy_path(Self) -> Path raise CairoError
+pub fn Context::copy_path_flat(Self) -> Path raise CairoError
+pub fn Context::curve_to(Self, Double, Double, Double, Double, Double, Double) -> Unit raise CairoError
+pub fn Context::device_to_user(Self, Double, Double) -> (Double, Double) raise CairoError
+pub fn Context::device_to_user_distance(Self, Double, Double) -> (Double, Double) raise CairoError
+pub fn Context::fill(Self) -> Unit raise CairoError
+pub fn Context::fill_extents(Self) -> (Double, Double, Double, Double) raise CairoError
+pub fn Context::fill_preserve(Self) -> Unit raise CairoError
+pub fn Context::font_extents(Self) -> FontExtents raise CairoError
+pub fn Context::get_antialias(Self) -> Antialias raise CairoError
+pub fn Context::get_current_point(Self) -> (Double, Double) raise CairoError
+pub fn Context::get_dash(Self) -> (Array[Double], Double) raise CairoError
+pub fn Context::get_dash_count(Self) -> Int raise CairoError
+pub fn Context::get_fill_rule(Self) -> FillRule raise CairoError
+pub fn Context::get_font_face(Self) -> FontFace raise CairoError
+pub fn Context::get_font_matrix(Self) -> Matrix raise CairoError
+pub fn Context::get_font_options(Self) -> FontOptions raise CairoError
+pub fn Context::get_line_cap(Self) -> LineCap raise CairoError
+pub fn Context::get_line_join(Self) -> LineJoin raise CairoError
+pub fn Context::get_line_width(Self) -> Double raise CairoError
+pub fn Context::get_matrix(Self) -> Matrix raise CairoError
+pub fn Context::get_miter_limit(Self) -> Double raise CairoError
+pub fn Context::get_operator(Self) -> Operator raise CairoError
+pub fn Context::get_scaled_font(Self) -> ScaledFont raise CairoError
+pub fn Context::get_source(Self) -> Pattern raise CairoError
+pub fn Context::get_target(Self) -> Surface raise CairoError
+pub fn Context::get_tolerance(Self) -> Double raise CairoError
+pub fn Context::has_current_point(Self) -> Bool raise CairoError
+pub fn Context::identity_matrix(Self) -> Unit raise CairoError
+pub fn Context::in_clip(Self, Double, Double) -> Bool raise CairoError
+pub fn Context::in_fill(Self, Double, Double) -> Bool raise CairoError
+pub fn Context::in_stroke(Self, Double, Double) -> Bool raise CairoError
+pub fn Context::line_to(Self, Double, Double) -> Unit raise CairoError
+pub fn Context::mask(Self, Pattern) -> Unit raise CairoError
+pub fn Context::mask_surface(Self, Surface, x? : Double, y? : Double) -> Unit raise CairoError
+pub fn Context::move_to(Self, Double, Double) -> Unit raise CairoError
+pub fn Context::new(Surface) -> Self raise CairoError
+pub fn Context::new_path(Self) -> Unit raise CairoError
+pub fn Context::new_sub_path(Self) -> Unit raise CairoError
+pub fn Context::paint(Self) -> Unit raise CairoError
+pub fn Context::paint_with_alpha(Self, Double) -> Unit raise CairoError
+pub fn Context::path_extents(Self) -> (Double, Double, Double, Double) raise CairoError
+pub fn Context::rectangle(Self, Double, Double, Double, Double) -> Unit raise CairoError
+pub fn Context::rel_curve_to(Self, Double, Double, Double, Double, Double, Double) -> Unit raise CairoError
+pub fn Context::rel_line_to(Self, Double, Double) -> Unit raise CairoError
+pub fn Context::rel_move_to(Self, Double, Double) -> Unit raise CairoError
+pub fn Context::reset_clip(Self) -> Unit raise CairoError
+pub fn Context::restore(Self) -> Unit raise CairoError
+pub fn Context::rotate(Self, Double) -> Unit raise CairoError
+pub fn Context::save(Self) -> Unit raise CairoError
+pub fn Context::scale(Self, Double, Double) -> Unit raise CairoError
+pub fn Context::select_font_face(Self, String, slant? : FontSlant, weight? : FontWeight) -> Unit raise CairoError
+pub fn Context::set_antialias(Self, Antialias) -> Unit raise CairoError
+pub fn Context::set_dash(Self, ArrayView[Double], offset? : Double) -> Unit raise CairoError
+pub fn Context::set_fill_rule(Self, FillRule) -> Unit raise CairoError
+pub fn Context::set_font_face(Self, FontFace?) -> Unit raise CairoError
+pub fn Context::set_font_matrix(Self, Matrix) -> Unit raise CairoError
+pub fn Context::set_font_options(Self, FontOptions) -> Unit raise CairoError
+pub fn Context::set_font_size(Self, Double) -> Unit raise CairoError
+pub fn Context::set_line_cap(Self, LineCap) -> Unit raise CairoError
+pub fn Context::set_line_join(Self, LineJoin) -> Unit raise CairoError
+pub fn Context::set_line_width(Self, Double) -> Unit raise CairoError
+pub fn Context::set_matrix(Self, Matrix) -> Unit raise CairoError
+pub fn Context::set_miter_limit(Self, Double) -> Unit raise CairoError
+pub fn Context::set_operator(Self, Operator) -> Unit raise CairoError
+pub fn Context::set_scaled_font(Self, ScaledFont) -> Unit raise CairoError
+pub fn Context::set_source(Self, Pattern) -> Unit raise CairoError
+pub fn Context::set_source_rgb(Self, Double, Double, Double) -> Unit raise CairoError
+pub fn Context::set_source_rgba(Self, Double, Double, Double, Double) -> Unit raise CairoError
+pub fn Context::set_tolerance(Self, Double) -> Unit raise CairoError
+pub fn Context::show_page(Self) -> Unit raise CairoError
+pub fn Context::status(Self) -> Status
+pub fn Context::stroke(Self) -> Unit raise CairoError
+pub fn Context::stroke_extents(Self) -> (Double, Double, Double, Double) raise CairoError
+pub fn Context::stroke_preserve(Self) -> Unit raise CairoError
+pub fn Context::transform(Self, Matrix) -> Unit raise CairoError
+pub fn Context::translate(Self, Double, Double) -> Unit raise CairoError
+pub fn Context::user_to_device(Self, Double, Double) -> (Double, Double) raise CairoError
+pub fn Context::user_to_device_distance(Self, Double, Double) -> (Double, Double) raise CairoError
+
+pub(all) enum Dither {
+  DitherNone
+  DitherDefault
+  DitherFast
+  DitherGood
+  DitherBest
+} derive(Eq, @debug.Debug)
+
+pub(all) enum Extend {
+  ExtendNone
+  Repeat
+  Reflect
+  Pad
+} derive(Eq, @debug.Debug)
+
+pub(all) enum FillRule {
+  FillWinding
+  FillEvenOdd
+} derive(Eq, @debug.Debug)
+
+pub(all) enum Filter {
+  Fast
+  Good
+  Best
+  Nearest
+  Bilinear
+  Gaussian
+} derive(Eq, @debug.Debug)
+
+pub struct FontExtents {
+  ascent : Double
+  descent : Double
+  height : Double
+  max_x_advance : Double
+  max_y_advance : Double
+} derive(Eq, @debug.Debug)
+pub fn FontExtents::component(Self, Int) -> Double raise CairoError
+pub fn FontExtents::components(Self) -> (Double, Double, Double, Double, Double)
+pub fn FontExtents::new(Double, Double, Double, Double, Double) -> Self
+
+type FontFace
+pub fn FontFace::equal(Self, Self) -> Bool
+pub fn FontFace::get_family(Self) -> String raise CairoError
+pub fn FontFace::get_slant(Self) -> FontSlant raise CairoError
+pub fn FontFace::get_weight(Self) -> FontWeight raise CairoError
+pub fn FontFace::hash(Self) -> UInt64
+pub fn FontFace::status(Self) -> Status
+pub fn FontFace::toy(String, slant? : FontSlant, weight? : FontWeight) -> Self raise CairoError
+
+type FontOptions
+pub fn FontOptions::copy(Self) -> Self raise CairoError
+pub fn FontOptions::equal(Self, Self) -> Bool
+pub fn FontOptions::get_antialias(Self) -> Antialias raise CairoError
+pub fn FontOptions::get_color_mode(Self) -> ColorMode raise CairoError
+pub fn FontOptions::get_color_palette(Self) -> UInt raise CairoError
+pub fn FontOptions::get_custom_palette_color(Self, UInt) -> (Double, Double, Double, Double) raise CairoError
+pub fn FontOptions::get_hint_metrics(Self) -> HintMetrics raise CairoError
+pub fn FontOptions::get_hint_style(Self) -> HintStyle raise CairoError
+pub fn FontOptions::get_subpixel_order(Self) -> SubpixelOrder raise CairoError
+pub fn FontOptions::get_variations(Self) -> String? raise CairoError
+pub fn FontOptions::hash(Self) -> UInt64
+pub fn FontOptions::merge(Self, Self) -> Unit raise CairoError
+pub fn FontOptions::new() -> Self raise CairoError
+pub fn FontOptions::set_antialias(Self, Antialias) -> Unit raise CairoError
+pub fn FontOptions::set_color_mode(Self, ColorMode) -> Unit raise CairoError
+pub fn FontOptions::set_color_palette(Self, UInt) -> Unit raise CairoError
+pub fn FontOptions::set_custom_palette_color(Self, UInt, Double, Double, Double, Double) -> Unit raise CairoError
+pub fn FontOptions::set_hint_metrics(Self, HintMetrics) -> Unit raise CairoError
+pub fn FontOptions::set_hint_style(Self, HintStyle) -> Unit raise CairoError
+pub fn FontOptions::set_subpixel_order(Self, SubpixelOrder) -> Unit raise CairoError
+pub fn FontOptions::set_variations(Self, String?) -> Unit raise CairoError
+pub fn FontOptions::status(Self) -> Status
+
+pub(all) enum FontSlant {
+  FontSlantNormal
+  FontSlantItalic
+  FontSlantOblique
+} derive(Eq, @debug.Debug)
+
+pub(all) enum FontWeight {
+  FontWeightNormal
+  FontWeightBold
+} derive(Eq, @debug.Debug)
+
+pub(all) enum Format {
+  Argb32
+  Rgb24
+  A8
+  A1
+  Rgb16_565
+  Rgb30
+  Rgb96F
+  Rgba128F
+} derive(Eq, @debug.Debug)
+pub fn Format::stride_for_width(Self, Int) -> Int
+
+pub struct Glyph {
+  index : UInt
+  x : Double
+  y : Double
+} derive(Eq, @debug.Debug)
+pub fn Glyph::components(Self) -> (UInt, Double, Double)
+pub fn Glyph::new(UInt, Double, Double) -> Self
+
+pub(all) enum HintMetrics {
+  HintMetricsDefault
+  HintMetricsOff
+  HintMetricsOn
+} derive(Eq, @debug.Debug)
+
+pub(all) enum HintStyle {
+  HintStyleDefault
+  HintStyleNone
+  HintStyleSlight
+  HintStyleMedium
+  HintStyleFull
+} derive(Eq, @debug.Debug)
+
+pub(all) enum LineCap {
+  LineCapButt
+  LineCapRound
+  LineCapSquare
+} derive(Eq, @debug.Debug)
+
+pub(all) enum LineJoin {
+  LineJoinMiter
+  LineJoinRound
+  LineJoinBevel
+} derive(Eq, @debug.Debug)
+
+pub struct Matrix {
+  xx : Double
+  yx : Double
+  xy : Double
+  yy : Double
+  x0 : Double
+  y0 : Double
+} derive(Eq, @debug.Debug)
+pub fn Matrix::component(Self, Int) -> Double raise CairoError
+pub fn Matrix::components(Self) -> (Double, Double, Double, Double, Double, Double)
+pub fn Matrix::init_rotate(Double) -> Self
+pub fn Matrix::invert(Self) -> Self raise CairoError
+pub fn Matrix::multiply(Self, Self) -> Self
+pub fn Matrix::new(xx? : Double, yx? : Double, xy? : Double, yy? : Double, x0? : Double, y0? : Double) -> Self
+pub fn Matrix::rotate(Self, Double) -> Self
+pub fn Matrix::scale(Self, Double, Double) -> Self
+pub fn Matrix::transform_distance(Self, Double, Double) -> (Double, Double)
+pub fn Matrix::transform_point(Self, Double, Double) -> (Double, Double)
+pub fn Matrix::translate(Self, Double, Double) -> Self
+
+pub(all) enum Operator {
+  OperatorClear
+  OperatorSource
+  OperatorOver
+  OperatorIn
+  OperatorOut
+  OperatorAtop
+  OperatorDest
+  OperatorDestOver
+  OperatorDestIn
+  OperatorDestOut
+  OperatorDestAtop
+  OperatorXor
+  OperatorAdd
+  OperatorSaturate
+  OperatorMultiply
+  OperatorScreen
+  OperatorOverlay
+  OperatorDarken
+  OperatorLighten
+  OperatorColorDodge
+  OperatorColorBurn
+  OperatorHardLight
+  OperatorSoftLight
+  OperatorDifference
+  OperatorExclusion
+  OperatorHslHue
+  OperatorHslSaturation
+  OperatorHslColor
+  OperatorHslLuminosity
+} derive(Eq, @debug.Debug)
+
+pub(all) enum PDFMetadata {
+  PdfMetadataTitle
+  PdfMetadataAuthor
+  PdfMetadataSubject
+  PdfMetadataKeywords
+  PdfMetadataCreator
+  PdfMetadataCreateDate
+  PdfMetadataModDate
+} derive(Eq, @debug.Debug)
+
+pub(all) enum PDFOutlineFlags {
+  PdfOutlineOpen
+  PdfOutlineBold
+  PdfOutlineItalic
+} derive(Eq, @debug.Debug)
+
+pub(all) enum PDFVersion {
+  PdfVersion1_4
+  PdfVersion1_5
+  PdfVersion1_6
+  PdfVersion1_7
+} derive(Eq, @debug.Debug)
+
+pub(all) enum PSLevel {
+  PsLevel2
+  PsLevel3
+} derive(Eq, @debug.Debug)
+
+type Path
+
+pub(all) enum PathDataType {
+  PathMoveTo
+  PathLineTo
+  PathCurveTo
+  PathClosePath
+} derive(Eq, @debug.Debug)
+
+type Pattern
+pub fn Pattern::add_color_stop_rgb(Self, Double, Double, Double, Double) -> Unit raise CairoError
+pub fn Pattern::add_color_stop_rgba(Self, Double, Double, Double, Double, Double) -> Unit raise CairoError
+pub fn Pattern::for_surface(Surface) -> Self raise CairoError
+pub fn Pattern::get_color_stop_count(Self) -> Int raise CairoError
+pub fn Pattern::get_color_stop_rgba(Self, Int) -> (Double, Double, Double, Double, Double) raise CairoError
+pub fn Pattern::get_color_stops_rgba(Self) -> Array[(Double, Double, Double, Double, Double)] raise CairoError
+pub fn Pattern::get_dither(Self) -> Dither raise CairoError
+pub fn Pattern::get_extend(Self) -> Extend raise CairoError
+pub fn Pattern::get_filter(Self) -> Filter raise CairoError
+pub fn Pattern::get_linear_points(Self) -> (Double, Double, Double, Double) raise CairoError
+pub fn Pattern::get_matrix(Self) -> Matrix raise CairoError
+pub fn Pattern::get_radial_circles(Self) -> (Double, Double, Double, Double, Double, Double) raise CairoError
+pub fn Pattern::get_rgba(Self) -> (Double, Double, Double, Double) raise CairoError
+pub fn Pattern::get_surface(Self) -> Surface raise CairoError
+pub fn Pattern::linear(Double, Double, Double, Double) -> Self raise CairoError
+pub fn Pattern::radial(Double, Double, Double, Double, Double, Double) -> Self raise CairoError
+pub fn Pattern::set_dither(Self, Dither) -> Unit raise CairoError
+pub fn Pattern::set_extend(Self, Extend) -> Unit raise CairoError
+pub fn Pattern::set_filter(Self, Filter) -> Unit raise CairoError
+pub fn Pattern::set_matrix(Self, Matrix) -> Unit raise CairoError
+pub fn Pattern::solid_rgb(Double, Double, Double) -> Self raise CairoError
+pub fn Pattern::solid_rgba(Double, Double, Double, Double) -> Self raise CairoError
+pub fn Pattern::status(Self) -> Status
+
+pub struct Rectangle {
+  x : Double
+  y : Double
+  width : Double
+  height : Double
+} derive(Eq, @debug.Debug)
+pub fn Rectangle::component(Self, Int) -> Double raise CairoError
+pub fn Rectangle::components(Self) -> (Double, Double, Double, Double)
+pub fn Rectangle::new(Double, Double, Double, Double) -> Self
+
+pub struct RectangleInt {
+  x : Int
+  y : Int
+  width : Int
+  height : Int
+} derive(Eq, @debug.Debug)
+pub fn RectangleInt::component(Self, Int) -> Int raise CairoError
+pub fn RectangleInt::components(Self) -> (Int, Int, Int, Int)
+pub fn RectangleInt::new(x? : Int, y? : Int, width? : Int, height? : Int) -> Self
+
+type Region
+pub fn Region::contains_point(Self, Int, Int) -> Bool
+pub fn Region::contains_rectangle(Self, RectangleInt) -> RegionOverlap
+pub fn Region::copy(Self) -> Self raise CairoError
+pub fn Region::equal(Self, Self) -> Bool
+pub fn Region::from_rectangle(RectangleInt) -> Self raise CairoError
+pub fn Region::get_extents(Self) -> RectangleInt raise CairoError
+pub fn Region::get_rectangle(Self, Int) -> RectangleInt raise CairoError
+pub fn Region::intersect(Self, Self) -> Unit raise CairoError
+pub fn Region::intersect_rectangle(Self, RectangleInt) -> Unit raise CairoError
+pub fn Region::is_empty(Self) -> Bool
+pub fn Region::new() -> Self raise CairoError
+pub fn Region::num_rectangles(Self) -> Int
+pub fn Region::status(Self) -> Status
+pub fn Region::subtract(Self, Self) -> Unit raise CairoError
+pub fn Region::subtract_rectangle(Self, RectangleInt) -> Unit raise CairoError
+pub fn Region::translate(Self, Int, Int) -> Unit raise CairoError
+pub fn Region::union(Self, Self) -> Unit raise CairoError
+pub fn Region::union_rectangle(Self, RectangleInt) -> Unit raise CairoError
+pub fn Region::xor(Self, Self) -> Unit raise CairoError
+pub fn Region::xor_rectangle(Self, RectangleInt) -> Unit raise CairoError
+
+pub(all) enum RegionOverlap {
+  RegionOverlapIn
+  RegionOverlapOut
+  RegionOverlapPart
+} derive(Eq, @debug.Debug)
+
+pub(all) enum SVGUnit {
+  SvgUnitUser
+  SvgUnitEm
+  SvgUnitEx
+  SvgUnitPx
+  SvgUnitIn
+  SvgUnitCm
+  SvgUnitMm
+  SvgUnitPt
+  SvgUnitPc
+  SvgUnitPercent
+} derive(Eq, @debug.Debug)
+
+pub(all) enum SVGVersion {
+  SvgVersion1_1
+  SvgVersion1_2
+} derive(Eq, @debug.Debug)
+
+type ScaledFont
+pub fn ScaledFont::equal(Self, Self) -> Bool
+pub fn ScaledFont::extents(Self) -> FontExtents raise CairoError
+pub fn ScaledFont::get_ctm(Self) -> Matrix raise CairoError
+pub fn ScaledFont::get_font_face(Self) -> FontFace raise CairoError
+pub fn ScaledFont::get_font_matrix(Self) -> Matrix raise CairoError
+pub fn ScaledFont::get_font_options(Self) -> FontOptions raise CairoError
+pub fn ScaledFont::get_scale_matrix(Self) -> Matrix raise CairoError
+pub fn ScaledFont::hash(Self) -> UInt64
+pub fn ScaledFont::new(FontFace, Matrix, Matrix, FontOptions) -> Self raise CairoError
+pub fn ScaledFont::status(Self) -> Status
+pub fn ScaledFont::text_extents(Self, String) -> TextExtents raise CairoError
+
+pub(all) enum ScriptMode {
+  ScriptModeAscii
+  ScriptModeBinary
+} derive(Eq, @debug.Debug)
+
+pub(all) enum Status {
+  Success
+  NoMemory
+  InvalidRestore
+  InvalidPopGroup
+  NoCurrentPoint
+  InvalidMatrix
+  InvalidStatus
+  NullPointer
+  InvalidString
+  InvalidPathData
+  ReadError
+  WriteError
+  SurfaceFinished
+  SurfaceTypeMismatch
+  PatternTypeMismatch
+  InvalidContent
+  InvalidFormat
+  InvalidVisual
+  FileNotFound
+  InvalidDash
+  InvalidDscComment
+  InvalidIndex
+  ClipNotRepresentable
+  TempFileError
+  InvalidStride
+  FontTypeMismatch
+  UserFontImmutable
+  UserFontError
+  NegativeCount
+  InvalidClusters
+  InvalidSlant
+  InvalidWeight
+  InvalidSize
+  UserFontNotImplemented
+  DeviceTypeMismatch
+  DeviceError
+  InvalidMeshConstruction
+  DeviceFinished
+  Jbig2GlobalMissing
+  PngError
+  FreetypeError
+  Win32GdiError
+  TagError
+  DwriteError
+  SvgFontError
+  LastStatus
+} derive(Eq, @debug.Debug)
+pub fn Status::is_success(Self) -> Bool
+pub fn Status::message(Self) -> String
+
+pub(all) enum SubpixelOrder {
+  SubpixelDefault
+  SubpixelRgb
+  SubpixelBgr
+  SubpixelVrgb
+  SubpixelVbgr
+} derive(Eq, @debug.Debug)
+
+type Surface
+pub fn Surface::copy_data(Self) -> Bytes raise CairoError
+pub fn Surface::copy_page(Self) -> Unit raise CairoError
+pub fn Surface::finish(Self) -> Unit raise CairoError
+pub fn Surface::flush(Self) -> Unit raise CairoError
+pub fn Surface::get_font_options(Self) -> FontOptions raise CairoError
+pub fn Surface::get_format(Self) -> Format
+pub fn Surface::get_height(Self) -> Int
+pub fn Surface::get_stride(Self) -> Int
+pub fn Surface::get_width(Self) -> Int
+pub fn Surface::image(Format, Int, Int) -> Self raise CairoError
+pub fn Surface::show_page(Self) -> Unit raise CairoError
+pub fn Surface::status(Self) -> Status
+
+pub(all) enum SurfaceObserverMode {
+  SurfaceObserverNormal
+  SurfaceObserverRecordOperations
+} derive(Eq, @debug.Debug)
+
+pub struct TextCluster {
+  num_bytes : Int
+  num_glyphs : Int
+} derive(Eq, @debug.Debug)
+pub fn TextCluster::component(Self, Int) -> Int raise CairoError
+pub fn TextCluster::components(Self) -> (Int, Int)
+pub fn TextCluster::new(Int, Int) -> Self
+
+pub(all) enum TextClusterFlags {
+  TextClusterBackward
+} derive(Eq, @debug.Debug)
+
+pub struct TextExtents {
+  x_bearing : Double
+  y_bearing : Double
+  width : Double
+  height : Double
+  x_advance : Double
+  y_advance : Double
+} derive(Eq, @debug.Debug)
+pub fn TextExtents::component(Self, Int) -> Double raise CairoError
+pub fn TextExtents::components(Self) -> (Double, Double, Double, Double, Double, Double)
+pub fn TextExtents::new(Double, Double, Double, Double, Double, Double) -> Self
+
+// Type aliases
+
+// Traits
+

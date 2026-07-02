@@ -1,0 +1,123 @@
+///|
+pub struct Matrix {
+  xx : Double
+  yx : Double
+  xy : Double
+  yy : Double
+  x0 : Double
+  y0 : Double
+} derive(Eq, Debug)
+
+///|
+pub fn Matrix::new(
+  xx? : Double = 1.0,
+  yx? : Double = 0.0,
+  xy? : Double = 0.0,
+  yy? : Double = 1.0,
+  x0? : Double = 0.0,
+  y0? : Double = 0.0,
+) -> Matrix {
+  { xx, yx, xy, yy, x0, y0 }
+}
+
+///|
+pub fn Matrix::init_rotate(radians : Double) -> Matrix {
+  let s = @math.sin(radians)
+  let c = @math.cos(radians)
+  { xx: c, yx: s, xy: -s, yy: c, x0: 0.0, y0: 0.0 }
+}
+
+///|
+pub fn Matrix::components(
+  self : Matrix,
+) -> (Double, Double, Double, Double, Double, Double) {
+  (self.xx, self.yx, self.xy, self.yy, self.x0, self.y0)
+}
+
+///|
+pub fn Matrix::component(self : Matrix, index : Int) -> Double raise CairoError {
+  match index {
+    0 => self.xx
+    1 => self.yx
+    2 => self.xy
+    3 => self.yy
+    4 => self.x0
+    5 => self.y0
+    _ => raise CairoInvalidArgument(InvalidIndex, InvalidIndex.message())
+  }
+}
+
+///|
+pub fn Matrix::translate(self : Matrix, tx : Double, ty : Double) -> Matrix {
+  {
+    xx: self.xx,
+    yx: self.yx,
+    xy: self.xy,
+    yy: self.yy,
+    x0: self.x0 + tx * self.xx + ty * self.xy,
+    y0: self.y0 + tx * self.yx + ty * self.yy,
+  }
+}
+
+///|
+pub fn Matrix::rotate(self : Matrix, radians : Double) -> Matrix {
+  Matrix::init_rotate(radians).multiply(self)
+}
+
+///|
+pub fn Matrix::scale(self : Matrix, sx : Double, sy : Double) -> Matrix {
+  {
+    xx: self.xx * sx,
+    yx: self.yx * sx,
+    xy: self.xy * sy,
+    yy: self.yy * sy,
+    x0: self.x0,
+    y0: self.y0,
+  }
+}
+
+///|
+pub fn Matrix::invert(self : Matrix) -> Matrix raise CairoError {
+  let det = self.xx * self.yy - self.yx * self.xy
+  if det == 0.0 {
+    check_status(InvalidMatrix)
+  }
+  {
+    xx: self.yy / det,
+    yx: -self.yx / det,
+    xy: -self.xy / det,
+    yy: self.xx / det,
+    x0: (self.xy * self.y0 - self.yy * self.x0) / det,
+    y0: (self.yx * self.x0 - self.xx * self.y0) / det,
+  }
+}
+
+///|
+pub fn Matrix::multiply(self : Matrix, other : Matrix) -> Matrix {
+  {
+    xx: self.xx * other.xx + self.yx * other.xy,
+    yx: self.xx * other.yx + self.yx * other.yy,
+    xy: self.xy * other.xx + self.yy * other.xy,
+    yy: self.xy * other.yx + self.yy * other.yy,
+    x0: self.x0 * other.xx + self.y0 * other.xy + other.x0,
+    y0: self.x0 * other.yx + self.y0 * other.yy + other.y0,
+  }
+}
+
+///|
+pub fn Matrix::transform_point(
+  self : Matrix,
+  x : Double,
+  y : Double,
+) -> (Double, Double) {
+  (self.xx * x + self.xy * y + self.x0, self.yx * x + self.yy * y + self.y0)
+}
+
+///|
+pub fn Matrix::transform_distance(
+  self : Matrix,
+  dx : Double,
+  dy : Double,
+) -> (Double, Double) {
+  (self.xx * dx + self.xy * dy, self.yx * dx + self.yy * dy)
+}
