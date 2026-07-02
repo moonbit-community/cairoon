@@ -177,6 +177,23 @@ test {
 
 ///|
 test {
+  let level : PSLevel = PsLevel3
+  inspect(PSLevel::supported().any(item => item == level), content="true")
+  inspect(level.to_string().contains("PS"), content="true")
+
+  let surface = Surface::ps(12.0, 12.0)
+  surface.ps_set_eps(true)
+  inspect(surface.ps_get_eps(), content="true")
+  surface.ps_restrict_to_level(PsLevel2)
+  surface.ps_dsc_comment("%%Title: Cairoon PS")
+  let ctx = Context::new(surface)
+  ctx.set_source_rgb(0.0, 0.0, 1.0)
+  ctx.paint()
+  surface.finish()
+}
+
+///|
+test {
   let surface = Surface::image(Rgb24, 2, 1)
   let mapped = surface.map_to_image(
     extents=Some(RectangleInt::new(x=0, y=0, width=1, height=1)),

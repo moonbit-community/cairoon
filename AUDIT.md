@@ -38,7 +38,9 @@ Implemented in this workspace:
   Context group target/push/pop APIs, Context tag begin/end APIs, Context toy
   text show/path/extents APIs, Context glyph array extents/path/show APIs,
   ScaledFont text-to-glyphs, Context show-text-glyphs APIs,
-  RecordingSurface constructor/extents/ink-extents APIs, SVGSurface
+  RecordingSurface constructor/extents/ink-extents APIs, PSSurface
+  filename/no-output constructor, level helpers, level restriction, EPS mode,
+  page-size, and DSC comment/setup APIs, SVGSurface
   filename/no-output constructor, version helper, version restriction, and
   document-unit APIs, Cairo tag string constants,
   portable `Surface` base helpers for `create_similar`,
@@ -76,6 +78,9 @@ Implemented in this workspace:
   and extents, MIME data storage/clear behavior including embedded NUL bytes
   and zero-length payloads, recording surface bounded/unbounded extents,
   replay-through-surface-pattern behavior, subtype-mismatch errors,
+  PS surface level helper behavior, no-output and filename construction, EPS
+  mode, level restriction, size/DSC helpers, finished-surface errors, invalid
+  DSC/path validation, and subtype-mismatch errors,
   SVG surface version helper behavior, no-output and filename construction,
   document-unit behavior, finished-surface errors, invalid path validation, and
   subtype-mismatch errors,
@@ -110,9 +115,9 @@ Implemented in this workspace:
 
 2026-07-02:
 
-- `moon -C cairoon test --target native -v`: 161 tests passed.
+- `moon -C cairoon test --target native -v`: 167 tests passed.
 - `run-asan.py --repo-root /Users/caimeo/code/pycairo/cairoon --pkg moon.pkg`:
-  ran the 161-test native suite after the SVGSurface slice
+  ran the 167-test native suite after the PSSurface slice
   and failed during LeakSanitizer reporting. The reported allocations are rooted in
   `cairo_toy_font_face_create`, `cairo_select_font_face`, macOS
   FontRegistry/CoreGraphics frames, and scaled-font Quartz/CoreText paths such
@@ -123,17 +128,18 @@ Implemented in this workspace:
   `CTFontDrawGlyphs`, CoreGraphics, and ColorSync;
   no AddressSanitizer invalid-access report appeared before LSan failed and no
   text-to-glyphs native result finalizer, glyph/cluster marshaling helper,
-  RecordingSurface helper, SVGSurface helper, Context text/tag/group, or
-  MIME-data stub ownership stack appeared in the visible leak roots.
-  Summary: `91621 byte(s) leaked in 503 allocation(s)`. The helper still emits
+  RecordingSurface helper, PSSurface helper, SVGSurface helper, Context
+  text/tag/group, or MIME-data stub ownership stack appeared in the visible
+  leak roots.
+  Summary: `89925 byte(s) leaked in 482 allocation(s)`. The helper still emits
   a `moon.mod.json` lookup warning because this package uses `moon.mod`, but it
   correctly patched and restored the DSL `moon.pkg` and MoonBit runtime object
   for this package.
 
 ## Known Gaps
 
-- No mesh/raster-source patterns, PDF/PS, stream/callback APIs, normalized SVG
-  output comparison, or direct
+- No mesh/raster-source patterns, PDFSurface, stream/callback APIs, normalized
+  SVG/PS output comparison, or direct
   mutable image data view binding yet.
 - `Surface::copy_data` copies the Cairo image data into MoonBit `Bytes`; it
   intentionally does not expose a mutable view yet.

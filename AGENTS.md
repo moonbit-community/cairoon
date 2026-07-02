@@ -59,6 +59,7 @@ cairoon/
   cairoon_objects.c
   cairoon_misc.c
   cairoon_surface.c
+  cairoon_ps_surface.c
   cairoon_svg_surface.c
   cairoon_context.c
   cairoon_glyph.c
@@ -83,6 +84,7 @@ options(
     "cairoon_objects.c",
     "cairoon_misc.c",
     "cairoon_surface.c",
+    "cairoon_ps_surface.c",
     "cairoon_svg_surface.c",
     "cairoon_context.c",
     "cairoon_glyph.c",
@@ -118,6 +120,7 @@ payload types and cross-file helpers declared in `cairoon_private.h`.
 - `cairoon_misc.c`: version/status string helpers and small module-level C
   exports.
 - `cairoon_surface.c`: `Surface`, image-surface, and recording-surface exports.
+- `cairoon_ps_surface.c`: PostScript surface exports.
 - `cairoon_svg_surface.c`: SVG surface exports.
 - `cairoon_context.c`: `Context` exports.
 - `cairoon_glyph.c`: shared `cairo_glyph_t` array marshaling helpers used by
