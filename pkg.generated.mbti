@@ -140,12 +140,15 @@ pub fn Context::set_source_rgb(Self, Double, Double, Double) -> Unit raise Cairo
 pub fn Context::set_source_rgba(Self, Double, Double, Double, Double) -> Unit raise CairoError
 pub fn Context::set_tolerance(Self, Double) -> Unit raise CairoError
 pub fn Context::show_page(Self) -> Unit raise CairoError
+pub fn Context::show_text(Self, String) -> Unit raise CairoError
 pub fn Context::status(Self) -> Status
 pub fn Context::stroke(Self) -> Unit raise CairoError
 pub fn Context::stroke_extents(Self) -> (Double, Double, Double, Double) raise CairoError
 pub fn Context::stroke_preserve(Self) -> Unit raise CairoError
 pub fn Context::tag_begin(Self, String, String) -> Unit raise CairoError
 pub fn Context::tag_end(Self, String) -> Unit raise CairoError
+pub fn Context::text_extents(Self, String) -> TextExtents raise CairoError
+pub fn Context::text_path(Self, String) -> Unit raise CairoError
 pub fn Context::transform(Self, Matrix) -> Unit raise CairoError
 pub fn Context::translate(Self, Double, Double) -> Unit raise CairoError
 pub fn Context::user_to_device(Self, Double, Double) -> (Double, Double) raise CairoError

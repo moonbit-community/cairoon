@@ -813,6 +813,27 @@ extern "C" fn context_font_extents_ffi(
 ) -> Status = "cairoon_context_font_extents"
 
 ///|
+#borrow(ctx, text)
+extern "C" fn context_show_text_ffi(ctx : Context, text : Bytes) -> Status = "cairoon_context_show_text"
+
+///|
+#borrow(ctx, text, x_bearing, y_bearing, width, height, x_advance, y_advance)
+extern "C" fn context_text_extents_ffi(
+  ctx : Context,
+  text : Bytes,
+  x_bearing : Ref[Double],
+  y_bearing : Ref[Double],
+  width : Ref[Double],
+  height : Ref[Double],
+  x_advance : Ref[Double],
+  y_advance : Ref[Double],
+) -> Status = "cairoon_context_text_extents"
+
+///|
+#borrow(ctx, text)
+extern "C" fn context_text_path_ffi(ctx : Context, text : Bytes) -> Status = "cairoon_context_text_path"
+
+///|
 #borrow(ctx, status)
 extern "C" fn context_get_scaled_font_ffi(
   ctx : Context,

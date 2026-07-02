@@ -128,6 +128,34 @@ fn font_extents_from_output(
 }
 
 ///|
+fn text_extents_from_output(
+  f : (
+    Ref[Double],
+    Ref[Double],
+    Ref[Double],
+    Ref[Double],
+    Ref[Double],
+    Ref[Double],
+  ) -> Status,
+) -> TextExtents raise CairoError {
+  let x_bearing = Ref(0.0)
+  let y_bearing = Ref(0.0)
+  let width = Ref(0.0)
+  let height = Ref(0.0)
+  let x_advance = Ref(0.0)
+  let y_advance = Ref(0.0)
+  check_status(f(x_bearing, y_bearing, width, height, x_advance, y_advance))
+  TextExtents::new(
+    x_bearing.val,
+    y_bearing.val,
+    width.val,
+    height.val,
+    x_advance.val,
+    y_advance.val,
+  )
+}
+
+///|
 pub fn ScaledFont::extents(self : ScaledFont) -> FontExtents raise CairoError {
   font_extents_from_output((
     ascent,
@@ -147,25 +175,17 @@ pub fn ScaledFont::text_extents(
   self : ScaledFont,
   text : String,
 ) -> TextExtents raise CairoError {
-  let bytes = @utf8.encode(text)
-  check_no_embedded_nul(bytes)
-  let x_bearing = Ref(0.0)
-  let y_bearing = Ref(0.0)
-  let width = Ref(0.0)
-  let height = Ref(0.0)
-  let x_advance = Ref(0.0)
-  let y_advance = Ref(0.0)
-  check_status(
+  let bytes = checked_c_string_bytes(text)
+  text_extents_from_output((
+    x_bearing,
+    y_bearing,
+    width,
+    height,
+    x_advance,
+    y_advance,
+  ) => {
     scaled_font_text_extents_ffi(
       self, bytes, x_bearing, y_bearing, width, height, x_advance, y_advance,
-    ),
-  )
-  TextExtents::new(
-    x_bearing.val,
-    y_bearing.val,
-    width.val,
-    height.val,
-    x_advance.val,
-    y_advance.val,
-  )
+    )
+  })
 }

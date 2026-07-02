@@ -202,6 +202,42 @@ pub fn Context::font_extents(self : Context) -> FontExtents raise CairoError {
 }
 
 ///|
+pub fn Context::show_text(
+  self : Context,
+  text : String,
+) -> Unit raise CairoError {
+  check_status(context_show_text_ffi(self, checked_c_string_bytes(text)))
+}
+
+///|
+pub fn Context::text_extents(
+  self : Context,
+  text : String,
+) -> TextExtents raise CairoError {
+  let bytes = checked_c_string_bytes(text)
+  text_extents_from_output((
+    x_bearing,
+    y_bearing,
+    width,
+    height,
+    x_advance,
+    y_advance,
+  ) => {
+    context_text_extents_ffi(
+      self, bytes, x_bearing, y_bearing, width, height, x_advance, y_advance,
+    )
+  })
+}
+
+///|
+pub fn Context::text_path(
+  self : Context,
+  text : String,
+) -> Unit raise CairoError {
+  check_status(context_text_path_ffi(self, checked_c_string_bytes(text)))
+}
+
+///|
 pub fn Context::get_scaled_font(self : Context) -> ScaledFont raise CairoError {
   let status = Ref(Success)
   let scaled_font = context_get_scaled_font_ffi(self, status)

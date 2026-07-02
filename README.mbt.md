@@ -232,6 +232,23 @@ test {
 
 ///|
 test {
+  let surface = Surface::image(Rgb24, 32, 16)
+  let ctx = Context::new(surface)
+  ctx.select_font_face("serif")
+  ctx.set_font_size(12.0)
+  ctx.move_to(2.0, 12.0)
+  let extents = ctx.text_extents("foo")
+  inspect(extents.x_advance > 0.0, content="true")
+  ctx.show_text("foo")
+  let (x, _) = ctx.get_current_point()
+  inspect(x > 2.0, content="true")
+  ctx.text_path("bar")
+  let (x1, _, x2, _) = ctx.path_extents()
+  inspect(x2 > x1, content="true")
+}
+
+///|
+test {
   let face = FontFace::toy("serif", weight=FontWeightBold)
   let options = FontOptions::new()
   options.set_antialias(AntialiasGray)

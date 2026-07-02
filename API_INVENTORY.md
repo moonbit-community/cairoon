@@ -137,7 +137,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 | Stroke/fill state | Done | line width/cap/join, miter limit, fill rule, tolerance, operator, antialias, dash |
 | Matrix APIs | Done | get/set/identity/translate/rotate/transform and user/device coordinate conversions |
 | Groups | Done | `push_group`, `push_group_with_content`, `pop_group`, `pop_group_to_source`, and `get_group_target` with pixel and unmatched-pop tests |
-| Text and fonts | Partial | font options get/set, font face get/set/select, toy font, font matrix/size/extents, and scaled font basics exist; glyph arrays and Context text APIs remain |
+| Text and fonts | Partial | font options get/set, font face get/set/select, toy font, font matrix/size/extents, Context toy text APIs, and scaled font basics exist; glyph arrays and `show_text_glyphs` remain |
 | Path copy/append | Done | `copy_path`, `copy_path_flat`, `append_path`, `Path::segments`, `Path::iter`, and `Path::to_string` |
 | Hit testing and extents | Done | `in_clip`, `in_fill`, `in_stroke`, `clip_extents`, `fill_extents`, `stroke_extents`, `path_extents` |
 | Tags | Partial | `tag_begin`/`tag_end` exist with UTF-8/NUL validation, tag constants, and context-error propagation tests; tag-aware vector output and nesting `TagError` coverage need PDF/SVG/PS backends |
@@ -153,7 +153,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 | `ScaledFont` | Partial | Constructor, status, equality/hash, extents, font face/options, font matrix, ctm, scale matrix, and text extents implemented; glyph extents and text-to-glyphs remain |
 | `Glyph` arrays | Todo | `Glyph` value type exists; sequence marshaling still needed |
 | `TextCluster` arrays | Todo | `TextCluster` value type exists; sequence marshaling still needed |
-| UTF-8 text input | Partial | Toy font family, context font-family inputs, and `ScaledFont::text_extents` encode to UTF-8 and reject embedded NUL; Context text APIs remain |
+| UTF-8 text input | Partial | Toy font family, context font-family inputs, `Context::show_text/text_extents/text_path`, and `ScaledFont::text_extents` encode to UTF-8 and reject embedded NUL; glyph-array text APIs remain |
 
 ## Region APIs
 

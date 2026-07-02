@@ -349,6 +349,64 @@ cairo_status_t cairoon_context_font_extents(
 }
 
 MOONBIT_FFI_EXPORT
+cairo_status_t cairoon_context_show_text(
+  CairoonContext *ctx,
+  moonbit_bytes_t text) {
+  cairo_status_t status = cairoon_context_status(ctx);
+  if (status != CAIRO_STATUS_SUCCESS) {
+    return status;
+  }
+  if (text == NULL) {
+    return CAIRO_STATUS_NULL_POINTER;
+  }
+  cairo_show_text(ctx->ptr, (const char *)text);
+  return cairo_status(ctx->ptr);
+}
+
+MOONBIT_FFI_EXPORT
+cairo_status_t cairoon_context_text_extents(
+  CairoonContext *ctx,
+  moonbit_bytes_t text,
+  double *x_bearing,
+  double *y_bearing,
+  double *width,
+  double *height,
+  double *x_advance,
+  double *y_advance) {
+  cairo_status_t status = cairoon_context_status(ctx);
+  if (status != CAIRO_STATUS_SUCCESS) {
+    return status;
+  }
+  if (text == NULL) {
+    return CAIRO_STATUS_NULL_POINTER;
+  }
+  cairo_text_extents_t extents;
+  cairo_text_extents(ctx->ptr, (const char *)text, &extents);
+  *x_bearing = extents.x_bearing;
+  *y_bearing = extents.y_bearing;
+  *width = extents.width;
+  *height = extents.height;
+  *x_advance = extents.x_advance;
+  *y_advance = extents.y_advance;
+  return cairo_status(ctx->ptr);
+}
+
+MOONBIT_FFI_EXPORT
+cairo_status_t cairoon_context_text_path(
+  CairoonContext *ctx,
+  moonbit_bytes_t text) {
+  cairo_status_t status = cairoon_context_status(ctx);
+  if (status != CAIRO_STATUS_SUCCESS) {
+    return status;
+  }
+  if (text == NULL) {
+    return CAIRO_STATUS_NULL_POINTER;
+  }
+  cairo_text_path(ctx->ptr, (const char *)text);
+  return cairo_status(ctx->ptr);
+}
+
+MOONBIT_FFI_EXPORT
 CairoonScaledFont *cairoon_context_get_scaled_font(
   CairoonContext *ctx,
   cairo_status_t *status_out) {
