@@ -11,14 +11,17 @@ Implemented in this workspace:
   currently cover `Surface`, `Context`, `Path`, `Pattern`, and `Region`.
 - `Context` retains its target `Surface` with `moonbit_incref` and releases it
   in the finalizer.
+- `Surface::image_for_data` retains its backing `FixedArray[Byte]` with
+  `moonbit_incref` and releases it in the surface finalizer after destroying
+  the cairo surface.
 - `Pattern::for_surface` retains its base `Surface` wrapper while the pattern
   wrapper exists, and `Pattern::get_surface` returns a referenced `Surface`
   wrapper that can outlive the pattern wrapper.
 - Public `Status`, `CairoError`, version helpers, portable Cairo enum types,
   `Format::stride_for_width`, pure `Matrix` parity operations, pure rectangle,
   glyph, text-cluster, and extents values, image `Surface` including PNG
-  filename load/save, core `Context` drawing state including dash, clip APIs
-  including rectangle-list copying,
+  filename load/save and buffer-backed creation, core `Context` drawing state
+  including dash, clip APIs including rectangle-list copying,
   hit testing, geometric extents, absolute/relative/arc path drawing,
   current-point queries, path copy/append plus typed path segment iteration and
   stringification, referenced borrowed returns for target/source, core
@@ -37,8 +40,9 @@ Implemented in this workspace:
   matrix getters, text extents, and `Context` font matrix/size/extents plus
   scaled-font get/set wrappers.
 - Initial parity tests for version, enum exposure, pure value types, matrix
-  behavior, image surface properties, PNG filename round trips and invalid path
-  validation, deterministic pixel rendering, context CTM, coordinate
+  behavior, image surface properties, buffer-backed image surface sharing and
+  lifetime behavior, PNG filename round trips and invalid path validation,
+  deterministic pixel rendering, context CTM, coordinate
   conversion, drawing-state behavior, path current-point,
   relative/arc, copy/append, stringification, and iteration behavior,
   borrowed target/source lifetime behavior,
@@ -72,15 +76,15 @@ Implemented in this workspace:
 
 2026-07-02:
 
-- `moon -C cairoon test --target native -v`: 108 tests passed.
+- `moon -C cairoon test --target native -v`: 113 tests passed.
 - `run-asan.py --repo-root /Users/caimeo/code/pycairo/cairoon --pkg moon.pkg`:
-  ran the 108-test native suite after the PNG filename API slice and failed
-  during LeakSanitizer reporting. The reported allocations are rooted in
+  ran the 113-test native suite after the `Surface::image_for_data` slice and
+  failed during LeakSanitizer reporting. The reported allocations are rooted in
   `cairo_toy_font_face_create`, `cairo_select_font_face`, macOS
   FontRegistry/CoreGraphics frames, and scaled-font Quartz/CoreText paths such
   as `cairo_scaled_font_create`, `CGFontCopyURL`, and `CTFontCreateWithGraphicsFont`;
   no AddressSanitizer invalid-access report appeared before LSan failed.
-  Summary: `91317 byte(s) leaked in 1299 allocation(s)`. The helper still emits
+  Summary: `91797 byte(s) leaked in 1308 allocation(s)`. The helper still emits
   a `moon.mod.json` lookup warning because this package uses `moon.mod`, but it
   correctly patched and restored the DSL `moon.pkg` and MoonBit runtime object
   for this package.
@@ -88,8 +92,8 @@ Implemented in this workspace:
 ## Known Gaps
 
 - No mesh/raster-source patterns, ScaledFont glyph arrays/text-to-glyphs,
-  PDF/SVG/PS, stream/callback APIs, or `ImageSurface.create_for_data` binding
-  yet.
+  PDF/SVG/PS, stream/callback APIs, mapped image surfaces, or direct mutable
+  image data view binding yet.
 - `Surface::copy_data` copies the Cairo image data into MoonBit `Bytes`; it
   intentionally does not expose a mutable view yet.
 - The package currently records Homebrew Cairo 1.18.4 paths. A portable setup

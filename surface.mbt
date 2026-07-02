@@ -10,6 +10,23 @@ pub fn Surface::image(
 }
 
 ///|
+pub fn Surface::image_for_data(
+  data : FixedArray[Byte],
+  format : Format,
+  width : Int,
+  height : Int,
+  stride? : Int = Format::stride_for_width(format, width),
+) -> Surface raise CairoError {
+  let status = Ref(Success)
+  let surface = image_surface_create_for_data_ffi(
+    data, format, width, height, stride, status,
+  )
+  check_status(status.val)
+  check_status(surface_status_ffi(surface))
+  surface
+}
+
+///|
 fn checked_path_bytes(path : String) -> Bytes raise CairoError {
   let bytes = @utf8.encode(path)
   check_no_embedded_nul(bytes)

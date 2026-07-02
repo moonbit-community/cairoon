@@ -72,6 +72,20 @@ test {
 
 ///|
 test {
+  let data : FixedArray[Byte] = FixedArray::make(4, b'\x00')
+  let surface = Surface::image_for_data(data, Argb32, 1, 1)
+  let ctx = Context::new(surface)
+  ctx.set_source_rgba(0.0, 0.0, 1.0, 1.0)
+  ctx.paint()
+  surface.flush()
+  inspect(data[0].to_int(), content="255")
+  inspect(data[1].to_int(), content="0")
+  inspect(data[2].to_int(), content="0")
+  inspect(data[3].to_int(), content="255")
+}
+
+///|
+test {
   let gradient = Pattern::linear(0.0, 0.0, 10.0, 0.0)
   gradient.add_color_stop_rgb(0.0, 1.0, 0.0, 0.0)
   gradient.add_color_stop_rgba(1.0, 0.0, 0.0, 1.0, 0.5)

@@ -8,6 +8,48 @@ CairoonSurface *cairoon_image_surface_create(cairo_format_t format, int32_t widt
 }
 
 MOONBIT_FFI_EXPORT
+CairoonSurface *cairoon_image_surface_create_for_data(
+  uint8_t *data,
+  cairo_format_t format,
+  int32_t width,
+  int32_t height,
+  int32_t stride,
+  cairo_status_t *status_out) {
+  *status_out = CAIRO_STATUS_SUCCESS;
+  if (data == NULL) {
+    *status_out = CAIRO_STATUS_NULL_POINTER;
+    return cairoon_surface_wrap_owned(NULL);
+  }
+  if (width < 0 || height < 0) {
+    *status_out = CAIRO_STATUS_INVALID_SIZE;
+    return cairoon_surface_wrap_owned(NULL);
+  }
+  if (stride < 0) {
+    *status_out = CAIRO_STATUS_INVALID_STRIDE;
+    return cairoon_surface_wrap_owned(NULL);
+  }
+
+  int64_t required = (int64_t)height * (int64_t)stride;
+  int64_t available = (int64_t)Moonbit_array_length(data);
+  if (required > available) {
+    *status_out = CAIRO_STATUS_INVALID_SIZE;
+    return cairoon_surface_wrap_owned(NULL);
+  }
+
+  cairo_surface_t *surface =
+    cairo_image_surface_create_for_data(data, format, width, height, stride);
+  if (surface == NULL) {
+    *status_out = CAIRO_STATUS_NO_MEMORY;
+    return cairoon_surface_wrap_owned(NULL);
+  }
+  *status_out = cairo_surface_status(surface);
+  if (*status_out != CAIRO_STATUS_SUCCESS) {
+    return cairoon_surface_wrap_owned(surface);
+  }
+  return cairoon_surface_wrap_owned_with_base(surface, data);
+}
+
+MOONBIT_FFI_EXPORT
 CairoonSurface *cairoon_image_surface_create_from_png(
   moonbit_bytes_t filename,
   cairo_status_t *status_out) {

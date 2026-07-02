@@ -380,6 +380,17 @@ extern "C" fn image_surface_create_ffi(
 ) -> Surface = "cairoon_image_surface_create"
 
 ///|
+#borrow(data, status)
+extern "C" fn image_surface_create_for_data_ffi(
+  data : FixedArray[Byte],
+  format : Format,
+  width : Int,
+  height : Int,
+  stride : Int,
+  status : Ref[Status],
+) -> Surface = "cairoon_image_surface_create_for_data"
+
+///|
 #borrow(filename, status)
 extern "C" fn image_surface_create_from_png_ffi(
   filename : Bytes,
