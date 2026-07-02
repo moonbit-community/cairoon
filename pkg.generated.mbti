@@ -6,6 +6,8 @@ import {
 }
 
 // Values
+pub const PDF_OUTLINE_ROOT : Int = 0
+
 pub const TAG_CONTENT : String = "cairo.content"
 
 pub const TAG_CONTENT_REF : String = "cairo.content_ref"
@@ -372,6 +374,8 @@ pub(all) enum PDFVersion {
   PdfVersion1_6
   PdfVersion1_7
 } derive(Eq, @debug.Debug)
+pub fn PDFVersion::supported() -> Array[Self] raise CairoError
+pub fn PDFVersion::to_string(Self) -> String raise CairoError
 
 pub(all) enum PSLevel {
   PsLevel2
@@ -604,6 +608,14 @@ pub fn Surface::image_from_png(String) -> Self raise CairoError
 pub fn Surface::map_to_image(Self, extents? : RectangleInt?) -> MappedImageSurface raise CairoError
 pub fn Surface::mark_dirty(Self) -> Unit raise CairoError
 pub fn Surface::mark_dirty_rectangle(Self, Int, Int, Int, Int) -> Unit raise CairoError
+pub fn Surface::pdf(Double, Double, path? : String?) -> Self raise CairoError
+pub fn Surface::pdf_add_outline(Self, Int, String, String, PDFOutlineFlags) -> Int raise CairoError
+pub fn Surface::pdf_restrict_to_version(Self, PDFVersion) -> Unit raise CairoError
+pub fn Surface::pdf_set_custom_metadata(Self, String, String?) -> Unit raise CairoError
+pub fn Surface::pdf_set_metadata(Self, PDFMetadata, String) -> Unit raise CairoError
+pub fn Surface::pdf_set_page_label(Self, String) -> Unit raise CairoError
+pub fn Surface::pdf_set_size(Self, Double, Double) -> Unit raise CairoError
+pub fn Surface::pdf_set_thumbnail_size(Self, Int, Int) -> Unit raise CairoError
 pub fn Surface::ps(Double, Double, path? : String?) -> Self raise CairoError
 pub fn Surface::ps_dsc_begin_page_setup(Self) -> Unit raise CairoError
 pub fn Surface::ps_dsc_begin_setup(Self) -> Unit raise CairoError

@@ -177,6 +177,30 @@ test {
 
 ///|
 test {
+  let version : PDFVersion = PdfVersion1_4
+  inspect(PDFVersion::supported().any(item => item == version), content="true")
+  inspect(version.to_string().contains("PDF"), content="true")
+
+  let surface = Surface::pdf(12.0, 12.0)
+  surface.pdf_restrict_to_version(version)
+  surface.pdf_set_metadata(PdfMetadataTitle, "Cairoon PDF")
+  surface.pdf_set_page_label("page one")
+  surface.pdf_set_thumbnail_size(2, 2)
+  let outline_id = surface.pdf_add_outline(
+    PDF_OUTLINE_ROOT,
+    "chapter",
+    "page=1",
+    PdfOutlineOpen,
+  )
+  inspect(outline_id > PDF_OUTLINE_ROOT, content="true")
+  let ctx = Context::new(surface)
+  ctx.set_source_rgb(0.0, 0.0, 1.0)
+  ctx.paint()
+  surface.finish()
+}
+
+///|
+test {
   let level : PSLevel = PsLevel3
   inspect(PSLevel::supported().any(item => item == level), content="true")
   inspect(level.to_string().contains("PS"), content="true")
