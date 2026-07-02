@@ -565,6 +565,7 @@ pub fn Surface::get_fallback_resolution(Self) -> (Double, Double) raise CairoErr
 pub fn Surface::get_font_options(Self) -> FontOptions raise CairoError
 pub fn Surface::get_format(Self) -> Format
 pub fn Surface::get_height(Self) -> Int
+pub fn Surface::get_mime_data(Self, String) -> Bytes? raise CairoError
 pub fn Surface::get_stride(Self) -> Int
 pub fn Surface::get_type(Self) -> SurfaceType raise CairoError
 pub fn Surface::get_width(Self) -> Int
@@ -578,8 +579,10 @@ pub fn Surface::mark_dirty_rectangle(Self, Int, Int, Int, Int) -> Unit raise Cai
 pub fn Surface::set_device_offset(Self, Double, Double) -> Unit raise CairoError
 pub fn Surface::set_device_scale(Self, Double, Double) -> Unit raise CairoError
 pub fn Surface::set_fallback_resolution(Self, Double, Double) -> Unit raise CairoError
+pub fn Surface::set_mime_data(Self, String, Bytes?) -> Unit raise CairoError
 pub fn Surface::show_page(Self) -> Unit raise CairoError
 pub fn Surface::status(Self) -> Status
+pub fn Surface::supports_mime_type(Self, String) -> Bool raise CairoError
 pub fn Surface::unmap_image(Self, MappedImageSurface) -> Unit raise CairoError
 pub fn Surface::write_to_png(Self, String) -> Unit raise CairoError
 

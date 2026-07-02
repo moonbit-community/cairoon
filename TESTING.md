@@ -154,7 +154,8 @@ drawing-state, hit-testing/extents APIs, typed Path segment iteration and
 stringification, PNG filename load/save and buffer-backed creation for image
 surfaces, portable Surface base helpers such as similar-surface creation,
 content/type queries, dirty markers, device offset/scale, fallback resolution,
-show-text-glyphs support checks, and mapped image surface mapping/unmapping,
+show-text-glyphs support checks, MIME data storage/query/clear support, and
+mapped image surface mapping/unmapping,
 surface-pattern borrowed surface returns, FontOptions state/accessor APIs,
 FontFace/ToyFontFace APIs, ScaledFont basics, and initial tests. Region now
 covers empty, single-rectangle, and
@@ -163,19 +164,21 @@ multi-rectangle construction plus predicates and boolean operations.
 Verified on 2026-07-02:
 
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native -v`: 122 tests passed.
+- `moon -C cairoon test --target native -v`: 127 tests passed.
 - ASan/LSan via `run-asan.py`: ran the 108-test native suite after the PNG
   filename API slice, the 113-test native suite after the
   `Surface::image_for_data` slice, and the 114-test native suite after the
   cairo-surface user-data lifetime fix, and the 117-test native suite after the
-  portable Surface base API slice, and the 122-test native suite after the
-  mapped image surface slice; these runs failed in LeakSanitizer. The most
+  portable Surface base API slice, the 122-test native suite after the
+  mapped image surface slice, and the 127-test native suite after the Surface
+  MIME data slice; these runs failed in LeakSanitizer. The most
   recent leak report is rooted in `cairo_toy_font_face_create`,
   `cairo_select_font_face`, macOS
   FontRegistry/CoreGraphics frames, and scaled-font Quartz/CoreText paths such
   as `cairo_scaled_font_create`, `CGFontCopyURL`, and `CTFontCreateWithGraphicsFont`;
-  no AddressSanitizer invalid-access report appeared before LSan failed.
-  Summary: `91797 byte(s) leaked in 1305 allocation(s)`.
+  no AddressSanitizer invalid-access report appeared before LSan failed and no
+  MIME-data stub stack appeared in the leak roots.
+  Summary: `91077 byte(s) leaked in 1297 allocation(s)`.
 
 The missing reliability pieces are substantial: automated differential tests,
 the open macOS toy-font/scaled-font LSan failure, finalizer stress tests, CI

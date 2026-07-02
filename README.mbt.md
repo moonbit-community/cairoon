@@ -72,6 +72,19 @@ test {
 
 ///|
 test {
+  let surface = Surface::image(Argb32, 1, 1)
+  let jpeg = @utf8.encode("encoded-bytes")
+  surface.set_mime_data("image/jpeg", Some(jpeg))
+  match surface.get_mime_data("image/jpeg") {
+    Some(bytes) => inspect(bytes == jpeg, content="true")
+    None => fail("expected image/jpeg MIME data")
+  }
+  surface.set_mime_data("image/jpeg", None)
+  inspect(surface.get_mime_data("image/jpeg") is None, content="true")
+}
+
+///|
+test {
   let data : FixedArray[Byte] = FixedArray::make(4, b'\x00')
   let surface = Surface::image_for_data(data, Argb32, 1, 1)
   let ctx = Context::new(surface)

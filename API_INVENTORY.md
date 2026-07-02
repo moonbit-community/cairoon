@@ -20,7 +20,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 | Version helpers | Done | `cairo_version`, `cairo_version_string` |
 | Status and error mapping | Partial | `Status`, `CairoError`, `run_cairo`; needs all pycairo exception parity |
 | Matrix | Done | Pure value equivalent with field access, transform/translate/scale/rotate/multiply/invert/component tests |
-| Image surface basics | Partial | Create, similar-image create, map/unmap to image, buffer-backed create-for-data, PNG path load/save, status, finish, flush, width/height/stride/format, copied data |
+| Image surface basics | Partial | Create, similar-image create, map/unmap to image, buffer-backed create-for-data, PNG path load/save, MIME data, status, finish, flush, width/height/stride/format, copied data |
 | Context basics | Partial | Creation, status, save/restore, CTM transforms, drawing state, clip APIs, path primitives, source colors, paint/fill/stroke |
 | Pattern basics | Partial | Solid/surface pattern constructors, source setting, RGBA, extend/filter/dither/matrix state, and referenced surface return |
 | Font faces | Done | Base external object, toy constructor/getters, Context get/set/select, borrowed-return references |
@@ -107,11 +107,12 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 | pycairo API | cairoon status | Notes |
 |---|---|---|
 | `Device` | Todo | Finish/flush/acquire/release and scoped usage |
-| `Surface` base methods | Partial | Finish/flush/copy_page/show_page/write_to_png(path), create_similar/create_similar_image, content/type, dirty markers, device offset/scale, fallback resolution, show-text-glyphs support query, and get_font_options exist; device/MIME/metadata/backend APIs remain |
+| `Surface` base methods | Partial | Finish/flush/copy_page/show_page/write_to_png(path), create_similar/create_similar_image, content/type, dirty markers, device offset/scale, fallback resolution, show-text-glyphs support query, MIME data, and get_font_options exist; device/metadata/backend APIs remain |
 | `ImageSurface` | Partial | Basic creation, buffer-backed creation, PNG path loading, and readback only |
 | `ImageSurface.create_for_data` | Partial | Exposed as `Surface::image_for_data` for `FixedArray[Byte]`; retains the MoonBit buffer, validates size/stride, and covers zero-size buffers, but still needs differential coverage and a clean ASan/LSan gate |
 | `ImageSurface.create_from_png/write_to_png` | Partial | Filename APIs exposed as `Surface::image_from_png` and `Surface::write_to_png`; stream/file-object callbacks deferred by `AGENTS.md` |
 | `Surface.map_to_image/unmap_image` | Partial | `MappedImageSurface` has a dedicated payload retaining the base `Surface`, explicit and finalizer unmap support, extent mapping, Context construction, and double/wrong-base checks; still needs GC stress and clean ASan/LSan gate |
+| `Surface.get_mime_data/set_mime_data/supports_mime_type` | Partial | Exposed on `Surface`; data is copied into C-owned storage on set and copied back into MoonBit `Bytes` on get. This intentionally does not preserve pycairo's Python object identity for data set through the binding. Backend-specific support/output behavior still needs PDF/SVG/PS coverage and differential tests. |
 | `PDFSurface` | Todo | File/stream output, metadata, outline, versions |
 | `PSSurface` | Todo | File/stream output, DSC, EPS, levels |
 | `SVGSurface` | Todo | File/stream output, version/unit |

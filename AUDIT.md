@@ -38,7 +38,8 @@ Implemented in this workspace:
   portable `Surface` base helpers for `create_similar`,
   `create_similar_image`, content/type queries, dirty markers, device
   offset/scale, fallback resolution, show-text-glyphs support checks, and
-  mapped image surface readback/unmap helpers,
+  mapped image surface readback/unmap helpers, plus Surface MIME data
+  set/get/clear/support checks that copy data across the MoonBit/C boundary,
   initial solid/surface/linear/radial `Pattern` APIs with
   extend/filter/dither/matrix/gradient state, and complete portable `Region`
   APIs including multi-rectangle construction.
@@ -61,7 +62,8 @@ Implemented in this workspace:
   borrowed target/source lifetime behavior,
   mapped image whole-surface and rectangle-extents writeback behavior,
   wrong-base and double-unmap errors, core painting/page behavior, hit testing
-  and extents, clip behavior including non-rectangular clip status propagation,
+  and extents, MIME data storage/clear behavior including embedded NUL bytes
+  and zero-length payloads, clip behavior including non-rectangular clip status propagation,
   pattern RGBA, gradient
   geometry/color-stop behavior, pattern state behavior, explicit pattern
   sources, surface-pattern borrowed surface returns, font-options behavior,
@@ -91,15 +93,16 @@ Implemented in this workspace:
 
 2026-07-02:
 
-- `moon -C cairoon test --target native -v`: 122 tests passed.
+- `moon -C cairoon test --target native -v`: 127 tests passed.
 - `run-asan.py --repo-root /Users/caimeo/code/pycairo/cairoon --pkg moon.pkg`:
-  ran the 122-test native suite after the mapped image surface slice
+  ran the 127-test native suite after the Surface MIME data slice
   and failed during LeakSanitizer reporting. The reported allocations are rooted in
   `cairo_toy_font_face_create`, `cairo_select_font_face`, macOS
   FontRegistry/CoreGraphics frames, and scaled-font Quartz/CoreText paths such
   as `cairo_scaled_font_create`, `CGFontCopyURL`, and `CTFontCreateWithGraphicsFont`;
-  no AddressSanitizer invalid-access report appeared before LSan failed.
-  Summary: `91797 byte(s) leaked in 1305 allocation(s)`. The helper still emits
+  no AddressSanitizer invalid-access report appeared before LSan failed and no
+  MIME-data stub stack appeared in the leak roots.
+  Summary: `91077 byte(s) leaked in 1297 allocation(s)`. The helper still emits
   a `moon.mod.json` lookup warning because this package uses `moon.mod`, but it
   correctly patched and restored the DSL `moon.pkg` and MoonBit runtime object
   for this package.
