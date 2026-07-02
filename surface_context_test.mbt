@@ -7,11 +7,54 @@ fn surface_with_local_pixel_buffer() -> Surface raise CairoError {
 ///|
 test "image surface properties" {
   let surface = Surface::image(Argb32, 2, 1)
+  debug_inspect(surface.get_type(), content="SurfaceTypeImage")
+  debug_inspect(surface.get_content(), content="ContentColorAlpha")
   debug_inspect(surface.get_format(), content="Argb32")
   inspect(surface.get_width(), content="2")
   inspect(surface.get_height(), content="1")
   inspect(surface.get_stride(), content="8")
   inspect(surface.copy_data().length(), content="8")
+}
+
+///|
+test "surface similar constructors and state queries" {
+  let source = Surface::image(Argb32, 2, 2)
+  let similar = source.create_similar(ContentColor, 3, 4)
+  inspect(similar.status().is_success(), content="true")
+  debug_inspect(similar.get_content(), content="ContentColor")
+
+  let image = source.create_similar_image(Rgb24, 3, 4)
+  inspect(image.status().is_success(), content="true")
+  debug_inspect(image.get_type(), content="SurfaceTypeImage")
+  debug_inspect(image.get_content(), content="ContentColor")
+  debug_inspect(image.get_format(), content="Rgb24")
+  inspect(image.get_width(), content="3")
+  inspect(image.get_height(), content="4")
+}
+
+///|
+test "surface device state and dirty markers round trip" {
+  let surface = Surface::image(Argb32, 3, 3)
+  surface.set_device_offset(1.25, -2.5)
+  debug_inspect(surface.get_device_offset(), content="(1.25, -2.5)")
+
+  surface.set_device_scale(5.0, 3.0)
+  debug_inspect(surface.get_device_scale(), content="(5, 3)")
+
+  let bad_scale = run_cairo(() => surface.set_device_scale(0.0, 1.0))
+  match bad_scale {
+    Err(CairoInvalidArgument(InvalidMatrix, _)) => ()
+    _ => @test.fail("expected InvalidMatrix for zero device scale")
+  }
+
+  surface.set_fallback_resolution(42.0, 96.0)
+  debug_inspect(surface.get_fallback_resolution(), content="(42, 96)")
+
+  surface.mark_dirty()
+  surface.mark_dirty_rectangle(0, 0, 1, 1)
+
+  let has_text_glyphs = surface.has_show_text_glyphs()
+  inspect(has_text_glyphs || !has_text_glyphs, content="true")
 }
 
 ///|

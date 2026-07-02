@@ -86,6 +86,26 @@ test {
 
 ///|
 test {
+  let surface = Surface::image(Argb32, 4, 4)
+  debug_inspect(surface.get_type(), content="SurfaceTypeImage")
+  debug_inspect(surface.get_content(), content="ContentColorAlpha")
+  surface.set_device_offset(2.0, -1.0)
+  debug_inspect(surface.get_device_offset(), content="(2, -1)")
+  surface.set_device_scale(2.0, 3.0)
+  debug_inspect(surface.get_device_scale(), content="(2, 3)")
+  surface.mark_dirty_rectangle(0, 0, 2, 2)
+
+  let similar = surface.create_similar(ContentColor, 2, 2)
+  debug_inspect(similar.get_content(), content="ContentColor")
+
+  let image = surface.create_similar_image(Rgb24, 2, 3)
+  debug_inspect(image.get_type(), content="SurfaceTypeImage")
+  debug_inspect(image.get_format(), content="Rgb24")
+  inspect(image.get_height(), content="3")
+}
+
+///|
+test {
   let gradient = Pattern::linear(0.0, 0.0, 10.0, 0.0)
   gradient.add_color_stop_rgb(0.0, 1.0, 0.0, 0.0)
   gradient.add_color_stop_rgba(1.0, 0.0, 0.0, 1.0, 0.5)

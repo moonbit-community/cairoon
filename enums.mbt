@@ -17,6 +17,35 @@ pub(all) enum Content {
 } derive(Eq, Debug)
 
 ///|
+pub(all) enum SurfaceType {
+  SurfaceTypeImage = 0
+  SurfaceTypePdf = 1
+  SurfaceTypePs = 2
+  SurfaceTypeXlib = 3
+  SurfaceTypeXcb = 4
+  SurfaceTypeGlitz = 5
+  SurfaceTypeQuartz = 6
+  SurfaceTypeWin32 = 7
+  SurfaceTypeBeos = 8
+  SurfaceTypeDirectfb = 9
+  SurfaceTypeSvg = 10
+  SurfaceTypeOs2 = 11
+  SurfaceTypeWin32Printing = 12
+  SurfaceTypeQuartzImage = 13
+  SurfaceTypeScript = 14
+  SurfaceTypeQt = 15
+  SurfaceTypeRecording = 16
+  SurfaceTypeVg = 17
+  SurfaceTypeGl = 18
+  SurfaceTypeDrm = 19
+  SurfaceTypeTee = 20
+  SurfaceTypeXml = 21
+  SurfaceTypeSkia = 22
+  SurfaceTypeSubsurface = 23
+  SurfaceTypeCogl = 24
+} derive(Eq, Debug)
+
+///|
 pub(all) enum FillRule {
   FillWinding = 0
   FillEvenOdd = 1

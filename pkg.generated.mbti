@@ -543,16 +543,29 @@ pub(all) enum SubpixelOrder {
 type Surface
 pub fn Surface::copy_data(Self) -> Bytes raise CairoError
 pub fn Surface::copy_page(Self) -> Unit raise CairoError
+pub fn Surface::create_similar(Self, Content, Int, Int) -> Self raise CairoError
+pub fn Surface::create_similar_image(Self, Format, Int, Int) -> Self raise CairoError
 pub fn Surface::finish(Self) -> Unit raise CairoError
 pub fn Surface::flush(Self) -> Unit raise CairoError
+pub fn Surface::get_content(Self) -> Content raise CairoError
+pub fn Surface::get_device_offset(Self) -> (Double, Double) raise CairoError
+pub fn Surface::get_device_scale(Self) -> (Double, Double) raise CairoError
+pub fn Surface::get_fallback_resolution(Self) -> (Double, Double) raise CairoError
 pub fn Surface::get_font_options(Self) -> FontOptions raise CairoError
 pub fn Surface::get_format(Self) -> Format
 pub fn Surface::get_height(Self) -> Int
 pub fn Surface::get_stride(Self) -> Int
+pub fn Surface::get_type(Self) -> SurfaceType raise CairoError
 pub fn Surface::get_width(Self) -> Int
+pub fn Surface::has_show_text_glyphs(Self) -> Bool raise CairoError
 pub fn Surface::image(Format, Int, Int) -> Self raise CairoError
 pub fn Surface::image_for_data(FixedArray[Byte], Format, Int, Int, stride? : Int) -> Self raise CairoError
 pub fn Surface::image_from_png(String) -> Self raise CairoError
+pub fn Surface::mark_dirty(Self) -> Unit raise CairoError
+pub fn Surface::mark_dirty_rectangle(Self, Int, Int, Int, Int) -> Unit raise CairoError
+pub fn Surface::set_device_offset(Self, Double, Double) -> Unit raise CairoError
+pub fn Surface::set_device_scale(Self, Double, Double) -> Unit raise CairoError
+pub fn Surface::set_fallback_resolution(Self, Double, Double) -> Unit raise CairoError
 pub fn Surface::show_page(Self) -> Unit raise CairoError
 pub fn Surface::status(Self) -> Status
 pub fn Surface::write_to_png(Self, String) -> Unit raise CairoError
@@ -560,6 +573,34 @@ pub fn Surface::write_to_png(Self, String) -> Unit raise CairoError
 pub(all) enum SurfaceObserverMode {
   SurfaceObserverNormal
   SurfaceObserverRecordOperations
+} derive(Eq, @debug.Debug)
+
+pub(all) enum SurfaceType {
+  SurfaceTypeImage
+  SurfaceTypePdf
+  SurfaceTypePs
+  SurfaceTypeXlib
+  SurfaceTypeXcb
+  SurfaceTypeGlitz
+  SurfaceTypeQuartz
+  SurfaceTypeWin32
+  SurfaceTypeBeos
+  SurfaceTypeDirectfb
+  SurfaceTypeSvg
+  SurfaceTypeOs2
+  SurfaceTypeWin32Printing
+  SurfaceTypeQuartzImage
+  SurfaceTypeScript
+  SurfaceTypeQt
+  SurfaceTypeRecording
+  SurfaceTypeVg
+  SurfaceTypeGl
+  SurfaceTypeDrm
+  SurfaceTypeTee
+  SurfaceTypeXml
+  SurfaceTypeSkia
+  SurfaceTypeSubsurface
+  SurfaceTypeCogl
 } derive(Eq, @debug.Debug)
 
 pub struct TextCluster {

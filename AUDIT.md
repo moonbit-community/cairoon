@@ -27,6 +27,9 @@ Implemented in this workspace:
   current-point queries, path copy/append plus typed path segment iteration and
   stringification, referenced borrowed returns for target/source, core
   painting/page methods, and matrix/coordinate-conversion methods,
+  portable `Surface` base helpers for `create_similar`,
+  `create_similar_image`, content/type queries, dirty markers, device
+  offset/scale, fallback resolution, and show-text-glyphs support checks,
   initial solid/surface/linear/radial `Pattern` APIs with
   extend/filter/dither/matrix/gradient state, and complete portable `Region`
   APIs including multi-rectangle construction.
@@ -77,15 +80,15 @@ Implemented in this workspace:
 
 2026-07-02:
 
-- `moon -C cairoon test --target native -v`: 114 tests passed.
+- `moon -C cairoon test --target native -v`: 117 tests passed.
 - `run-asan.py --repo-root /Users/caimeo/code/pycairo/cairoon --pkg moon.pkg`:
-  ran the 114-test native suite after the cairo-surface user-data lifetime fix
+  ran the 117-test native suite after the portable Surface base API slice
   and failed during LeakSanitizer reporting. The reported allocations are rooted in
   `cairo_toy_font_face_create`, `cairo_select_font_face`, macOS
   FontRegistry/CoreGraphics frames, and scaled-font Quartz/CoreText paths such
   as `cairo_scaled_font_create`, `CGFontCopyURL`, and `CTFontCreateWithGraphicsFont`;
   no AddressSanitizer invalid-access report appeared before LSan failed.
-  Summary: `92629 byte(s) leaked in 1319 allocation(s)`. The helper still emits
+  Summary: `91605 byte(s) leaked in 1305 allocation(s)`. The helper still emits
   a `moon.mod.json` lookup warning because this package uses `moon.mod`, but it
   correctly patched and restored the DSL `moon.pkg` and MoonBit runtime object
   for this package.

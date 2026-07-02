@@ -103,11 +103,71 @@ CairoonSurface *cairoon_image_surface_create_from_png(
 }
 
 MOONBIT_FFI_EXPORT
+CairoonSurface *cairoon_surface_create_similar(
+  CairoonSurface *other,
+  cairo_content_t content,
+  int32_t width,
+  int32_t height,
+  cairo_status_t *status_out) {
+  cairo_status_t status = cairoon_surface_status(other);
+  *status_out = status;
+  if (status != CAIRO_STATUS_SUCCESS) {
+    return cairoon_surface_wrap_owned(NULL);
+  }
+  cairo_surface_t *surface =
+    cairo_surface_create_similar(other->ptr, content, width, height);
+  if (surface == NULL) {
+    *status_out = CAIRO_STATUS_NO_MEMORY;
+    return cairoon_surface_wrap_owned(NULL);
+  }
+  *status_out = cairo_surface_status(surface);
+  return cairoon_surface_wrap_owned(surface);
+}
+
+MOONBIT_FFI_EXPORT
+CairoonSurface *cairoon_surface_create_similar_image(
+  CairoonSurface *other,
+  cairo_format_t format,
+  int32_t width,
+  int32_t height,
+  cairo_status_t *status_out) {
+  cairo_status_t status = cairoon_surface_status(other);
+  *status_out = status;
+  if (status != CAIRO_STATUS_SUCCESS) {
+    return cairoon_surface_wrap_owned(NULL);
+  }
+  cairo_surface_t *surface =
+    cairo_surface_create_similar_image(other->ptr, format, width, height);
+  if (surface == NULL) {
+    *status_out = CAIRO_STATUS_NO_MEMORY;
+    return cairoon_surface_wrap_owned(NULL);
+  }
+  *status_out = cairo_surface_status(surface);
+  return cairoon_surface_wrap_owned(surface);
+}
+
+MOONBIT_FFI_EXPORT
 cairo_status_t cairoon_surface_status(CairoonSurface *surface) {
   if (surface == NULL || surface->ptr == NULL) {
     return CAIRO_STATUS_NULL_POINTER;
   }
   return cairo_surface_status(surface->ptr);
+}
+
+MOONBIT_FFI_EXPORT
+cairo_content_t cairoon_surface_get_content(CairoonSurface *surface) {
+  if (cairoon_surface_status(surface) != CAIRO_STATUS_SUCCESS) {
+    return CAIRO_CONTENT_COLOR_ALPHA;
+  }
+  return cairo_surface_get_content(surface->ptr);
+}
+
+MOONBIT_FFI_EXPORT
+cairo_surface_type_t cairoon_surface_get_type(CairoonSurface *surface) {
+  if (cairoon_surface_status(surface) != CAIRO_STATUS_SUCCESS) {
+    return CAIRO_SURFACE_TYPE_IMAGE;
+  }
+  return cairo_surface_get_type(surface->ptr);
 }
 
 MOONBIT_FFI_EXPORT
@@ -146,6 +206,133 @@ cairo_status_t cairoon_surface_flush(CairoonSurface *surface) {
   }
   cairo_surface_flush(surface->ptr);
   return cairo_surface_status(surface->ptr);
+}
+
+MOONBIT_FFI_EXPORT
+cairo_status_t cairoon_surface_mark_dirty(CairoonSurface *surface) {
+  cairo_status_t status = cairoon_surface_status(surface);
+  if (status != CAIRO_STATUS_SUCCESS) {
+    return status;
+  }
+  cairo_surface_mark_dirty(surface->ptr);
+  return cairo_surface_status(surface->ptr);
+}
+
+MOONBIT_FFI_EXPORT
+cairo_status_t cairoon_surface_mark_dirty_rectangle(
+  CairoonSurface *surface,
+  int32_t x,
+  int32_t y,
+  int32_t width,
+  int32_t height) {
+  cairo_status_t status = cairoon_surface_status(surface);
+  if (status != CAIRO_STATUS_SUCCESS) {
+    return status;
+  }
+  cairo_surface_mark_dirty_rectangle(surface->ptr, x, y, width, height);
+  return cairo_surface_status(surface->ptr);
+}
+
+MOONBIT_FFI_EXPORT
+cairo_status_t cairoon_surface_set_device_offset(
+  CairoonSurface *surface,
+  double x_offset,
+  double y_offset) {
+  cairo_status_t status = cairoon_surface_status(surface);
+  if (status != CAIRO_STATUS_SUCCESS) {
+    return status;
+  }
+  cairo_surface_set_device_offset(surface->ptr, x_offset, y_offset);
+  return cairo_surface_status(surface->ptr);
+}
+
+MOONBIT_FFI_EXPORT
+cairo_status_t cairoon_surface_get_device_offset(
+  CairoonSurface *surface,
+  double *x_offset,
+  double *y_offset) {
+  cairo_status_t status = cairoon_surface_status(surface);
+  if (status != CAIRO_STATUS_SUCCESS) {
+    return status;
+  }
+  cairo_surface_get_device_offset(surface->ptr, x_offset, y_offset);
+  return cairo_surface_status(surface->ptr);
+}
+
+MOONBIT_FFI_EXPORT
+cairo_status_t cairoon_surface_set_device_scale(
+  CairoonSurface *surface,
+  double x_scale,
+  double y_scale) {
+  cairo_status_t status = cairoon_surface_status(surface);
+  if (status != CAIRO_STATUS_SUCCESS) {
+    return status;
+  }
+  cairo_matrix_t transform;
+  cairo_matrix_init_scale(&transform, x_scale, y_scale);
+  status = cairo_matrix_invert(&transform);
+  if (status != CAIRO_STATUS_SUCCESS) {
+    return status;
+  }
+  cairo_surface_set_device_scale(surface->ptr, x_scale, y_scale);
+  return cairo_surface_status(surface->ptr);
+}
+
+MOONBIT_FFI_EXPORT
+cairo_status_t cairoon_surface_get_device_scale(
+  CairoonSurface *surface,
+  double *x_scale,
+  double *y_scale) {
+  cairo_status_t status = cairoon_surface_status(surface);
+  if (status != CAIRO_STATUS_SUCCESS) {
+    return status;
+  }
+  cairo_surface_get_device_scale(surface->ptr, x_scale, y_scale);
+  return cairo_surface_status(surface->ptr);
+}
+
+MOONBIT_FFI_EXPORT
+cairo_status_t cairoon_surface_set_fallback_resolution(
+  CairoonSurface *surface,
+  double x_pixels_per_inch,
+  double y_pixels_per_inch) {
+  cairo_status_t status = cairoon_surface_status(surface);
+  if (status != CAIRO_STATUS_SUCCESS) {
+    return status;
+  }
+  cairo_surface_set_fallback_resolution(
+    surface->ptr,
+    x_pixels_per_inch,
+    y_pixels_per_inch);
+  return cairo_surface_status(surface->ptr);
+}
+
+MOONBIT_FFI_EXPORT
+cairo_status_t cairoon_surface_get_fallback_resolution(
+  CairoonSurface *surface,
+  double *x_pixels_per_inch,
+  double *y_pixels_per_inch) {
+  cairo_status_t status = cairoon_surface_status(surface);
+  if (status != CAIRO_STATUS_SUCCESS) {
+    return status;
+  }
+  cairo_surface_get_fallback_resolution(
+    surface->ptr,
+    x_pixels_per_inch,
+    y_pixels_per_inch);
+  return cairo_surface_status(surface->ptr);
+}
+
+MOONBIT_FFI_EXPORT
+int32_t cairoon_surface_has_show_text_glyphs(
+  CairoonSurface *surface,
+  cairo_status_t *status_out) {
+  cairo_status_t status = cairoon_surface_status(surface);
+  *status_out = status;
+  if (status != CAIRO_STATUS_SUCCESS) {
+    return 0;
+  }
+  return cairo_surface_has_show_text_glyphs(surface->ptr);
 }
 
 MOONBIT_FFI_EXPORT
