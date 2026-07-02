@@ -21,6 +21,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 | Status and error mapping | Partial | `Status`, `CairoError`, `run_cairo`; needs all pycairo exception parity |
 | Matrix | Done | Pure value equivalent with field access, transform/translate/scale/rotate/multiply/invert/component tests |
 | Image surface basics | Partial | Create, similar-image create, map/unmap to image, buffer-backed create-for-data, PNG path load/save, MIME data, status, finish, flush, width/height/stride/format, copied data |
+| Recording surface | Done | Constructor with optional extents, extents/ink-extents queries, subtype-mismatch checks, and replay through surface patterns |
 | Context basics | Partial | Creation, status, save/restore, CTM transforms, drawing state, clip APIs, group APIs, tag APIs, path primitives, source colors, paint/fill/stroke |
 | Pattern basics | Partial | Solid/surface pattern constructors, source setting, RGBA, extend/filter/dither/matrix state, and referenced surface return |
 | Font faces | Done | Base external object, toy constructor/getters, Context get/set/select, borrowed-return references |
@@ -117,7 +118,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 | `PDFSurface` | Todo | File/stream output, metadata, outline, versions |
 | `PSSurface` | Todo | File/stream output, DSC, EPS, levels |
 | `SVGSurface` | Todo | File/stream output, version/unit |
-| `RecordingSurface` | Todo | Constructor, extents, ink extents |
+| `RecordingSurface` | Done | Exposed as `Surface::recording`, `Surface::recording_get_extents`, and `Surface::recording_ink_extents`; tests cover bounded/unbounded extents, replay through `Pattern::for_surface`, and `SurfaceTypeMismatch` for non-recording surfaces |
 | `ScriptDevice` / `ScriptSurface` | Todo | File/stream output and recording replay |
 | `TeeSurface` | Decision | Depends on Cairo backend availability and subtype policy |
 | `Win32Surface` / `Win32PrintingSurface` | Decision | Platform-specific; cannot be validated on this macOS workspace |

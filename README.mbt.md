@@ -139,6 +139,28 @@ test {
 
 ///|
 test {
+  let recording = Surface::recording(
+    ContentColorAlpha,
+    extents=Some(Rectangle::new(0.0, 0.0, 1.0, 1.0)),
+  )
+  let recorder = Context::new(recording)
+  recorder.set_source_rgba(1.0, 0.0, 0.0, 1.0)
+  recorder.paint()
+  match recording.recording_get_extents() {
+    Some(rect) => debug_inspect(rect.components(), content="(0, 0, 1, 1)")
+    None => fail("expected recording extents")
+  }
+  inspect(recording.recording_ink_extents().width > 0.0, content="true")
+
+  let target = Surface::image(Argb32, 1, 1)
+  let ctx = Context::new(target)
+  ctx.set_source(Pattern::for_surface(recording))
+  ctx.paint()
+  inspect(target.copy_data()[2].to_int(), content="255")
+}
+
+///|
+test {
   let surface = Surface::image(Rgb24, 2, 1)
   let mapped = surface.map_to_image(
     extents=Some(RectangleInt::new(x=0, y=0, width=1, height=1)),

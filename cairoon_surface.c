@@ -39,6 +39,19 @@ static moonbit_bytes_t cairoon_copy_image_surface_data(cairo_surface_t *surface)
   return bytes;
 }
 
+static cairo_status_t cairoon_surface_require_type(
+  CairoonSurface *surface,
+  cairo_surface_type_t type) {
+  cairo_status_t status = cairoon_surface_status(surface);
+  if (status != CAIRO_STATUS_SUCCESS) {
+    return status;
+  }
+  if (cairo_surface_get_type(surface->ptr) != type) {
+    return CAIRO_STATUS_SURFACE_TYPE_MISMATCH;
+  }
+  return CAIRO_STATUS_SUCCESS;
+}
+
 MOONBIT_FFI_EXPORT
 CairoonSurface *cairoon_image_surface_create(cairo_format_t format, int32_t width, int32_t height) {
   return cairoon_surface_wrap_owned(cairo_image_surface_create(format, width, height));
@@ -117,6 +130,39 @@ CairoonSurface *cairoon_image_surface_create_from_png(
   return cairoon_surface_wrap_owned(surface);
 #else
   *status_out = CAIRO_STATUS_PNG_ERROR;
+  return cairoon_surface_wrap_owned(NULL);
+#endif
+}
+
+MOONBIT_FFI_EXPORT
+CairoonSurface *cairoon_recording_surface_create(
+  cairo_content_t content,
+  int32_t has_extents,
+  double x,
+  double y,
+  double width,
+  double height,
+  cairo_status_t *status_out) {
+  *status_out = CAIRO_STATUS_SUCCESS;
+#ifdef CAIRO_HAS_RECORDING_SURFACE
+  cairo_rectangle_t extents = {x, y, width, height};
+  cairo_surface_t *surface = cairo_recording_surface_create(
+    content,
+    has_extents ? &extents : NULL);
+  if (surface == NULL) {
+    *status_out = CAIRO_STATUS_NO_MEMORY;
+    return cairoon_surface_wrap_owned(NULL);
+  }
+  *status_out = cairo_surface_status(surface);
+  return cairoon_surface_wrap_owned(surface);
+#else
+  (void)content;
+  (void)has_extents;
+  (void)x;
+  (void)y;
+  (void)width;
+  (void)height;
+  *status_out = CAIRO_STATUS_INVALID_STATUS;
   return cairoon_surface_wrap_owned(NULL);
 #endif
 }
@@ -451,6 +497,73 @@ cairo_status_t cairoon_surface_mark_dirty_rectangle(
   }
   cairo_surface_mark_dirty_rectangle(surface->ptr, x, y, width, height);
   return cairo_surface_status(surface->ptr);
+}
+
+MOONBIT_FFI_EXPORT
+cairo_status_t cairoon_recording_surface_ink_extents(
+  CairoonSurface *surface,
+  double *x0,
+  double *y0,
+  double *width,
+  double *height) {
+#ifdef CAIRO_HAS_RECORDING_SURFACE
+  cairo_status_t status =
+    cairoon_surface_require_type(surface, CAIRO_SURFACE_TYPE_RECORDING);
+  if (status != CAIRO_STATUS_SUCCESS) {
+    return status;
+  }
+  cairo_recording_surface_ink_extents(
+    surface->ptr,
+    x0,
+    y0,
+    width,
+    height);
+  return cairo_surface_status(surface->ptr);
+#else
+  (void)surface;
+  (void)x0;
+  (void)y0;
+  (void)width;
+  (void)height;
+  return CAIRO_STATUS_INVALID_STATUS;
+#endif
+}
+
+MOONBIT_FFI_EXPORT
+cairo_status_t cairoon_recording_surface_get_extents(
+  CairoonSurface *surface,
+  int32_t *has_extents,
+  double *x,
+  double *y,
+  double *width,
+  double *height) {
+  *has_extents = 0;
+#ifdef CAIRO_HAS_RECORDING_SURFACE
+  cairo_status_t status =
+    cairoon_surface_require_type(surface, CAIRO_SURFACE_TYPE_RECORDING);
+  if (status != CAIRO_STATUS_SUCCESS) {
+    return status;
+  }
+  cairo_rectangle_t extents;
+  cairo_bool_t result = cairo_recording_surface_get_extents(
+    surface->ptr,
+    &extents);
+  if (result) {
+    *has_extents = 1;
+    *x = extents.x;
+    *y = extents.y;
+    *width = extents.width;
+    *height = extents.height;
+  }
+  return cairo_surface_status(surface->ptr);
+#else
+  (void)surface;
+  (void)x;
+  (void)y;
+  (void)width;
+  (void)height;
+  return CAIRO_STATUS_INVALID_STATUS;
+#endif
 }
 
 MOONBIT_FFI_EXPORT

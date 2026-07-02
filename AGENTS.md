@@ -181,6 +181,11 @@ If a future typed wrapper such as `ImageSurface` is added, it must be a pure
 MoonBit wrapper around one `Surface` owner. It must not own or finalize the
 same C pointer separately.
 
+Subtype-specific surface methods, such as recording/PDF/SVG/PS helpers, must
+first check `cairo_surface_status`, then check `cairo_surface_get_type` in the C
+stub. A valid surface of the wrong subtype must return
+`CAIRO_STATUS_SURFACE_TYPE_MISMATCH` and surface in MoonBit as `CairoError`.
+
 Matrix methods use MoonBit value semantics. Methods corresponding to pycairo's
 mutating `translate`, `scale`, `rotate`, and `invert` return a transformed copy
 instead of modifying the receiver in place. This is the project-level parity

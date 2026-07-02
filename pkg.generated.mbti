@@ -600,6 +600,9 @@ pub fn Surface::image_from_png(String) -> Self raise CairoError
 pub fn Surface::map_to_image(Self, extents? : RectangleInt?) -> MappedImageSurface raise CairoError
 pub fn Surface::mark_dirty(Self) -> Unit raise CairoError
 pub fn Surface::mark_dirty_rectangle(Self, Int, Int, Int, Int) -> Unit raise CairoError
+pub fn Surface::recording(Content, extents? : Rectangle?) -> Self raise CairoError
+pub fn Surface::recording_get_extents(Self) -> Rectangle? raise CairoError
+pub fn Surface::recording_ink_extents(Self) -> Rectangle raise CairoError
 pub fn Surface::set_device_offset(Self, Double, Double) -> Unit raise CairoError
 pub fn Surface::set_device_scale(Self, Double, Double) -> Unit raise CairoError
 pub fn Surface::set_fallback_resolution(Self, Double, Double) -> Unit raise CairoError

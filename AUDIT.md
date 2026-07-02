@@ -37,7 +37,8 @@ Implemented in this workspace:
   painting/page methods, and matrix/coordinate-conversion methods,
   Context group target/push/pop APIs, Context tag begin/end APIs, Context toy
   text show/path/extents APIs, Context glyph array extents/path/show APIs,
-  ScaledFont text-to-glyphs, Context show-text-glyphs APIs, Cairo tag string constants,
+  ScaledFont text-to-glyphs, Context show-text-glyphs APIs,
+  RecordingSurface constructor/extents/ink-extents APIs, Cairo tag string constants,
   portable `Surface` base helpers for `create_similar`,
   `create_similar_image`, content/type queries, dirty markers, device
   offset/scale, fallback resolution, show-text-glyphs support checks, and
@@ -71,7 +72,9 @@ Implemented in this workspace:
   mapped image whole-surface and rectangle-extents writeback behavior,
   wrong-base and double-unmap errors, core painting/page behavior, hit testing
   and extents, MIME data storage/clear behavior including embedded NUL bytes
-  and zero-length payloads, clip behavior including non-rectangular clip status propagation,
+  and zero-length payloads, recording surface bounded/unbounded extents,
+  replay-through-surface-pattern behavior, subtype-mismatch errors,
+  clip behavior including non-rectangular clip status propagation,
   pattern RGBA, gradient
   geometry/color-stop behavior, pattern state behavior, explicit pattern
   sources, surface-pattern borrowed surface returns, font-options behavior,
@@ -102,9 +105,9 @@ Implemented in this workspace:
 
 2026-07-02:
 
-- `moon -C cairoon test --target native -v`: 152 tests passed.
+- `moon -C cairoon test --target native -v`: 156 tests passed.
 - `run-asan.py --repo-root /Users/caimeo/code/pycairo/cairoon --pkg moon.pkg`:
-  ran the 152-test native suite after the text-to-glyphs/show-text-glyphs slice
+  ran the 156-test native suite after the RecordingSurface slice
   and failed during LeakSanitizer reporting. The reported allocations are rooted in
   `cairo_toy_font_face_create`, `cairo_select_font_face`, macOS
   FontRegistry/CoreGraphics frames, and scaled-font Quartz/CoreText paths such
@@ -115,9 +118,9 @@ Implemented in this workspace:
   `CTFontDrawGlyphs`, CoreGraphics, and ColorSync;
   no AddressSanitizer invalid-access report appeared before LSan failed and no
   text-to-glyphs native result finalizer, glyph/cluster marshaling helper,
-  Context text/tag/group, or MIME-data stub ownership stack appeared in the
-  leak roots.
-  Summary: `91061 byte(s) leaked in 494 allocation(s)`. The helper still emits
+  RecordingSurface helper, Context text/tag/group, or MIME-data stub ownership
+  stack appeared in the visible leak roots.
+  Summary: `90773 byte(s) leaked in 492 allocation(s)`. The helper still emits
   a `moon.mod.json` lookup warning because this package uses `moon.mod`, but it
   correctly patched and restored the DSL `moon.pkg` and MoonBit runtime object
   for this package.

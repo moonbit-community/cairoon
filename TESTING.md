@@ -151,12 +151,14 @@ stub files, opaque external-object wrappers for `Surface`,
 `ScaledFont`, and `Region`, pure value types, many portable enums, expanded
 Context path, painting/page, target/source borrowed returns, clip, matrix,
 drawing-state, group APIs, tag APIs, toy text APIs, glyph array APIs,
-text-to-glyphs/show-text-glyphs APIs, hit-testing/extents APIs, typed Path segment iteration and
-stringification, PNG filename load/save and buffer-backed creation for image
+text-to-glyphs/show-text-glyphs APIs, hit-testing/extents APIs, typed Path
+segment iteration and stringification, PNG filename load/save and
+buffer-backed creation for image
 surfaces, portable Surface base helpers such as similar-surface creation,
 content/type queries, dirty markers, device offset/scale, fallback resolution,
 show-text-glyphs support checks, MIME data storage/query/clear support, and
-mapped image surface mapping/unmapping,
+RecordingSurface constructor/extents/ink-extents plus replay, mapped image
+surface mapping/unmapping,
 surface-pattern borrowed surface returns, FontOptions state/accessor APIs,
 FontFace/ToyFontFace APIs, ScaledFont basics including glyph extents and
 text-to-glyphs, and
@@ -166,7 +168,7 @@ multi-rectangle construction plus predicates and boolean operations.
 Verified on 2026-07-02:
 
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native -v`: 152 tests passed.
+- `moon -C cairoon test --target native -v`: 156 tests passed.
 - ASan/LSan via `run-asan.py`: ran the 108-test native suite after the PNG
   filename API slice, the 113-test native suite after the
   `Surface::image_for_data` slice, and the 114-test native suite after the
@@ -177,8 +179,9 @@ Verified on 2026-07-02:
   slice, the 136-test native suite after the Context tag API slice, and the
   142-test native suite after the Context toy text API slice, and the 148-test
   native suite after the glyph array API slice, and the 152-test native suite
-  after the text-to-glyphs/show-text-glyphs slice; these runs failed in
-  LeakSanitizer. The most
+  after the text-to-glyphs/show-text-glyphs slice, and the 156-test native
+  suite after the RecordingSurface slice; these runs failed in LeakSanitizer.
+  The most
   recent leak report is rooted in `cairo_toy_font_face_create`,
   `cairo_select_font_face`, macOS
   FontRegistry/CoreGraphics frames, and scaled-font Quartz/CoreText paths such
@@ -189,9 +192,9 @@ Verified on 2026-07-02:
   `CTFontDrawGlyphs`, CoreGraphics, and ColorSync;
   no AddressSanitizer invalid-access report appeared before LSan failed and no
   text-to-glyphs native result finalizer, glyph/cluster marshaling helper,
-  Context text/tag/group, or MIME-data stub ownership stack appeared in the
-  leak roots.
-  Summary: `91061 byte(s) leaked in 494 allocation(s)`.
+  RecordingSurface helper, Context text/tag/group, or MIME-data stub ownership
+  stack appeared in the visible leak roots.
+  Summary: `90773 byte(s) leaked in 492 allocation(s)`.
 
 The missing reliability pieces are substantial: automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering
