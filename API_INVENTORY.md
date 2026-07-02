@@ -75,7 +75,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 | pycairo API | cairoon status | Notes |
 |---|---|---|
 | `Matrix` | Done | MoonBit pure-value API returns transformed copies; `component`/`components` cover pycairo indexing/unpacking semantics |
-| `Path` | Partial | Opaque owned `cairo_path_t *` exists for copy/append; iterator/value conversion still missing |
+| `Path` | Done | Opaque owned `cairo_path_t *`, status/equality/hash, stringification, segment values, and iteration |
 | `Rectangle` | Done | Pure value type with field and component access |
 | `RectangleInt` | Done | Pure value type with defaults; needed by region and map-to-image |
 | `Glyph` | Done | Pure value type with `UInt` index; array marshaling remains separate |
@@ -126,7 +126,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 |---|---|---|
 | Construction and target lifetime | Partial | `Context::new(Surface)` retains target surface; `get_target` returns a referenced `Surface` wrapper |
 | Save/restore/status | Partial | Basic behavior and invalid-restore error test exist |
-| Paths | Partial | move/rel-move/line/rel-line/curve/rel-curve/rectangle/arc/arc-negative, close/new path, and current-point queries; copy/append still tracked separately |
+| Paths | Done | move/rel-move/line/rel-line/curve/rel-curve/rectangle/arc/arc-negative, close/new path, current-point queries, and path data copying |
 | Painting | Done | `paint`, `paint_with_alpha`, `fill`, `fill_preserve`, `stroke`, `stroke_preserve`, `mask`, and `mask_surface` |
 | Sources | Partial | solid colors, explicit `Pattern`, and `get_source` borrowed-return wrapper |
 | Transformations | Done | scale, translate, rotate, transform, user/device coordinate conversions |
@@ -135,7 +135,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 | Matrix APIs | Done | get/set/identity/translate/rotate/transform and user/device coordinate conversions |
 | Groups | Todo | push/pop group and group target |
 | Text and fonts | Partial | font options get/set, font face get/set/select, toy font, font matrix/size/extents, and scaled font basics exist; glyph arrays and Context text APIs remain |
-| Path copy/append | Partial | `copy_path`, `copy_path_flat`, and `append_path` with opaque `Path`; path data iteration still missing |
+| Path copy/append | Done | `copy_path`, `copy_path_flat`, `append_path`, `Path::segments`, `Path::iter`, and `Path::to_string` |
 | Hit testing and extents | Done | `in_clip`, `in_fill`, `in_stroke`, `clip_extents`, `fill_extents`, `stroke_extents`, `path_extents` |
 | Tags | Todo | tag begin/end with UTF-8 attributes |
 | Page APIs | Done | `copy_page` and `show_page` on `Context` |

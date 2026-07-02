@@ -17,6 +17,7 @@ options(
     "cairoon_misc.c",
     "cairoon_surface.c",
     "cairoon_context.c",
+    "cairoon_path.c",
     "cairoon_pattern.c",
     "cairoon_font.c",
     "cairoon_region.c",

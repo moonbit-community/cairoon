@@ -19,9 +19,9 @@ Implemented in this workspace:
   glyph, text-cluster, and extents values, image `Surface`, core `Context`
   drawing state including dash, clip APIs including rectangle-list copying,
   hit testing, geometric extents, absolute/relative/arc path drawing,
-  current-point queries, opaque path copy/append, referenced borrowed returns
-  for target/source, core painting/page methods, and matrix/coordinate-conversion
-  methods,
+  current-point queries, path copy/append plus typed path segment iteration and
+  stringification, referenced borrowed returns for target/source, core
+  painting/page methods, and matrix/coordinate-conversion methods,
   initial solid/surface/linear/radial `Pattern` APIs with
   extend/filter/dither/matrix/gradient state, and initial `Region` APIs.
 - `FontOptions` external object with copy/merge/equal/hash, variations,
@@ -37,7 +37,8 @@ Implemented in this workspace:
 - Initial parity tests for version, enum exposure, pure value types, matrix
   behavior, image surface properties, deterministic pixel rendering, context
   CTM, coordinate conversion, drawing-state behavior, path current-point,
-  relative/arc, copy/append behavior, borrowed target/source lifetime behavior,
+  relative/arc, copy/append, stringification, and iteration behavior,
+  borrowed target/source lifetime behavior,
   core painting/page behavior, hit testing and extents, clip behavior including
   non-rectangular clip status propagation, pattern RGBA, gradient
   geometry/color-stop behavior, pattern state behavior, explicit pattern
@@ -68,9 +69,9 @@ Implemented in this workspace:
 
 2026-07-02:
 
-- `moon -C cairoon test --target native -v`: 98 tests passed.
+- `moon -C cairoon test --target native -v`: 104 tests passed.
 - `run-asan.py --repo-root /Users/caimeo/code/pycairo/cairoon --pkg moon.pkg`:
-  ran the 98-test native suite after the pycairo-style C glue split and failed
+  ran the 104-test native suite after the Path data/iteration slice and failed
   during LeakSanitizer reporting. The reported allocations are rooted in
   `cairo_toy_font_face_create`, `cairo_select_font_face`, macOS
   FontRegistry/CoreGraphics frames, and scaled-font Quartz/CoreText paths such
@@ -82,9 +83,9 @@ Implemented in this workspace:
 
 ## Known Gaps
 
-- No mesh/raster-source patterns, ScaledFont glyph arrays/text-to-glyphs, Path
-  data/iteration, PDF/SVG/PS, stream, callback, or `ImageSurface.create_for_data`
-  binding yet. `Region` is partial and lacks the multi-rectangle constructor.
+- No mesh/raster-source patterns, ScaledFont glyph arrays/text-to-glyphs,
+  PDF/SVG/PS, stream, callback, or `ImageSurface.create_for_data` binding yet.
+  `Region` is partial and lacks the multi-rectangle constructor.
 - `Surface::copy_data` copies the Cairo image data into MoonBit `Bytes`; it
   intentionally does not expose a mutable view yet.
 - The package currently records Homebrew Cairo 1.18.4 paths. A portable setup

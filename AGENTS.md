@@ -60,6 +60,7 @@ cairoon/
   cairoon_misc.c
   cairoon_surface.c
   cairoon_context.c
+  cairoon_path.c
   cairoon_pattern.c
   cairoon_font.c
   cairoon_region.c
@@ -81,6 +82,7 @@ options(
     "cairoon_misc.c",
     "cairoon_surface.c",
     "cairoon_context.c",
+    "cairoon_path.c",
     "cairoon_pattern.c",
     "cairoon_font.c",
     "cairoon_region.c",
@@ -113,6 +115,8 @@ payload types and cross-file helpers declared in `cairoon_private.h`.
   exports.
 - `cairoon_surface.c`: `Surface` and image-surface exports.
 - `cairoon_context.c`: `Context` exports.
+- `cairoon_path.c`: `Path` data decoding, stringification, and status/equality
+  helpers.
 - `cairoon_pattern.c`: `Pattern` exports.
 - `cairoon_font.c`: `FontOptions`, `FontFace`, and `ScaledFont` exports until
   the file grows enough to split into `cairoon_font_options.c`,

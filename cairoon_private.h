@@ -56,6 +56,7 @@ moonbit_bytes_t cairoon_copy_c_string(const char *str);
 
 cairo_status_t cairoon_surface_status(CairoonSurface *surface);
 cairo_status_t cairoon_context_status(CairoonContext *ctx);
+cairo_status_t cairoon_path_status(CairoonPath *path);
 cairo_status_t cairoon_pattern_status(CairoonPattern *pattern);
 cairo_status_t cairoon_font_options_status(CairoonFontOptions *options);
 cairo_status_t cairoon_font_face_status(CairoonFontFace *font_face);

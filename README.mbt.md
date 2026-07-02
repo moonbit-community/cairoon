@@ -72,6 +72,21 @@ test {
 
 ///|
 test {
+  let surface = Surface::image(Argb32, 8, 8)
+  let ctx = Context::new(surface)
+  ctx.line_to(1.0, 2.0)
+  ctx.line_to(2.0, 3.0)
+  ctx.curve_to(0.0, 1.0, 2.0, 3.0, 4.0, 5.0)
+  ctx.close_path()
+  let path = ctx.copy_path()
+  inspect(path.length(), content="5")
+  debug_inspect(path.segments()[0].data_type(), content="PathMoveTo")
+  inspect(path.segments()[2].coordinates().length(), content="6")
+  inspect(path.to_string().contains("curve_to"), content="true")
+}
+
+///|
+test {
   let options = FontOptions::new()
   options.set_antialias(AntialiasGray)
   options.set_hint_style(HintStyleSlight)
