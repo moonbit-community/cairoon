@@ -55,7 +55,14 @@ cairoon/
   context.mbt
   font.mbt
   region.mbt
-  cairoon_stub.c
+  cairoon_private.h
+  cairoon_objects.c
+  cairoon_misc.c
+  cairoon_surface.c
+  cairoon_context.c
+  cairoon_pattern.c
+  cairoon_font.c
+  cairoon_region.c
   tests/
 ```
 
@@ -69,7 +76,15 @@ The package config must gate raw FFI code to native and compile the stub:
 
 ```moonbit
 options(
-  "native-stub": ["cairoon_stub.c"],
+  "native-stub": [
+    "cairoon_objects.c",
+    "cairoon_misc.c",
+    "cairoon_surface.c",
+    "cairoon_context.c",
+    "cairoon_pattern.c",
+    "cairoon_font.c",
+    "cairoon_region.c",
+  ],
   targets: {
     "ffi.mbt": ["native"]
   },
@@ -84,6 +99,31 @@ Link to the system Cairo installation. Do not vendor Cairo into this repository
 for the initial binding. Use `pkg-config --cflags --libs cairo` during setup to
 derive `cc-flags` and `cc-link-flags`, then record the concrete flags in
 `moon.pkg` for the target platform.
+
+## C Glue File Boundaries
+
+Follow pycairo's architecture: one C file per Cairo concept family, with shared
+payload types and cross-file helpers declared in `cairoon_private.h`.
+
+- `cairoon_private.h`: external-object payload structs, wrapper constructors,
+  copied-string helper, and cross-family status prototypes.
+- `cairoon_objects.c`: finalizers, `wrap_owned`/`wrap_borrowed` helpers, and
+  other lifetime primitives shared by object families.
+- `cairoon_misc.c`: version/status string helpers and small module-level C
+  exports.
+- `cairoon_surface.c`: `Surface` and image-surface exports.
+- `cairoon_context.c`: `Context` exports.
+- `cairoon_pattern.c`: `Pattern` exports.
+- `cairoon_font.c`: `FontOptions`, `FontFace`, and `ScaledFont` exports until
+  the file grows enough to split into `cairoon_font_options.c`,
+  `cairoon_font_face.c`, and `cairoon_scaled_font.c`.
+- `cairoon_region.c`: `Region` exports.
+
+When a new Cairo family is migrated, create a new C file named after that
+family instead of adding unrelated code to an existing file. Keep files small
+enough to review as a coherent object-family binding. If a file grows past the
+scale of pycairo's corresponding file without a concrete reason, split it before
+adding more API surface.
 
 ## Public API Policy
 
@@ -317,7 +357,8 @@ only `noraise` callbacks or defer the API.
 
 Implement in this order:
 
-1. Build skeleton: `moon.mod.json`, `moon.pkg`, `ffi.mbt`, `cairoon_stub.c`.
+1. Build skeleton: `moon.mod`, `moon.pkg`, `ffi.mbt`,
+   `cairoon_private.h`, and split `cairoon_*.c` stub files.
 2. Version and enums: `cairo_version`, `cairo_version_string`, constants.
 3. Value types: `Matrix`, `Rectangle`, `RectangleInt`, extents structs.
 4. `Surface` and `ImageSurface` constructors, `flush`, `finish`,

@@ -16,7 +16,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 
 | Area | Status | Evidence |
 |---|---|---|
-| MoonBit package setup | Done | `moon.mod`, `moon.pkg`, native Cairo link flags |
+| MoonBit package setup | Done | `moon.mod`, `moon.pkg`, native Cairo link flags, pycairo-style split C stubs |
 | Version helpers | Done | `cairo_version`, `cairo_version_string` |
 | Status and error mapping | Partial | `Status`, `CairoError`, `run_cairo`; needs all pycairo exception parity |
 | Matrix | Done | Pure value equivalent with field access, transform/translate/scale/rotate/multiply/invert/component tests |

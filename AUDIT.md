@@ -6,8 +6,9 @@ Implemented in this workspace:
 
 - MoonBit native package initialization with `moon.mod` and `moon.pkg`.
 - System Cairo 1.18.4 linkage through `pkg-config`-derived flags.
-- C FFI stub with GC-managed external objects for `Surface`, `Context`,
-  `Path`, `Pattern`, and `Region`.
+- C FFI glue split by Cairo object family, following pycairo's
+  `private.h` plus per-family C file architecture. GC-managed external objects
+  currently cover `Surface`, `Context`, `Path`, `Pattern`, and `Region`.
 - `Context` retains its target `Surface` with `moonbit_incref` and releases it
   in the finalizer.
 - `Pattern::for_surface` retains its base `Surface` wrapper while the pattern
@@ -69,8 +70,8 @@ Implemented in this workspace:
 
 - `moon -C cairoon test --target native -v`: 98 tests passed.
 - `run-asan.py --repo-root /Users/caimeo/code/pycairo/cairoon --pkg moon.pkg`:
-  ran the 98-test native suite and failed during LeakSanitizer reporting after
-  the ScaledFont slice. The reported allocations are rooted in
+  ran the 98-test native suite after the pycairo-style C glue split and failed
+  during LeakSanitizer reporting. The reported allocations are rooted in
   `cairo_toy_font_face_create`, `cairo_select_font_face`, macOS
   FontRegistry/CoreGraphics frames, and scaled-font Quartz/CoreText paths such
   as `cairo_scaled_font_create`, `CGFontCopyURL`, and `CTFontCreateWithGraphicsFont`;

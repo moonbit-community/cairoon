@@ -145,19 +145,21 @@ A release candidate must pass on all supported platforms:
 ## Current Status
 
 The current cairoon slice is not a full migration. It has native package setup,
-opaque external-object wrappers for `Surface`, `Context`, `Path`, `Pattern`,
-and `Region`, pure value types, many portable enums, expanded Context path,
-painting/page, target/source borrowed returns, clip, matrix, drawing-state,
-hit-testing/extents APIs, surface-pattern borrowed surface returns, FontOptions
-state/accessor APIs, FontFace/ToyFontFace APIs, ScaledFont basics, and initial
-tests.
+pycairo-style C glue split into private shared declarations plus per-family
+stub files, opaque external-object wrappers for `Surface`, `Context`, `Path`,
+`Pattern`, and `Region`, pure value types, many portable enums, expanded
+Context path, painting/page, target/source borrowed returns, clip, matrix,
+drawing-state, hit-testing/extents APIs, surface-pattern borrowed surface
+returns, FontOptions state/accessor APIs, FontFace/ToyFontFace APIs, ScaledFont
+basics, and initial tests.
 
 Verified on 2026-07-02:
 
 - `moon -C cairoon check --target native`: passed.
 - `moon -C cairoon test --target native -v`: 98 tests passed.
-- ASan/LSan via `run-asan.py`: ran the 98-test native suite and failed in
-  LeakSanitizer after the ScaledFont slice. The leak report is rooted in
+- ASan/LSan via `run-asan.py`: ran the 98-test native suite after the
+  pycairo-style C glue split and failed in LeakSanitizer. The leak report is
+  rooted in
   `cairo_toy_font_face_create`, `cairo_select_font_face`, macOS
   FontRegistry/CoreGraphics frames, and scaled-font Quartz/CoreText paths such
   as `cairo_scaled_font_create`, `CGFontCopyURL`, and `CTFontCreateWithGraphicsFont`;

@@ -12,7 +12,15 @@ import {
 warnings = "+unnecessary_annotation"
 
 options(
-  "native-stub": [ "cairoon_stub.c" ],
+  "native-stub": [
+    "cairoon_objects.c",
+    "cairoon_misc.c",
+    "cairoon_surface.c",
+    "cairoon_context.c",
+    "cairoon_pattern.c",
+    "cairoon_font.c",
+    "cairoon_region.c",
+  ],
   targets: { "ffi.mbt": [ "native" ] },
   link: {
     "native": {
