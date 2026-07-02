@@ -21,7 +21,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 | Status and error mapping | Partial | `Status`, `CairoError`, `run_cairo`; needs all pycairo exception parity |
 | Matrix | Done | Pure value equivalent with field access, transform/translate/scale/rotate/multiply/invert/component tests |
 | Image surface basics | Partial | Create, similar-image create, map/unmap to image, buffer-backed create-for-data, PNG path load/save, MIME data, status, finish, flush, width/height/stride/format, copied data |
-| Context basics | Partial | Creation, status, save/restore, CTM transforms, drawing state, clip APIs, path primitives, source colors, paint/fill/stroke |
+| Context basics | Partial | Creation, status, save/restore, CTM transforms, drawing state, clip APIs, group APIs, path primitives, source colors, paint/fill/stroke |
 | Pattern basics | Partial | Solid/surface pattern constructors, source setting, RGBA, extend/filter/dither/matrix state, and referenced surface return |
 | Font faces | Done | Base external object, toy constructor/getters, Context get/set/select, borrowed-return references |
 | Font options | Done | External object, copy/merge/equal/hash, all portable state fields, and Surface/Context accessors |
@@ -135,7 +135,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 | Clip APIs | Done | `clip`, `clip_preserve`, `reset_clip`, `clip_extents`, `in_clip`, and `copy_clip_rectangle_list` |
 | Stroke/fill state | Done | line width/cap/join, miter limit, fill rule, tolerance, operator, antialias, dash |
 | Matrix APIs | Done | get/set/identity/translate/rotate/transform and user/device coordinate conversions |
-| Groups | Todo | push/pop group and group target |
+| Groups | Done | `push_group`, `push_group_with_content`, `pop_group`, `pop_group_to_source`, and `get_group_target` with pixel and unmatched-pop tests |
 | Text and fonts | Partial | font options get/set, font face get/set/select, toy font, font matrix/size/extents, and scaled font basics exist; glyph arrays and Context text APIs remain |
 | Path copy/append | Done | `copy_path`, `copy_path_flat`, `append_path`, `Path::segments`, `Path::iter`, and `Path::to_string` |
 | Hit testing and extents | Done | `in_clip`, `in_fill`, `in_stroke`, `clip_extents`, `fill_extents`, `stroke_extents`, `path_extents` |

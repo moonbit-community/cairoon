@@ -59,6 +59,18 @@ test {
 
 ///|
 test {
+  let surface = Surface::image(Argb32, 1, 1)
+  let ctx = Context::new(surface)
+  ctx.push_group()
+  ctx.set_source_rgb(1.0, 0.0, 0.0)
+  ctx.paint()
+  ctx.pop_group_to_source()
+  ctx.paint()
+  inspect(surface.copy_data()[2].to_int(), content="255")
+}
+
+///|
+test {
   let path = "/tmp/cairoon_readme_png_roundtrip.png"
   let surface = Surface::image(Argb32, 1, 1)
   let ctx = Context::new(surface)

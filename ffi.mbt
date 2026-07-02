@@ -693,6 +693,35 @@ extern "C" fn context_get_source_ffi(
 
 ///|
 #borrow(ctx, status)
+extern "C" fn context_get_group_target_ffi(
+  ctx : Context,
+  status : Ref[Status],
+) -> Surface = "cairoon_context_get_group_target"
+
+///|
+#borrow(ctx)
+extern "C" fn context_push_group_ffi(ctx : Context) -> Status = "cairoon_context_push_group"
+
+///|
+#borrow(ctx)
+extern "C" fn context_push_group_with_content_ffi(
+  ctx : Context,
+  content : Content,
+) -> Status = "cairoon_context_push_group_with_content"
+
+///|
+#borrow(ctx, status)
+extern "C" fn context_pop_group_ffi(
+  ctx : Context,
+  status : Ref[Status],
+) -> Pattern = "cairoon_context_pop_group"
+
+///|
+#borrow(ctx)
+extern "C" fn context_pop_group_to_source_ffi(ctx : Context) -> Status = "cairoon_context_pop_group_to_source"
+
+///|
+#borrow(ctx, status)
 extern "C" fn context_get_font_options_ffi(
   ctx : Context,
   status : Ref[Status],

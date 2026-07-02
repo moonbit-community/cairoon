@@ -48,6 +48,40 @@ pub fn Context::get_source(self : Context) -> Pattern raise CairoError {
 }
 
 ///|
+pub fn Context::get_group_target(self : Context) -> Surface raise CairoError {
+  let status = Ref(Success)
+  let surface = context_get_group_target_ffi(self, status)
+  check_status(status.val)
+  surface
+}
+
+///|
+pub fn Context::push_group(self : Context) -> Unit raise CairoError {
+  check_status(context_push_group_ffi(self))
+}
+
+///|
+pub fn Context::push_group_with_content(
+  self : Context,
+  content : Content,
+) -> Unit raise CairoError {
+  check_status(context_push_group_with_content_ffi(self, content))
+}
+
+///|
+pub fn Context::pop_group(self : Context) -> Pattern raise CairoError {
+  let status = Ref(Success)
+  let pattern = context_pop_group_ffi(self, status)
+  check_status(status.val)
+  pattern
+}
+
+///|
+pub fn Context::pop_group_to_source(self : Context) -> Unit raise CairoError {
+  check_status(context_pop_group_to_source_ffi(self))
+}
+
+///|
 pub fn Context::get_font_options(
   self : Context,
 ) -> FontOptions raise CairoError {

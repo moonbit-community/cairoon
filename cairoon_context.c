@@ -73,6 +73,79 @@ CairoonPattern *cairoon_context_get_source(CairoonContext *ctx, cairo_status_t *
 }
 
 MOONBIT_FFI_EXPORT
+CairoonSurface *cairoon_context_get_group_target(
+  CairoonContext *ctx,
+  cairo_status_t *status_out) {
+  cairo_status_t status = cairoon_context_status(ctx);
+  *status_out = status;
+  if (status != CAIRO_STATUS_SUCCESS) {
+    return cairoon_surface_wrap_owned(NULL);
+  }
+  cairo_surface_t *surface = cairo_get_group_target(ctx->ptr);
+  if (surface == NULL) {
+    *status_out = CAIRO_STATUS_NULL_POINTER;
+    return cairoon_surface_wrap_owned(NULL);
+  }
+  *status_out = cairo_surface_status(surface);
+  return cairoon_surface_wrap_borrowed(surface);
+}
+
+MOONBIT_FFI_EXPORT
+cairo_status_t cairoon_context_push_group(CairoonContext *ctx) {
+  cairo_status_t status = cairoon_context_status(ctx);
+  if (status != CAIRO_STATUS_SUCCESS) {
+    return status;
+  }
+  cairo_push_group(ctx->ptr);
+  return cairo_status(ctx->ptr);
+}
+
+MOONBIT_FFI_EXPORT
+cairo_status_t cairoon_context_push_group_with_content(
+  CairoonContext *ctx,
+  cairo_content_t content) {
+  cairo_status_t status = cairoon_context_status(ctx);
+  if (status != CAIRO_STATUS_SUCCESS) {
+    return status;
+  }
+  cairo_push_group_with_content(ctx->ptr, content);
+  return cairo_status(ctx->ptr);
+}
+
+MOONBIT_FFI_EXPORT
+CairoonPattern *cairoon_context_pop_group(
+  CairoonContext *ctx,
+  cairo_status_t *status_out) {
+  cairo_status_t status = cairoon_context_status(ctx);
+  *status_out = status;
+  if (status != CAIRO_STATUS_SUCCESS) {
+    return cairoon_pattern_wrap_owned(NULL, NULL);
+  }
+  cairo_pattern_t *pattern = cairo_pop_group(ctx->ptr);
+  *status_out = cairo_status(ctx->ptr);
+  if (pattern == NULL) {
+    if (*status_out == CAIRO_STATUS_SUCCESS) {
+      *status_out = CAIRO_STATUS_NO_MEMORY;
+    }
+    return cairoon_pattern_wrap_owned(NULL, NULL);
+  }
+  if (*status_out == CAIRO_STATUS_SUCCESS) {
+    *status_out = cairo_pattern_status(pattern);
+  }
+  return cairoon_pattern_wrap_owned(pattern, NULL);
+}
+
+MOONBIT_FFI_EXPORT
+cairo_status_t cairoon_context_pop_group_to_source(CairoonContext *ctx) {
+  cairo_status_t status = cairoon_context_status(ctx);
+  if (status != CAIRO_STATUS_SUCCESS) {
+    return status;
+  }
+  cairo_pop_group_to_source(ctx->ptr);
+  return cairo_status(ctx->ptr);
+}
+
+MOONBIT_FFI_EXPORT
 CairoonFontOptions *cairoon_context_get_font_options(
   CairoonContext *ctx,
   cairo_status_t *status_out) {
