@@ -26,7 +26,8 @@ Implemented in this workspace:
 - `Pattern::for_surface` retains its base `Surface` wrapper while the pattern
   wrapper exists, and `Pattern::get_surface` returns a referenced `Surface`
   wrapper that can outlive the pattern wrapper.
-- Public `Status`, `CairoError`, version helpers, portable Cairo enum types,
+- Public `Status`, `CairoError`, version helpers, compile-time Cairo version
+  constants, feature flags, MIME/tag constants, portable Cairo enum types,
   `Format::stride_for_width`, pure `Matrix` parity operations, pure rectangle,
   glyph, text-cluster, and extents values, image `Surface` including PNG
   filename load/save and buffer-backed creation, core `Context` drawing state
@@ -46,7 +47,7 @@ Implemented in this workspace:
   helpers, level restriction, EPS mode, page-size, and DSC comment/setup APIs,
   SVGSurface
   filename/no-output constructor, version helper, version restriction, and
-  document-unit APIs, Cairo tag string constants,
+  document-unit APIs,
   Device/ScriptDevice status/type/equal/hash, finish/flush/acquire/release,
   scoped acquire helper, script mode/comment helpers, recording-surface replay,
   and ScriptSurface creation/proxy helpers,
@@ -69,16 +70,18 @@ Implemented in this workspace:
   constructor from `FontFace`/`Matrix`/`FontOptions`, font face/options and
   matrix getters, text and glyph extents, text-to-glyphs, and `Context` font
   matrix/size/extents plus scaled-font get/set/show-text-glyphs wrappers.
-- Initial parity tests for version, enum exposure, pure value types, matrix
-  behavior, image surface properties, buffer-backed image surface sharing and
+- Initial parity tests for version helpers, compile-time Cairo constants, enum
+  exposure, pure value types, matrix behavior, image surface properties,
+  buffer-backed image surface sharing and
   Cairo-reference lifetime behavior, PNG filename round trips and invalid path
   validation, deterministic pixel rendering, context CTM, coordinate
   conversion, drawing-state behavior, path current-point,
   relative/arc, copy/append, stringification, and iteration behavior,
   borrowed target/source/group-target lifetime behavior, group push/pop and
-  pop-to-source rendering behavior, tag begin/end smoke behavior, tag string
-  constants, tag input validation, Context toy text extents/current-point/path
-  behavior, text input validation, Context glyph array extents/path/show
+  pop-to-source rendering behavior, tag begin/end smoke behavior, tag and MIME
+  string constants, tag input validation, Context toy text
+  extents/current-point/path behavior, text input validation, Context glyph
+  array extents/path/show
   behavior, empty glyph arrays, glyph context-error propagation, text-to-glyphs
   output copying, show-text-glyphs rendering, and text-glyph input validation,
   mapped image whole-surface and rectangle-extents writeback behavior,
@@ -132,10 +135,10 @@ Implemented in this workspace:
 
 2026-07-02:
 
-- `moon -C cairoon test --target native -v`: 185 tests passed.
+- `moon -C cairoon test --target native -v`: 189 tests passed.
 - `run-asan.py --repo-root /Users/caimeo/code/pycairo/cairoon --pkg moon.pkg`:
-  ran the 185-test native suite after the PDF outline flag-set slice and
-  failed during LeakSanitizer reporting. The reported allocations are rooted in
+  ran the native suite after the module-constants slice and failed during
+  LeakSanitizer reporting. The reported allocations are rooted in
   `cairo_toy_font_face_create`, `cairo_select_font_face`, macOS
   FontRegistry/CoreGraphics frames, and scaled-font Quartz/CoreText paths such
   as `cairo_scaled_font_create`, `CGFontCopyURL`, and
@@ -147,9 +150,10 @@ Implemented in this workspace:
   text-to-glyphs native result finalizer, glyph/cluster marshaling helper,
   RecordingSurface helper, PDFSurface helper, PSSurface helper, SVGSurface
   helper, PDF outline helper, MeshPattern/Pattern helper,
-  Device/ScriptSurface helper, Context text/tag/group, or MIME-data stub
-  ownership stack appeared in the visible leak roots.
-  Summary: `89205 byte(s) leaked in 476 allocation(s)`. The helper still emits
+  Device/ScriptSurface helper, Context text/tag/group, MIME-data stub, or
+  compile-time constant helper ownership stack appeared in the visible leak
+  roots.
+  Summary: `89557 byte(s) leaked in 478 allocation(s)`. The helper still emits
   a `moon.mod.json` lookup warning because this package uses `moon.mod`, but it
   correctly patched and restored the DSL `moon.pkg` and MoonBit runtime object
   for this package.

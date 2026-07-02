@@ -148,23 +148,22 @@ The current cairoon slice is not a full migration. It has native package setup,
 pycairo-style C glue split into private shared declarations plus per-family
 stub files, opaque external-object wrappers for `Surface`,
 `MappedImageSurface`, `Context`, `Path`, `Pattern`, `FontOptions`, `FontFace`,
-`ScaledFont`, `Region`, and `Device`, pure value types, many portable enums, expanded
-Context path, painting/page, target/source borrowed returns, clip, matrix,
-drawing-state, group APIs, tag APIs, toy text APIs, glyph array APIs,
-text-to-glyphs/show-text-glyphs APIs, hit-testing/extents APIs, typed Path
-segment iteration and stringification, PNG filename load/save and
-buffer-backed creation for image
-surfaces, portable Surface base helpers such as similar-surface creation,
-content/type queries, dirty markers, device offset/scale, fallback resolution,
-show-text-glyphs support checks, MIME data storage/query/clear support, and
+`ScaledFont`, `Region`, and `Device`, pure value types, many portable enums,
+expanded Context path, painting/page, target/source borrowed returns, clip,
+matrix, drawing-state, compile-time Cairo constants, group APIs, tag APIs, toy
+text APIs, glyph array APIs, text-to-glyphs/show-text-glyphs APIs,
+hit-testing/extents APIs, typed Path segment iteration and stringification,
+PNG filename load/save and buffer-backed creation for image surfaces, portable
+Surface base helpers such as similar-surface creation, content/type queries,
+dirty markers, device offset/scale, fallback resolution, show-text-glyphs
+support checks, MIME constants, MIME data storage/query/clear support, and
 RecordingSurface constructor/extents/ink-extents plus replay, mapped image
 surface mapping/unmapping, PDFSurface filename/no-output constructor, version
 helpers, version restriction, size, metadata, page-label, thumbnail, and
 single-flag and combined-flag outline helpers, PSSurface filename/no-output
 constructor, level helpers, level restriction, EPS mode, size and DSC helpers,
-SVGSurface
-filename/no-output constructor, version helpers, version restriction, and
-document-unit helpers,
+SVGSurface filename/no-output constructor, version helpers, version
+restriction, and document-unit helpers,
 surface-pattern borrowed surface returns, MeshPattern patch lifecycle/query
 APIs, FontOptions state/accessor APIs, FontFace/ToyFontFace APIs, ScaledFont
 basics including glyph extents and text-to-glyphs, and
@@ -178,7 +177,7 @@ operations.
 Verified on 2026-07-02:
 
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native -v`: 185 tests passed.
+- `moon -C cairoon test --target native -v`: 189 tests passed.
 - ASan/LSan via `run-asan.py`: ran the 108-test native suite after the PNG
   filename API slice, the 113-test native suite after the
   `Surface::image_for_data` slice, and the 114-test native suite after the
@@ -196,7 +195,8 @@ Verified on 2026-07-02:
   failed in LeakSanitizer, as did the 179-test native suite after the
   MeshPattern slice and the 185-test native suite after the
   Device/ScriptSurface slice and the 185-test native suite after the PDF
-  outline flag-set slice. The most recent leak report is rooted in
+  outline flag-set slice, then failed after the module-constants slice with the
+  expanded 189-test native suite. The most recent leak report is rooted in
   `cairo_toy_font_face_create`, `cairo_select_font_face`, macOS
   FontRegistry/CoreGraphics frames, and scaled-font Quartz/CoreText paths such
   as `cairo_scaled_font_create`, `CGFontCopyURL`, and
@@ -208,9 +208,10 @@ Verified on 2026-07-02:
   text-to-glyphs native result finalizer, glyph/cluster marshaling helper,
   RecordingSurface helper, PDFSurface helper, PSSurface helper, SVGSurface
   helper, PDF outline helper, MeshPattern/Pattern helper,
-  Device/ScriptSurface helper, Context text/tag/group, or MIME-data stub
-  ownership stack appeared in the visible leak roots.
-  Summary: `89205 byte(s) leaked in 476 allocation(s)`.
+  Device/ScriptSurface helper, Context text/tag/group, MIME-data stub, or
+  compile-time constant helper ownership stack appeared in the visible leak
+  roots.
+  Summary: `89557 byte(s) leaked in 478 allocation(s)`.
 
 The missing reliability pieces are substantial: automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering

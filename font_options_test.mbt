@@ -7,6 +7,7 @@ test "font options new exposes default state" {
   debug_inspect(options.get_hint_metrics(), content="HintMetricsDefault")
   debug_inspect(options.get_color_mode(), content="ColorModeDefault")
   inspect(options.get_color_palette().reinterpret_as_int(), content="0")
+  inspect(options.get_color_palette() == COLOR_PALETTE_DEFAULT, content="true")
   inspect(options.get_variations() is None, content="true")
 }
 

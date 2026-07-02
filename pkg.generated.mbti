@@ -6,6 +6,80 @@ import {
 }
 
 // Values
+pub const CAIRO_VERSION : Int = 11804
+
+pub const CAIRO_VERSION_MAJOR : Int = 1
+
+pub const CAIRO_VERSION_MICRO : Int = 4
+
+pub const CAIRO_VERSION_MINOR : Int = 18
+
+pub const CAIRO_VERSION_STRING : String = "1.18.4"
+
+pub const COLOR_PALETTE_DEFAULT : UInt = 0
+
+pub const HAS_ATSUI_FONT : Bool = false
+
+pub const HAS_DWRITE_FONT : Bool = false
+
+pub const HAS_FT_FONT : Bool = true
+
+pub const HAS_GLITZ_SURFACE : Bool = false
+
+pub const HAS_IMAGE_SURFACE : Bool = true
+
+pub const HAS_MIME_SURFACE : Bool = true
+
+pub const HAS_PDF_SURFACE : Bool = true
+
+pub const HAS_PNG_FUNCTIONS : Bool = true
+
+pub const HAS_PS_SURFACE : Bool = true
+
+pub const HAS_QUARTZ_SURFACE : Bool = true
+
+pub const HAS_RECORDING_SURFACE : Bool = true
+
+pub const HAS_SCRIPT_SURFACE : Bool = true
+
+pub const HAS_SVG_SURFACE : Bool = true
+
+pub const HAS_TEE_SURFACE : Bool = true
+
+pub const HAS_USER_FONT : Bool = true
+
+pub const HAS_WIN32_FONT : Bool = false
+
+pub const HAS_WIN32_SURFACE : Bool = false
+
+pub const HAS_XCB_SURFACE : Bool = true
+
+pub const HAS_XLIB_SURFACE : Bool = true
+
+pub const MIME_TYPE_CCITT_FAX : String = "image/g3fax"
+
+pub const MIME_TYPE_CCITT_FAX_PARAMS : String = "application/x-cairo.ccitt.params"
+
+pub const MIME_TYPE_EPS : String = "application/postscript"
+
+pub const MIME_TYPE_EPS_PARAMS : String = "application/x-cairo.eps.params"
+
+pub const MIME_TYPE_JBIG2 : String = "application/x-cairo.jbig2"
+
+pub const MIME_TYPE_JBIG2_GLOBAL : String = "application/x-cairo.jbig2-global"
+
+pub const MIME_TYPE_JBIG2_GLOBAL_ID : String = "application/x-cairo.jbig2-global-id"
+
+pub const MIME_TYPE_JP2 : String = "image/jp2"
+
+pub const MIME_TYPE_JPEG : String = "image/jpeg"
+
+pub const MIME_TYPE_PNG : String = "image/png"
+
+pub const MIME_TYPE_UNIQUE_ID : String = "application/x-cairo.uuid"
+
+pub const MIME_TYPE_URI : String = "text/x-uri"
+
 pub const PDF_OUTLINE_ROOT : Int = 0
 
 pub const TAG_CONTENT : String = "cairo.content"

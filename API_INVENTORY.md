@@ -17,7 +17,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 | Area | Status | Evidence |
 |---|---|---|
 | MoonBit package setup | Done | `moon.mod`, `moon.pkg`, native Cairo link flags, pycairo-style split C stubs |
-| Version helpers | Done | `cairo_version`, `cairo_version_string` |
+| Version helpers and module constants | Done | `cairo_version`, `cairo_version_string`, `CAIRO_VERSION*`, `HAS_*`, `MIME_TYPE_*`, tag constants, `PDF_OUTLINE_ROOT`, and `COLOR_PALETTE_DEFAULT` |
 | Status and error mapping | Partial | `Status`, `CairoError`, `run_cairo`; needs all pycairo exception parity |
 | Matrix | Done | Pure value equivalent with field access, transform/translate/scale/rotate/multiply/invert/component tests |
 | Image surface basics | Partial | Create, similar-image create, map/unmap to image, buffer-backed create-for-data, PNG path load/save, MIME data, status, finish, flush, width/height/stride/format, copied data |
@@ -34,12 +34,18 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 | Docs | Partial | README smoke example and AGENTS spec exist; no full reference docs yet |
 | Tests | Partial | Native and ASan test runs cover the current migrated slices only |
 
-## Top-Level Functions
+## Top-Level Functions And Module Constants
 
 | pycairo API | cairoon status | Notes |
 |---|---|---|
 | `cairo_version()` | Done | Exposed as `cairo_version()` |
 | `cairo_version_string()` | Done | Exposed as `cairo_version_string()` |
+| `CAIRO_VERSION*` constants | Done | Compile-time Cairo version constants exposed and white-box tested against C macros |
+| `HAS_*` feature constants | Done | Feature flags exposed as Boolean constants and white-box tested against C macros for this native build |
+| `MIME_TYPE_*` constants | Done | Cairo MIME strings exposed and white-box tested against C macros |
+| `TAG_*` constants | Done | Cairo tag strings exposed and white-box tested against C macros |
+| `PDF_OUTLINE_ROOT`, `COLOR_PALETTE_DEFAULT` | Done | Numeric constants exposed and white-box tested against C macros |
+| `version`, `version_info` | Decision | pycairo package-version surface; cairoon needs its own package-version policy before exposing an equivalent |
 | `get_include()` | Decision | pycairo-specific C-extension helper; decide whether cairoon needs an equivalent |
 
 ## Enums And Constants
@@ -76,7 +82,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 | `ScriptMode` | Done | Needed by script device |
 | `TextClusterFlags` | Done | Cairo bit value preserved |
 | `SurfaceObserverMode` | Done | Enum exists; Tee/observer surface APIs remain a product decision |
-| Tag string constants | Done | `TAG_DEST`, `TAG_LINK`, `TAG_CONTENT`, and `TAG_CONTENT_REF` expose Cairo tag names |
+| Tag and MIME string constants | Done | `TAG_*` and `MIME_TYPE_*` expose Cairo strings and are checked against compile-time C macros |
 
 ## Value Types
 
@@ -176,9 +182,9 @@ These are not safe to guess if the goal is a full product.
 1. Should cairoon include platform-specific pycairo APIs (`Win32Surface`,
    `XCBSurface`, `XlibSurface`) behind conditional builds, or should the first
    full product target only portable Cairo backends?
-2. Should `get_include()` or an equivalent C embedding header be part of the
-   MoonBit product, or is that pycairo C-extension compatibility surface out of
-   scope?
+2. Should `get_include()`, `version`, `version_info`, or equivalent MoonBit
+   package-version and embedding-header surfaces be part of the MoonBit
+   product, or is that pycairo C-extension compatibility surface out of scope?
 3. Should optional `TeeSurface`/observer APIs be part of the portable first
    product when Cairo was compiled with tee support, or should they be deferred
    with other optional backends?

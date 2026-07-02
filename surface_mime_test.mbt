@@ -24,7 +24,7 @@ fn binary_mime_payload() -> Bytes {
 test "surface mime data set get and clear" {
   let surface = Surface::image(Argb32, 1, 1)
   inspect(surface.get_mime_data("foo") is None, content="true")
-  inspect(surface.get_mime_data("image/jpeg") is None, content="true")
+  inspect(surface.get_mime_data(MIME_TYPE_JPEG) is None, content="true")
 
   let payload = @utf8.encode("bar")
   surface.set_mime_data("foo", Some(payload))
@@ -38,8 +38,8 @@ test "surface mime data set get and clear" {
 test "surface mime data preserves embedded nul bytes and zero length payloads" {
   let surface = Surface::image(Argb32, 1, 1)
   let binary = binary_mime_payload()
-  surface.set_mime_data("image/jpeg", Some(binary))
-  expect_mime_bytes(surface, "image/jpeg", binary)
+  surface.set_mime_data(MIME_TYPE_JPEG, Some(binary))
+  expect_mime_bytes(surface, MIME_TYPE_JPEG, binary)
 
   let empty : FixedArray[Byte] = FixedArray::make(0, b'\x00')
   surface.set_mime_data("application/x-empty", Some(Bytes::from_array(empty)))
@@ -73,8 +73,5 @@ test "surface mime data validates mime type strings" {
 ///|
 test "surface reports unsupported mime type" {
   let surface = Surface::image(Argb32, 1, 1)
-  inspect(
-    surface.supports_mime_type("application/x-cairoon-test"),
-    content="false",
-  )
+  inspect(surface.supports_mime_type(MIME_TYPE_JPEG), content="false")
 }

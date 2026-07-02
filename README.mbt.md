@@ -10,6 +10,9 @@ support FFI. See `AGENTS.md` for the migration and audit rules.
 test {
   inspect(cairo_version() > 0, content="true")
   inspect(cairo_version_string().contains("."), content="true")
+  inspect(CAIRO_VERSION == cairo_version(), content="true")
+  inspect(HAS_IMAGE_SURFACE, content="true")
+  inspect(MIME_TYPE_JPEG, content="image/jpeg")
 }
 
 ///|
