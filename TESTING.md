@@ -159,16 +159,17 @@ construction plus predicates and boolean operations.
 Verified on 2026-07-02:
 
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native -v`: 113 tests passed.
+- `moon -C cairoon test --target native -v`: 114 tests passed.
 - ASan/LSan via `run-asan.py`: ran the 108-test native suite after the PNG
-  filename API slice and the 113-test native suite after the
-  `Surface::image_for_data` slice; both runs failed in LeakSanitizer. The most
-  recent leak report is rooted in `cairo_toy_font_face_create`,
+  filename API slice, the 113-test native suite after the
+  `Surface::image_for_data` slice, and the 114-test native suite after the
+  cairo-surface user-data lifetime fix; these runs failed in LeakSanitizer. The
+  most recent leak report is rooted in `cairo_toy_font_face_create`,
   `cairo_select_font_face`, macOS
   FontRegistry/CoreGraphics frames, and scaled-font Quartz/CoreText paths such
   as `cairo_scaled_font_create`, `CGFontCopyURL`, and `CTFontCreateWithGraphicsFont`;
   no AddressSanitizer invalid-access report appeared before LSan failed.
-  Summary: `91797 byte(s) leaked in 1308 allocation(s)`.
+  Summary: `92629 byte(s) leaked in 1319 allocation(s)`.
 
 The missing reliability pieces are substantial: automated differential tests,
 the open macOS toy-font/scaled-font LSan failure, finalizer stress tests, CI

@@ -92,12 +92,33 @@ fn make_returned_surface_from_pattern() -> Surface raise CairoError {
 }
 
 ///|
+fn make_returned_data_surface_from_pattern() -> Surface raise CairoError {
+  let data : FixedArray[Byte] = FixedArray::make(4, b'\x00')
+  let source = Surface::image_for_data(data, Argb32, 1, 1)
+  let source_ctx = Context::new(source)
+  source_ctx.set_source_rgba(0.0, 0.0, 1.0, 1.0)
+  source_ctx.paint()
+  let pattern = Pattern::for_surface(source)
+  pattern.get_surface()
+}
+
+///|
 test "surface pattern get_surface survives source and pattern scopes" {
   let returned = make_returned_surface_from_pattern()
   let data = returned.copy_data()
   inspect(data[0].to_int(), content="0")
   inspect(data[1].to_int(), content="0")
   inspect(data[2].to_int(), content="255")
+  inspect(data[3].to_int(), content="255")
+}
+
+///|
+test "surface pattern get_surface keeps data-backed surface alive" {
+  let returned = make_returned_data_surface_from_pattern()
+  let data = returned.copy_data()
+  inspect(data[0].to_int(), content="255")
+  inspect(data[1].to_int(), content="0")
+  inspect(data[2].to_int(), content="0")
   inspect(data[3].to_int(), content="255")
 }
 

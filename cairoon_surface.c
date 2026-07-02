@@ -2,6 +2,24 @@
 
 #include <string.h>
 
+static const cairo_user_data_key_t cairoon_image_surface_data_key;
+
+static void cairoon_decref_user_data(void *user_data) {
+  if (user_data != NULL) {
+    moonbit_decref(user_data);
+  }
+}
+
+static cairo_status_t cairoon_surface_store_user_data(
+  cairo_surface_t *surface,
+  void *data) {
+  return cairo_surface_set_user_data(
+    surface,
+    &cairoon_image_surface_data_key,
+    data,
+    cairoon_decref_user_data);
+}
+
 MOONBIT_FFI_EXPORT
 CairoonSurface *cairoon_image_surface_create(cairo_format_t format, int32_t width, int32_t height) {
   return cairoon_surface_wrap_owned(cairo_image_surface_create(format, width, height));
@@ -22,10 +40,12 @@ CairoonSurface *cairoon_image_surface_create_for_data(
   }
   if (width < 0 || height < 0) {
     *status_out = CAIRO_STATUS_INVALID_SIZE;
+    moonbit_decref(data);
     return cairoon_surface_wrap_owned(NULL);
   }
   if (stride < 0) {
     *status_out = CAIRO_STATUS_INVALID_STRIDE;
+    moonbit_decref(data);
     return cairoon_surface_wrap_owned(NULL);
   }
 
@@ -33,6 +53,7 @@ CairoonSurface *cairoon_image_surface_create_for_data(
   int64_t available = (int64_t)Moonbit_array_length(data);
   if (required > available) {
     *status_out = CAIRO_STATUS_INVALID_SIZE;
+    moonbit_decref(data);
     return cairoon_surface_wrap_owned(NULL);
   }
 
@@ -40,13 +61,21 @@ CairoonSurface *cairoon_image_surface_create_for_data(
     cairo_image_surface_create_for_data(data, format, width, height, stride);
   if (surface == NULL) {
     *status_out = CAIRO_STATUS_NO_MEMORY;
+    moonbit_decref(data);
     return cairoon_surface_wrap_owned(NULL);
   }
   *status_out = cairo_surface_status(surface);
   if (*status_out != CAIRO_STATUS_SUCCESS) {
+    moonbit_decref(data);
     return cairoon_surface_wrap_owned(surface);
   }
-  return cairoon_surface_wrap_owned_with_base(surface, data);
+  *status_out = cairoon_surface_store_user_data(surface, data);
+  if (*status_out != CAIRO_STATUS_SUCCESS) {
+    cairo_surface_destroy(surface);
+    moonbit_decref(data);
+    return cairoon_surface_wrap_owned(NULL);
+  }
+  return cairoon_surface_wrap_owned(surface);
 }
 
 MOONBIT_FFI_EXPORT

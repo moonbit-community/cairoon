@@ -7,7 +7,6 @@
 
 typedef struct {
   cairo_surface_t *ptr;
-  void *base;
 } CairoonSurface;
 
 typedef struct {
@@ -41,7 +40,6 @@ typedef struct {
 } CairoonRegion;
 
 CairoonSurface *cairoon_surface_wrap_owned(cairo_surface_t *ptr);
-CairoonSurface *cairoon_surface_wrap_owned_with_base(cairo_surface_t *ptr, void *base);
 CairoonSurface *cairoon_surface_wrap_borrowed(cairo_surface_t *ptr);
 CairoonContext *cairoon_context_wrap_owned(cairo_t *ptr, void *target_surface);
 CairoonPath *cairoon_path_wrap_owned(cairo_path_t *ptr);

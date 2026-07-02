@@ -8,10 +8,6 @@ static void cairoon_surface_finalize(void *self) {
     cairo_surface_destroy(surface->ptr);
     surface->ptr = NULL;
   }
-  if (surface->base != NULL) {
-    moonbit_decref(surface->base);
-    surface->base = NULL;
-  }
 }
 
 static void cairoon_context_finalize(void *self) {
@@ -79,17 +75,9 @@ static void cairoon_region_finalize(void *self) {
 }
 
 CairoonSurface *cairoon_surface_wrap_owned(cairo_surface_t *ptr) {
-  return cairoon_surface_wrap_owned_with_base(ptr, NULL);
-}
-
-CairoonSurface *cairoon_surface_wrap_owned_with_base(cairo_surface_t *ptr, void *base) {
   CairoonSurface *surface = (CairoonSurface *)moonbit_make_external_object(
     cairoon_surface_finalize, sizeof(CairoonSurface));
   surface->ptr = ptr;
-  surface->base = base;
-  if (base != NULL) {
-    moonbit_incref(base);
-  }
   return surface;
 }
 

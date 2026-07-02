@@ -11,9 +11,10 @@ Implemented in this workspace:
   currently cover `Surface`, `Context`, `Path`, `Pattern`, and `Region`.
 - `Context` retains its target `Surface` with `moonbit_incref` and releases it
   in the finalizer.
-- `Surface::image_for_data` retains its backing `FixedArray[Byte]` with
-  `moonbit_incref` and releases it in the surface finalizer after destroying
-  the cairo surface.
+- `Surface::image_for_data` stores its backing `FixedArray[Byte]` as an owned
+  Cairo surface user-data payload, so the buffer lives until the last
+  `cairo_surface_t` reference is destroyed, including referenced wrappers
+  returned through APIs such as `Pattern::get_surface`.
 - `Pattern::for_surface` retains its base `Surface` wrapper while the pattern
   wrapper exists, and `Pattern::get_surface` returns a referenced `Surface`
   wrapper that can outlive the pattern wrapper.
@@ -41,8 +42,8 @@ Implemented in this workspace:
   scaled-font get/set wrappers.
 - Initial parity tests for version, enum exposure, pure value types, matrix
   behavior, image surface properties, buffer-backed image surface sharing and
-  lifetime behavior, PNG filename round trips and invalid path validation,
-  deterministic pixel rendering, context CTM, coordinate
+  Cairo-reference lifetime behavior, PNG filename round trips and invalid path
+  validation, deterministic pixel rendering, context CTM, coordinate
   conversion, drawing-state behavior, path current-point,
   relative/arc, copy/append, stringification, and iteration behavior,
   borrowed target/source lifetime behavior,
@@ -76,15 +77,15 @@ Implemented in this workspace:
 
 2026-07-02:
 
-- `moon -C cairoon test --target native -v`: 113 tests passed.
+- `moon -C cairoon test --target native -v`: 114 tests passed.
 - `run-asan.py --repo-root /Users/caimeo/code/pycairo/cairoon --pkg moon.pkg`:
-  ran the 113-test native suite after the `Surface::image_for_data` slice and
-  failed during LeakSanitizer reporting. The reported allocations are rooted in
+  ran the 114-test native suite after the cairo-surface user-data lifetime fix
+  and failed during LeakSanitizer reporting. The reported allocations are rooted in
   `cairo_toy_font_face_create`, `cairo_select_font_face`, macOS
   FontRegistry/CoreGraphics frames, and scaled-font Quartz/CoreText paths such
   as `cairo_scaled_font_create`, `CGFontCopyURL`, and `CTFontCreateWithGraphicsFont`;
   no AddressSanitizer invalid-access report appeared before LSan failed.
-  Summary: `91797 byte(s) leaked in 1308 allocation(s)`. The helper still emits
+  Summary: `92629 byte(s) leaked in 1319 allocation(s)`. The helper still emits
   a `moon.mod.json` lookup warning because this package uses `moon.mod`, but it
   correctly patched and restored the DSL `moon.pkg` and MoonBit runtime object
   for this package.
