@@ -291,6 +291,9 @@ Verified on 2026-07-02 and 2026-07-03:
 - `moon -C cairoon test surface_context_test.mbt --target native -v`: 14
   black-box tests passed after adding `Rgb96F` and `Rgba128F` image-surface
   construction, stride, copied-data, and buffer-backed readback coverage.
+- `moon -C cairoon test surface_context_test.mbt --target native -v`: 15
+  black-box tests passed after adding ordinary image-surface finish/status
+  coverage for idempotent finish and `SurfaceFinished` base-method errors.
 - `moon -C cairoon test surface_subsurface_test.mbt --target native -v`: 3
   black-box tests passed after adding invalid-size coverage for
   `Surface::create_for_rectangle`.
@@ -327,9 +330,10 @@ Verified on 2026-07-02 and 2026-07-03:
 - `moon -C cairoon test enums_test.mbt --target native -v`: 4 black-box tests
   passed after adding `Rgb16_565`, `Rgb30`, `Rgb96F`, `Rgba128F`, and
   negative-width `Format::stride_for_width` coverage.
-- `moon -C cairoon test --target native`: 306 tests passed.
-- `moon -C cairoon info --target native`: passed; the latest raster-source
-  finished-surface C glue slice did not change the public interface.
+- `moon -C cairoon test --target native`: 307 tests passed.
+- `moon -C cairoon info --target native`: passed; the latest ordinary
+  image-surface finished-status test slice did not change the public
+  interface.
 - Test-only buffer-backed image oracle coverage plus Pure MoonBit Region
   rectangle-XOR and executable Matrix/Surface/Context/Font/Path/Pattern/Region
   documentation coverage were added without rerunning ASan because no C glue or
@@ -337,6 +341,9 @@ Verified on 2026-07-02 and 2026-07-03:
 - Pure MoonBit format-stride coverage was added without rerunning ASan because
   no C glue, finalizer, callback trampoline, or retained owner code changed in
   that slice.
+- Pure MoonBit ordinary image-surface finished-status coverage was added
+  without rerunning ASan because no C glue, finalizer, callback trampoline, or
+  retained owner code changed in that slice.
 - Test-only source/mask offset image-oracle helper coverage was added without
   changing the public API or native test count; sanitizer validation is
   recorded below.
@@ -768,6 +775,11 @@ Verified on 2026-07-02 and 2026-07-03:
   failure-injection test and C-side surface-finished tracking for callbacks,
   raising the native suite to 306 tests. Targeted ASan with leak detection
   disabled passed for `pattern_test.mbt`.
+  The later ordinary image-surface finished-status slice added one pure
+  MoonBit black-box test covering idempotent `finish()` and `SurfaceFinished`
+  mapping for `flush`, `copy_page`, and `show_page`, raising the native suite
+  to 307 tests. ASan/LSan was not rerun for that slice because it did not
+  change C glue or ownership code.
 
 The missing reliability pieces are substantial: broader automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering

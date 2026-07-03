@@ -16,6 +16,15 @@ fn expect_surface_invalid_size(
 }
 
 ///|
+fn expect_surface_finished(result : Result[Unit, CairoError]) -> Unit raise {
+  inspect(result is Err(_), content="true")
+  match result {
+    Err(CairoError(SurfaceFinished, _)) => ()
+    _ => @test.fail("expected SurfaceFinished")
+  }
+}
+
+///|
 test "image surface properties" {
   let surface = Surface::image(Argb32, 2, 1)
   debug_inspect(surface.get_type(), content="SurfaceTypeImage")
@@ -57,6 +66,20 @@ test "surface equality and hash use cairo pointer identity" {
 
   let other = Surface::image(Argb32, 1, 1)
   inspect(surface.equal(other), content="false")
+}
+
+///|
+test "surface finish records status for base methods" {
+  let surface = Surface::image(Argb32, 1, 1)
+  debug_inspect(surface.status(), content="Success")
+  surface.finish()
+  debug_inspect(surface.status(), content="SurfaceFinished")
+
+  // Cairo finish is intentionally idempotent; operations after finish fail.
+  surface.finish()
+  expect_surface_finished(run_cairo(() => surface.flush()))
+  expect_surface_finished(run_cairo(() => surface.copy_page()))
+  expect_surface_finished(run_cairo(() => surface.show_page()))
 }
 
 ///|

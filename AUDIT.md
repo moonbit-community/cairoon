@@ -283,6 +283,9 @@ Implemented in this workspace:
 - `moon -C cairoon test surface_context_test.mbt --target native -v`: 14
   black-box tests passed after adding `Rgb96F` and `Rgba128F` image-surface
   construction, stride, copied-data, and buffer-backed readback coverage.
+- `moon -C cairoon test surface_context_test.mbt --target native -v`: 15
+  black-box tests passed after adding ordinary image-surface finish/status
+  coverage for idempotent finish and `SurfaceFinished` base-method errors.
 - `moon -C cairoon test enums_test.mbt --target native -v`: 4 black-box tests
   passed after adding `Rgb16_565`, `Rgb30`, `Rgb96F`, `Rgba128F`, and
   negative-width `Format::stride_for_width` coverage.
@@ -319,9 +322,10 @@ Implemented in this workspace:
   stream output and writer errors, PDF metadata/outlines, PS DSC, SVG document
   units, recording replay, Tee fanout, script devices/surfaces, and checked
   backend-specific errors.
-- `moon -C cairoon test --target native`: 306 tests passed.
-- `moon -C cairoon info --target native`: passed; the latest raster-source
-  finished-surface C glue slice did not change the public interface.
+- `moon -C cairoon test --target native`: 307 tests passed.
+- `moon -C cairoon info --target native`: passed; the latest ordinary
+  image-surface finished-status test slice did not change the public
+  interface.
 - Test-only buffer-backed image oracle coverage plus Pure MoonBit Region
   rectangle-XOR and executable Matrix/Surface/Context/Font/Path/Pattern/Region
   documentation coverage were added without rerunning ASan because no C glue or
@@ -341,6 +345,9 @@ Implemented in this workspace:
 - Pure MoonBit format-stride coverage was added without rerunning ASan because
   no C glue, finalizer, callback trampoline, or retained owner code changed in
   that slice.
+- Pure MoonBit ordinary image-surface finished-status coverage was added
+  without rerunning ASan because no C glue, finalizer, callback trampoline, or
+  retained owner code changed in that slice.
 - Documentation-only product-decision audit for pycairo `CAPI`, legacy enum
   aliases, and non-implemented FreeType/user-font classes: `moon -C cairoon
   check --target native`, `moon -C cairoon test --target native -v`, and
@@ -671,6 +678,10 @@ Implemented in this workspace:
   failure-injection test and C-side surface-finished tracking for callbacks,
   raising the native suite to 306 tests; targeted ASan with leak detection
   disabled passed for `pattern_test.mbt`.
+  The later ordinary image-surface finished-status slice added one pure
+  MoonBit black-box test covering idempotent `finish()` and `SurfaceFinished`
+  mapping for `flush`, `copy_page`, and `show_page`, raising the native suite
+  to 307 tests; ASan was not rerun because no C glue changed.
 
 ## Known Gaps
 
