@@ -96,3 +96,41 @@ test "mapped image can unmap through mapped wrapper" {
   inspect_rgb24_bytes(main.copy_data(), [255, 255, 255, 255])
   expect_mapped_surface_finished(run_cairo(() => mapped.unmap()))
 }
+
+///|
+test "mapped image with_unmapped unmaps after success and cairo errors" {
+  let main = Surface::image(Rgb24, 1, 1)
+  let mapped = main.map_to_image()
+  mapped.with_unmapped(() => {
+    let ctx = Context::new_for_mapped_image(mapped)
+    ctx.set_source_rgb(1.0, 1.0, 1.0)
+    ctx.paint()
+  })
+  main.flush()
+  inspect_rgb24_bytes(main.copy_data(), [255, 255, 255, 255])
+  expect_mapped_surface_finished(
+    run_cairo(() => {
+      let _ = mapped.copy_data()
+      ()
+    }),
+  )
+
+  let failed_main = Surface::image(Rgb24, 1, 1)
+  let failed_mapped = failed_main.map_to_image()
+  let failed = run_cairo(() => {
+    failed_mapped.with_unmapped(() => {
+      let _ = failed_main.create_similar(ContentColor, -1, 1)
+      ()
+    })
+  })
+  match failed {
+    Err(CairoInvalidArgument(InvalidSize, _)) => ()
+    _ => @test.fail("expected InvalidSize")
+  }
+  expect_mapped_surface_finished(
+    run_cairo(() => {
+      let _ = failed_mapped.copy_data()
+      ()
+    }),
+  )
+}

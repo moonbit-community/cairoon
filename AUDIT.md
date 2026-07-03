@@ -302,8 +302,19 @@ Implemented in this workspace:
   white-box raster-source owner-count test passed, asserting acquire-only
   repeated same-surface paints release cairoon's retained owner back to zero
   after each paint.
-- `moon -C cairoon test --target native`: 334 tests passed after adding the
-  raster-source owner-count white-box test.
+- `moon -C cairoon test surface_context_test.mbt surface_mapped_test.mbt
+  surface.mbt.md --target native -v`: 32 scoped Surface/mapped-image tests and
+  executable docs passed after adding pycairo-style success/error cleanup
+  helpers.
+- `moon -C cairoon test --target native`: 338 tests passed after adding
+  `Surface::with_finished`, `MappedImageSurface::with_unmapped`, and two
+  executable Surface reference examples.
+- `moon -C cairoon info --target native`: passed, and `pkg.generated.mbti`
+  records the new public scoped lifecycle helpers.
+- ASan/LSan was not rerun for the scoped Surface lifecycle slice because it
+  changed only MoonBit wrappers, tests, docs, and generated interface metadata,
+  with no C glue, finalizer, callback trampoline, or retained-owner code
+  change.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
   pattern_test.mbt --target native -v`: 17 ASan-compiled black-box pattern
@@ -1010,6 +1021,13 @@ Implemented in this workspace:
   one white-box test asserting that acquire-only repeated same-surface paints
   release cairoon's retained owner back to zero after each paint. This raised
   the native suite to 334 tests; ASan/LSan validation is recorded above.
+  The later Surface scoped-lifecycle slice added public
+  `Surface::with_finished` and `MappedImageSurface::with_unmapped`, matching
+  pycairo surface and mapped-image context-manager cleanup with success and
+  Cairo-error coverage, plus two executable Surface docs examples and refreshed
+  generated interface metadata. This raised the native suite to 338 tests;
+  ASan/LSan was not rerun because no C glue, finalizer, callback trampoline,
+  or retained-owner code changed.
 
 ## Known Gaps
 

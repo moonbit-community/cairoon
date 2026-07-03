@@ -221,6 +221,24 @@ pub fn Surface::finish(self : Surface) -> Unit raise CairoError {
 }
 
 ///|
+pub fn[T] Surface::with_finished(
+  self : Surface,
+  f : () -> T raise CairoError,
+) -> T raise CairoError {
+  try f() catch {
+    err => {
+      self.finish()
+      raise err
+    }
+  } noraise {
+    value => {
+      self.finish()
+      value
+    }
+  }
+}
+
+///|
 pub fn Surface::flush(self : Surface) -> Unit raise CairoError {
   check_status(surface_flush_ffi(self))
 }

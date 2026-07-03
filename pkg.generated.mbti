@@ -424,6 +424,7 @@ pub fn MappedImageSurface::get_stride(Self) -> Int raise CairoError
 pub fn MappedImageSurface::get_width(Self) -> Int raise CairoError
 pub fn MappedImageSurface::status(Self) -> Status
 pub fn MappedImageSurface::unmap(Self) -> Unit raise CairoError
+pub fn[T] MappedImageSurface::with_unmapped(Self, () -> T raise CairoError) -> T raise CairoError
 
 pub struct Matrix {
   xx : Double
@@ -822,6 +823,7 @@ pub fn Surface::tee_add(Self, Self) -> Unit raise CairoError
 pub fn Surface::tee_index(Self, Int) -> Self raise CairoError
 pub fn Surface::tee_remove(Self, Self) -> Unit raise CairoError
 pub fn Surface::unmap_image(Self, MappedImageSurface) -> Unit raise CairoError
+pub fn[T] Surface::with_finished(Self, () -> T raise CairoError) -> T raise CairoError
 pub fn Surface::write_to_png(Self, String) -> Unit raise CairoError
 pub fn Surface::write_to_png_stream(Self, (Bytes) -> Status) -> Unit raise CairoError
 pub impl Eq for Surface

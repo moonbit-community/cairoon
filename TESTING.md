@@ -182,7 +182,8 @@ source-surface offsets, mask-surface offsets, and raster-source pattern repeat
 rendering, and
 buffer-backed creation plus mutable `ImageData`
 views for image and
-mapped-image surfaces, portable
+mapped-image surfaces, pycairo-style scoped surface finish and mapped-image
+unmap helpers with success/error cleanup coverage, portable
 Surface base helpers such as similar-surface creation, rectangular child
 surface creation with retained parent-wrapper lifetime, content/type queries,
 pointer equality/hash for ordinary surfaces, dirty markers with
@@ -1110,6 +1111,15 @@ Verified on 2026-07-02 and 2026-07-03:
   `/tmp/cairoon-raster-owner-count-asan.txt` found no raster-owner invalid
   access terms, and the ASan-compiled white-box owner-count executable exited
   0 with leak detection disabled.
+  The later Surface scoped-lifecycle slice added public
+  `Surface::with_finished` and `MappedImageSurface::with_unmapped` helpers,
+  black-box success/error cleanup coverage, two executable Surface reference
+  examples, and regenerated `pkg.generated.mbti`, raising the native suite to
+  338 tests. The targeted `surface_context_test.mbt surface_mapped_test.mbt
+  surface.mbt.md` run passed 32 tests. ASan/LSan was not rerun because this
+  slice changed only MoonBit wrappers, tests, docs, and generated interface
+  metadata, with no C glue, finalizer, callback trampoline, or retained-owner
+  code change.
 
 The missing reliability pieces are substantial: broader automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering

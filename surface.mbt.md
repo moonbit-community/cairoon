@@ -9,6 +9,22 @@ Surface methods that can observe a Cairo status raise `CairoError`. Image data
 APIs are available on `Surface` because cairoon does not model CPython-style
 subclasses; callers should use them only with image-compatible surfaces.
 
+## Scoped Finish
+
+`with_finished` mirrors pycairo's `with surface:` behavior: it runs a scoped
+operation and calls `finish()` whether the operation succeeds or raises a Cairo
+error.
+
+```mbt check
+///|
+test "surface docs: scoped finish" {
+  let surface = Surface::image(Argb32, 1, 1)
+  let len = surface.with_finished(() => surface.copy_data().length())
+  inspect(len, content="4")
+  debug_inspect(surface.status(), content="SurfaceFinished")
+}
+```
+
 ## Image Surface Basics
 
 `Surface::image` creates an image surface. The byte order follows Cairo's native
@@ -106,8 +122,10 @@ test "surface docs: similar images and rectangular child surfaces" {
 ## Mapped Images
 
 `map_to_image` returns a `MappedImageSurface` wrapper. Use either
-`Surface::unmap_image` or `MappedImageSurface::unmap` exactly once to upload
-changes back to the original surface.
+`Surface::unmap_image`, `MappedImageSurface::unmap`, or
+`MappedImageSurface::with_unmapped` exactly once to upload changes back to the
+original surface. `with_unmapped` mirrors pycairo's mapped-image context
+manager and unmaps after success or Cairo errors.
 
 ```mbt check
 ///|
@@ -129,6 +147,26 @@ test "surface docs: mapped image extents update selected pixels" {
   inspect(data[2].to_int(), content="255")
   inspect(data[3].to_int(), content="255")
   inspect(data[4].to_int(), content="0")
+}
+```
+
+```mbt check
+///|
+test "surface docs: scoped mapped-image unmap" {
+  let surface = Surface::image(Rgb24, 1, 1)
+  let mapped = surface.map_to_image()
+  mapped.with_unmapped(() => {
+    let ctx = Context::new_for_mapped_image(mapped)
+    ctx.set_source_rgb(1.0, 1.0, 1.0)
+    ctx.paint()
+  })
+  surface.flush()
+
+  let data = surface.copy_data()
+  inspect(data[0].to_int(), content="255")
+  inspect(data[1].to_int(), content="255")
+  inspect(data[2].to_int(), content="255")
+  inspect(data[3].to_int(), content="255")
 }
 ```
 

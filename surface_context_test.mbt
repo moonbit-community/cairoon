@@ -112,6 +112,30 @@ test "surface finish records status for base methods" {
 }
 
 ///|
+test "surface with_finished finishes after success and cairo errors" {
+  let surface = Surface::image(Argb32, 1, 1)
+  let len = surface.with_finished(() => {
+    let ctx = Context::new(surface)
+    ctx.set_source_rgba(1.0, 0.0, 0.0, 1.0)
+    ctx.paint()
+    surface.copy_data().length()
+  })
+  inspect(len, content="4")
+  debug_inspect(surface.status(), content="SurfaceFinished")
+  expect_surface_finished(run_cairo(() => surface.flush()))
+
+  let failed_surface = Surface::image(Argb32, 1, 1)
+  expect_surface_invalid_size(
+    run_cairo(() => {
+      failed_surface.with_finished(() => {
+        failed_surface.create_similar(ContentColor, -1, 1)
+      })
+    }),
+  )
+  debug_inspect(failed_surface.status(), content="SurfaceFinished")
+}
+
+///|
 test "surface finished status covers capability dirty and state methods" {
   let surface = Surface::image(Argb32, 2, 2)
   inspect(

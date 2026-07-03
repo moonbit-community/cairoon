@@ -43,6 +43,24 @@ pub fn MappedImageSurface::unmap(
 }
 
 ///|
+pub fn[T] MappedImageSurface::with_unmapped(
+  self : MappedImageSurface,
+  f : () -> T raise CairoError,
+) -> T raise CairoError {
+  try f() catch {
+    err => {
+      self.unmap()
+      raise err
+    }
+  } noraise {
+    value => {
+      self.unmap()
+      value
+    }
+  }
+}
+
+///|
 pub fn MappedImageSurface::flush(
   self : MappedImageSurface,
 ) -> Unit raise CairoError {
