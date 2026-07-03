@@ -208,8 +208,9 @@ script mode/comment helpers, recording replay, `Surface::get_device`,
 exhaustive `Status`/`CairoError` classification, retained-owner lifetime
 stress tests, external value-wrapper allocation stress for `Path`, `Region`,
 the font stack, solid/gradient/mesh `Pattern`, recording/similar/Tee
-`Surface`, and script stream `Device`, stable structural vector-output markers
-plus direct C oracle comparisons
+`Surface`, and script stream `Device`, `ImageData` view allocation stress for
+ordinary, buffer-backed, and mapped image surfaces, stable structural
+vector-output markers plus direct C oracle comparisons
 for ten deterministic PDF/PS/SVG vector scenes covering paint, stroke,
 fill/stroke rectangles, Bezier paths, transforms, linear/radial gradients,
 toy-font text paths, toy-font `show_text`, and a two-page paint scene, PDF metadata/custom-metadata/page-label/outline output
@@ -226,8 +227,8 @@ Verified on 2026-07-02 and 2026-07-03:
   image rendering white-box oracle passed after expanding the direct C ARGB32
   fixture from ten to thirteen scenes with `glyph_path`, `show_glyphs`, and
   `show_text_glyphs`.
-- `moon -C cairoon test lifetime_stress_test.mbt --target native -v`: 4
-  black-box lifetime tests passed after adding the external value-wrapper
+- `moon -C cairoon test lifetime_stress_test.mbt --target native -v`: 5
+  black-box lifetime tests passed after adding the `ImageData` view
   1000-iteration allocation stress case.
 - `moon -C cairoon test vector_output_wbtest.mbt --target native -v`: 13
   white-box tests passed after adding a two-page direct C vector oracle scene
@@ -235,7 +236,7 @@ Verified on 2026-07-02 and 2026-07-03:
 - `moon -C cairoon test surface_context_test.mbt context_lifetime_test.mbt
   pattern_test.mbt --target native -v`: 32 tests passed after adding
   `Surface`/`Context`/`Pattern` pointer equality/hash.
-- `moon -C cairoon test --target native -v`: 244 tests passed.
+- `moon -C cairoon test --target native -v`: 245 tests passed.
 - `moon -C cairoon info --target native`: passed; the latest
   lifetime-stress test-only slice did not change the public interface.
 - Documentation-only product-decision audit for pycairo `CAPI`, legacy enum
@@ -289,6 +290,21 @@ Verified on 2026-07-02 and 2026-07-03:
   black-box executable was then run directly with leak detection disabled; it
   exited 0, and
   `/tmp/cairoon-finalizer-value-stress-blackbox-asan.txt` shows all four
+  `lifetime_stress_test.mbt` tests executed without any AddressSanitizer
+  invalid-access report.
+- ASan/LSan via `run-asan.py`: rerun on 2026-07-03 for the `ImageData` view
+  allocation stress slice. The full runner still failed during the known macOS
+  FontRegistry/CoreText/ColorSync LeakSanitizer class after the black-box
+  executable ran. A grep of `/tmp/cairoon-image-data-stress-asan.txt` found no
+  `ERROR: AddressSanitizer`, heap-use-after-free, stack-use-after,
+  heap-buffer-overflow, global-buffer-overflow, double-free,
+  `cairoon_image_data`, `mapped_image_surface_get_data`, or mapped/image data
+  helper entries indicating invalid access; the `lifetime_stress` and
+  `image_data_test` hits were Moon test selector lines. Summary:
+  `56325 byte(s) leaked in 418 allocation(s)`. The ASan-instrumented black-box
+  executable was then run directly with leak detection disabled using
+  `ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0`; it exited 0, and
+  `/tmp/cairoon-image-data-stress-blackbox-asan.txt` shows all five
   `lifetime_stress_test.mbt` tests executed without any AddressSanitizer
   invalid-access report.
 - ASan/LSan via `run-asan.py`: ran the 237-test native suite on 2026-07-03
@@ -509,12 +525,11 @@ Verified on 2026-07-02 and 2026-07-03:
 
 The missing reliability pieces are substantial: broader automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering
-LSan failure, mutable `ImageData` and backend-specific error/stream finalizer
-stress tests, CI wiring, vector-output normalization for broader
-multi-page/tag/metadata combinations beyond the current two-page direct C
-oracle scene and the current single-page toy-font `show_text` oracle scene,
-broader tag-output assertions, and the remaining API families from
-`API_INVENTORY.md`.
+LSan failure, backend-specific error/stream finalizer stress tests, CI wiring,
+vector-output normalization for broader multi-page/tag/metadata combinations
+beyond the current two-page direct C oracle scene and the current single-page
+toy-font `show_text` oracle scene, broader tag-output assertions, and the
+remaining API families from `API_INVENTORY.md`.
 
 ## Porting pycairo Tests
 
