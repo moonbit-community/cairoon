@@ -279,11 +279,11 @@ Implemented in this workspace:
   and pattern oracle tests, the full native suite, `moon info --target native`,
   and targeted ASan image-oracle and pattern tests with leak detection disabled.
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native`: 341 tests passed after adding
-  raster-source acquire replacement/recovery coverage for the path where an
-  earlier acquire returned a finished surface and mapped to `NoMemory`.
+- `moon -C cairoon test --target native`: 342 tests passed after adding
+  context `get_source` surface-pattern lifetime coverage for the path where
+  both the original source wrapper and context scope have exited.
 - `moon -C cairoon info --target native`: completed with no work to do; this
-  raster-source recovery slice changes no public API or generated interface
+  source-lifetime test slice changes no public API or generated interface
   metadata.
 - `moon -C cairoon test image_oracle_wbtest.mbt --target native -v`: 2
   white-box image rendering oracle tests passed. Ordinary image surfaces and
@@ -308,6 +308,10 @@ Implemented in this workspace:
 - `moon -C cairoon test raster_lifetime_stress_test.mbt --target native -v`: 1
   black-box raster-source callback lifetime test passed after adding the
   1000-iteration set/get/manual acquire/release/replace/clear stress case.
+- `moon -C cairoon test context_lifetime_test.mbt --target native -v`: 7
+  black-box context lifetime tests passed, including `get_source` returning a
+  surface pattern that still exposes and paints from its source after the
+  source wrapper and context scope exit.
 - `moon -C cairoon test pattern_test.mbt --target native -v`: 18 black-box
   pattern tests passed after adding release-only raster callback state,
   finished-surface raster acquire failure-injection coverage, the C-side
@@ -1086,6 +1090,11 @@ Implemented in this workspace:
   correctly. This raised the native suite to 341 tests. `./scripts/verify.sh`
   passed, including the 18-test `pattern_test.mbt` run and targeted
   ASan-compiled pattern run with leak detection disabled.
+  The later context source-pattern lifetime slice added one black-box test
+  proving that a `Context::get_source` surface pattern remains usable after the
+  original source wrapper and context scope have exited. This closed the
+  `Sources` sub-row as Done and raised the native suite to 342 tests.
+  `./scripts/verify.sh` passed, including the full 342-test native suite.
 
 ## Known Gaps
 

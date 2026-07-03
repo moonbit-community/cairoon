@@ -21,6 +21,19 @@ fn make_context_with_local_surface_source() -> Context raise CairoError {
 }
 
 ///|
+fn make_source_pattern_from_local_context() -> Pattern raise CairoError {
+  let source = Surface::image(Argb32, 1, 1)
+  let source_ctx = Context::new(source)
+  source_ctx.set_source_rgba(0.0, 0.0, 1.0, 1.0)
+  source_ctx.paint()
+
+  let target = Surface::image(Argb32, 1, 1)
+  let ctx = Context::new(target)
+  ctx.set_source_surface(source)
+  ctx.get_source()
+}
+
+///|
 test "context get_target returns a referenced surface wrapper" {
   let target = make_returned_target_surface()
   let data = target.copy_data()
@@ -66,6 +79,28 @@ test "context set_source_surface keeps source cairo surface alive" {
   inspect(data[1].to_int(), content="0")
   inspect(data[2].to_int(), content="0")
   inspect(data[3].to_int(), content="255")
+}
+
+///|
+test "context get_source surface pattern survives source and context scopes" {
+  let pattern = make_source_pattern_from_local_context()
+  let source = pattern.get_surface()
+  inspect(source.get_width(), content="1")
+  let source_data = source.copy_data()
+  inspect(source_data[0].to_int(), content="255")
+  inspect(source_data[1].to_int(), content="0")
+  inspect(source_data[2].to_int(), content="0")
+  inspect(source_data[3].to_int(), content="255")
+
+  let target = Surface::image(Argb32, 1, 1)
+  let ctx = Context::new(target)
+  ctx.set_source(pattern)
+  ctx.paint()
+  let target_data = target.copy_data()
+  inspect(target_data[0].to_int(), content="255")
+  inspect(target_data[1].to_int(), content="0")
+  inspect(target_data[2].to_int(), content="0")
+  inspect(target_data[3].to_int(), content="255")
 }
 
 ///|
