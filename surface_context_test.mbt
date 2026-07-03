@@ -141,6 +141,36 @@ test "surface device state and dirty markers round trip" {
 }
 
 ///|
+test "surface state and subsurface constructors preserve pycairo numeric limits" {
+  let max_double = 1.7976931348623157e308
+  let min_double = -max_double
+  let min_positive = 2.2250738585072014e-308
+  let surface = Surface::image(Argb32, 100, 100)
+
+  surface.set_device_offset(max_double, min_double)
+  debug_inspect(
+    surface.get_device_offset(),
+    content="(1.7976931348623157e+308, -1.7976931348623157e+308)",
+  )
+
+  surface.set_device_scale(max_double, min_double)
+  debug_inspect(
+    surface.get_device_scale(),
+    content="(1.7976931348623157e+308, -1.7976931348623157e+308)",
+  )
+
+  let huge_child = surface.create_for_rectangle(
+    max_double, max_double, max_double, max_double,
+  )
+  inspect(huge_child.status().is_success(), content="true")
+
+  let tiny_child = surface.create_for_rectangle(
+    min_double, min_double, min_positive, min_positive,
+  )
+  inspect(tiny_child.status().is_success(), content="true")
+}
+
+///|
 test "context paints deterministic argb32 bytes" {
   let surface = Surface::image(Argb32, 1, 1)
   let ctx = Context::new(surface)

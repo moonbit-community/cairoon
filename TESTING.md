@@ -337,8 +337,8 @@ Verified on 2026-07-02 and 2026-07-03:
 - `moon -C cairoon test enums_test.mbt --target native -v`: 4 black-box tests
   passed after adding `Rgb16_565`, `Rgb30`, `Rgb96F`, `Rgba128F`, and
   negative-width `Format::stride_for_width` coverage.
-- `moon -C cairoon test --target native`: 312 tests passed.
-- `moon -C cairoon info --target native`: passed; the latest pure value-type
+- `moon -C cairoon test --target native`: 313 tests passed.
+- `moon -C cairoon info --target native`: passed; the latest surface
   numeric-limit slice did not change the public interface.
 - Test-only buffer-backed image oracle coverage plus Pure MoonBit Region
   rectangle-XOR and executable Matrix/Surface/Context/Font/Path/Pattern/Region
@@ -824,6 +824,11 @@ Verified on 2026-07-02 and 2026-07-03:
   pycairo `Rectangle`, `TextExtents`, and `TextCluster` boundary values,
   raising the native suite to 312 tests. ASan/LSan was not rerun for that slice
   because it did not change C glue or ownership code.
+  The later surface numeric-limit slice added one black-box test for pycairo
+  `Surface::set_device_offset`, `Surface::set_device_scale`, and
+  `Surface::create_for_rectangle` extreme numeric cases, raising the native
+  suite to 313 tests. ASan/LSan was not rerun for that slice because it did not
+  change C glue or ownership code.
 
 The missing reliability pieces are substantial: broader automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering
