@@ -21,6 +21,16 @@ enum {
 };
 
 enum {
+  CAIROON_TEST_VECTOR_PAINT = 0,
+  CAIROON_TEST_VECTOR_STROKE_LINE = 1,
+  CAIROON_TEST_VECTOR_RECTANGLE = 2,
+  CAIROON_TEST_VECTOR_BEZIER = 3,
+  CAIROON_TEST_VECTOR_TRANSFORM = 4,
+  CAIROON_TEST_VECTOR_LINEAR_GRADIENT = 5,
+  CAIROON_TEST_VECTOR_RADIAL_GRADIENT = 6
+};
+
+enum {
   CAIROON_TEST_IMAGE_BLUE_PAINT = 0,
   CAIROON_TEST_IMAGE_STROKE_LINE = 1,
   CAIROON_TEST_IMAGE_RECTANGLE = 2,
@@ -149,32 +159,6 @@ static int cairoon_test_files_equal_normalized(
   }
 }
 
-static cairo_status_t cairoon_test_paint_vector_surface(
-  cairo_surface_t *surface,
-  double red,
-  double green,
-  double blue) {
-  cairo_status_t status = cairo_surface_status(surface);
-  if (status != CAIRO_STATUS_SUCCESS) {
-    cairo_surface_destroy(surface);
-    return status;
-  }
-
-  cairo_t *ctx = cairo_create(surface);
-  cairo_set_source_rgb(ctx, red, green, blue);
-  cairo_paint(ctx);
-  status = cairo_status(ctx);
-  cairo_destroy(ctx);
-
-  cairo_surface_finish(surface);
-  cairo_status_t surface_status = cairo_surface_status(surface);
-  cairo_surface_destroy(surface);
-  if (status != CAIRO_STATUS_SUCCESS) {
-    return status;
-  }
-  return surface_status;
-}
-
 static cairo_status_t cairoon_test_apply_linear_gradient(
   cairo_t *cr,
   double width,
@@ -221,6 +205,85 @@ static cairo_status_t cairoon_test_apply_radial_gradient(
   }
   cairo_pattern_destroy(pattern);
   return status;
+}
+
+static cairo_status_t cairoon_test_draw_vector_scene(
+  cairo_t *cr,
+  int32_t scene,
+  double width,
+  double height) {
+  switch (scene) {
+    case CAIROON_TEST_VECTOR_PAINT:
+      cairo_set_source_rgb(cr, 0.0, 0.0, 1.0);
+      cairo_paint(cr);
+      break;
+    case CAIROON_TEST_VECTOR_STROKE_LINE:
+      cairo_set_source_rgb(cr, 1.0, 0.0, 0.0);
+      cairo_set_line_width(cr, 1.5);
+      cairo_move_to(cr, 1.5, 1.5);
+      cairo_line_to(cr, width - 1.5, height - 1.5);
+      cairo_stroke(cr);
+      break;
+    case CAIROON_TEST_VECTOR_RECTANGLE:
+      cairo_rectangle(cr, 2.0, 2.0, width - 4.0, height - 4.0);
+      cairo_set_source_rgba(cr, 0.0, 1.0, 0.0, 0.75);
+      cairo_fill_preserve(cr);
+      cairo_set_source_rgb(cr, 1.0, 0.0, 0.0);
+      cairo_set_line_width(cr, 1.0);
+      cairo_stroke(cr);
+      break;
+    case CAIROON_TEST_VECTOR_BEZIER:
+      cairo_set_source_rgb(cr, 0.0, 0.0, 0.0);
+      cairo_set_line_width(cr, 1.25);
+      cairo_move_to(cr, 1.0, height - 1.0);
+      cairo_curve_to(
+        cr,
+        3.0,
+        1.0,
+        width - 3.0,
+        height - 1.0,
+        width - 1.0,
+        1.0);
+      cairo_stroke(cr);
+      break;
+    case CAIROON_TEST_VECTOR_TRANSFORM:
+      cairo_translate(cr, width / 2.0, height / 2.0);
+      cairo_rotate(cr, 0.25);
+      cairo_scale(cr, 1.2, 0.8);
+      cairo_rectangle(cr, -3.0, -2.0, 6.0, 4.0);
+      cairo_set_source_rgb(cr, 1.0, 0.5, 0.0);
+      cairo_fill(cr);
+      break;
+    case CAIROON_TEST_VECTOR_LINEAR_GRADIENT:
+      return cairoon_test_apply_linear_gradient(cr, width, height);
+    case CAIROON_TEST_VECTOR_RADIAL_GRADIENT:
+      return cairoon_test_apply_radial_gradient(cr, width, height);
+    default:
+      return CAIRO_STATUS_INVALID_STATUS;
+  }
+  return cairo_status(cr);
+}
+
+static cairo_status_t cairoon_test_render_vector_surface(
+  cairo_surface_t *surface,
+  int32_t scene) {
+  cairo_status_t status = cairo_surface_status(surface);
+  if (status != CAIRO_STATUS_SUCCESS) {
+    cairo_surface_destroy(surface);
+    return status;
+  }
+
+  cairo_t *ctx = cairo_create(surface);
+  status = cairoon_test_draw_vector_scene(ctx, scene, 10.0, 10.0);
+  cairo_destroy(ctx);
+
+  cairo_surface_finish(surface);
+  cairo_status_t surface_status = cairo_surface_status(surface);
+  cairo_surface_destroy(surface);
+  if (status != CAIRO_STATUS_SUCCESS) {
+    return status;
+  }
+  return surface_status;
 }
 
 static cairo_status_t cairoon_test_draw_argb32_scene(
@@ -402,8 +465,9 @@ int32_t cairoon_test_file_contains(
 }
 
 MOONBIT_FFI_EXPORT
-cairo_status_t cairoon_test_render_vector_oracle(
+cairo_status_t cairoon_test_render_vector_scene_oracle(
   int32_t kind,
+  int32_t scene,
   moonbit_bytes_t filename) {
   const char *name = (const char *)filename;
   cairo_surface_t *surface = NULL;
@@ -424,27 +488,37 @@ cairo_status_t cairoon_test_render_vector_oracle(
         surface,
         CAIRO_PDF_METADATA_MOD_DATE,
         "2026-01-02T03:04:05+00:00");
-      return cairoon_test_paint_vector_surface(surface, 0.0, 0.0, 1.0);
+      return cairoon_test_render_vector_surface(surface, scene);
 #else
       return CAIRO_STATUS_SURFACE_TYPE_MISMATCH;
 #endif
     case CAIROON_TEST_VECTOR_PS:
 #if CAIRO_HAS_PS_SURFACE
       surface = cairo_ps_surface_create(name, 10.0, 10.0);
-      return cairoon_test_paint_vector_surface(surface, 0.0, 0.0, 1.0);
+      return cairoon_test_render_vector_surface(surface, scene);
 #else
       return CAIRO_STATUS_SURFACE_TYPE_MISMATCH;
 #endif
     case CAIROON_TEST_VECTOR_SVG:
 #if CAIRO_HAS_SVG_SURFACE
       surface = cairo_svg_surface_create(name, 10.0, 10.0);
-      return cairoon_test_paint_vector_surface(surface, 1.0, 0.0, 0.0);
+      return cairoon_test_render_vector_surface(surface, scene);
 #else
       return CAIRO_STATUS_SURFACE_TYPE_MISMATCH;
 #endif
     default:
       return CAIRO_STATUS_INVALID_STATUS;
   }
+}
+
+MOONBIT_FFI_EXPORT
+cairo_status_t cairoon_test_render_vector_oracle(
+  int32_t kind,
+  moonbit_bytes_t filename) {
+  return cairoon_test_render_vector_scene_oracle(
+    kind,
+    CAIROON_TEST_VECTOR_PAINT,
+    filename);
 }
 
 MOONBIT_FFI_EXPORT

@@ -101,8 +101,9 @@ Implemented in this workspace:
   validation, deterministic pixel rendering, direct C Cairo oracle comparisons
   for eight ARGB32 scenes covering paint, stroke, fill/stroke rectangles,
   Bezier paths, transforms, RGBA compositing, and linear/radial gradients,
-  direct C Cairo oracle comparisons for deterministic simple
-  PDF/PS/SVG paint fixtures, mutable image-data read/write/copy, buffer-backed storage sharing,
+  direct C Cairo oracle comparisons for seven deterministic PDF/PS/SVG vector
+  scenes covering paint, stroke, fill/stroke rectangles, Bezier paths,
+  transforms, and linear/radial gradients, mutable image-data read/write/copy, buffer-backed storage sharing,
   image-data surface-retention, mapped-image data upload/unmap invalidation, and
   invalid-surface/index error mapping, context CTM, coordinate conversion,
   drawing-state behavior, path current-point,
@@ -124,7 +125,7 @@ Implemented in this workspace:
   PDF surface version helper behavior, no-output and filename construction,
   version restriction, page size, metadata, custom metadata, page label,
   thumbnail, single-flag and combined-flag outline behavior,
-  stable structural output markers, PDF 1.4 direct C paint-oracle comparison,
+  stable structural output markers, PDF 1.4 seven-scene direct C vector-oracle comparison,
   PDF 1.4 link-tag annotation markers,
   finished-surface errors, invalid string validation, and subtype-mismatch
   errors,
@@ -133,12 +134,12 @@ Implemented in this workspace:
   script-surface proxy rendering behavior, and `DeviceFinished` propagation,
   PS surface level helper behavior, no-output and filename construction, EPS
   mode, level restriction, size/DSC helpers, finished-surface errors, invalid
-  DSC/path validation, stable page/drawing output markers, direct C
-  paint-oracle comparison with `CreationDate` normalization, Link tag inertness
+  DSC/path validation, stable page/drawing output markers, seven-scene direct C
+  vector-oracle comparison with `CreationDate` normalization, Link tag inertness
   on PS output, and subtype-mismatch errors,
   SVG surface version helper behavior, no-output and filename construction,
   document-unit behavior, finished-surface errors, invalid path validation, and
-  stable geometry/color output markers, exact direct C paint-oracle comparison,
+  stable geometry/color output markers, exact seven-scene direct C vector-oracle comparison,
   Link tag inertness on SVG output, and subtype-mismatch errors,
   clip behavior including non-rectangular clip status propagation,
   pattern RGBA, gradient geometry/color-stop behavior, mesh patch construction,
@@ -168,7 +169,8 @@ Implemented in this workspace:
   covers eight deterministic ARGB32 scenes including stroke, rectangle,
   Bezier, transform, RGBA, and linear/radial gradient cases, and vector outputs
   have stable structural marker checks plus direct C oracle comparisons for
-  deterministic simple PDF/PS/SVG paint fixtures. PDF link-tag annotations have
+  seven deterministic PDF/PS/SVG scenes covering paint, stroke, fill/stroke
+  rectangles, Bezier paths, transforms, and linear/radial gradients. PDF link-tag annotations have
   marker checks, and PS/SVG Link tags have inert-output checks matching Cairo
   1.18.4 backend behavior.
   Full cross-run comparison against pycairo output is not yet automated.
@@ -189,16 +191,16 @@ Implemented in this workspace:
 2026-07-02 and 2026-07-03:
 
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native -v`: 233 tests passed.
+- `moon -C cairoon test --target native -v`: 234 tests passed.
 - `run-asan.py --repo-root /Users/caimeo/code/pycairo/cairoon --pkg moon.pkg`:
-  most recently ran the 231-test native suite on 2026-07-03 after the
-  vector-output direct C oracle slice. The rerun found no invalid access and no
-  `cairoon_test_render_vector`, `cairoon_test_vector`,
-  `cairoon_test_read_file`, `cairoon_test_files_equal`, or
-  `cairoon_test_paint_vector` entries in the visible leak roots; it still
+  most recently ran the 234-test native suite on 2026-07-03 after the
+  vector scene oracle slice. The rerun found no invalid access and no
+  `cairoon_test_render_vector_scene_oracle`,
+  `cairoon_test_draw_vector_scene`, or
+  `cairoon_test_render_vector_surface` entries in the visible leak roots; it still
   failed during the known macOS LeakSanitizer reporting class documented in
   `TESTING.md`. Summary:
-  `55365 byte(s) leaked in 405 allocation(s)`.
+  `55445 byte(s) leaked in 407 allocation(s)`.
   An earlier retained-owner stress
   ASan run found a heap-use-after-free in `cairoon_copy_image_surface_data` reached from
   `lifetime_stress_test.mbt` when a returned target surface outlived a context
@@ -288,12 +290,25 @@ Implemented in this workspace:
   The later `ScaledFont::text_to_glyphs_only` slice is pure MoonBit API
   coverage for pycairo's `with_clusters=False` path; the native suite stayed at
   233 tests and ASan/LSan was not rerun for that non-C change.
+  The later vector scene oracle slice broadened the private C vector oracle
+  from a paint-only fixture to seven deterministic PDF/PS/SVG scenes covering
+  paint, stroke, fill/stroke rectangles, Bezier paths, transforms, and
+  linear/radial gradients, raising the native suite to 234 tests. The full
+  ASan/LSan runner wrote `/tmp/cairoon-vector-scenes-asan.txt` and failed only
+  in the known macOS LeakSanitizer class summarized above; greps found no
+  `ERROR: AddressSanitizer`, heap-use-after-free, stack-use-after,
+  heap-buffer-overflow, global-buffer-overflow, double-free, or new vector scene
+  helper entries. The ASan-instrumented white-box executable was then run
+  directly with leak detection disabled; it exited 0, and
+  `/tmp/cairoon-vector-scenes-whitebox-asan.txt` shows the vector output scene
+  oracle test executed without any AddressSanitizer invalid-access report.
 
 ## Known Gaps
 
 - Broader normalized PDF/SVG/PS output comparison is still missing beyond the
-  simple direct C paint fixtures, and broader tag-output assertions are still
-  absent beyond PDF Link materialization and PS/SVG Link inertness. PDF/PS/SVG stream-writer
+  current seven-scene direct C fixtures, especially multi-page, font, tag, and
+  metadata combinations, and broader tag-output assertions are still absent
+  beyond PDF Link materialization and PS/SVG Link inertness. PDF/PS/SVG stream-writer
   constructors, script stream devices, and PNG stream read/write now have
   copied-byte callback tests and read/write error propagation coverage.
 - `Surface::copy_data` still copies Cairo image data into MoonBit `Bytes`;

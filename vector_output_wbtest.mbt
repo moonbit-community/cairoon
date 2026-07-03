@@ -31,6 +31,16 @@ fn fixed_pdf_metadata_date() -> String {
 }
 
 ///|
+fn vector_output_extension(kind : Int) -> String {
+  match kind {
+    0 => "pdf"
+    1 => "ps"
+    2 => "svg"
+    _ => "out"
+  }
+}
+
+///|
 fn expect_vector_outputs_equal(
   kind : Int,
   left_path : String,
@@ -49,11 +59,16 @@ fn expect_vector_outputs_equal(
 ///|
 fn expect_vector_oracle_match(
   kind : Int,
+  scene : Int,
   cairoon_path : String,
   oracle_path : String,
 ) -> Unit raise {
   check_status(
-    test_render_vector_oracle_ffi(kind, checked_path_bytes(oracle_path)),
+    test_render_vector_scene_oracle_ffi(
+      kind,
+      scene,
+      checked_path_bytes(oracle_path),
+    ),
   )
   inspect(
     test_vector_files_equal_ffi(
@@ -63,6 +78,95 @@ fn expect_vector_oracle_match(
     ),
     content="true",
   )
+}
+
+///|
+fn vector_oracle_surface(kind : Int, path : String) -> Surface raise CairoError {
+  match kind {
+    0 => {
+      let surface = Surface::pdf(10.0, 10.0, path=Some(path))
+      surface.pdf_restrict_to_version(PdfVersion1_4)
+      surface.pdf_set_metadata(PdfMetadataCreator, "cairoon-vector-oracle")
+      surface.pdf_set_metadata(PdfMetadataCreateDate, fixed_pdf_metadata_date())
+      surface.pdf_set_metadata(PdfMetadataModDate, fixed_pdf_metadata_date())
+      surface
+    }
+    1 => Surface::ps(10.0, 10.0, path=Some(path))
+    2 => Surface::svg(10.0, 10.0, path=Some(path))
+    _ => raise CairoInvalidArgument(InvalidStatus, InvalidStatus.message())
+  }
+}
+
+///|
+fn draw_vector_oracle_scene(
+  ctx : Context,
+  scene : Int,
+) -> Unit raise CairoError {
+  match scene {
+    0 => {
+      ctx.set_source_rgb(0.0, 0.0, 1.0)
+      ctx.paint()
+    }
+    1 => {
+      ctx.set_source_rgb(1.0, 0.0, 0.0)
+      ctx.set_line_width(1.5)
+      ctx.move_to(1.5, 1.5)
+      ctx.line_to(8.5, 8.5)
+      ctx.stroke()
+    }
+    2 => {
+      ctx.rectangle(2.0, 2.0, 6.0, 6.0)
+      ctx.set_source_rgba(0.0, 1.0, 0.0, 0.75)
+      ctx.fill_preserve()
+      ctx.set_source_rgb(1.0, 0.0, 0.0)
+      ctx.set_line_width(1.0)
+      ctx.stroke()
+    }
+    3 => {
+      ctx.set_source_rgb(0.0, 0.0, 0.0)
+      ctx.set_line_width(1.25)
+      ctx.move_to(1.0, 9.0)
+      ctx.curve_to(3.0, 1.0, 7.0, 9.0, 9.0, 1.0)
+      ctx.stroke()
+    }
+    4 => {
+      ctx.translate(5.0, 5.0)
+      ctx.rotate(0.25)
+      ctx.scale(1.2, 0.8)
+      ctx.rectangle(-3.0, -2.0, 6.0, 4.0)
+      ctx.set_source_rgb(1.0, 0.5, 0.0)
+      ctx.fill()
+    }
+    5 => {
+      let pattern = Pattern::linear(0.0, 0.0, 10.0, 0.0)
+      pattern.add_color_stop_rgba(0.0, 1.0, 0.0, 0.0, 1.0)
+      pattern.add_color_stop_rgba(1.0, 0.0, 0.0, 1.0, 1.0)
+      ctx.rectangle(0.0, 0.0, 10.0, 10.0)
+      ctx.set_source(pattern)
+      ctx.fill()
+    }
+    6 => {
+      let pattern = Pattern::radial(5.0, 5.0, 1.0, 5.0, 5.0, 5.0)
+      pattern.add_color_stop_rgba(0.0, 1.0, 1.0, 1.0, 1.0)
+      pattern.add_color_stop_rgba(1.0, 0.0, 0.0, 0.0, 1.0)
+      ctx.rectangle(0.0, 0.0, 10.0, 10.0)
+      ctx.set_source(pattern)
+      ctx.fill()
+    }
+    _ => raise CairoInvalidArgument(InvalidStatus, InvalidStatus.message())
+  }
+}
+
+///|
+fn render_vector_oracle_scene(
+  kind : Int,
+  scene : Int,
+  path : String,
+) -> Unit raise CairoError {
+  let surface = vector_oracle_surface(kind, path)
+  let ctx = Context::new(surface)
+  draw_vector_oracle_scene(ctx, scene)
+  surface.finish()
 }
 
 ///|
@@ -92,7 +196,7 @@ test "pdf output contains stable structural markers" {
   ctx.paint()
   surface.finish()
   expect_vector_output(path, ["%PDF-1.4", "/Root", "/Info", "%%EOF"])
-  expect_vector_oracle_match(0, path, oracle_path)
+  expect_vector_oracle_match(0, 0, path, oracle_path)
 }
 
 ///|
@@ -126,7 +230,7 @@ test "ps output contains stable page and drawing markers" {
   expect_vector_output(path, [
     "%!PS-Adobe-3.0", "%%Pages: 1", "0 0 1 rg", "0 0 10 10 rectfill", "%%EOF",
   ])
-  expect_vector_oracle_match(1, path, oracle_path)
+  expect_vector_oracle_match(1, 0, path, oracle_path)
 }
 
 ///|
@@ -151,14 +255,27 @@ test "svg output contains stable geometry and color markers" {
   let oracle_path = "/tmp/cairoon_vector_output_oracle.svg"
   let surface = Surface::svg(10.0, 10.0, path=Some(path))
   let ctx = Context::new(surface)
-  ctx.set_source_rgb(1.0, 0.0, 0.0)
+  ctx.set_source_rgb(0.0, 0.0, 1.0)
   ctx.paint()
   surface.finish()
   expect_vector_output(path, [
-    "<?xml version=\"1.0\"", "<svg", "width=\"10\" height=\"10\"", "fill=\"rgb(100%, 0%, 0%)\"",
+    "<?xml version=\"1.0\"", "<svg", "width=\"10\" height=\"10\"", "fill=\"rgb(0%, 0%, 100%)\"",
     "</svg>",
   ])
-  expect_vector_oracle_match(2, path, oracle_path)
+  expect_vector_oracle_match(2, 0, path, oracle_path)
+}
+
+///|
+test "vector output scenes match direct cairo C oracle" {
+  for kind in 0..<3 {
+    let ext = vector_output_extension(kind)
+    for scene in 0..<7 {
+      let cairoon_path = "/tmp/cairoon_vector_scene_\{kind}_\{scene}.\{ext}"
+      let oracle_path = "/tmp/cairoon_vector_scene_\{kind}_\{scene}_oracle.\{ext}"
+      render_vector_oracle_scene(kind, scene, cairoon_path)
+      expect_vector_oracle_match(kind, scene, cairoon_path, oracle_path)
+    }
+  }
 }
 
 ///|

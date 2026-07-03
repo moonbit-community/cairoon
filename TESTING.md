@@ -193,7 +193,9 @@ script mode/comment helpers, recording replay, `Surface::get_device`,
 `Surface::script_for_target`, TeeSurface mirrored drawing and target indexing,
 exhaustive `Status`/`CairoError` classification, retained-owner lifetime stress
 tests, stable structural vector-output markers plus direct C oracle comparisons
-for deterministic simple PDF/PS/SVG paint fixtures, PDF link-tag annotation
+for seven deterministic PDF/PS/SVG vector scenes covering paint, stroke,
+fill/stroke rectangles, Bezier paths, transforms, and linear/radial gradients,
+PDF link-tag annotation
 markers, PS/SVG Link tag inert-output checks, mutable image/mapped-image data view
 tests, and initial tests. Region now covers empty, single-rectangle, and
 multi-rectangle
@@ -202,7 +204,7 @@ construction plus predicates and boolean operations.
 Verified on 2026-07-02 and 2026-07-03:
 
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native -v`: 233 tests passed.
+- `moon -C cairoon test --target native -v`: 234 tests passed.
 - ASan/LSan via `run-asan.py`: ran on 2026-07-03 after adding retained-owner
   lifetime stress tests. The first run found a real heap-use-after-free when a
   `Surface` returned by `Context::get_target` outlived a context created from a
@@ -389,6 +391,23 @@ Verified on 2026-07-02 and 2026-07-03:
   The later `ScaledFont::text_to_glyphs_only` slice added pure MoonBit API
   coverage for pycairo's `with_clusters=False` path, keeping the native suite
   at 233 tests; ASan/LSan was not rerun for that non-C change.
+  The later vector scene oracle slice broadened the private C vector oracle
+  from a paint-only fixture to seven deterministic PDF/PS/SVG scenes covering
+  paint, stroke, fill/stroke rectangles, Bezier paths, transforms, and
+  linear/radial gradients, raising the native suite to 234 tests. ASan/LSan was
+  rerun on 2026-07-03; the full runner still failed during the known macOS
+  LeakSanitizer class before the white-box executable launched, with summary
+  `55445 byte(s) leaked in 407 allocation(s)`. A grep of
+  `/tmp/cairoon-vector-scenes-asan.txt` found no `ERROR: AddressSanitizer`,
+  heap-use-after-free, stack-use-after, heap-buffer-overflow,
+  global-buffer-overflow, double-free,
+  `cairoon_test_render_vector_scene_oracle`,
+  `cairoon_test_draw_vector_scene`, or
+  `cairoon_test_render_vector_surface` entries. The ASan-instrumented
+  white-box executable was then run directly with leak detection disabled and
+  exited 0; `/tmp/cairoon-vector-scenes-whitebox-asan.txt` shows the vector
+  output scene oracle test executed without any AddressSanitizer invalid-access
+  report.
 
 The missing reliability pieces are substantial: broader automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering
