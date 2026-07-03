@@ -11,8 +11,39 @@ fn expect_vector_output(path : String, markers : Array[String]) -> Unit raise {
 }
 
 ///|
+fn expect_vector_output_absent(
+  path : String,
+  markers : Array[String],
+) -> Unit raise {
+  let filename = checked_path_bytes(path)
+  inspect(test_file_size_ffi(filename) > 0, content="true")
+  for marker in markers {
+    inspect(
+      test_file_contains_ffi(filename, @utf8.encode(marker)),
+      content="false",
+    )
+  }
+}
+
+///|
 fn fixed_pdf_metadata_date() -> String {
   "2026-01-02T03:04:05+00:00"
+}
+
+///|
+fn expect_vector_outputs_equal(
+  kind : Int,
+  left_path : String,
+  right_path : String,
+) -> Unit raise {
+  inspect(
+    test_vector_files_equal_ffi(
+      kind,
+      checked_path_bytes(left_path),
+      checked_path_bytes(right_path),
+    ),
+    content="true",
+  )
 }
 
 ///|
@@ -32,6 +63,19 @@ fn expect_vector_oracle_match(
     ),
     content="true",
   )
+}
+
+///|
+fn fill_link_rect(ctx : Context, tagged : Bool) -> Unit raise CairoError {
+  ctx.set_source_rgb(0.0, 0.0, 1.0)
+  if tagged {
+    ctx.tag_begin(TAG_LINK, "uri='https://example.com/'")
+  }
+  ctx.rectangle(1.0, 1.0, 8.0, 8.0)
+  ctx.fill()
+  if tagged {
+    ctx.tag_end(TAG_LINK)
+  }
 }
 
 ///|
@@ -86,6 +130,22 @@ test "ps output contains stable page and drawing markers" {
 }
 
 ///|
+test "ps link tags are inert for postscript output" {
+  let plain_path = "/tmp/cairoon_vector_ps_plain_tag_scene.ps"
+  let tagged_path = "/tmp/cairoon_vector_ps_tag_scene.ps"
+  let plain = Surface::ps(10.0, 10.0, path=Some(plain_path))
+  fill_link_rect(Context::new(plain), false)
+  plain.finish()
+  let tagged = Surface::ps(10.0, 10.0, path=Some(tagged_path))
+  fill_link_rect(Context::new(tagged), true)
+  tagged.finish()
+  expect_vector_outputs_equal(1, tagged_path, plain_path)
+  expect_vector_output_absent(tagged_path, [
+    "https://example.com/", "/Subtype /Link", "/URI",
+  ])
+}
+
+///|
 test "svg output contains stable geometry and color markers" {
   let path = "/tmp/cairoon_vector_output.svg"
   let oracle_path = "/tmp/cairoon_vector_output_oracle.svg"
@@ -99,4 +159,20 @@ test "svg output contains stable geometry and color markers" {
     "</svg>",
   ])
   expect_vector_oracle_match(2, path, oracle_path)
+}
+
+///|
+test "svg link tags are inert for svg output" {
+  let plain_path = "/tmp/cairoon_vector_svg_plain_tag_scene.svg"
+  let tagged_path = "/tmp/cairoon_vector_svg_tag_scene.svg"
+  let plain = Surface::svg(10.0, 10.0, path=Some(plain_path))
+  fill_link_rect(Context::new(plain), false)
+  plain.finish()
+  let tagged = Surface::svg(10.0, 10.0, path=Some(tagged_path))
+  fill_link_rect(Context::new(tagged), true)
+  tagged.finish()
+  expect_vector_outputs_equal(2, tagged_path, plain_path)
+  expect_vector_output_absent(tagged_path, [
+    "https://example.com/", "xlink:href=", "<a ",
+  ])
 }

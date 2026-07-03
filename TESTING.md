@@ -188,7 +188,7 @@ script mode/comment helpers, recording replay, `Surface::get_device`,
 exhaustive `Status`/`CairoError` classification, retained-owner lifetime stress
 tests, stable structural vector-output markers plus direct C oracle comparisons
 for deterministic simple PDF/PS/SVG paint fixtures, PDF link-tag annotation
-markers, mutable image/mapped-image data view
+markers, PS/SVG Link tag inert-output checks, mutable image/mapped-image data view
 tests, and initial tests. Region now covers empty, single-rectangle, and
 multi-rectangle
 construction plus predicates and boolean operations.
@@ -371,8 +371,8 @@ Verified on 2026-07-02 and 2026-07-03:
 The missing reliability pieces are substantial: broader automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering
 LSan failure, finalizer stress tests, CI wiring, vector-output normalization for
-more complex multi-page/font/tag/metadata cases, SVG/PS tag-materialization
-assertions, and
+more complex multi-page/font/tag/metadata cases, broader tag-output assertions,
+and
 the remaining API families from `API_INVENTORY.md`.
 
 ## Porting pycairo Tests

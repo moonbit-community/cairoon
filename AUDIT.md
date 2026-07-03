@@ -128,12 +128,12 @@ Implemented in this workspace:
   PS surface level helper behavior, no-output and filename construction, EPS
   mode, level restriction, size/DSC helpers, finished-surface errors, invalid
   DSC/path validation, stable page/drawing output markers, direct C
-  paint-oracle comparison with `CreationDate` normalization, and subtype-mismatch
-  errors,
+  paint-oracle comparison with `CreationDate` normalization, Link tag inertness
+  on PS output, and subtype-mismatch errors,
   SVG surface version helper behavior, no-output and filename construction,
   document-unit behavior, finished-surface errors, invalid path validation, and
   stable geometry/color output markers, exact direct C paint-oracle comparison,
-  and subtype-mismatch errors,
+  Link tag inertness on SVG output, and subtype-mismatch errors,
   clip behavior including non-rectangular clip status propagation,
   pattern RGBA, gradient geometry/color-stop behavior, mesh patch construction,
   control/corner/path queries, invalid-index and lifecycle errors, non-mesh
@@ -158,7 +158,9 @@ Implemented in this workspace:
   tests exist for direct colors and explicit patterns, a direct C image oracle
   covers one ARGB32 paint case, and vector outputs have stable structural
   marker checks plus direct C oracle comparisons for deterministic simple
-  PDF/PS/SVG paint fixtures. PDF link-tag annotations still have marker checks.
+  PDF/PS/SVG paint fixtures. PDF link-tag annotations have marker checks, and
+  PS/SVG Link tags have inert-output checks matching Cairo 1.18.4 backend
+  behavior.
   Full cross-run comparison against pycairo output is not yet automated.
 - Gate 4 memory and lifetime: partial. Stub ownership follows the documented
   external-object pattern, and retained-owner stress now covers subsurfaces,
@@ -263,8 +265,8 @@ Implemented in this workspace:
 ## Known Gaps
 
 - Broader normalized PDF/SVG/PS output comparison is still missing beyond the
-  simple direct C paint fixtures, and SVG/PS tag-materialization assertions are
-  still absent. PDF/PS/SVG stream-writer
+  simple direct C paint fixtures, and broader tag-output assertions are still
+  absent beyond PDF Link materialization and PS/SVG Link inertness. PDF/PS/SVG stream-writer
   constructors, script stream devices, and PNG stream read/write now have
   copied-byte callback tests and read/write error propagation coverage.
 - `Surface::copy_data` still copies Cairo image data into MoonBit `Bytes`;
