@@ -73,7 +73,7 @@ fn draw_image_oracle_scene(ctx : Context, scene : Int) -> Unit raise CairoError 
     10 => {
       ctx.select_font_face("serif")
       ctx.set_font_size(12.0)
-      ctx.glyph_path([Glyph::new(0U, 2.0, 12.0)])
+      ctx.glyph_path([Glyph::new(0UL, 2.0, 12.0)])
       ctx.set_source_rgb(0.0, 0.0, 1.0)
       ctx.fill()
     }
@@ -81,7 +81,7 @@ fn draw_image_oracle_scene(ctx : Context, scene : Int) -> Unit raise CairoError 
       ctx.select_font_face("serif")
       ctx.set_font_size(12.0)
       ctx.set_source_rgb(1.0, 0.0, 0.0)
-      ctx.show_glyphs([Glyph::new(0U, 2.0, 12.0)])
+      ctx.show_glyphs([Glyph::new(0UL, 2.0, 12.0)])
     }
     12 => {
       ctx.select_font_face("serif")

@@ -551,7 +551,7 @@ extern "C" fn scaled_font_text_extents_ffi(
 #borrow(scaled_font, indices, xs, ys, x_bearing, y_bearing, width, height, x_advance, y_advance)
 extern "C" fn scaled_font_glyph_extents_ffi(
   scaled_font : ScaledFont,
-  indices : FixedArray[UInt],
+  indices : FixedArray[UInt64],
   xs : FixedArray[Double],
   ys : FixedArray[Double],
   x_bearing : Ref[Double],
@@ -579,7 +579,7 @@ extern "C" fn text_to_glyphs_status_ffi(result : TextToGlyphsNative) -> Status =
 #borrow(result)
 extern "C" fn text_to_glyphs_indices_ffi(
   result : TextToGlyphsNative,
-) -> FixedArray[Int] = "cairoon_text_to_glyphs_indices"
+) -> FixedArray[UInt64] = "cairoon_text_to_glyphs_indices"
 
 ///|
 #borrow(result)
@@ -1473,7 +1473,7 @@ extern "C" fn context_text_path_ffi(ctx : Context, text : Bytes) -> Status = "ca
 #borrow(ctx, indices, xs, ys, x_bearing, y_bearing, width, height, x_advance, y_advance)
 extern "C" fn context_glyph_extents_ffi(
   ctx : Context,
-  indices : FixedArray[UInt],
+  indices : FixedArray[UInt64],
   xs : FixedArray[Double],
   ys : FixedArray[Double],
   x_bearing : Ref[Double],
@@ -1488,7 +1488,7 @@ extern "C" fn context_glyph_extents_ffi(
 #borrow(ctx, indices, xs, ys)
 extern "C" fn context_glyph_path_ffi(
   ctx : Context,
-  indices : FixedArray[UInt],
+  indices : FixedArray[UInt64],
   xs : FixedArray[Double],
   ys : FixedArray[Double],
 ) -> Status = "cairoon_context_glyph_path"
@@ -1497,7 +1497,7 @@ extern "C" fn context_glyph_path_ffi(
 #borrow(ctx, indices, xs, ys)
 extern "C" fn context_show_glyphs_ffi(
   ctx : Context,
-  indices : FixedArray[UInt],
+  indices : FixedArray[UInt64],
   xs : FixedArray[Double],
   ys : FixedArray[Double],
 ) -> Status = "cairoon_context_show_glyphs"
@@ -1507,7 +1507,7 @@ extern "C" fn context_show_glyphs_ffi(
 extern "C" fn context_show_text_glyphs_ffi(
   ctx : Context,
   text : Bytes,
-  indices : FixedArray[UInt],
+  indices : FixedArray[UInt64],
   xs : FixedArray[Double],
   ys : FixedArray[Double],
   cluster_num_bytes : FixedArray[Int],

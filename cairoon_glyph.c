@@ -1,10 +1,11 @@
 #include "cairoon_private.h"
 
+#include <limits.h>
 #include <stdint.h>
 #include <stdlib.h>
 
 cairo_status_t cairoon_glyphs_from_fields(
-  uint32_t *indices,
+  uint64_t *indices,
   double *xs,
   double *ys,
   cairo_glyph_t **glyphs_out,
@@ -34,6 +35,10 @@ cairo_status_t cairoon_glyphs_from_fields(
   }
 
   for (int32_t i = 0; i < count; i++) {
+    if (indices[i] > (uint64_t)ULONG_MAX) {
+      free(glyphs);
+      return CAIRO_STATUS_INVALID_INDEX;
+    }
     glyphs[i].index = (unsigned long)indices[i];
     glyphs[i].x = xs[i];
     glyphs[i].y = ys[i];
@@ -91,14 +96,15 @@ cairo_status_t cairoon_text_to_glyphs_status(CairoonTextToGlyphs *result) {
 }
 
 MOONBIT_FFI_EXPORT
-int32_t *cairoon_text_to_glyphs_indices(CairoonTextToGlyphs *result) {
+uint64_t *cairoon_text_to_glyphs_indices(CairoonTextToGlyphs *result) {
   if (result == NULL || result->status != CAIRO_STATUS_SUCCESS ||
       result->num_glyphs <= 0) {
-    return moonbit_empty_int32_array;
+    return (uint64_t *)moonbit_empty_int64_array;
   }
-  int32_t *indices = moonbit_make_int32_array_raw(result->num_glyphs);
+  uint64_t *indices =
+    (uint64_t *)moonbit_make_int64_array_raw(result->num_glyphs);
   for (int32_t i = 0; i < result->num_glyphs; i++) {
-    indices[i] = (int32_t)(uint32_t)result->glyphs[i].index;
+    indices[i] = (uint64_t)result->glyphs[i].index;
   }
   return indices;
 }

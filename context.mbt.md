@@ -204,7 +204,7 @@ test "context docs: text extents paths glyphs and scaled font" {
   inspect(x > 2.0, content="true")
   inspect(y, content="18")
 
-  let glyphs = [Glyph::new(0U, 2.0, 18.0)]
+  let glyphs = [Glyph::new(0UL, 2.0, 18.0)]
   inspect(
     ctx.glyph_extents(glyphs) == ctx.get_scaled_font().glyph_extents(glyphs),
     content="true",

@@ -48,7 +48,8 @@ Implemented in this workspace:
   `Format::stride_for_width` including legacy, 16-bit, 30-bit, float, and
   invalid-width cases, `FORMAT_INVALID` as an explicit integer sentinel, pure
   `Matrix` parity operations, pure rectangle,
-  glyph, text-cluster, and extents values, image `Surface` including PNG
+  glyph with `UInt64` index, text-cluster, and extents values, image `Surface`
+  including PNG
   filename load/save plus stream read/write, buffer-backed creation, and
   retained mutable `ImageData` views for image and mapped-image surfaces, core `Context`
   drawing state including dash and hairline
@@ -127,8 +128,8 @@ Implemented in this workspace:
   string constants, integer constant parity including `FORMAT_INVALID`, tag
   input validation and nesting error coverage, Context toy text
   extents/current-point/path behavior, text input validation, Context glyph
-  array extents/path/show
-  behavior, empty glyph arrays, glyph context-error propagation, text-to-glyphs
+  array extents/path/show behavior with 64-bit glyph indices, empty glyph
+  arrays, glyph context-error propagation, text-to-glyphs
   output copying including glyph-only conversion, ScaledFont sheared matrix
   composition, font/text/glyph extents, and text-to-glyph string-matrix direct C
   oracle comparison,
@@ -330,9 +331,9 @@ Implemented in this workspace:
   stream output and writer errors, PDF metadata/outlines, PS DSC, SVG document
   units, recording replay, Tee fanout, script devices/surfaces, and checked
   backend-specific errors.
-- `moon -C cairoon test --target native`: 310 tests passed.
-- `moon -C cairoon info --target native`: passed; the latest spaced-ASCII
-  text-to-glyph slice did not change the public interface.
+- `moon -C cairoon test --target native`: 311 tests passed.
+- `moon -C cairoon info --target native`: passed; the latest glyph-index
+  width slice intentionally changed the public interface.
 - Test-only buffer-backed image oracle coverage plus Pure MoonBit Region
   rectangle-XOR and executable Matrix/Surface/Context/Font/Path/Pattern/Region
   documentation coverage were added without rerunning ASan because no C glue or
@@ -388,6 +389,22 @@ Implemented in this workspace:
   `scaled font extents match direct cairo C oracle` and
   `scaled font text_to_glyphs matches direct cairo C oracle` tests executed
   without any AddressSanitizer invalid-access report.
+- `run-asan.py --repo-root /Users/caimeo/code/pycairo/cairoon --pkg moon.pkg`:
+  rerun for the glyph-index width FFI slice. The full runner still failed
+  during the known macOS FontRegistry/CoreText/ColorSync LeakSanitizer class
+  after the black-box executable ran. A grep of
+  `/tmp/cairoon-glyph-index-asan.txt` found no `ERROR: AddressSanitizer`,
+  heap-use-after-free, stack-use-after, heap-buffer-overflow,
+  global-buffer-overflow, or double-free entries; the `cairoon_context_glyph`
+  hits were leak-stack frames. Summary:
+  `1667619 byte(s) leaked in 12429 allocation(s)`. The ASan-instrumented
+  black-box executable was then run directly with leak detection disabled for
+  `value_types_test.mbt`, `glyph_array_test.mbt`, `text_to_glyphs_test.mbt`,
+  `context.mbt.md`, and `README.mbt.md`; it exited 0 and
+  `/tmp/cairoon-glyph-index-blackbox-asan.txt` records the selected tests. The
+  ASan-instrumented white-box executable was likewise run for
+  `scaled_font_oracle_wbtest.mbt` and `image_oracle_wbtest.mbt`; it exited 0
+  and `/tmp/cairoon-glyph-index-whitebox-asan.txt` records those oracle tests.
 - `run-asan.py --repo-root /Users/caimeo/code/pycairo/cairoon --pkg moon.pkg`:
   rerun for the raster-source callback allocation stress slice. The full
   runner still failed during the known macOS FontRegistry/CoreText/ColorSync
@@ -698,6 +715,9 @@ Implemented in this workspace:
   The later spaced-ASCII text-to-glyph slice added one pure MoonBit black-box
   test and expanded the existing ScaledFont direct C oracle case set, raising
   the native suite to 310 tests; ASan was not rerun because no C glue changed.
+  The later glyph-index width slice promoted `Glyph.index` and glyph marshal
+  arrays to `UInt64`, added one pure value-type max-index test, and raised the
+  native suite to 311 tests; targeted ASan validation is recorded above.
 
 ## Known Gaps
 

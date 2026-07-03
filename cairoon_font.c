@@ -553,7 +553,7 @@ cairo_status_t cairoon_scaled_font_text_extents(
 MOONBIT_FFI_EXPORT
 cairo_status_t cairoon_scaled_font_glyph_extents(
   CairoonScaledFont *scaled_font,
-  uint32_t *indices,
+  uint64_t *indices,
   double *xs,
   double *ys,
   double *x_bearing,

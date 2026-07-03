@@ -222,11 +222,7 @@ fn text_glyph_run_from_native(
   }
   let glyphs = Array::makei(indices.length(), index => {
     let offset = index * 2
-    Glyph::new(
-      indices[index].reinterpret_as_uint(),
-      positions[offset],
-      positions[offset + 1],
-    )
+    Glyph::new(indices[index], positions[offset], positions[offset + 1])
   })
 
   let cluster_values = text_to_glyphs_clusters_ffi(result)

@@ -162,7 +162,8 @@ The current cairoon slice is not a full migration. It has native package setup,
 pycairo-style C glue split into private shared declarations plus per-family
 stub files, opaque external-object wrappers for `Surface`,
 `MappedImageSurface`, `Context`, `Path`, `Pattern`, `FontOptions`, `FontFace`,
-`ScaledFont`, `Region`, and `Device`, pure value types, many portable enums,
+`ScaledFont`, `Region`, and `Device`, pure value types including `Glyph` with
+`UInt64` index width, many portable enums,
 including enum-only `SurfaceObserverMode` pycairo compatibility,
 expanded Context path, painting/page, target/source borrowed returns,
 source-surface convenience, Context pointer equality/hash, clip, matrix, drawing-state including hairline mode,
@@ -336,9 +337,9 @@ Verified on 2026-07-02 and 2026-07-03:
 - `moon -C cairoon test enums_test.mbt --target native -v`: 4 black-box tests
   passed after adding `Rgb16_565`, `Rgb30`, `Rgb96F`, `Rgba128F`, and
   negative-width `Format::stride_for_width` coverage.
-- `moon -C cairoon test --target native`: 310 tests passed.
-- `moon -C cairoon info --target native`: passed; the latest spaced-ASCII
-  text-to-glyph slice did not change the public interface.
+- `moon -C cairoon test --target native`: 311 tests passed.
+- `moon -C cairoon info --target native`: passed; the latest glyph-index
+  width slice intentionally changed the public interface.
 - Test-only buffer-backed image oracle coverage plus Pure MoonBit Region
   rectangle-XOR and executable Matrix/Surface/Context/Font/Path/Pattern/Region
   documentation coverage were added without rerunning ASan because no C glue or
@@ -390,6 +391,21 @@ Verified on 2026-07-02 and 2026-07-03:
   `scaled font extents match direct cairo C oracle` and
   `scaled font text_to_glyphs matches direct cairo C oracle` tests executed
   without any AddressSanitizer invalid-access report.
+- ASan/LSan via `run-asan.py`: rerun on 2026-07-03 for the glyph-index width
+  FFI slice. The full runner still failed during the known macOS
+  FontRegistry/CoreText/ColorSync LeakSanitizer class after the black-box
+  executable ran. A grep of `/tmp/cairoon-glyph-index-asan.txt` found no
+  `ERROR: AddressSanitizer`, heap-use-after-free, stack-use-after,
+  heap-buffer-overflow, global-buffer-overflow, or double-free entries; the
+  `cairoon_context_glyph` hits were leak-stack frames. Summary:
+  `1667619 byte(s) leaked in 12429 allocation(s)`. The ASan-instrumented
+  black-box executable was then run directly with leak detection disabled for
+  `value_types_test.mbt`, `glyph_array_test.mbt`, `text_to_glyphs_test.mbt`,
+  `context.mbt.md`, and `README.mbt.md`; it exited 0 and
+  `/tmp/cairoon-glyph-index-blackbox-asan.txt` records the selected tests. The
+  ASan-instrumented white-box executable was likewise run for
+  `scaled_font_oracle_wbtest.mbt` and `image_oracle_wbtest.mbt`; it exited 0
+  and `/tmp/cairoon-glyph-index-whitebox-asan.txt` records those oracle tests.
 - ASan/LSan via `run-asan.py`: rerun on 2026-07-03 for the raster-source
   callback allocation stress slice. The full runner still failed during the
   known macOS FontRegistry/CoreText/ColorSync LeakSanitizer class after the
@@ -801,6 +817,9 @@ Verified on 2026-07-02 and 2026-07-03:
   test and expanded the existing ScaledFont direct C oracle case set, raising
   the native suite to 310 tests. ASan/LSan was not rerun for that slice because
   it did not change C glue or ownership code.
+  The later glyph-index width slice promoted `Glyph.index` and glyph marshal
+  arrays to `UInt64`, added one pure value-type max-index test, and raised the
+  native suite to 311 tests. Targeted ASan/LSan validation is recorded above.
 
 The missing reliability pieces are substantial: broader automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering

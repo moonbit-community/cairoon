@@ -134,8 +134,8 @@ test "scaled font extents match direct cairo C oracle" {
   )
   scaled_font_oracle_expect_text_extents(
     scaled_font.glyph_extents([
-      Glyph::new(0U, 1.5, 2.5),
-      Glyph::new(1U, 10.0, 2.5),
+      Glyph::new(0UL, 1.5, 2.5),
+      Glyph::new(1UL, 10.0, 2.5),
     ]),
     test_scaled_font_extents_oracle_ffi(2, b""),
   )

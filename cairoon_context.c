@@ -427,7 +427,7 @@ cairo_status_t cairoon_context_text_path(
 MOONBIT_FFI_EXPORT
 cairo_status_t cairoon_context_glyph_extents(
   CairoonContext *ctx,
-  uint32_t *indices,
+  uint64_t *indices,
   double *xs,
   double *ys,
   double *x_bearing,
@@ -461,7 +461,7 @@ cairo_status_t cairoon_context_glyph_extents(
 MOONBIT_FFI_EXPORT
 cairo_status_t cairoon_context_glyph_path(
   CairoonContext *ctx,
-  uint32_t *indices,
+  uint64_t *indices,
   double *xs,
   double *ys) {
   cairo_status_t status = cairoon_context_status(ctx);
@@ -482,7 +482,7 @@ cairo_status_t cairoon_context_glyph_path(
 MOONBIT_FFI_EXPORT
 cairo_status_t cairoon_context_show_glyphs(
   CairoonContext *ctx,
-  uint32_t *indices,
+  uint64_t *indices,
   double *xs,
   double *ys) {
   cairo_status_t status = cairoon_context_status(ctx);
@@ -504,7 +504,7 @@ MOONBIT_FFI_EXPORT
 cairo_status_t cairoon_context_show_text_glyphs(
   CairoonContext *ctx,
   moonbit_bytes_t text,
-  uint32_t *indices,
+  uint64_t *indices,
   double *xs,
   double *ys,
   int32_t *cluster_num_bytes,

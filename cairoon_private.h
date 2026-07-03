@@ -141,7 +141,7 @@ void cairoon_stream_read_state_destroy(void *state);
 
 moonbit_bytes_t cairoon_copy_c_string(const char *str);
 cairo_status_t cairoon_glyphs_from_fields(
-  uint32_t *indices,
+  uint64_t *indices,
   double *xs,
   double *ys,
   cairo_glyph_t **glyphs_out,

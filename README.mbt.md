@@ -410,7 +410,7 @@ test {
   let ctx = Context::new(surface)
   ctx.select_font_face("serif")
   ctx.set_font_size(12.0)
-  let glyphs = [Glyph::new(0U, 2.0, 12.0)]
+  let glyphs = [Glyph::new(0UL, 2.0, 12.0)]
   inspect(
     ctx.glyph_extents(glyphs) == ctx.get_scaled_font().glyph_extents(glyphs),
     content="true",

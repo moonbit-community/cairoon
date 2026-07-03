@@ -22,7 +22,7 @@ test "context and scaled font glyph_extents match" {
   let ctx = Context::new(Surface::image(Argb32, 32, 32))
   ctx.select_font_face("serif")
   ctx.set_font_size(12.0)
-  let glyphs = [Glyph::new(0U, 2.0, 12.0)]
+  let glyphs = [Glyph::new(0UL, 2.0, 12.0)]
   let context_extents = ctx.glyph_extents(glyphs)
   let scaled_extents = ctx.get_scaled_font().glyph_extents(glyphs)
   inspect(context_extents == scaled_extents, content="true")
@@ -41,7 +41,7 @@ test "context show_glyphs renders without changing the path" {
   let ctx = Context::new(surface)
   ctx.select_font_face("serif")
   ctx.set_font_size(12.0)
-  let glyphs = [Glyph::new(0U, 2.0, 12.0)]
+  let glyphs = [Glyph::new(0UL, 2.0, 12.0)]
   ctx.set_source_rgb(1.0, 0.0, 0.0)
   ctx.show_glyphs(glyphs)
   inspect(has_nonzero_byte(surface.copy_data()), content="true")
@@ -55,7 +55,7 @@ test "context glyph_path creates fillable glyph path" {
   let ctx = Context::new(surface)
   ctx.select_font_face("serif")
   ctx.set_font_size(16.0)
-  let glyphs = [Glyph::new(0U, 2.0, 18.0)]
+  let glyphs = [Glyph::new(0UL, 2.0, 18.0)]
   ctx.glyph_path(glyphs)
   let (x1, y1, x2, y2) = ctx.path_extents()
   inspect(x2 > x1, content="true")
@@ -79,7 +79,7 @@ test "empty glyph arrays are accepted" {
 ///|
 test "context glyph methods propagate existing context errors" {
   let ctx = Context::new(Surface::image(Argb32, 8, 8))
-  let glyphs = [Glyph::new(0U, 0.0, 0.0)]
+  let glyphs = [Glyph::new(0UL, 0.0, 0.0)]
   let invalid_matrix = run_cairo(() => {
     ctx.set_matrix(Matrix::new(xx=0.0, yy=0.0))
   })
