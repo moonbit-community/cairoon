@@ -298,11 +298,30 @@ Implemented in this workspace:
   pattern tests passed after adding release-only raster callback state,
   finished-surface raster acquire failure-injection coverage, and the C-side
   surface-finished sentinel.
+- `moon -C cairoon test pattern_raster_owner_wbtest.mbt --target native -v`: 1
+  white-box raster-source owner-count test passed, asserting acquire-only
+  repeated same-surface paints release cairoon's retained owner back to zero
+  after each paint.
+- `moon -C cairoon test --target native`: 334 tests passed after adding the
+  raster-source owner-count white-box test.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
   pattern_test.mbt --target native -v`: 17 ASan-compiled black-box pattern
   tests passed with leak detection disabled, covering release-only callback
   state and the raster acquire finished-surface rejection path in C glue.
+- `run-asan.py --repo-root /Users/caimeo/code/pycairo/cairoon --pkg moon.pkg`:
+  rerun for the raster-source owner-count test-probe slice. The full runner
+  still failed during the known macOS FontRegistry/CoreText/ColorSync
+  LeakSanitizer class. A grep of
+  `/tmp/cairoon-raster-owner-count-asan.txt` found no heap-use-after-free,
+  stack-use-after, heap-buffer-overflow, global-buffer-overflow, double-free,
+  `cairoon_raster`, `raster_source`, `cairoon_pattern`,
+  `raster_surface_owner`, or `pattern_raster_owner` entries; summary:
+  `54975 byte(s) leaked in 398 allocation(s)`. The ASan-instrumented
+  white-box executable was then run directly with
+  `ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0` for
+  `pattern_raster_owner_wbtest.mbt:0-1` and exited 0; the output is recorded
+  in `/tmp/cairoon-raster-owner-count-whitebox-asan.txt`.
 - `run-asan.py --repo-root /Users/caimeo/code/pycairo/cairoon --pkg moon.pkg`:
   rerun for the raster-source acquire-only release-trampoline slice. The full
   runner still failed during the known macOS FontRegistry/CoreText/ColorSync
@@ -987,6 +1006,10 @@ Implemented in this workspace:
   rectangle operands, and added one black-box test. This raised the native
   suite to 333 tests; ASan/LSan was not rerun because no C glue, finalizer,
   callback, or retained-owner code changed.
+  The later raster-source owner-count slice added a private C test probe and
+  one white-box test asserting that acquire-only repeated same-surface paints
+  release cairoon's retained owner back to zero after each paint. This raised
+  the native suite to 334 tests; ASan/LSan validation is recorded above.
 
 ## Known Gaps
 

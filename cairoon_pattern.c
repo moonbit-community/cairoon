@@ -118,6 +118,18 @@ static void cairoon_raster_surface_owner_release(cairo_surface_t *surface) {
   cairo_surface_destroy(surface);
 }
 
+MOONBIT_FFI_EXPORT
+int32_t cairoon_test_raster_surface_owner_count(CairoonSurface *surface) {
+  if (surface == NULL || surface->ptr == NULL) {
+    return -1;
+  }
+  CairoonRasterSurfaceOwner *owner =
+    (CairoonRasterSurfaceOwner *)cairo_surface_get_user_data(
+      surface->ptr,
+      &cairoon_raster_surface_owner_key);
+  return owner == NULL ? 0 : owner->count;
+}
+
 static cairo_surface_t *cairoon_raster_source_acquire(
   cairo_pattern_t *pattern,
   void *callback_data,

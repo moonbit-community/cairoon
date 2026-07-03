@@ -224,7 +224,9 @@ the font stack, solid/gradient/mesh `Pattern`, recording/similar/Tee
 ordinary, buffer-backed, and mapped image surfaces, backend stream callback
 allocation stress for PDF/PS/SVG surfaces, PNG stream write/read, script
 devices, and stream `WriteError` paths, raster-source callback allocation
-stress for set/get/manual acquire/release/replace/clear paths, Cairo float
+stress for set/get/manual acquire/release/replace/clear paths plus a
+white-box owner-count check for acquire-only repeated same-surface paints,
+Cairo float
 image-format creation/readback coverage, `Format::stride_for_width` coverage
 for legacy, 16-bit, 30-bit, float, and invalid-width cases, stable
 structural vector-output markers plus direct C oracle comparisons
@@ -1100,6 +1102,14 @@ Verified on 2026-07-02 and 2026-07-03:
   rectangle operands, and added one black-box test. This raised the native
   suite to 333 tests. ASan/LSan was not rerun because no C glue, finalizer,
   callback, or retained-owner code changed.
+  The later raster-source owner-count slice added a private C test probe and
+  one white-box test asserting that acquire-only repeated same-surface paints
+  release cairoon's retained owner back to zero after each paint. This raised
+  the native suite to 334 tests. The full ASan/LSan runner still failed only
+  during the known macOS FontRegistry/CoreText/ColorSync leak class; grep of
+  `/tmp/cairoon-raster-owner-count-asan.txt` found no raster-owner invalid
+  access terms, and the ASan-compiled white-box owner-count executable exited
+  0 with leak detection disabled.
 
 The missing reliability pieces are substantial: broader automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering

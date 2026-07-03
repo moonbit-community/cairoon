@@ -148,6 +148,10 @@ extern "C" fn test_scaled_font_text_to_glyphs_oracle_ffi(
 ) -> TextToGlyphsNative = "cairoon_test_scaled_font_text_to_glyphs_oracle"
 
 ///|
+#borrow(surface)
+extern "C" fn test_raster_surface_owner_count_ffi(surface : Surface) -> Int = "cairoon_test_raster_surface_owner_count"
+
+///|
 fn init {
   ignore(compile_feature_flag_ffi)
   ignore(compile_int_constant_ffi)
@@ -161,6 +165,7 @@ fn init {
   ignore(test_argb32_scene_oracle_ffi)
   ignore(test_scaled_font_extents_oracle_ffi)
   ignore(test_scaled_font_text_to_glyphs_oracle_ffi)
+  ignore(test_raster_surface_owner_count_ffi)
 }
 
 ///|
