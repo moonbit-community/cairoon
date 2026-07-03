@@ -156,8 +156,10 @@ Implemented in this workspace:
   version restriction, page size, metadata, custom metadata, page label,
   thumbnail, single-flag and combined-flag outline behavior,
   stable structural output markers, PDF metadata/custom-metadata/page-label/outline
-  output markers, PDF multi-page output markers, PDF 1.4 fifteen-scene direct C vector-oracle comparison,
-  PDF JPEG MIME data embedding, PDF 1.4 URI link-tag annotation markers,
+  output markers, PDF multi-page output markers, PDF 1.4 fifteen-scene
+  cross-backend direct C vector-oracle comparison plus three PDF tag oracle
+  scenes and one PDF document-feature oracle scene, PDF JPEG MIME data
+  embedding, PDF 1.4 URI link-tag annotation markers,
   PDF named-destination tag markers, PDF document-structure tag markers,
   finished-surface errors, invalid string validation, and subtype-mismatch
   errors across bound page-size/version/metadata/custom-metadata/page-label/
@@ -234,9 +236,10 @@ Implemented in this workspace:
   surface pattern, mask surface, and mesh pattern scenes. SVG comparison
   normalizes Cairo's dynamic `source-*` image ids. PDF metadata/custom
   metadata, page labels, outlines, multi-page output, URI link-tag annotations,
-  named-destination tags, document-structure tags, and JPEG MIME passthrough
-  have marker checks; image/PDF/PS/SVG MIME support matrices are covered; PS
-  and SVG multi-page output have marker checks; and
+  named-destination tags, document-structure tags, and one two-page PDF
+  document-feature combination also have direct C oracle or marker checks; PDF
+  JPEG MIME passthrough has output checks; image/PDF/PS/SVG MIME support
+  matrices are covered; PS and SVG multi-page output have marker checks; and
   PS/SVG Link tags have inert-output checks matching Cairo 1.18.4 backend
   behavior.
   Full cross-run comparison against pycairo output is not yet automated.
@@ -356,6 +359,35 @@ Implemented in this workspace:
   `/tmp/cairoon-pdf-tag-oracle-whitebox-asan.txt` records all 21 selected
   white-box tests, including `pdf tag output scenes match direct cairo C
   oracle`.
+- `moon -C cairoon test vector_output_wbtest.mbt --target native -v`: 22
+  white-box tests passed after adding one PDF-only direct C document-feature
+  oracle scene covering metadata, custom metadata, page labels, outlines, URI
+  links, named destinations, and Document/Sect/P structure tags across two
+  pages. The existing vector oracle still covers fifteen PDF/PS/SVG scenes,
+  three PDF-only tag scenes, SVG dynamic `source-*` normalization, and the
+  existing marker tests.
+- `moon -C cairoon test --target native`: 332 tests passed after the PDF
+  document-feature oracle slice.
+- `moon -C cairoon info --target native`: completed with no work to do after
+  the PDF document-feature oracle slice.
+- `run-asan.py --repo-root /Users/caimeo/code/pycairo/cairoon --pkg moon.pkg`:
+  rerun for the PDF document-feature oracle slice. The first sandboxed run
+  could not write the temporary ASan runtime object to `~/.moon/lib`; the
+  approved rerun wrote `/tmp/cairoon-pdf-document-feature-asan.txt` and failed
+  during the known macOS FontRegistry/CoreText/ColorSync LeakSanitizer class
+  after the black-box executable ran; summary: `55231 byte(s) leaked in 406
+  allocation(s)`. A grep of that log found no `ERROR: AddressSanitizer`,
+  heap-use-after-free, stack-use-after, heap-buffer-overflow,
+  global-buffer-overflow, double-free,
+  `cairoon_test_render_pdf_document_features`,
+  `CAIROON_TEST_VECTOR_PDF_DOCUMENT_FEATURES`, or
+  `cairoon_test_render_vector_scene_oracle` entries. The ASan-instrumented
+  white-box executable was then run directly with
+  `ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0` for
+  `vector_output_wbtest.mbt:0-22`; it exited 0 and
+  `/tmp/cairoon-pdf-document-feature-whitebox-asan.txt` records all 22
+  selected white-box tests, including `pdf document feature scene matches
+  direct cairo C oracle`.
 - `moon -C cairoon test surface_context_test.mbt context_lifetime_test.mbt
   pattern_test.mbt --target native -v`: 32 tests passed after adding
   `Surface`/`Context`/`Pattern` pointer equality/hash.
@@ -932,21 +964,28 @@ Implemented in this workspace:
   plumbing for copied-data readback, and covered `SurfaceFinished` plus
   non-image `SurfaceTypeMismatch`, raising the native suite to 331 tests;
   ASan/LSan validation is recorded above.
+  The later PDF document-feature oracle slice added one private PDF-only
+  direct C vector scene covering metadata, custom metadata, page labels,
+  outlines, URI links, named destinations, and Document/Sect/P structure tags
+  across two pages. This changed only test-helper C glue and one white-box
+  test, raising the native suite to 332 tests; ASan/LSan validation is
+  recorded above.
 
 ## Known Gaps
 
 - Broader normalized PDF/SVG/PS output comparison is still missing for
   tag/metadata/multi-page combinations beyond the current fifteen-scene
-  cross-backend direct C fixtures and three PDF tag oracle scenes. PDF/PS/SVG
-  now have multi-page marker checks and one two-page direct C oracle scene,
-  PDF/PS/SVG have a single-page toy-font `show_text` oracle scene, and PDF
-  has simple direct C tag-oracle coverage for URI links, named destinations,
-  and Document/Sect/H1/P structure tags. Broader tag/metadata combinations,
-  broader multi-page combinations, and richer tag-output assertions are still
-  absent beyond those simple tag scenes and PS/SVG Link inertness. PDF/PS/SVG
-  stream-writer constructors, script stream devices, and PNG stream read/write
-  now have copied-byte callback tests and read/write error propagation
-  coverage.
+  cross-backend direct C fixtures, three PDF tag oracle scenes, and one PDF
+  document-feature oracle scene. PDF/PS/SVG now have multi-page marker checks
+  and one two-page direct C oracle scene, PDF/PS/SVG have a single-page
+  toy-font `show_text` oracle scene, and PDF has direct C coverage for URI
+  links, named destinations, Document/Sect/H1/P structure tags, plus a
+  two-page metadata/custom-metadata/page-label/outline/tag combination.
+  Broader cross-backend tag/metadata combinations, broader multi-page
+  combinations, and richer tag-output assertions are still absent beyond those
+  PDF scenes and PS/SVG Link inertness. PDF/PS/SVG stream-writer constructors,
+  script stream devices, and PNG stream read/write now have copied-byte
+  callback tests and read/write error propagation coverage.
 - `Surface::copy_data` still copies Cairo image data into MoonBit `Bytes`;
   `Surface::get_data` is the mutable image-surface view and intentionally
   retains the surface wrapper instead of exposing a raw pointer.

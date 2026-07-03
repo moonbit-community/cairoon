@@ -365,6 +365,65 @@ fn render_vector_oracle_scene(
 }
 
 ///|
+fn render_pdf_document_feature_scene(path : String) -> Unit raise CairoError {
+  let surface = Surface::pdf(100.0, 100.0, path=Some(path))
+  surface.pdf_restrict_to_version(PdfVersion1_4)
+  surface.pdf_set_metadata(PdfMetadataTitle, "Cairoon Combined Oracle")
+  surface.pdf_set_metadata(PdfMetadataCreator, "cairoon-combined-oracle")
+  surface.pdf_set_metadata(PdfMetadataCreateDate, fixed_pdf_metadata_date())
+  surface.pdf_set_metadata(PdfMetadataModDate, fixed_pdf_metadata_date())
+  surface.pdf_set_custom_metadata("ISBN", Some("978-0123456789"))
+  surface.pdf_set_page_label("intro")
+  let _ = surface.pdf_add_outline_with_flags(
+    PDF_OUTLINE_ROOT,
+    "intro page",
+    "page=1 pos=[10 20]",
+    PDFOutlineFlagSet::combine([PdfOutlineOpen, PdfOutlineBold][:]),
+  )
+
+  let ctx = Context::new(surface)
+  ctx.set_source_rgb(0.0, 0.0, 1.0)
+  ctx.tag_begin(TAG_LINK, "uri='https://example.com/combined'")
+  ctx.rectangle(10.0, 10.0, 80.0, 20.0)
+  ctx.fill()
+  ctx.tag_end(TAG_LINK)
+
+  ctx.set_source_rgb(0.0, 0.5, 0.0)
+  ctx.tag_begin(TAG_LINK, "dest='combined-direct-dest'")
+  ctx.rectangle(10.0, 40.0, 80.0, 20.0)
+  ctx.fill()
+  ctx.tag_end(TAG_LINK)
+
+  ctx.show_page()
+  surface.pdf_set_page_label("details")
+  let _ = surface.pdf_add_outline_with_flags(
+    PDF_OUTLINE_ROOT,
+    "details page",
+    "page=2 pos=[10 60]",
+    PDFOutlineFlagSet::of(PdfOutlineItalic),
+  )
+
+  ctx.set_source_rgb(1.0, 0.0, 0.0)
+  ctx.tag_begin(TAG_DEST, "name='combined-direct-dest' x=10 y=60")
+  ctx.rectangle(10.0, 10.0, 80.0, 20.0)
+  ctx.fill()
+  ctx.tag_end(TAG_DEST)
+
+  ctx.tag_begin("Document", "")
+  ctx.tag_begin("Sect", "")
+  ctx.tag_begin("P", "")
+  ctx.set_source_rgb(0.25, 0.25, 0.25)
+  ctx.rectangle(10.0, 50.0, 80.0, 30.0)
+  ctx.fill()
+  ctx.tag_end("P")
+  ctx.tag_end("Sect")
+  ctx.tag_end("Document")
+
+  ctx.show_page()
+  surface.finish()
+}
+
+///|
 fn fill_link_rect(ctx : Context, tagged : Bool) -> Unit raise CairoError {
   ctx.set_source_rgb(0.0, 0.0, 1.0)
   if tagged {
@@ -786,6 +845,14 @@ test "pdf tag output scenes match direct cairo C oracle" {
     render_vector_oracle_scene(0, scene, cairoon_path)
     expect_vector_oracle_match(0, scene, cairoon_path, oracle_path)
   }
+}
+
+///|
+test "pdf document feature scene matches direct cairo C oracle" {
+  let cairoon_path = "/tmp/cairoon_vector_pdf_document_features.pdf"
+  let oracle_path = "/tmp/cairoon_vector_pdf_document_features_oracle.pdf"
+  render_pdf_document_feature_scene(cairoon_path)
+  expect_vector_oracle_match(0, 18, cairoon_path, oracle_path)
 }
 
 ///|
