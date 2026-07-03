@@ -153,6 +153,14 @@ fn draw_vector_oracle_scene(
       ctx.set_source(pattern)
       ctx.fill()
     }
+    7 => {
+      ctx.select_font_face("serif")
+      ctx.set_font_size(4.0)
+      ctx.move_to(1.0, 6.5)
+      ctx.text_path("Hi")
+      ctx.set_source_rgb(0.0, 0.0, 0.0)
+      ctx.fill()
+    }
     _ => raise CairoInvalidArgument(InvalidStatus, InvalidStatus.message())
   }
 }
@@ -269,7 +277,7 @@ test "svg output contains stable geometry and color markers" {
 test "vector output scenes match direct cairo C oracle" {
   for kind in 0..<3 {
     let ext = vector_output_extension(kind)
-    for scene in 0..<7 {
+    for scene in 0..<8 {
       let cairoon_path = "/tmp/cairoon_vector_scene_\{kind}_\{scene}.\{ext}"
       let oracle_path = "/tmp/cairoon_vector_scene_\{kind}_\{scene}_oracle.\{ext}"
       render_vector_oracle_scene(kind, scene, cairoon_path)

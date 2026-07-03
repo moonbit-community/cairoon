@@ -203,8 +203,9 @@ script mode/comment helpers, recording replay, `Surface::get_device`,
 `Surface::script_for_target`, TeeSurface mirrored drawing and target indexing,
 exhaustive `Status`/`CairoError` classification, retained-owner lifetime stress
 tests, stable structural vector-output markers plus direct C oracle comparisons
-for seven deterministic PDF/PS/SVG vector scenes covering paint, stroke,
-fill/stroke rectangles, Bezier paths, transforms, and linear/radial gradients,
+for eight deterministic PDF/PS/SVG vector scenes covering paint, stroke,
+fill/stroke rectangles, Bezier paths, transforms, linear/radial gradients, and
+toy-font text paths,
 PDF link-tag annotation
 markers, PS/SVG Link tag inert-output checks, mutable image/mapped-image data view
 tests, and initial tests. Region now covers empty, single-rectangle, and
@@ -214,15 +215,29 @@ construction plus predicates and boolean operations.
 Verified on 2026-07-02 and 2026-07-03:
 
 - `moon -C cairoon check --target native`: passed.
+- `moon -C cairoon test vector_output_wbtest.mbt --target native -v`: 7
+  white-box tests passed after expanding the direct C vector oracle to eight
+  PDF/PS/SVG scenes with a toy-font text-path case.
 - `moon -C cairoon test surface_context_test.mbt context_lifetime_test.mbt
   pattern_test.mbt --target native -v`: 32 tests passed after adding
   `Surface`/`Context`/`Pattern` pointer equality/hash.
 - `moon -C cairoon test --target native -v`: 237 tests passed.
-- `moon -C cairoon info --target native`: passed.
+- `moon -C cairoon info --target native`: passed; the latest vector text-path
+  oracle slice did not change the public interface.
 - Documentation-only product-decision audit for pycairo `CAPI`, legacy enum
   aliases, and non-implemented FreeType/user-font classes: `moon -C cairoon
   check --target native`, `moon -C cairoon test --target native -v`, and
   `moon -C cairoon info --target native` passed on 2026-07-03.
+- ASan/LSan via `run-asan.py`: ran the 237-test native suite on 2026-07-03
+  after the vector text-path oracle slice. The full runner still failed during
+  the known macOS FontRegistry/CoreText/ColorSync LeakSanitizer class before
+  the white-box executable launched:
+  `56037 byte(s) leaked in 415 allocation(s)`.
+  The ASan-instrumented white-box executable was then run directly with leak
+  detection disabled using
+  `ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0`; it exited 0, and
+  `/tmp/cairoon-vector-text-path-whitebox-asan.txt` shows the vector output
+  oracle test executed without any AddressSanitizer invalid-access report.
 - ASan/LSan via `run-asan.py`: ran the 237-test native suite on 2026-07-03
   after the `Surface`/`Context`/`Pattern` pointer equality/hash slice. No
   AddressSanitizer invalid-access report appeared, and a grep of
@@ -230,8 +245,8 @@ Verified on 2026-07-02 and 2026-07-03:
   `cairoon_surface_equal`, `cairoon_surface_hash`, `cairoon_context_equal`,
   `cairoon_context_hash`, `cairoon_pattern_equal`, or
   `cairoon_pattern_hash` entries in visible leak roots. The run still failed
-  during the known macOS FontRegistry/CoreText/ColorSync LeakSanitizer class:
-  `56037 byte(s) leaked in 415 allocation(s)`.
+  during the same known macOS FontRegistry/CoreText/ColorSync LeakSanitizer
+  class: `56037 byte(s) leaked in 415 allocation(s)`.
 - ASan/LSan via `run-asan.py`: ran on 2026-07-03 after adding retained-owner
   lifetime stress tests. The first run found a real heap-use-after-free when a
   `Surface` returned by `Context::get_target` outlived a context created from a
@@ -435,11 +450,14 @@ Verified on 2026-07-02 and 2026-07-03:
   exited 0; `/tmp/cairoon-vector-scenes-whitebox-asan.txt` shows the vector
   output scene oracle test executed without any AddressSanitizer invalid-access
   report.
+  The later toy-font text-path oracle slice expanded those fixtures to eight
+  scenes without changing the number of tests; its latest sanitizer validation
+  is recorded in the current verified block above.
 
 The missing reliability pieces are substantial: broader automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering
 LSan failure, finalizer stress tests, CI wiring, vector-output normalization for
-more complex multi-page/font/tag/metadata cases, broader tag-output assertions,
+more complex multi-page/show-text/tag/metadata cases, broader tag-output assertions,
 and
 the remaining API families from `API_INVENTORY.md`.
 
