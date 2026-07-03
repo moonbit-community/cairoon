@@ -681,6 +681,17 @@ extern "C" fn pdf_surface_create_ffi(
 
 ///|
 #borrow(status)
+#owned(writer)
+extern "C" fn pdf_surface_create_for_stream_ffi(
+  call_writer : FuncRef[(Bytes, (Bytes) -> Status) -> Status],
+  writer : (Bytes) -> Status,
+  width_in_points : Double,
+  height_in_points : Double,
+  status : Ref[Status],
+) -> Surface = "cairoon_pdf_surface_create_for_stream"
+
+///|
+#borrow(status)
 extern "C" fn pdf_get_version_count_ffi(status : Ref[Status]) -> Int = "cairoon_pdf_get_version_count"
 
 ///|
@@ -767,6 +778,17 @@ extern "C" fn svg_surface_create_ffi(
 
 ///|
 #borrow(status)
+#owned(writer)
+extern "C" fn svg_surface_create_for_stream_ffi(
+  call_writer : FuncRef[(Bytes, (Bytes) -> Status) -> Status],
+  writer : (Bytes) -> Status,
+  width_in_points : Double,
+  height_in_points : Double,
+  status : Ref[Status],
+) -> Surface = "cairoon_svg_surface_create_for_stream"
+
+///|
+#borrow(status)
 extern "C" fn svg_get_version_count_ffi(status : Ref[Status]) -> Int = "cairoon_svg_get_version_count"
 
 ///|
@@ -813,6 +835,17 @@ extern "C" fn ps_surface_create_ffi(
   height_in_points : Double,
   status : Ref[Status],
 ) -> Surface = "cairoon_ps_surface_create"
+
+///|
+#borrow(status)
+#owned(writer)
+extern "C" fn ps_surface_create_for_stream_ffi(
+  call_writer : FuncRef[(Bytes, (Bytes) -> Status) -> Status],
+  writer : (Bytes) -> Status,
+  width_in_points : Double,
+  height_in_points : Double,
+  status : Ref[Status],
+) -> Surface = "cairoon_ps_surface_create_for_stream"
 
 ///|
 #borrow(status)

@@ -1,0 +1,97 @@
+#include "cairoon_private.h"
+
+#include <limits.h>
+#include <stdlib.h>
+#include <string.h>
+
+typedef struct {
+  CairoonStreamWriteCallback callback;
+  void *arg;
+} CairoonStreamState;
+
+static const cairo_user_data_key_t cairoon_stream_state_key;
+
+void cairoon_stream_state_destroy(void *state_ptr) {
+  CairoonStreamState *state = (CairoonStreamState *)state_ptr;
+  if (state == NULL) {
+    return;
+  }
+  if (state->arg != NULL) {
+    moonbit_decref(state->arg);
+    state->arg = NULL;
+  }
+  free(state);
+}
+
+void *cairoon_stream_state_new(
+  CairoonStreamWriteCallback callback,
+  void *arg,
+  cairo_status_t *status_out) {
+  *status_out = CAIRO_STATUS_SUCCESS;
+  if (callback == NULL) {
+    if (arg != NULL) {
+      moonbit_decref(arg);
+    }
+    *status_out = CAIRO_STATUS_NULL_POINTER;
+    return NULL;
+  }
+
+  CairoonStreamState *state =
+    (CairoonStreamState *)malloc(sizeof(CairoonStreamState));
+  if (state == NULL) {
+    if (arg != NULL) {
+      moonbit_decref(arg);
+    }
+    *status_out = CAIRO_STATUS_NO_MEMORY;
+    return NULL;
+  }
+
+  state->callback = callback;
+  state->arg = arg;
+  return state;
+}
+
+cairo_status_t cairoon_stream_write(
+  void *closure,
+  const unsigned char *data,
+  unsigned int length) {
+  CairoonStreamState *state = (CairoonStreamState *)closure;
+  if (state == NULL || state->callback == NULL) {
+    return CAIRO_STATUS_WRITE_ERROR;
+  }
+  if (length > (unsigned int)INT_MAX) {
+    return CAIRO_STATUS_NO_MEMORY;
+  }
+
+  moonbit_bytes_t bytes = moonbit_make_bytes((int32_t)length, 0);
+  if (length > 0) {
+    if (data == NULL) {
+      moonbit_decref(bytes);
+      return CAIRO_STATUS_NULL_POINTER;
+    }
+    memcpy(bytes, data, (size_t)length);
+  }
+
+  cairo_status_t status = (cairo_status_t)state->callback(bytes, state->arg);
+  moonbit_decref(bytes);
+  if (status < CAIRO_STATUS_SUCCESS || status >= CAIRO_STATUS_LAST_STATUS) {
+    return CAIRO_STATUS_WRITE_ERROR;
+  }
+  return status;
+}
+
+cairo_status_t cairoon_stream_attach(cairo_surface_t *surface, void *state) {
+  if (surface == NULL) {
+    cairoon_stream_state_destroy(state);
+    return CAIRO_STATUS_NULL_POINTER;
+  }
+  cairo_status_t status = cairo_surface_set_user_data(
+    surface,
+    &cairoon_stream_state_key,
+    state,
+    cairoon_stream_state_destroy);
+  if (status != CAIRO_STATUS_SUCCESS) {
+    cairoon_stream_state_destroy(state);
+  }
+  return status;
+}

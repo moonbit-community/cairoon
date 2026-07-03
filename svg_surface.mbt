@@ -18,6 +18,25 @@ pub fn Surface::svg(
 }
 
 ///|
+pub fn Surface::svg_stream(
+  width_in_points : Double,
+  height_in_points : Double,
+  writer : (Bytes) -> Status,
+) -> Surface raise CairoError {
+  let status = Ref(Success)
+  let surface = svg_surface_create_for_stream_ffi(
+    fn(chunk, writer) { writer(chunk) },
+    writer,
+    width_in_points,
+    height_in_points,
+    status,
+  )
+  check_status(status.val)
+  check_status(surface_status_ffi(surface))
+  surface
+}
+
+///|
 pub fn SVGVersion::supported() -> Array[SVGVersion] raise CairoError {
   let status = Ref(Success)
   let count = svg_get_version_count_ffi(status)

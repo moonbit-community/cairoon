@@ -125,7 +125,8 @@ Memory tests must cover:
 For surfaces and devices, add backend-specific smoke tests:
 
 - Image: exact stride, format, dimensions, and raw byte output.
-- PDF/SVG/PS: create, finish, metadata, page behavior, and normalized output.
+- PDF/SVG/PS: create, finish, metadata, page behavior, stream writers, and
+  normalized output.
 - Recording/script/tee: only mark Done when the backend is available and tests
   run in CI.
 - Platform APIs such as Win32/XCB/Xlib: require a platform-specific test job or
@@ -187,7 +188,7 @@ construction plus predicates and boolean operations.
 Verified on 2026-07-02 and 2026-07-03:
 
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native -v`: 215 tests passed.
+- `moon -C cairoon test --target native -v`: 219 tests passed.
 - ASan/LSan via `run-asan.py`: ran on 2026-07-03 after adding retained-owner
   lifetime stress tests. The first run found a real heap-use-after-free when a
   `Surface` returned by `Context::get_target` outlived a context created from a
@@ -295,12 +296,21 @@ Verified on 2026-07-02 and 2026-07-03:
   `cairoon_image_surface_get_data`, or
   `cairoon_mapped_image_surface_get_data` entries; summary:
   `64989 byte(s) leaked in 398 allocation(s)`.
+  The later PDF/PS/SVG stream-writer slice added C callback state,
+  copied-byte trampolines, and four black-box tests, raising the native suite
+  to 219 tests. The first ASan/LSan run exposed a real `moonbit_make_bytes`
+  leak rooted at `cairoon_stream_write`; after removing the extra retained
+  reference, the fixed ASan/LSan rerun reported only the same macOS
+  LeakSanitizer class. A grep of `/tmp/cairoon-stream-asan-fixed.txt` found no
+  `ERROR: AddressSanitizer`, heap-use-after-free, stack-use-after,
+  global-buffer-overflow, or `cairoon_stream` entries; summary:
+  `65485 byte(s) leaked in 405 allocation(s)`.
 
 The missing reliability pieces are substantial: automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering
 LSan failure, finalizer stress tests, CI wiring, vector-output normalization,
-PDF/PS stream output, SVG/PS tag-materialization assertions, and the remaining
-API families from `API_INVENTORY.md`.
+PNG/script stream callbacks, SVG/PS tag-materialization assertions, and the
+remaining API families from `API_INVENTORY.md`.
 
 ## Porting pycairo Tests
 

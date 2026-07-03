@@ -18,6 +18,25 @@ pub fn Surface::ps(
 }
 
 ///|
+pub fn Surface::ps_stream(
+  width_in_points : Double,
+  height_in_points : Double,
+  writer : (Bytes) -> Status,
+) -> Surface raise CairoError {
+  let status = Ref(Success)
+  let surface = ps_surface_create_for_stream_ffi(
+    fn(chunk, writer) { writer(chunk) },
+    writer,
+    width_in_points,
+    height_in_points,
+    status,
+  )
+  check_status(status.val)
+  check_status(surface_status_ffi(surface))
+  surface
+}
+
+///|
 pub fn PSLevel::supported() -> Array[PSLevel] raise CairoError {
   let status = Ref(Success)
   let count = ps_get_level_count_ffi(status)

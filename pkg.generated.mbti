@@ -758,6 +758,7 @@ pub fn Surface::pdf_set_metadata(Self, PDFMetadata, String) -> Unit raise CairoE
 pub fn Surface::pdf_set_page_label(Self, String) -> Unit raise CairoError
 pub fn Surface::pdf_set_size(Self, Double, Double) -> Unit raise CairoError
 pub fn Surface::pdf_set_thumbnail_size(Self, Int, Int) -> Unit raise CairoError
+pub fn Surface::pdf_stream(Double, Double, (Bytes) -> Status) -> Self raise CairoError
 pub fn Surface::ps(Double, Double, path? : String?) -> Self raise CairoError
 pub fn Surface::ps_dsc_begin_page_setup(Self) -> Unit raise CairoError
 pub fn Surface::ps_dsc_begin_setup(Self) -> Unit raise CairoError
@@ -766,6 +767,7 @@ pub fn Surface::ps_get_eps(Self) -> Bool raise CairoError
 pub fn Surface::ps_restrict_to_level(Self, PSLevel) -> Unit raise CairoError
 pub fn Surface::ps_set_eps(Self, Bool) -> Unit raise CairoError
 pub fn Surface::ps_set_size(Self, Double, Double) -> Unit raise CairoError
+pub fn Surface::ps_stream(Double, Double, (Bytes) -> Status) -> Self raise CairoError
 pub fn Surface::recording(Content, extents? : Rectangle?) -> Self raise CairoError
 pub fn Surface::recording_get_extents(Self) -> Rectangle? raise CairoError
 pub fn Surface::recording_ink_extents(Self) -> Rectangle raise CairoError
@@ -782,6 +784,7 @@ pub fn Surface::svg(Double, Double, path? : String?) -> Self raise CairoError
 pub fn Surface::svg_get_document_unit(Self) -> SVGUnit raise CairoError
 pub fn Surface::svg_restrict_to_version(Self, SVGVersion) -> Unit raise CairoError
 pub fn Surface::svg_set_document_unit(Self, SVGUnit) -> Unit raise CairoError
+pub fn Surface::svg_stream(Double, Double, (Bytes) -> Status) -> Self raise CairoError
 pub fn Surface::tee(Self) -> Self raise CairoError
 pub fn Surface::tee_add(Self, Self) -> Unit raise CairoError
 pub fn Surface::tee_index(Self, Int) -> Self raise CairoError

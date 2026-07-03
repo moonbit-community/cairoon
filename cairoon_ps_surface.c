@@ -52,6 +52,54 @@ CairoonSurface *cairoon_ps_surface_create(
 }
 
 MOONBIT_FFI_EXPORT
+CairoonSurface *cairoon_ps_surface_create_for_stream(
+  CairoonStreamWriteCallback callback,
+  void *arg,
+  double width_in_points,
+  double height_in_points,
+  cairo_status_t *status_out) {
+  *status_out = CAIRO_STATUS_SUCCESS;
+#if CAIRO_HAS_PS_SURFACE
+  cairo_status_t status = CAIRO_STATUS_SUCCESS;
+  void *state = cairoon_stream_state_new(callback, arg, &status);
+  if (status != CAIRO_STATUS_SUCCESS) {
+    *status_out = status;
+    return cairoon_surface_wrap_owned(NULL);
+  }
+
+  cairo_surface_t *surface = cairo_ps_surface_create_for_stream(
+    cairoon_stream_write,
+    state,
+    width_in_points,
+    height_in_points);
+  if (surface == NULL) {
+    cairoon_stream_state_destroy(state);
+    *status_out = CAIRO_STATUS_NO_MEMORY;
+    return cairoon_surface_wrap_owned(NULL);
+  }
+
+  status = cairoon_stream_attach(surface, state);
+  if (status != CAIRO_STATUS_SUCCESS) {
+    cairo_surface_destroy(surface);
+    *status_out = status;
+    return cairoon_surface_wrap_owned(NULL);
+  }
+
+  *status_out = cairo_surface_status(surface);
+  return cairoon_surface_wrap_owned(surface);
+#else
+  (void)callback;
+  if (arg != NULL) {
+    moonbit_decref(arg);
+  }
+  (void)width_in_points;
+  (void)height_in_points;
+  *status_out = CAIRO_STATUS_INVALID_STATUS;
+  return cairoon_surface_wrap_owned(NULL);
+#endif
+}
+
+MOONBIT_FFI_EXPORT
 int32_t cairoon_ps_get_level_count(cairo_status_t *status_out) {
   *status_out = CAIRO_STATUS_SUCCESS;
 #if CAIRO_HAS_PS_SURFACE
