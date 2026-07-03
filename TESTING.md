@@ -155,7 +155,8 @@ compile-time Cairo
 constants, group APIs, tag APIs, toy
 text APIs, glyph array APIs, text-to-glyphs/show-text-glyphs APIs,
 hit-testing/extents APIs, typed Path segment iteration and stringification,
-PNG filename load/save and buffer-backed creation for image surfaces, portable
+PNG filename load/save, direct C Cairo oracle image-paint comparison, and
+buffer-backed creation for image surfaces, portable
 Surface base helpers such as similar-surface creation, rectangular child
 surface creation with retained parent-wrapper lifetime, content/type queries,
 dirty markers, device offset/scale, fallback resolution, show-text-glyphs
@@ -184,7 +185,7 @@ construction plus predicates and boolean operations.
 Verified on 2026-07-02 and 2026-07-03:
 
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native -v`: 206 tests passed.
+- `moon -C cairoon test --target native -v`: 207 tests passed.
 - ASan/LSan via `run-asan.py`: ran on 2026-07-03 after adding retained-owner
   lifetime stress tests. The first run found a real heap-use-after-free when a
   `Surface` returned by `Context::get_target` outlived a context created from a
@@ -265,6 +266,13 @@ Verified on 2026-07-02 and 2026-07-03:
   `89925 byte(s) leaked in 482 allocation(s)`.
   The later tag-nesting slice is pure MoonBit test coverage and raised the
   native suite to 206 tests; ASan was not rerun for that non-C change.
+  The later direct C image-oracle slice added a private C helper and raised the
+  native suite to 207 tests; ASan/LSan was rerun on 2026-07-03. It reported
+  only the same macOS LeakSanitizer class. A grep of
+  `/tmp/cairoon-image-oracle-asan.txt` found no `ERROR: AddressSanitizer`,
+  heap-use-after-free, stack-use-after, global-buffer-overflow, or
+  `cairoon_test_argb32` entries; summary:
+  `90021 byte(s) leaked in 479 allocation(s)`.
 
 The missing reliability pieces are substantial: automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering

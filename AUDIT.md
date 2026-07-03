@@ -83,7 +83,8 @@ Implemented in this workspace:
   exposure, pure value types, matrix behavior, image surface properties,
   buffer-backed image surface sharing and
   Cairo-reference lifetime behavior, PNG filename round trips and invalid path
-  validation, deterministic pixel rendering, context CTM, coordinate
+  validation, deterministic pixel rendering, direct C Cairo oracle image-paint
+  comparison, context CTM, coordinate
   conversion, drawing-state behavior, path current-point,
   relative/arc, copy/append, stringification, and iteration behavior,
   borrowed target/source/group-target lifetime behavior, group push/pop and
@@ -151,10 +152,10 @@ Implemented in this workspace:
 2026-07-02 and 2026-07-03:
 
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native -v`: 206 tests passed.
+- `moon -C cairoon test --target native -v`: 207 tests passed.
 - `run-asan.py --repo-root /Users/caimeo/code/pycairo/cairoon --pkg moon.pkg`:
-  most recently ran the 205-test native suite on 2026-07-03 after the
-  vector-output marker slice. An earlier retained-owner stress ASan run found a
+  most recently ran the 207-test native suite on 2026-07-03 after the direct C
+  image oracle slice. An earlier retained-owner stress ASan run found a
   heap-use-after-free in `cairoon_copy_image_surface_data` reached from
   `lifetime_stress_test.mbt` when a returned target surface outlived a context
   created from a mapped image. The fixed rerun, and the later TeeSurface rerun,
@@ -177,15 +178,16 @@ Implemented in this workspace:
   helper/finalizer stack, retained target/group-target helper stack,
   mapped-image lifetime helper stack, Context `set_source_surface` helper,
   Context hairline helper, TeeSurface helper stack, compile-time constant
-  helper stack, or vector-output file-scan helper stack appeared in the visible
-  leak roots of the latest rerun. A grep of
-  `/tmp/cairoon-vector-output-asan.txt` found no `ERROR: AddressSanitizer`,
-  heap-use-after-free, stack-use-after, or `cairoon_test_file` entries.
-  Summary: `89925 byte(s) leaked in 482 allocation(s)`. The helper still emits
+  helper stack, vector-output file-scan helper stack, or direct C image oracle
+  helper stack appeared in the visible leak roots of the latest rerun. A grep
+  of `/tmp/cairoon-image-oracle-asan.txt` found no
+  `ERROR: AddressSanitizer`, heap-use-after-free, stack-use-after, or
+  `cairoon_test_argb32` entries.
+  Summary: `90021 byte(s) leaked in 479 allocation(s)`. The helper still emits
   a `moon.mod.json` lookup warning because this package uses `moon.mod`, but it
   correctly patched and restored the DSL `moon.pkg` and MoonBit runtime object
   for this package.
-  The later tag-nesting slice is pure MoonBit test coverage and raised the
+  The preceding tag-nesting slice is pure MoonBit test coverage and raised the
   native suite to 206 tests; ASan was not rerun for that non-C change.
 
 ## Known Gaps

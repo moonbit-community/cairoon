@@ -94,12 +94,19 @@ extern "C" fn test_file_size_ffi(filename : Bytes) -> Int = "cairoon_test_file_s
 extern "C" fn test_file_contains_ffi(filename : Bytes, needle : Bytes) -> Bool = "cairoon_test_file_contains"
 
 ///|
+extern "C" fn test_argb32_blue_paint_oracle_ffi(
+  width : Int,
+  height : Int,
+) -> Bytes = "cairoon_test_argb32_blue_paint_oracle"
+
+///|
 fn init {
   ignore(compile_feature_flag_ffi)
   ignore(compile_int_constant_ffi)
   ignore(compile_string_constant_ffi)
   ignore(test_file_size_ffi)
   ignore(test_file_contains_ffi)
+  ignore(test_argb32_blue_paint_oracle_ffi)
 }
 
 ///|

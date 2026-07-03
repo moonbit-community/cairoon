@@ -80,6 +80,45 @@ int32_t cairoon_test_file_contains(
 }
 
 MOONBIT_FFI_EXPORT
+moonbit_bytes_t cairoon_test_argb32_blue_paint_oracle(
+  int32_t width,
+  int32_t height) {
+  if (width < 0 || height < 0) {
+    return moonbit_make_bytes(0, 0);
+  }
+
+  cairo_surface_t *surface =
+    cairo_image_surface_create(CAIRO_FORMAT_ARGB32, width, height);
+  if (cairo_surface_status(surface) != CAIRO_STATUS_SUCCESS) {
+    cairo_surface_destroy(surface);
+    return moonbit_make_bytes(0, 0);
+  }
+
+  cairo_t *cr = cairo_create(surface);
+  cairo_set_source_rgb(cr, 0.0, 0.0, 1.0);
+  cairo_paint(cr);
+  cairo_destroy(cr);
+  cairo_surface_flush(surface);
+
+  int32_t stride = cairo_image_surface_get_stride(surface);
+  if (height > 0 && stride > INT32_MAX / height) {
+    cairo_surface_destroy(surface);
+    return moonbit_make_bytes(0, 0);
+  }
+  int32_t len = stride * height;
+  unsigned char *data = cairo_image_surface_get_data(surface);
+  if (data == NULL || len < 0) {
+    cairo_surface_destroy(surface);
+    return moonbit_make_bytes(0, 0);
+  }
+
+  moonbit_bytes_t bytes = moonbit_make_bytes(len, 0);
+  memcpy(bytes, data, (size_t)len);
+  cairo_surface_destroy(surface);
+  return bytes;
+}
+
+MOONBIT_FFI_EXPORT
 int32_t cairoon_compile_feature_flag(int32_t feature) {
   switch (feature) {
     case 0:

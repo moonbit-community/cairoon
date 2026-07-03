@@ -20,7 +20,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 | Version helpers and module constants | Done | `cairo_version`, `cairo_version_string`, `CAIRO_VERSION*`, `HAS_*`, `MIME_TYPE_*`, tag constants, `PDF_OUTLINE_ROOT`, `FORMAT_INVALID`, and `COLOR_PALETTE_DEFAULT` |
 | Status and error mapping | Done | `Status`, `CairoError`, `run_cairo`, and exhaustive status-classification tests; MoonBit intentionally splits invalid-argument statuses into `CairoInvalidArgument` |
 | Matrix | Done | Pure value equivalent with field access, transform/translate/scale/rotate/multiply/invert/component tests |
-| Image surface basics | Partial | Create, similar-image create, map/unmap to image, buffer-backed create-for-data, PNG path load/save, MIME data, status, finish, flush, width/height/stride/format, copied data |
+| Image surface basics | Partial | Create, similar-image create, map/unmap to image, buffer-backed create-for-data, PNG path load/save, MIME data, status, finish, flush, width/height/stride/format, copied data, and one direct C Cairo oracle pixel comparison |
 | Device basics | Done | External object ownership, status/type/equal/hash, finish/flush/acquire/release, scoped acquire helper, `Surface::get_device`, and script-backed tests |
 | Recording surface | Done | Constructor with optional extents, extents/ink-extents queries, subtype-mismatch checks, and replay through surface patterns |
 | PDF surface | Partial | Filename/no-output constructor, supported versions, version strings, version restriction, page size, metadata, custom metadata, page labels, thumbnails, single-flag outline compatibility, typed outline flag sets, and stable structural output markers; stream callbacks and full normalized vector-output comparison remain |
@@ -32,7 +32,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 | Font options | Done | External object, copy/merge/equal/hash, all portable state fields, and Surface/Context accessors |
 | Scaled fonts | Partial | External object, constructor, matrices/options/font-face getters, text extents, and Context get/set |
 | Docs | Partial | README smoke example and AGENTS spec exist; no full reference docs yet |
-| Tests | Partial | Native and ASan test runs cover the current migrated slices only; vector backends now have stable structural output marker checks but not full normalized/differential comparison |
+| Tests | Partial | Native and ASan test runs cover the current migrated slices only; vector backends have stable structural output marker checks, and image painting has an initial direct C Cairo oracle comparison, but full normalized/differential comparison remains |
 
 ## Top-Level Functions And Module Constants
 
