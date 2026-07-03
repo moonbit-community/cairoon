@@ -518,6 +518,31 @@ test "ps output contains multi-page markers" {
 }
 
 ///|
+test "ps output preserves dsc comments across multiple pages" {
+  let path = "/tmp/cairoon_vector_ps_dsc_multipage.ps"
+  let surface = Surface::ps(12.0, 12.0, path=Some(path))
+  surface.ps_restrict_to_level(PsLevel2)
+  surface.ps_dsc_begin_setup()
+  surface.ps_dsc_comment("%%Title: Cairoon PS Combined")
+  surface.ps_dsc_comment("%%IncludeFeature: *MediaColor White")
+  surface.ps_dsc_begin_page_setup()
+  surface.ps_dsc_comment("%%IncludeFeature: *PageSize A4")
+  let ctx = Context::new(surface)
+  paint_page(ctx, 0.0, 0.0, 1.0)
+  ctx.show_page()
+  surface.ps_dsc_begin_page_setup()
+  surface.ps_dsc_comment("%%IncludeFeature: *MediaType Plain")
+  paint_page(ctx, 1.0, 0.0, 0.0)
+  ctx.show_page()
+  surface.finish()
+  expect_vector_output(path, [
+    "%!PS-Adobe-3.0", "%%LanguageLevel: 2", "%%Title: Cairoon PS Combined", "%%IncludeFeature: *MediaColor White",
+    "%%IncludeFeature: *PageSize A4", "%%IncludeFeature: *MediaType Plain", "%%Pages: 2",
+    "%%Page: 1 1", "%%Page: 2 2", "0 0 1 rg", "1 0 0 rg", "%%EOF",
+  ])
+}
+
+///|
 test "ps link tags are inert for postscript output" {
   let plain_path = "/tmp/cairoon_vector_ps_plain_tag_scene.ps"
   let tagged_path = "/tmp/cairoon_vector_ps_tag_scene.ps"
