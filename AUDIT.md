@@ -97,8 +97,10 @@ Implemented in this workspace:
   exposure, pure value types, matrix behavior, image surface properties,
   buffer-backed image surface sharing and
   Cairo-reference lifetime behavior, PNG filename round trips and invalid path
-  validation, deterministic pixel rendering, direct C Cairo oracle image-paint
-  comparison, direct C Cairo oracle comparisons for deterministic simple
+  validation, deterministic pixel rendering, direct C Cairo oracle comparisons
+  for eight ARGB32 scenes covering paint, stroke, fill/stroke rectangles,
+  Bezier paths, transforms, RGBA compositing, and linear/radial gradients,
+  direct C Cairo oracle comparisons for deterministic simple
   PDF/PS/SVG paint fixtures, mutable image-data read/write/copy, buffer-backed storage sharing,
   image-data surface-retention, mapped-image data upload/unmap invalidation, and
   invalid-surface/index error mapping, context CTM, coordinate conversion,
@@ -161,11 +163,12 @@ Implemented in this workspace:
   region, and error behavior.
 - Gate 3 differential rendering: partial. Deterministic raw-pixel rendering
   tests exist for direct colors and explicit patterns, a direct C image oracle
-  covers one ARGB32 paint case, and vector outputs have stable structural
-  marker checks plus direct C oracle comparisons for deterministic simple
-  PDF/PS/SVG paint fixtures. PDF link-tag annotations have marker checks, and
-  PS/SVG Link tags have inert-output checks matching Cairo 1.18.4 backend
-  behavior.
+  covers eight deterministic ARGB32 scenes including stroke, rectangle,
+  Bezier, transform, RGBA, and linear/radial gradient cases, and vector outputs
+  have stable structural marker checks plus direct C oracle comparisons for
+  deterministic simple PDF/PS/SVG paint fixtures. PDF link-tag annotations have
+  marker checks, and PS/SVG Link tags have inert-output checks matching Cairo
+  1.18.4 backend behavior.
   Full cross-run comparison against pycairo output is not yet automated.
 - Gate 4 memory and lifetime: partial. Stub ownership follows the documented
   external-object pattern, and retained-owner stress now covers subsurfaces,
@@ -269,6 +272,17 @@ Implemented in this workspace:
   The later PS/SVG Link tag inertness slice added two pure MoonBit vector-output
   tests, raising the native suite to 233 tests; ASan/LSan was not rerun for that
   non-C change.
+  The later image oracle slice added C helper scenes and was checked with the
+  ASan runner at `/tmp/cairoon-image-oracle-asan.txt`: the full `moon test`
+  ASan/LSan run still failed during the known macOS LeakSanitizer class before
+  Moon could launch the white-box executable, with the same
+  `55365 byte(s) leaked in 405 allocation(s)` summary and no
+  AddressSanitizer invalid-access report. The ASan-instrumented white-box
+  executable was then run directly with leak detection disabled and exited 0;
+  `/tmp/cairoon-image-oracle-whitebox-asan.txt` shows the image oracle test
+  executed, and greps found no `ERROR: AddressSanitizer`, heap-use-after-free,
+  stack-use-after, global-buffer-overflow, heap-buffer-overflow, or double-free
+  report.
 
 ## Known Gaps
 

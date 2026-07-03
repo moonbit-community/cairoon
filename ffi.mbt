@@ -118,6 +118,13 @@ extern "C" fn test_argb32_blue_paint_oracle_ffi(
 ) -> Bytes = "cairoon_test_argb32_blue_paint_oracle"
 
 ///|
+extern "C" fn test_argb32_scene_oracle_ffi(
+  scene : Int,
+  width : Int,
+  height : Int,
+) -> Bytes = "cairoon_test_argb32_scene_oracle"
+
+///|
 fn init {
   ignore(compile_feature_flag_ffi)
   ignore(compile_int_constant_ffi)
@@ -127,6 +134,7 @@ fn init {
   ignore(test_render_vector_oracle_ffi)
   ignore(test_vector_files_equal_ffi)
   ignore(test_argb32_blue_paint_oracle_ffi)
+  ignore(test_argb32_scene_oracle_ffi)
 }
 
 ///|

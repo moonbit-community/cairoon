@@ -164,7 +164,7 @@ constants, group APIs, tag APIs, toy
 text APIs, glyph array APIs, text-to-glyphs/show-text-glyphs APIs,
 hit-testing/extents APIs, typed Path segment iteration and stringification,
 PNG filename load/save plus stream read/write, direct C Cairo oracle
-image-paint comparison, and buffer-backed creation plus mutable `ImageData`
+comparisons for eight deterministic ARGB32 image scenes, and buffer-backed creation plus mutable `ImageData`
 views for image and
 mapped-image surfaces, portable
 Surface base helpers such as similar-surface creation, rectangular child
@@ -375,6 +375,16 @@ Verified on 2026-07-02 and 2026-07-03:
   The later vector tag inertness slice added two pure MoonBit tests for PS/SVG
   Link tag no-op behavior, raising the native suite to 233 tests. ASan/LSan was
   not rerun for that slice because it did not change C glue or ownership code.
+  The later image oracle slice added private C helpers for eight deterministic
+  ARGB32 scenes covering paint, stroke, fill/stroke rectangles, Bezier paths,
+  transforms, RGBA compositing, and linear/radial gradients, while keeping the
+  native suite at 233 tests because it broadens one existing white-box oracle
+  test. ASan/LSan was rerun on 2026-07-03; the full runner still failed during
+  the known macOS LeakSanitizer class before the white-box executable launched,
+  with summary `55365 byte(s) leaked in 405 allocation(s)`. The instrumented
+  white-box executable was then run directly with leak detection disabled and
+  exited 0, exercising the image oracle test without any AddressSanitizer
+  invalid-access report.
 
 The missing reliability pieces are substantial: broader automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering

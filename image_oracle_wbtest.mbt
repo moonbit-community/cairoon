@@ -1,11 +1,78 @@
 ///|
-test "image paint bytes match direct cairo C oracle" {
-  let surface = Surface::image(Argb32, 2, 2)
+fn draw_image_oracle_scene(ctx : Context, scene : Int) -> Unit raise CairoError {
+  match scene {
+    0 => {
+      ctx.set_source_rgb(0.0, 0.0, 1.0)
+      ctx.paint()
+    }
+    1 => {
+      ctx.set_source_rgb(1.0, 0.0, 0.0)
+      ctx.set_line_width(2.0)
+      ctx.move_to(2.5, 2.5)
+      ctx.line_to(13.5, 13.5)
+      ctx.stroke()
+    }
+    2 => {
+      ctx.rectangle(2.0, 2.0, 10.0, 10.0)
+      ctx.set_source_rgba(0.0, 1.0, 0.0, 0.75)
+      ctx.fill_preserve()
+      ctx.set_source_rgb(1.0, 0.0, 0.0)
+      ctx.set_line_width(2.0)
+      ctx.stroke()
+    }
+    3 => {
+      ctx.set_source_rgb(0.0, 0.0, 0.0)
+      ctx.set_line_width(2.0)
+      ctx.move_to(2.0, 14.0)
+      ctx.curve_to(5.0, 1.0, 11.0, 15.0, 14.0, 2.0)
+      ctx.stroke()
+    }
+    4 => {
+      ctx.translate(8.0, 8.0)
+      ctx.rotate(0.25)
+      ctx.scale(1.2, 0.8)
+      ctx.rectangle(-4.0, -3.0, 8.0, 6.0)
+      ctx.set_source_rgb(1.0, 0.5, 0.0)
+      ctx.fill()
+    }
+    5 => {
+      ctx.set_source_rgba(1.0, 0.0, 0.0, 0.5)
+      ctx.paint()
+    }
+    6 => {
+      let pattern = Pattern::linear(0.0, 0.0, 16.0, 0.0)
+      pattern.add_color_stop_rgba(0.0, 1.0, 0.0, 0.0, 1.0)
+      pattern.add_color_stop_rgba(1.0, 0.0, 0.0, 1.0, 1.0)
+      ctx.rectangle(0.0, 0.0, 16.0, 16.0)
+      ctx.set_source(pattern)
+      ctx.fill()
+    }
+    7 => {
+      let pattern = Pattern::radial(8.0, 8.0, 1.0, 8.0, 8.0, 8.0)
+      pattern.add_color_stop_rgba(0.0, 1.0, 1.0, 1.0, 1.0)
+      pattern.add_color_stop_rgba(1.0, 0.0, 0.0, 0.0, 1.0)
+      ctx.rectangle(0.0, 0.0, 16.0, 16.0)
+      ctx.set_source(pattern)
+      ctx.fill()
+    }
+    _ => raise CairoInvalidArgument(InvalidStatus, InvalidStatus.message())
+  }
+}
+
+///|
+fn render_image_oracle_scene(scene : Int) -> Bytes raise CairoError {
+  let surface = Surface::image(Argb32, 16, 16)
   let ctx = Context::new(surface)
-  ctx.set_source_rgb(0.0, 0.0, 1.0)
-  ctx.paint()
-  let actual = surface.copy_data()
-  let expected = test_argb32_blue_paint_oracle_ffi(2, 2)
-  inspect(expected.length(), content="16")
-  inspect(actual == expected, content="true")
+  draw_image_oracle_scene(ctx, scene)
+  surface.copy_data()
+}
+
+///|
+test "image rendering scenes match direct cairo C oracle" {
+  for scene in 0..<8 {
+    let actual = render_image_oracle_scene(scene)
+    let expected = test_argb32_scene_oracle_ffi(scene, 16, 16)
+    inspect(expected.length(), content="1024")
+    inspect(actual == expected, content="true")
+  }
 }
