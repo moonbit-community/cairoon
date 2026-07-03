@@ -222,15 +222,17 @@ fill/stroke rectangles, Bezier paths, transforms, linear/radial gradients,
 toy-font text paths, toy-font `show_text`, and a two-page paint scene, PDF metadata/custom-metadata/page-label/outline output
 markers, PDF/PS/SVG multi-page output markers, PDF JPEG MIME payload embedding,
 PDF link-tag annotation markers, PS/SVG Link tag inert-output checks, mutable
-image/mapped-image data view tests, and initial tests. Path has executable
-reference examples for typed segment iteration, pycairo-style string
-formatting, flattened append behavior, copied-path ownership, and checked
-invalid-matrix errors. Region now covers empty, single-rectangle, and
-multi-rectangle construction plus predicates, region boolean operations, and
-rectangle boolean operations including XOR split semantics; `region.mbt.md`
-adds executable reference examples for the same family. Matrix has executable
-reference examples for component access, pure-value transforms, multiplication,
-inversion, and checked errors.
+image/mapped-image data view tests, and initial tests. Pattern has executable
+reference examples for solid/shared state, surface patterns, gradients, mesh
+patches, raster-source callbacks, and checked subtype/index/lifecycle errors.
+Path has executable reference examples for typed segment iteration,
+pycairo-style string formatting, flattened append behavior, copied-path
+ownership, and checked invalid-matrix errors. Region now covers empty,
+single-rectangle, and multi-rectangle construction plus predicates, region
+boolean operations, and rectangle boolean operations including XOR split
+semantics; `region.mbt.md` adds executable reference examples for the same
+family. Matrix has executable reference examples for component access,
+pure-value transforms, multiplication, inversion, and checked errors.
 
 Verified on 2026-07-02 and 2026-07-03:
 
@@ -272,10 +274,12 @@ Verified on 2026-07-02 and 2026-07-03:
   Matrix reference examples passed.
 - `moon -C cairoon test path.mbt.md --target native -v`: 4 executable Path
   reference examples passed.
-- `moon -C cairoon test --target native`: 264 tests passed.
+- `moon -C cairoon test pattern.mbt.md --target native -v`: 6 executable
+  Pattern reference examples passed.
+- `moon -C cairoon test --target native`: 270 tests passed.
 - `moon -C cairoon info --target native`: passed; the latest
-  Path reference-documentation slice did not change the public interface.
-- Pure MoonBit Region rectangle-XOR plus executable Matrix/Path/Region
+  Pattern reference-documentation slice did not change the public interface.
+- Pure MoonBit Region rectangle-XOR plus executable Matrix/Path/Pattern/Region
   documentation coverage were added without rerunning ASan
   because no C glue or finalizer ownership code changed in the slice.
 - Documentation-only product-decision audit for pycairo `CAPI`, legacy enum
@@ -642,6 +646,11 @@ Verified on 2026-07-02 and 2026-07-03:
   append behavior, copied-path ownership, and checked invalid-matrix errors,
   raising the native suite to 264 tests. ASan/LSan was not rerun for that slice
   because it did not change C glue or ownership code.
+  The later Pattern documentation slice added `pattern.mbt.md` with six
+  executable examples covering solid/shared state, surface patterns, gradients,
+  mesh patches, raster-source callbacks, and checked subtype/index/lifecycle
+  errors, raising the native suite to 270 tests. ASan/LSan was not rerun for
+  that slice because it did not change C glue or ownership code.
 
 The missing reliability pieces are substantial: broader automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering

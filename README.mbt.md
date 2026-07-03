@@ -7,7 +7,8 @@ support FFI. See `AGENTS.md` for the migration and audit rules.
 
 Additional executable reference notes are split by API family. Start with
 `matrix.mbt.md` for pure-value affine transforms, `path.mbt.md` for typed path
-segments and path ownership, and `region.mbt.md` for Region construction,
+segments and path ownership, `pattern.mbt.md` for solid/surface/gradient/mesh
+and raster-source patterns, and `region.mbt.md` for Region construction,
 rectangle queries, boolean operations, and checked error mapping.
 
 ```mbt check

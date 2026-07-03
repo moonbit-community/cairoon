@@ -174,8 +174,9 @@ Implemented in this workspace:
   allocation stress for set/get/manual acquire/release/replace/clear paths.
 - `API_INVENTORY.md` now tracks the full pycairo API surface against cairoon
   status.
-- `matrix.mbt.md`, `path.mbt.md`, and `region.mbt.md` document Matrix, Path,
-  and Region behavior with executable examples.
+- `matrix.mbt.md`, `path.mbt.md`, `pattern.mbt.md`, and `region.mbt.md`
+  document Matrix, Path, Pattern, and Region behavior with executable
+  examples.
 - `TESTING.md` defines the migration reliability gates and records why the
   pycairo test suite is useful but insufficient by itself.
 
@@ -272,10 +273,12 @@ Implemented in this workspace:
   Matrix reference examples passed.
 - `moon -C cairoon test path.mbt.md --target native -v`: 4 executable Path
   reference examples passed.
-- `moon -C cairoon test --target native`: 264 tests passed.
+- `moon -C cairoon test pattern.mbt.md --target native -v`: 6 executable
+  Pattern reference examples passed.
+- `moon -C cairoon test --target native`: 270 tests passed.
 - `moon -C cairoon info --target native`: passed; the latest
-  Path reference-documentation slice did not change the public interface.
-- Pure MoonBit Region rectangle-XOR plus executable Matrix/Path/Region
+  Pattern reference-documentation slice did not change the public interface.
+- Pure MoonBit Region rectangle-XOR plus executable Matrix/Path/Pattern/Region
   documentation coverage were added without rerunning ASan
   because no C glue or finalizer ownership code changed in the slice.
 - Documentation-only product-decision audit for pycairo `CAPI`, legacy enum
@@ -548,6 +551,11 @@ Implemented in this workspace:
   append behavior, copied-path ownership, and checked invalid-matrix errors,
   raising the native suite to 264 tests; ASan was not rerun because no C glue
   changed.
+  The later Pattern documentation slice added `pattern.mbt.md` with six
+  executable examples covering solid/shared state, surface patterns, gradients,
+  mesh patches, raster-source callbacks, and checked subtype/index/lifecycle
+  errors, raising the native suite to 270 tests; ASan was not rerun because no
+  C glue changed.
 
 ## Known Gaps
 
