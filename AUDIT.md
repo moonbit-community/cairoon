@@ -174,6 +174,8 @@ Implemented in this workspace:
   allocation stress for set/get/manual acquire/release/replace/clear paths.
 - `API_INVENTORY.md` now tracks the full pycairo API surface against cairoon
   status.
+- `region.mbt.md` documents Region construction, queries, boolean operations,
+  and checked error mapping with executable examples.
 - `TESTING.md` defines the migration reliability gates and records why the
   pycairo test suite is useful but insufficient by itself.
 
@@ -264,10 +266,13 @@ Implemented in this workspace:
   composition coverage.
 - `moon -C cairoon test region_test.mbt --target native -v`: 8 black-box
   tests passed after adding `Region::xor_rectangle` split-semantics coverage.
-- `moon -C cairoon test --target native`: 253 tests passed.
+- `moon -C cairoon test region.mbt.md --target native -v`: 3 executable
+  Region reference examples passed.
+- `moon -C cairoon test --target native`: 256 tests passed.
 - `moon -C cairoon info --target native`: passed; the latest
-  `Region::xor_rectangle` black-box test did not change the public interface.
-- Pure MoonBit Region rectangle-XOR coverage was added without rerunning ASan
+  Region reference-documentation slice did not change the public interface.
+- Pure MoonBit Region rectangle-XOR and executable Region documentation
+  coverage were added without rerunning ASan
   because no C glue or finalizer ownership code changed in the slice.
 - Documentation-only product-decision audit for pycairo `CAPI`, legacy enum
   aliases, and non-implemented FreeType/user-font classes: `moon -C cairoon
@@ -528,6 +533,9 @@ Implemented in this workspace:
   coverage for sheared font matrices, sheared CTMs, CTM translation suppression,
   and scale-matrix composition, raising the native suite to 252 tests; ASan was
   not rerun because no C glue changed.
+  The later Region documentation slice added `region.mbt.md` with three
+  executable examples, raising the native suite to 256 tests; ASan was not
+  rerun because no C glue changed.
 
 ## Known Gaps
 

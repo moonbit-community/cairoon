@@ -5,6 +5,10 @@ MoonBit native bindings for the Cairo graphics library.
 This package is intentionally native-only while MoonBit's LLVM backend does not
 support FFI. See `AGENTS.md` for the migration and audit rules.
 
+Additional executable reference notes are split by API family. Start with
+`region.mbt.md` for Region construction, rectangle queries, boolean operations,
+and checked error mapping.
+
 ```mbt check
 ///|
 test {

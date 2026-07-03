@@ -225,7 +225,8 @@ PDF link-tag annotation markers, PS/SVG Link tag inert-output checks, mutable
 image/mapped-image data view tests, and initial tests. Region now covers empty,
 single-rectangle, and multi-rectangle construction plus predicates, region
 boolean operations, and rectangle boolean operations including XOR split
-semantics.
+semantics; `region.mbt.md` adds executable reference examples for the same
+family.
 
 Verified on 2026-07-02 and 2026-07-03:
 
@@ -261,10 +262,13 @@ Verified on 2026-07-02 and 2026-07-03:
   composition coverage.
 - `moon -C cairoon test region_test.mbt --target native -v`: 8 black-box
   tests passed after adding `Region::xor_rectangle` split-semantics coverage.
-- `moon -C cairoon test --target native`: 253 tests passed.
+- `moon -C cairoon test region.mbt.md --target native -v`: 3 executable
+  Region reference examples passed.
+- `moon -C cairoon test --target native`: 256 tests passed.
 - `moon -C cairoon info --target native`: passed; the latest
-  `Region::xor_rectangle` black-box test did not change the public interface.
-- Pure MoonBit Region rectangle-XOR coverage was added without rerunning ASan
+  Region reference-documentation slice did not change the public interface.
+- Pure MoonBit Region rectangle-XOR and executable Region documentation
+  coverage were added without rerunning ASan
   because no C glue or finalizer ownership code changed in the slice.
 - Documentation-only product-decision audit for pycairo `CAPI`, legacy enum
   aliases, and non-implemented FreeType/user-font classes: `moon -C cairoon
@@ -619,6 +623,9 @@ Verified on 2026-07-02 and 2026-07-03:
   and scale-matrix composition, raising the native suite to 252 tests.
   ASan/LSan was not rerun for that slice because it did not change C glue or
   ownership code.
+  The later Region documentation slice added `region.mbt.md` with three
+  executable examples, raising the native suite to 256 tests. ASan/LSan was not
+  rerun for that slice because it did not change C glue or ownership code.
 
 The missing reliability pieces are substantial: broader automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering
