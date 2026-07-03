@@ -205,9 +205,9 @@ script mode/comment helpers, recording replay, `Surface::get_device`,
 `Surface::script_for_target`, TeeSurface mirrored drawing and target indexing,
 exhaustive `Status`/`CairoError` classification, retained-owner lifetime stress
 tests, stable structural vector-output markers plus direct C oracle comparisons
-for nine deterministic PDF/PS/SVG vector scenes covering paint, stroke,
+for ten deterministic PDF/PS/SVG vector scenes covering paint, stroke,
 fill/stroke rectangles, Bezier paths, transforms, linear/radial gradients,
-toy-font text paths, and toy-font `show_text`, PDF metadata/custom-metadata/page-label/outline output
+toy-font text paths, toy-font `show_text`, and a two-page paint scene, PDF metadata/custom-metadata/page-label/outline output
 markers, PDF/PS/SVG multi-page output markers, PDF JPEG MIME payload embedding,
 PDF link-tag annotation markers, PS/SVG Link tag inert-output checks, mutable
 image/mapped-image data view tests, and initial tests. Region now covers empty, single-rectangle, and
@@ -218,30 +218,32 @@ Verified on 2026-07-02 and 2026-07-03:
 
 - `moon -C cairoon check --target native`: passed.
 - `moon -C cairoon test vector_output_wbtest.mbt --target native -v`: 13
-  white-box tests passed after adding SVG multi-page marker checks alongside
-  the direct C vector oracle scenes, metadata, tag-output, MIME-output, and
-  page structure checks.
+  white-box tests passed after adding a two-page direct C vector oracle scene
+  alongside metadata, tag-output, MIME-output, and page structure checks.
 - `moon -C cairoon test surface_context_test.mbt context_lifetime_test.mbt
   pattern_test.mbt --target native -v`: 32 tests passed after adding
   `Surface`/`Context`/`Pattern` pointer equality/hash.
 - `moon -C cairoon test --target native -v`: 243 tests passed.
-- `moon -C cairoon info --target native`: passed; the SVG multi-page marker
-  slice did not change the public interface.
-- ASan/LSan was not rerun for the SVG multi-page marker slice because it only
-  changes MoonBit tests and documentation, not C stubs or finalizers.
+- `moon -C cairoon info --target native`: passed; the two-page vector oracle
+  helper slice did not change the public interface.
 - Documentation-only product-decision audit for pycairo `CAPI`, legacy enum
   aliases, and non-implemented FreeType/user-font classes: `moon -C cairoon
   check --target native`, `moon -C cairoon test --target native -v`, and
   `moon -C cairoon info --target native` passed on 2026-07-03.
-- ASan/LSan via `run-asan.py`: rerun for the vector `show_text` C oracle helper
+- ASan/LSan via `run-asan.py`: rerun for the two-page vector oracle helper
   slice. The full runner still failed during the known macOS
   FontRegistry/CoreText/ColorSync LeakSanitizer class before the white-box
-  executable launched:
+  executable launched. A grep of `/tmp/cairoon-vector-multipage-asan.txt` found
+  no `ERROR: AddressSanitizer`, heap-use-after-free, heap-buffer-overflow,
+  global-buffer-overflow, double-free,
+  `cairoon_test_render_vector_scene_oracle`,
+  `cairoon_test_draw_vector_scene`, `cairoon_test_render_vector_surface`, or
+  `cairoon_test_vector` entries. Summary:
   `56037 byte(s) leaked in 415 allocation(s)`.
   The ASan-instrumented white-box executable was then run directly with leak
   detection disabled using
   `ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0`; it exited 0, and
-  `/tmp/cairoon-vector-show-text-whitebox-asan.txt` shows the vector output
+  `/tmp/cairoon-vector-multipage-whitebox-asan.txt` shows the vector output
   oracle test executed without any AddressSanitizer invalid-access report.
 - ASan/LSan via `run-asan.py`: ran the 237-test native suite on 2026-07-03
   after the `Surface`/`Context`/`Pattern` pointer equality/hash slice. No
@@ -456,15 +458,16 @@ Verified on 2026-07-02 and 2026-07-03:
   output scene oracle test executed without any AddressSanitizer invalid-access
   report.
   The later toy-font text-path and `show_text` oracle slices expanded those
-  fixtures to nine scenes without changing the number of tests; their latest
-  sanitizer validation is recorded in the current verified block above.
+  fixtures to nine scenes, and the later two-page oracle slice expanded them to
+  ten scenes without changing the number of tests. The latest sanitizer
+  validation is recorded in the current verified block above.
 
 The missing reliability pieces are substantial: broader automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering
 LSan failure, finalizer stress tests, CI wiring, vector-output normalization for
-multi-page, tag, and metadata cases beyond the current PDF/PS/SVG multi-page
-marker checks and the current single-page toy-font `show_text` oracle scene, broader
-tag-output assertions, and
+broader multi-page/tag/metadata combinations beyond the current two-page direct
+C oracle scene and the current single-page toy-font `show_text` oracle scene,
+broader tag-output assertions, and
 the remaining API families from `API_INVENTORY.md`.
 
 ## Porting pycairo Tests

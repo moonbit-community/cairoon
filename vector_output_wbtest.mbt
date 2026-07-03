@@ -214,6 +214,12 @@ fn draw_vector_oracle_scene(
       ctx.move_to(1.0, 6.5)
       ctx.show_text("Hi")
     }
+    9 => {
+      paint_page(ctx, 0.0, 0.0, 1.0)
+      ctx.show_page()
+      paint_page(ctx, 1.0, 0.0, 0.0)
+      ctx.show_page()
+    }
     _ => raise CairoInvalidArgument(InvalidStatus, InvalidStatus.message())
   }
 }
@@ -454,7 +460,7 @@ test "svg output contains multi-page markers" {
 test "vector output scenes match direct cairo C oracle" {
   for kind in 0..<3 {
     let ext = vector_output_extension(kind)
-    for scene in 0..<9 {
+    for scene in 0..<10 {
       let cairoon_path = "/tmp/cairoon_vector_scene_\{kind}_\{scene}.\{ext}"
       let oracle_path = "/tmp/cairoon_vector_scene_\{kind}_\{scene}_oracle.\{ext}"
       render_vector_oracle_scene(kind, scene, cairoon_path)

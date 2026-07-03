@@ -29,7 +29,8 @@ enum {
   CAIROON_TEST_VECTOR_LINEAR_GRADIENT = 5,
   CAIROON_TEST_VECTOR_RADIAL_GRADIENT = 6,
   CAIROON_TEST_VECTOR_TEXT_PATH = 7,
-  CAIROON_TEST_VECTOR_SHOW_TEXT = 8
+  CAIROON_TEST_VECTOR_SHOW_TEXT = 8,
+  CAIROON_TEST_VECTOR_MULTI_PAGE = 9
 };
 
 enum {
@@ -282,6 +283,17 @@ static cairo_status_t cairoon_test_draw_vector_scene(
       cairo_set_source_rgb(cr, 0.0, 0.0, 0.0);
       cairo_move_to(cr, 1.0, 6.5);
       cairo_show_text(cr, "Hi");
+      break;
+    case CAIROON_TEST_VECTOR_MULTI_PAGE:
+      cairo_set_source_rgb(cr, 0.0, 0.0, 1.0);
+      cairo_paint(cr);
+      cairo_show_page(cr);
+      if (cairo_status(cr) != CAIRO_STATUS_SUCCESS) {
+        return cairo_status(cr);
+      }
+      cairo_set_source_rgb(cr, 1.0, 0.0, 0.0);
+      cairo_paint(cr);
+      cairo_show_page(cr);
       break;
     default:
       return CAIRO_STATUS_INVALID_STATUS;
