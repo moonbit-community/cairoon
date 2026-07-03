@@ -22,6 +22,16 @@ pub fn Context::status(self : Context) -> Status {
 }
 
 ///|
+pub fn Context::equal(self : Context, other : Context) -> Bool {
+  context_equal_ffi(self, other)
+}
+
+///|
+pub fn Context::hash(self : Context) -> UInt64 {
+  context_hash_ffi(self)
+}
+
+///|
 pub fn Context::save(self : Context) -> Unit raise CairoError {
   check_status(context_save_ffi(self))
 }

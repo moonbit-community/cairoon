@@ -32,6 +32,17 @@ test "context get_target returns a referenced surface wrapper" {
 }
 
 ///|
+test "context equality and hash use cairo pointer identity" {
+  let surface = Surface::image(Argb32, 1, 1)
+  let ctx = Context::new(surface)
+  let same = ctx
+  let other = Context::new(surface)
+  inspect(ctx.equal(same), content="true")
+  inspect(ctx.hash() == same.hash(), content="true")
+  inspect(ctx.equal(other), content="false")
+}
+
+///|
 test "context get_source returns an independent pattern wrapper" {
   let surface = Surface::image(Argb32, 1, 1)
   let ctx = Context::new(surface)

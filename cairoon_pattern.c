@@ -338,6 +338,23 @@ cairo_status_t cairoon_pattern_status(CairoonPattern *pattern) {
 }
 
 MOONBIT_FFI_EXPORT
+int32_t cairoon_pattern_equal(CairoonPattern *pattern, CairoonPattern *other) {
+  if (pattern == NULL || other == NULL || pattern->ptr == NULL ||
+      other->ptr == NULL) {
+    return 0;
+  }
+  return pattern->ptr == other->ptr ? 1 : 0;
+}
+
+MOONBIT_FFI_EXPORT
+uint64_t cairoon_pattern_hash(CairoonPattern *pattern) {
+  if (pattern == NULL || pattern->ptr == NULL) {
+    return 0;
+  }
+  return (uint64_t)(uintptr_t)pattern->ptr;
+}
+
+MOONBIT_FFI_EXPORT
 CairoonSurface *cairoon_pattern_get_surface(
   CairoonPattern *pattern,
   cairo_status_t *status_out) {

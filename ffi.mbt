@@ -1006,6 +1006,14 @@ extern "C" fn format_stride_for_width_ffi(format : Format, width : Int) -> Int =
 extern "C" fn surface_status_ffi(surface : Surface) -> Status = "cairoon_surface_status"
 
 ///|
+#borrow(surface, other)
+extern "C" fn surface_equal_ffi(surface : Surface, other : Surface) -> Bool = "cairoon_surface_equal"
+
+///|
+#borrow(surface)
+extern "C" fn surface_hash_ffi(surface : Surface) -> UInt64 = "cairoon_surface_hash"
+
+///|
 #borrow(surface)
 extern "C" fn mapped_image_surface_status_ffi(
   surface : MappedImageSurface,
@@ -1271,6 +1279,14 @@ extern "C" fn context_create_for_mapped_image_ffi(
 ///|
 #borrow(ctx)
 extern "C" fn context_status_ffi(ctx : Context) -> Status = "cairoon_context_status"
+
+///|
+#borrow(ctx, other)
+extern "C" fn context_equal_ffi(ctx : Context, other : Context) -> Bool = "cairoon_context_equal"
+
+///|
+#borrow(ctx)
+extern "C" fn context_hash_ffi(ctx : Context) -> UInt64 = "cairoon_context_hash"
 
 ///|
 #borrow(ctx)
@@ -2063,6 +2079,14 @@ extern "C" fn pattern_create_for_surface_ffi(surface : Surface) -> Pattern = "ca
 ///|
 #borrow(pattern)
 extern "C" fn pattern_status_ffi(pattern : Pattern) -> Status = "cairoon_pattern_status"
+
+///|
+#borrow(pattern, other)
+extern "C" fn pattern_equal_ffi(pattern : Pattern, other : Pattern) -> Bool = "cairoon_pattern_equal"
+
+///|
+#borrow(pattern)
+extern "C" fn pattern_hash_ffi(pattern : Pattern) -> UInt64 = "cairoon_pattern_hash"
 
 ///|
 #borrow(pattern, status)

@@ -17,6 +17,19 @@ test "image surface properties" {
 }
 
 ///|
+test "surface equality and hash use cairo pointer identity" {
+  let surface = Surface::image(Argb32, 1, 1)
+  let ctx = Context::new(surface)
+  let target = ctx.get_target()
+  inspect(surface.equal(target), content="true")
+  inspect(target.equal(surface), content="true")
+  inspect(surface.hash() == target.hash(), content="true")
+
+  let other = Surface::image(Argb32, 1, 1)
+  inspect(surface.equal(other), content="false")
+}
+
+///|
 test "surface similar constructors and state queries" {
   let source = Surface::image(Argb32, 2, 2)
   let similar = source.create_similar(ContentColor, 3, 4)

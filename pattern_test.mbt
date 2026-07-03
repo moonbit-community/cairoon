@@ -13,6 +13,20 @@ test "solid pattern exposes rgba" {
 }
 
 ///|
+test "pattern equality and hash use cairo pointer identity" {
+  let surface = Surface::image(Argb32, 1, 1)
+  let ctx = Context::new(surface)
+  let pattern = ctx.get_source()
+  let same = ctx.get_source()
+  inspect(pattern.equal(same), content="true")
+  inspect(pattern.hash() == same.hash(), content="true")
+
+  let other = Pattern::solid_rgb(0.0, 0.0, 0.0)
+  inspect(pattern.equal(other), content="false")
+  inspect(other.hash() == 0UL, content="false")
+}
+
+///|
 test "pattern extend filter and matrix mirror cairo state" {
   let pattern = Pattern::solid_rgb(1.0, 0.0, 0.0)
   debug_inspect(pattern.get_extend(), content="Pad")

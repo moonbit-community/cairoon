@@ -306,6 +306,23 @@ cairo_status_t cairoon_surface_status(CairoonSurface *surface) {
 }
 
 MOONBIT_FFI_EXPORT
+int32_t cairoon_surface_equal(CairoonSurface *surface, CairoonSurface *other) {
+  if (surface == NULL || other == NULL || surface->ptr == NULL ||
+      other->ptr == NULL) {
+    return 0;
+  }
+  return surface->ptr == other->ptr ? 1 : 0;
+}
+
+MOONBIT_FFI_EXPORT
+uint64_t cairoon_surface_hash(CairoonSurface *surface) {
+  if (surface == NULL || surface->ptr == NULL) {
+    return 0;
+  }
+  return (uint64_t)(uintptr_t)surface->ptr;
+}
+
+MOONBIT_FFI_EXPORT
 cairo_status_t cairoon_mapped_image_surface_status(
   CairoonMappedImageSurface *surface) {
   if (surface == NULL || surface->mapped == NULL) {

@@ -86,6 +86,16 @@ pub fn Pattern::status(self : Pattern) -> Status {
 }
 
 ///|
+pub fn Pattern::equal(self : Pattern, other : Pattern) -> Bool {
+  pattern_equal_ffi(self, other)
+}
+
+///|
+pub fn Pattern::hash(self : Pattern) -> UInt64 {
+  pattern_hash_ffi(self)
+}
+
+///|
 pub fn Pattern::get_extend(self : Pattern) -> Extend raise CairoError {
   check_status(pattern_status_ffi(self))
   pattern_get_extend_ffi(self)

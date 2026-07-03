@@ -31,6 +31,22 @@ cairo_status_t cairoon_context_status(CairoonContext *ctx) {
 }
 
 MOONBIT_FFI_EXPORT
+int32_t cairoon_context_equal(CairoonContext *ctx, CairoonContext *other) {
+  if (ctx == NULL || other == NULL || ctx->ptr == NULL || other->ptr == NULL) {
+    return 0;
+  }
+  return ctx->ptr == other->ptr ? 1 : 0;
+}
+
+MOONBIT_FFI_EXPORT
+uint64_t cairoon_context_hash(CairoonContext *ctx) {
+  if (ctx == NULL || ctx->ptr == NULL) {
+    return 0;
+  }
+  return (uint64_t)(uintptr_t)ctx->ptr;
+}
+
+MOONBIT_FFI_EXPORT
 cairo_status_t cairoon_context_save(CairoonContext *ctx) {
   cairo_save(ctx->ptr);
   return cairo_status(ctx->ptr);

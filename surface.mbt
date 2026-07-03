@@ -180,6 +180,16 @@ pub fn Surface::status(self : Surface) -> Status {
 }
 
 ///|
+pub fn Surface::equal(self : Surface, other : Surface) -> Bool {
+  surface_equal_ffi(self, other)
+}
+
+///|
+pub fn Surface::hash(self : Surface) -> UInt64 {
+  surface_hash_ffi(self)
+}
+
+///|
 pub fn Surface::get_content(self : Surface) -> Content raise CairoError {
   check_status(surface_status_ffi(self))
   surface_get_content_ffi(self)

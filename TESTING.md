@@ -165,7 +165,7 @@ stub files, opaque external-object wrappers for `Surface`,
 `ScaledFont`, `Region`, and `Device`, pure value types, many portable enums,
 including enum-only `SurfaceObserverMode` pycairo compatibility,
 expanded Context path, painting/page, target/source borrowed returns,
-source-surface convenience, clip, matrix, drawing-state including hairline mode,
+source-surface convenience, Context pointer equality/hash, clip, matrix, drawing-state including hairline mode,
 compile-time Cairo
 constants, group APIs, tag APIs, toy
 text APIs, glyph array APIs, text-to-glyphs/show-text-glyphs APIs,
@@ -179,7 +179,7 @@ views for image and
 mapped-image surfaces, portable
 Surface base helpers such as similar-surface creation, rectangular child
 surface creation with retained parent-wrapper lifetime, content/type queries,
-dirty markers, device offset/scale, fallback resolution, show-text-glyphs
+pointer equality/hash for ordinary surfaces, dirty markers, device offset/scale, fallback resolution, show-text-glyphs
 support checks, MIME constants, MIME data storage/query/clear support, and
 RecordingSurface constructor/extents/ink-extents plus replay, mapped image
 surface mapping/unmapping, PDFSurface filename/no-output/stream constructor,
@@ -189,7 +189,8 @@ filename/no-output/stream constructor, level helpers, level restriction, EPS
 mode, size and DSC helpers, SVGSurface filename/no-output/stream constructor,
 version helpers, version
 restriction, and document-unit helpers,
-surface-pattern borrowed surface returns, RasterSourcePattern
+surface-pattern borrowed surface returns, Pattern pointer equality/hash,
+RasterSourcePattern
 constructor/acquire/get-acquire/release callback glue with retained closure and acquired
 surface owners, MeshPattern patch lifecycle/query
 APIs, `FORMAT_INVALID` integer-sentinel coverage, FontOptions
@@ -213,11 +214,24 @@ construction plus predicates and boolean operations.
 Verified on 2026-07-02 and 2026-07-03:
 
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native -v`: 234 tests passed.
+- `moon -C cairoon test surface_context_test.mbt context_lifetime_test.mbt
+  pattern_test.mbt --target native -v`: 32 tests passed after adding
+  `Surface`/`Context`/`Pattern` pointer equality/hash.
+- `moon -C cairoon test --target native -v`: 237 tests passed.
+- `moon -C cairoon info --target native`: passed.
 - Documentation-only product-decision audit for pycairo `CAPI`, legacy enum
   aliases, and non-implemented FreeType/user-font classes: `moon -C cairoon
   check --target native`, `moon -C cairoon test --target native -v`, and
   `moon -C cairoon info --target native` passed on 2026-07-03.
+- ASan/LSan via `run-asan.py`: ran the 237-test native suite on 2026-07-03
+  after the `Surface`/`Context`/`Pattern` pointer equality/hash slice. No
+  AddressSanitizer invalid-access report appeared, and a grep of
+  `/tmp/cairoon-equal-hash-asan.txt` found no
+  `cairoon_surface_equal`, `cairoon_surface_hash`, `cairoon_context_equal`,
+  `cairoon_context_hash`, `cairoon_pattern_equal`, or
+  `cairoon_pattern_hash` entries in visible leak roots. The run still failed
+  during the known macOS FontRegistry/CoreText/ColorSync LeakSanitizer class:
+  `56037 byte(s) leaked in 415 allocation(s)`.
 - ASan/LSan via `run-asan.py`: ran on 2026-07-03 after adding retained-owner
   lifetime stress tests. The first run found a real heap-use-after-free when a
   `Surface` returned by `Context::get_target` outlived a context created from a

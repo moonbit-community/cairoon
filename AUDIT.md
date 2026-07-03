@@ -74,7 +74,8 @@ Implemented in this workspace:
   helpers, recording-surface replay, and ScriptSurface creation/proxy helpers,
   portable `Surface` base helpers for `create_similar`,
   `create_similar_image`, `create_for_rectangle` with retained parent-wrapper
-  lifetime, content/type/get_device queries, dirty markers, device
+  lifetime, content/type/get_device queries, pointer equality/hash for
+  ordinary surfaces, dirty markers, device
   offset/scale, fallback resolution,
   show-text-glyphs support checks, and
   TeeSurface creation/add/remove/index helpers with retained primary and target
@@ -82,7 +83,7 @@ Implemented in this workspace:
   mapped image surface readback/unmap helpers, plus Surface MIME data
   set/get/clear/support checks that copy data across the MoonBit/C boundary,
   initial solid/surface/linear/radial/mesh `Pattern` APIs with
-  extend/filter/dither/matrix/gradient state, mesh patch lifecycle/query
+  pointer equality/hash, extend/filter/dither/matrix/gradient state, mesh patch lifecycle/query
   helpers, and complete portable `Region` APIs including multi-rectangle
   construction.
 - `FontOptions` external object with copy/merge/equal/hash, variations,
@@ -195,14 +196,26 @@ Implemented in this workspace:
 2026-07-02 and 2026-07-03:
 
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native -v`: 234 tests passed.
+- `moon -C cairoon test surface_context_test.mbt context_lifetime_test.mbt
+  pattern_test.mbt --target native -v`: 32 tests passed after adding
+  `Surface`/`Context`/`Pattern` pointer equality/hash.
+- `moon -C cairoon test --target native -v`: 237 tests passed.
+- `moon -C cairoon info --target native`: passed and regenerated
+  `pkg.generated.mbti` with the six new identity/hash methods.
 - Documentation-only product-decision audit for pycairo `CAPI`, legacy enum
   aliases, and non-implemented FreeType/user-font classes: `moon -C cairoon
   check --target native`, `moon -C cairoon test --target native -v`, and
   `moon -C cairoon info --target native` passed on 2026-07-03.
 - `run-asan.py --repo-root /Users/caimeo/code/pycairo/cairoon --pkg moon.pkg`:
-  most recently ran the 234-test native suite on 2026-07-03 after the
-  vector scene oracle slice. The rerun found no invalid access and no
+  most recently ran the 237-test native suite on 2026-07-03 after the
+  `Surface`/`Context`/`Pattern` pointer equality/hash slice. The rerun found no
+  invalid access and no `cairoon_surface_equal`, `cairoon_surface_hash`,
+  `cairoon_context_equal`, `cairoon_context_hash`, `cairoon_pattern_equal`, or
+  `cairoon_pattern_hash` entries in the visible leak roots; it still failed
+  during the known macOS LeakSanitizer reporting class documented in
+  `TESTING.md`. Summary:
+  `56037 byte(s) leaked in 415 allocation(s)`.
+  The previous vector scene oracle rerun found no invalid access and no
   `cairoon_test_render_vector_scene_oracle`,
   `cairoon_test_draw_vector_scene`, or
   `cairoon_test_render_vector_surface` entries in the visible leak roots; it still
