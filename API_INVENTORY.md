@@ -105,8 +105,8 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 | `Pattern.get_filter/set_filter` | Done | Implemented on opaque `Pattern` |
 | `Pattern.get_matrix/set_matrix` | Done | Primitive-field stub avoids struct layout reliance |
 | `Pattern.get_dither/set_dither` | Done | Cairo 1.18 feature implemented on opaque `Pattern` |
-| `SolidPattern.__init__/get_rgba` | Partial | Exposed as `Pattern::solid_rgb/solid_rgba/get_rgba` |
-| `SurfacePattern.__init__` | Partial | Exposed as `Pattern::for_surface`; retains base `Surface` wrapper |
+| `SolidPattern.__init__/get_rgba` | Done | Exposed as `Pattern::solid_rgb/solid_rgba/get_rgba`; tests cover alpha defaults and RGBA round-trip |
+| `SurfacePattern.__init__` | Done | Exposed as `Pattern::for_surface`; retains base `Surface` wrapper and is covered by paint/readback and lifetime tests |
 | `SurfacePattern.get_surface` | Done | Returns a referenced `Surface` wrapper and maps non-surface patterns to `PatternTypeMismatch` |
 | `Gradient.add_color_stop_*` | Done | Implemented on opaque `Pattern` |
 | `Gradient.get_color_stops_rgba` | Done | Returns `Array[(Double, Double, Double, Double, Double)]` |

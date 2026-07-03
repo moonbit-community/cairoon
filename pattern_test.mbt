@@ -1,5 +1,9 @@
 ///|
 test "solid pattern exposes rgba" {
+  let rgb_pattern = Pattern::solid_rgb(0.125, 0.25, 0.5)
+  let (_, _, _, opaque_alpha) = rgb_pattern.get_rgba()
+  inspect(opaque_alpha, content="1")
+
   let pattern = Pattern::solid_rgba(0.125, 0.25, 0.5, 0.75)
   let (red, green, blue, alpha) = pattern.get_rgba()
   inspect(red, content="0.125")
