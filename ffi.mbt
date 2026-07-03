@@ -133,6 +133,13 @@ extern "C" fn test_argb32_scene_oracle_ffi(
 ) -> Bytes = "cairoon_test_argb32_scene_oracle"
 
 ///|
+#borrow(text)
+extern "C" fn test_scaled_font_extents_oracle_ffi(
+  kind : Int,
+  text : Bytes,
+) -> FixedArray[Double] = "cairoon_test_scaled_font_extents_oracle"
+
+///|
 fn init {
   ignore(compile_feature_flag_ffi)
   ignore(compile_int_constant_ffi)
@@ -144,6 +151,7 @@ fn init {
   ignore(test_vector_files_equal_ffi)
   ignore(test_argb32_blue_paint_oracle_ffi)
   ignore(test_argb32_scene_oracle_ffi)
+  ignore(test_scaled_font_extents_oracle_ffi)
 }
 
 ///|
