@@ -36,7 +36,10 @@ enum {
   CAIROON_TEST_VECTOR_DASH = 11,
   CAIROON_TEST_VECTOR_SURFACE_PATTERN = 12,
   CAIROON_TEST_VECTOR_MASK_SURFACE = 13,
-  CAIROON_TEST_VECTOR_MESH_PATTERN = 14
+  CAIROON_TEST_VECTOR_MESH_PATTERN = 14,
+  CAIROON_TEST_VECTOR_PDF_URI_TAG = 15,
+  CAIROON_TEST_VECTOR_PDF_DEST_TAG = 16,
+  CAIROON_TEST_VECTOR_PDF_STRUCT_TAG = 17
 };
 
 enum {
@@ -398,6 +401,52 @@ static cairo_status_t cairoon_test_apply_mesh_pattern(cairo_t *cr) {
   return status;
 }
 
+static cairo_status_t cairoon_test_draw_pdf_uri_tag(cairo_t *cr) {
+  cairo_set_source_rgb(cr, 0.0, 0.0, 1.0);
+  cairo_tag_begin(cr, CAIRO_TAG_LINK, "uri='https://example.com/direct'");
+  cairo_rectangle(cr, 1.0, 1.0, 8.0, 8.0);
+  cairo_fill(cr);
+  cairo_tag_end(cr, CAIRO_TAG_LINK);
+  return cairo_status(cr);
+}
+
+static cairo_status_t cairoon_test_draw_pdf_dest_tag(cairo_t *cr) {
+  cairo_set_source_rgb(cr, 0.0, 0.0, 1.0);
+  cairo_tag_begin(cr, CAIRO_TAG_LINK, "dest='cairoon-direct-dest'");
+  cairo_rectangle(cr, 1.0, 1.0, 3.0, 3.0);
+  cairo_fill(cr);
+  cairo_tag_end(cr, CAIRO_TAG_LINK);
+
+  cairo_set_source_rgb(cr, 1.0, 0.0, 0.0);
+  cairo_tag_begin(
+    cr,
+    CAIRO_TAG_DEST,
+    "name='cairoon-direct-dest' x=6 y=6");
+  cairo_rectangle(cr, 6.0, 6.0, 3.0, 3.0);
+  cairo_fill(cr);
+  cairo_tag_end(cr, CAIRO_TAG_DEST);
+  return cairo_status(cr);
+}
+
+static cairo_status_t cairoon_test_draw_pdf_struct_tag(cairo_t *cr) {
+  cairo_tag_begin(cr, "Document", "");
+  cairo_tag_begin(cr, "Sect", "");
+  cairo_tag_begin(cr, "H1", "");
+  cairo_set_source_rgb(cr, 0.0, 0.0, 0.0);
+  cairo_rectangle(cr, 1.0, 1.0, 8.0, 2.0);
+  cairo_fill(cr);
+  cairo_tag_end(cr, "H1");
+
+  cairo_tag_begin(cr, "P", "");
+  cairo_set_source_rgb(cr, 0.25, 0.25, 0.25);
+  cairo_rectangle(cr, 1.0, 5.0, 8.0, 3.0);
+  cairo_fill(cr);
+  cairo_tag_end(cr, "P");
+  cairo_tag_end(cr, "Sect");
+  cairo_tag_end(cr, "Document");
+  return cairo_status(cr);
+}
+
 static cairo_status_t cairoon_test_draw_vector_scene(
   cairo_t *cr,
   int32_t scene,
@@ -506,6 +555,12 @@ static cairo_status_t cairoon_test_draw_vector_scene(
       return cairoon_test_apply_mask_surface(cr);
     case CAIROON_TEST_VECTOR_MESH_PATTERN:
       return cairoon_test_apply_mesh_pattern(cr);
+    case CAIROON_TEST_VECTOR_PDF_URI_TAG:
+      return cairoon_test_draw_pdf_uri_tag(cr);
+    case CAIROON_TEST_VECTOR_PDF_DEST_TAG:
+      return cairoon_test_draw_pdf_dest_tag(cr);
+    case CAIROON_TEST_VECTOR_PDF_STRUCT_TAG:
+      return cairoon_test_draw_pdf_struct_tag(cr);
     default:
       return CAIRO_STATUS_INVALID_STATUS;
   }

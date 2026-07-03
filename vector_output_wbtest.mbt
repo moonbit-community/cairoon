@@ -208,6 +208,49 @@ fn apply_vector_mesh_pattern(ctx : Context) -> Unit raise CairoError {
 }
 
 ///|
+fn draw_pdf_uri_tag_scene(ctx : Context) -> Unit raise CairoError {
+  ctx.set_source_rgb(0.0, 0.0, 1.0)
+  ctx.tag_begin(TAG_LINK, "uri='https://example.com/direct'")
+  ctx.rectangle(1.0, 1.0, 8.0, 8.0)
+  ctx.fill()
+  ctx.tag_end(TAG_LINK)
+}
+
+///|
+fn draw_pdf_dest_tag_scene(ctx : Context) -> Unit raise CairoError {
+  ctx.set_source_rgb(0.0, 0.0, 1.0)
+  ctx.tag_begin(TAG_LINK, "dest='cairoon-direct-dest'")
+  ctx.rectangle(1.0, 1.0, 3.0, 3.0)
+  ctx.fill()
+  ctx.tag_end(TAG_LINK)
+
+  ctx.set_source_rgb(1.0, 0.0, 0.0)
+  ctx.tag_begin(TAG_DEST, "name='cairoon-direct-dest' x=6 y=6")
+  ctx.rectangle(6.0, 6.0, 3.0, 3.0)
+  ctx.fill()
+  ctx.tag_end(TAG_DEST)
+}
+
+///|
+fn draw_pdf_struct_tag_scene(ctx : Context) -> Unit raise CairoError {
+  ctx.tag_begin("Document", "")
+  ctx.tag_begin("Sect", "")
+  ctx.tag_begin("H1", "")
+  ctx.set_source_rgb(0.0, 0.0, 0.0)
+  ctx.rectangle(1.0, 1.0, 8.0, 2.0)
+  ctx.fill()
+  ctx.tag_end("H1")
+
+  ctx.tag_begin("P", "")
+  ctx.set_source_rgb(0.25, 0.25, 0.25)
+  ctx.rectangle(1.0, 5.0, 8.0, 3.0)
+  ctx.fill()
+  ctx.tag_end("P")
+  ctx.tag_end("Sect")
+  ctx.tag_end("Document")
+}
+
+///|
 fn draw_vector_oracle_scene(
   ctx : Context,
   scene : Int,
@@ -302,6 +345,9 @@ fn draw_vector_oracle_scene(
     12 => apply_vector_surface_pattern(ctx)
     13 => apply_vector_mask_surface(ctx)
     14 => apply_vector_mesh_pattern(ctx)
+    15 => draw_pdf_uri_tag_scene(ctx)
+    16 => draw_pdf_dest_tag_scene(ctx)
+    17 => draw_pdf_struct_tag_scene(ctx)
     _ => raise CairoInvalidArgument(InvalidStatus, InvalidStatus.message())
   }
 }
@@ -729,6 +775,16 @@ test "complex vector output scenes match direct cairo C oracle" {
       render_vector_oracle_scene(kind, scene, cairoon_path)
       expect_vector_oracle_match(kind, scene, cairoon_path, oracle_path)
     }
+  }
+}
+
+///|
+test "pdf tag output scenes match direct cairo C oracle" {
+  for scene in 15..<18 {
+    let cairoon_path = "/tmp/cairoon_vector_pdf_tag_scene_\{scene}.pdf"
+    let oracle_path = "/tmp/cairoon_vector_pdf_tag_scene_\{scene}_oracle.pdf"
+    render_vector_oracle_scene(0, scene, cairoon_path)
+    expect_vector_oracle_match(0, scene, cairoon_path, oracle_path)
   }
 }
 
