@@ -7,6 +7,162 @@
 #if CAIRO_HAS_PDF_SURFACE
 #include <cairo-pdf.h>
 #endif
+#if CAIRO_HAS_PS_SURFACE
+#include <cairo-ps.h>
+#endif
+#if CAIRO_HAS_SVG_SURFACE
+#include <cairo-svg.h>
+#endif
+
+enum {
+  CAIROON_TEST_VECTOR_PDF = 0,
+  CAIROON_TEST_VECTOR_PS = 1,
+  CAIROON_TEST_VECTOR_SVG = 2
+};
+
+typedef struct {
+  unsigned char *data;
+  size_t len;
+} CairoonTestFile;
+
+static int cairoon_test_read_file(
+  const char *filename,
+  CairoonTestFile *out) {
+  out->data = NULL;
+  out->len = 0;
+  FILE *file = fopen(filename, "rb");
+  if (file == NULL) {
+    return 0;
+  }
+  if (fseek(file, 0, SEEK_END) != 0) {
+    fclose(file);
+    return 0;
+  }
+  long size = ftell(file);
+  if (size < 0) {
+    fclose(file);
+    return 0;
+  }
+  if (fseek(file, 0, SEEK_SET) != 0) {
+    fclose(file);
+    return 0;
+  }
+  unsigned char *data = NULL;
+  if (size > 0) {
+    data = (unsigned char *)malloc((size_t)size);
+    if (data == NULL) {
+      fclose(file);
+      return 0;
+    }
+    size_t read_len = fread(data, 1, (size_t)size, file);
+    if (read_len != (size_t)size) {
+      free(data);
+      fclose(file);
+      return 0;
+    }
+  }
+  fclose(file);
+  out->data = data;
+  out->len = (size_t)size;
+  return 1;
+}
+
+static void cairoon_test_free_file(CairoonTestFile *file) {
+  free(file->data);
+  file->data = NULL;
+  file->len = 0;
+}
+
+static int cairoon_test_starts_with(
+  const unsigned char *data,
+  size_t len,
+  const char *prefix) {
+  size_t prefix_len = strlen(prefix);
+  return len >= prefix_len && memcmp(data, prefix, prefix_len) == 0;
+}
+
+static int cairoon_test_next_normalized_line(
+  int32_t kind,
+  const unsigned char *data,
+  size_t len,
+  size_t *pos,
+  const unsigned char **line,
+  size_t *line_len) {
+  while (*pos < len) {
+    size_t start = *pos;
+    while (*pos < len && data[*pos] != '\n') {
+      *pos += 1;
+    }
+    if (*pos < len) {
+      *pos += 1;
+    }
+    size_t current_len = *pos - start;
+    if (
+      kind == CAIROON_TEST_VECTOR_PS &&
+      cairoon_test_starts_with(data + start, current_len, "%%CreationDate:")) {
+      continue;
+    }
+    *line = data + start;
+    *line_len = current_len;
+    return 1;
+  }
+  return 0;
+}
+
+static int cairoon_test_files_equal_normalized(
+  int32_t kind,
+  const CairoonTestFile *left,
+  const CairoonTestFile *right) {
+  if (kind != CAIROON_TEST_VECTOR_PS) {
+    return left->len == right->len &&
+      (left->len == 0 || memcmp(left->data, right->data, left->len) == 0);
+  }
+
+  size_t left_pos = 0;
+  size_t right_pos = 0;
+  for (;;) {
+    const unsigned char *left_line = NULL;
+    const unsigned char *right_line = NULL;
+    size_t left_len = 0;
+    size_t right_len = 0;
+    int left_has_line = cairoon_test_next_normalized_line(
+      kind, left->data, left->len, &left_pos, &left_line, &left_len);
+    int right_has_line = cairoon_test_next_normalized_line(
+      kind, right->data, right->len, &right_pos, &right_line, &right_len);
+    if (!left_has_line || !right_has_line) {
+      return left_has_line == right_has_line;
+    }
+    if (left_len != right_len || memcmp(left_line, right_line, left_len) != 0) {
+      return 0;
+    }
+  }
+}
+
+static cairo_status_t cairoon_test_paint_vector_surface(
+  cairo_surface_t *surface,
+  double red,
+  double green,
+  double blue) {
+  cairo_status_t status = cairo_surface_status(surface);
+  if (status != CAIRO_STATUS_SUCCESS) {
+    cairo_surface_destroy(surface);
+    return status;
+  }
+
+  cairo_t *ctx = cairo_create(surface);
+  cairo_set_source_rgb(ctx, red, green, blue);
+  cairo_paint(ctx);
+  status = cairo_status(ctx);
+  cairo_destroy(ctx);
+
+  cairo_surface_finish(surface);
+  cairo_status_t surface_status = cairo_surface_status(surface);
+  cairo_surface_destroy(surface);
+  if (status != CAIRO_STATUS_SUCCESS) {
+    return status;
+  }
+  return surface_status;
+}
 
 MOONBIT_FFI_EXPORT
 moonbit_bytes_t cairoon_version_string(void) {
@@ -77,6 +233,72 @@ int32_t cairoon_test_file_contains(
   }
   free(data);
   return found;
+}
+
+MOONBIT_FFI_EXPORT
+cairo_status_t cairoon_test_render_vector_oracle(
+  int32_t kind,
+  moonbit_bytes_t filename) {
+  const char *name = (const char *)filename;
+  cairo_surface_t *surface = NULL;
+  switch (kind) {
+    case CAIROON_TEST_VECTOR_PDF:
+#if CAIRO_HAS_PDF_SURFACE
+      surface = cairo_pdf_surface_create(name, 10.0, 10.0);
+      cairo_pdf_surface_restrict_to_version(surface, CAIRO_PDF_VERSION_1_4);
+      cairo_pdf_surface_set_metadata(
+        surface,
+        CAIRO_PDF_METADATA_CREATOR,
+        "cairoon-vector-oracle");
+      cairo_pdf_surface_set_metadata(
+        surface,
+        CAIRO_PDF_METADATA_CREATE_DATE,
+        "2026-01-02T03:04:05+00:00");
+      cairo_pdf_surface_set_metadata(
+        surface,
+        CAIRO_PDF_METADATA_MOD_DATE,
+        "2026-01-02T03:04:05+00:00");
+      return cairoon_test_paint_vector_surface(surface, 0.0, 0.0, 1.0);
+#else
+      return CAIRO_STATUS_SURFACE_TYPE_MISMATCH;
+#endif
+    case CAIROON_TEST_VECTOR_PS:
+#if CAIRO_HAS_PS_SURFACE
+      surface = cairo_ps_surface_create(name, 10.0, 10.0);
+      return cairoon_test_paint_vector_surface(surface, 0.0, 0.0, 1.0);
+#else
+      return CAIRO_STATUS_SURFACE_TYPE_MISMATCH;
+#endif
+    case CAIROON_TEST_VECTOR_SVG:
+#if CAIRO_HAS_SVG_SURFACE
+      surface = cairo_svg_surface_create(name, 10.0, 10.0);
+      return cairoon_test_paint_vector_surface(surface, 1.0, 0.0, 0.0);
+#else
+      return CAIRO_STATUS_SURFACE_TYPE_MISMATCH;
+#endif
+    default:
+      return CAIRO_STATUS_INVALID_STATUS;
+  }
+}
+
+MOONBIT_FFI_EXPORT
+int32_t cairoon_test_vector_files_equal(
+  int32_t kind,
+  moonbit_bytes_t left_filename,
+  moonbit_bytes_t right_filename) {
+  CairoonTestFile left;
+  CairoonTestFile right;
+  if (!cairoon_test_read_file((const char *)left_filename, &left)) {
+    return 0;
+  }
+  if (!cairoon_test_read_file((const char *)right_filename, &right)) {
+    cairoon_test_free_file(&left);
+    return 0;
+  }
+  int32_t equal = cairoon_test_files_equal_normalized(kind, &left, &right);
+  cairoon_test_free_file(&left);
+  cairoon_test_free_file(&right);
+  return equal;
 }
 
 MOONBIT_FFI_EXPORT

@@ -97,6 +97,21 @@ extern "C" fn test_file_size_ffi(filename : Bytes) -> Int = "cairoon_test_file_s
 extern "C" fn test_file_contains_ffi(filename : Bytes, needle : Bytes) -> Bool = "cairoon_test_file_contains"
 
 ///|
+#borrow(filename)
+extern "C" fn test_render_vector_oracle_ffi(
+  kind : Int,
+  filename : Bytes,
+) -> Status = "cairoon_test_render_vector_oracle"
+
+///|
+#borrow(left_filename, right_filename)
+extern "C" fn test_vector_files_equal_ffi(
+  kind : Int,
+  left_filename : Bytes,
+  right_filename : Bytes,
+) -> Bool = "cairoon_test_vector_files_equal"
+
+///|
 extern "C" fn test_argb32_blue_paint_oracle_ffi(
   width : Int,
   height : Int,
@@ -109,6 +124,8 @@ fn init {
   ignore(compile_string_constant_ffi)
   ignore(test_file_size_ffi)
   ignore(test_file_contains_ffi)
+  ignore(test_render_vector_oracle_ffi)
+  ignore(test_vector_files_equal_ffi)
   ignore(test_argb32_blue_paint_oracle_ffi)
 }
 

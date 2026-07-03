@@ -186,8 +186,9 @@ script mode/comment helpers, recording replay, `Surface::get_device`,
 `Surface::script`, and
 `Surface::script_for_target`, TeeSurface mirrored drawing and target indexing,
 exhaustive `Status`/`CairoError` classification, retained-owner lifetime stress
-tests, stable structural vector-output markers for PDF/PS/SVG filename
-backends, PDF link-tag annotation markers, mutable image/mapped-image data view
+tests, stable structural vector-output markers plus direct C oracle comparisons
+for deterministic simple PDF/PS/SVG paint fixtures, PDF link-tag annotation
+markers, mutable image/mapped-image data view
 tests, and initial tests. Region now covers empty, single-rectangle, and
 multi-rectangle
 construction plus predicates and boolean operations.
@@ -356,11 +357,22 @@ Verified on 2026-07-02 and 2026-07-03:
   global-buffer-overflow, `cairoon_raster`, `raster_source`, or
   `cairoon_pattern` entries; summary:
   `55365 byte(s) leaked in 405 allocation(s)`.
+  The later vector-output direct C oracle slice added private C helpers for
+  direct PDF/PS/SVG paint-fixture generation and normalized file comparison,
+  while keeping the native suite at 231 tests. ASan/LSan was rerun on
+  2026-07-03 and reported only the same macOS LeakSanitizer class. A grep of
+  `/tmp/cairoon-vector-oracle-asan.txt` found no
+  `ERROR: AddressSanitizer`, heap-use-after-free, stack-use-after,
+  global-buffer-overflow, `cairoon_test_render_vector`,
+  `cairoon_test_vector`, `cairoon_test_read_file`,
+  `cairoon_test_files_equal`, or `cairoon_test_paint_vector` entries; summary:
+  `55365 byte(s) leaked in 405 allocation(s)`.
 
-The missing reliability pieces are substantial: automated differential tests,
+The missing reliability pieces are substantial: broader automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering
-LSan failure, finalizer stress tests, CI wiring, vector-output normalization,
-SVG/PS tag-materialization assertions, and
+LSan failure, finalizer stress tests, CI wiring, vector-output normalization for
+more complex multi-page/font/tag/metadata cases, SVG/PS tag-materialization
+assertions, and
 the remaining API families from `API_INVENTORY.md`.
 
 ## Porting pycairo Tests

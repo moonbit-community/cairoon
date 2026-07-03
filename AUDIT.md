@@ -96,7 +96,8 @@ Implemented in this workspace:
   buffer-backed image surface sharing and
   Cairo-reference lifetime behavior, PNG filename round trips and invalid path
   validation, deterministic pixel rendering, direct C Cairo oracle image-paint
-  comparison, mutable image-data read/write/copy, buffer-backed storage sharing,
+  comparison, direct C Cairo oracle comparisons for deterministic simple
+  PDF/PS/SVG paint fixtures, mutable image-data read/write/copy, buffer-backed storage sharing,
   image-data surface-retention, mapped-image data upload/unmap invalidation, and
   invalid-surface/index error mapping, context CTM, coordinate conversion,
   drawing-state behavior, path current-point,
@@ -117,7 +118,8 @@ Implemented in this workspace:
   PDF surface version helper behavior, no-output and filename construction,
   version restriction, page size, metadata, custom metadata, page label,
   thumbnail, single-flag and combined-flag outline behavior,
-  stable structural output markers, PDF 1.4 link-tag annotation markers,
+  stable structural output markers, PDF 1.4 direct C paint-oracle comparison,
+  PDF 1.4 link-tag annotation markers,
   finished-surface errors, invalid string validation, and subtype-mismatch
   errors,
   image surfaces returning no device, script device lifecycle and device
@@ -125,11 +127,13 @@ Implemented in this workspace:
   script-surface proxy rendering behavior, and `DeviceFinished` propagation,
   PS surface level helper behavior, no-output and filename construction, EPS
   mode, level restriction, size/DSC helpers, finished-surface errors, invalid
-  DSC/path validation, stable page/drawing output markers, and subtype-mismatch
+  DSC/path validation, stable page/drawing output markers, direct C
+  paint-oracle comparison with `CreationDate` normalization, and subtype-mismatch
   errors,
   SVG surface version helper behavior, no-output and filename construction,
   document-unit behavior, finished-surface errors, invalid path validation, and
-  stable geometry/color output markers, and subtype-mismatch errors,
+  stable geometry/color output markers, exact direct C paint-oracle comparison,
+  and subtype-mismatch errors,
   clip behavior including non-rectangular clip status propagation,
   pattern RGBA, gradient geometry/color-stop behavior, mesh patch construction,
   control/corner/path queries, invalid-index and lifecycle errors, non-mesh
@@ -153,8 +157,9 @@ Implemented in this workspace:
 - Gate 3 differential rendering: partial. Deterministic raw-pixel rendering
   tests exist for direct colors and explicit patterns, a direct C image oracle
   covers one ARGB32 paint case, and vector outputs have stable structural
-  marker checks including PDF link-tag annotations. Full cross-run comparison
-  against pycairo output is not yet automated.
+  marker checks plus direct C oracle comparisons for deterministic simple
+  PDF/PS/SVG paint fixtures. PDF link-tag annotations still have marker checks.
+  Full cross-run comparison against pycairo output is not yet automated.
 - Gate 4 memory and lifetime: partial. Stub ownership follows the documented
   external-object pattern, and retained-owner stress now covers subsurfaces,
   data-backed surface patterns, data-backed raster-source acquire surfaces,
@@ -174,12 +179,14 @@ Implemented in this workspace:
 - `moon -C cairoon check --target native`: passed.
 - `moon -C cairoon test --target native -v`: 231 tests passed.
 - `run-asan.py --repo-root /Users/caimeo/code/pycairo/cairoon --pkg moon.pkg`:
-  most recently ran the 229-test native suite on 2026-07-03 after the
-  raster-source get-acquire slice. The get-acquire slice raised native coverage
-  to 231 tests. The rerun found no invalid access and no
-  `cairoon_raster`, `raster_source`, or `cairoon_pattern` entries in the
-  visible leak roots; it still failed during the known macOS LeakSanitizer
-  reporting class documented in `TESTING.md`.
+  most recently ran the 231-test native suite on 2026-07-03 after the
+  vector-output direct C oracle slice. The rerun found no invalid access and no
+  `cairoon_test_render_vector`, `cairoon_test_vector`,
+  `cairoon_test_read_file`, `cairoon_test_files_equal`, or
+  `cairoon_test_paint_vector` entries in the visible leak roots; it still
+  failed during the known macOS LeakSanitizer reporting class documented in
+  `TESTING.md`. Summary:
+  `55365 byte(s) leaked in 405 allocation(s)`.
   An earlier retained-owner stress
   ASan run found a heap-use-after-free in `cairoon_copy_image_surface_data` reached from
   `lifetime_stress_test.mbt` when a returned target surface outlived a context
@@ -205,7 +212,8 @@ Implemented in this workspace:
   mapped-image lifetime helper stack, Context `set_source_surface` helper,
   Context hairline helper, TeeSurface helper stack, compile-time constant
   helper stack, vector-output file-scan helper stack, direct C image oracle
-  helper stack, ImageData helper/finalizer stack, or mapped-image data helper
+  helper stack, vector-output direct C oracle helper stack,
+  ImageData helper/finalizer stack, or mapped-image data helper
   stack appeared in the visible leak roots of the latest rerun. The first
   stream-writer ASan run exposed a real `moonbit_make_bytes` leak rooted at
   `cairoon_stream_write`; the fixed rerun removed all `cairoon_stream` leak
@@ -254,8 +262,9 @@ Implemented in this workspace:
 
 ## Known Gaps
 
-- Normalized PDF/SVG/PS output comparison is missing, and SVG/PS
-  tag-materialization assertions are still absent. PDF/PS/SVG stream-writer
+- Broader normalized PDF/SVG/PS output comparison is still missing beyond the
+  simple direct C paint fixtures, and SVG/PS tag-materialization assertions are
+  still absent. PDF/PS/SVG stream-writer
   constructors, script stream devices, and PNG stream read/write now have
   copied-byte callback tests and read/write error propagation coverage.
 - `Surface::copy_data` still copies Cairo image data into MoonBit `Bytes`;

@@ -11,15 +11,44 @@ fn expect_vector_output(path : String, markers : Array[String]) -> Unit raise {
 }
 
 ///|
+fn fixed_pdf_metadata_date() -> String {
+  "2026-01-02T03:04:05+00:00"
+}
+
+///|
+fn expect_vector_oracle_match(
+  kind : Int,
+  cairoon_path : String,
+  oracle_path : String,
+) -> Unit raise {
+  check_status(
+    test_render_vector_oracle_ffi(kind, checked_path_bytes(oracle_path)),
+  )
+  inspect(
+    test_vector_files_equal_ffi(
+      kind,
+      checked_path_bytes(cairoon_path),
+      checked_path_bytes(oracle_path),
+    ),
+    content="true",
+  )
+}
+
+///|
 test "pdf output contains stable structural markers" {
   let path = "/tmp/cairoon_vector_output.pdf"
+  let oracle_path = "/tmp/cairoon_vector_output_oracle.pdf"
   let surface = Surface::pdf(10.0, 10.0, path=Some(path))
-  surface.pdf_set_metadata(PdfMetadataCreator, "cairoon-vector-test")
+  surface.pdf_restrict_to_version(PdfVersion1_4)
+  surface.pdf_set_metadata(PdfMetadataCreator, "cairoon-vector-oracle")
+  surface.pdf_set_metadata(PdfMetadataCreateDate, fixed_pdf_metadata_date())
+  surface.pdf_set_metadata(PdfMetadataModDate, fixed_pdf_metadata_date())
   let ctx = Context::new(surface)
   ctx.set_source_rgb(0.0, 0.0, 1.0)
   ctx.paint()
   surface.finish()
-  expect_vector_output(path, ["%PDF-1.", "/Root", "/Info", "%%EOF"])
+  expect_vector_output(path, ["%PDF-1.4", "/Root", "/Info", "%%EOF"])
+  expect_vector_oracle_match(0, path, oracle_path)
 }
 
 ///|
@@ -44,6 +73,7 @@ test "pdf link tag output contains annotation markers" {
 ///|
 test "ps output contains stable page and drawing markers" {
   let path = "/tmp/cairoon_vector_output.ps"
+  let oracle_path = "/tmp/cairoon_vector_output_oracle.ps"
   let surface = Surface::ps(10.0, 10.0, path=Some(path))
   let ctx = Context::new(surface)
   ctx.set_source_rgb(0.0, 0.0, 1.0)
@@ -52,11 +82,13 @@ test "ps output contains stable page and drawing markers" {
   expect_vector_output(path, [
     "%!PS-Adobe-3.0", "%%Pages: 1", "0 0 1 rg", "0 0 10 10 rectfill", "%%EOF",
   ])
+  expect_vector_oracle_match(1, path, oracle_path)
 }
 
 ///|
 test "svg output contains stable geometry and color markers" {
   let path = "/tmp/cairoon_vector_output.svg"
+  let oracle_path = "/tmp/cairoon_vector_output_oracle.svg"
   let surface = Surface::svg(10.0, 10.0, path=Some(path))
   let ctx = Context::new(surface)
   ctx.set_source_rgb(1.0, 0.0, 0.0)
@@ -66,4 +98,5 @@ test "svg output contains stable geometry and color markers" {
     "<?xml version=\"1.0\"", "<svg", "width=\"10\" height=\"10\"", "fill=\"rgb(100%, 0%, 0%)\"",
     "</svg>",
   ])
+  expect_vector_oracle_match(2, path, oracle_path)
 }
