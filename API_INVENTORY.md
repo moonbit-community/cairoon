@@ -23,7 +23,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 | Image surface basics | Partial | Create, similar-image create, map/unmap to image, buffer-backed create-for-data, PNG path load/save, MIME data, status, finish, flush, width/height/stride/format, copied data, and one direct C Cairo oracle pixel comparison |
 | Device basics | Done | External object ownership, status/type/equal/hash, finish/flush/acquire/release, scoped acquire helper, `Surface::get_device`, and script-backed tests |
 | Recording surface | Done | Constructor with optional extents, extents/ink-extents queries, subtype-mismatch checks, and replay through surface patterns |
-| PDF surface | Partial | Filename/no-output constructor, supported versions, version strings, version restriction, page size, metadata, custom metadata, page labels, thumbnails, single-flag outline compatibility, typed outline flag sets, and stable structural output markers; stream callbacks and full normalized vector-output comparison remain |
+| PDF surface | Partial | Filename/no-output constructor, supported versions, version strings, version restriction, page size, metadata, custom metadata, page labels, thumbnails, single-flag outline compatibility, typed outline flag sets, stable structural output markers, and PDF link-tag annotation markers; stream callbacks and full normalized vector-output comparison remain |
 | PS surface | Partial | Filename/no-output constructor, supported levels, level strings, level restriction, EPS mode, page size, DSC comments, and stable page/drawing output markers; stream callbacks and full normalized vector-output comparison remain |
 | SVG surface | Partial | Filename/no-output constructor, supported versions, version strings, version restriction, document units, and stable geometry/color output markers; stream callbacks and full normalized vector-output comparison remain |
 | Context basics | Partial | Creation, status, save/restore, CTM transforms, drawing state including hairline mode, clip APIs, group APIs, tag APIs, path primitives, source colors/surfaces, paint/fill/stroke |
@@ -32,7 +32,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 | Font options | Done | External object, copy/merge/equal/hash, all portable state fields, and Surface/Context accessors |
 | Scaled fonts | Partial | External object, constructor, matrices/options/font-face getters, text extents, and Context get/set |
 | Docs | Partial | README smoke example and AGENTS spec exist; no full reference docs yet |
-| Tests | Partial | Native and ASan test runs cover the current migrated slices only; vector backends have stable structural output marker checks, and image painting has an initial direct C Cairo oracle comparison, but full normalized/differential comparison remains |
+| Tests | Partial | Native and ASan test runs cover the current migrated slices only; vector backends have stable structural output marker checks, PDF link tags have annotation marker checks, and image painting has an initial direct C Cairo oracle comparison, but full normalized/differential comparison remains |
 
 ## Top-Level Functions And Module Constants
 
@@ -126,7 +126,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 | `ImageSurface.create_from_png/write_to_png` | Partial | Filename APIs exposed as `Surface::image_from_png` and `Surface::write_to_png`; stream/file-object callbacks deferred by `AGENTS.md` |
 | `Surface.map_to_image/unmap_image` | Partial | `MappedImageSurface` has a dedicated payload retaining the base `Surface`, explicit and finalizer unmap support, extent mapping, Context construction, double/wrong-base checks, and retained-owner stress. Clean ASan/LSan remains blocked by the macOS font/text leak report. |
 | `Surface.get_mime_data/set_mime_data/supports_mime_type` | Partial | Exposed on `Surface`; data is copied into C-owned storage on set and copied back into MoonBit `Bytes` on get. This intentionally does not preserve pycairo's Python object identity for data set through the binding. Backend-specific support/output behavior still needs differential vector-output tests. |
-| `PDFSurface` | Partial | Exposed as `Surface::pdf`, `PDFVersion::supported`, `PDFVersion::to_string`, `Surface::pdf_restrict_to_version`, size, metadata, custom metadata, page label, thumbnail, single-flag outline compatibility, and typed outline flag sets. Filename and no-output constructors plus PDF structural markers are covered; stream/file-object callback output and full normalized/differential PDF output tests remain. |
+| `PDFSurface` | Partial | Exposed as `Surface::pdf`, `PDFVersion::supported`, `PDFVersion::to_string`, `Surface::pdf_restrict_to_version`, size, metadata, custom metadata, page label, thumbnail, single-flag outline compatibility, and typed outline flag sets. Filename and no-output constructors, PDF structural markers, and PDF 1.4 link-tag annotation markers are covered; stream/file-object callback output and full normalized/differential PDF output tests remain. |
 | `PSSurface` | Partial | Exposed as `Surface::ps`, `PSLevel::supported`, `PSLevel::to_string`, `Surface::ps_restrict_to_level`, EPS get/set, size, and DSC helpers. Filename and no-output constructors plus PS page/drawing markers are covered; stream/file-object callback output and full normalized/differential PS output tests remain. |
 | `SVGSurface` | Partial | Exposed as `Surface::svg`, `SVGVersion::supported`, `SVGVersion::to_string`, `Surface::svg_restrict_to_version`, and document-unit get/set. Filename and no-output constructors plus SVG geometry/color markers are covered; stream/file-object callback output and full normalized/differential SVG output tests remain. |
 | `RecordingSurface` | Done | Exposed as `Surface::recording`, `Surface::recording_get_extents`, and `Surface::recording_ink_extents`; tests cover bounded/unbounded extents, replay through `Pattern::for_surface`, and `SurfaceTypeMismatch` for non-recording surfaces |
@@ -149,10 +149,10 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 | Stroke/fill state | Done | line width/cap/join, miter limit, fill rule, tolerance, operator, antialias, dash, hairline mode |
 | Matrix APIs | Done | get/set/identity/translate/rotate/transform and user/device coordinate conversions |
 | Groups | Done | `push_group`, `push_group_with_content`, `pop_group`, `pop_group_to_source`, and `get_group_target` with pixel and unmatched-pop tests |
-| Text and fonts | Partial | font options get/set, font face get/set/select, toy font, font matrix/size/extents, toy text APIs, glyph arrays, `text_to_glyphs`, and `show_text_glyphs` exist; tag-aware vector-output coverage remains |
+| Text and fonts | Partial | font options get/set, font face get/set/select, toy font, font matrix/size/extents, toy text APIs, glyph arrays, `text_to_glyphs`, and `show_text_glyphs` exist; PDF link-tag text output has marker coverage, while broader tag-aware vector-output coverage remains |
 | Path copy/append | Done | `copy_path`, `copy_path_flat`, `append_path`, `Path::segments`, `Path::iter`, and `Path::to_string` |
 | Hit testing and extents | Done | `in_clip`, `in_fill`, `in_stroke`, `clip_extents`, `fill_extents`, `stroke_extents`, `path_extents` |
-| Tags | Partial | `tag_begin`/`tag_end` exist with UTF-8/NUL validation, tag constants, context-error propagation tests, and unmatched/mismatched nesting `TagError` coverage; tag-aware vector output still needs PDF/SVG/PS backend assertions |
+| Tags | Partial | `tag_begin`/`tag_end` exist with UTF-8/NUL validation, tag constants, context-error propagation tests, unmatched/mismatched nesting `TagError` coverage, and PDF 1.4 link-tag annotation marker coverage; SVG/PS tag materialization and broader normalized vector-output assertions remain |
 | Page APIs | Done | `copy_page` and `show_page` on `Context` |
 
 ## Font And Text APIs

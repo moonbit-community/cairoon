@@ -103,8 +103,9 @@ Implemented in this workspace:
   PDF surface version helper behavior, no-output and filename construction,
   version restriction, page size, metadata, custom metadata, page label,
   thumbnail, single-flag and combined-flag outline behavior,
-  stable structural output markers, finished-surface errors, invalid string
-  validation, and subtype-mismatch errors,
+  stable structural output markers, PDF 1.4 link-tag annotation markers,
+  finished-surface errors, invalid string validation, and subtype-mismatch
+  errors,
   image surfaces returning no device, script device lifecycle and device
   reference equality, script mode/comment validation, recording replay,
   script-surface proxy rendering behavior, and `DeviceFinished` propagation,
@@ -131,11 +132,13 @@ Implemented in this workspace:
 ## Gate Status
 
 - Gate 1 API inventory: partial. A full inventory ledger exists in
-  `API_INVENTORY.md`; most rows remain Todo or Decision.
+  `API_INVENTORY.md`; multiple rows remain Partial or Decision.
 - Gate 2 behavioral parity: partial. First MoonBit tests cover a small subset
   of pycairo's matrix, surface, context, pattern, region, and error behavior.
 - Gate 3 differential rendering: partial. Deterministic raw-pixel rendering
-  tests exist for direct colors and explicit patterns. Cross-run comparison
+  tests exist for direct colors and explicit patterns, a direct C image oracle
+  covers one ARGB32 paint case, and vector outputs have stable structural
+  marker checks including PDF link-tag annotations. Full cross-run comparison
   against pycairo output is not yet automated.
 - Gate 4 memory and lifetime: partial. Stub ownership follows the documented
   external-object pattern, and retained-owner stress now covers subsurfaces,
@@ -152,7 +155,7 @@ Implemented in this workspace:
 2026-07-02 and 2026-07-03:
 
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native -v`: 207 tests passed.
+- `moon -C cairoon test --target native -v`: 208 tests passed.
 - `run-asan.py --repo-root /Users/caimeo/code/pycairo/cairoon --pkg moon.pkg`:
   most recently ran the 207-test native suite on 2026-07-03 after the direct C
   image oracle slice. An earlier retained-owner stress ASan run found a
@@ -189,11 +192,15 @@ Implemented in this workspace:
   for this package.
   The preceding tag-nesting slice is pure MoonBit test coverage and raised the
   native suite to 206 tests; ASan was not rerun for that non-C change.
+  The later PDF link-tag output marker slice is pure MoonBit test coverage and
+  raised the native suite to 208 tests; ASan was not rerun for that non-C
+  change.
 
 ## Known Gaps
 
 - No raster-source patterns, stream/callback APIs, normalized PDF/SVG/PS
-  output comparison, or direct mutable image data view binding yet.
+  output comparison, SVG/PS tag-materialization assertions, or direct mutable
+  image data view binding yet.
 - `Surface::copy_data` copies the Cairo image data into MoonBit `Bytes`; it
   intentionally does not expose a mutable view yet.
 - The package currently records Homebrew Cairo 1.18.4 paths. A portable setup

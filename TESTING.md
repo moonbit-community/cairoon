@@ -178,14 +178,15 @@ recording replay, `Surface::get_device`, `Surface::script`, and
 `Surface::script_for_target`, TeeSurface mirrored drawing and target indexing,
 exhaustive `Status`/`CairoError` classification, retained-owner lifetime stress
 tests, stable structural vector-output markers for PDF/PS/SVG filename
-backends, and initial tests. Region now covers empty, single-rectangle, and
+backends, PDF link-tag annotation markers, and initial tests. Region now covers
+empty, single-rectangle, and
 multi-rectangle
 construction plus predicates and boolean operations.
 
 Verified on 2026-07-02 and 2026-07-03:
 
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native -v`: 207 tests passed.
+- `moon -C cairoon test --target native -v`: 208 tests passed.
 - ASan/LSan via `run-asan.py`: ran on 2026-07-03 after adding retained-owner
   lifetime stress tests. The first run found a real heap-use-after-free when a
   `Surface` returned by `Context::get_target` outlived a context created from a
@@ -273,11 +274,15 @@ Verified on 2026-07-02 and 2026-07-03:
   heap-use-after-free, stack-use-after, global-buffer-overflow, or
   `cairoon_test_argb32` entries; summary:
   `90021 byte(s) leaked in 479 allocation(s)`.
+  The later PDF link-tag output marker slice is pure MoonBit test coverage and
+  raised the native suite to 208 tests; ASan was not rerun for that non-C
+  change.
 
 The missing reliability pieces are substantial: automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering
 LSan failure, finalizer stress tests, CI wiring, vector-output normalization,
-PDF/PS stream output, and the remaining API families from `API_INVENTORY.md`.
+PDF/PS stream output, SVG/PS tag-materialization assertions, and the remaining
+API families from `API_INVENTORY.md`.
 
 ## Porting pycairo Tests
 

@@ -23,6 +23,25 @@ test "pdf output contains stable structural markers" {
 }
 
 ///|
+test "pdf link tag output contains annotation markers" {
+  let path = "/tmp/cairoon_vector_tag_output.pdf"
+  let surface = Surface::pdf(100.0, 100.0, path=Some(path))
+  surface.pdf_restrict_to_version(PdfVersion1_4)
+  let ctx = Context::new(surface)
+  ctx.select_font_face("serif")
+  ctx.set_font_size(12.0)
+  ctx.tag_begin(TAG_LINK, "uri='https://example.com/'")
+  ctx.move_to(10.0, 20.0)
+  ctx.show_text("example link")
+  ctx.tag_end(TAG_LINK)
+  surface.finish()
+  expect_vector_output(path, [
+    "%PDF-1.4", "/Annots [", "/Subtype /Link", "/S /URI", "/URI (https://example.com/)",
+    "/S /Link", "/StructTreeRoot", "%%EOF",
+  ])
+}
+
+///|
 test "ps output contains stable page and drawing markers" {
   let path = "/tmp/cairoon_vector_output.ps"
   let surface = Surface::ps(10.0, 10.0, path=Some(path))
