@@ -129,7 +129,8 @@ Implemented in this workspace:
   PDF surface version helper behavior, no-output and filename construction,
   version restriction, page size, metadata, custom metadata, page label,
   thumbnail, single-flag and combined-flag outline behavior,
-  stable structural output markers, PDF 1.4 eight-scene direct C vector-oracle comparison,
+  stable structural output markers, PDF metadata/custom-metadata output
+  markers, PDF 1.4 eight-scene direct C vector-oracle comparison,
   PDF JPEG MIME data embedding, PDF 1.4 link-tag annotation markers,
   finished-surface errors, invalid string validation, and subtype-mismatch
   errors,
@@ -177,9 +178,9 @@ Implemented in this workspace:
   have stable structural marker checks plus direct C oracle comparisons for
   eight deterministic PDF/PS/SVG scenes covering paint, stroke, fill/stroke
   rectangles, Bezier paths, transforms, linear/radial gradients, and toy-font
-  text paths. PDF link-tag annotations have
-  marker checks, and PS/SVG Link tags have inert-output checks matching Cairo
-  1.18.4 backend behavior.
+  text paths. PDF metadata/custom metadata, PDF link-tag annotations, and
+  PDF JPEG MIME passthrough have marker checks, and PS/SVG Link tags have
+  inert-output checks matching Cairo 1.18.4 backend behavior.
   Full cross-run comparison against pycairo output is not yet automated.
 - Gate 4 memory and lifetime: partial. Stub ownership follows the documented
   external-object pattern, and retained-owner stress now covers subsurfaces,
@@ -198,21 +199,21 @@ Implemented in this workspace:
 2026-07-02 and 2026-07-03:
 
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test vector_output_wbtest.mbt --target native -v`: 8
-  white-box tests passed after adding PDF JPEG MIME passthrough coverage to the
-  eight-scene direct C vector oracle and tag-output checks.
+- `moon -C cairoon test vector_output_wbtest.mbt --target native -v`: 9
+  white-box tests passed after adding PDF metadata/custom-metadata output marker
+  coverage to the direct C vector oracle, tag-output, and MIME-output checks.
 - `moon -C cairoon test surface_context_test.mbt context_lifetime_test.mbt
   pattern_test.mbt --target native -v`: 32 tests passed after adding
   `Surface`/`Context`/`Pattern` pointer equality/hash.
-- `moon -C cairoon test --target native -v`: 238 tests passed.
-- `moon -C cairoon info --target native`: passed; the PDF JPEG MIME passthrough
-  slice did not change the public interface.
+- `moon -C cairoon test --target native -v`: 239 tests passed.
+- `moon -C cairoon info --target native`: passed; the PDF metadata output
+  marker slice did not change the public interface.
 - Documentation-only product-decision audit for pycairo `CAPI`, legacy enum
   aliases, and non-implemented FreeType/user-font classes: `moon -C cairoon
   check --target native`, `moon -C cairoon test --target native -v`, and
   `moon -C cairoon info --target native` passed on 2026-07-03.
 - `run-asan.py --repo-root /Users/caimeo/code/pycairo/cairoon --pkg moon.pkg`:
-  not rerun for the PDF JPEG MIME passthrough slice because it only adds a
+  not rerun for the PDF metadata output marker slice because it only adds a
   white-box test and documentation, with no C stub or finalizer changes. It
   most recently ran the 237-test native suite on 2026-07-03 after the vector
   text-path oracle slice, and still failed during the known macOS

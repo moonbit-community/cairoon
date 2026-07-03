@@ -254,6 +254,30 @@ test "pdf output contains stable structural markers" {
 }
 
 ///|
+test "pdf output contains metadata and custom metadata markers" {
+  let path = "/tmp/cairoon_vector_pdf_metadata.pdf"
+  let surface = Surface::pdf(10.0, 10.0, path=Some(path))
+  surface.pdf_restrict_to_version(PdfVersion1_4)
+  surface.pdf_set_metadata(PdfMetadataTitle, "Cairoon Title")
+  surface.pdf_set_metadata(PdfMetadataAuthor, "Cairoon Author")
+  surface.pdf_set_metadata(PdfMetadataSubject, "Cairoon Subject")
+  surface.pdf_set_metadata(PdfMetadataKeywords, "moonbit cairo ffi")
+  surface.pdf_set_metadata(PdfMetadataCreator, "cairoon metadata test")
+  surface.pdf_set_metadata(PdfMetadataCreateDate, fixed_pdf_metadata_date())
+  surface.pdf_set_metadata(PdfMetadataModDate, fixed_pdf_metadata_date())
+  surface.pdf_set_custom_metadata("ISBN", Some("978-0123456789"))
+  let ctx = Context::new(surface)
+  ctx.set_source_rgb(0.0, 0.0, 1.0)
+  ctx.paint()
+  surface.finish()
+  expect_vector_output(path, [
+    "%PDF-1.4", "/Title (Cairoon Title)", "/Author (Cairoon Author)", "/Subject (Cairoon Subject)",
+    "/Keywords (moonbit cairo ffi)", "/Creator (cairoon metadata test)", "/CreationDate (20260102030405+00'00')",
+    "/ModDate (20260102030405+00'00')", "/ISBN (978-0123456789)", "%%EOF",
+  ])
+}
+
+///|
 test "pdf link tag output contains annotation markers" {
   let path = "/tmp/cairoon_vector_tag_output.pdf"
   let surface = Surface::pdf(100.0, 100.0, path=Some(path))
