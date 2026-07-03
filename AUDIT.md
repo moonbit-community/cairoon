@@ -274,6 +274,10 @@ Implemented in this workspace:
 
 2026-07-02 and 2026-07-03:
 
+- `./scripts/verify.sh`: passed. The local reliability gate ran
+  `moon fmt --check`, native `moon check`, targeted image, ScaledFont, vector,
+  and pattern oracle tests, the full native suite, `moon info --target native`,
+  and targeted ASan image-oracle and pattern tests with leak detection disabled.
 - `moon -C cairoon check --target native`: passed.
 - `moon -C cairoon test --target native`: 340 tests passed after expanding
   the ordinary and buffer-backed image oracle from eighteen to nineteen

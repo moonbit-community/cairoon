@@ -156,6 +156,18 @@ A release candidate must pass on all supported platforms:
 - API inventory audit
 - generated `pkg.generated.mbti` review
 
+The current local gate is executable as:
+
+```sh
+./scripts/verify.sh
+```
+
+It runs `moon fmt --check`, native `moon check`, targeted white-box image,
+ScaledFont, vector-output, and raster-pattern tests, the full native test
+suite, `moon info --target native`, and targeted ASan builds for the image
+oracle and raster-pattern suites when an ASan-capable `clang` is available.
+Set `CAIROON_VERIFY_ASAN=0` to skip the targeted ASan portion intentionally.
+
 ## Current Status
 
 The current cairoon slice is not a full migration. It has native package setup,
@@ -274,6 +286,10 @@ matrices/metrics, text-to-glyphs, and checked font errors.
 
 Verified on 2026-07-02 and 2026-07-03:
 
+- `./scripts/verify.sh`: passed. The local reliability gate ran
+  `moon fmt --check`, native `moon check`, targeted image, ScaledFont, vector,
+  and pattern oracle tests, the full native suite, `moon info --target native`,
+  and targeted ASan image-oracle and pattern tests with leak detection disabled.
 - `moon -C cairoon check --target native`: passed.
 - `moon -C cairoon test --target native`: 340 tests passed after expanding
   the ordinary and buffer-backed image oracle from eighteen to nineteen
