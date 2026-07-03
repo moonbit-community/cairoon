@@ -211,8 +211,9 @@ the font stack, solid/gradient/mesh `Pattern`, recording/similar/Tee
 `Surface`, and script stream `Device`, `ImageData` view allocation stress for
 ordinary, buffer-backed, and mapped image surfaces, backend stream callback
 allocation stress for PDF/PS/SVG surfaces, PNG stream write/read, script
-devices, and stream `WriteError` paths, stable structural vector-output markers
-plus direct C oracle comparisons
+devices, and stream `WriteError` paths, raster-source callback allocation
+stress for set/get/manual acquire/release/replace/clear paths, stable
+structural vector-output markers plus direct C oracle comparisons
 for ten deterministic PDF/PS/SVG vector scenes covering paint, stroke,
 fill/stroke rectangles, Bezier paths, transforms, linear/radial gradients,
 toy-font text paths, toy-font `show_text`, and a two-page paint scene, PDF metadata/custom-metadata/page-label/outline output
@@ -232,19 +233,38 @@ Verified on 2026-07-02 and 2026-07-03:
 - `moon -C cairoon test lifetime_stress_test.mbt --target native -v`: 6
   black-box lifetime tests passed after adding the backend stream callback
   1000-iteration allocation stress case.
+- `moon -C cairoon test raster_lifetime_stress_test.mbt --target native -v`: 1
+  black-box raster-source callback lifetime test passed after adding the
+  1000-iteration set/get/manual acquire/release/replace/clear stress case.
 - `moon -C cairoon test vector_output_wbtest.mbt --target native -v`: 13
   white-box tests passed after adding a two-page direct C vector oracle scene
   alongside metadata, tag-output, MIME-output, and page structure checks.
 - `moon -C cairoon test surface_context_test.mbt context_lifetime_test.mbt
   pattern_test.mbt --target native -v`: 32 tests passed after adding
   `Surface`/`Context`/`Pattern` pointer equality/hash.
-- `moon -C cairoon test --target native -v`: 246 tests passed.
+- `moon -C cairoon test --target native`: 247 tests passed.
 - `moon -C cairoon info --target native`: passed; the latest
   lifetime-stress test-only slice did not change the public interface.
 - Documentation-only product-decision audit for pycairo `CAPI`, legacy enum
   aliases, and non-implemented FreeType/user-font classes: `moon -C cairoon
   check --target native`, `moon -C cairoon test --target native -v`, and
   `moon -C cairoon info --target native` passed on 2026-07-03.
+- ASan/LSan via `run-asan.py`: rerun on 2026-07-03 for the raster-source
+  callback allocation stress slice. The full runner still failed during the
+  known macOS FontRegistry/CoreText/ColorSync LeakSanitizer class after the
+  black-box executable ran. A grep of
+  `/tmp/cairoon-raster-callback-stress-asan.txt` found no
+  `ERROR: AddressSanitizer`, heap-use-after-free, stack-use-after,
+  heap-buffer-overflow, global-buffer-overflow, double-free, `cairoon_raster`,
+  `raster_source`, `cairoon_pattern`, or raster-source helper entries
+  indicating invalid access; the `raster_lifetime` hit was the Moon test
+  selector line. Summary:
+  `55957 byte(s) leaked in 414 allocation(s)`. The ASan-instrumented black-box
+  executable was then run directly with leak detection disabled using
+  `ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0`; it exited 0, and
+  `/tmp/cairoon-raster-callback-stress-blackbox-asan.txt` shows the
+  `raster source callback allocation stress` test executed without any
+  AddressSanitizer invalid-access report.
 - ASan/LSan via `run-asan.py`: rerun for the two-page vector oracle helper
   slice. The full runner still failed during the known macOS
   FontRegistry/CoreText/ColorSync LeakSanitizer class before the white-box
@@ -546,8 +566,8 @@ Verified on 2026-07-02 and 2026-07-03:
 
 The missing reliability pieces are substantial: broader automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering
-LSan failure, broader callback-edge and failure-injection finalizer stress
-tests, CI wiring, vector-output normalization for broader
+LSan failure, broader callback failure-injection/fuzz finalizer stress tests,
+CI wiring, vector-output normalization for broader
 multi-page/tag/metadata combinations beyond the current two-page direct C
 oracle scene and the current single-page toy-font `show_text` oracle scene,
 broader tag-output assertions, and the remaining API families from
