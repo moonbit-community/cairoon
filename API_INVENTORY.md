@@ -57,7 +57,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 | `SurfaceType` | Done | Values through Cairo 1.18.4 are listed for `Surface::get_type` |
 | `DeviceType` | Done | Valid non-negative values through Cairo 1.18.4 are listed for `Device::get_type`; `INVALID = -1` is not represented by the enum |
 | `FillRule` | Done | Constructors use `Fill*` prefixes |
-| `Format` | Partial | Image formats and `stride_for_width`; `INVALID = -1` is not represented by the enum |
+| `Format` | Partial | Image formats and `stride_for_width`; `CAIRO_FORMAT_INVALID = -1` cannot be represented by the current MoonBit enum and needs a decision between a separate integer constant or a new typed representation |
 | `HintMetrics` | Done | Constructors use `HintMetrics*` prefixes |
 | `ColorMode` | Done | Cairo 1.18 font color options |
 | `Dither` | Done | Cairo 1.18 pattern dither enum and pattern methods |
@@ -70,7 +70,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 | `Extend` | Done | Pattern extend implemented; `ExtendNone` is used to avoid colliding with `Option::None` |
 | `FontSlant` | Done | Needed by toy font APIs |
 | `FontWeight` | Done | Needed by toy font APIs |
-| `Status` | Partial | Values through Cairo 1.18.4 are listed; mapping policy needs full parity audit |
+| `Status` | Done | Values through Cairo 1.18.4 are listed; exhaustive `CairoError` classification is tested |
 | `PDFVersion` | Done | Needed by `PDFSurface` |
 | `PSLevel` | Done | Needed by `PSSurface` |
 | `PathDataType` | Done | Needed by `Path` iteration |
