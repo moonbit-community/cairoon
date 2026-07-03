@@ -46,8 +46,8 @@ Implemented in this workspace:
   `Format::stride_for_width`, `FORMAT_INVALID` as an explicit integer
   sentinel, pure `Matrix` parity operations, pure rectangle,
   glyph, text-cluster, and extents values, image `Surface` including PNG
-  filename load/save, buffer-backed creation, and retained mutable
-  `ImageData` views for image and mapped-image surfaces, core `Context`
+  filename load/save plus stream read/write, buffer-backed creation, and
+  retained mutable `ImageData` views for image and mapped-image surfaces, core `Context`
   drawing state including dash and hairline
   mode, clip APIs including rectangle-list copying,
   hit testing, geometric extents, absolute/relative/arc path drawing,
@@ -58,14 +58,13 @@ Implemented in this workspace:
   text show/path/extents APIs, Context glyph array extents/path/show APIs,
   ScaledFont text-to-glyphs, Context show-text-glyphs APIs,
   RecordingSurface constructor/extents/ink-extents APIs, PDFSurface
-  filename/no-output constructor, version helpers, version restriction,
+  filename/no-output/stream constructor, version helpers, version restriction,
   page-size, metadata, custom metadata, page-label, thumbnail, single-flag
   outline compatibility, and typed outline flag-set APIs, PSSurface
-  filename/no-output constructor, level
+  filename/no-output/stream constructor, level
   helpers, level restriction, EPS mode, page-size, and DSC comment/setup APIs,
-  SVGSurface
-  filename/no-output constructor, version helper, version restriction, and
-  document-unit APIs,
+  SVGSurface filename/no-output/stream constructor, version helper, version
+  restriction, and document-unit APIs,
   Device/ScriptDevice status/type/equal/hash, finish/flush/acquire/release,
   scoped acquire helper, script mode/comment helpers, recording-surface replay,
   and ScriptSurface creation/proxy helpers,
@@ -171,10 +170,10 @@ Implemented in this workspace:
 2026-07-02 and 2026-07-03:
 
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native -v`: 221 tests passed.
+- `moon -C cairoon test --target native -v`: 223 tests passed.
 - `run-asan.py --repo-root /Users/caimeo/code/pycairo/cairoon --pkg moon.pkg`:
-  most recently ran the 221-test native suite on 2026-07-03 after the
-  PNG stream-write slice. An earlier retained-owner stress
+  most recently ran the 223-test native suite on 2026-07-03 after the
+  PNG stream-read slice. An earlier retained-owner stress
   ASan run found a heap-use-after-free in `cairoon_copy_image_surface_data` reached from
   `lifetime_stress_test.mbt` when a returned target surface outlived a context
   created from a mapped image. The fixed rerun, and the later TeeSurface rerun,
@@ -205,7 +204,13 @@ Implemented in this workspace:
   roots. A grep of `/tmp/cairoon-png-stream-asan.txt` found no
   `ERROR: AddressSanitizer`, heap-use-after-free, stack-use-after, or
   `cairoon_surface_write_to_png_stream` / `cairoon_stream` entries.
-  Summary: `64909 byte(s) leaked in 399 allocation(s)`. The helper still emits
+  Summary: `64909 byte(s) leaked in 399 allocation(s)`. The PNG stream-read
+  slice then added exact-length read callbacks and two black-box tests; a grep
+  of `/tmp/cairoon-png-read-stream-asan.txt` found no
+  `ERROR: AddressSanitizer`, heap-use-after-free, stack-use-after,
+  global-buffer-overflow, `cairoon_image_surface_create_from_png_stream`,
+  `cairoon_stream_read`, or `cairoon_stream` entries. Summary:
+  `55397 byte(s) leaked in 405 allocation(s)`. The helper still emits
   a `moon.mod.json` lookup warning because this package uses `moon.mod`, but it
   correctly patched and restored the DSL `moon.pkg` and MoonBit runtime object
   for this package.
@@ -223,13 +228,15 @@ Implemented in this workspace:
   trampolines, and four black-box tests; ASan/LSan was rerun as described above.
   The later PNG stream-write slice reused the copied-byte writer trampoline and
   added two black-box tests; ASan/LSan was rerun as described above.
+  The later PNG stream-read slice added exact-length reader callbacks and two
+  black-box tests; ASan/LSan was rerun as described above.
 
 ## Known Gaps
 
-- No raster-source patterns, PNG read/script stream callbacks, normalized
+- No raster-source patterns, script stream callbacks, normalized
   PDF/SVG/PS output comparison, or SVG/PS tag-materialization assertions yet.
-  PDF/PS/SVG stream-writer constructors and PNG stream writes now have
-  copied-byte callback tests and `WriteError` propagation coverage.
+  PDF/PS/SVG stream-writer constructors and PNG stream read/write now have
+  copied-byte callback tests and read/write error propagation coverage.
 - `Surface::copy_data` still copies Cairo image data into MoonBit `Bytes`;
   `Surface::get_data` is the mutable image-surface view and intentionally
   retains the surface wrapper instead of exposing a raw pointer.

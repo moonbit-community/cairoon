@@ -746,6 +746,7 @@ pub fn Surface::has_show_text_glyphs(Self) -> Bool raise CairoError
 pub fn Surface::image(Format, Int, Int) -> Self raise CairoError
 pub fn Surface::image_for_data(FixedArray[Byte], Format, Int, Int, stride? : Int) -> Self raise CairoError
 pub fn Surface::image_from_png(String) -> Self raise CairoError
+pub fn Surface::image_from_png_stream((Int) -> Bytes) -> Self raise CairoError
 pub fn Surface::map_to_image(Self, extents? : RectangleInt?) -> MappedImageSurface raise CairoError
 pub fn Surface::mark_dirty(Self) -> Unit raise CairoError
 pub fn Surface::mark_dirty_rectangle(Self, Int, Int, Int, Int) -> Unit raise CairoError

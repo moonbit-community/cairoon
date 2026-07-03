@@ -9,6 +9,11 @@ typedef struct {
   void *arg;
 } CairoonStreamState;
 
+typedef struct {
+  CairoonStreamReadCallback callback;
+  void *arg;
+} CairoonStreamReadState;
+
 static const cairo_user_data_key_t cairoon_stream_state_key;
 
 void cairoon_stream_state_destroy(void *state_ptr) {
@@ -94,4 +99,76 @@ cairo_status_t cairoon_stream_attach(cairo_surface_t *surface, void *state) {
     cairoon_stream_state_destroy(state);
   }
   return status;
+}
+
+void cairoon_stream_read_state_destroy(void *state_ptr) {
+  CairoonStreamReadState *state = (CairoonStreamReadState *)state_ptr;
+  if (state == NULL) {
+    return;
+  }
+  if (state->arg != NULL) {
+    moonbit_decref(state->arg);
+    state->arg = NULL;
+  }
+  free(state);
+}
+
+void *cairoon_stream_read_state_new(
+  CairoonStreamReadCallback callback,
+  void *arg,
+  cairo_status_t *status_out) {
+  *status_out = CAIRO_STATUS_SUCCESS;
+  if (callback == NULL) {
+    if (arg != NULL) {
+      moonbit_decref(arg);
+    }
+    *status_out = CAIRO_STATUS_NULL_POINTER;
+    return NULL;
+  }
+
+  CairoonStreamReadState *state =
+    (CairoonStreamReadState *)malloc(sizeof(CairoonStreamReadState));
+  if (state == NULL) {
+    if (arg != NULL) {
+      moonbit_decref(arg);
+    }
+    *status_out = CAIRO_STATUS_NO_MEMORY;
+    return NULL;
+  }
+
+  state->callback = callback;
+  state->arg = arg;
+  return state;
+}
+
+cairo_status_t cairoon_stream_read(
+  void *closure,
+  unsigned char *data,
+  unsigned int length) {
+  CairoonStreamReadState *state = (CairoonStreamReadState *)closure;
+  if (state == NULL || state->callback == NULL) {
+    return CAIRO_STATUS_READ_ERROR;
+  }
+  if (length > (unsigned int)INT_MAX) {
+    return CAIRO_STATUS_NO_MEMORY;
+  }
+  if (length > 0 && data == NULL) {
+    return CAIRO_STATUS_NULL_POINTER;
+  }
+
+  moonbit_bytes_t bytes = state->callback((int32_t)length, state->arg);
+  if (bytes == NULL) {
+    return CAIRO_STATUS_READ_ERROR;
+  }
+
+  uint32_t actual = Moonbit_array_length(bytes);
+  if (actual != length) {
+    moonbit_decref(bytes);
+    return CAIRO_STATUS_READ_ERROR;
+  }
+  if (length > 0) {
+    memcpy(data, bytes, (size_t)length);
+  }
+  moonbit_decref(bytes);
+  return CAIRO_STATUS_SUCCESS;
 }

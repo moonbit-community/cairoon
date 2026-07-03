@@ -51,6 +51,21 @@ pub fn Surface::image_from_png(path : String) -> Surface raise CairoError {
 }
 
 ///|
+pub fn Surface::image_from_png_stream(
+  reader : (Int) -> Bytes,
+) -> Surface raise CairoError {
+  let status = Ref(Success)
+  let surface = image_surface_create_from_png_stream_ffi(
+    fn(length, reader) { reader(length) },
+    reader,
+    status,
+  )
+  check_status(status.val)
+  check_status(surface_status_ffi(surface))
+  surface
+}
+
+///|
 pub fn Surface::recording(
   content : Content,
   extents? : Rectangle? = None,

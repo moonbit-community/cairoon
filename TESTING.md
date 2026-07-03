@@ -125,6 +125,8 @@ Memory tests must cover:
 For surfaces and devices, add backend-specific smoke tests:
 
 - Image: exact stride, format, dimensions, and raw byte output.
+- Image PNG streams: read/write callback round trips and read/write error
+  propagation.
 - PDF/SVG/PS: create, finish, metadata, page behavior, stream writers, and
   normalized output.
 - Recording/script/tee: only mark Done when the backend is available and tests
@@ -156,19 +158,21 @@ compile-time Cairo
 constants, group APIs, tag APIs, toy
 text APIs, glyph array APIs, text-to-glyphs/show-text-glyphs APIs,
 hit-testing/extents APIs, typed Path segment iteration and stringification,
-PNG filename load/save, direct C Cairo oracle image-paint comparison, and
-buffer-backed creation plus mutable `ImageData` views for image and
+PNG filename load/save plus stream read/write, direct C Cairo oracle
+image-paint comparison, and buffer-backed creation plus mutable `ImageData`
+views for image and
 mapped-image surfaces, portable
 Surface base helpers such as similar-surface creation, rectangular child
 surface creation with retained parent-wrapper lifetime, content/type queries,
 dirty markers, device offset/scale, fallback resolution, show-text-glyphs
 support checks, MIME constants, MIME data storage/query/clear support, and
 RecordingSurface constructor/extents/ink-extents plus replay, mapped image
-surface mapping/unmapping, PDFSurface filename/no-output constructor, version
-helpers, version restriction, size, metadata, page-label, thumbnail, and
-single-flag and combined-flag outline helpers, PSSurface filename/no-output
-constructor, level helpers, level restriction, EPS mode, size and DSC helpers,
-SVGSurface filename/no-output constructor, version helpers, version
+surface mapping/unmapping, PDFSurface filename/no-output/stream constructor,
+version helpers, version restriction, size, metadata, page-label, thumbnail,
+and single-flag and combined-flag outline helpers, PSSurface
+filename/no-output/stream constructor, level helpers, level restriction, EPS
+mode, size and DSC helpers, SVGSurface filename/no-output/stream constructor,
+version helpers, version
 restriction, and document-unit helpers,
 surface-pattern borrowed surface returns, MeshPattern patch lifecycle/query
 APIs, `FORMAT_INVALID` integer-sentinel coverage, FontOptions
@@ -188,7 +192,7 @@ construction plus predicates and boolean operations.
 Verified on 2026-07-02 and 2026-07-03:
 
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native -v`: 221 tests passed.
+- `moon -C cairoon test --target native -v`: 223 tests passed.
 - ASan/LSan via `run-asan.py`: ran on 2026-07-03 after adding retained-owner
   lifetime stress tests. The first run found a real heap-use-after-free when a
   `Surface` returned by `Context::get_target` outlived a context created from a
@@ -313,11 +317,19 @@ Verified on 2026-07-02 and 2026-07-03:
   global-buffer-overflow, `cairoon_surface_write_to_png_stream`, or
   `cairoon_stream` entries; summary:
   `64909 byte(s) leaked in 399 allocation(s)`.
+  The later PNG stream-read slice added exact-length reader callbacks and two
+  black-box tests, raising the native suite to 223 tests. ASan/LSan was rerun
+  on 2026-07-03 and reported only the same macOS LeakSanitizer class. A grep
+  of `/tmp/cairoon-png-read-stream-asan.txt` found no
+  `ERROR: AddressSanitizer`, heap-use-after-free, stack-use-after,
+  global-buffer-overflow, `cairoon_image_surface_create_from_png_stream`,
+  `cairoon_stream_read`, or `cairoon_stream` entries; summary:
+  `55397 byte(s) leaked in 405 allocation(s)`.
 
 The missing reliability pieces are substantial: automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering
 LSan failure, finalizer stress tests, CI wiring, vector-output normalization,
-PNG read/script stream callbacks, SVG/PS tag-materialization assertions, and
+script stream callbacks, SVG/PS tag-materialization assertions, and
 the remaining API families from `API_INVENTORY.md`.
 
 ## Porting pycairo Tests

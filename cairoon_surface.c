@@ -135,6 +135,37 @@ CairoonSurface *cairoon_image_surface_create_from_png(
 }
 
 MOONBIT_FFI_EXPORT
+CairoonSurface *cairoon_image_surface_create_from_png_stream(
+  CairoonStreamReadCallback callback,
+  void *arg,
+  cairo_status_t *status_out) {
+  *status_out = CAIRO_STATUS_SUCCESS;
+#if CAIRO_HAS_PNG_FUNCTIONS
+  void *state = cairoon_stream_read_state_new(callback, arg, status_out);
+  if (*status_out != CAIRO_STATUS_SUCCESS) {
+    return cairoon_surface_wrap_owned(NULL);
+  }
+
+  cairo_surface_t *surface =
+    cairo_image_surface_create_from_png_stream(cairoon_stream_read, state);
+  cairoon_stream_read_state_destroy(state);
+  if (surface == NULL) {
+    *status_out = CAIRO_STATUS_NO_MEMORY;
+    return cairoon_surface_wrap_owned(NULL);
+  }
+  *status_out = cairo_surface_status(surface);
+  return cairoon_surface_wrap_owned(surface);
+#else
+  (void)callback;
+  if (arg != NULL) {
+    moonbit_decref(arg);
+  }
+  *status_out = CAIRO_STATUS_PNG_ERROR;
+  return cairoon_surface_wrap_owned(NULL);
+#endif
+}
+
+MOONBIT_FFI_EXPORT
 CairoonSurface *cairoon_recording_surface_create(
   cairo_content_t content,
   int32_t has_extents,

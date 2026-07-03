@@ -22,6 +22,25 @@ fn chunks_to_bytes(chunks : Array[Bytes]) -> Bytes {
 }
 
 ///|
+fn bytes_slice(bytes : Bytes, offset : Int, length : Int) -> Bytes {
+  Bytes::makei(length, fn(i) { bytes[offset + i] })
+}
+
+///|
+fn make_png_bytes() -> Bytes raise CairoError {
+  let chunks : Array[Bytes] = []
+  let surface = Surface::image(Argb32, 2, 2)
+  let ctx = Context::new(surface)
+  ctx.set_source_rgb(1.0, 0.0, 0.0)
+  ctx.paint()
+  surface.write_to_png_stream(fn(chunk) {
+    chunks.push(chunk)
+    Success
+  })
+  chunks_to_bytes(chunks)
+}
+
+///|
 fn is_png_signature(bytes : Bytes) -> Bool {
   bytes.length() >= 8 &&
   bytes[0].to_int() == 137 &&
@@ -96,16 +115,7 @@ test "stream writer status maps to cairo IO error" {
 
 ///|
 test "png stream writer receives image bytes" {
-  let chunks : Array[Bytes] = []
-  let surface = Surface::image(Argb32, 2, 2)
-  let ctx = Context::new(surface)
-  ctx.set_source_rgb(1.0, 0.0, 0.0)
-  ctx.paint()
-  surface.write_to_png_stream(fn(chunk) {
-    chunks.push(chunk)
-    Success
-  })
-  let output = chunks_to_bytes(chunks)
+  let output = make_png_bytes()
   inspect(output.length() > 8, content="true")
   inspect(is_png_signature(output), content="true")
 }
@@ -117,5 +127,42 @@ test "png stream writer status maps to cairo IO error" {
   match result {
     Err(CairoIOError(WriteError, _)) => ()
     _ => @test.fail("expected WriteError from PNG stream writer")
+  }
+}
+
+///|
+test "png stream reader creates image surface" {
+  let input = make_png_bytes()
+  let offset = Ref(0)
+  let surface = Surface::image_from_png_stream(fn(length) {
+    let chunk = bytes_slice(input, offset.val, length)
+    offset.val += length
+    chunk
+  })
+  inspect(surface.get_width(), content="2")
+  inspect(surface.get_height(), content="2")
+  let format = surface.get_format()
+  inspect(format == Argb32 || format == Rgb24, content="true")
+  inspect(offset.val == input.length(), content="true")
+}
+
+///|
+test "png stream reader short read maps to cairo IO error" {
+  let input = make_png_bytes()
+  let offset = Ref(0)
+  let result = run_cairo(() => {
+    let _ = Surface::image_from_png_stream(fn(length) {
+      let available = input.length() - offset.val
+      let actual = if available < length { available } else { length }
+      let short = if actual > 0 { actual - 1 } else { 0 }
+      let chunk = bytes_slice(input, offset.val, short)
+      offset.val += short
+      chunk
+    })
+    ()
+  })
+  match result {
+    Err(CairoIOError(ReadError, _)) | Err(CairoIOError(PngError, _)) => ()
+    _ => @test.fail("expected read failure from PNG stream reader")
   }
 }

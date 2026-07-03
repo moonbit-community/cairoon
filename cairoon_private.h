@@ -68,6 +68,7 @@ typedef struct {
 } CairoonTextToGlyphs;
 
 typedef int32_t (*CairoonStreamWriteCallback)(moonbit_bytes_t data, void *arg);
+typedef moonbit_bytes_t (*CairoonStreamReadCallback)(int32_t length, void *arg);
 
 CairoonSurface *cairoon_surface_wrap_owned(cairo_surface_t *ptr);
 CairoonSurface *cairoon_surface_wrap_owned_with_base(
@@ -117,6 +118,15 @@ cairo_status_t cairoon_stream_write(
   unsigned int length);
 cairo_status_t cairoon_stream_attach(cairo_surface_t *surface, void *state);
 void cairoon_stream_state_destroy(void *state);
+void *cairoon_stream_read_state_new(
+  CairoonStreamReadCallback callback,
+  void *arg,
+  cairo_status_t *status_out);
+cairo_status_t cairoon_stream_read(
+  void *closure,
+  unsigned char *data,
+  unsigned int length);
+void cairoon_stream_read_state_destroy(void *state);
 
 moonbit_bytes_t cairoon_copy_c_string(const char *str);
 cairo_status_t cairoon_glyphs_from_fields(

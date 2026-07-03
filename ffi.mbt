@@ -566,6 +566,15 @@ extern "C" fn image_surface_create_from_png_ffi(
 ) -> Surface = "cairoon_image_surface_create_from_png"
 
 ///|
+#owned(reader)
+#borrow(status)
+extern "C" fn image_surface_create_from_png_stream_ffi(
+  call_reader : FuncRef[(Int, (Int) -> Bytes) -> Bytes],
+  reader : (Int) -> Bytes,
+  status : Ref[Status],
+) -> Surface = "cairoon_image_surface_create_from_png_stream"
+
+///|
 #borrow(surface, status)
 extern "C" fn image_surface_get_data_ffi(
   surface : Surface,
