@@ -59,6 +59,8 @@ Implemented in this workspace:
   Context group target/push/pop APIs, Context tag begin/end APIs, Context toy
   text show/path/extents APIs, Context glyph array extents/path/show APIs,
   ScaledFont text-to-glyphs, Context show-text-glyphs APIs,
+  documented product-scope decisions for pycairo's `CAPI`, legacy uppercase
+  enum alias constants, and non-implemented FreeType/user-font classes,
   RecordingSurface constructor/extents/ink-extents APIs, PDFSurface
   filename/no-output/stream constructor, version helpers, version restriction,
   page-size, metadata, custom metadata, page-label, thumbnail, single-flag
@@ -158,9 +160,11 @@ Implemented in this workspace:
 
 - Gate 1 API inventory: partial. A full inventory ledger exists in
   `API_INVENTORY.md`; multiple rows remain Partial or Decision. The
-  `SurfaceObserverMode` row is resolved as enum-only pycairo scope, with
-  Cairo's native observer surface/device APIs intentionally outside the current
-  migration product.
+  `CAPI`, legacy uppercase enum alias constants, `SurfaceObserverMode`,
+  `FreeTypeFontFace`, and `UserFontFace` rows are resolved product decisions.
+  Cairo's native observer surface/device APIs and native FreeType/user-font
+  extension APIs are intentionally outside the current pycairo-migration
+  product.
 - Gate 2 behavioral parity: partial. First MoonBit tests cover a small subset
   of pycairo's matrix, surface, context, pattern, raster-source callback,
   region, and error behavior.
@@ -192,6 +196,10 @@ Implemented in this workspace:
 
 - `moon -C cairoon check --target native`: passed.
 - `moon -C cairoon test --target native -v`: 234 tests passed.
+- Documentation-only product-decision audit for pycairo `CAPI`, legacy enum
+  aliases, and non-implemented FreeType/user-font classes: `moon -C cairoon
+  check --target native`, `moon -C cairoon test --target native -v`, and
+  `moon -C cairoon info --target native` passed on 2026-07-03.
 - `run-asan.py --repo-root /Users/caimeo/code/pycairo/cairoon --pkg moon.pkg`:
   most recently ran the 234-test native suite on 2026-07-03 after the
   vector scene oracle slice. The rerun found no invalid access and no

@@ -47,6 +47,8 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 | `PDF_OUTLINE_ROOT`, `FORMAT_INVALID`, `COLOR_PALETTE_DEFAULT` | Done | Numeric constants exposed and white-box tested against C macros |
 | `version`, `version_info` | Decision | Resolved out of public API scope: Cairo library version is exposed through `cairo_version*` and package version remains Moon package metadata in `moon.mod` |
 | `get_include()` | Decision | Resolved out of public API scope: pycairo uses this for Python C-extension header discovery; cairoon uses `moon.pkg` native link configuration instead |
+| `CAPI` | Decision | Resolved out of public API scope: pycairo exposes this CPython extension capsule table for third-party Python extension modules; cairoon exposes native MoonBit wrappers and does not ship a Python C-extension ABI |
+| Legacy enum alias constants such as `ANTIALIAS_*`, `STATUS_*`, `OPERATOR_*` | Decision | MoonBit canonical API uses typed enum constructors such as `AntialiasBest`, `Success`, and `OperatorOver`; uppercase MoonBit names are restricted to primitive `const` values, so enum-typed pycairo aliases cannot be represented directly, and exposing weak `Int` aliases would undermine the typed API |
 
 ## Enums And Constants
 
@@ -83,6 +85,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 | `TextClusterFlags` | Done | Cairo bit value preserved |
 | `SurfaceObserverMode` | Done | pycairo exposes only the enum; Cairo native observer surface/device APIs are outside the pycairo-migration API surface unless cairoon later grows an explicit Cairo-extension layer |
 | Tag and MIME string constants | Done | `TAG_*` and `MIME_TYPE_*` expose Cairo strings and are checked against compile-time C macros |
+| Legacy uppercase enum alias constants | Decision | Not exposed as values. MoonBit cannot define uppercase enum-typed aliases because non-primitive constants are not allowed, and lowercase aliases would not match pycairo's legacy API names. Use the typed enum constructors listed above. |
 
 ## Value Types
 
@@ -166,6 +169,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 | `Glyph` arrays | Done | `ArrayView[Glyph]` marshaling exists for `Context::glyph_extents`, `Context::glyph_path`, `Context::show_glyphs`, `Context::show_text_glyphs`, `ScaledFont::glyph_extents`, `ScaledFont::text_to_glyphs` output, and `ScaledFont::text_to_glyphs_only` |
 | `TextCluster` arrays | Done | `ArrayView[TextCluster]` marshaling exists for `Context::show_text_glyphs`; `ScaledFont::text_to_glyphs` returns copied `TextCluster` values and `ScaledFont::text_to_glyphs_only` covers pycairo's `with_clusters=False` semantics |
 | UTF-8 text input | Partial | Toy font family, context font-family inputs, `Context::show_text/text_extents/text_path/show_text_glyphs`, and `ScaledFont::text_extents/text_to_glyphs` encode to UTF-8 and reject embedded NUL |
+| `FreeTypeFontFace` / `UserFontFace` | Decision | pycairo docs explicitly mark these Cairo font backends as not implemented and `cairo/__init__.pyi` exposes no public classes for them; native Cairo FreeType/user-font APIs are outside the pycairo-migration scope until cairoon deliberately grows a Cairo-extension layer |
 
 ## Region APIs
 
@@ -188,10 +192,21 @@ constructor methods instead of CPython-style inheritance, and filename APIs
 come before callback stream APIs.
 Resolved here: pycairo's `version`, `version_info`, and `get_include()`
 packaging/C-extension helpers are out of cairoon's public runtime API.
+Resolved here: pycairo's `CAPI` CPython capsule table is out of cairoon's
+public API because cairoon exposes MoonBit-native wrappers rather than a Python
+C-extension ABI.
+Resolved here: pycairo's legacy uppercase enum alias constants are not exposed
+as MoonBit values. MoonBit uppercase names are primitive-only `const` values,
+so enum-typed aliases cannot be represented without weakening the API to raw
+integers; cairoon uses the typed enum constructors as the canonical API.
 Resolved here: pycairo exposes `SurfaceObserverMode` but not Cairo's native
 observer surface/device APIs, so those native observer APIs are out of the
 pycairo-migration product scope until a separate Cairo-extension layer is
 explicitly designed.
+Resolved here: pycairo does not implement `FreeTypeFontFace` or `UserFontFace`
+and does not expose public classes for them in `cairo/__init__.pyi`; cairoon
+keeps those native Cairo font backends out of the pycairo-migration scope until
+a separate extension layer is designed.
 
 ## Reliability Gates
 

@@ -135,6 +135,13 @@ For surfaces and devices, add backend-specific smoke tests:
   pycairo exposes `SurfaceObserverMode` but not those native APIs, so cairoon
   records the enum and leaves observer surfaces/devices to a future extension
   layer.
+- Python C-extension capsule APIs and legacy Python enum alias names: not a
+  MoonBit runtime migration gate. `CAPI` has no MoonBit equivalent, and
+  uppercase enum-typed aliases cannot be represented directly in MoonBit
+  without weakening them to raw integers.
+- Native FreeType/user-font Cairo APIs: not a pycairo migration gate because
+  pycairo documents them as not implemented and exposes no public classes for
+  them in `cairo/__init__.pyi`.
 - Platform APIs such as Win32/XCB/Xlib: require a platform-specific test job or
   an explicit product-scope Decision.
 
@@ -163,6 +170,8 @@ compile-time Cairo
 constants, group APIs, tag APIs, toy
 text APIs, glyph array APIs, text-to-glyphs/show-text-glyphs APIs,
 including glyph-only text conversion for pycairo's `with_clusters=False` path,
+documented product decisions for `CAPI`, legacy uppercase enum alias
+constants, and non-implemented FreeType/user-font classes,
 hit-testing/extents APIs, typed Path segment iteration and stringification,
 PNG filename load/save plus stream read/write, direct C Cairo oracle
 comparisons for eight deterministic ARGB32 image scenes, and buffer-backed creation plus mutable `ImageData`
@@ -205,6 +214,10 @@ Verified on 2026-07-02 and 2026-07-03:
 
 - `moon -C cairoon check --target native`: passed.
 - `moon -C cairoon test --target native -v`: 234 tests passed.
+- Documentation-only product-decision audit for pycairo `CAPI`, legacy enum
+  aliases, and non-implemented FreeType/user-font classes: `moon -C cairoon
+  check --target native`, `moon -C cairoon test --target native -v`, and
+  `moon -C cairoon info --target native` passed on 2026-07-03.
 - ASan/LSan via `run-asan.py`: ran on 2026-07-03 after adding retained-owner
   lifetime stress tests. The first run found a real heap-use-after-free when a
   `Surface` returned by `Context::get_target` outlived a context created from a
