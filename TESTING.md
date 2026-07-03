@@ -202,7 +202,7 @@ APIs, `FORMAT_INVALID` integer-sentinel coverage, FontOptions
 state/accessor APIs, FontFace/ToyFontFace APIs, ScaledFont
 basics including glyph extents, text-to-glyphs, and direct C Cairo oracle
 comparison for font/text/glyph extents and empty/ASCII/UTF-8 text-to-glyph
-coordinate cases, and
+coordinate cases plus sheared font/CTM scale-matrix composition, and
 Device/ScriptDevice basics including status/type/equal/hash,
 finish/flush/acquire/release, scoped acquire, file/stream script devices,
 script mode/comment helpers, recording replay, `Surface::get_device`,
@@ -255,9 +255,12 @@ Verified on 2026-07-02 and 2026-07-03:
 - `moon -C cairoon test surface_subsurface_test.mbt --target native -v`: 3
   black-box tests passed after adding invalid-size coverage for
   `Surface::create_for_rectangle`.
-- `moon -C cairoon test --target native`: 251 tests passed.
+- `moon -C cairoon test scaled_font_test.mbt --target native -v`: 6
+  black-box tests passed after adding sheared font/CTM scale-matrix
+  composition coverage.
+- `moon -C cairoon test --target native`: 252 tests passed.
 - `moon -C cairoon info --target native`: passed; the latest
-  Surface invalid-size black-box tests did not change the public
+  ScaledFont matrix-composition black-box test did not change the public
   interface.
 - Documentation-only product-decision audit for pycairo `CAPI`, legacy enum
   aliases, and non-implemented FreeType/user-font classes: `moon -C cairoon
@@ -607,6 +610,11 @@ Verified on 2026-07-02 and 2026-07-03:
   negative dimensions to `CairoInvalidArgument(InvalidSize, _)`, raising the
   native suite to 251 tests. ASan/LSan was not rerun for that slice because it
   did not change C glue or ownership code.
+  The later ScaledFont matrix-composition slice added pure MoonBit black-box
+  coverage for sheared font matrices, sheared CTMs, CTM translation suppression,
+  and scale-matrix composition, raising the native suite to 252 tests.
+  ASan/LSan was not rerun for that slice because it did not change C glue or
+  ownership code.
 
 The missing reliability pieces are substantial: broader automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering

@@ -52,6 +52,26 @@ test "scaled font construction exposes font face options and matrices" {
 }
 
 ///|
+test "scaled font scale matrix combines sheared font and ctm matrices" {
+  let face = FontFace::toy("serif")
+  let options = FontOptions::new()
+  let font_matrix = Matrix::new(xx=10.0, yx=1.0, xy=2.0, yy=12.0)
+  let ctm = Matrix::new(xx=1.5, yx=0.25, xy=0.5, yy=2.0, x0=31.0, y0=-8.0)
+  let scaled_font = ScaledFont::new(face, font_matrix, ctm, options)
+  let returned_font_matrix = scaled_font.get_font_matrix()
+  let returned_ctm = scaled_font.get_ctm()
+  assert_scaled_matrix_close(returned_font_matrix, font_matrix)
+  assert_scaled_matrix_close(
+    returned_ctm,
+    Matrix::new(xx=1.5, yx=0.25, xy=0.5, yy=2.0),
+  )
+  assert_scaled_matrix_close(
+    scaled_font.get_scale_matrix(),
+    returned_font_matrix.multiply(returned_ctm),
+  )
+}
+
+///|
 test "scaled font metrics and text extents are checked values" {
   let scaled_font = make_scaled_font()
   let extents = scaled_font.extents()

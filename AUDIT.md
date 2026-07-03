@@ -94,7 +94,8 @@ Implemented in this workspace:
   font-face get/set/select wrappers.
 - `ScaledFont` external object with finalizer ownership, pointer equality/hash,
   constructor from `FontFace`/`Matrix`/`FontOptions`, font face/options and
-  matrix getters, text and glyph extents, full and glyph-only text-to-glyphs,
+  matrix getters including sheared font/CTM scale-matrix composition, text and
+  glyph extents, full and glyph-only text-to-glyphs,
   direct C Cairo oracle comparison for font/text/glyph extents and
   empty/ASCII/UTF-8 text-to-glyph coordinate cases, and `Context`
   font matrix/size/extents plus scaled-font
@@ -124,8 +125,9 @@ Implemented in this workspace:
   extents/current-point/path behavior, text input validation, Context glyph
   array extents/path/show
   behavior, empty glyph arrays, glyph context-error propagation, text-to-glyphs
-  output copying including glyph-only conversion, ScaledFont font/text/glyph
-  extents and text-to-glyph string-matrix direct C oracle comparison,
+  output copying including glyph-only conversion, ScaledFont sheared matrix
+  composition, font/text/glyph extents, and text-to-glyph string-matrix direct C
+  oracle comparison,
   show-text-glyphs rendering, and
   text-glyph input validation,
   mapped image whole-surface and rectangle-extents writeback behavior,
@@ -256,9 +258,12 @@ Implemented in this workspace:
 - `moon -C cairoon test surface_subsurface_test.mbt --target native -v`: 3
   black-box tests passed after adding invalid-size coverage for
   `Surface::create_for_rectangle`.
-- `moon -C cairoon test --target native`: 251 tests passed.
+- `moon -C cairoon test scaled_font_test.mbt --target native -v`: 6
+  black-box tests passed after adding sheared font/CTM scale-matrix
+  composition coverage.
+- `moon -C cairoon test --target native`: 252 tests passed.
 - `moon -C cairoon info --target native`: passed; the latest
-  Surface invalid-size black-box tests did not change the public
+  ScaledFont matrix-composition black-box test did not change the public
   interface.
 - Documentation-only product-decision audit for pycairo `CAPI`, legacy enum
   aliases, and non-implemented FreeType/user-font classes: `moon -C cairoon
@@ -515,6 +520,10 @@ Implemented in this workspace:
   `create_similar`, `create_similar_image`, and `create_for_rectangle` mapping
   negative dimensions to `CairoInvalidArgument(InvalidSize, _)`, raising the
   native suite to 251 tests; ASan was not rerun because no C glue changed.
+  The later ScaledFont matrix-composition slice added pure MoonBit black-box
+  coverage for sheared font matrices, sheared CTMs, CTM translation suppression,
+  and scale-matrix composition, raising the native suite to 252 tests; ASan was
+  not rerun because no C glue changed.
 
 ## Known Gaps
 
