@@ -50,6 +50,12 @@ test "scaled font text_to_glyphs handles empty and single text" {
   debug_inspect(run.flags, content="TextClusterNone")
   inspect(run.glyphs[0].x, content="2")
   inspect(run.glyphs[0].y, content="12")
+
+  let glyphs_only = scaled.text_to_glyphs_only(2.0, 12.0, "a")
+  inspect(glyphs_only.length(), content="1")
+  inspect(glyphs_only[0].index == run.glyphs[0].index, content="true")
+  inspect(glyphs_only[0].x, content="2")
+  inspect(glyphs_only[0].y, content="12")
 }
 
 ///|
@@ -72,6 +78,12 @@ test "text glyph APIs validate embedded nul strings" {
   expect_text_glyph_invalid_string(
     run_cairo(() => {
       let _ = scaled.text_to_glyphs(0.0, 0.0, "bad\u{0}text")
+      ()
+    }),
+  )
+  expect_text_glyph_invalid_string(
+    run_cairo(() => {
+      let _ = scaled.text_to_glyphs_only(0.0, 0.0, "bad\u{0}text")
       ()
     }),
   )

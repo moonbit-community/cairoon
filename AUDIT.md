@@ -91,8 +91,9 @@ Implemented in this workspace:
   font-face get/set/select wrappers.
 - `ScaledFont` external object with finalizer ownership, pointer equality/hash,
   constructor from `FontFace`/`Matrix`/`FontOptions`, font face/options and
-  matrix getters, text and glyph extents, text-to-glyphs, and `Context` font
-  matrix/size/extents plus scaled-font get/set/show-text-glyphs wrappers.
+  matrix getters, text and glyph extents, full and glyph-only text-to-glyphs,
+  and `Context` font matrix/size/extents plus scaled-font
+  get/set/show-text-glyphs wrappers.
 - Initial parity tests for version helpers, compile-time Cairo constants, enum
   exposure, pure value types, matrix behavior, image surface properties,
   buffer-backed image surface sharing and
@@ -113,7 +114,8 @@ Implemented in this workspace:
   extents/current-point/path behavior, text input validation, Context glyph
   array extents/path/show
   behavior, empty glyph arrays, glyph context-error propagation, text-to-glyphs
-  output copying, show-text-glyphs rendering, and text-glyph input validation,
+  output copying including glyph-only conversion, show-text-glyphs rendering,
+  and text-glyph input validation,
   mapped image whole-surface and rectangle-extents writeback behavior,
   wrong-base and double-unmap errors, core painting/page behavior, hit testing
   and extents, MIME data storage/clear behavior including embedded NUL bytes
@@ -283,6 +285,9 @@ Implemented in this workspace:
   executed, and greps found no `ERROR: AddressSanitizer`, heap-use-after-free,
   stack-use-after, global-buffer-overflow, heap-buffer-overflow, or double-free
   report.
+  The later `ScaledFont::text_to_glyphs_only` slice is pure MoonBit API
+  coverage for pycairo's `with_clusters=False` path; the native suite stayed at
+  233 tests and ASan/LSan was not rerun for that non-C change.
 
 ## Known Gaps
 

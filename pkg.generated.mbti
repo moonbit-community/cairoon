@@ -661,6 +661,7 @@ pub fn ScaledFont::new(FontFace, Matrix, Matrix, FontOptions) -> Self raise Cair
 pub fn ScaledFont::status(Self) -> Status
 pub fn ScaledFont::text_extents(Self, String) -> TextExtents raise CairoError
 pub fn ScaledFont::text_to_glyphs(Self, Double, Double, String) -> TextGlyphRun raise CairoError
+pub fn ScaledFont::text_to_glyphs_only(Self, Double, Double, String) -> Array[Glyph] raise CairoError
 
 pub(all) enum ScriptMode {
   ScriptModeAscii

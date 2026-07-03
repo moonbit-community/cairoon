@@ -162,6 +162,7 @@ source-surface convenience, clip, matrix, drawing-state including hairline mode,
 compile-time Cairo
 constants, group APIs, tag APIs, toy
 text APIs, glyph array APIs, text-to-glyphs/show-text-glyphs APIs,
+including glyph-only text conversion for pycairo's `with_clusters=False` path,
 hit-testing/extents APIs, typed Path segment iteration and stringification,
 PNG filename load/save plus stream read/write, direct C Cairo oracle
 comparisons for eight deterministic ARGB32 image scenes, and buffer-backed creation plus mutable `ImageData`
@@ -385,6 +386,9 @@ Verified on 2026-07-02 and 2026-07-03:
   white-box executable was then run directly with leak detection disabled and
   exited 0, exercising the image oracle test without any AddressSanitizer
   invalid-access report.
+  The later `ScaledFont::text_to_glyphs_only` slice added pure MoonBit API
+  coverage for pycairo's `with_clusters=False` path, keeping the native suite
+  at 233 tests; ASan/LSan was not rerun for that non-C change.
 
 The missing reliability pieces are substantial: broader automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering

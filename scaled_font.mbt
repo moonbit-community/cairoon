@@ -251,3 +251,13 @@ pub fn ScaledFont::text_to_glyphs(
     scaled_font_text_to_glyphs_ffi(self, x, y, checked_c_string_bytes(text)),
   )
 }
+
+///|
+pub fn ScaledFont::text_to_glyphs_only(
+  self : ScaledFont,
+  x : Double,
+  y : Double,
+  text : String,
+) -> Array[Glyph] raise CairoError {
+  self.text_to_glyphs(x, y, text).glyphs
+}
