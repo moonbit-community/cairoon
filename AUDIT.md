@@ -265,14 +265,15 @@ Implemented in this workspace:
 - `moon -C cairoon test raster_lifetime_stress_test.mbt --target native -v`: 1
   black-box raster-source callback lifetime test passed after adding the
   1000-iteration set/get/manual acquire/release/replace/clear stress case.
-- `moon -C cairoon test pattern_test.mbt --target native -v`: 16 black-box
-  pattern tests passed after adding finished-surface raster acquire
-  failure-injection coverage and the C-side surface-finished sentinel.
+- `moon -C cairoon test pattern_test.mbt --target native -v`: 17 black-box
+  pattern tests passed after adding release-only raster callback state,
+  finished-surface raster acquire failure-injection coverage, and the C-side
+  surface-finished sentinel.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
-  pattern_test.mbt --target native -v`: 16 ASan-compiled black-box pattern
-  tests passed with leak detection disabled, covering the raster acquire
-  finished-surface rejection path in C glue.
+  pattern_test.mbt --target native -v`: 17 ASan-compiled black-box pattern
+  tests passed with leak detection disabled, covering release-only callback
+  state and the raster acquire finished-surface rejection path in C glue.
 - `moon -C cairoon test vector_output_wbtest.mbt --target native -v`: 15
   white-box tests passed after adding PDF named-destination and
   document-structure tag output marker checks alongside metadata, URI
@@ -322,10 +323,9 @@ Implemented in this workspace:
   stream output and writer errors, PDF metadata/outlines, PS DSC, SVG document
   units, recording replay, Tee fanout, script devices/surfaces, and checked
   backend-specific errors.
-- `moon -C cairoon test --target native`: 307 tests passed.
-- `moon -C cairoon info --target native`: passed; the latest ordinary
-  image-surface finished-status test slice did not change the public
-  interface.
+- `moon -C cairoon test --target native`: 308 tests passed.
+- `moon -C cairoon info --target native`: passed; the latest raster-source
+  callback slice intentionally adds optional callback-state public APIs.
 - Test-only buffer-backed image oracle coverage plus Pure MoonBit Region
   rectangle-XOR and executable Matrix/Surface/Context/Font/Path/Pattern/Region
   documentation coverage were added without rerunning ASan because no C glue or
@@ -682,6 +682,9 @@ Implemented in this workspace:
   MoonBit black-box test covering idempotent `finish()` and `SurfaceFinished`
   mapping for `flush`, `copy_page`, and `show_page`, raising the native suite
   to 307 tests; ASan was not rerun because no C glue changed.
+  The later raster-source optional-callback slice added release-only callback
+  state APIs and one black-box test, raising the native suite to 308 tests;
+  targeted ASan with leak detection disabled passed for `pattern_test.mbt`.
 
 ## Known Gaps
 

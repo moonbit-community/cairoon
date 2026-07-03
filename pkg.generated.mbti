@@ -571,8 +571,11 @@ pub fn Pattern::mesh_set_corner_color_rgb(Self, Int, Double, Double, Double) -> 
 pub fn Pattern::mesh_set_corner_color_rgba(Self, Int, Double, Double, Double, Double) -> Unit raise CairoError
 pub fn Pattern::radial(Double, Double, Double, Double, Double, Double) -> Self raise CairoError
 pub fn Pattern::raster_clear_acquire(Self) -> Unit raise CairoError
+pub fn Pattern::raster_clear_callbacks(Self) -> Unit raise CairoError
 pub fn Pattern::raster_get_acquire(Self) -> ((Surface, RectangleInt) -> Surface, ((Surface) -> Unit)?)? raise CairoError
+pub fn Pattern::raster_get_callbacks(Self) -> (((Surface, RectangleInt) -> Surface)?, ((Surface) -> Unit)?) raise CairoError
 pub fn Pattern::raster_set_acquire(Self, (Surface, RectangleInt) -> Surface, release? : ((Surface) -> Unit)?) -> Unit raise CairoError
+pub fn Pattern::raster_set_callbacks(Self, acquire? : ((Surface, RectangleInt) -> Surface)?, release? : ((Surface) -> Unit)?) -> Unit raise CairoError
 pub fn Pattern::raster_source(Content, Int, Int) -> Self raise CairoError
 pub fn Pattern::set_dither(Self, Dither) -> Unit raise CairoError
 pub fn Pattern::set_extend(Self, Extend) -> Unit raise CairoError

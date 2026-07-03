@@ -278,6 +278,23 @@ test "raster source acquire validates pattern subtype" {
     Err(CairoError(PatternTypeMismatch, _)) => ()
     _ => @test.fail("expected PatternTypeMismatch")
   }
+
+  let release_only_result = run_cairo(() => {
+    solid.raster_set_callbacks(release=Some(fn(_) { () }))
+  })
+  match release_only_result {
+    Err(CairoError(PatternTypeMismatch, _)) => ()
+    _ => @test.fail("expected PatternTypeMismatch")
+  }
+
+  let callbacks_result = run_cairo(() => {
+    let _ = solid.raster_get_callbacks()
+    ()
+  })
+  match callbacks_result {
+    Err(CairoError(PatternTypeMismatch, _)) => ()
+    _ => @test.fail("expected PatternTypeMismatch")
+  }
 }
 
 ///|
@@ -346,4 +363,35 @@ test "raster source get_acquire reports optional and cleared callbacks" {
     Err(CairoError(PatternTypeMismatch, _)) => ()
     _ => @test.fail("expected PatternTypeMismatch")
   }
+}
+
+///|
+test "raster source callbacks preserve release only state" {
+  let release_calls = Ref(0)
+  let release_width = Ref(0)
+  let pattern = Pattern::raster_source(ContentColorAlpha, 1, 1)
+  pattern.raster_set_callbacks(
+    release=Some(fn(surface) {
+      release_calls.val += 1
+      release_width.val = surface.get_width()
+    }),
+  )
+
+  let (acquire, release) = pattern.raster_get_callbacks()
+  inspect(acquire is None, content="true")
+  inspect(pattern.raster_get_acquire() is None, content="true")
+  match release {
+    Some(release) => {
+      let surface = Surface::image(Argb32, 2, 1)
+      release(surface)
+      inspect(release_calls.val, content="1")
+      inspect(release_width.val, content="2")
+    }
+    None => @test.fail("expected release callback")
+  }
+
+  pattern.raster_clear_callbacks()
+  let (cleared_acquire, cleared_release) = pattern.raster_get_callbacks()
+  inspect(cleared_acquire is None, content="true")
+  inspect(cleared_release is None, content="true")
 }

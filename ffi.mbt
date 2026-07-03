@@ -2270,18 +2270,28 @@ extern "C" fn raster_source_pattern_set_acquire_with_release_ffi(
 ) -> Status = "cairoon_raster_source_pattern_set_acquire_with_release"
 
 ///|
+#owned(release)
+#borrow(pattern)
+extern "C" fn raster_source_pattern_set_release_ffi(
+  pattern : Pattern,
+  call_release : FuncRef[(Surface, (Surface) -> Unit) -> Unit],
+  release : (Surface) -> Unit,
+) -> Status = "cairoon_raster_source_pattern_set_release"
+
+///|
 #borrow(pattern)
 extern "C" fn raster_source_pattern_clear_acquire_ffi(
   pattern : Pattern,
 ) -> Status = "cairoon_raster_source_pattern_clear_acquire"
 
 ///|
-#borrow(pattern, has_release, status)
-extern "C" fn raster_source_pattern_has_acquire_ffi(
+#borrow(pattern, has_acquire, has_release, status)
+extern "C" fn raster_source_pattern_has_callbacks_ffi(
   pattern : Pattern,
+  has_acquire : Ref[Int],
   has_release : Ref[Int],
   status : Ref[Status],
-) -> Bool = "cairoon_raster_source_pattern_has_acquire"
+) -> Bool = "cairoon_raster_source_pattern_has_callbacks"
 
 ///|
 #borrow(pattern, status)

@@ -202,7 +202,7 @@ static CairoonRasterSourceState *cairoon_raster_source_state_new(
   void *release_arg,
   cairo_status_t *status_out) {
   *status_out = CAIRO_STATUS_SUCCESS;
-  if (acquire == NULL) {
+  if (acquire == NULL && release == NULL) {
     if (acquire_arg != NULL) {
       moonbit_decref(acquire_arg);
     }
@@ -257,8 +257,10 @@ static cairo_status_t cairoon_raster_source_pattern_set_state(
     state == NULL ? NULL : pattern->ptr);
   cairo_raster_source_pattern_set_acquire(
     pattern->ptr,
-    state == NULL ? NULL : cairoon_raster_source_acquire,
-    state == NULL ? NULL : cairoon_raster_source_release);
+    state == NULL || state->acquire == NULL ? NULL :
+      cairoon_raster_source_acquire,
+    state == NULL || state->release == NULL ? NULL :
+      cairoon_raster_source_release);
   return cairo_pattern_status(pattern->ptr);
 }
 
@@ -620,23 +622,43 @@ cairo_status_t cairoon_raster_source_pattern_set_acquire_with_release(
 }
 
 MOONBIT_FFI_EXPORT
+cairo_status_t cairoon_raster_source_pattern_set_release(
+  CairoonPattern *pattern,
+  CairoonRasterSourceReleaseCallback release,
+  void *release_arg) {
+  cairo_status_t status = CAIRO_STATUS_SUCCESS;
+  CairoonRasterSourceState *state = cairoon_raster_source_state_new(
+    NULL,
+    NULL,
+    release,
+    release_arg,
+    &status);
+  if (status != CAIRO_STATUS_SUCCESS) {
+    return status;
+  }
+  return cairoon_raster_source_pattern_set_state(pattern, state);
+}
+
+MOONBIT_FFI_EXPORT
 cairo_status_t cairoon_raster_source_pattern_clear_acquire(
   CairoonPattern *pattern) {
   return cairoon_raster_source_pattern_set_state(pattern, NULL);
 }
 
 MOONBIT_FFI_EXPORT
-int32_t cairoon_raster_source_pattern_has_acquire(
+int32_t cairoon_raster_source_pattern_has_callbacks(
   CairoonPattern *pattern,
+  int32_t *has_acquire,
   int32_t *has_release,
   cairo_status_t *status_out) {
+  *has_acquire = 0;
   *has_release = 0;
   CairoonRasterSourceState *state =
     cairoon_raster_source_pattern_get_state(pattern, status_out);
-  if (*status_out != CAIRO_STATUS_SUCCESS || state == NULL ||
-      state->acquire == NULL) {
+  if (*status_out != CAIRO_STATUS_SUCCESS || state == NULL) {
     return 0;
   }
+  *has_acquire = state->acquire == NULL ? 0 : 1;
   *has_release = state->release == NULL ? 0 : 1;
   return 1;
 }
