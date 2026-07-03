@@ -573,6 +573,13 @@ extern "C" fn image_surface_get_data_ffi(
 ) -> ImageData = "cairoon_image_surface_get_data"
 
 ///|
+#borrow(surface, status)
+extern "C" fn mapped_image_surface_get_data_ffi(
+  surface : MappedImageSurface,
+  status : Ref[Status],
+) -> ImageData = "cairoon_mapped_image_surface_get_data"
+
+///|
 #borrow(data)
 extern "C" fn image_data_status_ffi(data : ImageData) -> Status = "cairoon_image_data_status"
 

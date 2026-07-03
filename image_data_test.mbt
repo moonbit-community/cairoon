@@ -30,6 +30,15 @@ fn image_data_from_local_surface() -> ImageData raise CairoError {
 }
 
 ///|
+fn mapped_image_data_from_local_surface() -> ImageData raise CairoError {
+  let surface = Surface::image(Rgb24, 1, 1)
+  let mapped = surface.map_to_image()
+  let data = mapped.get_data()
+  data.set(0, b'\xaa')
+  data
+}
+
+///|
 test "image data view reads writes and copies surface bytes" {
   let surface = Surface::image(Argb32, 1, 1)
   let data = surface.get_data()
@@ -86,4 +95,54 @@ test "image data view maps invalid surface and indexes" {
     }),
   )
   expect_image_data_invalid_index(run_cairo(() => data.set(4, b'\x00')))
+}
+
+///|
+test "mapped image data view writes and base unmap uploads" {
+  let main = Surface::image(Rgb24, 2, 1)
+  let mapped = main.map_to_image()
+  let data = mapped.get_data()
+  inspect(data.length(), content="8")
+  data.set(0, b'\xff')
+  data.set(1, b'\xff')
+  data.set(2, b'\xff')
+  data.set(3, b'\xff')
+  main.unmap_image(mapped)
+  main.flush()
+  inspect_rgb24_bytes(main.copy_data(), [255, 255, 255, 255, 0, 0, 0, 0])
+  expect_image_data_cairo_status(
+    run_cairo(() => {
+      let _ = data.copy()
+      ()
+    }),
+    SurfaceFinished,
+  )
+}
+
+///|
+test "mapped image data view retains mapped wrapper" {
+  let data = mapped_image_data_from_local_surface()
+  inspect(data.length(), content="4")
+  inspect(data.get(0).to_int(), content="170")
+  data.set(1, b'\xbb')
+  inspect(data.copy()[1].to_int(), content="187")
+}
+
+///|
+test "mapped image data view reports mapped unmap" {
+  let main = Surface::image(Rgb24, 1, 1)
+  let mapped = main.map_to_image()
+  let data = mapped.get_data()
+  mapped.unmap()
+  expect_image_data_cairo_status(
+    run_cairo(() => {
+      let _ = data.get(0)
+      ()
+    }),
+    SurfaceFinished,
+  )
+  expect_image_data_cairo_status(
+    run_cairo(() => data.set(0, b'\x00')),
+    SurfaceFinished,
+  )
 }

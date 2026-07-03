@@ -406,6 +406,7 @@ pub(all) enum LineJoin {
 type MappedImageSurface
 pub fn MappedImageSurface::copy_data(Self) -> Bytes raise CairoError
 pub fn MappedImageSurface::flush(Self) -> Unit raise CairoError
+pub fn MappedImageSurface::get_data(Self) -> ImageData raise CairoError
 pub fn MappedImageSurface::get_format(Self) -> Format raise CairoError
 pub fn MappedImageSurface::get_height(Self) -> Int raise CairoError
 pub fn MappedImageSurface::get_stride(Self) -> Int raise CairoError

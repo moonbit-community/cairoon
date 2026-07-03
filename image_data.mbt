@@ -8,6 +8,17 @@ pub fn Surface::get_data(self : Surface) -> ImageData raise CairoError {
 }
 
 ///|
+pub fn MappedImageSurface::get_data(
+  self : MappedImageSurface,
+) -> ImageData raise CairoError {
+  let status = Ref(Success)
+  let data = mapped_image_surface_get_data_ffi(self, status)
+  check_status(status.val)
+  check_status(image_data_status_ffi(data))
+  data
+}
+
+///|
 pub fn ImageData::status(self : ImageData) -> Status {
   image_data_status_ffi(self)
 }

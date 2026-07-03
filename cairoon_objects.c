@@ -40,6 +40,7 @@ static void cairoon_image_data_finalize(void *self) {
   data->surface = NULL;
   data->data = NULL;
   data->len = 0;
+  data->mapped_object = NULL;
   if (data->surface_object != NULL) {
     moonbit_decref(data->surface_object);
     data->surface_object = NULL;
@@ -190,12 +191,14 @@ CairoonImageData *cairoon_image_data_wrap(
   cairo_surface_t *surface,
   uint8_t *data,
   int32_t len,
+  CairoonMappedImageSurface *mapped_object,
   void *surface_object) {
   CairoonImageData *view = (CairoonImageData *)moonbit_make_external_object(
     cairoon_image_data_finalize, sizeof(CairoonImageData));
   view->surface = surface;
   view->data = data;
   view->len = len;
+  view->mapped_object = mapped_object;
   view->surface_object = surface_object;
   if (surface_object != NULL) {
     moonbit_incref(surface_object);
