@@ -162,7 +162,8 @@ Implemented in this workspace:
   mismatch, painting smoke behavior, pattern state behavior, explicit pattern
   sources, surface-pattern borrowed surface returns, font-options behavior,
   font-face and scaled-font behavior with context error propagation, region
-  behavior, TeeSurface mirrored drawing/index/error/lifetime behavior,
+  behavior including rectangle XOR split semantics, TeeSurface mirrored
+  drawing/index/error/lifetime behavior,
   exhaustive status/error classification, retained-owner lifetime stress, and
   external value-wrapper allocation stress for `Path`, `Region`, the font
   stack, solid/gradient/mesh `Pattern`, recording/similar/Tee `Surface`, and
@@ -261,10 +262,13 @@ Implemented in this workspace:
 - `moon -C cairoon test scaled_font_test.mbt --target native -v`: 6
   black-box tests passed after adding sheared font/CTM scale-matrix
   composition coverage.
-- `moon -C cairoon test --target native`: 252 tests passed.
+- `moon -C cairoon test region_test.mbt --target native -v`: 8 black-box
+  tests passed after adding `Region::xor_rectangle` split-semantics coverage.
+- `moon -C cairoon test --target native`: 253 tests passed.
 - `moon -C cairoon info --target native`: passed; the latest
-  ScaledFont matrix-composition black-box test did not change the public
-  interface.
+  `Region::xor_rectangle` black-box test did not change the public interface.
+- Pure MoonBit Region rectangle-XOR coverage was added without rerunning ASan
+  because no C glue or finalizer ownership code changed in the slice.
 - Documentation-only product-decision audit for pycairo `CAPI`, legacy enum
   aliases, and non-implemented FreeType/user-font classes: `moon -C cairoon
   check --target native`, `moon -C cairoon test --target native -v`, and

@@ -115,6 +115,32 @@ test "region boolean operations with rectangles" {
 }
 
 ///|
+test "region xor rectangle splits overlapping area" {
+  let region = Region::from_rectangle(
+    RectangleInt::new(x=0, y=0, width=10, height=10),
+  )
+  region.xor_rectangle(RectangleInt::new(x=5, y=0, width=10, height=10))
+  inspect(region.is_empty(), content="false")
+  inspect(region.num_rectangles(), content="2")
+  debug_inspect(
+    region.get_extents(),
+    content="{ x: 0, y: 0, width: 15, height: 10 }",
+  )
+  debug_inspect(
+    region.contains_rectangle(RectangleInt::new(x=0, y=0, width=5, height=10)),
+    content="RegionOverlapIn",
+  )
+  debug_inspect(
+    region.contains_rectangle(RectangleInt::new(x=5, y=0, width=5, height=10)),
+    content="RegionOverlapOut",
+  )
+  debug_inspect(
+    region.contains_rectangle(RectangleInt::new(x=10, y=0, width=5, height=10)),
+    content="RegionOverlapIn",
+  )
+}
+
+///|
 test "region boolean operations with regions" {
   let left = Region::from_rectangle(
     RectangleInt::new(x=0, y=0, width=10, height=10),

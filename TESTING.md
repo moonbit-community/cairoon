@@ -222,9 +222,10 @@ fill/stroke rectangles, Bezier paths, transforms, linear/radial gradients,
 toy-font text paths, toy-font `show_text`, and a two-page paint scene, PDF metadata/custom-metadata/page-label/outline output
 markers, PDF/PS/SVG multi-page output markers, PDF JPEG MIME payload embedding,
 PDF link-tag annotation markers, PS/SVG Link tag inert-output checks, mutable
-image/mapped-image data view tests, and initial tests. Region now covers empty, single-rectangle, and
-multi-rectangle
-construction plus predicates and boolean operations.
+image/mapped-image data view tests, and initial tests. Region now covers empty,
+single-rectangle, and multi-rectangle construction plus predicates, region
+boolean operations, and rectangle boolean operations including XOR split
+semantics.
 
 Verified on 2026-07-02 and 2026-07-03:
 
@@ -258,10 +259,13 @@ Verified on 2026-07-02 and 2026-07-03:
 - `moon -C cairoon test scaled_font_test.mbt --target native -v`: 6
   black-box tests passed after adding sheared font/CTM scale-matrix
   composition coverage.
-- `moon -C cairoon test --target native`: 252 tests passed.
+- `moon -C cairoon test region_test.mbt --target native -v`: 8 black-box
+  tests passed after adding `Region::xor_rectangle` split-semantics coverage.
+- `moon -C cairoon test --target native`: 253 tests passed.
 - `moon -C cairoon info --target native`: passed; the latest
-  ScaledFont matrix-composition black-box test did not change the public
-  interface.
+  `Region::xor_rectangle` black-box test did not change the public interface.
+- Pure MoonBit Region rectangle-XOR coverage was added without rerunning ASan
+  because no C glue or finalizer ownership code changed in the slice.
 - Documentation-only product-decision audit for pycairo `CAPI`, legacy enum
   aliases, and non-implemented FreeType/user-font classes: `moon -C cairoon
   check --target native`, `moon -C cairoon test --target native -v`, and
