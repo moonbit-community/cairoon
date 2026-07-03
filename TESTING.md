@@ -174,9 +174,10 @@ documented product decisions for `CAPI`, legacy uppercase enum alias
 constants, and non-implemented FreeType/user-font classes,
 hit-testing/extents APIs, typed Path segment iteration and stringification,
 PNG filename load/save plus stream read/write, direct C Cairo oracle
-comparisons for thirteen deterministic ARGB32 image scenes including toy-font
-`text_path`, toy-font `show_text`, `glyph_path`, `show_glyphs`, and
-`show_text_glyphs`, and buffer-backed creation plus mutable `ImageData`
+comparisons for thirteen deterministic ARGB32 image scenes on ordinary and
+buffer-backed image surfaces including toy-font `text_path`, toy-font
+`show_text`, `glyph_path`, `show_glyphs`, and `show_text_glyphs`, and
+buffer-backed creation plus mutable `ImageData`
 views for image and
 mapped-image surfaces, portable
 Surface base helpers such as similar-surface creation, rectangular child
@@ -237,9 +238,10 @@ pure-value transforms, multiplication, inversion, and checked errors.
 Verified on 2026-07-02 and 2026-07-03:
 
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test image_oracle_wbtest.mbt --target native -v`: the
-  image rendering white-box oracle passed after expanding the direct C ARGB32
-  fixture from ten to thirteen scenes with `glyph_path`, `show_glyphs`, and
+- `moon -C cairoon test image_oracle_wbtest.mbt --target native -v`: 2
+  white-box image rendering oracle tests passed. Ordinary image surfaces and
+  buffer-backed `Surface::image_for_data` surfaces both match the direct C
+  ARGB32 fixture across thirteen scenes with `glyph_path`, `show_glyphs`, and
   `show_text_glyphs`.
 - `moon -C cairoon test scaled_font_oracle_wbtest.mbt --target native -v`: 2
   white-box ScaledFont oracle tests passed, comparing font extents, text
@@ -276,12 +278,13 @@ Verified on 2026-07-02 and 2026-07-03:
   reference examples passed.
 - `moon -C cairoon test pattern.mbt.md --target native -v`: 6 executable
   Pattern reference examples passed.
-- `moon -C cairoon test --target native`: 270 tests passed.
+- `moon -C cairoon test --target native`: 271 tests passed.
 - `moon -C cairoon info --target native`: passed; the latest
-  Pattern reference-documentation slice did not change the public interface.
-- Pure MoonBit Region rectangle-XOR plus executable Matrix/Path/Pattern/Region
-  documentation coverage were added without rerunning ASan
-  because no C glue or finalizer ownership code changed in the slice.
+  buffer-backed image oracle slice did not change the public interface.
+- Test-only buffer-backed image oracle coverage plus Pure MoonBit Region
+  rectangle-XOR and executable Matrix/Path/Pattern/Region documentation
+  coverage were added without rerunning ASan because no C glue or finalizer
+  ownership code changed in those slices.
 - Documentation-only product-decision audit for pycairo `CAPI`, legacy enum
   aliases, and non-implemented FreeType/user-font classes: `moon -C cairoon
   check --target native`, `moon -C cairoon test --target native -v`, and
@@ -651,6 +654,11 @@ Verified on 2026-07-02 and 2026-07-03:
   mesh patches, raster-source callbacks, and checked subtype/index/lifecycle
   errors, raising the native suite to 270 tests. ASan/LSan was not rerun for
   that slice because it did not change C glue or ownership code.
+  The later buffer-backed image oracle slice expanded `image_oracle_wbtest.mbt`
+  so `Surface::image_for_data` renders the same thirteen ARGB32 scenes against
+  the existing direct C Cairo oracle and verifies backing-buffer bytes match
+  `copy_data`, raising the native suite to 271 tests. ASan/LSan was not rerun
+  for that slice because it did not change C glue or ownership code.
 
 The missing reliability pieces are substantial: broader automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering

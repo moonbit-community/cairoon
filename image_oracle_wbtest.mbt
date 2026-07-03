@@ -103,11 +103,37 @@ fn render_image_oracle_scene(scene : Int) -> Bytes raise CairoError {
 }
 
 ///|
+fn render_buffered_image_oracle_scene(
+  scene : Int,
+) -> (Bytes, Bytes) raise CairoError {
+  let width = 16
+  let height = 16
+  let stride = Format::stride_for_width(Argb32, width)
+  let backing : FixedArray[Byte] = FixedArray::make(stride * height, b'\x00')
+  let surface = Surface::image_for_data(backing, Argb32, width, height, stride~)
+  let ctx = Context::new(surface)
+  draw_image_oracle_scene(ctx, scene)
+  surface.flush()
+  (Bytes::from_array(backing), surface.copy_data())
+}
+
+///|
 test "image rendering scenes match direct cairo C oracle" {
   for scene in 0..<13 {
     let actual = render_image_oracle_scene(scene)
     let expected = test_argb32_scene_oracle_ffi(scene, 16, 16)
     inspect(expected.length(), content="1024")
+    inspect(actual == expected, content="true")
+  }
+}
+
+///|
+test "buffer backed image rendering scenes match direct cairo C oracle" {
+  for scene in 0..<13 {
+    let (actual, copied) = render_buffered_image_oracle_scene(scene)
+    let expected = test_argb32_scene_oracle_ffi(scene, 16, 16)
+    inspect(expected.length(), content="1024")
+    inspect(copied == actual, content="true")
     inspect(actual == expected, content="true")
   }
 }
