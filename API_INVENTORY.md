@@ -81,7 +81,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 | `PDFOutlineFlags`, `PDFOutlineFlagSet` | Done | Cairo bit values preserved; `PDFOutlineFlagSet` provides typed combinations for outline APIs |
 | `ScriptMode` | Done | Needed by script device |
 | `TextClusterFlags` | Done | Cairo bit value preserved |
-| `SurfaceObserverMode` | Done | Enum exists; Tee/observer surface APIs remain a product decision |
+| `SurfaceObserverMode` | Done | Enum exists; observer surface APIs remain a product decision |
 | Tag and MIME string constants | Done | `TAG_*` and `MIME_TYPE_*` expose Cairo strings and are checked against compile-time C macros |
 
 ## Value Types
@@ -131,7 +131,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 | `SVGSurface` | Partial | Exposed as `Surface::svg`, `SVGVersion::supported`, `SVGVersion::to_string`, `Surface::svg_restrict_to_version`, and document-unit get/set. Filename and no-output constructors are covered; stream/file-object callback output and normalized SVG output tests remain. |
 | `RecordingSurface` | Done | Exposed as `Surface::recording`, `Surface::recording_get_extents`, and `Surface::recording_ink_extents`; tests cover bounded/unbounded extents, replay through `Pattern::for_surface`, and `SurfaceTypeMismatch` for non-recording surfaces |
 | `ScriptDevice` / `ScriptSurface` | Partial | File-path `Device::script`, mode, comments, recording replay, `Surface::script`, and `Surface::script_for_target` exist; stream/file-object callbacks remain deferred by `AGENTS.md` |
-| `TeeSurface` | Decision | Depends on Cairo backend availability and subtype policy |
+| `TeeSurface` | Done | Exposed as `Surface::tee`, `Surface::tee_add`, `Surface::tee_remove`, and `Surface::tee_index`; tests cover mirrored drawing, index wrappers, subtype errors, negative index handling, and retained primary/target wrappers on this `HAS_TEE_SURFACE` build |
 | `Win32Surface` / `Win32PrintingSurface` | Decision | Platform-specific; cannot be validated on this macOS workspace |
 | `XCBSurface` / `XlibSurface` | Decision | Platform-specific; requires X11/XCB headers and test environment |
 
@@ -185,9 +185,9 @@ These are not safe to guess if the goal is a full product.
 2. Should `get_include()`, `version`, `version_info`, or equivalent MoonBit
    package-version and embedding-header surfaces be part of the MoonBit
    product, or is that pycairo C-extension compatibility surface out of scope?
-3. Should optional `TeeSurface`/observer APIs be part of the portable first
-   product when Cairo was compiled with tee support, or should they be deferred
-   with other optional backends?
+3. Should observer APIs be part of the portable first product when Cairo was
+   compiled with observer support, or should they be deferred with other
+   optional backends?
 
 Resolved by `AGENTS.md`: cairoon uses opaque MoonBit owner types with
 constructor methods instead of CPython-style inheritance, and filename APIs

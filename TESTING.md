@@ -173,15 +173,16 @@ basics including glyph extents and text-to-glyphs, and
 Device/ScriptDevice basics including status/type/equal/hash,
 finish/flush/acquire/release, scoped acquire, script mode/comment helpers,
 recording replay, `Surface::get_device`, `Surface::script`, and
-`Surface::script_for_target`, exhaustive `Status`/`CairoError` classification,
-retained-owner lifetime stress tests, and initial tests. Region now covers empty,
-single-rectangle, and multi-rectangle
+`Surface::script_for_target`, TeeSurface mirrored drawing and target indexing,
+exhaustive `Status`/`CairoError` classification, retained-owner lifetime stress
+tests, and initial tests. Region now covers empty, single-rectangle, and
+multi-rectangle
 construction plus predicates and boolean operations.
 
 Verified on 2026-07-02 and 2026-07-03:
 
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native -v`: 198 tests passed.
+- `moon -C cairoon test --target native -v`: 201 tests passed.
 - ASan/LSan via `run-asan.py`: ran on 2026-07-03 after adding retained-owner
   lifetime stress tests. The first run found a real heap-use-after-free when a
   `Surface` returned by `Context::get_target` outlived a context created from a
@@ -221,7 +222,13 @@ Verified on 2026-07-02 and 2026-07-03:
   lifetime stress/fix slice with the expanded 196-test native suite.
   The later status/error classification slice is pure MoonBit test coverage and
   raised the native suite to 198 tests; ASan was not rerun for that non-C change.
-  The most recent leak report is rooted in
+  The TeeSurface slice added C glue and raised the native suite to 201 tests;
+  ASan/LSan was rerun on 2026-07-03. It reported only the same macOS
+  LeakSanitizer class, with no `ERROR: AddressSanitizer`,
+  heap-use-after-free, stack-use-after, `cairoon_tee`, or `tee_surface` entries
+  in `/tmp/cairoon-tee-asan.txt`; summary:
+  `90213 byte(s) leaked in 490 allocation(s)`. The most recent leak report is
+  rooted in
   `cairo_toy_font_face_create`, `cairo_select_font_face`, macOS
   FontRegistry/CoreGraphics frames, and scaled-font Quartz/CoreText paths such
   as `cairo_scaled_font_create`, `CGFontCopyURL`, and
@@ -237,9 +244,8 @@ Verified on 2026-07-02 and 2026-07-03:
   compile-time constant helper ownership stack, or Surface
   `create_for_rectangle` helper, retained-parent subsurface helper/finalizer
   stack, retained target/group-target helper stack, mapped-image lifetime
-  helper stack, or Context `set_source_surface`/hairline helpers appeared in
-  the visible leak roots.
-  Summary: `91029 byte(s) leaked in 494 allocation(s)`.
+  helper stack, TeeSurface helper stack, or Context
+  `set_source_surface`/hairline helpers appeared in the visible leak roots.
 
 The missing reliability pieces are substantial: automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering

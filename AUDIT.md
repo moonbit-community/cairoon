@@ -60,6 +60,8 @@ Implemented in this workspace:
   lifetime, content/type/get_device queries, dirty markers, device
   offset/scale, fallback resolution,
   show-text-glyphs support checks, and
+  TeeSurface creation/add/remove/index helpers with retained primary and target
+  wrapper lifetimes,
   mapped image surface readback/unmap helpers, plus Surface MIME data
   set/get/clear/support checks that copy data across the MoonBit/C boundary,
   initial solid/surface/linear/radial/mesh `Pattern` APIs with
@@ -115,8 +117,8 @@ Implemented in this workspace:
   mismatch, painting smoke behavior, pattern state behavior, explicit pattern
   sources, surface-pattern borrowed surface returns, font-options behavior,
   font-face and scaled-font behavior with context error propagation, region
-  behavior, exhaustive status/error classification, and retained-owner lifetime
-  stress.
+  behavior, TeeSurface mirrored drawing/index/error/lifetime behavior,
+  exhaustive status/error classification, and retained-owner lifetime stress.
 - `API_INVENTORY.md` now tracks the full pycairo API surface against cairoon
   status.
 - `TESTING.md` defines the migration reliability gates and records why the
@@ -133,11 +135,12 @@ Implemented in this workspace:
   against pycairo output is not yet automated.
 - Gate 4 memory and lifetime: partial. Stub ownership follows the documented
   external-object pattern, and retained-owner stress now covers subsurfaces,
-  data-backed surface patterns, mapped images, and context target wrappers. The
-  current font stack still exposes macOS
-  Cairo/Quartz/CoreText LeakSanitizer reports through toy-font, scaled-font,
-  toy-text rendering, glyph rendering/path, and show-text-glyphs paths. These
-  must be resolved or intentionally suppressed before claiming this gate.
+  data-backed surface patterns, mapped images, context target wrappers, and
+  TeeSurface primary/target/index wrappers. The current font stack still
+  exposes macOS Cairo/Quartz/CoreText LeakSanitizer reports through toy-font,
+  scaled-font, toy-text rendering, glyph rendering/path, and
+  show-text-glyphs paths. These must be resolved or intentionally suppressed
+  before claiming this gate.
   Finalizer stress tests still need to be broadened across every external type.
 
 ## Last Verified
@@ -145,16 +148,15 @@ Implemented in this workspace:
 2026-07-02 and 2026-07-03:
 
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native -v`: 198 tests passed.
+- `moon -C cairoon test --target native -v`: 201 tests passed.
 - `run-asan.py --repo-root /Users/caimeo/code/pycairo/cairoon --pkg moon.pkg`:
-  most recently ran the 196-test native suite on 2026-07-03 after retained-owner
-  lifetime stress was added and after the `Context::get_target` /
-  `Context::get_group_target` returned-surface lifetime fix. The first stress
-  ASan run found a heap-use-after-free in `cairoon_copy_image_surface_data`
-  reached from `lifetime_stress_test.mbt` when a returned target surface
-  outlived a context created from a mapped image. The fixed rerun no longer
-  reports that invalid access and fails during LeakSanitizer reporting. The
-  reported allocations are rooted in
+  most recently ran the 201-test native suite on 2026-07-03 after the
+  TeeSurface slice. An earlier retained-owner stress ASan run found a
+  heap-use-after-free in `cairoon_copy_image_surface_data` reached from
+  `lifetime_stress_test.mbt` when a returned target surface outlived a context
+  created from a mapped image. The fixed rerun, and the later TeeSurface rerun,
+  no longer report that invalid access and fail during LeakSanitizer reporting.
+  The reported allocations are rooted in
   `cairo_toy_font_face_create`, `cairo_select_font_face`, macOS
   FontRegistry/CoreGraphics frames, and scaled-font Quartz/CoreText paths such
   as `cairo_scaled_font_create`, `CGFontCopyURL`, and
@@ -170,9 +172,9 @@ Implemented in this workspace:
   compile-time constant helper ownership stack, Surface `create_for_rectangle`
   helper, retained-parent subsurface helper/finalizer stack, retained
   target/group-target helper stack, mapped-image lifetime helper stack, Context
-  `set_source_surface` helper, or Context hairline helper appeared in the
-  visible leak roots of the fixed rerun.
-  Summary: `91029 byte(s) leaked in 494 allocation(s)`. The helper still emits
+  `set_source_surface` helper, Context hairline helper, or TeeSurface helper
+  stack appeared in the visible leak roots of the latest rerun.
+  Summary: `90213 byte(s) leaked in 490 allocation(s)`. The helper still emits
   a `moon.mod.json` lookup warning because this package uses `moon.mod`, but it
   correctly patched and restored the DSL `moon.pkg` and MoonBit runtime object
   for this package.
