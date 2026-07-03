@@ -133,6 +133,17 @@ test "scaled font extents match direct cairo C oracle" {
     test_scaled_font_extents_oracle_ffi(1, @utf8.encode("foo")),
   )
   scaled_font_oracle_expect_text_extents(
+    scaled_font.text_extents("e\u{0301}"),
+    test_scaled_font_extents_oracle_ffi(1, @utf8.encode("e\u{0301}")),
+  )
+  scaled_font_oracle_expect_text_extents(
+    scaled_font.text_extents("\u{0645}\u{0631}\u{062d}\u{0628}\u{0627}"),
+    test_scaled_font_extents_oracle_ffi(
+      1,
+      @utf8.encode("\u{0645}\u{0631}\u{062d}\u{0628}\u{0627}"),
+    ),
+  )
+  scaled_font_oracle_expect_text_extents(
     scaled_font.glyph_extents([
       Glyph::new(0UL, 1.5, 2.5),
       Glyph::new(1UL, 10.0, 2.5),
@@ -149,7 +160,12 @@ test "scaled font text_to_glyphs matches direct cairo C oracle" {
   scaled_font_oracle_expect_text_to_glyphs(scaled_font, 0.0, 0.0, "a b")
   scaled_font_oracle_expect_text_to_glyphs(scaled_font, 2.0, 11.0, "affinity")
   scaled_font_oracle_expect_text_to_glyphs(scaled_font, -3.5, 4.25, "\u{00e9}")
+  scaled_font_oracle_expect_text_to_glyphs(scaled_font, 1.25, -2.5, "e\u{0301}")
   scaled_font_oracle_expect_text_to_glyphs(
     scaled_font, 5.0, -6.0, "\u{4e2d}\u{6587}",
   )
+  scaled_font_oracle_expect_text_to_glyphs(
+    scaled_font, -8.0, 3.0, "\u{0645}\u{0631}\u{062d}\u{0628}\u{0627}",
+  )
+  scaled_font_oracle_expect_text_to_glyphs(scaled_font, 7.0, 2.0, "\u{1f642}")
 }

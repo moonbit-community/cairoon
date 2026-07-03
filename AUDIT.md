@@ -106,7 +106,8 @@ Implemented in this workspace:
   matrix getters including sheared font/CTM scale-matrix composition, text and
   glyph extents, full and glyph-only text-to-glyphs,
   direct C Cairo oracle comparison for font/text/glyph extents and
-  empty, single/multi/spaced ASCII, and UTF-8 text-to-glyph coordinate cases,
+  empty, single/multi/spaced ASCII, precomposed/decomposed Latin, CJK,
+  Arabic RTL, and emoji UTF-8 text-to-glyph coordinate cases,
   embedded-NUL text-extents validation,
   and `Context`
   font matrix/size/extents plus scaled-font
@@ -228,9 +229,10 @@ Implemented in this workspace:
   source-surface offset sampling, mask-surface offset compositing, and
   raster-source pattern repeat rendering, dashed round-cap stroke, and clipped
   paint/fill cases, and `OperatorClear` compositing output,
-  ScaledFont font/text/glyph extents and empty, single/multi/spaced ASCII, and
-  UTF-8 text-to-glyph coordinate cases are compared against direct C Cairo
-  primitive oracles, and vector outputs
+  ScaledFont font/text/glyph extents and empty, single/multi/spaced ASCII,
+  precomposed/decomposed Latin, CJK, Arabic RTL, and emoji UTF-8
+  text-to-glyph coordinate cases are compared against direct C Cairo primitive
+  oracles, and vector outputs
   have stable structural marker checks plus direct C oracle comparisons for
   fifteen deterministic PDF/PS/SVG scenes covering paint, stroke, fill/stroke
   rectangles, Bezier paths, transforms, linear/radial gradients, toy-font text
@@ -300,8 +302,14 @@ Implemented in this workspace:
   operator-output C oracle helper paths.
 - `moon -C cairoon test scaled_font_oracle_wbtest.mbt --target native -v`: 2
   white-box ScaledFont oracle tests passed, comparing font extents, text
-  extents, glyph extents, and empty, single/multi/spaced ASCII, and UTF-8
+  extents, glyph extents, and empty, single/multi/spaced ASCII,
+  precomposed/decomposed Latin, CJK, Arabic RTL, and emoji UTF-8
   text-to-glyph coordinate cases against direct C Cairo results.
+- `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
+  ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
+  scaled_font_oracle_wbtest.mbt --target native -v`: 2 ASan-compiled
+  white-box ScaledFont oracle tests passed with leak detection disabled,
+  covering the expanded UTF-8 text-extents and text-to-glyph input set.
 - `moon -C cairoon test lifetime_stress_test.mbt --target native -v`: 6
   black-box lifetime tests passed after adding the backend stream callback
   1000-iteration allocation stress case.
@@ -1095,6 +1103,12 @@ Implemented in this workspace:
   original source wrapper and context scope have exited. This closed the
   `Sources` sub-row as Done and raised the native suite to 342 tests.
   `./scripts/verify.sh` passed, including the full 342-test native suite.
+  The later ScaledFont UTF-8 oracle slice expanded the existing direct C Cairo
+  ScaledFont oracle inputs to cover decomposed Latin text extents plus
+  decomposed Latin, Arabic RTL, and emoji/non-BMP `text_to_glyphs` cases. This
+  did not add public API or a new test case; the targeted 2-test
+  `scaled_font_oracle_wbtest.mbt` run passed, including an ASan-compiled rerun
+  with leak detection disabled.
 
 ## Known Gaps
 
