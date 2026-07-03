@@ -344,6 +344,65 @@ test "pdf output contains multi-page markers" {
 }
 
 ///|
+test "pdf output preserves metadata outlines labels and tags across pages" {
+  let path = "/tmp/cairoon_vector_pdf_combined_document.pdf"
+  let surface = Surface::pdf(100.0, 100.0, path=Some(path))
+  surface.pdf_restrict_to_version(PdfVersion1_4)
+  surface.pdf_set_metadata(PdfMetadataTitle, "Cairoon Combined")
+  surface.pdf_set_metadata(PdfMetadataCreator, "cairoon combined test")
+  surface.pdf_set_metadata(PdfMetadataCreateDate, fixed_pdf_metadata_date())
+  surface.pdf_set_metadata(PdfMetadataModDate, fixed_pdf_metadata_date())
+  surface.pdf_set_custom_metadata("ISBN", Some("978-0123456789"))
+  surface.pdf_set_page_label("intro")
+  let intro_id = surface.pdf_add_outline_with_flags(
+    PDF_OUTLINE_ROOT,
+    "intro page",
+    "page=1 pos=[10 20]",
+    PDFOutlineFlagSet::combine([PdfOutlineOpen, PdfOutlineBold][:]),
+  )
+  inspect(intro_id > PDF_OUTLINE_ROOT, content="true")
+  let ctx = Context::new(surface)
+  ctx.select_font_face("serif")
+  ctx.set_font_size(12.0)
+  ctx.tag_begin(TAG_LINK, "uri='https://example.com/combined'")
+  ctx.move_to(10.0, 20.0)
+  ctx.show_text("combined intro")
+  ctx.tag_end(TAG_LINK)
+  ctx.show_page()
+  surface.pdf_set_page_label("details")
+  let details_id = surface.pdf_add_outline_with_flags(
+    PDF_OUTLINE_ROOT,
+    "details page",
+    "page=2 pos=[10 60]",
+    PDFOutlineFlagSet::of(PdfOutlineItalic),
+  )
+  inspect(details_id > intro_id, content="true")
+  ctx.tag_begin(TAG_DEST, "name='combined-dest' x=10 y=60")
+  ctx.move_to(10.0, 60.0)
+  ctx.show_text("destination")
+  ctx.tag_end(TAG_DEST)
+  ctx.tag_begin("Document", "")
+  ctx.tag_begin("Sect", "")
+  ctx.tag_begin("P", "")
+  ctx.move_to(10.0, 80.0)
+  ctx.show_text("combined structure")
+  ctx.tag_end("P")
+  ctx.tag_end("Sect")
+  ctx.tag_end("Document")
+  ctx.show_page()
+  surface.finish()
+  expect_vector_output(path, [
+    "%PDF-1.4", "/Title (Cairoon Combined)", "/Creator (cairoon combined test)",
+    "/CreationDate (20260102030405+00'00')", "/ModDate (20260102030405+00'00')",
+    "/ISBN (978-0123456789)", "/Count 2", "/PageLabels", "(intro)", "(details)",
+    "/Outlines", "/Title (intro page)", "/Title (details page)", "/F 2", "/F 1",
+    "/Annots [", "/Subtype /Link", "/URI (https://example.com/combined)", "/Names",
+    "/Dests", "(combined-dest)", "/StructTreeRoot", "/S /Document", "/S /Sect", "/S /P",
+    "%%EOF",
+  ])
+}
+
+///|
 test "pdf link tag output contains annotation markers" {
   let path = "/tmp/cairoon_vector_tag_output.pdf"
   let surface = Surface::pdf(100.0, 100.0, path=Some(path))
