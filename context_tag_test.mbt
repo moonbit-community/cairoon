@@ -8,6 +8,15 @@ fn expect_tag_invalid_string(result : Result[Unit, CairoError]) -> Unit raise {
 }
 
 ///|
+fn expect_tag_error(result : Result[Unit, CairoError]) -> Unit raise {
+  inspect(result is Err(_), content="true")
+  match result {
+    Err(CairoError(TagError, _)) => ()
+    _ => @test.fail("expected TagError")
+  }
+}
+
+///|
 test "context tags accept matching begin and end" {
   let ctx = Context::new(Surface::image(Argb32, 1, 1))
   ctx.tag_begin("foo", "bar='quux'")
@@ -31,6 +40,20 @@ test "context tags validate embedded nul strings before ffi" {
     run_cairo(() => ctx.tag_begin("foo", "bad\u{0}attributes")),
   )
   expect_tag_invalid_string(run_cairo(() => ctx.tag_end("bad\u{0}tag")))
+}
+
+///|
+test "context tag nesting errors map to TagError" {
+  let unmatched = Context::new(Surface::pdf(10.0, 10.0))
+  unmatched.tag_end("foo")
+  expect_tag_error(run_cairo(() => unmatched.show_page()))
+  debug_inspect(unmatched.status(), content="TagError")
+
+  let mismatched = Context::new(Surface::pdf(10.0, 10.0))
+  mismatched.tag_begin("outer", "")
+  mismatched.tag_end("inner")
+  expect_tag_error(run_cairo(() => mismatched.show_page()))
+  debug_inspect(mismatched.status(), content="TagError")
 }
 
 ///|

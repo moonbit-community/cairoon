@@ -89,7 +89,7 @@ Implemented in this workspace:
   borrowed target/source/group-target lifetime behavior, group push/pop and
   pop-to-source rendering behavior, tag begin/end smoke behavior, tag and MIME
   string constants, integer constant parity including `FORMAT_INVALID`, tag
-  input validation, Context toy text
+  input validation and nesting error coverage, Context toy text
   extents/current-point/path behavior, text input validation, Context glyph
   array extents/path/show
   behavior, empty glyph arrays, glyph context-error propagation, text-to-glyphs
@@ -151,7 +151,7 @@ Implemented in this workspace:
 2026-07-02 and 2026-07-03:
 
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native -v`: 205 tests passed.
+- `moon -C cairoon test --target native -v`: 206 tests passed.
 - `run-asan.py --repo-root /Users/caimeo/code/pycairo/cairoon --pkg moon.pkg`:
   most recently ran the 205-test native suite on 2026-07-03 after the
   vector-output marker slice. An earlier retained-owner stress ASan run found a
@@ -185,6 +185,8 @@ Implemented in this workspace:
   a `moon.mod.json` lookup warning because this package uses `moon.mod`, but it
   correctly patched and restored the DSL `moon.pkg` and MoonBit runtime object
   for this package.
+  The later tag-nesting slice is pure MoonBit test coverage and raised the
+  native suite to 206 tests; ASan was not rerun for that non-C change.
 
 ## Known Gaps
 

@@ -152,7 +152,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 | Text and fonts | Partial | font options get/set, font face get/set/select, toy font, font matrix/size/extents, toy text APIs, glyph arrays, `text_to_glyphs`, and `show_text_glyphs` exist; tag-aware vector-output coverage remains |
 | Path copy/append | Done | `copy_path`, `copy_path_flat`, `append_path`, `Path::segments`, `Path::iter`, and `Path::to_string` |
 | Hit testing and extents | Done | `in_clip`, `in_fill`, `in_stroke`, `clip_extents`, `fill_extents`, `stroke_extents`, `path_extents` |
-| Tags | Partial | `tag_begin`/`tag_end` exist with UTF-8/NUL validation, tag constants, and context-error propagation tests; tag-aware vector output and nesting `TagError` coverage need PDF/SVG/PS backends |
+| Tags | Partial | `tag_begin`/`tag_end` exist with UTF-8/NUL validation, tag constants, context-error propagation tests, and unmatched/mismatched nesting `TagError` coverage; tag-aware vector output still needs PDF/SVG/PS backend assertions |
 | Page APIs | Done | `copy_page` and `show_page` on `Context` |
 
 ## Font And Text APIs

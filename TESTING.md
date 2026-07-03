@@ -184,7 +184,7 @@ construction plus predicates and boolean operations.
 Verified on 2026-07-02 and 2026-07-03:
 
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native -v`: 205 tests passed.
+- `moon -C cairoon test --target native -v`: 206 tests passed.
 - ASan/LSan via `run-asan.py`: ran on 2026-07-03 after adding retained-owner
   lifetime stress tests. The first run found a real heap-use-after-free when a
   `Surface` returned by `Context::get_target` outlived a context created from a
@@ -263,6 +263,8 @@ Verified on 2026-07-02 and 2026-07-03:
   heap-use-after-free, stack-use-after, global-buffer-overflow, or
   `cairoon_test_file` entries; summary:
   `89925 byte(s) leaked in 482 allocation(s)`.
+  The later tag-nesting slice is pure MoonBit test coverage and raised the
+  native suite to 206 tests; ASan was not rerun for that non-C change.
 
 The missing reliability pieces are substantial: automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering
