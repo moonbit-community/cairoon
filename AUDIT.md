@@ -45,8 +45,9 @@ Implemented in this workspace:
   constants, feature flags, MIME/tag constants, portable Cairo enum types,
   including `SurfaceObserverMode` as an enum-only pycairo API surface entry
   rather than Cairo's native observer surface/device extension APIs,
-  `Format::stride_for_width`, `FORMAT_INVALID` as an explicit integer
-  sentinel, pure `Matrix` parity operations, pure rectangle,
+  `Format::stride_for_width` including legacy, 16-bit, 30-bit, float, and
+  invalid-width cases, `FORMAT_INVALID` as an explicit integer sentinel, pure
+  `Matrix` parity operations, pure rectangle,
   glyph, text-cluster, and extents values, image `Surface` including PNG
   filename load/save plus stream read/write, buffer-backed creation, and
   retained mutable `ImageData` views for image and mapped-image surfaces, core `Context`
@@ -273,6 +274,9 @@ Implemented in this workspace:
 - `moon -C cairoon test surface_context_test.mbt --target native -v`: 14
   black-box tests passed after adding `Rgb96F` and `Rgba128F` image-surface
   construction, stride, copied-data, and buffer-backed readback coverage.
+- `moon -C cairoon test enums_test.mbt --target native -v`: 4 black-box tests
+  passed after adding `Rgb16_565`, `Rgb30`, `Rgb96F`, `Rgba128F`, and
+  negative-width `Format::stride_for_width` coverage.
 - `moon -C cairoon test surface_subsurface_test.mbt --target native -v`: 3
   black-box tests passed after adding invalid-size coverage for
   `Surface::create_for_rectangle`.
@@ -306,10 +310,9 @@ Implemented in this workspace:
   stream output and writer errors, PDF metadata/outlines, PS DSC, SVG document
   units, recording replay, Tee fanout, script devices/surfaces, and checked
   backend-specific errors.
-- `moon -C cairoon test --target native`: 304 tests passed.
-- `moon -C cairoon info --target native`: passed; the latest
-  source/mask offset image-oracle helper slice did not change the public
-  interface.
+- `moon -C cairoon test --target native`: 305 tests passed.
+- `moon -C cairoon info --target native`: passed; the latest format-stride
+  coverage slice did not change the public interface.
 - Test-only buffer-backed image oracle coverage plus Pure MoonBit Region
   rectangle-XOR and executable Matrix/Surface/Context/Font/Path/Pattern/Region
   documentation coverage were added without rerunning ASan because no C glue or
@@ -326,6 +329,9 @@ Implemented in this workspace:
 - Pure MoonBit Cairo float image-format coverage was added without rerunning
   ASan because no C glue, finalizer, callback trampoline, or retained owner
   code changed in that slice.
+- Pure MoonBit format-stride coverage was added without rerunning ASan because
+  no C glue, finalizer, callback trampoline, or retained owner code changed in
+  that slice.
 - Documentation-only product-decision audit for pycairo `CAPI`, legacy enum
   aliases, and non-implemented FreeType/user-font classes: `moon -C cairoon
   check --target native`, `moon -C cairoon test --target native -v`, and
@@ -647,6 +653,10 @@ Implemented in this workspace:
   The later Cairo float image-format slice added two pure MoonBit black-box
   tests covering `Rgb96F` and `Rgba128F` construction/readback for ordinary and
   buffer-backed image surfaces, raising the native suite to 304 tests; ASan was
+  not rerun because no C glue changed.
+  The later format-stride slice added one pure MoonBit black-box test covering
+  `Rgb16_565`, `Rgb30`, `Rgb96F`, `Rgba128F`, and negative-width
+  `Format::stride_for_width`, raising the native suite to 305 tests; ASan was
   not rerun because no C glue changed.
 
 ## Known Gaps

@@ -218,7 +218,8 @@ ordinary, buffer-backed, and mapped image surfaces, backend stream callback
 allocation stress for PDF/PS/SVG surfaces, PNG stream write/read, script
 devices, and stream `WriteError` paths, raster-source callback allocation
 stress for set/get/manual acquire/release/replace/clear paths, Cairo float
-image-format creation/readback coverage, stable
+image-format creation/readback coverage, `Format::stride_for_width` coverage
+for legacy, 16-bit, 30-bit, float, and invalid-width cases, stable
 structural vector-output markers plus direct C oracle comparisons
 for ten deterministic PDF/PS/SVG vector scenes covering paint, stroke,
 fill/stroke rectangles, Bezier paths, transforms, linear/radial gradients,
@@ -315,14 +316,19 @@ Verified on 2026-07-02 and 2026-07-03:
   stream output and writer errors, PDF metadata/outlines, PS DSC, SVG document
   units, recording replay, Tee fanout, script devices/surfaces, and checked
   backend-specific errors.
-- `moon -C cairoon test --target native`: 304 tests passed.
-- `moon -C cairoon info --target native`: passed; the latest
-  source/mask offset image-oracle helper slice did not change the public
-  interface.
+- `moon -C cairoon test enums_test.mbt --target native -v`: 4 black-box tests
+  passed after adding `Rgb16_565`, `Rgb30`, `Rgb96F`, `Rgba128F`, and
+  negative-width `Format::stride_for_width` coverage.
+- `moon -C cairoon test --target native`: 305 tests passed.
+- `moon -C cairoon info --target native`: passed; the latest format-stride
+  coverage slice did not change the public interface.
 - Test-only buffer-backed image oracle coverage plus Pure MoonBit Region
   rectangle-XOR and executable Matrix/Surface/Context/Font/Path/Pattern/Region
   documentation coverage were added without rerunning ASan because no C glue or
   finalizer ownership code changed in those slices.
+- Pure MoonBit format-stride coverage was added without rerunning ASan because
+  no C glue, finalizer, callback trampoline, or retained owner code changed in
+  that slice.
 - Test-only source/mask offset image-oracle helper coverage was added without
   changing the public API or native test count; sanitizer validation is
   recorded below.
@@ -745,6 +751,11 @@ Verified on 2026-07-02 and 2026-07-03:
   buffer-backed image surfaces, raising the native suite to 304 tests.
   ASan/LSan was not rerun for that slice because it did not change C glue or
   ownership code.
+  The later format-stride slice added one pure MoonBit black-box test covering
+  `Rgb16_565`, `Rgb30`, `Rgb96F`, `Rgba128F`, and negative-width
+  `Format::stride_for_width`, raising the native suite to 305 tests. ASan/LSan
+  was not rerun for that slice because it did not change C glue or ownership
+  code.
 
 The missing reliability pieces are substantial: broader automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering

@@ -67,6 +67,20 @@ test "format stride_for_width delegates to cairo" {
 }
 
 ///|
+test "format stride_for_width covers extended formats and invalid widths" {
+  let argb32 : Format = Argb32
+  let rgb16 : Format = Rgb16_565
+  let rgb30 : Format = Rgb30
+  let rgb96f : Format = Rgb96F
+  let rgba128f : Format = Rgba128F
+  inspect(rgb16.stride_for_width(2), content="4")
+  inspect(rgb30.stride_for_width(2), content="8")
+  inspect(rgb96f.stride_for_width(2), content="24")
+  inspect(rgba128f.stride_for_width(2), content="32")
+  inspect(argb32.stride_for_width(-1), content="-1")
+}
+
+///|
 test "format invalid is exposed as an integer sentinel" {
   inspect(FORMAT_INVALID, content="-1")
 }
