@@ -306,9 +306,9 @@ Verified on 2026-07-02 and 2026-07-03:
 - `moon -C cairoon test surface_subsurface_test.mbt --target native -v`: 3
   black-box tests passed after adding invalid-size coverage for
   `Surface::create_for_rectangle`.
-- `moon -C cairoon test scaled_font_test.mbt --target native -v`: 6
-  black-box tests passed after adding sheared font/CTM scale-matrix
-  composition coverage.
+- `moon -C cairoon test font_face_test.mbt scaled_font_test.mbt --target native
+  -v`: 15 black-box tests passed after adding embedded-NUL validation for toy
+  font family, context font-family selection, and ScaledFont text extents.
 - `moon -C cairoon test region_test.mbt --target native -v`: 8 black-box
   tests passed after adding `Region::xor_rectangle` split-semantics coverage.
 - `moon -C cairoon test region.mbt.md --target native -v`: 3 executable
@@ -339,9 +339,9 @@ Verified on 2026-07-02 and 2026-07-03:
 - `moon -C cairoon test enums_test.mbt --target native -v`: 4 black-box tests
   passed after adding `Rgb16_565`, `Rgb30`, `Rgb96F`, `Rgba128F`, and
   negative-width `Format::stride_for_width` coverage.
-- `moon -C cairoon test --target native`: 317 tests passed.
-- `moon -C cairoon info --target native`: passed; the latest PDF thumbnail
-  vector-output marker slice did not change the public interface.
+- `moon -C cairoon test --target native`: 319 tests passed.
+- `moon -C cairoon info --target native`: passed; the latest UTF-8 string
+  boundary slice did not change the public interface.
 - Test-only buffer-backed image oracle coverage plus Pure MoonBit Region
   rectangle-XOR and executable Matrix/Surface/Context/Font/Path/Pattern/Region
   documentation coverage were added without rerunning ASan because no C glue or
@@ -851,6 +851,11 @@ Verified on 2026-07-02 and 2026-07-03:
   `/Thumb` image markers and thumbnail dimensions, raising the native suite to
   317 tests. ASan/LSan was not rerun for that slice because it did not change C
   glue or ownership code.
+  The later UTF-8 string-boundary slice added two pure MoonBit black-box tests
+  covering embedded-NUL rejection for `FontFace::toy`,
+  `Context::select_font_face`, and `ScaledFont::text_extents`, raising the
+  native suite to 319 tests. ASan/LSan was not rerun for that slice because it
+  did not change C glue or ownership code.
 
 The missing reliability pieces are substantial: broader automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering

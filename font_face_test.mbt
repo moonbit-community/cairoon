@@ -1,4 +1,15 @@
 ///|
+fn expect_font_face_invalid_string(
+  result : Result[Unit, CairoError],
+) -> Unit raise {
+  inspect(result is Err(_), content="true")
+  match result {
+    Err(CairoInvalidArgument(InvalidString, _)) => ()
+    _ => @test.fail("expected InvalidString")
+  }
+}
+
+///|
 test "toy font face exposes family slant and weight" {
   let font_face = FontFace::toy(
     "serif",
@@ -17,6 +28,20 @@ test "toy font face defaults match cairo defaults" {
   inspect(font_face.get_family(), content="sans-serif")
   debug_inspect(font_face.get_slant(), content="FontSlantNormal")
   debug_inspect(font_face.get_weight(), content="FontWeightNormal")
+}
+
+///|
+test "font family APIs validate embedded nul strings" {
+  expect_font_face_invalid_string(
+    run_cairo(() => {
+      let _ = FontFace::toy("bad\u{0}family")
+      ()
+    }),
+  )
+  let ctx = Context::new(Surface::image(Argb32, 1, 1))
+  expect_font_face_invalid_string(
+    run_cairo(() => ctx.select_font_face("bad\u{0}family")),
+  )
 }
 
 ///|

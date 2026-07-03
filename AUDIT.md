@@ -94,13 +94,14 @@ Implemented in this workspace:
   Surface/Context font-options accessors.
 - `FontFace` external object with finalizer ownership, pointer equality/hash,
   toy font construction and family/slant/weight accessors, plus `Context`
-  font-face get/set/select wrappers.
+  font-face get/set/select wrappers and embedded-NUL family validation.
 - `ScaledFont` external object with finalizer ownership, pointer equality/hash,
   constructor from `FontFace`/`Matrix`/`FontOptions`, font face/options and
   matrix getters including sheared font/CTM scale-matrix composition, text and
   glyph extents, full and glyph-only text-to-glyphs,
   direct C Cairo oracle comparison for font/text/glyph extents and
   empty, single/multi/spaced ASCII, and UTF-8 text-to-glyph coordinate cases,
+  embedded-NUL text-extents validation,
   and `Context`
   font matrix/size/extents plus scaled-font
   get/set/show-text-glyphs wrappers.
@@ -303,9 +304,9 @@ Implemented in this workspace:
 - `moon -C cairoon test surface_subsurface_test.mbt --target native -v`: 3
   black-box tests passed after adding invalid-size coverage for
   `Surface::create_for_rectangle`.
-- `moon -C cairoon test scaled_font_test.mbt --target native -v`: 6
-  black-box tests passed after adding sheared font/CTM scale-matrix
-  composition coverage.
+- `moon -C cairoon test font_face_test.mbt scaled_font_test.mbt --target native
+  -v`: 15 black-box tests passed after adding embedded-NUL validation for toy
+  font family, context font-family selection, and ScaledFont text extents.
 - `moon -C cairoon test region_test.mbt --target native -v`: 8 black-box
   tests passed after adding `Region::xor_rectangle` split-semantics coverage.
 - `moon -C cairoon test region.mbt.md --target native -v`: 3 executable
@@ -333,9 +334,9 @@ Implemented in this workspace:
   stream output and writer errors, PDF metadata/outlines, PS DSC, SVG document
   units, recording replay, Tee fanout, script devices/surfaces, and checked
   backend-specific errors.
-- `moon -C cairoon test --target native`: 317 tests passed.
-- `moon -C cairoon info --target native`: passed; the latest PDF thumbnail
-  vector-output marker slice did not change the public interface.
+- `moon -C cairoon test --target native`: 319 tests passed.
+- `moon -C cairoon info --target native`: passed; the latest UTF-8 string
+  boundary slice did not change the public interface.
 - Test-only buffer-backed image oracle coverage plus Pure MoonBit Region
   rectangle-XOR and executable Matrix/Surface/Context/Font/Path/Pattern/Region
   documentation coverage were added without rerunning ASan because no C glue or
@@ -745,6 +746,10 @@ Implemented in this workspace:
   white-box test covering `Surface::pdf_set_thumbnail_size` output through
   `/Thumb` image markers and thumbnail dimensions, raising the native suite to
   317 tests; ASan was not rerun because no C glue changed.
+  The later UTF-8 string-boundary slice added two pure MoonBit black-box tests
+  covering embedded-NUL rejection for `FontFace::toy`,
+  `Context::select_font_face`, and `ScaledFont::text_extents`, raising the
+  native suite to 319 tests; ASan was not rerun because no C glue changed.
 
 ## Known Gaps
 

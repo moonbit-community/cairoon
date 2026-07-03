@@ -16,6 +16,17 @@ fn assert_scaled_matrix_close(actual : Matrix, expected : Matrix) -> Unit raise 
 }
 
 ///|
+fn expect_scaled_font_invalid_string(
+  result : Result[Unit, CairoError],
+) -> Unit raise {
+  inspect(result is Err(_), content="true")
+  match result {
+    Err(CairoInvalidArgument(InvalidString, _)) => ()
+    _ => @test.fail("expected InvalidString")
+  }
+}
+
+///|
 fn make_scaled_font() -> ScaledFont raise CairoError {
   let face = FontFace::toy("serif", weight=FontWeightBold)
   let options = FontOptions::new()
@@ -85,6 +96,17 @@ test "scaled font metrics and text extents are checked values" {
   let empty = scaled_font.text_extents("")
   inspect(empty.x_advance, content="0")
   inspect(empty.y_advance, content="0")
+}
+
+///|
+test "scaled font text_extents validates embedded nul strings" {
+  let scaled_font = make_scaled_font()
+  expect_scaled_font_invalid_string(
+    run_cairo(() => {
+      let _ = scaled_font.text_extents("bad\u{0}text")
+      ()
+    }),
+  )
 }
 
 ///|
