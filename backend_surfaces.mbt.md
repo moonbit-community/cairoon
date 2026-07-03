@@ -214,8 +214,9 @@ test "backend docs: recording replay and tee fanout" {
 
 ## Script Devices And Script Surfaces
 
-Script devices are `Device` objects. They can be file-backed or stream-backed,
-and `Surface::script_for_target` proxies drawing onto an existing target.
+Script devices are `Device` objects. They can be file-backed or stream-backed.
+`Device::with_finished` mirrors pycairo's `with device:` cleanup behavior, and
+`Surface::script_for_target` proxies drawing onto an existing target.
 
 ```mbt check
 ///|
@@ -244,6 +245,30 @@ test "backend docs: script devices retain surfaces and write chunks" {
   inspect(chunks.length() > 0, content="true")
   inspect(
     backend_docs_chunks_to_string(chunks).contains("cairoon backend docs"),
+    content="true",
+  )
+}
+
+///|
+test "backend docs: script device scoped finish" {
+  let chunks : Array[Bytes] = []
+  let device = Device::script_stream(fn(chunk) {
+    chunks.push(chunk)
+    Success
+  })
+  let type_ = device.with_finished(() => {
+    device.script_write_comment("cairoon scoped script device")
+    device.get_type()
+  })
+  debug_inspect(type_, content="DeviceTypeScript")
+  match run_cairo(() => device.acquire()) {
+    Err(CairoError(DeviceFinished, _)) => ()
+    _ => @test.fail("expected DeviceFinished")
+  }
+  inspect(
+    backend_docs_chunks_to_string(chunks).contains(
+      "cairoon scoped script device",
+    ),
     content="true",
   )
 }

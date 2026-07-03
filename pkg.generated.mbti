@@ -259,6 +259,7 @@ pub fn Device::script_stream((Bytes) -> Status) -> Self raise CairoError
 pub fn Device::script_write_comment(Self, String) -> Unit raise CairoError
 pub fn Device::status(Self) -> Status
 pub fn[T] Device::with_acquired(Self, () -> T raise CairoError) -> T raise CairoError
+pub fn[T] Device::with_finished(Self, () -> T raise CairoError) -> T raise CairoError
 pub impl Eq for Device
 pub impl Hash for Device
 

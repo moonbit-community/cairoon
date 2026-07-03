@@ -51,6 +51,24 @@ pub fn Device::finish(self : Device) -> Unit raise CairoError {
 }
 
 ///|
+pub fn[T] Device::with_finished(
+  self : Device,
+  f : () -> T raise CairoError,
+) -> T raise CairoError {
+  try f() catch {
+    err => {
+      self.finish()
+      raise err
+    }
+  } noraise {
+    value => {
+      self.finish()
+      value
+    }
+  }
+}
+
+///|
 pub fn Device::flush(self : Device) -> Unit raise CairoError {
   check_status(device_flush_ffi(self))
 }

@@ -83,6 +83,27 @@ test "script device lifecycle and surface device references" {
 }
 
 ///|
+test "script device with_finished finishes after success and cairo errors" {
+  let device = Device::script("/tmp/cairoon_script_device_with_finished.cs")
+  let type_ = device.with_finished(() => {
+    device.script_write_comment("cairoon scoped device")
+    device.get_type()
+  })
+  debug_inspect(type_, content="DeviceTypeScript")
+  expect_device_finished(run_cairo(() => device.acquire()))
+
+  let failed = Device::script(
+    "/tmp/cairoon_script_device_with_finished_error.cs",
+  )
+  expect_device_invalid_string(
+    run_cairo(() => {
+      failed.with_finished(() => failed.script_write_comment("bad\u{0}comment"))
+    }),
+  )
+  expect_device_finished(run_cairo(() => failed.acquire()))
+}
+
+///|
 test "script stream device writes output chunks" {
   let chunks : Array[Bytes] = []
   let device = Device::script_stream(fn(chunk) {

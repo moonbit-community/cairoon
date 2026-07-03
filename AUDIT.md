@@ -78,7 +78,7 @@ Implemented in this workspace:
   SVGSurface filename/no-output/stream constructor, version helper, version
   restriction, and document-unit APIs,
   Device/ScriptDevice status/type/equal/hash, finish/flush/acquire/release,
-  scoped acquire helper, file/stream script devices, script mode/comment
+  scoped acquire/finish helpers, file/stream script devices, script mode/comment
   helpers, recording-surface replay, and ScriptSurface creation/proxy helpers,
   portable `Surface` base helpers for `create_similar`,
   `create_similar_image`, `create_for_rectangle` with retained parent-wrapper
@@ -306,12 +306,19 @@ Implemented in this workspace:
   surface.mbt.md --target native -v`: 32 scoped Surface/mapped-image tests and
   executable docs passed after adding pycairo-style success/error cleanup
   helpers.
-- `moon -C cairoon test --target native`: 338 tests passed after adding
-  `Surface::with_finished`, `MappedImageSurface::with_unmapped`, and two
-  executable Surface reference examples.
+- `moon -C cairoon test device_test.mbt backend_surfaces.mbt.md --target
+  native -v`: 17 scoped Device/script backend tests and executable docs passed
+  after adding pycairo-style device finish cleanup.
+- `moon -C cairoon test --target native`: 340 tests passed after adding
+  `Device::with_finished`, `Surface::with_finished`,
+  `MappedImageSurface::with_unmapped`, and their executable docs examples.
 - `moon -C cairoon info --target native`: passed, and `pkg.generated.mbti`
   records the new public scoped lifecycle helpers.
 - ASan/LSan was not rerun for the scoped Surface lifecycle slice because it
+  changed only MoonBit wrappers, tests, docs, and generated interface metadata,
+  with no C glue, finalizer, callback trampoline, or retained-owner code
+  change.
+- ASan/LSan was not rerun for the scoped Device lifecycle slice because it
   changed only MoonBit wrappers, tests, docs, and generated interface metadata,
   with no C glue, finalizer, callback trampoline, or retained-owner code
   change.
@@ -1028,6 +1035,12 @@ Implemented in this workspace:
   generated interface metadata. This raised the native suite to 338 tests;
   ASan/LSan was not rerun because no C glue, finalizer, callback trampoline,
   or retained-owner code changed.
+  The later Device scoped-lifecycle slice added public
+  `Device::with_finished`, matching pycairo device context-manager cleanup with
+  success and Cairo-error coverage, plus one executable Backend Surface docs
+  example and refreshed generated interface metadata. This raised the native
+  suite to 340 tests; ASan/LSan was not rerun because no C glue, finalizer,
+  callback trampoline, or retained-owner code changed.
 
 ## Known Gaps
 

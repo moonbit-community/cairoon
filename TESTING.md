@@ -214,7 +214,7 @@ comparison for font/text/glyph extents and empty, single/multi/spaced ASCII,
 and UTF-8 text-to-glyph coordinate cases plus sheared font/CTM scale-matrix
 composition, and
 Device/ScriptDevice basics including status/type/equal/hash,
-finish/flush/acquire/release, scoped acquire, file/stream script devices,
+finish/flush/acquire/release, scoped acquire/finish, file/stream script devices,
 script mode/comment helpers, recording replay, `Surface::get_device`,
 `Surface::script`, and
 `Surface::script_for_target`, TeeSurface mirrored drawing and target indexing,
@@ -1120,6 +1120,13 @@ Verified on 2026-07-02 and 2026-07-03:
   slice changed only MoonBit wrappers, tests, docs, and generated interface
   metadata, with no C glue, finalizer, callback trampoline, or retained-owner
   code change.
+  The later Device scoped-lifecycle slice added public `Device::with_finished`,
+  black-box success/error cleanup coverage, one executable Backend Surface docs
+  example, and regenerated `pkg.generated.mbti`, raising the native suite to
+  340 tests. The targeted `device_test.mbt backend_surfaces.mbt.md` run passed
+  17 tests. ASan/LSan was not rerun because this slice changed only MoonBit
+  wrappers, tests, docs, and generated interface metadata, with no C glue,
+  finalizer, callback trampoline, or retained-owner code change.
 
 The missing reliability pieces are substantial: broader automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering
