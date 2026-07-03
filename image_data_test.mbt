@@ -22,6 +22,13 @@ fn expect_image_data_cairo_status(
 }
 
 ///|
+fn expect_image_data_surface_finished(
+  result : Result[Unit, CairoError],
+) -> Unit raise {
+  expect_image_data_cairo_status(result, SurfaceFinished)
+}
+
+///|
 fn image_data_from_local_surface() -> ImageData raise CairoError {
   let surface = Surface::image(Argb32, 1, 1)
   let data = surface.get_data()
@@ -74,6 +81,67 @@ test "image data view retains local surface wrapper" {
   inspect(data.get(3).to_int(), content="255")
   data.set(0, b'\x7f')
   inspect(data.copy()[0].to_int(), content="127")
+}
+
+///|
+test "image surfaces reject get data after finish" {
+  let ordinary = Surface::image(Argb32, 1, 1)
+  ordinary.finish()
+  expect_image_data_surface_finished(
+    run_cairo(() => {
+      let _ = ordinary.get_data()
+      ()
+    }),
+  )
+
+  let buffer : FixedArray[Byte] = FixedArray::make(4, b'\x00')
+  let backed = Surface::image_for_data(buffer, Argb32, 1, 1)
+  backed.finish()
+  expect_image_data_surface_finished(
+    run_cairo(() => {
+      let _ = backed.get_data()
+      ()
+    }),
+  )
+
+  let path = "/tmp/cairoon_image_data_finished.png"
+  let source = Surface::image(Argb32, 1, 1)
+  source.write_to_png(path)
+  let loaded = Surface::image_from_png(path)
+  loaded.finish()
+  expect_image_data_surface_finished(
+    run_cairo(() => {
+      let _ = loaded.get_data()
+      ()
+    }),
+  )
+}
+
+///|
+test "image data view reports base surface finish" {
+  let surface = Surface::image(Argb32, 1, 1)
+  let data = surface.get_data()
+  surface.finish()
+  debug_inspect(data.status(), content="SurfaceFinished")
+  expect_image_data_surface_finished(
+    run_cairo(() => {
+      let _ = data.length()
+      ()
+    }),
+  )
+  expect_image_data_surface_finished(
+    run_cairo(() => {
+      let _ = data.get(0)
+      ()
+    }),
+  )
+  expect_image_data_surface_finished(run_cairo(() => data.set(0, b'\x00')))
+  expect_image_data_surface_finished(
+    run_cairo(() => {
+      let _ = data.copy()
+      ()
+    }),
+  )
 }
 
 ///|

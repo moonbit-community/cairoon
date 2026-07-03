@@ -240,6 +240,9 @@ patches, raster-source callbacks, and checked subtype/index/lifecycle errors.
 Backend surface black-box tests also cover extended PDF custom-metadata/
 thumbnail/outline subtype mismatches, PS size/setup/page-setup subtype
 mismatches, and SVG document-unit getters after `finish()`.
+ImageData black-box tests cover ordinary, buffer-backed, and PNG-loaded
+`get_data` after `finish()`, plus retained ordinary views observing
+base-surface `SurfaceFinished` after the base surface is finished.
 Path has executable reference examples for typed segment iteration,
 pycairo-style string formatting, flattened append behavior, copied-path
 ownership, and checked invalid-matrix errors. Region now covers empty,
@@ -351,9 +354,13 @@ Verified on 2026-07-02 and 2026-07-03:
   surface_svg_test.mbt --target native -v`: 17 black-box tests passed after
   adding extended PDF/PS backend subtype-mismatch checks and SVG
   document-unit getter finished-status coverage.
-- `moon -C cairoon test --target native`: 323 tests passed.
-- `moon -C cairoon info --target native`: passed; the latest backend surface
-  error-path slice did not change the public interface.
+- `moon -C cairoon test image_data_test.mbt --target native -v`: 9 black-box
+  tests passed after fixing retained `ImageData` views to observe base-surface
+  `SurfaceFinished` and adding ordinary/buffer-backed/PNG-loaded `get_data`
+  after-finish coverage.
+- `moon -C cairoon test --target native`: 325 tests passed.
+- `moon -C cairoon info --target native`: passed; the latest ImageData
+  owner-status fix did not change the public interface.
 - Test-only buffer-backed image oracle coverage plus Pure MoonBit Region
   rectangle-XOR and executable Matrix/Surface/Context/Font/Path/Pattern/Region
   documentation coverage were added without rerunning ASan because no C glue or
@@ -367,6 +374,20 @@ Verified on 2026-07-02 and 2026-07-03:
 - Pure MoonBit backend surface subtype/lifecycle error-path coverage was added
   without rerunning ASan because no C glue, finalizer, callback trampoline, or
   retained owner code changed in that slice.
+- The later ImageData owner-status fix changed C glue in
+  `cairoon_image_data.c`; sanitizer validation is recorded below.
+- `run-asan.py --repo-root /Users/caimeo/code/pycairo/cairoon --pkg moon.pkg`:
+  rerun for the ImageData owner-status fix. The full runner still failed under
+  LeakSanitizer on this macOS workspace, with the known
+  FontRegistry/CoreText/ColorSync class and existing raster-source/README
+  leak stacks outside the ImageData owner-status path. The ASan-instrumented
+  black-box executable was then run directly with leak detection disabled using
+  `ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0
+  ./_build/native/debug/test/cairoon.blackbox_test.exe
+  image_data_test.mbt:0-9`; it exited 0, and
+  `/tmp/cairoon-image-data-owner-status-blackbox-asan.txt` shows all nine
+  `image_data_test.mbt` tests executed without any AddressSanitizer
+  invalid-access report.
 - Raster-source optional callback-state coverage added release-only C callback
   ownership paths and reran targeted ASan with leak detection disabled for
   `pattern_test.mbt`.
@@ -882,6 +903,11 @@ Verified on 2026-07-02 and 2026-07-03:
   document-unit getters after `finish()`, raising the native suite to 323
   tests. ASan/LSan was not rerun for that slice because it did not change C
   glue or ownership code.
+  The later ImageData owner-status slice fixed ordinary `ImageData` views to
+  check their retained base `Surface` wrapper before byte access and added two
+  black-box tests for ordinary, buffer-backed, and PNG-loaded `get_data` after
+  `finish()` plus retained-view base-finish invalidation, raising the native
+  suite to 325 tests. ASan/LSan validation is recorded above.
 
 The missing reliability pieces are substantial: broader automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering

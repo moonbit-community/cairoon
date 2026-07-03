@@ -13,16 +13,37 @@ static cairo_surface_t *cairoon_image_data_current_surface(
   return view->surface;
 }
 
-static cairo_status_t cairoon_image_data_access_status(
+static cairo_status_t cairoon_image_data_owner_status(
   CairoonImageData *view) {
-  cairo_surface_t *surface = cairoon_image_data_current_surface(view);
   if (view == NULL) {
     return CAIRO_STATUS_NULL_POINTER;
   }
+  if (view->mapped_object != NULL) {
+    cairo_status_t status =
+      cairoon_mapped_image_surface_status(view->mapped_object);
+    if (status != CAIRO_STATUS_SUCCESS) {
+      return status;
+    }
+    view->surface = view->mapped_object->mapped;
+    return CAIRO_STATUS_SUCCESS;
+  }
+  if (view->surface_object != NULL) {
+    return cairoon_surface_status((CairoonSurface *)view->surface_object);
+  }
+  return CAIRO_STATUS_SUCCESS;
+}
+
+static cairo_status_t cairoon_image_data_access_status(
+  CairoonImageData *view) {
+  cairo_status_t status = cairoon_image_data_owner_status(view);
+  if (status != CAIRO_STATUS_SUCCESS) {
+    return status;
+  }
+  cairo_surface_t *surface = cairoon_image_data_current_surface(view);
   if (surface == NULL) {
     return CAIRO_STATUS_SURFACE_FINISHED;
   }
-  cairo_status_t status = cairo_surface_status(surface);
+  status = cairo_surface_status(surface);
   if (status != CAIRO_STATUS_SUCCESS) {
     return status;
   }
