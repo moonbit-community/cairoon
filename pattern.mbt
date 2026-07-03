@@ -55,6 +55,17 @@ pub fn Pattern::mesh() -> Pattern raise CairoError {
 }
 
 ///|
+pub fn Pattern::raster_source(
+  content : Content,
+  width : Int,
+  height : Int,
+) -> Pattern raise CairoError {
+  let pattern = pattern_create_raster_source_ffi(content, width, height)
+  check_status(pattern_status_ffi(pattern))
+  pattern
+}
+
+///|
 pub fn Pattern::for_surface(surface : Surface) -> Pattern raise CairoError {
   let pattern = pattern_create_for_surface_ffi(surface)
   check_status(pattern_status_ffi(pattern))
@@ -245,6 +256,50 @@ pub fn Pattern::get_radial_circles(
     pattern_get_radial_circles_ffi(self, cx0, cy0, radius0, cx1, cy1, radius1),
   )
   (cx0.val, cy0.val, radius0.val, cx1.val, cy1.val, radius1.val)
+}
+
+///|
+pub fn Pattern::raster_set_acquire(
+  self : Pattern,
+  acquire : (Surface, RectangleInt) -> Surface,
+  release? : ((Surface) -> Unit)? = None,
+) -> Unit raise CairoError {
+  let call_acquire : FuncRef[
+    (Surface, Int, Int, Int, Int, (Surface, RectangleInt) -> Surface) -> Surface,
+  ] = fn(
+    target : Surface,
+    x : Int,
+    y : Int,
+    width : Int,
+    height : Int,
+    acquire : (Surface, RectangleInt) -> Surface,
+  ) {
+    acquire(target, RectangleInt::new(x~, y~, width~, height~))
+  }
+  match release {
+    None =>
+      check_status(
+        raster_source_pattern_set_acquire_ffi(self, call_acquire, acquire),
+      )
+    Some(release) => {
+      let call_release : FuncRef[(Surface, (Surface) -> Unit) -> Unit] = fn(
+        surface : Surface,
+        release : (Surface) -> Unit,
+      ) {
+        release(surface)
+      }
+      check_status(
+        raster_source_pattern_set_acquire_with_release_ffi(
+          self, call_acquire, acquire, call_release, release,
+        ),
+      )
+    }
+  }
+}
+
+///|
+pub fn Pattern::raster_clear_acquire(self : Pattern) -> Unit raise CairoError {
+  check_status(raster_source_pattern_clear_acquire_ffi(self))
 }
 
 ///|

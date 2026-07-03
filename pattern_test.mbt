@@ -150,3 +150,91 @@ test "surface pattern get_rgba maps type mismatch status" {
     _ => @test.fail("expected PatternTypeMismatch")
   }
 }
+
+///|
+test "raster source pattern paints from acquire callback" {
+  let source = Surface::image(Argb32, 1, 1)
+  let source_ctx = Context::new(source)
+  source_ctx.set_source_rgba(1.0, 0.0, 0.0, 1.0)
+  source_ctx.paint()
+
+  let acquire_calls = Ref(0)
+  let release_calls = Ref(0)
+  let extent_width = Ref(0)
+  let target_width = Ref(0)
+  let released_width = Ref(0)
+  let pattern = Pattern::raster_source(ContentColorAlpha, 1, 1)
+  pattern.raster_set_acquire(
+    fn(target, extents) {
+      acquire_calls.val += 1
+      extent_width.val = extents.width
+      target_width.val = target.get_width()
+      source
+    },
+    release=Some(fn(surface) {
+      release_calls.val += 1
+      released_width.val = surface.get_width()
+    }),
+  )
+
+  let target = Surface::image(Argb32, 1, 1)
+  let ctx = Context::new(target)
+  ctx.set_source(pattern)
+  ctx.paint()
+  target.flush()
+
+  let data = target.copy_data()
+  inspect(data[0].to_int(), content="0")
+  inspect(data[1].to_int(), content="0")
+  inspect(data[2].to_int(), content="255")
+  inspect(data[3].to_int(), content="255")
+  inspect(acquire_calls.val > 0, content="true")
+  inspect(release_calls.val == acquire_calls.val, content="true")
+  inspect(extent_width.val > 0, content="true")
+  inspect(target_width.val, content="1")
+  inspect(released_width.val, content="1")
+}
+
+///|
+fn make_data_backed_raster_source_pattern() -> Pattern raise CairoError {
+  let data : FixedArray[Byte] = FixedArray::make(4, b'\x00')
+  let source = Surface::image_for_data(data, Argb32, 1, 1)
+  let source_ctx = Context::new(source)
+  source_ctx.set_source_rgba(0.0, 0.0, 1.0, 1.0)
+  source_ctx.paint()
+
+  let pattern = Pattern::raster_source(ContentColorAlpha, 1, 1)
+  pattern.raster_set_acquire(fn(_, _) { source })
+  pattern
+}
+
+///|
+test "raster source pattern retains data backed acquire surface" {
+  let pattern = make_data_backed_raster_source_pattern()
+  let target = Surface::image(Argb32, 1, 1)
+  let ctx = Context::new(target)
+  ctx.set_source(pattern)
+  ctx.paint()
+  let data = target.copy_data()
+  inspect(data[0].to_int(), content="255")
+  inspect(data[1].to_int(), content="0")
+  inspect(data[2].to_int(), content="0")
+  inspect(data[3].to_int(), content="255")
+}
+
+///|
+test "raster source acquire validates pattern subtype" {
+  let source = Surface::image(Argb32, 1, 1)
+  let solid = Pattern::solid_rgba(0.0, 0.0, 1.0, 1.0)
+  let set_result = run_cairo(() => solid.raster_set_acquire(fn(_, _) { source }))
+  match set_result {
+    Err(CairoError(PatternTypeMismatch, _)) => ()
+    _ => @test.fail("expected PatternTypeMismatch")
+  }
+
+  let clear_result = run_cairo(() => solid.raster_clear_acquire())
+  match clear_result {
+    Err(CairoError(PatternTypeMismatch, _)) => ()
+    _ => @test.fail("expected PatternTypeMismatch")
+  }
+}

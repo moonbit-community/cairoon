@@ -15,6 +15,18 @@ fn lifetime_pattern_from_data_surface() -> Pattern raise CairoError {
 }
 
 ///|
+fn lifetime_raster_pattern_from_data_surface() -> Pattern raise CairoError {
+  let data : FixedArray[Byte] = FixedArray::make(4, b'\x00')
+  let source = Surface::image_for_data(data, Argb32, 1, 1)
+  let source_ctx = Context::new(source)
+  source_ctx.set_source_rgba(0.0, 0.0, 1.0, 1.0)
+  source_ctx.paint()
+  let pattern = Pattern::raster_source(ContentColorAlpha, 1, 1)
+  pattern.raster_set_acquire(fn(_, _) { source })
+  pattern
+}
+
+///|
 fn lifetime_mapped_from_local_base() -> MappedImageSurface raise CairoError {
   let base = Surface::image(Rgb24, 1, 1)
   base.map_to_image()
@@ -104,6 +116,15 @@ test "retained cairo owner graph allocation stress" {
     target_ctx.paint()
     if index % 250 == 0 {
       expect_lifetime_argb32_blue(target.copy_data())
+    }
+
+    let raster_pattern = lifetime_raster_pattern_from_data_surface()
+    let raster_target = Surface::image(Argb32, 1, 1)
+    let raster_ctx = Context::new(raster_target)
+    raster_ctx.set_source(raster_pattern)
+    raster_ctx.paint()
+    if index % 250 == 0 {
+      expect_lifetime_argb32_blue(raster_target.copy_data())
     }
 
     let mapped = lifetime_mapped_from_local_base()

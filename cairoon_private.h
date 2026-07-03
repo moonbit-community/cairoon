@@ -69,6 +69,16 @@ typedef struct {
 
 typedef int32_t (*CairoonStreamWriteCallback)(moonbit_bytes_t data, void *arg);
 typedef moonbit_bytes_t (*CairoonStreamReadCallback)(int32_t length, void *arg);
+typedef CairoonSurface *(*CairoonRasterSourceAcquireCallback)(
+  CairoonSurface *target,
+  int32_t x,
+  int32_t y,
+  int32_t width,
+  int32_t height,
+  void *arg);
+typedef void (*CairoonRasterSourceReleaseCallback)(
+  CairoonSurface *surface,
+  void *arg);
 
 CairoonSurface *cairoon_surface_wrap_owned(cairo_surface_t *ptr);
 CairoonSurface *cairoon_surface_wrap_owned_with_base(

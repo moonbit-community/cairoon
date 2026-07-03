@@ -148,7 +148,8 @@ Implemented in this workspace:
 - Gate 1 API inventory: partial. A full inventory ledger exists in
   `API_INVENTORY.md`; multiple rows remain Partial or Decision.
 - Gate 2 behavioral parity: partial. First MoonBit tests cover a small subset
-  of pycairo's matrix, surface, context, pattern, region, and error behavior.
+  of pycairo's matrix, surface, context, pattern, raster-source callback,
+  region, and error behavior.
 - Gate 3 differential rendering: partial. Deterministic raw-pixel rendering
   tests exist for direct colors and explicit patterns, a direct C image oracle
   covers one ARGB32 paint case, and vector outputs have stable structural
@@ -156,7 +157,8 @@ Implemented in this workspace:
   against pycairo output is not yet automated.
 - Gate 4 memory and lifetime: partial. Stub ownership follows the documented
   external-object pattern, and retained-owner stress now covers subsurfaces,
-  data-backed surface patterns, mapped images, ImageData surface and
+  data-backed surface patterns, data-backed raster-source acquire surfaces,
+  mapped images, ImageData surface and
   mapped-image views, context target wrappers, and TeeSurface
   primary/target/index wrappers. The current font stack still exposes macOS
   Cairo/Quartz/CoreText LeakSanitizer reports through toy-font,
@@ -170,10 +172,14 @@ Implemented in this workspace:
 2026-07-02 and 2026-07-03:
 
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native -v`: 225 tests passed.
+- `moon -C cairoon test --target native -v`: 229 tests passed.
 - `run-asan.py --repo-root /Users/caimeo/code/pycairo/cairoon --pkg moon.pkg`:
-  most recently ran the 225-test native suite on 2026-07-03 after the
-  script stream-device slice. An earlier retained-owner stress
+  most recently ran the 229-test native suite on 2026-07-03 after the
+  raster-source pattern slice. The rerun found no invalid access and no
+  `cairoon_raster`, `raster_source`, or `cairoon_pattern` entries in the
+  visible leak roots; it still failed during the known macOS LeakSanitizer
+  reporting class documented in `TESTING.md`.
+  An earlier retained-owner stress
   ASan run found a heap-use-after-free in `cairoon_copy_image_surface_data` reached from
   `lifetime_stress_test.mbt` when a returned target surface outlived a context
   created from a mapped image. The fixed rerun, and the later TeeSurface rerun,
@@ -191,7 +197,8 @@ Implemented in this workspace:
   text-to-glyphs native result finalizer, glyph/cluster marshaling helper,
   RecordingSurface helper, PDFSurface helper, PSSurface helper, SVGSurface
   helper, PDF outline helper, MeshPattern/Pattern helper,
-  Device/ScriptSurface helper, Context text/tag/group, MIME-data stub, or
+  Device/ScriptSurface helper, RasterSourcePattern helper, Context
+  text/tag/group, MIME-data stub, or
   Surface `create_for_rectangle` helper, retained-parent subsurface
   helper/finalizer stack, retained target/group-target helper stack,
   mapped-image lifetime helper stack, Context `set_source_surface` helper,
@@ -238,11 +245,16 @@ Implemented in this workspace:
   black-box tests; ASan/LSan was rerun as described above.
   The later script stream-device slice added device-retained write callbacks
   and two black-box tests; ASan/LSan was rerun as described above.
+  The later RasterSourcePattern slice added retained acquire/release callbacks,
+  acquired-surface owner tracking, focused behavior/lifetime tests, README
+  coverage, and retained-owner stress-loop coverage; ASan/LSan was rerun as
+  described above.
 
 ## Known Gaps
 
-- No raster-source patterns, normalized PDF/SVG/PS output comparison, or
-  SVG/PS tag-materialization assertions yet. PDF/PS/SVG stream-writer
+- Raster-source patterns still lack pycairo-style `get_acquire`, normalized
+  PDF/SVG/PS output comparison is missing, and SVG/PS tag-materialization
+  assertions are still absent. PDF/PS/SVG stream-writer
   constructors, script stream devices, and PNG stream read/write now have
   copied-byte callback tests and read/write error propagation coverage.
 - `Surface::copy_data` still copies Cairo image data into MoonBit `Bytes`;

@@ -274,6 +274,23 @@ test {
 
 ///|
 test {
+  let source = Surface::image(Argb32, 1, 1)
+  let source_ctx = Context::new(source)
+  source_ctx.set_source_rgba(1.0, 0.0, 0.0, 1.0)
+  source_ctx.paint()
+
+  let pattern = Pattern::raster_source(ContentColorAlpha, 1, 1)
+  pattern.raster_set_acquire(fn(_, _) { source })
+
+  let target = Surface::image(Argb32, 1, 1)
+  let ctx = Context::new(target)
+  ctx.set_source(pattern)
+  ctx.paint()
+  inspect(target.copy_data()[2].to_int(), content="255")
+}
+
+///|
+test {
   let pattern = Pattern::mesh()
   pattern.mesh_begin_patch()
   pattern.mesh_move_to(0.0, 0.0)

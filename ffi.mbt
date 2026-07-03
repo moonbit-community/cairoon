@@ -2016,6 +2016,13 @@ extern "C" fn pattern_create_radial_ffi(
 extern "C" fn pattern_create_mesh_ffi() -> Pattern = "cairoon_pattern_create_mesh"
 
 ///|
+extern "C" fn pattern_create_raster_source_ffi(
+  content : Content,
+  width : Int,
+  height : Int,
+) -> Pattern = "cairoon_pattern_create_raster_source"
+
+///|
 #borrow(surface)
 extern "C" fn pattern_create_for_surface_ffi(surface : Surface) -> Pattern = "cairoon_pattern_create_for_surface"
 
@@ -2162,6 +2169,36 @@ extern "C" fn pattern_get_radial_circles_ffi(
 ///|
 #borrow(pattern)
 extern "C" fn mesh_pattern_begin_patch_ffi(pattern : Pattern) -> Status = "cairoon_mesh_pattern_begin_patch"
+
+///|
+#owned(acquire)
+#borrow(pattern)
+extern "C" fn raster_source_pattern_set_acquire_ffi(
+  pattern : Pattern,
+  call_acquire : FuncRef[
+    (Surface, Int, Int, Int, Int, (Surface, RectangleInt) -> Surface) -> Surface,
+  ],
+  acquire : (Surface, RectangleInt) -> Surface,
+) -> Status = "cairoon_raster_source_pattern_set_acquire"
+
+///|
+#owned(acquire, release)
+#borrow(pattern)
+extern "C" fn raster_source_pattern_set_acquire_with_release_ffi(
+  pattern : Pattern,
+  call_acquire : FuncRef[
+    (Surface, Int, Int, Int, Int, (Surface, RectangleInt) -> Surface) -> Surface,
+  ],
+  acquire : (Surface, RectangleInt) -> Surface,
+  call_release : FuncRef[(Surface, (Surface) -> Unit) -> Unit],
+  release : (Surface) -> Unit,
+) -> Status = "cairoon_raster_source_pattern_set_acquire_with_release"
+
+///|
+#borrow(pattern)
+extern "C" fn raster_source_pattern_clear_acquire_ffi(
+  pattern : Pattern,
+) -> Status = "cairoon_raster_source_pattern_clear_acquire"
 
 ///|
 #borrow(pattern)

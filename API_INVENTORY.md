@@ -91,7 +91,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 | `Matrix` | Done | MoonBit pure-value API returns transformed copies; `component`/`components` cover pycairo indexing/unpacking semantics |
 | `Path` | Done | Opaque owned `cairo_path_t *`, status/equality/hash, stringification, segment values, and iteration |
 | `Rectangle` | Done | Pure value type with field and component access |
-| `RectangleInt` | Done | Pure value type with defaults; needed by region and map-to-image |
+| `RectangleInt` | Done | Pure value type with defaults; needed by region, map-to-image, and raster-source acquire extents |
 | `Glyph` | Done | Pure value type with `UInt` index; array marshaling remains separate |
 | `TextCluster` | Done | Pure value type; array marshaling remains separate |
 | `TextExtents` | Done | Pure value type |
@@ -113,7 +113,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 | `LinearGradient` | Done | Exposed as `Pattern::linear` plus `get_linear_points` |
 | `RadialGradient` | Done | Exposed as `Pattern::radial` plus `get_radial_circles` |
 | `MeshPattern` | Done | Exposed as `Pattern::mesh` and `Pattern::mesh_*` methods for patch lifecycle, move/line/curve commands, control points, corner colors, patch count, path extraction, and query helpers; tests cover pycairo examples, invalid indexes, lifecycle errors, non-mesh mismatch, and painting smoke |
-| `RasterSourcePattern` | Decision | Requires callback trampoline and retained MoonBit closures |
+| `RasterSourcePattern` | Partial | Exposed as `Pattern::raster_source`, `raster_set_acquire`, and `raster_clear_acquire`; C callback trampolines retain MoonBit closures and acquired surface wrappers, and tests cover paint output, release callbacks, data-backed source lifetime, retained-owner stress, and subtype mismatch. pycairo-style `get_acquire`, broader finalizer/edge coverage, and differential rendering remain. |
 
 ## Surface And Device APIs
 
