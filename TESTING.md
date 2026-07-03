@@ -254,8 +254,10 @@ fill/stroke rectangles, Bezier paths, transforms, linear/radial gradients,
 toy-font text paths, toy-font `show_text`, two-page paint, clip, dashed
 stroke, repeated surface pattern, mask surface, and mesh pattern scenes, with
 SVG dynamic `source-*` image-id normalization, three PDF-only tag oracle scenes,
-one PDF-only document-feature oracle scene, PDF metadata/custom-metadata/page-label/outline output
-markers, PDF/PS/SVG multi-page output markers, PDF JPEG MIME payload embedding,
+one PDF-only document-feature oracle scene, one PS-only DSC/multi-page oracle
+scene, one SVG-only version/unit/multi-page oracle scene, PDF
+metadata/custom-metadata/page-label/outline output markers, PDF/PS/SVG
+multi-page output markers, PDF JPEG MIME payload embedding,
 image/PDF/PS/SVG MIME support matrix checks,
 PDF URI link-tag annotation markers, PDF named-destination tag markers, PDF
 document-structure tag markers, PS/SVG Link tag inert-output checks, mutable
@@ -293,7 +295,8 @@ Verified on 2026-07-02 and 2026-07-03:
 
 - `./scripts/verify.sh`: passed. The local reliability gate ran
   `moon fmt --check`, `scripts/configure-link-flags.sh --check`, native
-  `moon check`, targeted image, ScaledFont, vector, and pattern oracle tests,
+  `moon check`, targeted image, ScaledFont, vector including PS DSC/SVG unit
+  backend-feature oracle checks, and pattern oracle tests,
   the full native suite, `moon info --target native`, and targeted ASan
   image-oracle and pattern tests with leak detection disabled.
 - `moon -C cairoon check --target native`: passed.
@@ -1082,13 +1085,13 @@ Verified on 2026-07-02 and 2026-07-03:
   The later PS DSC multi-page vector-output marker slice added one pure MoonBit
   white-box test covering language-level restriction, setup DSC comments,
   page-setup DSC comments, and two-page drawing markers, raising the native
-  suite to 315 tests. ASan/LSan was not rerun for that slice because it did not
-  change C glue or ownership code.
+  suite to 315 tests. The later backend-feature oracle slice upgraded this test
+  with a direct C Cairo output oracle.
   The later SVG version-unit multi-page vector-output marker slice added one
   pure MoonBit white-box test covering SVG 1.2 version restriction, `SvgUnitPx`
   state, px width/height output, and two-page drawing markers, raising the
-  native suite to 316 tests. ASan/LSan was not rerun for that slice because it
-  did not change C glue or ownership code.
+  native suite to 316 tests. The later backend-feature oracle slice upgraded
+  this test with a direct C Cairo output oracle.
   The later PDF thumbnail vector-output marker slice added one pure MoonBit
   white-box test covering `Surface::pdf_set_thumbnail_size` output through
   `/Thumb` image markers and thumbnail dimensions, raising the native suite to
@@ -1219,9 +1222,10 @@ the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering
 LSan failure, broader callback fuzz/finalizer stress tests, additional
 failure-injection paths, CI wiring, vector-output normalization for broader
 multi-page/tag/metadata combinations beyond the current fifteen-scene
-cross-backend direct C fixture set, three PDF tag oracle scenes, and one PDF
-document-feature oracle scene, including the current two-page direct C oracle
-scene and the current single-page toy-font `show_text` oracle scene, broader
+cross-backend direct C fixture set, three PDF tag oracle scenes, one PDF
+document-feature oracle scene, one PS DSC/multi-page oracle scene, and one SVG
+version/unit/multi-page oracle scene, including the current two-page direct C
+oracle scene and the current single-page toy-font `show_text` oracle scene, broader
 tag-output assertions beyond the current URI link, named-destination,
 document-structure, PDF document-feature, and PS/SVG Link coverage, and the
 remaining API families from `API_INVENTORY.md`.

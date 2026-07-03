@@ -721,6 +721,7 @@ test "ps output contains multi-page markers" {
 ///|
 test "ps output preserves dsc comments across multiple pages" {
   let path = "/tmp/cairoon_vector_ps_dsc_multipage.ps"
+  let oracle_path = "/tmp/cairoon_vector_ps_dsc_multipage_oracle.ps"
   let surface = Surface::ps(12.0, 12.0, path=Some(path))
   surface.ps_restrict_to_level(PsLevel2)
   surface.ps_dsc_begin_setup()
@@ -741,6 +742,7 @@ test "ps output preserves dsc comments across multiple pages" {
     "%%IncludeFeature: *PageSize A4", "%%IncludeFeature: *MediaType Plain", "%%Pages: 2",
     "%%Page: 1 1", "%%Page: 2 2", "0 0 1 rg", "1 0 0 rg", "%%EOF",
   ])
+  expect_vector_oracle_match(1, 19, path, oracle_path)
 }
 
 ///|
@@ -794,6 +796,7 @@ test "svg output contains multi-page markers" {
 ///|
 test "svg output preserves version unit and page markers" {
   let path = "/tmp/cairoon_vector_svg_unit_multipage.svg"
+  let oracle_path = "/tmp/cairoon_vector_svg_unit_multipage_oracle.svg"
   let surface = Surface::svg(12.0, 12.0, path=Some(path))
   surface.svg_restrict_to_version(SvgVersion1_2)
   surface.svg_set_document_unit(SvgUnitPx)
@@ -809,6 +812,7 @@ test "svg output preserves version unit and page markers" {
     "<page>", "fill=\"rgb(0%, 0%, 100%)\"", "fill=\"rgb(100%, 0%, 0%)\"", "</pageSet>",
     "</svg>",
   ])
+  expect_vector_oracle_match(2, 20, path, oracle_path)
 }
 
 ///|

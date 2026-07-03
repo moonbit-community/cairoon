@@ -40,7 +40,9 @@ enum {
   CAIROON_TEST_VECTOR_PDF_URI_TAG = 15,
   CAIROON_TEST_VECTOR_PDF_DEST_TAG = 16,
   CAIROON_TEST_VECTOR_PDF_STRUCT_TAG = 17,
-  CAIROON_TEST_VECTOR_PDF_DOCUMENT_FEATURES = 18
+  CAIROON_TEST_VECTOR_PDF_DOCUMENT_FEATURES = 18,
+  CAIROON_TEST_VECTOR_PS_DSC_FEATURES = 19,
+  CAIROON_TEST_VECTOR_SVG_UNIT_FEATURES = 20
 };
 
 enum {
@@ -638,6 +640,114 @@ static cairo_status_t cairoon_test_render_pdf_document_features(
 #endif
 }
 
+static cairo_status_t cairoon_test_render_ps_dsc_features(const char *name) {
+#if CAIRO_HAS_PS_SURFACE
+  cairo_surface_t *surface = cairo_ps_surface_create(name, 12.0, 12.0);
+  cairo_status_t status = cairo_surface_status(surface);
+
+  if (status == CAIRO_STATUS_SUCCESS) {
+    cairo_ps_surface_restrict_to_level(surface, CAIRO_PS_LEVEL_2);
+    cairo_ps_surface_dsc_begin_setup(surface);
+    cairo_ps_surface_dsc_comment(surface, "%%Title: Cairoon PS Combined");
+    cairo_ps_surface_dsc_comment(
+      surface,
+      "%%IncludeFeature: *MediaColor White");
+    cairo_ps_surface_dsc_begin_page_setup(surface);
+    cairo_ps_surface_dsc_comment(surface, "%%IncludeFeature: *PageSize A4");
+    status = cairo_surface_status(surface);
+  }
+
+  cairo_t *cr = NULL;
+  if (status == CAIRO_STATUS_SUCCESS) {
+    cr = cairo_create(surface);
+    status = cairo_status(cr);
+  }
+
+  if (status == CAIRO_STATUS_SUCCESS) {
+    cairo_set_source_rgb(cr, 0.0, 0.0, 1.0);
+    cairo_paint(cr);
+    cairo_show_page(cr);
+    status = cairo_status(cr);
+  }
+
+  if (status == CAIRO_STATUS_SUCCESS) {
+    cairo_ps_surface_dsc_begin_page_setup(surface);
+    cairo_ps_surface_dsc_comment(
+      surface,
+      "%%IncludeFeature: *MediaType Plain");
+    status = cairo_surface_status(surface);
+  }
+
+  if (status == CAIRO_STATUS_SUCCESS) {
+    cairo_set_source_rgb(cr, 1.0, 0.0, 0.0);
+    cairo_paint(cr);
+    cairo_show_page(cr);
+    status = cairo_status(cr);
+  }
+
+  if (cr != NULL) {
+    cairo_destroy(cr);
+  }
+  cairo_surface_finish(surface);
+  cairo_status_t surface_status = cairo_surface_status(surface);
+  cairo_surface_destroy(surface);
+  if (status != CAIRO_STATUS_SUCCESS) {
+    return status;
+  }
+  return surface_status;
+#else
+  (void)name;
+  return CAIRO_STATUS_INVALID_STATUS;
+#endif
+}
+
+static cairo_status_t cairoon_test_render_svg_unit_features(const char *name) {
+#if CAIRO_HAS_SVG_SURFACE
+  cairo_surface_t *surface = cairo_svg_surface_create(name, 12.0, 12.0);
+  cairo_status_t status = cairo_surface_status(surface);
+
+  if (status == CAIRO_STATUS_SUCCESS) {
+    cairo_svg_surface_restrict_to_version(surface, CAIRO_SVG_VERSION_1_2);
+    cairo_svg_surface_set_document_unit(surface, CAIRO_SVG_UNIT_PX);
+    status = cairo_surface_status(surface);
+  }
+
+  cairo_t *cr = NULL;
+  if (status == CAIRO_STATUS_SUCCESS) {
+    cr = cairo_create(surface);
+    status = cairo_status(cr);
+  }
+
+  if (status == CAIRO_STATUS_SUCCESS) {
+    cairo_set_source_rgb(cr, 0.0, 0.0, 1.0);
+    cairo_paint(cr);
+    cairo_show_page(cr);
+    status = cairo_status(cr);
+  }
+
+  if (status == CAIRO_STATUS_SUCCESS) {
+    cairo_set_source_rgb(cr, 1.0, 0.0, 0.0);
+    cairo_paint(cr);
+    cairo_show_page(cr);
+    status = cairo_status(cr);
+  }
+
+  if (cr != NULL) {
+    cairo_destroy(cr);
+  }
+  cairo_surface_finish(surface);
+  cairo_status_t surface_status = cairo_surface_status(surface);
+  cairo_surface_destroy(surface);
+  if (status != CAIRO_STATUS_SUCCESS) {
+    return status;
+  }
+  return surface_status;
+#else
+  (void)name;
+  return CAIRO_STATUS_INVALID_STATUS;
+#endif
+}
+
 static cairo_status_t cairoon_test_draw_vector_scene(
   cairo_t *cr,
   int32_t scene,
@@ -1170,6 +1280,9 @@ cairo_status_t cairoon_test_render_vector_scene_oracle(
 #endif
     case CAIROON_TEST_VECTOR_PS:
 #if CAIRO_HAS_PS_SURFACE
+      if (scene == CAIROON_TEST_VECTOR_PS_DSC_FEATURES) {
+        return cairoon_test_render_ps_dsc_features(name);
+      }
       surface = cairo_ps_surface_create(name, 10.0, 10.0);
       return cairoon_test_render_vector_surface(surface, scene);
 #else
@@ -1177,6 +1290,9 @@ cairo_status_t cairoon_test_render_vector_scene_oracle(
 #endif
     case CAIROON_TEST_VECTOR_SVG:
 #if CAIRO_HAS_SVG_SURFACE
+      if (scene == CAIROON_TEST_VECTOR_SVG_UNIT_FEATURES) {
+        return cairoon_test_render_svg_unit_features(name);
+      }
       surface = cairo_svg_surface_create(name, 10.0, 10.0);
       return cairoon_test_render_vector_surface(surface, scene);
 #else

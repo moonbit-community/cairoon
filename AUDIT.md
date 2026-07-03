@@ -174,14 +174,17 @@ Implemented in this workspace:
   PS surface level helper behavior, no-output and filename construction, EPS
   mode, level restriction, size/DSC helpers, finished-surface errors, invalid
   DSC/path validation, stable page/drawing output markers, fifteen-scene direct C
-  vector-oracle comparison with `CreationDate` normalization, multi-page
-  output markers, Link tag inertness on PS output, and subtype-mismatch errors
-  across bound EPS/level/page-size/DSC helpers,
+  vector-oracle comparison with `CreationDate` normalization, normalized direct
+  C oracle comparison for the combined language-level/DSC setup/page-setup/
+  two-page feature scene, Link tag inertness on PS output, and subtype-mismatch
+  errors across bound EPS/level/page-size/DSC helpers,
   SVG surface version helper behavior, no-output and filename construction,
   document-unit behavior, finished-surface errors including document-unit
   getters, invalid path validation, and
   stable geometry/color output markers, normalized fifteen-scene direct C vector-oracle comparison,
-  Link tag inertness on SVG output, and subtype-mismatch errors,
+  normalized direct C oracle comparison for the combined version-restricted/
+  document-unit/two-page feature scene, Link tag inertness on SVG output, and
+  subtype-mismatch errors,
   clip behavior including non-rectangular clip status propagation,
   pattern RGBA, gradient geometry/color-stop behavior, mesh patch construction,
   control/corner/path queries, invalid-index and lifecycle errors, non-mesh
@@ -245,7 +248,8 @@ Implemented in this workspace:
   named-destination tags, document-structure tags, and one two-page PDF
   document-feature combination also have direct C oracle or marker checks; PDF
   JPEG MIME passthrough has output checks; image/PDF/PS/SVG MIME support
-  matrices are covered; PS and SVG multi-page output have marker checks; and
+  matrices are covered; PS combined DSC/multi-page output and SVG combined
+  version/unit/multi-page output have normalized direct C oracle checks; and
   PS/SVG Link tags have inert-output checks matching Cairo 1.18.4 backend
   behavior.
   Full cross-run comparison against pycairo output is not yet automated.
@@ -280,7 +284,8 @@ Implemented in this workspace:
 
 - `./scripts/verify.sh`: passed. The local reliability gate ran
   `moon fmt --check`, `scripts/configure-link-flags.sh --check`, native
-  `moon check`, targeted image, ScaledFont, vector, and pattern oracle tests,
+  `moon check`, targeted image, ScaledFont, vector including PS DSC/SVG unit
+  backend-feature oracle checks, and pattern oracle tests,
   the full native suite, `moon info --target native`, and targeted ASan
   image-oracle and pattern tests with leak detection disabled.
 - `moon -C cairoon check --target native`: passed.
@@ -994,11 +999,13 @@ Implemented in this workspace:
   The later PS DSC multi-page vector-output marker slice added one pure MoonBit
   white-box test covering language-level restriction, setup DSC comments,
   page-setup DSC comments, and two-page drawing markers, raising the native
-  suite to 315 tests; ASan was not rerun because no C glue changed.
+  suite to 315 tests; the later backend-feature oracle slice upgraded this test
+  with a direct C Cairo output oracle.
   The later SVG version-unit multi-page vector-output marker slice added one
   pure MoonBit white-box test covering SVG 1.2 version restriction, `SvgUnitPx`
   state, px width/height output, and two-page drawing markers, raising the
-  native suite to 316 tests; ASan was not rerun because no C glue changed.
+  native suite to 316 tests; the later backend-feature oracle slice upgraded
+  this test with a direct C Cairo output oracle.
   The later PDF thumbnail vector-output marker slice added one pure MoonBit
   white-box test covering `Surface::pdf_set_thumbnail_size` output through
   `/Thumb` image markers and thumbnail dimensions, raising the native suite to
