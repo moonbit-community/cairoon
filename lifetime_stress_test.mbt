@@ -68,6 +68,123 @@ fn expect_lifetime_mapped_finished(
 }
 
 ///|
+fn lifetime_scaled_font_from_local_inputs() -> ScaledFont raise CairoError {
+  let face = FontFace::toy("serif", weight=FontWeightBold)
+  let options = FontOptions::new()
+  options.set_antialias(AntialiasGray)
+  ScaledFont::new(
+    face,
+    Matrix::new(xx=12.0, yy=12.0),
+    Matrix::new(xx=2.0, yy=3.0),
+    options,
+  )
+}
+
+///|
+fn lifetime_mesh_pattern() -> Pattern raise CairoError {
+  let pattern = Pattern::mesh()
+  pattern.mesh_begin_patch()
+  pattern.mesh_move_to(0.0, 0.0)
+  pattern.mesh_line_to(2.0, 0.0)
+  pattern.mesh_line_to(0.0, 2.0)
+  pattern.mesh_set_corner_color_rgba(0, 1.0, 0.0, 0.0, 1.0)
+  pattern.mesh_set_corner_color_rgba(1, 0.0, 1.0, 0.0, 1.0)
+  pattern.mesh_set_corner_color_rgba(2, 0.0, 0.0, 1.0, 1.0)
+  pattern.mesh_end_patch()
+  pattern
+}
+
+///|
+fn lifetime_stress_value_wrappers(index : Int) -> Unit raise {
+  let surface = Surface::image(Argb32, 4, 4)
+  let ctx = Context::new(surface)
+  ctx.rectangle(0.0, 0.0, 2.0, 2.0)
+  let path = ctx.copy_path()
+  let flat_path = ctx.copy_path_flat()
+  let target_ctx = Context::new(Surface::image(Argb32, 4, 4))
+  target_ctx.append_path(path)
+  target_ctx.append_path(flat_path)
+
+  let region = Region::from_rectangle(
+    RectangleInt::new(x=0, y=0, width=2, height=2),
+  )
+  let region_copy = region.copy()
+  region_copy.union_rectangle(RectangleInt::new(x=2, y=0, width=2, height=2))
+
+  let options = FontOptions::new()
+  options.set_antialias(AntialiasGray)
+  let copied_options = options.copy()
+  copied_options.merge(options)
+
+  let face = FontFace::toy("serif", weight=FontWeightBold)
+  let scaled_font = lifetime_scaled_font_from_local_inputs()
+  let returned_face = scaled_font.get_font_face()
+  let returned_options = scaled_font.get_font_options()
+  let _ = scaled_font.extents()
+  let _ = scaled_font.text_extents("ffi")
+
+  let solid = Pattern::solid_rgba(0.25, 0.5, 0.75, 1.0)
+  let gradient = Pattern::linear(0.0, 0.0, 4.0, 0.0)
+  gradient.add_color_stop_rgba(0.0, 1.0, 0.0, 0.0, 1.0)
+  gradient.add_color_stop_rgba(1.0, 0.0, 0.0, 1.0, 1.0)
+  gradient.set_matrix(Matrix::new(xx=0.5, yy=0.5))
+  let mesh = lifetime_mesh_pattern()
+  let mesh_path = mesh.mesh_get_path(0)
+
+  let recording = Surface::recording(
+    ContentColorAlpha,
+    extents=Some(Rectangle::new(0.0, 0.0, 4.0, 4.0)),
+  )
+  let recorder = Context::new(recording)
+  recorder.rectangle(0.0, 0.0, 1.0, 1.0)
+  recorder.fill()
+  let similar = surface.create_similar(ContentColorAlpha, 2, 2)
+  let similar_image = surface.create_similar_image(Argb32, 2, 2)
+  let tee = Surface::tee(similar)
+  tee.tee_add(similar_image)
+  let _ = tee.tee_index(0)
+  let _ = tee.tee_index(1)
+  tee.tee_remove(similar_image)
+
+  let chunk_count = Ref(0)
+  let device = Device::script_stream(fn(chunk) {
+    if chunk.length() > 0 {
+      chunk_count.val += 1
+    }
+    Success
+  })
+  let device_type = device.get_type()
+  device.script_write_comment("lifetime stress")
+  device.flush()
+  device.finish()
+
+  if index % 250 == 0 {
+    inspect(path.length(), content="6")
+    inspect(flat_path.length() >= 5, content="true")
+    inspect(path.to_string().contains("line_to"), content="true")
+    debug_inspect(
+      region_copy.get_extents().components(),
+      content="(0, 0, 4, 2)",
+    )
+    inspect(copied_options.equal(options), content="true")
+    inspect(face.get_family(), content="serif")
+    inspect(returned_face.get_family(), content="serif")
+    debug_inspect(returned_options.get_antialias(), content="AntialiasGray")
+    debug_inspect(solid.get_rgba(), content="(0.25, 0.5, 0.75, 1)")
+    inspect(gradient.get_color_stop_count(), content="2")
+    inspect(mesh.mesh_get_patch_count(), content="1")
+    inspect(mesh_path.length() > 0, content="true")
+    debug_inspect(
+      recording.recording_get_extents().map(rect => rect.components()),
+      content="Some((0, 0, 4, 4))",
+    )
+    inspect(recording.recording_ink_extents().width > 0.0, content="true")
+    debug_inspect(device_type, content="DeviceTypeScript")
+    inspect(chunk_count.val > 0, content="true")
+  }
+}
+
+///|
 test "mapped image keeps base wrapper alive after local scope exits" {
   let mapped = lifetime_mapped_from_local_base()
   let ctx = Context::new_for_mapped_image(mapped)
@@ -135,5 +252,12 @@ test "retained cairo owner graph allocation stress" {
       expect_lifetime_rgb24_white(mapped.copy_data())
     }
     mapped.unmap()
+  }
+}
+
+///|
+test "external value wrapper allocation stress" {
+  for index in 0..<1000 {
+    lifetime_stress_value_wrappers(index)
   }
 }

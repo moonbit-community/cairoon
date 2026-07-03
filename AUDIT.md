@@ -156,7 +156,10 @@ Implemented in this workspace:
   sources, surface-pattern borrowed surface returns, font-options behavior,
   font-face and scaled-font behavior with context error propagation, region
   behavior, TeeSurface mirrored drawing/index/error/lifetime behavior,
-  exhaustive status/error classification, and retained-owner lifetime stress.
+  exhaustive status/error classification, retained-owner lifetime stress, and
+  external value-wrapper allocation stress for `Path`, `Region`, the font
+  stack, solid/gradient/mesh `Pattern`, recording/similar/Tee `Surface`, and
+  script stream `Device`.
 - `API_INVENTORY.md` now tracks the full pycairo API surface against cairoon
   status.
 - `TESTING.md` defines the migration reliability gates and records why the
@@ -194,12 +197,16 @@ Implemented in this workspace:
   data-backed surface patterns, data-backed raster-source acquire surfaces,
   mapped images, ImageData surface and
   mapped-image views, context target wrappers, and TeeSurface
-  primary/target/index wrappers. The current font stack still exposes macOS
+  primary/target/index wrappers. External value-wrapper stress now covers
+  `Path`, `Region`, `FontOptions`, `FontFace`, `ScaledFont`, solid/gradient/mesh
+  `Pattern`, recording/similar/Tee `Surface`, and script stream `Device` in a
+  1000-iteration loop. The current font stack still exposes macOS
   Cairo/Quartz/CoreText LeakSanitizer reports through toy-font,
   scaled-font, toy-text rendering, glyph rendering/path, and
   show-text-glyphs paths. These must be resolved or intentionally suppressed
   before claiming this gate.
-  Finalizer stress tests still need to be broadened across every external type.
+  Finalizer stress still needs to be broadened for mutable `ImageData` views
+  and backend-specific error/stream paths under ASan.
 
 ## Last Verified
 
@@ -210,19 +217,39 @@ Implemented in this workspace:
   image rendering white-box oracle passed after expanding the direct C ARGB32
   fixture from ten to thirteen scenes with `glyph_path`, `show_glyphs`, and
   `show_text_glyphs`.
+- `moon -C cairoon test lifetime_stress_test.mbt --target native -v`: 4
+  black-box lifetime tests passed after adding the external value-wrapper
+  1000-iteration allocation stress case.
 - `moon -C cairoon test vector_output_wbtest.mbt --target native -v`: 13
   white-box tests passed after adding a two-page direct C vector oracle scene
   alongside metadata, tag-output, MIME-output, and page structure checks.
 - `moon -C cairoon test surface_context_test.mbt context_lifetime_test.mbt
   pattern_test.mbt --target native -v`: 32 tests passed after adding
   `Surface`/`Context`/`Pattern` pointer equality/hash.
-- `moon -C cairoon test --target native -v`: 243 tests passed.
-- `moon -C cairoon info --target native`: passed; the image glyph-oracle helper
-  slice did not change the public interface.
+- `moon -C cairoon test --target native -v`: 244 tests passed.
+- `moon -C cairoon info --target native`: passed; the latest
+  lifetime-stress test-only slice did not change the public interface.
 - Documentation-only product-decision audit for pycairo `CAPI`, legacy enum
   aliases, and non-implemented FreeType/user-font classes: `moon -C cairoon
   check --target native`, `moon -C cairoon test --target native -v`, and
   `moon -C cairoon info --target native` passed on 2026-07-03.
+- `run-asan.py --repo-root /Users/caimeo/code/pycairo/cairoon --pkg moon.pkg`:
+  rerun for the external value-wrapper stress slice. The full runner still
+  failed during the known macOS FontRegistry/CoreText/ColorSync
+  LeakSanitizer class after the black-box executable ran. A grep of
+  `/tmp/cairoon-finalizer-value-stress-asan.txt` found no
+  `ERROR: AddressSanitizer`, heap-use-after-free, stack-use-after,
+  heap-buffer-overflow, global-buffer-overflow, double-free,
+  `script_device_create_for_stream`, `cairoon_stream`, `cairoon_pattern`,
+  `cairoon_path`, `cairoon_region`, `cairoon_device`, or `cairoon_surface`
+  entries indicating invalid access; the `lifetime_stress` hit was the Moon
+  test selector line. Summary:
+  `55717 byte(s) leaked in 412 allocation(s)`. The ASan-instrumented
+  black-box executable was then run directly with leak detection disabled using
+  `ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0`; it exited 0, and
+  `/tmp/cairoon-finalizer-value-stress-blackbox-asan.txt` shows all four
+  `lifetime_stress_test.mbt` tests executed without any AddressSanitizer
+  invalid-access report.
 - `run-asan.py --repo-root /Users/caimeo/code/pycairo/cairoon --pkg moon.pkg`:
   rerun for the image glyph-oracle helper slice. The full runner still failed
   during the known macOS FontRegistry/CoreText/ColorSync LeakSanitizer class
