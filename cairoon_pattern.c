@@ -259,7 +259,9 @@ static cairo_status_t cairoon_raster_source_pattern_set_state(
     pattern->ptr,
     state == NULL || state->acquire == NULL ? NULL :
       cairoon_raster_source_acquire,
-    state == NULL || state->release == NULL ? NULL :
+    // Always release surfaces retained by acquire, even without a user release
+    // closure.
+    state == NULL || (state->acquire == NULL && state->release == NULL) ? NULL :
       cairoon_raster_source_release);
   return cairo_pattern_status(pattern->ptr);
 }

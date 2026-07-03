@@ -186,8 +186,9 @@ Implemented in this workspace:
   buffer-backed, and mapped image surfaces, plus backend stream callback
   allocation stress for PDF/PS/SVG surfaces, PNG stream write/read, script
   devices, and stream `WriteError` paths, plus raster-source callback
-  allocation stress for set/get/manual acquire/release/replace/clear paths and
-  finished-surface acquire failure injection.
+  allocation stress for set/get/manual acquire/release/replace/clear paths,
+  acquire-only retained-owner release-trampoline cleanup, and finished-surface
+  acquire failure injection.
 - `API_INVENTORY.md` now tracks the full pycairo API surface against cairoon
   status.
 - `matrix.mbt.md`, `surface.mbt.md`, `backend_surfaces.mbt.md`,
@@ -243,7 +244,10 @@ Implemented in this workspace:
   stream callback stress now covers PDF/PS/SVG stream surfaces, PNG stream
   write/read, script stream devices, and stream `WriteError` paths in a
   1000-iteration loop. Raster-source callback stress now covers callback
-  set/get/manual acquire/release/replace/clear paths in a 1000-iteration loop.
+  set/get/manual acquire/release/replace/clear paths in a 1000-iteration loop,
+  and the C glue installs cairoon's release trampoline for acquire-only states
+  so retained acquired-surface owners are released even when the user supplies
+  no release closure.
   The current font stack still exposes macOS
   Cairo/Quartz/CoreText LeakSanitizer reports through toy-font,
   scaled-font, toy-text rendering, glyph rendering/path, and
@@ -286,6 +290,22 @@ Implemented in this workspace:
   pattern_test.mbt --target native -v`: 17 ASan-compiled black-box pattern
   tests passed with leak detection disabled, covering release-only callback
   state and the raster acquire finished-surface rejection path in C glue.
+- `run-asan.py --repo-root /Users/caimeo/code/pycairo/cairoon --pkg moon.pkg`:
+  rerun for the raster-source acquire-only release-trampoline slice. The full
+  runner still failed during the known macOS FontRegistry/CoreText/ColorSync
+  LeakSanitizer class after the black-box executable ran. A grep of
+  `/tmp/cairoon-raster-release-trampoline-asan.txt` found no
+  heap-use-after-free, stack-use-after, heap-buffer-overflow,
+  global-buffer-overflow, double-free, `cairoon_raster`, `raster_source`,
+  `cairoon_pattern`, or `make_data_backed_raster_source_pattern` entries;
+  summary: `89194 byte(s) leaked in 474 allocation(s)`. The
+  ASan-instrumented black-box executable was then run directly with
+  `ASAN_OPTIONS=detect_leaks=1:fast_unwind_on_malloc=0` for
+  `pattern_test.mbt:0-17` and `raster_lifetime_stress_test.mbt:0-1`; both
+  exited 0, and
+  `/tmp/cairoon-raster-release-trampoline-blackbox-asan.txt` plus
+  `/tmp/cairoon-raster-release-trampoline-lifetime-asan.txt` record the
+  selected tests.
 - `moon -C cairoon test vector_output_wbtest.mbt --target native -v`: 19
   white-box tests passed after adding combined two-page PDF metadata/custom
   metadata/page-label/outline/tag marker coverage, PDF page-thumbnail marker
@@ -796,6 +816,11 @@ Implemented in this workspace:
   black-box tests for ordinary, buffer-backed, and PNG-loaded `get_data` after
   `finish()` plus retained-view base-finish invalidation, raising the native
   suite to 325 tests; ASan validation is recorded above.
+  The later raster-source acquire-only release-trampoline slice changed C glue
+  to install `cairoon_raster_source_release` whenever an acquire callback is
+  installed, so acquired surface owners retained by C are released even without
+  a user release closure. This changed no public API and kept the native suite
+  at 325 tests; ASan/LSan validation is recorded above.
 
 ## Known Gaps
 

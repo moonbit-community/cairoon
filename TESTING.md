@@ -295,6 +295,22 @@ Verified on 2026-07-02 and 2026-07-03:
   pattern_test.mbt --target native -v`: 17 ASan-compiled black-box pattern
   tests passed with leak detection disabled, covering release-only callback
   state and the raster acquire finished-surface rejection path in C glue.
+- `run-asan.py --repo-root /Users/caimeo/code/pycairo/cairoon --pkg moon.pkg`:
+  rerun for the raster-source acquire-only release-trampoline slice. The full
+  runner still failed during the known macOS FontRegistry/CoreText/ColorSync
+  LeakSanitizer class after the black-box executable ran. A grep of
+  `/tmp/cairoon-raster-release-trampoline-asan.txt` found no
+  heap-use-after-free, stack-use-after, heap-buffer-overflow,
+  global-buffer-overflow, double-free, `cairoon_raster`, `raster_source`,
+  `cairoon_pattern`, or `make_data_backed_raster_source_pattern` entries;
+  summary: `89194 byte(s) leaked in 474 allocation(s)`. The
+  ASan-instrumented black-box executable was then run directly with
+  `ASAN_OPTIONS=detect_leaks=1:fast_unwind_on_malloc=0` for
+  `pattern_test.mbt:0-17` and `raster_lifetime_stress_test.mbt:0-1`; both
+  exited 0, and
+  `/tmp/cairoon-raster-release-trampoline-blackbox-asan.txt` plus
+  `/tmp/cairoon-raster-release-trampoline-lifetime-asan.txt` record the
+  selected tests.
 - `moon -C cairoon test vector_output_wbtest.mbt --target native -v`: 19
   white-box tests passed after adding combined two-page PDF metadata/custom
   metadata/page-label/outline/tag marker coverage, PDF page-thumbnail marker
@@ -460,6 +476,18 @@ Verified on 2026-07-02 and 2026-07-03:
   `/tmp/cairoon-raster-callback-stress-blackbox-asan.txt` shows the
   `raster source callback allocation stress` test executed without any
   AddressSanitizer invalid-access report.
+- ASan/LSan via `run-asan.py`: rerun on 2026-07-03 for the raster-source
+  acquire-only release-trampoline slice. The full runner still failed during
+  the known macOS FontRegistry/CoreText/ColorSync LeakSanitizer class after the
+  black-box executable ran. A grep of
+  `/tmp/cairoon-raster-release-trampoline-asan.txt` found no
+  heap-use-after-free, stack-use-after, heap-buffer-overflow,
+  global-buffer-overflow, double-free, `cairoon_raster`, `raster_source`,
+  `cairoon_pattern`, or `make_data_backed_raster_source_pattern` entries.
+  Summary: `89194 byte(s) leaked in 474 allocation(s)`. The ASan-instrumented
+  black-box executable was then run directly with leak detection enabled for
+  `pattern_test.mbt:0-17` and `raster_lifetime_stress_test.mbt:0-1`; both
+  exited 0 and the logs record the selected tests.
 - ASan/LSan via `run-asan.py`: rerun for the two-page vector oracle helper
   slice. The full runner still failed during the known macOS
   FontRegistry/CoreText/ColorSync LeakSanitizer class before the white-box
@@ -908,6 +936,11 @@ Verified on 2026-07-02 and 2026-07-03:
   black-box tests for ordinary, buffer-backed, and PNG-loaded `get_data` after
   `finish()` plus retained-view base-finish invalidation, raising the native
   suite to 325 tests. ASan/LSan validation is recorded above.
+  The later raster-source acquire-only release-trampoline slice changed C glue
+  to install `cairoon_raster_source_release` whenever an acquire callback is
+  installed, so acquired surface owners retained by C are released even without
+  a user release closure. This changed no public API and kept the native suite
+  at 325 tests. ASan/LSan validation is recorded above.
 
 The missing reliability pieces are substantial: broader automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering
