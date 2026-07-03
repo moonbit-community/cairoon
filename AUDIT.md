@@ -122,14 +122,15 @@ Implemented in this workspace:
   and text-glyph input validation,
   mapped image whole-surface and rectangle-extents writeback behavior,
   wrong-base and double-unmap errors, core painting/page behavior, hit testing
-  and extents, MIME data storage/clear behavior including embedded NUL bytes
-  and zero-length payloads, recording surface bounded/unbounded extents,
+  and extents, MIME data storage/clear behavior including embedded NUL bytes,
+  zero-length payloads, and PDF JPEG MIME passthrough, recording surface
+  bounded/unbounded extents,
   replay-through-surface-pattern behavior, subtype-mismatch errors,
   PDF surface version helper behavior, no-output and filename construction,
   version restriction, page size, metadata, custom metadata, page label,
   thumbnail, single-flag and combined-flag outline behavior,
   stable structural output markers, PDF 1.4 eight-scene direct C vector-oracle comparison,
-  PDF 1.4 link-tag annotation markers,
+  PDF JPEG MIME data embedding, PDF 1.4 link-tag annotation markers,
   finished-surface errors, invalid string validation, and subtype-mismatch
   errors,
   image surfaces returning no device, script device lifecycle and device
@@ -197,22 +198,24 @@ Implemented in this workspace:
 2026-07-02 and 2026-07-03:
 
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test vector_output_wbtest.mbt --target native -v`: 7
-  white-box tests passed after expanding the direct C vector oracle to eight
-  PDF/PS/SVG scenes with a toy-font text-path case.
+- `moon -C cairoon test vector_output_wbtest.mbt --target native -v`: 8
+  white-box tests passed after adding PDF JPEG MIME passthrough coverage to the
+  eight-scene direct C vector oracle and tag-output checks.
 - `moon -C cairoon test surface_context_test.mbt context_lifetime_test.mbt
   pattern_test.mbt --target native -v`: 32 tests passed after adding
   `Surface`/`Context`/`Pattern` pointer equality/hash.
-- `moon -C cairoon test --target native -v`: 237 tests passed.
-- `moon -C cairoon info --target native`: passed; the latest vector text-path
-  oracle slice did not change the public interface.
+- `moon -C cairoon test --target native -v`: 238 tests passed.
+- `moon -C cairoon info --target native`: passed; the PDF JPEG MIME passthrough
+  slice did not change the public interface.
 - Documentation-only product-decision audit for pycairo `CAPI`, legacy enum
   aliases, and non-implemented FreeType/user-font classes: `moon -C cairoon
   check --target native`, `moon -C cairoon test --target native -v`, and
   `moon -C cairoon info --target native` passed on 2026-07-03.
 - `run-asan.py --repo-root /Users/caimeo/code/pycairo/cairoon --pkg moon.pkg`:
+  not rerun for the PDF JPEG MIME passthrough slice because it only adds a
+  white-box test and documentation, with no C stub or finalizer changes. It
   most recently ran the 237-test native suite on 2026-07-03 after the vector
-  text-path oracle slice. It still failed during the known macOS
+  text-path oracle slice, and still failed during the known macOS
   FontRegistry/CoreText/ColorSync LeakSanitizer class documented in
   `TESTING.md`, before the white-box executable launched. Summary:
   `56037 byte(s) leaked in 415 allocation(s)`.
