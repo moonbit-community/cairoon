@@ -8,8 +8,9 @@ Implemented in this workspace:
 - System Cairo 1.18.4 linkage through `pkg-config`-derived flags.
 - C FFI glue split by Cairo object family, following pycairo's
   `private.h` plus per-family C file architecture. GC-managed external objects
-  currently cover `Surface`, `MappedImageSurface`, `Context`, `Path`,
-  `Pattern`, `FontOptions`, `FontFace`, `ScaledFont`, `Region`, and `Device`.
+  currently cover `Surface`, `MappedImageSurface`, `ImageData`, `Context`,
+  `Path`, `Pattern`, `FontOptions`, `FontFace`, `ScaledFont`, `Region`, and
+  `Device`.
 - `Context` retains its target `Surface` with `moonbit_incref` and releases it
   in the finalizer.
 - `Context::new_for_mapped_image` retains its target `MappedImageSurface` with
@@ -23,6 +24,11 @@ Implemented in this workspace:
   Cairo surface user-data payload, so the buffer lives until the last
   `cairo_surface_t` reference is destroyed, including referenced wrappers
   returned through APIs such as `Pattern::get_surface`.
+- `Surface::get_data` returns an `ImageData` external object over a Cairo image
+  surface's mutable data pointer. The view retains the `Surface` wrapper with
+  `moonbit_incref`, checks the Cairo surface status before access, bounds-checks
+  indexes, copies out on demand, and calls `cairo_surface_mark_dirty` after
+  byte writes.
 - `Surface::map_to_image` returns a dedicated `MappedImageSurface` external
   object. Its payload stores the base surface pointer, mapped image surface
   pointer, and retained base MoonBit `Surface` wrapper; explicit unmap and the
@@ -35,8 +41,9 @@ Implemented in this workspace:
   `Format::stride_for_width`, `FORMAT_INVALID` as an explicit integer
   sentinel, pure `Matrix` parity operations, pure rectangle,
   glyph, text-cluster, and extents values, image `Surface` including PNG
-  filename load/save and buffer-backed creation, core `Context` drawing state
-  including dash and hairline mode, clip APIs including rectangle-list copying,
+  filename load/save, buffer-backed creation, and retained mutable
+  `ImageData` views, core `Context` drawing state including dash and hairline
+  mode, clip APIs including rectangle-list copying,
   hit testing, geometric extents, absolute/relative/arc path drawing,
   current-point queries, path copy/append plus typed path segment iteration and
   stringification, referenced borrowed returns for target/source, source-surface
@@ -84,8 +91,9 @@ Implemented in this workspace:
   buffer-backed image surface sharing and
   Cairo-reference lifetime behavior, PNG filename round trips and invalid path
   validation, deterministic pixel rendering, direct C Cairo oracle image-paint
-  comparison, context CTM, coordinate
-  conversion, drawing-state behavior, path current-point,
+  comparison, mutable image-data read/write/copy, buffer-backed storage sharing,
+  image-data surface-retention and invalid-surface/index error mapping, context
+  CTM, coordinate conversion, drawing-state behavior, path current-point,
   relative/arc, copy/append, stringification, and iteration behavior,
   borrowed target/source/group-target lifetime behavior, group push/pop and
   pop-to-source rendering behavior, tag begin/end smoke behavior, tag and MIME
@@ -142,9 +150,10 @@ Implemented in this workspace:
   against pycairo output is not yet automated.
 - Gate 4 memory and lifetime: partial. Stub ownership follows the documented
   external-object pattern, and retained-owner stress now covers subsurfaces,
-  data-backed surface patterns, mapped images, context target wrappers, and
-  TeeSurface primary/target/index wrappers. The current font stack still
-  exposes macOS Cairo/Quartz/CoreText LeakSanitizer reports through toy-font,
+  data-backed surface patterns, mapped images, ImageData surface views, context
+  target wrappers, and TeeSurface primary/target/index wrappers. The current
+  font stack still exposes macOS Cairo/Quartz/CoreText LeakSanitizer reports
+  through toy-font,
   scaled-font, toy-text rendering, glyph rendering/path, and
   show-text-glyphs paths. These must be resolved or intentionally suppressed
   before claiming this gate.
@@ -155,10 +164,11 @@ Implemented in this workspace:
 2026-07-02 and 2026-07-03:
 
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native -v`: 208 tests passed.
+- `moon -C cairoon test --target native -v`: 212 tests passed.
 - `run-asan.py --repo-root /Users/caimeo/code/pycairo/cairoon --pkg moon.pkg`:
-  most recently ran the 207-test native suite on 2026-07-03 after the direct C
-  image oracle slice. An earlier retained-owner stress ASan run found a
+  most recently ran the 212-test native suite on 2026-07-03 after the
+  `ImageData` mutable-view slice. An earlier retained-owner stress ASan run
+  found a
   heap-use-after-free in `cairoon_copy_image_surface_data` reached from
   `lifetime_stress_test.mbt` when a returned target surface outlived a context
   created from a mapped image. The fixed rerun, and the later TeeSurface rerun,
@@ -181,12 +191,13 @@ Implemented in this workspace:
   helper/finalizer stack, retained target/group-target helper stack,
   mapped-image lifetime helper stack, Context `set_source_surface` helper,
   Context hairline helper, TeeSurface helper stack, compile-time constant
-  helper stack, vector-output file-scan helper stack, or direct C image oracle
-  helper stack appeared in the visible leak roots of the latest rerun. A grep
-  of `/tmp/cairoon-image-oracle-asan.txt` found no
+  helper stack, vector-output file-scan helper stack, direct C image oracle
+  helper stack, or ImageData helper/finalizer stack appeared in the visible
+  leak roots of the latest rerun. A grep
+  of `/tmp/cairoon-image-data-asan.txt` found no
   `ERROR: AddressSanitizer`, heap-use-after-free, stack-use-after, or
-  `cairoon_test_argb32` entries.
-  Summary: `90021 byte(s) leaked in 479 allocation(s)`. The helper still emits
+  `cairoon_image_data` / `cairoon_image_surface_get_data` entries.
+  Summary: `89173 byte(s) leaked in 474 allocation(s)`. The helper still emits
   a `moon.mod.json` lookup warning because this package uses `moon.mod`, but it
   correctly patched and restored the DSL `moon.pkg` and MoonBit runtime object
   for this package.
@@ -195,14 +206,17 @@ Implemented in this workspace:
   The later PDF link-tag output marker slice is pure MoonBit test coverage and
   raised the native suite to 208 tests; ASan was not rerun for that non-C
   change.
+  The later ImageData slice added C glue, a new external object, and four
+  black-box tests; ASan/LSan was rerun as described above.
 
 ## Known Gaps
 
 - No raster-source patterns, stream/callback APIs, normalized PDF/SVG/PS
-  output comparison, SVG/PS tag-materialization assertions, or direct mutable
-  image data view binding yet.
-- `Surface::copy_data` copies the Cairo image data into MoonBit `Bytes`; it
-  intentionally does not expose a mutable view yet.
+  output comparison, SVG/PS tag-materialization assertions, or mutable
+  mapped-image data view yet.
+- `Surface::copy_data` still copies Cairo image data into MoonBit `Bytes`;
+  `Surface::get_data` is the mutable image-surface view and intentionally
+  retains the surface wrapper instead of exposing a raw pointer.
 - The package currently records Homebrew Cairo 1.18.4 paths. A portable setup
   script or generated config should replace this before publishing.
 - ASan was run manually for the current expanded slice; CI automation has not

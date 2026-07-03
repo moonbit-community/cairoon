@@ -17,6 +17,7 @@ options(
     "cairoon_misc.c",
     "cairoon_device.c",
     "cairoon_surface.c",
+    "cairoon_image_data.c",
     "cairoon_pdf_surface.c",
     "cairoon_ps_surface.c",
     "cairoon_svg_surface.c",

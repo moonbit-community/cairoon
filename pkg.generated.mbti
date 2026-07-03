@@ -384,6 +384,13 @@ pub(all) enum HintStyle {
   HintStyleFull
 } derive(Eq, @debug.Debug)
 
+type ImageData
+pub fn ImageData::copy(Self) -> Bytes raise CairoError
+pub fn ImageData::get(Self, Int) -> Byte raise CairoError
+pub fn ImageData::length(Self) -> Int raise CairoError
+pub fn ImageData::set(Self, Int, Byte) -> Unit raise CairoError
+pub fn ImageData::status(Self) -> Status
+
 pub(all) enum LineCap {
   LineCapButt
   LineCapRound
@@ -722,6 +729,7 @@ pub fn Surface::create_similar_image(Self, Format, Int, Int) -> Self raise Cairo
 pub fn Surface::finish(Self) -> Unit raise CairoError
 pub fn Surface::flush(Self) -> Unit raise CairoError
 pub fn Surface::get_content(Self) -> Content raise CairoError
+pub fn Surface::get_data(Self) -> ImageData raise CairoError
 pub fn Surface::get_device(Self) -> Device? raise CairoError
 pub fn Surface::get_device_offset(Self) -> (Double, Double) raise CairoError
 pub fn Surface::get_device_scale(Self) -> (Double, Double) raise CairoError

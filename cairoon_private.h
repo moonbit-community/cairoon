@@ -21,6 +21,13 @@ typedef struct {
 } CairoonMappedImageSurface;
 
 typedef struct {
+  cairo_surface_t *surface;
+  uint8_t *data;
+  int32_t len;
+  void *surface_object;
+} CairoonImageData;
+
+typedef struct {
   cairo_t *ptr;
   void *target_surface;
 } CairoonContext;
@@ -73,6 +80,11 @@ CairoonMappedImageSurface *cairoon_mapped_image_surface_wrap_owned(
   cairo_surface_t *base,
   cairo_surface_t *mapped,
   void *base_object);
+CairoonImageData *cairoon_image_data_wrap(
+  cairo_surface_t *surface,
+  uint8_t *data,
+  int32_t len,
+  void *surface_object);
 CairoonContext *cairoon_context_wrap_owned(cairo_t *ptr, void *target_surface);
 CairoonPath *cairoon_path_wrap_owned(cairo_path_t *ptr);
 CairoonPattern *cairoon_pattern_wrap_owned(cairo_pattern_t *ptr, void *base);

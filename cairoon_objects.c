@@ -35,6 +35,17 @@ static void cairoon_mapped_image_surface_finalize(void *self) {
   }
 }
 
+static void cairoon_image_data_finalize(void *self) {
+  CairoonImageData *data = (CairoonImageData *)self;
+  data->surface = NULL;
+  data->data = NULL;
+  data->len = 0;
+  if (data->surface_object != NULL) {
+    moonbit_decref(data->surface_object);
+    data->surface_object = NULL;
+  }
+}
+
 static void cairoon_context_finalize(void *self) {
   CairoonContext *ctx = (CairoonContext *)self;
   if (ctx->ptr != NULL) {
@@ -173,6 +184,23 @@ CairoonMappedImageSurface *cairoon_mapped_image_surface_wrap_owned(
     moonbit_incref(base_object);
   }
   return surface;
+}
+
+CairoonImageData *cairoon_image_data_wrap(
+  cairo_surface_t *surface,
+  uint8_t *data,
+  int32_t len,
+  void *surface_object) {
+  CairoonImageData *view = (CairoonImageData *)moonbit_make_external_object(
+    cairoon_image_data_finalize, sizeof(CairoonImageData));
+  view->surface = surface;
+  view->data = data;
+  view->len = len;
+  view->surface_object = surface_object;
+  if (surface_object != NULL) {
+    moonbit_incref(surface_object);
+  }
+  return view;
 }
 
 CairoonContext *cairoon_context_wrap_owned(cairo_t *ptr, void *target_surface) {

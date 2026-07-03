@@ -156,7 +156,7 @@ constants, group APIs, tag APIs, toy
 text APIs, glyph array APIs, text-to-glyphs/show-text-glyphs APIs,
 hit-testing/extents APIs, typed Path segment iteration and stringification,
 PNG filename load/save, direct C Cairo oracle image-paint comparison, and
-buffer-backed creation for image surfaces, portable
+buffer-backed creation plus mutable `ImageData` views for image surfaces, portable
 Surface base helpers such as similar-surface creation, rectangular child
 surface creation with retained parent-wrapper lifetime, content/type queries,
 dirty markers, device offset/scale, fallback resolution, show-text-glyphs
@@ -178,15 +178,15 @@ recording replay, `Surface::get_device`, `Surface::script`, and
 `Surface::script_for_target`, TeeSurface mirrored drawing and target indexing,
 exhaustive `Status`/`CairoError` classification, retained-owner lifetime stress
 tests, stable structural vector-output markers for PDF/PS/SVG filename
-backends, PDF link-tag annotation markers, and initial tests. Region now covers
-empty, single-rectangle, and
+backends, PDF link-tag annotation markers, mutable image-data view tests, and
+initial tests. Region now covers empty, single-rectangle, and
 multi-rectangle
 construction plus predicates and boolean operations.
 
 Verified on 2026-07-02 and 2026-07-03:
 
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native -v`: 208 tests passed.
+- `moon -C cairoon test --target native -v`: 212 tests passed.
 - ASan/LSan via `run-asan.py`: ran on 2026-07-03 after adding retained-owner
   lifetime stress tests. The first run found a real heap-use-after-free when a
   `Surface` returned by `Context::get_target` outlived a context created from a
@@ -277,12 +277,21 @@ Verified on 2026-07-02 and 2026-07-03:
   The later PDF link-tag output marker slice is pure MoonBit test coverage and
   raised the native suite to 208 tests; ASan was not rerun for that non-C
   change.
+  The later ImageData mutable-view slice added C glue, a new external object,
+  and four black-box tests, raising the native suite to 212 tests. ASan/LSan
+  was rerun on 2026-07-03. It reported only the same macOS LeakSanitizer class.
+  A grep of `/tmp/cairoon-image-data-asan.txt` found no
+  `ERROR: AddressSanitizer`, heap-use-after-free, stack-use-after,
+  global-buffer-overflow, `cairoon_image_data`, or
+  `cairoon_image_surface_get_data` entries; summary:
+  `89173 byte(s) leaked in 474 allocation(s)`.
 
 The missing reliability pieces are substantial: automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering
 LSan failure, finalizer stress tests, CI wiring, vector-output normalization,
-PDF/PS stream output, SVG/PS tag-materialization assertions, and the remaining
-API families from `API_INVENTORY.md`.
+PDF/PS stream output, SVG/PS tag-materialization assertions, mutable
+mapped-image data views, and the remaining API families from
+`API_INVENTORY.md`.
 
 ## Porting pycairo Tests
 
