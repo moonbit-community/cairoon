@@ -278,6 +278,29 @@ test "pdf output contains metadata and custom metadata markers" {
 }
 
 ///|
+test "pdf output contains page label and outline markers" {
+  let path = "/tmp/cairoon_vector_pdf_outline.pdf"
+  let surface = Surface::pdf(20.0, 20.0, path=Some(path))
+  surface.pdf_restrict_to_version(PdfVersion1_4)
+  surface.pdf_set_page_label("intro")
+  let outline_id = surface.pdf_add_outline_with_flags(
+    PDF_OUTLINE_ROOT,
+    "chapter one",
+    "page=1 pos=[3 4]",
+    PDFOutlineFlagSet::combine([PdfOutlineOpen, PdfOutlineBold][:]),
+  )
+  inspect(outline_id > PDF_OUTLINE_ROOT, content="true")
+  let ctx = Context::new(surface)
+  ctx.set_source_rgb(0.0, 0.0, 1.0)
+  ctx.paint()
+  surface.finish()
+  expect_vector_output(path, [
+    "%PDF-1.4", "/PageLabels", "(intro)", "/Outlines", "/Title (chapter one)", "/Count 1",
+    "/F 2", "%%EOF",
+  ])
+}
+
+///|
 test "pdf link tag output contains annotation markers" {
   let path = "/tmp/cairoon_vector_tag_output.pdf"
   let surface = Surface::pdf(100.0, 100.0, path=Some(path))

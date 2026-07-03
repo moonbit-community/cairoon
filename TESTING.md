@@ -207,8 +207,8 @@ exhaustive `Status`/`CairoError` classification, retained-owner lifetime stress
 tests, stable structural vector-output markers plus direct C oracle comparisons
 for eight deterministic PDF/PS/SVG vector scenes covering paint, stroke,
 fill/stroke rectangles, Bezier paths, transforms, linear/radial gradients, and
-toy-font text paths, PDF metadata/custom-metadata output markers,
-PDF JPEG MIME payload embedding, PDF link-tag annotation
+toy-font text paths, PDF metadata/custom-metadata/page-label/outline output
+markers, PDF JPEG MIME payload embedding, PDF link-tag annotation
 markers, PS/SVG Link tag inert-output checks, mutable image/mapped-image data view
 tests, and initial tests. Region now covers empty, single-rectangle, and
 multi-rectangle
@@ -217,22 +217,23 @@ construction plus predicates and boolean operations.
 Verified on 2026-07-02 and 2026-07-03:
 
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test vector_output_wbtest.mbt --target native -v`: 9
-  white-box tests passed after adding PDF metadata/custom-metadata output marker
-  coverage to the direct C vector oracle, tag-output, and MIME-output checks.
+- `moon -C cairoon test vector_output_wbtest.mbt --target native -v`: 10
+  white-box tests passed after adding PDF page-label/outline output marker
+  coverage to the direct C vector oracle, metadata, tag-output, and MIME-output
+  checks.
 - `moon -C cairoon test surface_context_test.mbt context_lifetime_test.mbt
   pattern_test.mbt --target native -v`: 32 tests passed after adding
   `Surface`/`Context`/`Pattern` pointer equality/hash.
-- `moon -C cairoon test --target native -v`: 239 tests passed.
-- `moon -C cairoon info --target native`: passed; the PDF metadata output
-  marker slice did not change the public interface.
+- `moon -C cairoon test --target native -v`: 240 tests passed.
+- `moon -C cairoon info --target native`: passed; the PDF page-label/outline
+  output marker slice did not change the public interface.
 - Documentation-only product-decision audit for pycairo `CAPI`, legacy enum
   aliases, and non-implemented FreeType/user-font classes: `moon -C cairoon
   check --target native`, `moon -C cairoon test --target native -v`, and
   `moon -C cairoon info --target native` passed on 2026-07-03.
-- ASan/LSan via `run-asan.py`: not rerun for the PDF metadata output marker
-  slice because it only adds a white-box test and documentation, with no C stub
-  or finalizer changes. The latest run used the 237-test native suite on
+- ASan/LSan via `run-asan.py`: not rerun for the PDF page-label/outline output
+  marker slice because it only adds a white-box test and documentation, with no
+  C stub or finalizer changes. The latest run used the 237-test native suite on
   2026-07-03 after the vector text-path oracle slice. The full runner still
   failed during the known macOS FontRegistry/CoreText/ColorSync LeakSanitizer
   class before the white-box executable launched:
