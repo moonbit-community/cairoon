@@ -87,3 +87,30 @@ test "font extents values expose cairo field order" {
   debug_inspect(extents.components(), content="(1, 2, 3, 4, 5)")
   inspect(extents.component(3), content="4")
 }
+
+///|
+test "pure value types preserve pycairo numeric limits" {
+  let max_double = 1.7976931348623157e308
+  let min_double = -max_double
+  let rect = Rectangle::new(max_double, min_double, max_double, min_double)
+  inspect(rect.x == max_double, content="true")
+  inspect(rect.y == min_double, content="true")
+  inspect(rect.width == max_double, content="true")
+  inspect(rect.height == min_double, content="true")
+
+  let extents = TextExtents::new(
+    max_double, min_double, max_double, min_double, max_double, min_double,
+  )
+  inspect(extents.x_bearing == max_double, content="true")
+  inspect(extents.y_bearing == min_double, content="true")
+  inspect(extents.width == max_double, content="true")
+  inspect(extents.height == min_double, content="true")
+  inspect(extents.x_advance == max_double, content="true")
+  inspect(extents.y_advance == min_double, content="true")
+
+  let max_int = 2147483647
+  let min_int = -2147483647 - 1
+  let cluster = TextCluster::new(max_int, min_int)
+  inspect(cluster.num_bytes, content="2147483647")
+  inspect(cluster.num_glyphs, content="-2147483648")
+}

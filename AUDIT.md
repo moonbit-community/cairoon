@@ -331,9 +331,9 @@ Implemented in this workspace:
   stream output and writer errors, PDF metadata/outlines, PS DSC, SVG document
   units, recording replay, Tee fanout, script devices/surfaces, and checked
   backend-specific errors.
-- `moon -C cairoon test --target native`: 311 tests passed.
-- `moon -C cairoon info --target native`: passed; the latest glyph-index
-  width slice intentionally changed the public interface.
+- `moon -C cairoon test --target native`: 312 tests passed.
+- `moon -C cairoon info --target native`: passed; the latest pure value-type
+  numeric-limit slice did not change the public interface.
 - Test-only buffer-backed image oracle coverage plus Pure MoonBit Region
   rectangle-XOR and executable Matrix/Surface/Context/Font/Path/Pattern/Region
   documentation coverage were added without rerunning ASan because no C glue or
@@ -718,6 +718,10 @@ Implemented in this workspace:
   The later glyph-index width slice promoted `Glyph.index` and glyph marshal
   arrays to `UInt64`, added one pure value-type max-index test, and raised the
   native suite to 311 tests; targeted ASan validation is recorded above.
+  The later pure value-type numeric-limit slice added one black-box test for
+  pycairo `Rectangle`, `TextExtents`, and `TextCluster` boundary values,
+  raising the native suite to 312 tests; ASan was not rerun because no C glue
+  changed.
 
 ## Known Gaps
 
