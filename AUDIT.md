@@ -135,15 +135,14 @@ Implemented in this workspace:
 
 ## Last Verified
 
-2026-07-02:
+2026-07-02 and 2026-07-03:
 
 - `moon -C cairoon check --target native`: passed.
 - `moon -C cairoon test --target native -v`: 193 tests passed.
 - `run-asan.py --repo-root /Users/caimeo/code/pycairo/cairoon --pkg moon.pkg`:
-  most recently ran the native suite after the hairline Context-state slice and
-  failed during LeakSanitizer reporting. ASan for the retained-parent
-  subsurface lifetime hardening is pending. The reported allocations are rooted
-  in
+  most recently ran the 193-test native suite on 2026-07-03 after the
+  retained-parent `Surface::create_for_rectangle` lifetime hardening and failed
+  during LeakSanitizer reporting. The reported allocations are rooted in
   `cairo_toy_font_face_create`, `cairo_select_font_face`, macOS
   FontRegistry/CoreGraphics frames, and scaled-font Quartz/CoreText paths such
   as `cairo_scaled_font_create`, `CGFontCopyURL`, and
@@ -157,9 +156,10 @@ Implemented in this workspace:
   helper, PDF outline helper, MeshPattern/Pattern helper,
   Device/ScriptSurface helper, Context text/tag/group, MIME-data stub, or
   compile-time constant helper ownership stack, Surface `create_for_rectangle`
-  helper, Context `set_source_surface` helper, or Context hairline helper
-  appeared in the visible leak roots.
-  Summary: `90213 byte(s) leaked in 487 allocation(s)`. The helper still emits
+  helper, retained-parent subsurface helper/finalizer stack, Context
+  `set_source_surface` helper, or Context hairline helper appeared in the
+  visible leak roots.
+  Summary: `91029 byte(s) leaked in 494 allocation(s)`. The helper still emits
   a `moon.mod.json` lookup warning because this package uses `moon.mod`, but it
   correctly patched and restored the DSL `moon.pkg` and MoonBit runtime object
   for this package.

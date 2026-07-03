@@ -177,17 +177,20 @@ recording replay, `Surface::get_device`, `Surface::script`, and
 single-rectangle, and multi-rectangle construction plus predicates and boolean
 operations.
 
-Verified on 2026-07-02:
+Verified on 2026-07-02 and 2026-07-03:
 
 - `moon -C cairoon check --target native`: passed.
 - `moon -C cairoon test --target native -v`: 193 tests passed.
-- ASan/LSan via `run-asan.py`: most recently ran after the hairline Context
-  state slice and failed only on known macOS
+- ASan/LSan via `run-asan.py`: most recently ran on 2026-07-03 after the
+  retained-parent `Surface::create_for_rectangle` lifetime hardening. It failed
+  during LeakSanitizer reporting with the known macOS
   FontRegistry/CoreGraphics/CoreText/ColorSync leak roots
-  (`90213 byte(s) leaked in 487 allocation(s)`). The full log was scanned for
-  the new hairline C glue and did not include those symbols in leak roots. The
-  retained-parent subsurface lifetime hardening has not yet been rerun under
-  ASan/LSan.
+  (`91029 byte(s) leaked in 494 allocation(s)`). The full log was scanned for
+  the retained-parent subsurface glue and did not include
+  `cairoon_surface_create_for_rectangle`, `cairoon_surface_finalize`,
+  `wrap_owned_with_base`, `moonbit_incref`, `moonbit_decref`, or `subsurface`
+  in leak roots. No AddressSanitizer invalid-access report appeared before LSan
+  failed.
 - ASan/LSan via `run-asan.py`: ran the 108-test native suite after the PNG
   filename API slice, the 113-test native suite after the
   `Surface::image_for_data` slice, and the 114-test native suite after the
@@ -210,7 +213,8 @@ Verified on 2026-07-02:
   with the expanded 190-test native suite, and after the `set_source_surface`
   slice with the expanded 192-test native suite, and after the
   `Context::set_hairline/get_hairline` slice with the same 192-test native
-  suite. ASan for the retained-parent subsurface lifetime hardening is pending.
+  suite, and after the retained-parent `create_for_rectangle` lifetime
+  hardening with the expanded 193-test native suite.
   The most recent leak report is rooted in
   `cairo_toy_font_face_create`, `cairo_select_font_face`, macOS
   FontRegistry/CoreGraphics frames, and scaled-font Quartz/CoreText paths such
@@ -225,9 +229,10 @@ Verified on 2026-07-02:
   helper, PDF outline helper, MeshPattern/Pattern helper,
   Device/ScriptSurface helper, Context text/tag/group, MIME-data stub, or
   compile-time constant helper ownership stack, or Surface
-  `create_for_rectangle` helper, or Context `set_source_surface`/hairline
-  helpers appeared in the visible leak roots.
-  Summary: `90213 byte(s) leaked in 487 allocation(s)`.
+  `create_for_rectangle` helper, retained-parent subsurface helper/finalizer
+  stack, or Context `set_source_surface`/hairline helpers appeared in the
+  visible leak roots.
+  Summary: `91029 byte(s) leaked in 494 allocation(s)`.
 
 The missing reliability pieces are substantial: automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering
