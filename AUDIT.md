@@ -102,9 +102,10 @@ Implemented in this workspace:
   buffer-backed image surface sharing and
   Cairo-reference lifetime behavior, PNG filename round trips and invalid path
   validation, deterministic pixel rendering, direct C Cairo oracle comparisons
-  for ten ARGB32 scenes covering paint, stroke, fill/stroke rectangles,
+  for thirteen ARGB32 scenes covering paint, stroke, fill/stroke rectangles,
   Bezier paths, transforms, RGBA compositing, linear/radial gradients,
-  toy-font `text_path`, and toy-font `show_text`,
+  toy-font `text_path`, toy-font `show_text`, `glyph_path`, `show_glyphs`,
+  and `show_text_glyphs`,
   direct C Cairo oracle comparisons for ten deterministic PDF/PS/SVG vector
   scenes covering paint, stroke, fill/stroke rectangles, Bezier paths,
   transforms, linear/radial gradients, toy-font text paths, and toy-font
@@ -175,9 +176,10 @@ Implemented in this workspace:
   region, and error behavior.
 - Gate 3 differential rendering: partial. Deterministic raw-pixel rendering
   tests exist for direct colors and explicit patterns, a direct C image oracle
-  covers ten deterministic ARGB32 scenes including stroke, rectangle,
-  Bezier, transform, RGBA, linear/radial gradient, toy-font `text_path`, and
-  toy-font `show_text` cases, and vector outputs
+  covers thirteen deterministic ARGB32 scenes including stroke, rectangle,
+  Bezier, transform, RGBA, linear/radial gradient, toy-font `text_path`,
+  toy-font `show_text`, `glyph_path`, `show_glyphs`, and `show_text_glyphs`
+  cases, and vector outputs
   have stable structural marker checks plus direct C oracle comparisons for
   ten deterministic PDF/PS/SVG scenes covering paint, stroke, fill/stroke
   rectangles, Bezier paths, transforms, linear/radial gradients, toy-font text
@@ -206,8 +208,8 @@ Implemented in this workspace:
 - `moon -C cairoon check --target native`: passed.
 - `moon -C cairoon test image_oracle_wbtest.mbt --target native -v`: the
   image rendering white-box oracle passed after expanding the direct C ARGB32
-  fixture from eight to ten scenes with toy-font `text_path` and toy-font
-  `show_text`.
+  fixture from ten to thirteen scenes with `glyph_path`, `show_glyphs`, and
+  `show_text_glyphs`.
 - `moon -C cairoon test vector_output_wbtest.mbt --target native -v`: 13
   white-box tests passed after adding a two-page direct C vector oracle scene
   alongside metadata, tag-output, MIME-output, and page structure checks.
@@ -215,17 +217,17 @@ Implemented in this workspace:
   pattern_test.mbt --target native -v`: 32 tests passed after adding
   `Surface`/`Context`/`Pattern` pointer equality/hash.
 - `moon -C cairoon test --target native -v`: 243 tests passed.
-- `moon -C cairoon info --target native`: passed; the image text-oracle helper
+- `moon -C cairoon info --target native`: passed; the image glyph-oracle helper
   slice did not change the public interface.
 - Documentation-only product-decision audit for pycairo `CAPI`, legacy enum
   aliases, and non-implemented FreeType/user-font classes: `moon -C cairoon
   check --target native`, `moon -C cairoon test --target native -v`, and
   `moon -C cairoon info --target native` passed on 2026-07-03.
 - `run-asan.py --repo-root /Users/caimeo/code/pycairo/cairoon --pkg moon.pkg`:
-  rerun for the image text-oracle helper slice. The full runner still failed
+  rerun for the image glyph-oracle helper slice. The full runner still failed
   during the known macOS FontRegistry/CoreText/ColorSync LeakSanitizer class
   before launching the white-box executable. A grep of
-  `/tmp/cairoon-image-text-oracle-asan.txt` found no
+  `/tmp/cairoon-image-glyph-oracle-asan.txt` found no
   `ERROR: AddressSanitizer`, heap-use-after-free, stack-use-after,
   heap-buffer-overflow, global-buffer-overflow, double-free,
   `cairoon_test_render_argb32_scene_bytes`,
@@ -236,9 +238,12 @@ Implemented in this workspace:
   The ASan-instrumented white-box executable was then run directly with leak
   detection disabled using
   `ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0`; it exited 0 and
-  `/tmp/cairoon-image-text-oracle-whitebox-asan.txt` shows the image oracle
+  `/tmp/cairoon-image-glyph-oracle-whitebox-asan.txt` shows the image oracle
   test executed without any AddressSanitizer invalid-access report.
-  The previous ASan record covers the two-page vector oracle helper slice. The
+  The previous ASan record covers the image text-oracle helper slice, where
+  the full runner still failed during the same known macOS LeakSanitizer class
+  with the same summary while direct whitebox ASan exited 0.
+  The earlier ASan record covers the two-page vector oracle helper slice. The
   full runner still
   failed during the known macOS FontRegistry/CoreText/ColorSync LeakSanitizer
   class before the white-box executable launched. A grep of

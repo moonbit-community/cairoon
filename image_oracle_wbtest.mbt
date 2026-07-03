@@ -70,6 +70,26 @@ fn draw_image_oracle_scene(ctx : Context, scene : Int) -> Unit raise CairoError 
       ctx.move_to(2.0, 10.0)
       ctx.show_text("Hi")
     }
+    10 => {
+      ctx.select_font_face("serif")
+      ctx.set_font_size(12.0)
+      ctx.glyph_path([Glyph::new(0U, 2.0, 12.0)])
+      ctx.set_source_rgb(0.0, 0.0, 1.0)
+      ctx.fill()
+    }
+    11 => {
+      ctx.select_font_face("serif")
+      ctx.set_font_size(12.0)
+      ctx.set_source_rgb(1.0, 0.0, 0.0)
+      ctx.show_glyphs([Glyph::new(0U, 2.0, 12.0)])
+    }
+    12 => {
+      ctx.select_font_face("serif")
+      ctx.set_font_size(12.0)
+      ctx.set_source_rgb(1.0, 0.0, 0.0)
+      let run = ctx.get_scaled_font().text_to_glyphs(2.0, 12.0, "a")
+      ctx.show_text_glyphs("a", run.glyphs, run.clusters, flags=run.flags)
+    }
     _ => raise CairoInvalidArgument(InvalidStatus, InvalidStatus.message())
   }
 }
@@ -84,7 +104,7 @@ fn render_image_oracle_scene(scene : Int) -> Bytes raise CairoError {
 
 ///|
 test "image rendering scenes match direct cairo C oracle" {
-  for scene in 0..<10 {
+  for scene in 0..<13 {
     let actual = render_image_oracle_scene(scene)
     let expected = test_argb32_scene_oracle_ffi(scene, 16, 16)
     inspect(expected.length(), content="1024")

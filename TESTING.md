@@ -174,8 +174,9 @@ documented product decisions for `CAPI`, legacy uppercase enum alias
 constants, and non-implemented FreeType/user-font classes,
 hit-testing/extents APIs, typed Path segment iteration and stringification,
 PNG filename load/save plus stream read/write, direct C Cairo oracle
-comparisons for ten deterministic ARGB32 image scenes including toy-font
-`text_path` and `show_text`, and buffer-backed creation plus mutable `ImageData`
+comparisons for thirteen deterministic ARGB32 image scenes including toy-font
+`text_path`, toy-font `show_text`, `glyph_path`, `show_glyphs`, and
+`show_text_glyphs`, and buffer-backed creation plus mutable `ImageData`
 views for image and
 mapped-image surfaces, portable
 Surface base helpers such as similar-surface creation, rectangular child
@@ -220,8 +221,8 @@ Verified on 2026-07-02 and 2026-07-03:
 - `moon -C cairoon check --target native`: passed.
 - `moon -C cairoon test image_oracle_wbtest.mbt --target native -v`: the
   image rendering white-box oracle passed after expanding the direct C ARGB32
-  fixture from eight to ten scenes with toy-font `text_path` and toy-font
-  `show_text`.
+  fixture from ten to thirteen scenes with `glyph_path`, `show_glyphs`, and
+  `show_text_glyphs`.
 - `moon -C cairoon test vector_output_wbtest.mbt --target native -v`: 13
   white-box tests passed after adding a two-page direct C vector oracle scene
   alongside metadata, tag-output, MIME-output, and page structure checks.
@@ -229,7 +230,7 @@ Verified on 2026-07-02 and 2026-07-03:
   pattern_test.mbt --target native -v`: 32 tests passed after adding
   `Surface`/`Context`/`Pattern` pointer equality/hash.
 - `moon -C cairoon test --target native -v`: 243 tests passed.
-- `moon -C cairoon info --target native`: passed; the image text-oracle helper
+- `moon -C cairoon info --target native`: passed; the image glyph-oracle helper
   slice did not change the public interface.
 - Documentation-only product-decision audit for pycairo `CAPI`, legacy enum
   aliases, and non-implemented FreeType/user-font classes: `moon -C cairoon
@@ -250,11 +251,11 @@ Verified on 2026-07-02 and 2026-07-03:
   `ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0`; it exited 0, and
   `/tmp/cairoon-vector-multipage-whitebox-asan.txt` shows the vector output
   oracle test executed without any AddressSanitizer invalid-access report.
-- ASan/LSan via `run-asan.py`: rerun on 2026-07-03 for the image text-oracle
+- ASan/LSan via `run-asan.py`: rerun on 2026-07-03 for the image glyph-oracle
   helper slice. The full runner still failed during the known macOS
   FontRegistry/CoreText/ColorSync LeakSanitizer class before launching the
   white-box executable. A grep of
-  `/tmp/cairoon-image-text-oracle-asan.txt` found no
+  `/tmp/cairoon-image-glyph-oracle-asan.txt` found no
   `ERROR: AddressSanitizer`, heap-use-after-free, stack-use-after,
   heap-buffer-overflow, global-buffer-overflow, double-free,
   `cairoon_test_render_argb32_scene_bytes`,
@@ -265,7 +266,7 @@ Verified on 2026-07-02 and 2026-07-03:
   The ASan-instrumented white-box executable was then run directly with leak
   detection disabled using
   `ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0`; it exited 0, and
-  `/tmp/cairoon-image-text-oracle-whitebox-asan.txt` shows the image oracle
+  `/tmp/cairoon-image-glyph-oracle-whitebox-asan.txt` shows the image oracle
   test executed without any AddressSanitizer invalid-access report.
 - ASan/LSan via `run-asan.py`: ran the 237-test native suite on 2026-07-03
   after the `Surface`/`Context`/`Pattern` pointer equality/hash slice. No
@@ -449,13 +450,13 @@ Verified on 2026-07-02 and 2026-07-03:
   The later vector tag inertness slice added two pure MoonBit tests for PS/SVG
   Link tag no-op behavior, raising the native suite to 233 tests. ASan/LSan was
   not rerun for that slice because it did not change C glue or ownership code.
-  The later image oracle slices added private C helpers for ten deterministic
+  The later image oracle slices added private C helpers for thirteen deterministic
   ARGB32 scenes covering paint, stroke, fill/stroke rectangles, Bezier paths,
   transforms, RGBA compositing, linear/radial gradients, toy-font `text_path`,
-  and toy-font `show_text`, while keeping the
-  native suite at 233 tests because it broadens one existing white-box oracle
-  test. ASan/LSan was rerun for the latest image text-oracle helper slice as
-  recorded above; the full runner still failed during the known macOS
+  toy-font `show_text`, `glyph_path`, `show_glyphs`, and `show_text_glyphs`,
+  without changing the current 243-test suite because they broaden one existing
+  white-box oracle test. ASan/LSan was rerun for the latest image glyph-oracle
+  helper slice as recorded above; the full runner still failed during the known macOS
   LeakSanitizer class before the white-box executable launched, and the
   instrumented white-box executable exited 0 with leak detection disabled.
   The later `ScaledFont::text_to_glyphs_only` slice added pure MoonBit API

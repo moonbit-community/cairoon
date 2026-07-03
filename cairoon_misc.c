@@ -43,7 +43,10 @@ enum {
   CAIROON_TEST_IMAGE_LINEAR_GRADIENT = 6,
   CAIROON_TEST_IMAGE_RADIAL_GRADIENT = 7,
   CAIROON_TEST_IMAGE_TEXT_PATH = 8,
-  CAIROON_TEST_IMAGE_SHOW_TEXT = 9
+  CAIROON_TEST_IMAGE_SHOW_TEXT = 9,
+  CAIROON_TEST_IMAGE_GLYPH_PATH = 10,
+  CAIROON_TEST_IMAGE_SHOW_GLYPHS = 11,
+  CAIROON_TEST_IMAGE_SHOW_TEXT_GLYPHS = 12
 };
 
 typedef struct {
@@ -396,6 +399,74 @@ static cairo_status_t cairoon_test_draw_argb32_scene(
       cairo_move_to(cr, 2.0, 10.0);
       cairo_show_text(cr, "Hi");
       break;
+    case CAIROON_TEST_IMAGE_GLYPH_PATH: {
+      cairo_glyph_t glyph = {0, 2.0, 12.0};
+      cairo_select_font_face(
+        cr,
+        "serif",
+        CAIRO_FONT_SLANT_NORMAL,
+        CAIRO_FONT_WEIGHT_NORMAL);
+      cairo_set_font_size(cr, 12.0);
+      cairo_glyph_path(cr, &glyph, 1);
+      cairo_set_source_rgb(cr, 0.0, 0.0, 1.0);
+      cairo_fill(cr);
+      break;
+    }
+    case CAIROON_TEST_IMAGE_SHOW_GLYPHS: {
+      cairo_glyph_t glyph = {0, 2.0, 12.0};
+      cairo_select_font_face(
+        cr,
+        "serif",
+        CAIRO_FONT_SLANT_NORMAL,
+        CAIRO_FONT_WEIGHT_NORMAL);
+      cairo_set_font_size(cr, 12.0);
+      cairo_set_source_rgb(cr, 1.0, 0.0, 0.0);
+      cairo_show_glyphs(cr, &glyph, 1);
+      break;
+    }
+    case CAIROON_TEST_IMAGE_SHOW_TEXT_GLYPHS: {
+      const char *text = "a";
+      int text_len = (int)strlen(text);
+      cairo_glyph_t *glyphs = NULL;
+      int num_glyphs = 0;
+      cairo_text_cluster_t *clusters = NULL;
+      int num_clusters = 0;
+      cairo_text_cluster_flags_t flags = 0;
+
+      cairo_select_font_face(
+        cr,
+        "serif",
+        CAIRO_FONT_SLANT_NORMAL,
+        CAIRO_FONT_WEIGHT_NORMAL);
+      cairo_set_font_size(cr, 12.0);
+      cairo_set_source_rgb(cr, 1.0, 0.0, 0.0);
+      cairo_status_t status = cairo_scaled_font_text_to_glyphs(
+        cairo_get_scaled_font(cr),
+        2.0,
+        12.0,
+        text,
+        text_len,
+        &glyphs,
+        &num_glyphs,
+        &clusters,
+        &num_clusters,
+        &flags);
+      if (status == CAIRO_STATUS_SUCCESS) {
+        cairo_show_text_glyphs(
+          cr,
+          text,
+          text_len,
+          glyphs,
+          num_glyphs,
+          clusters,
+          num_clusters,
+          flags);
+        status = cairo_status(cr);
+      }
+      cairo_glyph_free(glyphs);
+      cairo_text_cluster_free(clusters);
+      return status;
+    }
     default:
       return CAIRO_STATUS_INVALID_STATUS;
   }
