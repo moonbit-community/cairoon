@@ -363,6 +363,56 @@ test "pdf link tag output contains annotation markers" {
 }
 
 ///|
+test "pdf destination tag output contains named destination markers" {
+  let path = "/tmp/cairoon_vector_dest_tag_output.pdf"
+  let surface = Surface::pdf(100.0, 100.0, path=Some(path))
+  surface.pdf_restrict_to_version(PdfVersion1_4)
+  let ctx = Context::new(surface)
+  ctx.select_font_face("serif")
+  ctx.set_font_size(12.0)
+  ctx.tag_begin(TAG_LINK, "dest='cairoon-dest'")
+  ctx.move_to(10.0, 20.0)
+  ctx.show_text("jump to destination")
+  ctx.tag_end(TAG_LINK)
+  ctx.tag_begin(TAG_DEST, "name='cairoon-dest' x=10 y=60")
+  ctx.move_to(10.0, 60.0)
+  ctx.show_text("destination")
+  ctx.tag_end(TAG_DEST)
+  surface.finish()
+  expect_vector_output(path, [
+    "%PDF-1.4", "/Annots [", "/Subtype /Link", "/Dest", "/Names", "/Dests", "(cairoon-dest)",
+    "/StructTreeRoot", "%%EOF",
+  ])
+}
+
+///|
+test "pdf document structure tags output structure tree markers" {
+  let path = "/tmp/cairoon_vector_structure_tag_output.pdf"
+  let surface = Surface::pdf(100.0, 100.0, path=Some(path))
+  surface.pdf_restrict_to_version(PdfVersion1_4)
+  let ctx = Context::new(surface)
+  ctx.select_font_face("serif")
+  ctx.set_font_size(12.0)
+  ctx.tag_begin("Document", "")
+  ctx.tag_begin("Sect", "")
+  ctx.tag_begin("H1", "")
+  ctx.move_to(10.0, 20.0)
+  ctx.show_text("Heading")
+  ctx.tag_end("H1")
+  ctx.tag_begin("P", "")
+  ctx.move_to(10.0, 40.0)
+  ctx.show_text("Paragraph")
+  ctx.tag_end("P")
+  ctx.tag_end("Sect")
+  ctx.tag_end("Document")
+  surface.finish()
+  expect_vector_output(path, [
+    "%PDF-1.4", "/StructTreeRoot", "/MarkInfo << /Marked true >>", "/Type /StructElem",
+    "/S /Document", "/S /Sect", "/S /H1", "/S /P", "/StructParents 0", "%%EOF",
+  ])
+}
+
+///|
 test "pdf output embeds jpeg mime data from image source" {
   let path = "/tmp/cairoon_vector_pdf_jpeg_mime.pdf"
   let jpeg = tiny_jpeg_payload()

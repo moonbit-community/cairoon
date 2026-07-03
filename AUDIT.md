@@ -142,7 +142,8 @@ Implemented in this workspace:
   thumbnail, single-flag and combined-flag outline behavior,
   stable structural output markers, PDF metadata/custom-metadata/page-label/outline
   output markers, PDF multi-page output markers, PDF 1.4 ten-scene direct C vector-oracle comparison,
-  PDF JPEG MIME data embedding, PDF 1.4 link-tag annotation markers,
+  PDF JPEG MIME data embedding, PDF 1.4 URI link-tag annotation markers,
+  PDF named-destination tag markers, PDF document-structure tag markers,
   finished-surface errors, invalid string validation, and subtype-mismatch
   errors,
   image surfaces returning no device, script device lifecycle and device
@@ -208,10 +209,11 @@ Implemented in this workspace:
   ten deterministic PDF/PS/SVG scenes covering paint, stroke, fill/stroke
   rectangles, Bezier paths, transforms, linear/radial gradients, toy-font text
   paths, toy-font `show_text`, and a two-page paint scene. PDF metadata/custom
-  metadata, page labels, outlines, multi-page output, link-tag annotations, and
-  JPEG MIME passthrough have marker checks; PS and SVG multi-page output have
-  marker checks; and PS/SVG Link tags have inert-output checks matching Cairo
-  1.18.4 backend behavior.
+  metadata, page labels, outlines, multi-page output, URI link-tag annotations,
+  named-destination tags, document-structure tags, and JPEG MIME passthrough
+  have marker checks; PS and SVG multi-page output have marker checks; and
+  PS/SVG Link tags have inert-output checks matching Cairo 1.18.4 backend
+  behavior.
   Full cross-run comparison against pycairo output is not yet automated.
 - Gate 4 memory and lifetime: partial. Stub ownership follows the documented
   external-object pattern, and retained-owner stress now covers subsurfaces,
@@ -260,9 +262,10 @@ Implemented in this workspace:
 - `moon -C cairoon test raster_lifetime_stress_test.mbt --target native -v`: 1
   black-box raster-source callback lifetime test passed after adding the
   1000-iteration set/get/manual acquire/release/replace/clear stress case.
-- `moon -C cairoon test vector_output_wbtest.mbt --target native -v`: 13
-  white-box tests passed after adding a two-page direct C vector oracle scene
-  alongside metadata, tag-output, MIME-output, and page structure checks.
+- `moon -C cairoon test vector_output_wbtest.mbt --target native -v`: 15
+  white-box tests passed after adding PDF named-destination and
+  document-structure tag output marker checks alongside metadata, URI
+  link-tag, MIME-output, page structure, and direct C vector oracle checks.
 - `moon -C cairoon test surface_context_test.mbt context_lifetime_test.mbt
   pattern_test.mbt --target native -v`: 32 tests passed after adding
   `Surface`/`Context`/`Pattern` pointer equality/hash.
@@ -302,7 +305,7 @@ Implemented in this workspace:
   stream output and writer errors, PDF metadata/outlines, PS DSC, SVG document
   units, recording replay, Tee fanout, script devices/surfaces, and checked
   backend-specific errors.
-- `moon -C cairoon test --target native`: 300 tests passed.
+- `moon -C cairoon test --target native`: 302 tests passed.
 - `moon -C cairoon info --target native`: passed; the latest
   source/mask offset image-oracle helper slice did not change the public
   interface.
@@ -316,6 +319,9 @@ Implemented in this workspace:
 - Executable backend surface/device reference documentation was added without
   rerunning ASan because no C glue, finalizer, callback trampoline, or retained
   owner code changed in that slice.
+- Pure MoonBit PDF tag-output marker coverage for named destinations and
+  document structure was added without rerunning ASan because no C glue,
+  finalizer, callback trampoline, or retained owner code changed in that slice.
 - Documentation-only product-decision audit for pycairo `CAPI`, legacy enum
   aliases, and non-implemented FreeType/user-font classes: `moon -C cairoon
   check --target native`, `moon -C cairoon test --target native -v`, and
@@ -631,6 +637,9 @@ Implemented in this workspace:
   Tee fanout, script devices/surfaces, and checked backend-specific errors,
   raising the native suite to 300 tests; ASan was not rerun because no C glue
   changed.
+  The later PDF tag-output marker slice added two pure MoonBit white-box tests
+  covering named destinations and document structure tags, raising the native
+  suite to 302 tests; ASan was not rerun because no C glue changed.
 
 ## Known Gaps
 
@@ -639,7 +648,8 @@ Implemented in this workspace:
   checks and one two-page direct C oracle scene, and PDF/PS/SVG have a
   single-page toy-font `show_text` oracle scene, but tag and metadata
   combinations, broader multi-page combinations, and broader tag-output
-  assertions are still absent beyond PDF Link materialization and PS/SVG Link
+  assertions are still absent beyond PDF URI link materialization,
+  named-destination markers, document-structure markers, and PS/SVG Link
   inertness. PDF/PS/SVG stream-writer constructors, script stream devices, and
   PNG stream read/write now have copied-byte callback tests and read/write error
   propagation coverage.

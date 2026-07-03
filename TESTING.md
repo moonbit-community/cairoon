@@ -223,7 +223,8 @@ for ten deterministic PDF/PS/SVG vector scenes covering paint, stroke,
 fill/stroke rectangles, Bezier paths, transforms, linear/radial gradients,
 toy-font text paths, toy-font `show_text`, and a two-page paint scene, PDF metadata/custom-metadata/page-label/outline output
 markers, PDF/PS/SVG multi-page output markers, PDF JPEG MIME payload embedding,
-PDF link-tag annotation markers, PS/SVG Link tag inert-output checks, mutable
+PDF URI link-tag annotation markers, PDF named-destination tag markers, PDF
+document-structure tag markers, PS/SVG Link tag inert-output checks, mutable
 image/mapped-image data view tests, and initial tests. Pattern has executable
 reference examples for solid/shared state, surface patterns, gradients, mesh
 patches, raster-source callbacks, and checked subtype/index/lifecycle errors.
@@ -270,9 +271,10 @@ Verified on 2026-07-02 and 2026-07-03:
 - `moon -C cairoon test raster_lifetime_stress_test.mbt --target native -v`: 1
   black-box raster-source callback lifetime test passed after adding the
   1000-iteration set/get/manual acquire/release/replace/clear stress case.
-- `moon -C cairoon test vector_output_wbtest.mbt --target native -v`: 13
-  white-box tests passed after adding a two-page direct C vector oracle scene
-  alongside metadata, tag-output, MIME-output, and page structure checks.
+- `moon -C cairoon test vector_output_wbtest.mbt --target native -v`: 15
+  white-box tests passed after adding PDF named-destination and
+  document-structure tag output marker checks alongside metadata, URI
+  link-tag, MIME-output, page structure, and direct C vector oracle checks.
 - `moon -C cairoon test surface_context_test.mbt context_lifetime_test.mbt
   pattern_test.mbt --target native -v`: 32 tests passed after adding
   `Surface`/`Context`/`Pattern` pointer equality/hash.
@@ -312,7 +314,7 @@ Verified on 2026-07-02 and 2026-07-03:
   stream output and writer errors, PDF metadata/outlines, PS DSC, SVG document
   units, recording replay, Tee fanout, script devices/surfaces, and checked
   backend-specific errors.
-- `moon -C cairoon test --target native`: 300 tests passed.
+- `moon -C cairoon test --target native`: 302 tests passed.
 - `moon -C cairoon info --target native`: passed; the latest
   source/mask offset image-oracle helper slice did not change the public
   interface.
@@ -733,6 +735,10 @@ Verified on 2026-07-02 and 2026-07-03:
   Tee fanout, script devices/surfaces, and checked backend-specific errors,
   raising the native suite to 300 tests. ASan/LSan was not rerun for that slice
   because it did not change C glue or ownership code.
+  The later PDF tag-output marker slice added two pure MoonBit white-box tests
+  covering named destinations and document structure tags, raising the native
+  suite to 302 tests. ASan/LSan was not rerun for that slice because it did not
+  change C glue or ownership code.
 
 The missing reliability pieces are substantial: broader automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering
@@ -740,8 +746,9 @@ LSan failure, broader callback failure-injection/fuzz finalizer stress tests,
 CI wiring, vector-output normalization for broader
 multi-page/tag/metadata combinations beyond the current two-page direct C
 oracle scene and the current single-page toy-font `show_text` oracle scene,
-broader tag-output assertions, and the remaining API families from
-`API_INVENTORY.md`.
+broader tag-output assertions beyond the current PDF URI link,
+named-destination, document-structure, and PS/SVG Link coverage, and the
+remaining API families from `API_INVENTORY.md`.
 
 ## Porting pycairo Tests
 
