@@ -219,10 +219,11 @@ Implemented in this workspace:
   region, and error behavior.
 - Gate 3 differential rendering: partial. Deterministic raw-pixel rendering
   tests exist for direct colors and explicit patterns, a direct C image oracle
-  covers fifteen deterministic ARGB32 scenes including stroke, rectangle,
+  covers sixteen deterministic ARGB32 scenes including stroke, rectangle,
   Bezier, transform, RGBA, linear/radial gradient, toy-font `text_path`,
   toy-font `show_text`, `glyph_path`, `show_glyphs`, `show_text_glyphs`,
-  source-surface offset sampling, and mask-surface offset compositing cases,
+  source-surface offset sampling, mask-surface offset compositing, and
+  raster-source pattern repeat rendering cases,
   ScaledFont font/text/glyph extents and empty, single/multi/spaced ASCII, and
   UTF-8 text-to-glyph coordinate cases are compared against direct C Cairo
   primitive oracles, and vector outputs
@@ -272,8 +273,9 @@ Implemented in this workspace:
 - `moon -C cairoon test image_oracle_wbtest.mbt --target native -v`: 2
   white-box image rendering oracle tests passed. Ordinary image surfaces and
   buffer-backed `Surface::image_for_data` surfaces both match the direct C
-  ARGB32 fixture across fifteen scenes with `glyph_path`, `show_glyphs`,
-  `show_text_glyphs`, source-surface offsets, and mask-surface offsets.
+  ARGB32 fixture across sixteen scenes with `glyph_path`, `show_glyphs`,
+  `show_text_glyphs`, source-surface offsets, mask-surface offsets, and
+  raster-source pattern repeat rendering.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
   image_oracle_wbtest.mbt --target native -v`: 2 ASan-compiled white-box image
@@ -444,9 +446,9 @@ Implemented in this workspace:
   rectangle-XOR and executable Matrix/Surface/Context/Font/Path/Pattern/Region
   documentation coverage were added without rerunning ASan because no C glue or
   finalizer ownership code changed in those slices.
-- Test-only source/mask offset image-oracle helper coverage was added without
-  changing the public API or native test count; sanitizer validation is
-  recorded below.
+- Test-only source/mask/raster-source image-oracle helper coverage was added
+  without changing the public API or native test count; sanitizer validation
+  is recorded below.
 - Executable backend surface/device reference documentation was added without
   rerunning ASan because no C glue, finalizer, callback trampoline, or retained
   owner code changed in that slice.
@@ -494,6 +496,24 @@ Implemented in this workspace:
   heap-buffer-overflow, global-buffer-overflow, or double-free entries. The
   ASan-compiled white-box image oracle was therefore run directly with leak
   detection disabled, and exited 0 as recorded above.
+- `run-asan.py --repo-root /Users/caimeo/code/pycairo/cairoon --pkg moon.pkg`:
+  rerun for the raster-source image-oracle C helper slice. The full runner
+  again failed during the known macOS FontRegistry/CoreText/ColorSync
+  LeakSanitizer class after running the black-box executable and before
+  launching the white-box executable. The log at
+  `/tmp/cairoon-raster-source-oracle-asan.txt` reports
+  `55231 byte(s) leaked in 406 allocation(s)`. A grep of that log found no
+  `ERROR: AddressSanitizer`, heap-use-after-free, stack-use-after,
+  heap-buffer-overflow, global-buffer-overflow, double-free,
+  `cairoon_test_raster_source`,
+  `CAIROON_TEST_IMAGE_RASTER_SOURCE_PATTERN`,
+  `cairoon_test_apply_raster_source_pattern`,
+  `cairoon_test_draw_argb32_scene`,
+  `cairoon_test_argb32_scene_oracle`, or `image_oracle` entries. The
+  ASan-compiled white-box image oracle was then run directly with leak
+  detection disabled; it exited 0 and
+  `/tmp/cairoon-raster-source-oracle-whitebox-asan.txt` records both
+  `image_oracle_wbtest.mbt` tests.
 - `run-asan.py --repo-root /Users/caimeo/code/pycairo/cairoon --pkg moon.pkg`:
   rerun for the ScaledFont text-to-glyph direct C oracle helper slice. The full
   runner still failed during the known macOS FontRegistry/CoreText/ColorSync
@@ -788,7 +808,9 @@ Implemented in this workspace:
   because no C glue changed. The later source/mask offset oracle slice expanded
   that image oracle helper to fifteen scenes covering non-zero
   `set_source_surface` and `mask_surface` offsets on ordinary and
-  buffer-backed image surfaces.
+  buffer-backed image surfaces. The later raster-source image oracle slice
+  expanded it to sixteen scenes by comparing `Pattern::raster_source` repeat
+  rendering against direct C Cairo.
   The later Surface documentation slice added `surface.mbt.md` with six
   executable examples covering image properties, buffer-backed data,
   similar/subsurface constructors, mapped images, PNG/MIME helpers, and checked

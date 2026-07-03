@@ -175,10 +175,11 @@ documented product decisions for `CAPI`, legacy uppercase enum alias
 constants, and non-implemented FreeType/user-font classes,
 hit-testing/extents APIs, typed Path segment iteration and stringification,
 PNG filename load/save plus stream read/write, direct C Cairo oracle
-comparisons for fifteen deterministic ARGB32 image scenes on ordinary and
+comparisons for sixteen deterministic ARGB32 image scenes on ordinary and
 buffer-backed image surfaces including toy-font `text_path`, toy-font
 `show_text`, `glyph_path`, `show_glyphs`, `show_text_glyphs`,
-source-surface offsets, and mask-surface offsets, and
+source-surface offsets, mask-surface offsets, and raster-source pattern repeat
+rendering, and
 buffer-backed creation plus mutable `ImageData`
 views for image and
 mapped-image surfaces, portable
@@ -271,8 +272,9 @@ Verified on 2026-07-02 and 2026-07-03:
 - `moon -C cairoon test image_oracle_wbtest.mbt --target native -v`: 2
   white-box image rendering oracle tests passed. Ordinary image surfaces and
   buffer-backed `Surface::image_for_data` surfaces both match the direct C
-  ARGB32 fixture across fifteen scenes with `glyph_path`, `show_glyphs`,
-  `show_text_glyphs`, source-surface offsets, and mask-surface offsets.
+  ARGB32 fixture across sixteen scenes with `glyph_path`, `show_glyphs`,
+  `show_text_glyphs`, source-surface offsets, mask-surface offsets, and
+  raster-source pattern repeat rendering.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
   image_oracle_wbtest.mbt --target native -v`: 2 ASan-compiled white-box image
@@ -472,9 +474,9 @@ Verified on 2026-07-02 and 2026-07-03:
 - Pure MoonBit backend MIME support matrix coverage was added without rerunning
   ASan because no C glue, finalizer, callback trampoline, or retained owner
   code changed in that slice.
-- Test-only source/mask offset image-oracle helper coverage was added without
-  changing the public API or native test count; sanitizer validation is
-  recorded below.
+- Test-only source/mask/raster-source image-oracle helper coverage was added
+  without changing the public API or native test count; sanitizer validation
+  is recorded below.
 - Documentation-only product-decision audit for pycairo `CAPI`, legacy enum
   aliases, and non-implemented FreeType/user-font classes: `moon -C cairoon
   check --target native`, `moon -C cairoon test --target native -v`, and
@@ -489,6 +491,23 @@ Verified on 2026-07-02 and 2026-07-03:
   heap-buffer-overflow, global-buffer-overflow, or double-free entries. The
   ASan-compiled white-box image oracle was therefore run directly with leak
   detection disabled, and exited 0 as recorded above.
+- ASan/LSan via `run-asan.py`: rerun on 2026-07-03 for the raster-source
+  image-oracle C helper slice. The full runner again failed during the known
+  macOS FontRegistry/CoreText/ColorSync LeakSanitizer class after running the
+  black-box executable and before launching the white-box executable. The log
+  at `/tmp/cairoon-raster-source-oracle-asan.txt` reports
+  `55231 byte(s) leaked in 406 allocation(s)`. A grep of that log found no
+  `ERROR: AddressSanitizer`, heap-use-after-free, stack-use-after,
+  heap-buffer-overflow, global-buffer-overflow, double-free,
+  `cairoon_test_raster_source`,
+  `CAIROON_TEST_IMAGE_RASTER_SOURCE_PATTERN`,
+  `cairoon_test_apply_raster_source_pattern`,
+  `cairoon_test_draw_argb32_scene`,
+  `cairoon_test_argb32_scene_oracle`, or `image_oracle` entries. The
+  ASan-compiled white-box image oracle was then run directly with leak
+  detection disabled; it exited 0 and
+  `/tmp/cairoon-raster-source-oracle-whitebox-asan.txt` records both
+  `image_oracle_wbtest.mbt` tests.
 - ASan/LSan via `run-asan.py`: rerun on 2026-07-03 for the ScaledFont
   text-to-glyph direct C oracle helper slice. The full runner still failed
   during the known macOS FontRegistry/CoreText/ColorSync LeakSanitizer class
@@ -815,14 +834,15 @@ Verified on 2026-07-02 and 2026-07-03:
   The later vector tag inertness slice added two pure MoonBit tests for PS/SVG
   Link tag no-op behavior, raising the native suite to 233 tests. ASan/LSan was
   not rerun for that slice because it did not change C glue or ownership code.
-  The later image oracle slices added private C helpers for fifteen deterministic
+  The later image oracle slices added private C helpers for sixteen deterministic
   ARGB32 scenes covering paint, stroke, fill/stroke rectangles, Bezier paths,
   transforms, RGBA compositing, linear/radial gradients, toy-font `text_path`,
   toy-font `show_text`, `glyph_path`, `show_glyphs`, `show_text_glyphs`,
-  source-surface offset sampling, and mask-surface offset compositing, without
-  changing the current test count because they broaden one existing white-box
-  oracle test. ASan/LSan records for the image-oracle C helpers are recorded in
-  the current verified block above; the full runner still fails during the
+  source-surface offset sampling, mask-surface offset compositing, and
+  raster-source pattern repeat rendering, without changing the current test
+  count because they broaden one existing white-box oracle test. ASan/LSan
+  records for the image-oracle C helpers are recorded in the current verified
+  block above; the full runner still fails during the
   known macOS LeakSanitizer class before the white-box executable launches, and
   the instrumented white-box executable exits 0 with leak detection disabled.
   The later `ScaledFont::text_to_glyphs_only` slice added pure MoonBit API
@@ -889,7 +909,9 @@ Verified on 2026-07-02 and 2026-07-03:
   for that slice because it did not change C glue or ownership code. The later
   source/mask offset oracle slice expanded that image oracle helper to fifteen
   scenes covering non-zero `set_source_surface` and `mask_surface` offsets on
-  ordinary and buffer-backed image surfaces.
+  ordinary and buffer-backed image surfaces. The later raster-source image
+  oracle slice expanded it to sixteen scenes by comparing `Pattern::raster_source`
+  repeat rendering against direct C Cairo.
   The later Surface documentation slice added `surface.mbt.md` with six
   executable examples covering image properties, buffer-backed data,
   similar/subsurface constructors, mapped images, PNG/MIME helpers, and checked

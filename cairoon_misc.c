@@ -57,13 +57,18 @@ enum {
   CAIROON_TEST_IMAGE_SHOW_GLYPHS = 11,
   CAIROON_TEST_IMAGE_SHOW_TEXT_GLYPHS = 12,
   CAIROON_TEST_IMAGE_SOURCE_SURFACE_OFFSET = 13,
-  CAIROON_TEST_IMAGE_MASK_SURFACE_OFFSET = 14
+  CAIROON_TEST_IMAGE_MASK_SURFACE_OFFSET = 14,
+  CAIROON_TEST_IMAGE_RASTER_SOURCE_PATTERN = 15
 };
 
 typedef struct {
   unsigned char *data;
   size_t len;
 } CairoonTestFile;
+
+typedef struct {
+  cairo_surface_t *source;
+} CairoonTestRasterSource;
 
 static int cairoon_test_read_file(
   const char *filename,
@@ -339,6 +344,76 @@ static cairo_status_t cairoon_test_apply_surface_pattern(
     cairo_pattern_destroy(pattern);
   }
   cairo_surface_destroy(surface);
+  return status;
+}
+
+static cairo_surface_t *cairoon_test_raster_source_acquire(
+  cairo_pattern_t *pattern,
+  void *callback_data,
+  cairo_surface_t *target,
+  const cairo_rectangle_int_t *extents) {
+  (void)pattern;
+  (void)target;
+  (void)extents;
+  CairoonTestRasterSource *state =
+    (CairoonTestRasterSource *)callback_data;
+  if (state == NULL || state->source == NULL) {
+    return NULL;
+  }
+  return cairo_surface_reference(state->source);
+}
+
+static void cairoon_test_raster_source_release(
+  cairo_pattern_t *pattern,
+  void *callback_data,
+  cairo_surface_t *surface) {
+  (void)pattern;
+  (void)callback_data;
+  cairo_surface_destroy(surface);
+}
+
+static cairo_status_t cairoon_test_apply_raster_source_pattern(
+  cairo_t *cr,
+  double width,
+  double height) {
+  cairo_surface_t *source =
+    cairo_image_surface_create(CAIRO_FORMAT_ARGB32, 2, 2);
+  cairo_status_t status = cairo_surface_status(source);
+  if (status == CAIRO_STATUS_SUCCESS) {
+    status = cairoon_test_paint_quad_surface(source);
+  }
+
+  cairo_pattern_t *pattern = NULL;
+  CairoonTestRasterSource state = {source};
+  if (status == CAIRO_STATUS_SUCCESS) {
+    pattern = cairo_pattern_create_raster_source(
+      NULL,
+      CAIRO_CONTENT_COLOR_ALPHA,
+      2,
+      2);
+    status = cairo_pattern_status(pattern);
+  }
+  if (status == CAIRO_STATUS_SUCCESS) {
+    cairo_raster_source_pattern_set_callback_data(pattern, &state);
+    cairo_raster_source_pattern_set_acquire(
+      pattern,
+      cairoon_test_raster_source_acquire,
+      cairoon_test_raster_source_release);
+    cairo_pattern_set_extend(pattern, CAIRO_EXTEND_REPEAT);
+    cairo_pattern_set_filter(pattern, CAIRO_FILTER_NEAREST);
+    status = cairo_pattern_status(pattern);
+  }
+  if (status == CAIRO_STATUS_SUCCESS) {
+    cairo_rectangle(cr, 0.0, 0.0, width, height);
+    cairo_set_source(cr, pattern);
+    cairo_fill(cr);
+    status = cairo_status(cr);
+  }
+
+  if (pattern != NULL) {
+    cairo_pattern_destroy(pattern);
+  }
+  cairo_surface_destroy(source);
   return status;
 }
 
@@ -783,6 +858,8 @@ static cairo_status_t cairoon_test_draw_argb32_scene(
       cairo_surface_destroy(mask);
       return status;
     }
+    case CAIROON_TEST_IMAGE_RASTER_SOURCE_PATTERN:
+      return cairoon_test_apply_raster_source_pattern(cr, width, height);
     default:
       return CAIRO_STATUS_INVALID_STATUS;
   }

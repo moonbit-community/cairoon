@@ -1,4 +1,21 @@
 ///|
+fn paint_image_oracle_quad_surface(surface : Surface) -> Unit raise CairoError {
+  let source_ctx = Context::new(surface)
+  source_ctx.set_source_rgb(1.0, 0.0, 0.0)
+  source_ctx.rectangle(0.0, 0.0, 1.0, 1.0)
+  source_ctx.fill()
+  source_ctx.set_source_rgb(0.0, 1.0, 0.0)
+  source_ctx.rectangle(1.0, 0.0, 1.0, 1.0)
+  source_ctx.fill()
+  source_ctx.set_source_rgb(0.0, 0.0, 1.0)
+  source_ctx.rectangle(0.0, 1.0, 1.0, 1.0)
+  source_ctx.fill()
+  source_ctx.set_source_rgb(1.0, 1.0, 1.0)
+  source_ctx.rectangle(1.0, 1.0, 1.0, 1.0)
+  source_ctx.fill()
+}
+
+///|
 fn draw_image_oracle_scene(ctx : Context, scene : Int) -> Unit raise CairoError {
   match scene {
     0 => {
@@ -92,19 +109,7 @@ fn draw_image_oracle_scene(ctx : Context, scene : Int) -> Unit raise CairoError 
     }
     13 => {
       let source = Surface::image(Argb32, 2, 2)
-      let source_ctx = Context::new(source)
-      source_ctx.set_source_rgb(1.0, 0.0, 0.0)
-      source_ctx.rectangle(0.0, 0.0, 1.0, 1.0)
-      source_ctx.fill()
-      source_ctx.set_source_rgb(0.0, 1.0, 0.0)
-      source_ctx.rectangle(1.0, 0.0, 1.0, 1.0)
-      source_ctx.fill()
-      source_ctx.set_source_rgb(0.0, 0.0, 1.0)
-      source_ctx.rectangle(0.0, 1.0, 1.0, 1.0)
-      source_ctx.fill()
-      source_ctx.set_source_rgb(1.0, 1.0, 1.0)
-      source_ctx.rectangle(1.0, 1.0, 1.0, 1.0)
-      source_ctx.fill()
+      paint_image_oracle_quad_surface(source)
       ctx.set_source_surface(source, x=7.0, y=6.0)
       ctx.paint()
     }
@@ -122,6 +127,20 @@ fn draw_image_oracle_scene(ctx : Context, scene : Int) -> Unit raise CairoError 
       mask_ctx.fill()
       ctx.set_source_rgb(1.0, 0.0, 0.0)
       ctx.mask_surface(mask, x=7.0, y=6.0)
+    }
+    15 => {
+      let source = Surface::image(Argb32, 2, 2)
+      paint_image_oracle_quad_surface(source)
+      let pattern = Pattern::raster_source(ContentColorAlpha, 2, 2)
+      pattern.raster_set_acquire(
+        fn(_, _) { source },
+        release=Some(fn(_) { () }),
+      )
+      pattern.set_extend(Repeat)
+      pattern.set_filter(Nearest)
+      ctx.rectangle(0.0, 0.0, 16.0, 16.0)
+      ctx.set_source(pattern)
+      ctx.fill()
     }
     _ => raise CairoInvalidArgument(InvalidStatus, InvalidStatus.message())
   }
@@ -152,7 +171,7 @@ fn render_buffered_image_oracle_scene(
 
 ///|
 test "image rendering scenes match direct cairo C oracle" {
-  for scene in 0..<15 {
+  for scene in 0..<16 {
     let actual = render_image_oracle_scene(scene)
     let expected = test_argb32_scene_oracle_ffi(scene, 16, 16)
     inspect(expected.length(), content="1024")
@@ -162,7 +181,7 @@ test "image rendering scenes match direct cairo C oracle" {
 
 ///|
 test "buffer backed image rendering scenes match direct cairo C oracle" {
-  for scene in 0..<15 {
+  for scene in 0..<16 {
     let (actual, copied) = render_buffered_image_oracle_scene(scene)
     let expected = test_argb32_scene_oracle_ffi(scene, 16, 16)
     inspect(expected.length(), content="1024")
