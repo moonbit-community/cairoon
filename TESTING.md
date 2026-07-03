@@ -226,7 +226,8 @@ image/mapped-image data view tests, and initial tests. Region now covers empty,
 single-rectangle, and multi-rectangle construction plus predicates, region
 boolean operations, and rectangle boolean operations including XOR split
 semantics; `region.mbt.md` adds executable reference examples for the same
-family.
+family. Matrix has executable reference examples for component access,
+pure-value transforms, multiplication, inversion, and checked errors.
 
 Verified on 2026-07-02 and 2026-07-03:
 
@@ -264,11 +265,13 @@ Verified on 2026-07-02 and 2026-07-03:
   tests passed after adding `Region::xor_rectangle` split-semantics coverage.
 - `moon -C cairoon test region.mbt.md --target native -v`: 3 executable
   Region reference examples passed.
-- `moon -C cairoon test --target native`: 256 tests passed.
+- `moon -C cairoon test matrix.mbt.md --target native -v`: 4 executable
+  Matrix reference examples passed.
+- `moon -C cairoon test --target native`: 260 tests passed.
 - `moon -C cairoon info --target native`: passed; the latest
-  Region reference-documentation slice did not change the public interface.
-- Pure MoonBit Region rectangle-XOR and executable Region documentation
-  coverage were added without rerunning ASan
+  Matrix reference-documentation slice did not change the public interface.
+- Pure MoonBit Region rectangle-XOR plus executable Matrix/Region
+  documentation coverage were added without rerunning ASan
   because no C glue or finalizer ownership code changed in the slice.
 - Documentation-only product-decision audit for pycairo `CAPI`, legacy enum
   aliases, and non-implemented FreeType/user-font classes: `moon -C cairoon
@@ -625,6 +628,9 @@ Verified on 2026-07-02 and 2026-07-03:
   ownership code.
   The later Region documentation slice added `region.mbt.md` with three
   executable examples, raising the native suite to 256 tests. ASan/LSan was not
+  rerun for that slice because it did not change C glue or ownership code.
+  The later Matrix documentation slice added `matrix.mbt.md` with four
+  executable examples, raising the native suite to 260 tests. ASan/LSan was not
   rerun for that slice because it did not change C glue or ownership code.
 
 The missing reliability pieces are substantial: broader automated differential tests,

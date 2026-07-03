@@ -174,8 +174,8 @@ Implemented in this workspace:
   allocation stress for set/get/manual acquire/release/replace/clear paths.
 - `API_INVENTORY.md` now tracks the full pycairo API surface against cairoon
   status.
-- `region.mbt.md` documents Region construction, queries, boolean operations,
-  and checked error mapping with executable examples.
+- `matrix.mbt.md` and `region.mbt.md` document Matrix and Region behavior with
+  executable examples.
 - `TESTING.md` defines the migration reliability gates and records why the
   pycairo test suite is useful but insufficient by itself.
 
@@ -268,11 +268,13 @@ Implemented in this workspace:
   tests passed after adding `Region::xor_rectangle` split-semantics coverage.
 - `moon -C cairoon test region.mbt.md --target native -v`: 3 executable
   Region reference examples passed.
-- `moon -C cairoon test --target native`: 256 tests passed.
+- `moon -C cairoon test matrix.mbt.md --target native -v`: 4 executable
+  Matrix reference examples passed.
+- `moon -C cairoon test --target native`: 260 tests passed.
 - `moon -C cairoon info --target native`: passed; the latest
-  Region reference-documentation slice did not change the public interface.
-- Pure MoonBit Region rectangle-XOR and executable Region documentation
-  coverage were added without rerunning ASan
+  Matrix reference-documentation slice did not change the public interface.
+- Pure MoonBit Region rectangle-XOR plus executable Matrix/Region
+  documentation coverage were added without rerunning ASan
   because no C glue or finalizer ownership code changed in the slice.
 - Documentation-only product-decision audit for pycairo `CAPI`, legacy enum
   aliases, and non-implemented FreeType/user-font classes: `moon -C cairoon
@@ -535,6 +537,9 @@ Implemented in this workspace:
   not rerun because no C glue changed.
   The later Region documentation slice added `region.mbt.md` with three
   executable examples, raising the native suite to 256 tests; ASan was not
+  rerun because no C glue changed.
+  The later Matrix documentation slice added `matrix.mbt.md` with four
+  executable examples, raising the native suite to 260 tests; ASan was not
   rerun because no C glue changed.
 
 ## Known Gaps
