@@ -28,6 +28,25 @@ test "image surface properties" {
 }
 
 ///|
+test "image surface supports cairo float formats" {
+  let rgb = Surface::image(Rgb96F, 3, 2)
+  debug_inspect(rgb.get_type(), content="SurfaceTypeImage")
+  debug_inspect(rgb.get_format(), content="Rgb96F")
+  debug_inspect(rgb.get_content(), content="ContentColor")
+  inspect(rgb.get_width(), content="3")
+  inspect(rgb.get_height(), content="2")
+  inspect(rgb.get_stride(), content="\{Format::stride_for_width(Rgb96F, 3)}")
+  inspect(rgb.copy_data().length(), content="\{rgb.get_stride() * 2}")
+
+  let rgba = Surface::image(Rgba128F, 3, 2)
+  debug_inspect(rgba.get_type(), content="SurfaceTypeImage")
+  debug_inspect(rgba.get_format(), content="Rgba128F")
+  debug_inspect(rgba.get_content(), content="ContentColorAlpha")
+  inspect(rgba.get_stride(), content="\{Format::stride_for_width(Rgba128F, 3)}")
+  inspect(rgba.copy_data().length(), content="\{rgba.get_stride() * 2}")
+}
+
+///|
 test "surface equality and hash use cairo pointer identity" {
   let surface = Surface::image(Argb32, 1, 1)
   let ctx = Context::new(surface)
@@ -126,6 +145,29 @@ test "image surface for data shares caller buffer" {
   inspect(data[2].to_int(), content="0")
   inspect(data[3].to_int(), content="255")
   inspect(surface.copy_data() == Bytes::from_array(data), content="true")
+}
+
+///|
+test "image surface for data supports cairo float formats" {
+  let rgb_stride = Format::stride_for_width(Rgb96F, 2)
+  let rgb_data : FixedArray[Byte] = FixedArray::make(rgb_stride, b'\x00')
+  let rgb = Surface::image_for_data(rgb_data, Rgb96F, 2, 1, stride=rgb_stride)
+  debug_inspect(rgb.get_format(), content="Rgb96F")
+  inspect(rgb.get_stride(), content="\{rgb_stride}")
+  inspect(rgb.copy_data() == Bytes::from_array(rgb_data), content="true")
+
+  let rgba_stride = Format::stride_for_width(Rgba128F, 2)
+  let rgba_data : FixedArray[Byte] = FixedArray::make(rgba_stride, b'\x00')
+  let rgba = Surface::image_for_data(
+    rgba_data,
+    Rgba128F,
+    2,
+    1,
+    stride=rgba_stride,
+  )
+  debug_inspect(rgba.get_format(), content="Rgba128F")
+  inspect(rgba.get_stride(), content="\{rgba_stride}")
+  inspect(rgba.copy_data() == Bytes::from_array(rgba_data), content="true")
 }
 
 ///|

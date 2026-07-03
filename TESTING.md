@@ -217,7 +217,8 @@ the font stack, solid/gradient/mesh `Pattern`, recording/similar/Tee
 ordinary, buffer-backed, and mapped image surfaces, backend stream callback
 allocation stress for PDF/PS/SVG surfaces, PNG stream write/read, script
 devices, and stream `WriteError` paths, raster-source callback allocation
-stress for set/get/manual acquire/release/replace/clear paths, stable
+stress for set/get/manual acquire/release/replace/clear paths, Cairo float
+image-format creation/readback coverage, stable
 structural vector-output markers plus direct C oracle comparisons
 for ten deterministic PDF/PS/SVG vector scenes covering paint, stroke,
 fill/stroke rectangles, Bezier paths, transforms, linear/radial gradients,
@@ -278,9 +279,9 @@ Verified on 2026-07-02 and 2026-07-03:
 - `moon -C cairoon test surface_context_test.mbt context_lifetime_test.mbt
   pattern_test.mbt --target native -v`: 32 tests passed after adding
   `Surface`/`Context`/`Pattern` pointer equality/hash.
-- `moon -C cairoon test surface_context_test.mbt --target native -v`: 12
-  black-box tests passed after adding invalid-size coverage for
-  `Surface::create_similar` and `Surface::create_similar_image`.
+- `moon -C cairoon test surface_context_test.mbt --target native -v`: 14
+  black-box tests passed after adding `Rgb96F` and `Rgba128F` image-surface
+  construction, stride, copied-data, and buffer-backed readback coverage.
 - `moon -C cairoon test surface_subsurface_test.mbt --target native -v`: 3
   black-box tests passed after adding invalid-size coverage for
   `Surface::create_for_rectangle`.
@@ -314,7 +315,7 @@ Verified on 2026-07-02 and 2026-07-03:
   stream output and writer errors, PDF metadata/outlines, PS DSC, SVG document
   units, recording replay, Tee fanout, script devices/surfaces, and checked
   backend-specific errors.
-- `moon -C cairoon test --target native`: 302 tests passed.
+- `moon -C cairoon test --target native`: 304 tests passed.
 - `moon -C cairoon info --target native`: passed; the latest
   source/mask offset image-oracle helper slice did not change the public
   interface.
@@ -739,6 +740,11 @@ Verified on 2026-07-02 and 2026-07-03:
   covering named destinations and document structure tags, raising the native
   suite to 302 tests. ASan/LSan was not rerun for that slice because it did not
   change C glue or ownership code.
+  The later Cairo float image-format slice added two pure MoonBit black-box
+  tests covering `Rgb96F` and `Rgba128F` construction/readback for ordinary and
+  buffer-backed image surfaces, raising the native suite to 304 tests.
+  ASan/LSan was not rerun for that slice because it did not change C glue or
+  ownership code.
 
 The missing reliability pieces are substantial: broader automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering

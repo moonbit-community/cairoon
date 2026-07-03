@@ -165,7 +165,8 @@ Implemented in this workspace:
   sources, surface-pattern borrowed surface returns, font-options behavior,
   font-face and scaled-font behavior with context error propagation, region
   behavior including rectangle XOR split semantics, TeeSurface mirrored
-  drawing/index/error/lifetime behavior,
+  drawing/index/error/lifetime behavior, Cairo float image-format creation and
+  buffer-backed readback behavior,
   exhaustive status/error classification, retained-owner lifetime stress, and
   external value-wrapper allocation stress for `Path`, `Region`, the font
   stack, solid/gradient/mesh `Pattern`, recording/similar/Tee `Surface`, and
@@ -269,9 +270,9 @@ Implemented in this workspace:
 - `moon -C cairoon test surface_context_test.mbt context_lifetime_test.mbt
   pattern_test.mbt --target native -v`: 32 tests passed after adding
   `Surface`/`Context`/`Pattern` pointer equality/hash.
-- `moon -C cairoon test surface_context_test.mbt --target native -v`: 12
-  black-box tests passed after adding invalid-size coverage for
-  `Surface::create_similar` and `Surface::create_similar_image`.
+- `moon -C cairoon test surface_context_test.mbt --target native -v`: 14
+  black-box tests passed after adding `Rgb96F` and `Rgba128F` image-surface
+  construction, stride, copied-data, and buffer-backed readback coverage.
 - `moon -C cairoon test surface_subsurface_test.mbt --target native -v`: 3
   black-box tests passed after adding invalid-size coverage for
   `Surface::create_for_rectangle`.
@@ -305,7 +306,7 @@ Implemented in this workspace:
   stream output and writer errors, PDF metadata/outlines, PS DSC, SVG document
   units, recording replay, Tee fanout, script devices/surfaces, and checked
   backend-specific errors.
-- `moon -C cairoon test --target native`: 302 tests passed.
+- `moon -C cairoon test --target native`: 304 tests passed.
 - `moon -C cairoon info --target native`: passed; the latest
   source/mask offset image-oracle helper slice did not change the public
   interface.
@@ -322,6 +323,9 @@ Implemented in this workspace:
 - Pure MoonBit PDF tag-output marker coverage for named destinations and
   document structure was added without rerunning ASan because no C glue,
   finalizer, callback trampoline, or retained owner code changed in that slice.
+- Pure MoonBit Cairo float image-format coverage was added without rerunning
+  ASan because no C glue, finalizer, callback trampoline, or retained owner
+  code changed in that slice.
 - Documentation-only product-decision audit for pycairo `CAPI`, legacy enum
   aliases, and non-implemented FreeType/user-font classes: `moon -C cairoon
   check --target native`, `moon -C cairoon test --target native -v`, and
@@ -640,6 +644,10 @@ Implemented in this workspace:
   The later PDF tag-output marker slice added two pure MoonBit white-box tests
   covering named destinations and document structure tags, raising the native
   suite to 302 tests; ASan was not rerun because no C glue changed.
+  The later Cairo float image-format slice added two pure MoonBit black-box
+  tests covering `Rgb96F` and `Rgba128F` construction/readback for ordinary and
+  buffer-backed image surfaces, raising the native suite to 304 tests; ASan was
+  not rerun because no C glue changed.
 
 ## Known Gaps
 
