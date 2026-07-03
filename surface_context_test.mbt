@@ -25,6 +25,17 @@ fn[T] expect_surface_finished(result : Result[T, CairoError]) -> Unit raise {
 }
 
 ///|
+fn[T] expect_surface_type_mismatch(
+  result : Result[T, CairoError],
+) -> Unit raise {
+  inspect(result is Err(_), content="true")
+  match result {
+    Err(CairoError(SurfaceTypeMismatch, _)) => ()
+    _ => @test.fail("expected SurfaceTypeMismatch")
+  }
+}
+
+///|
 test "image surface properties" {
   let surface = Surface::image(Argb32, 2, 1)
   debug_inspect(surface.get_type(), content="SurfaceTypeImage")
@@ -34,6 +45,24 @@ test "image surface properties" {
   inspect(surface.get_height(), content="1")
   inspect(surface.get_stride(), content="8")
   inspect(surface.copy_data().length(), content="8")
+}
+
+///|
+test "image surface properties map status and subtype errors" {
+  let finished = Surface::image(Argb32, 1, 1)
+  finished.finish()
+  expect_surface_finished(run_cairo(() => finished.get_width()))
+  expect_surface_finished(run_cairo(() => finished.get_height()))
+  expect_surface_finished(run_cairo(() => finished.get_stride()))
+  expect_surface_finished(run_cairo(() => finished.get_format()))
+  expect_surface_finished(run_cairo(() => finished.copy_data()))
+
+  let pdf = Surface::pdf(10.0, 10.0)
+  expect_surface_type_mismatch(run_cairo(() => pdf.get_width()))
+  expect_surface_type_mismatch(run_cairo(() => pdf.get_height()))
+  expect_surface_type_mismatch(run_cairo(() => pdf.get_stride()))
+  expect_surface_type_mismatch(run_cairo(() => pdf.get_format()))
+  expect_surface_type_mismatch(run_cairo(() => pdf.copy_data()))
 }
 
 ///|

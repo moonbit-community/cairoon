@@ -363,6 +363,28 @@ Verified on 2026-07-02 and 2026-07-03:
   black-box tests passed after adding ordinary image-surface finish/status
   coverage for idempotent finish and `SurfaceFinished` base-method,
   capability, dirty-marker, and state-wrapper errors.
+- `moon -C cairoon test surface_context_test.mbt pattern_test.mbt
+  raster_lifetime_stress_test.mbt pattern.mbt.md --target native -v`: 42
+  black-box and executable doc tests passed after changing image-surface
+  width/height/stride/format getters and copied-data readback to checked
+  wrappers. The new surface test covers `SurfaceFinished` and non-image
+  `SurfaceTypeMismatch`; raster-source callback tests and docs use `try!` for
+  these now-checked getters inside no-error callback signatures.
+- `run-asan.py --repo-root /Users/caimeo/code/pycairo/cairoon --pkg moon.pkg`:
+  rerun for the image-surface checked-getter slice. The full runner wrote
+  `/tmp/cairoon-image-getters-asan.txt` and failed during the known macOS
+  FontRegistry/CoreText/ColorSync LeakSanitizer class after the black-box
+  executable ran; summary: `55231 byte(s) leaked in 406 allocation(s)`. A grep
+  of that log found no `ERROR: AddressSanitizer`, heap-use-after-free,
+  stack-use-after, heap-buffer-overflow, global-buffer-overflow, double-free,
+  `cairoon_image_surface_get_`, `cairoon_image_surface_copy_data`,
+  `cairoon_copy_image_surface_data`, or `cairoon_surface_require_type`
+  entries. The ASan-instrumented black-box executable was then run directly
+  with `ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0` for
+  `surface_context_test.mbt:0-18`, `pattern_test.mbt:0-17`,
+  `raster_lifetime_stress_test.mbt:0-1`, and `pattern.mbt.md:0-6`; it exited
+  0 and `/tmp/cairoon-image-getters-blackbox-asan.txt` records the selected
+  tests, including `image surface properties map status and subtype errors`.
 - `moon -C cairoon test surface_mime_test.mbt --target native -v`: 5
   black-box tests passed after adding image/PDF/PS/SVG
   `supports_mime_type` matrix coverage and invalid MIME type string coverage.
@@ -997,6 +1019,11 @@ Verified on 2026-07-02 and 2026-07-03:
   structure tags. This changed only test-helper C glue and one white-box test,
   raising the native suite to 330 tests. ASan/LSan validation is recorded
   above.
+  The later image-surface checked-getter slice changed public
+  width/height/stride/format getters to `raise CairoError`, added status
+  plumbing for copied-data readback, and covered `SurfaceFinished` plus
+  non-image `SurfaceTypeMismatch`, raising the native suite to 331 tests.
+  ASan/LSan validation is recorded above.
 
 The missing reliability pieces are substantial: broader automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering

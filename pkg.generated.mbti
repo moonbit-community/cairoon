@@ -766,12 +766,12 @@ pub fn Surface::get_device_offset(Self) -> (Double, Double) raise CairoError
 pub fn Surface::get_device_scale(Self) -> (Double, Double) raise CairoError
 pub fn Surface::get_fallback_resolution(Self) -> (Double, Double) raise CairoError
 pub fn Surface::get_font_options(Self) -> FontOptions raise CairoError
-pub fn Surface::get_format(Self) -> Format
-pub fn Surface::get_height(Self) -> Int
+pub fn Surface::get_format(Self) -> Format raise CairoError
+pub fn Surface::get_height(Self) -> Int raise CairoError
 pub fn Surface::get_mime_data(Self, String) -> Bytes? raise CairoError
-pub fn Surface::get_stride(Self) -> Int
+pub fn Surface::get_stride(Self) -> Int raise CairoError
 pub fn Surface::get_type(Self) -> SurfaceType raise CairoError
-pub fn Surface::get_width(Self) -> Int
+pub fn Surface::get_width(Self) -> Int raise CairoError
 pub fn Surface::has_show_text_glyphs(Self) -> Bool raise CairoError
 pub fn Surface::hash(Self) -> UInt64
 pub fn Surface::image(Format, Int, Int) -> Self raise CairoError

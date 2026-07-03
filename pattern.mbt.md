@@ -148,13 +148,13 @@ test "pattern docs: raster source callback paints and releases" {
   pattern.raster_set_acquire(
     fn(target, extents) {
       acquire_calls.val += 1
-      target_width.val = target.get_width()
+      target_width.val = try! target.get_width()
       extent_width.val = extents.width
       source
     },
     release=Some(fn(surface) {
       release_calls.val += 1
-      released_height.val = surface.get_height()
+      released_height.val = try! surface.get_height()
     }),
   )
 

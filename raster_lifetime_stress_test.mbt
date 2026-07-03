@@ -44,13 +44,13 @@ fn raster_stress_pattern_from_local_source(
   pattern.raster_set_acquire(
     fn(target, extents) {
       acquire_calls.val += 1
-      ignore(target.get_width())
+      ignore(try! target.get_width())
       ignore(extents.components())
       source
     },
     release=Some(fn(surface) {
       release_calls.val += 1
-      ignore(surface.get_height())
+      ignore(try! surface.get_height())
     }),
   )
   pattern

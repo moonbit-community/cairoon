@@ -1220,24 +1220,39 @@ extern "C" fn surface_supports_mime_type_ffi(
 ) -> Bool = "cairoon_surface_supports_mime_type"
 
 ///|
-#borrow(surface)
-extern "C" fn image_surface_get_width_ffi(surface : Surface) -> Int = "cairoon_image_surface_get_width"
+#borrow(surface, status)
+extern "C" fn image_surface_get_width_ffi(
+  surface : Surface,
+  status : Ref[Status],
+) -> Int = "cairoon_image_surface_get_width"
 
 ///|
-#borrow(surface)
-extern "C" fn image_surface_get_height_ffi(surface : Surface) -> Int = "cairoon_image_surface_get_height"
+#borrow(surface, status)
+extern "C" fn image_surface_get_height_ffi(
+  surface : Surface,
+  status : Ref[Status],
+) -> Int = "cairoon_image_surface_get_height"
 
 ///|
-#borrow(surface)
-extern "C" fn image_surface_get_stride_ffi(surface : Surface) -> Int = "cairoon_image_surface_get_stride"
+#borrow(surface, status)
+extern "C" fn image_surface_get_stride_ffi(
+  surface : Surface,
+  status : Ref[Status],
+) -> Int = "cairoon_image_surface_get_stride"
 
 ///|
-#borrow(surface)
-extern "C" fn image_surface_get_format_ffi(surface : Surface) -> Format = "cairoon_image_surface_get_format"
+#borrow(surface, status)
+extern "C" fn image_surface_get_format_ffi(
+  surface : Surface,
+  status : Ref[Status],
+) -> Format = "cairoon_image_surface_get_format"
 
 ///|
-#borrow(surface)
-extern "C" fn image_surface_copy_data_ffi(surface : Surface) -> Bytes = "cairoon_image_surface_copy_data"
+#borrow(surface, status)
+extern "C" fn image_surface_copy_data_ffi(
+  surface : Surface,
+  status : Ref[Status],
+) -> Bytes = "cairoon_image_surface_copy_data"
 
 ///|
 #borrow(surface)

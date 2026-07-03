@@ -428,30 +428,43 @@ pub fn Surface::supports_mime_type(
 }
 
 ///|
-pub fn Surface::get_width(self : Surface) -> Int {
-  image_surface_get_width_ffi(self)
+pub fn Surface::get_width(self : Surface) -> Int raise CairoError {
+  let status = Ref(Success)
+  let width = image_surface_get_width_ffi(self, status)
+  check_status(status.val)
+  width
 }
 
 ///|
-pub fn Surface::get_height(self : Surface) -> Int {
-  image_surface_get_height_ffi(self)
+pub fn Surface::get_height(self : Surface) -> Int raise CairoError {
+  let status = Ref(Success)
+  let height = image_surface_get_height_ffi(self, status)
+  check_status(status.val)
+  height
 }
 
 ///|
-pub fn Surface::get_stride(self : Surface) -> Int {
-  image_surface_get_stride_ffi(self)
+pub fn Surface::get_stride(self : Surface) -> Int raise CairoError {
+  let status = Ref(Success)
+  let stride = image_surface_get_stride_ffi(self, status)
+  check_status(status.val)
+  stride
 }
 
 ///|
-pub fn Surface::get_format(self : Surface) -> Format {
-  image_surface_get_format_ffi(self)
+pub fn Surface::get_format(self : Surface) -> Format raise CairoError {
+  let status = Ref(Success)
+  let format = image_surface_get_format_ffi(self, status)
+  check_status(status.val)
+  format
 }
 
 ///|
 pub fn Surface::copy_data(self : Surface) -> Bytes raise CairoError {
-  self.flush()
-  check_status(surface_status_ffi(self))
-  image_surface_copy_data_ffi(self)
+  let status = Ref(Success)
+  let bytes = image_surface_copy_data_ffi(self, status)
+  check_status(status.val)
+  bytes
 }
 
 ///|
