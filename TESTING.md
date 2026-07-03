@@ -238,7 +238,10 @@ has executable reference examples for image properties, buffer-backed data,
 similar/subsurface constructors, mapped images, PNG/MIME helpers, and checked
 surface errors. Context has executable reference examples for construction and
 drawing state, transformations, paths, fill/stroke output, clipping, groups,
-text/glyph APIs, and checked context errors.
+text/glyph APIs, and checked context errors. Font has executable reference
+examples for FontOptions state/copy/merge, color palettes, toy font faces,
+Surface/Context font options, ScaledFont matrices/metrics, text-to-glyphs, and
+checked font errors.
 
 Verified on 2026-07-02 and 2026-07-03:
 
@@ -291,11 +294,15 @@ Verified on 2026-07-02 and 2026-07-03:
   Context reference examples passed, covering construction/state, transforms,
   paths, fill/stroke output, clipping, groups, text/glyphs, and checked context
   errors.
-- `moon -C cairoon test --target native`: 285 tests passed.
+- `moon -C cairoon test font.mbt.md --target native -v`: 7 executable Font
+  reference examples passed, covering FontOptions state/copy/merge, color
+  palettes, toy font faces, Surface/Context font options, ScaledFont
+  matrices/metrics, text-to-glyphs, and checked font errors.
+- `moon -C cairoon test --target native`: 292 tests passed.
 - `moon -C cairoon info --target native`: passed; the latest
-  Context executable-documentation slice did not change the public interface.
+  Font executable-documentation slice did not change the public interface.
 - Test-only buffer-backed image oracle coverage plus Pure MoonBit Region
-  rectangle-XOR and executable Matrix/Surface/Context/Path/Pattern/Region
+  rectangle-XOR and executable Matrix/Surface/Context/Font/Path/Pattern/Region
   documentation coverage were added without rerunning ASan because no C glue or
   finalizer ownership code changed in those slices.
 - Documentation-only product-decision audit for pycairo `CAPI`, legacy enum
@@ -682,6 +689,12 @@ Verified on 2026-07-02 and 2026-07-03:
   fill/stroke output, clipping, groups, text/glyphs, and checked context
   errors, raising the native suite to 285 tests. ASan/LSan was not rerun for
   that slice because it did not change C glue or ownership code.
+  The later Font documentation slice added `font.mbt.md` with seven executable
+  examples covering FontOptions state/copy/merge, color palettes, toy font
+  faces, Surface/Context font options, ScaledFont matrices/metrics,
+  text-to-glyphs, and checked font errors, raising the native suite to 292
+  tests. ASan/LSan was not rerun for that slice because it did not change C
+  glue or ownership code.
 
 The missing reliability pieces are substantial: broader automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering

@@ -174,9 +174,9 @@ Implemented in this workspace:
   allocation stress for set/get/manual acquire/release/replace/clear paths.
 - `API_INVENTORY.md` now tracks the full pycairo API surface against cairoon
   status.
-- `matrix.mbt.md`, `path.mbt.md`, `pattern.mbt.md`, and `region.mbt.md`
-  document Matrix, Path, Pattern, and Region behavior with executable
-  examples.
+- `matrix.mbt.md`, `font.mbt.md`, `path.mbt.md`, `pattern.mbt.md`, and
+  `region.mbt.md` document Matrix, FontOptions, FontFace, ScaledFont, Path,
+  Pattern, and Region behavior with executable examples.
 - `TESTING.md` defines the migration reliability gates and records why the
   pycairo test suite is useful but insufficient by itself.
 
@@ -284,11 +284,15 @@ Implemented in this workspace:
   Context reference examples passed, covering construction/state, transforms,
   paths, fill/stroke output, clipping, groups, text/glyphs, and checked context
   errors.
-- `moon -C cairoon test --target native`: 285 tests passed.
+- `moon -C cairoon test font.mbt.md --target native -v`: 7 executable Font
+  reference examples passed, covering FontOptions state/copy/merge, color
+  palettes, toy font faces, Surface/Context font options, ScaledFont
+  matrices/metrics, text-to-glyphs, and checked font errors.
+- `moon -C cairoon test --target native`: 292 tests passed.
 - `moon -C cairoon info --target native`: passed; the latest
-  Context executable-documentation slice did not change the public interface.
+  Font executable-documentation slice did not change the public interface.
 - Test-only buffer-backed image oracle coverage plus Pure MoonBit Region
-  rectangle-XOR and executable Matrix/Surface/Context/Path/Pattern/Region
+  rectangle-XOR and executable Matrix/Surface/Context/Font/Path/Pattern/Region
   documentation coverage were added without rerunning ASan because no C glue or
   finalizer ownership code changed in those slices.
 - Documentation-only product-decision audit for pycairo `CAPI`, legacy enum
@@ -581,6 +585,11 @@ Implemented in this workspace:
   fill/stroke output, clipping, groups, text/glyphs, and checked context
   errors, raising the native suite to 285 tests; ASan was not rerun because no
   C glue changed.
+  The later Font documentation slice added `font.mbt.md` with seven executable
+  examples covering FontOptions state/copy/merge, color palettes, toy font
+  faces, Surface/Context font options, ScaledFont matrices/metrics,
+  text-to-glyphs, and checked font errors, raising the native suite to 292
+  tests; ASan was not rerun because no C glue changed.
 
 ## Known Gaps
 
