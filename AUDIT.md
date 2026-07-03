@@ -172,10 +172,11 @@ Implemented in this workspace:
 2026-07-02 and 2026-07-03:
 
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native -v`: 229 tests passed.
+- `moon -C cairoon test --target native -v`: 231 tests passed.
 - `run-asan.py --repo-root /Users/caimeo/code/pycairo/cairoon --pkg moon.pkg`:
   most recently ran the 229-test native suite on 2026-07-03 after the
-  raster-source pattern slice. The rerun found no invalid access and no
+  raster-source get-acquire slice. The get-acquire slice raised native coverage
+  to 231 tests. The rerun found no invalid access and no
   `cairoon_raster`, `raster_source`, or `cairoon_pattern` entries in the
   visible leak roots; it still failed during the known macOS LeakSanitizer
   reporting class documented in `TESTING.md`.
@@ -248,13 +249,13 @@ Implemented in this workspace:
   The later RasterSourcePattern slice added retained acquire/release callbacks,
   acquired-surface owner tracking, focused behavior/lifetime tests, README
   coverage, and retained-owner stress-loop coverage; ASan/LSan was rerun as
-  described above.
+  described above. The later get-acquire slice returned retained MoonBit
+  acquire/release closures and added optional/clear/subtype tests.
 
 ## Known Gaps
 
-- Raster-source patterns still lack pycairo-style `get_acquire`, normalized
-  PDF/SVG/PS output comparison is missing, and SVG/PS tag-materialization
-  assertions are still absent. PDF/PS/SVG stream-writer
+- Normalized PDF/SVG/PS output comparison is missing, and SVG/PS
+  tag-materialization assertions are still absent. PDF/PS/SVG stream-writer
   constructors, script stream devices, and PNG stream read/write now have
   copied-byte callback tests and read/write error propagation coverage.
 - `Surface::copy_data` still copies Cairo image data into MoonBit `Bytes`;

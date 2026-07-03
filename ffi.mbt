@@ -2201,6 +2201,28 @@ extern "C" fn raster_source_pattern_clear_acquire_ffi(
 ) -> Status = "cairoon_raster_source_pattern_clear_acquire"
 
 ///|
+#borrow(pattern, has_release, status)
+extern "C" fn raster_source_pattern_has_acquire_ffi(
+  pattern : Pattern,
+  has_release : Ref[Int],
+  status : Ref[Status],
+) -> Bool = "cairoon_raster_source_pattern_has_acquire"
+
+///|
+#borrow(pattern, status)
+extern "C" fn raster_source_pattern_get_acquire_callback_ffi(
+  pattern : Pattern,
+  status : Ref[Status],
+) -> (Surface, RectangleInt) -> Surface = "cairoon_raster_source_pattern_get_acquire_callback"
+
+///|
+#borrow(pattern, status)
+extern "C" fn raster_source_pattern_get_release_callback_ffi(
+  pattern : Pattern,
+  status : Ref[Status],
+) -> (Surface) -> Unit = "cairoon_raster_source_pattern_get_release_callback"
+
+///|
 #borrow(pattern)
 extern "C" fn mesh_pattern_end_patch_ffi(pattern : Pattern) -> Status = "cairoon_mesh_pattern_end_patch"
 

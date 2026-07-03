@@ -175,7 +175,7 @@ mode, size and DSC helpers, SVGSurface filename/no-output/stream constructor,
 version helpers, version
 restriction, and document-unit helpers,
 surface-pattern borrowed surface returns, RasterSourcePattern
-constructor/acquire/release callback glue with retained closure and acquired
+constructor/acquire/get-acquire/release callback glue with retained closure and acquired
 surface owners, MeshPattern patch lifecycle/query
 APIs, `FORMAT_INVALID` integer-sentinel coverage, FontOptions
 state/accessor APIs, FontFace/ToyFontFace APIs, ScaledFont
@@ -195,7 +195,7 @@ construction plus predicates and boolean operations.
 Verified on 2026-07-02 and 2026-07-03:
 
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native -v`: 229 tests passed.
+- `moon -C cairoon test --target native -v`: 231 tests passed.
 - ASan/LSan via `run-asan.py`: ran on 2026-07-03 after adding retained-owner
   lifetime stress tests. The first run found a real heap-use-after-free when a
   `Surface` returned by `Context::get_target` outlived a context created from a
@@ -346,12 +346,21 @@ Verified on 2026-07-02 and 2026-07-03:
   global-buffer-overflow, `cairoon_raster`, `raster_source`, or
   `cairoon_pattern` entries; summary:
   `64333 byte(s) leaked in 390 allocation(s)`.
+  The later raster-source get-acquire slice returned retained MoonBit
+  acquire/release closures and added two focused tests for callback retrieval,
+  optional release callbacks, clear behavior, and subtype mismatch, raising the
+  native suite to 231 tests. ASan/LSan was rerun on 2026-07-03 and reported
+  only the same macOS LeakSanitizer class. A grep of
+  `/tmp/cairoon-raster-get-acquire-asan.txt` found no
+  `ERROR: AddressSanitizer`, heap-use-after-free, stack-use-after,
+  global-buffer-overflow, `cairoon_raster`, `raster_source`, or
+  `cairoon_pattern` entries; summary:
+  `55365 byte(s) leaked in 405 allocation(s)`.
 
 The missing reliability pieces are substantial: automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering
 LSan failure, finalizer stress tests, CI wiring, vector-output normalization,
-SVG/PS tag-materialization assertions, raster-source `get_acquire`
-equivalence, and
+SVG/PS tag-materialization assertions, and
 the remaining API families from `API_INVENTORY.md`.
 
 ## Porting pycairo Tests

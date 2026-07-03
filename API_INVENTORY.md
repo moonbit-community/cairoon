@@ -27,7 +27,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 | PS surface | Partial | Filename/no-output/stream-writer constructors, supported levels, level strings, level restriction, EPS mode, page size, DSC comments, stable page/drawing output markers, and stream callback output/error mapping; full normalized vector-output comparison remains |
 | SVG surface | Partial | Filename/no-output/stream-writer constructors, supported versions, version strings, version restriction, document units, stable geometry/color output markers, and stream callback output/error mapping; full normalized vector-output comparison remains |
 | Context basics | Partial | Creation, status, save/restore, CTM transforms, drawing state including hairline mode, clip APIs, group APIs, tag APIs, path primitives, source colors/surfaces, paint/fill/stroke |
-| Pattern basics | Partial | Solid/surface/mesh pattern constructors, source setting, RGBA, extend/filter/dither/matrix state, gradient state, mesh patch lifecycle/query APIs, and referenced surface return |
+| Pattern basics | Partial | Solid/surface/raster-source/mesh pattern constructors, source setting, RGBA, extend/filter/dither/matrix state, gradient state, raster-source acquire/get-acquire callback APIs, mesh patch lifecycle/query APIs, and referenced surface return |
 | Font faces | Done | Base external object, toy constructor/getters, Context get/set/select, borrowed-return references |
 | Font options | Done | External object, copy/merge/equal/hash, all portable state fields, and Surface/Context accessors |
 | Scaled fonts | Partial | External object, constructor, matrices/options/font-face getters, text extents, and Context get/set |
@@ -113,7 +113,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 | `LinearGradient` | Done | Exposed as `Pattern::linear` plus `get_linear_points` |
 | `RadialGradient` | Done | Exposed as `Pattern::radial` plus `get_radial_circles` |
 | `MeshPattern` | Done | Exposed as `Pattern::mesh` and `Pattern::mesh_*` methods for patch lifecycle, move/line/curve commands, control points, corner colors, patch count, path extraction, and query helpers; tests cover pycairo examples, invalid indexes, lifecycle errors, non-mesh mismatch, and painting smoke |
-| `RasterSourcePattern` | Partial | Exposed as `Pattern::raster_source`, `raster_set_acquire`, and `raster_clear_acquire`; C callback trampolines retain MoonBit closures and acquired surface wrappers, and tests cover paint output, release callbacks, data-backed source lifetime, retained-owner stress, and subtype mismatch. pycairo-style `get_acquire`, broader finalizer/edge coverage, and differential rendering remain. |
+| `RasterSourcePattern` | Partial | Exposed as `Pattern::raster_source`, `raster_set_acquire`, `raster_get_acquire`, and `raster_clear_acquire`; C callback trampolines retain MoonBit closures and acquired surface wrappers, and tests cover paint output, release callbacks, get-acquire callback identity/optional/clear behavior, data-backed source lifetime, retained-owner stress, and subtype mismatch. Broader finalizer/edge coverage and differential rendering remain. |
 
 ## Surface And Device APIs
 

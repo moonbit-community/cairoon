@@ -303,6 +303,38 @@ pub fn Pattern::raster_clear_acquire(self : Pattern) -> Unit raise CairoError {
 }
 
 ///|
+pub fn Pattern::raster_get_acquire(
+  self : Pattern,
+) -> ((Surface, RectangleInt) -> Surface, ((Surface) -> Unit)?)? raise CairoError {
+  let has_release = Ref(0)
+  let status = Ref(Success)
+  let has_acquire = raster_source_pattern_has_acquire_ffi(
+    self, has_release, status,
+  )
+  check_status(status.val)
+  if !has_acquire {
+    None
+  } else {
+    let acquire_status = Ref(Success)
+    let acquire = raster_source_pattern_get_acquire_callback_ffi(
+      self, acquire_status,
+    )
+    check_status(acquire_status.val)
+    let release = if has_release.val == 0 {
+      None
+    } else {
+      let release_status = Ref(Success)
+      let release = raster_source_pattern_get_release_callback_ffi(
+        self, release_status,
+      )
+      check_status(release_status.val)
+      Some(release)
+    }
+    Some((acquire, release))
+  }
+}
+
+///|
 pub fn Pattern::mesh_begin_patch(self : Pattern) -> Unit raise CairoError {
   check_status(mesh_pattern_begin_patch_ffi(self))
 }

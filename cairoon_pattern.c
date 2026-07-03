@@ -262,6 +262,18 @@ static cairo_status_t cairoon_raster_source_pattern_set_state(
   return cairo_pattern_status(pattern->ptr);
 }
 
+static CairoonRasterSourceState *cairoon_raster_source_pattern_get_state(
+  CairoonPattern *pattern,
+  cairo_status_t *status_out) {
+  *status_out = cairoon_pattern_require_raster_source(pattern);
+  if (*status_out != CAIRO_STATUS_SUCCESS) {
+    return NULL;
+  }
+  return (CairoonRasterSourceState *)cairo_pattern_get_user_data(
+    pattern->ptr,
+    &cairoon_raster_source_state_key);
+}
+
 MOONBIT_FFI_EXPORT
 CairoonPattern *cairoon_pattern_create_rgb(double red, double green, double blue) {
   return cairoon_pattern_wrap_owned(cairo_pattern_create_rgb(red, green, blue), NULL);
@@ -594,6 +606,58 @@ MOONBIT_FFI_EXPORT
 cairo_status_t cairoon_raster_source_pattern_clear_acquire(
   CairoonPattern *pattern) {
   return cairoon_raster_source_pattern_set_state(pattern, NULL);
+}
+
+MOONBIT_FFI_EXPORT
+int32_t cairoon_raster_source_pattern_has_acquire(
+  CairoonPattern *pattern,
+  int32_t *has_release,
+  cairo_status_t *status_out) {
+  *has_release = 0;
+  CairoonRasterSourceState *state =
+    cairoon_raster_source_pattern_get_state(pattern, status_out);
+  if (*status_out != CAIRO_STATUS_SUCCESS || state == NULL ||
+      state->acquire == NULL) {
+    return 0;
+  }
+  *has_release = state->release == NULL ? 0 : 1;
+  return 1;
+}
+
+MOONBIT_FFI_EXPORT
+void *cairoon_raster_source_pattern_get_acquire_callback(
+  CairoonPattern *pattern,
+  cairo_status_t *status_out) {
+  CairoonRasterSourceState *state =
+    cairoon_raster_source_pattern_get_state(pattern, status_out);
+  if (*status_out != CAIRO_STATUS_SUCCESS) {
+    return NULL;
+  }
+  if (state == NULL || state->acquire == NULL ||
+      state->acquire_arg == NULL) {
+    *status_out = CAIRO_STATUS_NULL_POINTER;
+    return NULL;
+  }
+  moonbit_incref(state->acquire_arg);
+  return state->acquire_arg;
+}
+
+MOONBIT_FFI_EXPORT
+void *cairoon_raster_source_pattern_get_release_callback(
+  CairoonPattern *pattern,
+  cairo_status_t *status_out) {
+  CairoonRasterSourceState *state =
+    cairoon_raster_source_pattern_get_state(pattern, status_out);
+  if (*status_out != CAIRO_STATUS_SUCCESS) {
+    return NULL;
+  }
+  if (state == NULL || state->release == NULL ||
+      state->release_arg == NULL) {
+    *status_out = CAIRO_STATUS_NULL_POINTER;
+    return NULL;
+  }
+  moonbit_incref(state->release_arg);
+  return state->release_arg;
 }
 
 MOONBIT_FFI_EXPORT

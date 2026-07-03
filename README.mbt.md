@@ -281,6 +281,10 @@ test {
 
   let pattern = Pattern::raster_source(ContentColorAlpha, 1, 1)
   pattern.raster_set_acquire(fn(_, _) { source })
+  match pattern.raster_get_acquire() {
+    Some((_, None)) => ()
+    _ => fail("expected raster acquire callback")
+  }
 
   let target = Surface::image(Argb32, 1, 1)
   let ctx = Context::new(target)
