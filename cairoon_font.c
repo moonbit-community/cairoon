@@ -733,3 +733,40 @@ double *cairoon_test_scaled_font_extents_oracle(
   cairo_scaled_font_destroy(scaled_font);
   return moonbit_empty_double_array;
 }
+
+MOONBIT_FFI_EXPORT
+CairoonTextToGlyphs *cairoon_test_scaled_font_text_to_glyphs_oracle(
+  double x,
+  double y,
+  moonbit_bytes_t text) {
+  cairo_scaled_font_t *scaled_font = cairoon_test_create_scaled_font_oracle();
+  if (scaled_font == NULL) {
+    return cairoon_text_to_glyphs_wrap_owned(
+      CAIRO_STATUS_NO_MEMORY, NULL, 0, NULL, 0, (cairo_text_cluster_flags_t)0);
+  }
+  if (text == NULL) {
+    cairo_scaled_font_destroy(scaled_font);
+    return cairoon_text_to_glyphs_wrap_owned(
+      CAIRO_STATUS_NULL_POINTER, NULL, 0, NULL, 0, (cairo_text_cluster_flags_t)0);
+  }
+
+  cairo_glyph_t *glyphs = NULL;
+  int num_glyphs = 0;
+  cairo_text_cluster_t *clusters = NULL;
+  int num_clusters = 0;
+  cairo_text_cluster_flags_t flags = (cairo_text_cluster_flags_t)0;
+  cairo_status_t status = cairo_scaled_font_text_to_glyphs(
+    scaled_font,
+    x,
+    y,
+    (const char *)text,
+    -1,
+    &glyphs,
+    &num_glyphs,
+    &clusters,
+    &num_clusters,
+    &flags);
+  cairo_scaled_font_destroy(scaled_font);
+  return cairoon_text_to_glyphs_wrap_owned(
+    status, glyphs, (int32_t)num_glyphs, clusters, (int32_t)num_clusters, flags);
+}

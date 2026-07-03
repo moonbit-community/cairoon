@@ -51,6 +51,62 @@ fn scaled_font_oracle_expect_text_extents(
 }
 
 ///|
+fn scaled_font_oracle_expect_glyph(
+  actual : Glyph,
+  expected : Glyph,
+) -> Unit raise {
+  let (actual_index, actual_x, actual_y) = actual.components()
+  let (expected_index, expected_x, expected_y) = expected.components()
+  if actual_index != expected_index {
+    fail("scaled-font oracle glyph index mismatch")
+  }
+  scaled_font_oracle_assert_close(actual_x, expected_x)
+  scaled_font_oracle_assert_close(actual_y, expected_y)
+}
+
+///|
+fn scaled_font_oracle_expect_cluster(
+  actual : TextCluster,
+  expected : TextCluster,
+) -> Unit raise {
+  let (actual_bytes, actual_glyphs) = actual.components()
+  let (expected_bytes, expected_glyphs) = expected.components()
+  if actual_bytes != expected_bytes || actual_glyphs != expected_glyphs {
+    fail("scaled-font oracle text-cluster mismatch")
+  }
+}
+
+///|
+fn scaled_font_oracle_expect_run(
+  actual : TextGlyphRun,
+  expected : TextGlyphRun,
+) -> Unit raise {
+  let (actual_glyphs, actual_clusters, actual_flags) = actual.components()
+  let (expected_glyphs, expected_clusters, expected_flags) = expected.components()
+  if actual_glyphs.length() != expected_glyphs.length() {
+    fail("scaled-font oracle glyph count mismatch")
+  }
+  for index in 0..<actual_glyphs.length() {
+    scaled_font_oracle_expect_glyph(
+      actual_glyphs[index],
+      expected_glyphs[index],
+    )
+  }
+  if actual_clusters.length() != expected_clusters.length() {
+    fail("scaled-font oracle text-cluster count mismatch")
+  }
+  for index in 0..<actual_clusters.length() {
+    scaled_font_oracle_expect_cluster(
+      actual_clusters[index],
+      expected_clusters[index],
+    )
+  }
+  if actual_flags != expected_flags {
+    fail("scaled-font oracle text-cluster flags mismatch")
+  }
+}
+
+///|
 test "scaled font extents match direct cairo C oracle" {
   let scaled_font = scaled_font_oracle_make_font()
   scaled_font_oracle_expect_font_extents(
@@ -67,5 +123,17 @@ test "scaled font extents match direct cairo C oracle" {
       Glyph::new(1U, 10.0, 2.5),
     ]),
     test_scaled_font_extents_oracle_ffi(2, b""),
+  )
+}
+
+///|
+test "scaled font text_to_glyphs matches direct cairo C oracle" {
+  let scaled_font = scaled_font_oracle_make_font()
+  let text = "affinity"
+  scaled_font_oracle_expect_run(
+    scaled_font.text_to_glyphs(2.0, 11.0, text),
+    text_glyph_run_from_native(
+      test_scaled_font_text_to_glyphs_oracle_ffi(2.0, 11.0, @utf8.encode(text)),
+    ),
   )
 }

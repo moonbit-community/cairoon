@@ -140,6 +140,14 @@ extern "C" fn test_scaled_font_extents_oracle_ffi(
 ) -> FixedArray[Double] = "cairoon_test_scaled_font_extents_oracle"
 
 ///|
+#borrow(text)
+extern "C" fn test_scaled_font_text_to_glyphs_oracle_ffi(
+  x : Double,
+  y : Double,
+  text : Bytes,
+) -> TextToGlyphsNative = "cairoon_test_scaled_font_text_to_glyphs_oracle"
+
+///|
 fn init {
   ignore(compile_feature_flag_ffi)
   ignore(compile_int_constant_ffi)
@@ -152,6 +160,7 @@ fn init {
   ignore(test_argb32_blue_paint_oracle_ffi)
   ignore(test_argb32_scene_oracle_ffi)
   ignore(test_scaled_font_extents_oracle_ffi)
+  ignore(test_scaled_font_text_to_glyphs_oracle_ffi)
 }
 
 ///|

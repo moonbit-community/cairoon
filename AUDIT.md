@@ -95,7 +95,8 @@ Implemented in this workspace:
 - `ScaledFont` external object with finalizer ownership, pointer equality/hash,
   constructor from `FontFace`/`Matrix`/`FontOptions`, font face/options and
   matrix getters, text and glyph extents, full and glyph-only text-to-glyphs,
-  direct C Cairo oracle comparison for font/text/glyph extents, and `Context`
+  direct C Cairo oracle comparison for font/text/glyph extents and
+  text-to-glyph runs, and `Context`
   font matrix/size/extents plus scaled-font
   get/set/show-text-glyphs wrappers.
 - Initial parity tests for version helpers, compile-time Cairo constants, enum
@@ -123,7 +124,8 @@ Implemented in this workspace:
   array extents/path/show
   behavior, empty glyph arrays, glyph context-error propagation, text-to-glyphs
   output copying including glyph-only conversion, ScaledFont font/text/glyph
-  extents direct C oracle comparison, show-text-glyphs rendering, and
+  extents and text-to-glyph direct C oracle comparison,
+  show-text-glyphs rendering, and
   text-glyph input validation,
   mapped image whole-surface and rectangle-extents writeback behavior,
   wrong-base and double-unmap errors, core painting/page behavior, hit testing
@@ -188,8 +190,8 @@ Implemented in this workspace:
   covers thirteen deterministic ARGB32 scenes including stroke, rectangle,
   Bezier, transform, RGBA, linear/radial gradient, toy-font `text_path`,
   toy-font `show_text`, `glyph_path`, `show_glyphs`, and `show_text_glyphs`
-  cases, ScaledFont font/text/glyph extents are compared against a direct C
-  Cairo primitive oracle, and vector outputs
+  cases, ScaledFont font/text/glyph extents and text-to-glyph output are
+  compared against direct C Cairo primitive oracles, and vector outputs
   have stable structural marker checks plus direct C oracle comparisons for
   ten deterministic PDF/PS/SVG scenes covering paint, stroke, fill/stroke
   rectangles, Bezier paths, transforms, linear/radial gradients, toy-font text
@@ -230,9 +232,10 @@ Implemented in this workspace:
   image rendering white-box oracle passed after expanding the direct C ARGB32
   fixture from ten to thirteen scenes with `glyph_path`, `show_glyphs`, and
   `show_text_glyphs`.
-- `moon -C cairoon test scaled_font_oracle_wbtest.mbt --target native -v`: 1
-  white-box ScaledFont oracle test passed, comparing font extents, text
-  extents, and glyph extents against direct C Cairo results.
+- `moon -C cairoon test scaled_font_oracle_wbtest.mbt --target native -v`: 2
+  white-box ScaledFont oracle tests passed, comparing font extents, text
+  extents, glyph extents, and a full text-to-glyph run against direct C Cairo
+  results.
 - `moon -C cairoon test lifetime_stress_test.mbt --target native -v`: 6
   black-box lifetime tests passed after adding the backend stream callback
   1000-iteration allocation stress case.
@@ -245,29 +248,32 @@ Implemented in this workspace:
 - `moon -C cairoon test surface_context_test.mbt context_lifetime_test.mbt
   pattern_test.mbt --target native -v`: 32 tests passed after adding
   `Surface`/`Context`/`Pattern` pointer equality/hash.
-- `moon -C cairoon test --target native`: 248 tests passed.
+- `moon -C cairoon test --target native`: 249 tests passed.
 - `moon -C cairoon info --target native`: passed; the latest
-  ScaledFont white-box oracle helper slice did not change the public
+  ScaledFont white-box oracle helper slices did not change the public
   interface.
 - Documentation-only product-decision audit for pycairo `CAPI`, legacy enum
   aliases, and non-implemented FreeType/user-font classes: `moon -C cairoon
   check --target native`, `moon -C cairoon test --target native -v`, and
   `moon -C cairoon info --target native` passed on 2026-07-03.
 - `run-asan.py --repo-root /Users/caimeo/code/pycairo/cairoon --pkg moon.pkg`:
-  rerun for the ScaledFont extents direct C oracle helper slice. The full
+  rerun for the ScaledFont text-to-glyph direct C oracle helper slice. The full
   runner still failed during the known macOS FontRegistry/CoreText/ColorSync
-  LeakSanitizer class after the black-box executable ran. A grep of
-  `/tmp/cairoon-scaled-font-oracle-asan.txt` found no
+  LeakSanitizer class after the black-box executable ran and before Moon could
+  launch the white-box executable. A grep of
+  `/tmp/cairoon-scaled-font-text-to-glyphs-oracle-asan.txt` found no
   `ERROR: AddressSanitizer`, heap-use-after-free, stack-use-after,
   heap-buffer-overflow, global-buffer-overflow, double-free,
+  `cairoon_test_scaled_font_text_to_glyphs_oracle`,
   `cairoon_test_scaled_font_extents_oracle`, `scaled_font_oracle`, or
   `cairoon_test_create_scaled_font_oracle` entries indicating invalid access.
   Summary: `55957 byte(s) leaked in 414 allocation(s)`. The ASan-instrumented
   white-box executable was then run directly with leak detection disabled using
   `ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0`; it exited 0, and
-  `/tmp/cairoon-scaled-font-oracle-whitebox-asan.txt` shows the
-  `scaled font extents match direct cairo C oracle` test executed without any
-  AddressSanitizer invalid-access report.
+  `/tmp/cairoon-scaled-font-text-to-glyphs-oracle-whitebox-asan.txt` shows the
+  `scaled font extents match direct cairo C oracle` and
+  `scaled font text_to_glyphs matches direct cairo C oracle` tests executed
+  without any AddressSanitizer invalid-access report.
 - `run-asan.py --repo-root /Users/caimeo/code/pycairo/cairoon --pkg moon.pkg`:
   rerun for the raster-source callback allocation stress slice. The full
   runner still failed during the known macOS FontRegistry/CoreText/ColorSync
@@ -474,6 +480,9 @@ Implemented in this workspace:
   The later `ScaledFont::text_to_glyphs_only` slice is pure MoonBit API
   coverage for pycairo's `with_clusters=False` path; the native suite stayed at
   233 tests and ASan/LSan was not rerun for that non-C change.
+  The later ScaledFont text-to-glyph oracle slice added a private C helper and
+  a second white-box ScaledFont oracle test, raising the native suite to 249
+  tests; ASan/LSan validation is recorded in `Last Verified` above.
   The later vector scene oracle slice broadened the private C vector oracle
   from a paint-only fixture to seven deterministic PDF/PS/SVG scenes covering
   paint, stroke, fill/stroke rectangles, Bezier paths, transforms, and
