@@ -179,8 +179,10 @@ test "image surface png file roundtrip and invalid paths" {
 test "context invalid restore maps to cairo error" {
   let surface = Surface::image(Argb32, 1, 1)
   let ctx = Context::new(surface)
+  debug_inspect(ctx.status(), content="Success")
   let result = run_cairo(() => ctx.restore())
   inspect(result is Err(_), content="true")
+  debug_inspect(ctx.status(), content="InvalidRestore")
   match result {
     Err(CairoError(InvalidRestore, _)) => ()
     _ => @test.fail("expected InvalidRestore")

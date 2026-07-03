@@ -140,7 +140,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 | pycairo area | cairoon status | Notes |
 |---|---|---|
 | Construction and target lifetime | Partial | `Context::new(Surface)` retains target surface; `Context::new_for_mapped_image(MappedImageSurface)` retains mapped image wrappers; `get_target` and `get_group_target` return referenced `Surface` wrappers that retain the context target wrapper when needed. Stress + ASan caught and fixed a mapped-image returned-target use-after-free; clean ASan/LSan remains blocked by the macOS font/text leak report. |
-| Save/restore/status | Partial | Basic behavior and invalid-restore error test exist |
+| Save/restore/status | Done | Save/restore state behavior, initial `Success` status, sticky `InvalidRestore` status, and error mapping are tested |
 | Paths | Done | move/rel-move/line/rel-line/curve/rel-curve/rectangle/arc/arc-negative, close/new path, current-point queries, and path data copying |
 | Painting | Done | `paint`, `paint_with_alpha`, `fill`, `fill_preserve`, `stroke`, `stroke_preserve`, `mask`, and `mask_surface` |
 | Sources | Partial | solid colors, explicit `Pattern`, `set_source_surface`, and `get_source` borrowed-return wrapper; tests cover source-surface pixel sampling, invalid context errors, and source surface lifetime after the original wrapper scope exits |
