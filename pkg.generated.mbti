@@ -240,6 +240,8 @@ pub fn Context::transform(Self, Matrix) -> Unit raise CairoError
 pub fn Context::translate(Self, Double, Double) -> Unit raise CairoError
 pub fn Context::user_to_device(Self, Double, Double) -> (Double, Double) raise CairoError
 pub fn Context::user_to_device_distance(Self, Double, Double) -> (Double, Double) raise CairoError
+pub impl Eq for Context
+pub impl Hash for Context
 
 type Device
 pub fn Device::acquire(Self) -> Unit raise CairoError
@@ -257,6 +259,8 @@ pub fn Device::script_stream((Bytes) -> Status) -> Self raise CairoError
 pub fn Device::script_write_comment(Self, String) -> Unit raise CairoError
 pub fn Device::status(Self) -> Status
 pub fn[T] Device::with_acquired(Self, () -> T raise CairoError) -> T raise CairoError
+pub impl Eq for Device
+pub impl Hash for Device
 
 pub(all) enum DeviceType {
   DeviceTypeDrm
@@ -317,6 +321,8 @@ pub fn FontFace::get_weight(Self) -> FontWeight raise CairoError
 pub fn FontFace::hash(Self) -> UInt64
 pub fn FontFace::status(Self) -> Status
 pub fn FontFace::toy(String, slant? : FontSlant, weight? : FontWeight) -> Self raise CairoError
+pub impl Eq for FontFace
+pub impl Hash for FontFace
 
 type FontOptions
 pub fn FontOptions::copy(Self) -> Self raise CairoError
@@ -341,6 +347,8 @@ pub fn FontOptions::set_hint_style(Self, HintStyle) -> Unit raise CairoError
 pub fn FontOptions::set_subpixel_order(Self, SubpixelOrder) -> Unit raise CairoError
 pub fn FontOptions::set_variations(Self, String?) -> Unit raise CairoError
 pub fn FontOptions::status(Self) -> Status
+pub impl Eq for FontOptions
+pub impl Hash for FontOptions
 
 pub(all) enum FontSlant {
   FontSlantNormal
@@ -520,6 +528,9 @@ pub fn Path::length(Self) -> Int raise CairoError
 pub fn Path::segments(Self) -> Array[PathSegment] raise CairoError
 pub fn Path::status(Self) -> Status
 pub fn Path::to_string(Self) -> String raise CairoError
+pub impl Compare for Path
+pub impl Eq for Path
+pub impl Hash for Path
 
 pub(all) enum PathDataType {
   PathMoveTo
@@ -584,6 +595,8 @@ pub fn Pattern::set_matrix(Self, Matrix) -> Unit raise CairoError
 pub fn Pattern::solid_rgb(Double, Double, Double) -> Self raise CairoError
 pub fn Pattern::solid_rgba(Double, Double, Double, Double) -> Self raise CairoError
 pub fn Pattern::status(Self) -> Status
+pub impl Eq for Pattern
+pub impl Hash for Pattern
 
 pub struct Rectangle {
   x : Double
@@ -627,6 +640,7 @@ pub fn Region::union(Self, Self) -> Unit raise CairoError
 pub fn Region::union_rectangle(Self, RectangleInt) -> Unit raise CairoError
 pub fn Region::xor(Self, Self) -> Unit raise CairoError
 pub fn Region::xor_rectangle(Self, RectangleInt) -> Unit raise CairoError
+pub impl Eq for Region
 
 pub(all) enum RegionOverlap {
   RegionOverlapIn
@@ -669,6 +683,8 @@ pub fn ScaledFont::status(Self) -> Status
 pub fn ScaledFont::text_extents(Self, String) -> TextExtents raise CairoError
 pub fn ScaledFont::text_to_glyphs(Self, Double, Double, String) -> TextGlyphRun raise CairoError
 pub fn ScaledFont::text_to_glyphs_only(Self, Double, Double, String) -> Array[Glyph] raise CairoError
+pub impl Eq for ScaledFont
+pub impl Hash for ScaledFont
 
 pub(all) enum ScriptMode {
   ScriptModeAscii
@@ -808,6 +824,8 @@ pub fn Surface::tee_remove(Self, Self) -> Unit raise CairoError
 pub fn Surface::unmap_image(Self, MappedImageSurface) -> Unit raise CairoError
 pub fn Surface::write_to_png(Self, String) -> Unit raise CairoError
 pub fn Surface::write_to_png_stream(Self, (Bytes) -> Status) -> Unit raise CairoError
+pub impl Eq for Surface
+pub impl Hash for Surface
 
 pub(all) enum SurfaceObserverMode {
   SurfaceObserverNormal

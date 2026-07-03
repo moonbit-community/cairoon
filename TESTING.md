@@ -338,6 +338,10 @@ Verified on 2026-07-02 and 2026-07-03:
   font family, context font-family selection, and ScaledFont text extents.
 - `moon -C cairoon test region_test.mbt --target native -v`: 8 black-box
   tests passed after adding `Region::xor_rectangle` split-semantics coverage.
+- `moon -C cairoon test object_traits_test.mbt --target native -v`: 3
+  black-box tests passed after adding MoonBit `Eq`/`Hash` protocol coverage for
+  hashable Cairo external objects, `Path` self-comparison coverage through
+  `Compare`, and `Region` equality coverage without `Hash`.
 - `moon -C cairoon test region.mbt.md --target native -v`: 3 executable
   Region reference examples passed.
 - `moon -C cairoon test matrix.mbt.md --target native -v`: 4 executable
@@ -941,6 +945,11 @@ Verified on 2026-07-02 and 2026-07-03:
   installed, so acquired surface owners retained by C are released even without
   a user release closure. This changed no public API and kept the native suite
   at 325 tests. ASan/LSan validation is recorded above.
+  The later external-object trait slice added pure MoonBit `Eq`/`Hash`
+  implementations for hashable Cairo external objects, `Compare` for `Path`,
+  `Eq` for unhashable `Region`, and three black-box tests, raising the native
+  suite to 328 tests. ASan/LSan was not rerun for that slice because it did not
+  change C glue or ownership code.
 
 The missing reliability pieces are substantial: broader automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering

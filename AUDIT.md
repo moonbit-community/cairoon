@@ -11,6 +11,11 @@ Implemented in this workspace:
   currently cover `Surface`, `MappedImageSurface`, `ImageData`, `Context`,
   `Path`, `Pattern`, `FontOptions`, `FontFace`, `ScaledFont`, `Region`, and
   `Device`.
+- MoonBit `Eq`/`Hash` traits are implemented for hashable Cairo external
+  objects that already expose cairoon equality/hash helpers: `Surface`,
+  `Context`, `Pattern`, `Device`, `FontOptions`, `FontFace`, `ScaledFont`, and
+  `Path`; `Path` also implements `Compare`, and `Region` implements `Eq`
+  without `Hash`, matching pycairo's unhashable region behavior.
 - `Context` retains its target `Surface` with `moonbit_incref` and releases it
   in the finalizer.
 - `Context::new_for_mapped_image` retains its target `MappedImageSurface` with
@@ -336,6 +341,10 @@ Implemented in this workspace:
   font family, context font-family selection, and ScaledFont text extents.
 - `moon -C cairoon test region_test.mbt --target native -v`: 8 black-box
   tests passed after adding `Region::xor_rectangle` split-semantics coverage.
+- `moon -C cairoon test object_traits_test.mbt --target native -v`: 3
+  black-box tests passed after adding MoonBit `Eq`/`Hash` protocol coverage for
+  hashable Cairo external objects, `Path` self-comparison coverage through
+  `Compare`, and `Region` equality coverage without `Hash`.
 - `moon -C cairoon test region.mbt.md --target native -v`: 3 executable
   Region reference examples passed.
 - `moon -C cairoon test matrix.mbt.md --target native -v`: 4 executable
@@ -821,6 +830,11 @@ Implemented in this workspace:
   installed, so acquired surface owners retained by C are released even without
   a user release closure. This changed no public API and kept the native suite
   at 325 tests; ASan/LSan validation is recorded above.
+  The later external-object trait slice added pure MoonBit `Eq`/`Hash`
+  implementations for hashable Cairo external objects, `Compare` for `Path`,
+  `Eq` for unhashable `Region`, and three black-box tests, raising the native
+  suite to 328 tests; ASan was not rerun because no C glue, finalizer, callback
+  trampoline, or retained owner code changed.
 
 ## Known Gaps
 
