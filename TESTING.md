@@ -173,14 +173,15 @@ basics including glyph extents and text-to-glyphs, and
 Device/ScriptDevice basics including status/type/equal/hash,
 finish/flush/acquire/release, scoped acquire, script mode/comment helpers,
 recording replay, `Surface::get_device`, `Surface::script`, and
-`Surface::script_for_target`, retained-owner lifetime stress tests, and initial
-tests. Region now covers empty, single-rectangle, and multi-rectangle
+`Surface::script_for_target`, exhaustive `Status`/`CairoError` classification,
+retained-owner lifetime stress tests, and initial tests. Region now covers empty,
+single-rectangle, and multi-rectangle
 construction plus predicates and boolean operations.
 
 Verified on 2026-07-02 and 2026-07-03:
 
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native -v`: 196 tests passed.
+- `moon -C cairoon test --target native -v`: 198 tests passed.
 - ASan/LSan via `run-asan.py`: ran on 2026-07-03 after adding retained-owner
   lifetime stress tests. The first run found a real heap-use-after-free when a
   `Surface` returned by `Context::get_target` outlived a context created from a
@@ -218,6 +219,8 @@ Verified on 2026-07-02 and 2026-07-03:
   suite, and after the retained-parent `create_for_rectangle` lifetime
   hardening with the expanded 193-test native suite, and after the retained-owner
   lifetime stress/fix slice with the expanded 196-test native suite.
+  The later status/error classification slice is pure MoonBit test coverage and
+  raised the native suite to 198 tests; ASan was not rerun for that non-C change.
   The most recent leak report is rooted in
   `cairo_toy_font_face_create`, `cairo_select_font_face`, macOS
   FontRegistry/CoreGraphics frames, and scaled-font Quartz/CoreText paths such

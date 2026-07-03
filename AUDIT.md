@@ -115,7 +115,8 @@ Implemented in this workspace:
   mismatch, painting smoke behavior, pattern state behavior, explicit pattern
   sources, surface-pattern borrowed surface returns, font-options behavior,
   font-face and scaled-font behavior with context error propagation, region
-  behavior, error-status mapping, and retained-owner lifetime stress.
+  behavior, exhaustive status/error classification, and retained-owner lifetime
+  stress.
 - `API_INVENTORY.md` now tracks the full pycairo API surface against cairoon
   status.
 - `TESTING.md` defines the migration reliability gates and records why the
@@ -144,7 +145,7 @@ Implemented in this workspace:
 2026-07-02 and 2026-07-03:
 
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native -v`: 196 tests passed.
+- `moon -C cairoon test --target native -v`: 198 tests passed.
 - `run-asan.py --repo-root /Users/caimeo/code/pycairo/cairoon --pkg moon.pkg`:
   most recently ran the 196-test native suite on 2026-07-03 after retained-owner
   lifetime stress was added and after the `Context::get_target` /
