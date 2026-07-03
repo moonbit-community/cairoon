@@ -205,9 +205,9 @@ script mode/comment helpers, recording replay, `Surface::get_device`,
 `Surface::script_for_target`, TeeSurface mirrored drawing and target indexing,
 exhaustive `Status`/`CairoError` classification, retained-owner lifetime stress
 tests, stable structural vector-output markers plus direct C oracle comparisons
-for eight deterministic PDF/PS/SVG vector scenes covering paint, stroke,
-fill/stroke rectangles, Bezier paths, transforms, linear/radial gradients, and
-toy-font text paths, PDF metadata/custom-metadata/page-label/outline output
+for nine deterministic PDF/PS/SVG vector scenes covering paint, stroke,
+fill/stroke rectangles, Bezier paths, transforms, linear/radial gradients,
+toy-font text paths, and toy-font `show_text`, PDF metadata/custom-metadata/page-label/outline output
 markers, PDF/PS multi-page output markers, PDF JPEG MIME payload embedding,
 PDF link-tag annotation markers, PS/SVG Link tag inert-output checks, mutable
 image/mapped-image data view tests, and initial tests. Region now covers empty, single-rectangle, and
@@ -218,30 +218,28 @@ Verified on 2026-07-02 and 2026-07-03:
 
 - `moon -C cairoon check --target native`: passed.
 - `moon -C cairoon test vector_output_wbtest.mbt --target native -v`: 12
-  white-box tests passed after adding PDF/PS multi-page output marker coverage
-  to the direct C vector oracle, metadata, tag-output, MIME-output, and page
+  white-box tests passed after adding toy-font `show_text` to the direct C
+  vector oracle scenes, alongside metadata, tag-output, MIME-output, and page
   structure checks.
 - `moon -C cairoon test surface_context_test.mbt context_lifetime_test.mbt
   pattern_test.mbt --target native -v`: 32 tests passed after adding
   `Surface`/`Context`/`Pattern` pointer equality/hash.
 - `moon -C cairoon test --target native -v`: 242 tests passed.
-- `moon -C cairoon info --target native`: passed; the PDF/PS multi-page output
-  marker slice did not change the public interface.
+- `moon -C cairoon info --target native`: passed; the vector `show_text` oracle
+  slice did not change the public interface.
 - Documentation-only product-decision audit for pycairo `CAPI`, legacy enum
   aliases, and non-implemented FreeType/user-font classes: `moon -C cairoon
   check --target native`, `moon -C cairoon test --target native -v`, and
   `moon -C cairoon info --target native` passed on 2026-07-03.
-- ASan/LSan via `run-asan.py`: not rerun for the PDF/PS multi-page output
-  marker slice because it only adds a white-box test and documentation, with no
-  C stub or finalizer changes. The latest run used the 237-test native suite on
-  2026-07-03 after the vector text-path oracle slice. The full runner still
-  failed during the known macOS FontRegistry/CoreText/ColorSync LeakSanitizer
-  class before the white-box executable launched:
+- ASan/LSan via `run-asan.py`: rerun for the vector `show_text` C oracle helper
+  slice. The full runner still failed during the known macOS
+  FontRegistry/CoreText/ColorSync LeakSanitizer class before the white-box
+  executable launched:
   `56037 byte(s) leaked in 415 allocation(s)`.
   The ASan-instrumented white-box executable was then run directly with leak
   detection disabled using
   `ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0`; it exited 0, and
-  `/tmp/cairoon-vector-text-path-whitebox-asan.txt` shows the vector output
+  `/tmp/cairoon-vector-show-text-whitebox-asan.txt` shows the vector output
   oracle test executed without any AddressSanitizer invalid-access report.
 - ASan/LSan via `run-asan.py`: ran the 237-test native suite on 2026-07-03
   after the `Surface`/`Context`/`Pattern` pointer equality/hash slice. No
@@ -455,15 +453,16 @@ Verified on 2026-07-02 and 2026-07-03:
   exited 0; `/tmp/cairoon-vector-scenes-whitebox-asan.txt` shows the vector
   output scene oracle test executed without any AddressSanitizer invalid-access
   report.
-  The later toy-font text-path oracle slice expanded those fixtures to eight
-  scenes without changing the number of tests; its latest sanitizer validation
-  is recorded in the current verified block above.
+  The later toy-font text-path and `show_text` oracle slices expanded those
+  fixtures to nine scenes without changing the number of tests; their latest
+  sanitizer validation is recorded in the current verified block above.
 
 The missing reliability pieces are substantial: broader automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering
 LSan failure, finalizer stress tests, CI wiring, vector-output normalization for
-multi-page, show-text, tag, and metadata cases beyond the current PDF/PS
-multi-page marker checks, broader tag-output assertions, and
+multi-page, tag, and metadata cases beyond the current PDF/PS multi-page marker
+checks and the current single-page toy-font `show_text` oracle scene, broader
+tag-output assertions, and
 the remaining API families from `API_INVENTORY.md`.
 
 ## Porting pycairo Tests

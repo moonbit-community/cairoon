@@ -104,9 +104,10 @@ Implemented in this workspace:
   validation, deterministic pixel rendering, direct C Cairo oracle comparisons
   for eight ARGB32 scenes covering paint, stroke, fill/stroke rectangles,
   Bezier paths, transforms, RGBA compositing, and linear/radial gradients,
-  direct C Cairo oracle comparisons for eight deterministic PDF/PS/SVG vector
+  direct C Cairo oracle comparisons for nine deterministic PDF/PS/SVG vector
   scenes covering paint, stroke, fill/stroke rectangles, Bezier paths,
-  transforms, linear/radial gradients, and toy-font text paths, mutable image-data read/write/copy, buffer-backed storage sharing,
+  transforms, linear/radial gradients, toy-font text paths, and toy-font
+  `show_text`, mutable image-data read/write/copy, buffer-backed storage sharing,
   image-data surface-retention, mapped-image data upload/unmap invalidation, and
   invalid-surface/index error mapping, context CTM, coordinate conversion,
   drawing-state behavior, path current-point,
@@ -130,7 +131,7 @@ Implemented in this workspace:
   version restriction, page size, metadata, custom metadata, page label,
   thumbnail, single-flag and combined-flag outline behavior,
   stable structural output markers, PDF metadata/custom-metadata/page-label/outline
-  output markers, PDF multi-page output markers, PDF 1.4 eight-scene direct C vector-oracle comparison,
+  output markers, PDF multi-page output markers, PDF 1.4 nine-scene direct C vector-oracle comparison,
   PDF JPEG MIME data embedding, PDF 1.4 link-tag annotation markers,
   finished-surface errors, invalid string validation, and subtype-mismatch
   errors,
@@ -139,12 +140,12 @@ Implemented in this workspace:
   script-surface proxy rendering behavior, and `DeviceFinished` propagation,
   PS surface level helper behavior, no-output and filename construction, EPS
   mode, level restriction, size/DSC helpers, finished-surface errors, invalid
-  DSC/path validation, stable page/drawing output markers, eight-scene direct C
+  DSC/path validation, stable page/drawing output markers, nine-scene direct C
   vector-oracle comparison with `CreationDate` normalization, multi-page
   output markers, Link tag inertness on PS output, and subtype-mismatch errors,
   SVG surface version helper behavior, no-output and filename construction,
   document-unit behavior, finished-surface errors, invalid path validation, and
-  stable geometry/color output markers, exact eight-scene direct C vector-oracle comparison,
+  stable geometry/color output markers, exact nine-scene direct C vector-oracle comparison,
   Link tag inertness on SVG output, and subtype-mismatch errors,
   clip behavior including non-rectangular clip status propagation,
   pattern RGBA, gradient geometry/color-stop behavior, mesh patch construction,
@@ -176,9 +177,9 @@ Implemented in this workspace:
   covers eight deterministic ARGB32 scenes including stroke, rectangle,
   Bezier, transform, RGBA, and linear/radial gradient cases, and vector outputs
   have stable structural marker checks plus direct C oracle comparisons for
-  eight deterministic PDF/PS/SVG scenes covering paint, stroke, fill/stroke
-  rectangles, Bezier paths, transforms, linear/radial gradients, and toy-font
-  text paths. PDF metadata/custom metadata, page labels, outlines, multi-page
+  nine deterministic PDF/PS/SVG scenes covering paint, stroke, fill/stroke
+  rectangles, Bezier paths, transforms, linear/radial gradients, toy-font text
+  paths, and toy-font `show_text`. PDF metadata/custom metadata, page labels, outlines, multi-page
   output, link-tag annotations, and JPEG MIME passthrough have marker checks;
   PS multi-page output has marker checks; and PS/SVG Link tags have inert-output
   checks matching Cairo 1.18.4 backend behavior.
@@ -201,31 +202,28 @@ Implemented in this workspace:
 
 - `moon -C cairoon check --target native`: passed.
 - `moon -C cairoon test vector_output_wbtest.mbt --target native -v`: 12
-  white-box tests passed after adding PDF/PS multi-page output marker coverage
-  to the direct C vector oracle, metadata, tag-output, MIME-output, and page
+  white-box tests passed after adding toy-font `show_text` to the direct C
+  vector oracle scenes, alongside metadata, tag-output, MIME-output, and page
   structure checks.
 - `moon -C cairoon test surface_context_test.mbt context_lifetime_test.mbt
   pattern_test.mbt --target native -v`: 32 tests passed after adding
   `Surface`/`Context`/`Pattern` pointer equality/hash.
 - `moon -C cairoon test --target native -v`: 242 tests passed.
-- `moon -C cairoon info --target native`: passed; the PDF/PS multi-page output
-  marker slice did not change the public interface.
+- `moon -C cairoon info --target native`: passed; the vector `show_text` oracle
+  slice did not change the public interface.
 - Documentation-only product-decision audit for pycairo `CAPI`, legacy enum
   aliases, and non-implemented FreeType/user-font classes: `moon -C cairoon
   check --target native`, `moon -C cairoon test --target native -v`, and
   `moon -C cairoon info --target native` passed on 2026-07-03.
 - `run-asan.py --repo-root /Users/caimeo/code/pycairo/cairoon --pkg moon.pkg`:
-  not rerun for the PDF/PS multi-page output marker slice because it only
-  adds a white-box test and documentation, with no C stub or finalizer changes. It
-  most recently ran the 237-test native suite on 2026-07-03 after the vector
-  text-path oracle slice, and still failed during the known macOS
-  FontRegistry/CoreText/ColorSync LeakSanitizer class documented in
-  `TESTING.md`, before the white-box executable launched. Summary:
+  rerun for the vector `show_text` C oracle helper slice. The full runner still
+  failed during the known macOS FontRegistry/CoreText/ColorSync LeakSanitizer
+  class before the white-box executable launched. Summary:
   `56037 byte(s) leaked in 415 allocation(s)`.
   The ASan-instrumented white-box executable was then run directly with leak
   detection disabled using
   `ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0`; it exited 0 and
-  `/tmp/cairoon-vector-text-path-whitebox-asan.txt` shows the vector output
+  `/tmp/cairoon-vector-show-text-whitebox-asan.txt` shows the vector output
   oracle test executed without any AddressSanitizer invalid-access report.
   The previous equality/hash rerun found no invalid access and no
   `cairoon_surface_equal`, `cairoon_surface_hash`, `cairoon_context_equal`,
@@ -341,17 +339,18 @@ Implemented in this workspace:
   directly with leak detection disabled; it exited 0, and
   `/tmp/cairoon-vector-scenes-whitebox-asan.txt` shows the vector output scene
   oracle test executed without any AddressSanitizer invalid-access report.
-  The later toy-font text-path oracle slice expanded those fixtures to eight
-  scenes without changing the number of tests; its latest sanitizer validation
-  is recorded in `Last Verified` above.
+  The later toy-font text-path and `show_text` oracle slices expanded those
+  fixtures to nine scenes without changing the number of tests; their latest
+  sanitizer validation is recorded in `Last Verified` above.
 
 ## Known Gaps
 
 - Broader normalized PDF/SVG/PS output comparison is still missing beyond the
-  current eight-scene direct C fixtures. PDF/PS now have multi-page marker
-  checks, but multi-page differential comparison, SVG multi-page coverage,
-  show-text, tag, and metadata combinations, and broader tag-output assertions
-  are still absent beyond PDF Link materialization and PS/SVG Link inertness. PDF/PS/SVG stream-writer
+  current nine-scene direct C fixtures. PDF/PS now have multi-page marker
+  checks, and PDF/PS/SVG have a single-page toy-font `show_text` oracle scene,
+  but multi-page differential comparison, SVG multi-page coverage, tag and
+  metadata combinations, and broader tag-output assertions are still absent
+  beyond PDF Link materialization and PS/SVG Link inertness. PDF/PS/SVG stream-writer
   constructors, script stream devices, and PNG stream read/write now have
   copied-byte callback tests and read/write error propagation coverage.
 - `Surface::copy_data` still copies Cairo image data into MoonBit `Bytes`;

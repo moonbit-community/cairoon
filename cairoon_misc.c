@@ -28,7 +28,8 @@ enum {
   CAIROON_TEST_VECTOR_TRANSFORM = 4,
   CAIROON_TEST_VECTOR_LINEAR_GRADIENT = 5,
   CAIROON_TEST_VECTOR_RADIAL_GRADIENT = 6,
-  CAIROON_TEST_VECTOR_TEXT_PATH = 7
+  CAIROON_TEST_VECTOR_TEXT_PATH = 7,
+  CAIROON_TEST_VECTOR_SHOW_TEXT = 8
 };
 
 enum {
@@ -270,6 +271,17 @@ static cairo_status_t cairoon_test_draw_vector_scene(
       cairo_text_path(cr, "Hi");
       cairo_set_source_rgb(cr, 0.0, 0.0, 0.0);
       cairo_fill(cr);
+      break;
+    case CAIROON_TEST_VECTOR_SHOW_TEXT:
+      cairo_select_font_face(
+        cr,
+        "serif",
+        CAIRO_FONT_SLANT_NORMAL,
+        CAIRO_FONT_WEIGHT_NORMAL);
+      cairo_set_font_size(cr, 4.0);
+      cairo_set_source_rgb(cr, 0.0, 0.0, 0.0);
+      cairo_move_to(cr, 1.0, 6.5);
+      cairo_show_text(cr, "Hi");
       break;
     default:
       return CAIRO_STATUS_INVALID_STATUS;
