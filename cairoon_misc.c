@@ -60,7 +60,8 @@ enum {
   CAIROON_TEST_IMAGE_SOURCE_SURFACE_OFFSET = 13,
   CAIROON_TEST_IMAGE_MASK_SURFACE_OFFSET = 14,
   CAIROON_TEST_IMAGE_RASTER_SOURCE_PATTERN = 15,
-  CAIROON_TEST_IMAGE_DASHED_STROKE = 16
+  CAIROON_TEST_IMAGE_DASHED_STROKE = 16,
+  CAIROON_TEST_IMAGE_CLIP = 17
 };
 
 typedef struct {
@@ -985,6 +986,15 @@ static cairo_status_t cairoon_test_draw_argb32_scene(
       cairo_stroke(cr);
       break;
     }
+    case CAIROON_TEST_IMAGE_CLIP:
+      cairo_rectangle(cr, 4.0, 4.0, width - 8.0, height - 8.0);
+      cairo_clip(cr);
+      cairo_set_source_rgb(cr, 0.0, 1.0, 0.0);
+      cairo_paint(cr);
+      cairo_set_source_rgb(cr, 1.0, 0.0, 0.0);
+      cairo_rectangle(cr, 4.0, 4.0, 4.0, 4.0);
+      cairo_fill(cr);
+      break;
     default:
       return CAIRO_STATUS_INVALID_STATUS;
   }
