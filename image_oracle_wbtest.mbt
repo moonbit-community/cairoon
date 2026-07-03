@@ -55,6 +55,21 @@ fn draw_image_oracle_scene(ctx : Context, scene : Int) -> Unit raise CairoError 
       ctx.set_source(pattern)
       ctx.fill()
     }
+    8 => {
+      ctx.select_font_face("serif")
+      ctx.set_font_size(8.0)
+      ctx.move_to(2.0, 10.0)
+      ctx.text_path("Hi")
+      ctx.set_source_rgb(0.0, 0.0, 0.0)
+      ctx.fill()
+    }
+    9 => {
+      ctx.select_font_face("serif")
+      ctx.set_font_size(8.0)
+      ctx.set_source_rgb(0.0, 0.0, 0.0)
+      ctx.move_to(2.0, 10.0)
+      ctx.show_text("Hi")
+    }
     _ => raise CairoInvalidArgument(InvalidStatus, InvalidStatus.message())
   }
 }
@@ -69,7 +84,7 @@ fn render_image_oracle_scene(scene : Int) -> Bytes raise CairoError {
 
 ///|
 test "image rendering scenes match direct cairo C oracle" {
-  for scene in 0..<8 {
+  for scene in 0..<10 {
     let actual = render_image_oracle_scene(scene)
     let expected = test_argb32_scene_oracle_ffi(scene, 16, 16)
     inspect(expected.length(), content="1024")

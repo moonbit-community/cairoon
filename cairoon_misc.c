@@ -41,7 +41,9 @@ enum {
   CAIROON_TEST_IMAGE_TRANSFORM = 4,
   CAIROON_TEST_IMAGE_RGBA_PAINT = 5,
   CAIROON_TEST_IMAGE_LINEAR_GRADIENT = 6,
-  CAIROON_TEST_IMAGE_RADIAL_GRADIENT = 7
+  CAIROON_TEST_IMAGE_RADIAL_GRADIENT = 7,
+  CAIROON_TEST_IMAGE_TEXT_PATH = 8,
+  CAIROON_TEST_IMAGE_SHOW_TEXT = 9
 };
 
 typedef struct {
@@ -371,6 +373,29 @@ static cairo_status_t cairoon_test_draw_argb32_scene(
       return cairoon_test_apply_linear_gradient(cr, width, height);
     case CAIROON_TEST_IMAGE_RADIAL_GRADIENT:
       return cairoon_test_apply_radial_gradient(cr, width, height);
+    case CAIROON_TEST_IMAGE_TEXT_PATH:
+      cairo_select_font_face(
+        cr,
+        "serif",
+        CAIRO_FONT_SLANT_NORMAL,
+        CAIRO_FONT_WEIGHT_NORMAL);
+      cairo_set_font_size(cr, 8.0);
+      cairo_move_to(cr, 2.0, 10.0);
+      cairo_text_path(cr, "Hi");
+      cairo_set_source_rgb(cr, 0.0, 0.0, 0.0);
+      cairo_fill(cr);
+      break;
+    case CAIROON_TEST_IMAGE_SHOW_TEXT:
+      cairo_select_font_face(
+        cr,
+        "serif",
+        CAIRO_FONT_SLANT_NORMAL,
+        CAIRO_FONT_WEIGHT_NORMAL);
+      cairo_set_font_size(cr, 8.0);
+      cairo_set_source_rgb(cr, 0.0, 0.0, 0.0);
+      cairo_move_to(cr, 2.0, 10.0);
+      cairo_show_text(cr, "Hi");
+      break;
     default:
       return CAIRO_STATUS_INVALID_STATUS;
   }
