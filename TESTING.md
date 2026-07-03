@@ -194,9 +194,11 @@ RecordingSurface constructor/extents/ink-extents plus replay, mapped image
 surface mapping/unmapping, PDFSurface filename/no-output/stream constructor,
 version helpers, version restriction, size, metadata, custom metadata,
 page-label, thumbnail, and single-flag and combined-flag outline helpers,
+including subtype-mismatch checks for every bound PDF helper,
 PSSurface
 filename/no-output/stream constructor, level helpers, level restriction, EPS
-mode, size and DSC helpers, SVGSurface filename/no-output/stream constructor,
+mode, size and DSC helpers including subtype-mismatch checks for every bound PS
+helper, SVGSurface filename/no-output/stream constructor,
 version helpers, version
 restriction, and document-unit helpers,
 surface-pattern borrowed surface returns, Pattern pointer equality/hash,
@@ -235,6 +237,9 @@ document-structure tag markers, PS/SVG Link tag inert-output checks, mutable
 image/mapped-image data view tests, and initial tests. Pattern has executable
 reference examples for solid/shared state, surface patterns, gradients, mesh
 patches, raster-source callbacks, and checked subtype/index/lifecycle errors.
+Backend surface black-box tests also cover extended PDF custom-metadata/
+thumbnail/outline subtype mismatches, PS size/setup/page-setup subtype
+mismatches, and SVG document-unit getters after `finish()`.
 Path has executable reference examples for typed segment iteration,
 pycairo-style string formatting, flattened append behavior, copied-path
 ownership, and checked invalid-matrix errors. Region now covers empty,
@@ -342,9 +347,13 @@ Verified on 2026-07-02 and 2026-07-03:
 - `moon -C cairoon test enums_test.mbt --target native -v`: 4 black-box tests
   passed after adding `Rgb16_565`, `Rgb30`, `Rgb96F`, `Rgba128F`, and
   negative-width `Format::stride_for_width` coverage.
-- `moon -C cairoon test --target native`: 320 tests passed.
-- `moon -C cairoon info --target native`: passed; the latest Surface
-  finished-status slice did not change the public interface.
+- `moon -C cairoon test surface_pdf_test.mbt surface_ps_test.mbt
+  surface_svg_test.mbt --target native -v`: 17 black-box tests passed after
+  adding extended PDF/PS backend subtype-mismatch checks and SVG
+  document-unit getter finished-status coverage.
+- `moon -C cairoon test --target native`: 323 tests passed.
+- `moon -C cairoon info --target native`: passed; the latest backend surface
+  error-path slice did not change the public interface.
 - Test-only buffer-backed image oracle coverage plus Pure MoonBit Region
   rectangle-XOR and executable Matrix/Surface/Context/Font/Path/Pattern/Region
   documentation coverage were added without rerunning ASan because no C glue or
@@ -353,6 +362,9 @@ Verified on 2026-07-02 and 2026-07-03:
   no C glue, finalizer, callback trampoline, or retained owner code changed in
   that slice.
 - Pure MoonBit ordinary image-surface finished-status coverage was added
+  without rerunning ASan because no C glue, finalizer, callback trampoline, or
+  retained owner code changed in that slice.
+- Pure MoonBit backend surface subtype/lifecycle error-path coverage was added
   without rerunning ASan because no C glue, finalizer, callback trampoline, or
   retained owner code changed in that slice.
 - Raster-source optional callback-state coverage added release-only C callback
@@ -864,6 +876,12 @@ Verified on 2026-07-02 and 2026-07-03:
   wrappers, and fallback-resolution wrappers after `finish()`, raising the
   native suite to 320 tests. ASan/LSan was not rerun for that slice because it
   did not change C glue or ownership code.
+  The later backend surface error-path slice added three pure MoonBit
+  black-box tests covering extended PDF custom-metadata/thumbnail/outline
+  subtype mismatches, PS size/setup/page-setup subtype mismatches, and SVG
+  document-unit getters after `finish()`, raising the native suite to 323
+  tests. ASan/LSan was not rerun for that slice because it did not change C
+  glue or ownership code.
 
 The missing reliability pieces are substantial: broader automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering

@@ -96,3 +96,15 @@ test "ps surface methods reject other surface types" {
     run_cairo(() => image.ps_dsc_comment("%%Title: nope")),
   )
 }
+
+///|
+test "ps setup and size methods reject other surface types" {
+  let image = Surface::image(Argb32, 1, 1)
+  expect_ps_surface_type_mismatch(
+    run_cairo(() => image.ps_set_size(10.0, 10.0)),
+  )
+  expect_ps_surface_type_mismatch(run_cairo(() => image.ps_dsc_begin_setup()))
+  expect_ps_surface_type_mismatch(
+    run_cairo(() => image.ps_dsc_begin_page_setup()),
+  )
+}

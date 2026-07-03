@@ -86,3 +86,15 @@ test "svg surface methods reject other surface types" {
     run_cairo(() => image.svg_restrict_to_version(SvgVersion1_2)),
   )
 }
+
+///|
+test "svg document unit getter rejects finished surfaces" {
+  let surface = Surface::svg(10.0, 10.0)
+  surface.finish()
+  expect_svg_surface_finished(
+    run_cairo(() => {
+      let _ = surface.svg_get_document_unit()
+      ()
+    }),
+  )
+}

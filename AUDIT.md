@@ -151,7 +151,8 @@ Implemented in this workspace:
   PDF JPEG MIME data embedding, PDF 1.4 URI link-tag annotation markers,
   PDF named-destination tag markers, PDF document-structure tag markers,
   finished-surface errors, invalid string validation, and subtype-mismatch
-  errors,
+  errors across bound page-size/version/metadata/custom-metadata/page-label/
+  thumbnail/outline helpers,
   image surfaces returning no device, script device lifecycle and device
   reference equality, script mode/comment validation, recording replay,
   script-surface proxy rendering behavior, and `DeviceFinished` propagation,
@@ -159,9 +160,11 @@ Implemented in this workspace:
   mode, level restriction, size/DSC helpers, finished-surface errors, invalid
   DSC/path validation, stable page/drawing output markers, ten-scene direct C
   vector-oracle comparison with `CreationDate` normalization, multi-page
-  output markers, Link tag inertness on PS output, and subtype-mismatch errors,
+  output markers, Link tag inertness on PS output, and subtype-mismatch errors
+  across bound EPS/level/page-size/DSC helpers,
   SVG surface version helper behavior, no-output and filename construction,
-  document-unit behavior, finished-surface errors, invalid path validation, and
+  document-unit behavior, finished-surface errors including document-unit
+  getters, invalid path validation, and
   stable geometry/color output markers, exact ten-scene direct C vector-oracle comparison,
   Link tag inertness on SVG output, and subtype-mismatch errors,
   clip behavior including non-rectangular clip status propagation,
@@ -335,9 +338,13 @@ Implemented in this workspace:
   stream output and writer errors, PDF metadata/outlines, PS DSC, SVG document
   units, recording replay, Tee fanout, script devices/surfaces, and checked
   backend-specific errors.
-- `moon -C cairoon test --target native`: 320 tests passed.
-- `moon -C cairoon info --target native`: passed; the latest Surface
-  finished-status slice did not change the public interface.
+- `moon -C cairoon test surface_pdf_test.mbt surface_ps_test.mbt
+  surface_svg_test.mbt --target native -v`: 17 black-box tests passed after
+  adding extended PDF/PS backend subtype-mismatch checks and SVG
+  document-unit getter finished-status coverage.
+- `moon -C cairoon test --target native`: 323 tests passed.
+- `moon -C cairoon info --target native`: passed; the latest backend
+  surface error-path slice did not change the public interface.
 - Test-only buffer-backed image oracle coverage plus Pure MoonBit Region
   rectangle-XOR and executable Matrix/Surface/Context/Font/Path/Pattern/Region
   documentation coverage were added without rerunning ASan because no C glue or
@@ -358,6 +365,9 @@ Implemented in this workspace:
   no C glue, finalizer, callback trampoline, or retained owner code changed in
   that slice.
 - Pure MoonBit ordinary image-surface finished-status coverage was added
+  without rerunning ASan because no C glue, finalizer, callback trampoline, or
+  retained owner code changed in that slice.
+- Pure MoonBit backend surface subtype/lifecycle error-path coverage was added
   without rerunning ASan because no C glue, finalizer, callback trampoline, or
   retained owner code changed in that slice.
 - Documentation-only product-decision audit for pycairo `CAPI`, legacy enum
@@ -755,6 +765,11 @@ Implemented in this workspace:
   covering `Surface::has_show_text_glyphs`, dirty markers, device offset/scale
   wrappers, and fallback-resolution wrappers after `finish()`, raising the
   native suite to 320 tests; ASan was not rerun because no C glue changed.
+  The later backend surface error-path slice added three pure MoonBit
+  black-box tests covering extended PDF custom-metadata/thumbnail/outline
+  subtype mismatches, PS size/setup/page-setup subtype mismatches, and SVG
+  document-unit getters after `finish()`, raising the native suite to 323
+  tests; ASan was not rerun because no C glue changed.
 
 ## Known Gaps
 

@@ -174,3 +174,25 @@ test "pdf surface methods reject other surface types" {
     }),
   )
 }
+
+///|
+test "pdf extended surface methods reject other surface types" {
+  let image = Surface::image(Argb32, 1, 1)
+  expect_pdf_surface_type_mismatch(
+    run_cairo(() => image.pdf_set_custom_metadata("cairoon-key", Some("nope"))),
+  )
+  expect_pdf_surface_type_mismatch(
+    run_cairo(() => image.pdf_set_thumbnail_size(4, 4)),
+  )
+  expect_pdf_surface_type_mismatch(
+    run_cairo(() => {
+      let _ = image.pdf_add_outline(
+        PDF_OUTLINE_ROOT,
+        "nope",
+        "page=1",
+        PdfOutlineOpen,
+      )
+      ()
+    }),
+  )
+}
