@@ -1,5 +1,6 @@
 #include "cairoon_private.h"
 
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -30,7 +31,12 @@ enum {
   CAIROON_TEST_VECTOR_RADIAL_GRADIENT = 6,
   CAIROON_TEST_VECTOR_TEXT_PATH = 7,
   CAIROON_TEST_VECTOR_SHOW_TEXT = 8,
-  CAIROON_TEST_VECTOR_MULTI_PAGE = 9
+  CAIROON_TEST_VECTOR_MULTI_PAGE = 9,
+  CAIROON_TEST_VECTOR_CLIP = 10,
+  CAIROON_TEST_VECTOR_DASH = 11,
+  CAIROON_TEST_VECTOR_SURFACE_PATTERN = 12,
+  CAIROON_TEST_VECTOR_MASK_SURFACE = 13,
+  CAIROON_TEST_VECTOR_MESH_PATTERN = 14
 };
 
 enum {
@@ -112,6 +118,65 @@ static int cairoon_test_starts_with(
   return len >= prefix_len && memcmp(data, prefix, prefix_len) == 0;
 }
 
+static int cairoon_test_starts_with_at(
+  const unsigned char *data,
+  size_t len,
+  size_t pos,
+  const char *prefix) {
+  size_t prefix_len = strlen(prefix);
+  return pos <= len &&
+    len - pos >= prefix_len &&
+    memcmp(data + pos, prefix, prefix_len) == 0;
+}
+
+static int cairoon_test_skip_digits_after_prefix(
+  const unsigned char *data,
+  size_t len,
+  size_t *pos,
+  const char *prefix) {
+  if (!cairoon_test_starts_with_at(data, len, *pos, prefix)) {
+    return 0;
+  }
+  *pos += strlen(prefix);
+  size_t digit_start = *pos;
+  while (*pos < len && isdigit(data[*pos])) {
+    *pos += 1;
+  }
+  return *pos > digit_start;
+}
+
+static int cairoon_test_files_equal_svg_normalized(
+  const CairoonTestFile *left,
+  const CairoonTestFile *right) {
+  size_t left_pos = 0;
+  size_t right_pos = 0;
+  while (left_pos < left->len && right_pos < right->len) {
+    size_t left_after_source = left_pos;
+    size_t right_after_source = right_pos;
+    if (
+      cairoon_test_skip_digits_after_prefix(
+        left->data,
+        left->len,
+        &left_after_source,
+        "source-") &&
+      cairoon_test_skip_digits_after_prefix(
+        right->data,
+        right->len,
+        &right_after_source,
+        "source-")) {
+      left_pos = left_after_source;
+      right_pos = right_after_source;
+      continue;
+    }
+    if (left->data[left_pos] != right->data[right_pos]) {
+      return 0;
+    }
+    left_pos += 1;
+    right_pos += 1;
+  }
+  return left_pos == left->len && right_pos == right->len;
+}
+
 static int cairoon_test_next_normalized_line(
   int32_t kind,
   const unsigned char *data,
@@ -144,6 +209,9 @@ static int cairoon_test_files_equal_normalized(
   int32_t kind,
   const CairoonTestFile *left,
   const CairoonTestFile *right) {
+  if (kind == CAIROON_TEST_VECTOR_SVG) {
+    return cairoon_test_files_equal_svg_normalized(left, right);
+  }
   if (kind != CAIROON_TEST_VECTOR_PS) {
     return left->len == right->len &&
       (left->len == 0 || memcmp(left->data, right->data, left->len) == 0);
@@ -209,6 +277,119 @@ static cairo_status_t cairoon_test_apply_radial_gradient(
   }
   if (status == CAIRO_STATUS_SUCCESS) {
     cairo_rectangle(cr, 0.0, 0.0, width, height);
+    cairo_set_source(cr, pattern);
+    cairo_fill(cr);
+    status = cairo_status(cr);
+  }
+  cairo_pattern_destroy(pattern);
+  return status;
+}
+
+static cairo_status_t cairoon_test_paint_quad_surface(
+  cairo_surface_t *surface) {
+  cairo_t *ctx = cairo_create(surface);
+  cairo_status_t status = cairo_status(ctx);
+  if (status == CAIRO_STATUS_SUCCESS) {
+    cairo_set_source_rgb(ctx, 1.0, 0.0, 0.0);
+    cairo_rectangle(ctx, 0.0, 0.0, 1.0, 1.0);
+    cairo_fill(ctx);
+    cairo_set_source_rgb(ctx, 0.0, 1.0, 0.0);
+    cairo_rectangle(ctx, 1.0, 0.0, 1.0, 1.0);
+    cairo_fill(ctx);
+    cairo_set_source_rgb(ctx, 0.0, 0.0, 1.0);
+    cairo_rectangle(ctx, 0.0, 1.0, 1.0, 1.0);
+    cairo_fill(ctx);
+    cairo_set_source_rgb(ctx, 1.0, 1.0, 1.0);
+    cairo_rectangle(ctx, 1.0, 1.0, 1.0, 1.0);
+    cairo_fill(ctx);
+    status = cairo_status(ctx);
+  }
+  cairo_destroy(ctx);
+  return status;
+}
+
+static cairo_status_t cairoon_test_apply_surface_pattern(
+  cairo_t *cr,
+  double width,
+  double height) {
+  cairo_surface_t *surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, 2, 2);
+  cairo_status_t status = cairo_surface_status(surface);
+  if (status == CAIRO_STATUS_SUCCESS) {
+    status = cairoon_test_paint_quad_surface(surface);
+  }
+
+  cairo_pattern_t *pattern = NULL;
+  if (status == CAIRO_STATUS_SUCCESS) {
+    pattern = cairo_pattern_create_for_surface(surface);
+    status = cairo_pattern_status(pattern);
+  }
+  if (status == CAIRO_STATUS_SUCCESS) {
+    cairo_pattern_set_extend(pattern, CAIRO_EXTEND_REPEAT);
+    cairo_pattern_set_filter(pattern, CAIRO_FILTER_NEAREST);
+    cairo_rectangle(cr, 0.0, 0.0, width, height);
+    cairo_set_source(cr, pattern);
+    cairo_fill(cr);
+    status = cairo_status(cr);
+  }
+
+  if (pattern != NULL) {
+    cairo_pattern_destroy(pattern);
+  }
+  cairo_surface_destroy(surface);
+  return status;
+}
+
+static cairo_status_t cairoon_test_apply_mask_surface(cairo_t *cr) {
+  cairo_surface_t *surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, 2, 2);
+  cairo_status_t status = cairo_surface_status(surface);
+  cairo_t *ctx = NULL;
+  if (status == CAIRO_STATUS_SUCCESS) {
+    ctx = cairo_create(surface);
+    status = cairo_status(ctx);
+  }
+  if (status == CAIRO_STATUS_SUCCESS) {
+    cairo_set_source_rgba(ctx, 1.0, 1.0, 1.0, 1.0);
+    cairo_rectangle(ctx, 0.0, 0.0, 1.0, 1.0);
+    cairo_fill(ctx);
+    cairo_set_source_rgba(ctx, 1.0, 1.0, 1.0, 0.5);
+    cairo_rectangle(ctx, 1.0, 0.0, 1.0, 1.0);
+    cairo_fill(ctx);
+    cairo_set_source_rgba(ctx, 1.0, 1.0, 1.0, 1.0);
+    cairo_rectangle(ctx, 1.0, 1.0, 1.0, 1.0);
+    cairo_fill(ctx);
+    status = cairo_status(ctx);
+  }
+  if (ctx != NULL) {
+    cairo_destroy(ctx);
+  }
+
+  if (status == CAIRO_STATUS_SUCCESS) {
+    cairo_set_source_rgb(cr, 1.0, 0.0, 0.0);
+    cairo_mask_surface(cr, surface, 4.0, 4.0);
+    status = cairo_status(cr);
+  }
+  cairo_surface_destroy(surface);
+  return status;
+}
+
+static cairo_status_t cairoon_test_apply_mesh_pattern(cairo_t *cr) {
+  cairo_pattern_t *pattern = cairo_pattern_create_mesh();
+  cairo_status_t status = cairo_pattern_status(pattern);
+  if (status == CAIRO_STATUS_SUCCESS) {
+    cairo_mesh_pattern_begin_patch(pattern);
+    cairo_mesh_pattern_move_to(pattern, 0.0, 0.0);
+    cairo_mesh_pattern_line_to(pattern, 10.0, 0.0);
+    cairo_mesh_pattern_line_to(pattern, 10.0, 10.0);
+    cairo_mesh_pattern_line_to(pattern, 0.0, 10.0);
+    cairo_mesh_pattern_set_corner_color_rgba(pattern, 0, 1.0, 0.0, 0.0, 1.0);
+    cairo_mesh_pattern_set_corner_color_rgba(pattern, 1, 0.0, 1.0, 0.0, 1.0);
+    cairo_mesh_pattern_set_corner_color_rgba(pattern, 2, 0.0, 0.0, 1.0, 0.75);
+    cairo_mesh_pattern_set_corner_color_rgba(pattern, 3, 1.0, 1.0, 0.0, 1.0);
+    cairo_mesh_pattern_end_patch(pattern);
+    status = cairo_pattern_status(pattern);
+  }
+  if (status == CAIRO_STATUS_SUCCESS) {
+    cairo_rectangle(cr, 0.0, 0.0, 10.0, 10.0);
     cairo_set_source(cr, pattern);
     cairo_fill(cr);
     status = cairo_status(cr);
@@ -302,6 +483,29 @@ static cairo_status_t cairoon_test_draw_vector_scene(
       cairo_paint(cr);
       cairo_show_page(cr);
       break;
+    case CAIROON_TEST_VECTOR_CLIP:
+      cairo_rectangle(cr, 1.0, 1.0, width - 2.0, height - 2.0);
+      cairo_clip(cr);
+      cairo_set_source_rgb(cr, 0.0, 1.0, 0.0);
+      cairo_paint(cr);
+      break;
+    case CAIROON_TEST_VECTOR_DASH: {
+      double dashes[] = {1.0, 1.5};
+      cairo_set_source_rgb(cr, 0.0, 0.0, 0.0);
+      cairo_set_line_width(cr, 1.0);
+      cairo_set_line_cap(cr, CAIRO_LINE_CAP_ROUND);
+      cairo_set_dash(cr, dashes, 2, 0.5);
+      cairo_move_to(cr, 1.0, height / 2.0);
+      cairo_line_to(cr, width - 1.0, height / 2.0);
+      cairo_stroke(cr);
+      break;
+    }
+    case CAIROON_TEST_VECTOR_SURFACE_PATTERN:
+      return cairoon_test_apply_surface_pattern(cr, width, height);
+    case CAIROON_TEST_VECTOR_MASK_SURFACE:
+      return cairoon_test_apply_mask_surface(cr);
+    case CAIROON_TEST_VECTOR_MESH_PATTERN:
+      return cairoon_test_apply_mesh_pattern(cr);
     default:
       return CAIRO_STATUS_INVALID_STATUS;
   }

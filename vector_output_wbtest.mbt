@@ -144,6 +144,70 @@ fn vector_oracle_surface(kind : Int, path : String) -> Surface raise CairoError 
 }
 
 ///|
+fn paint_quad_source_surface(surface : Surface) -> Unit raise CairoError {
+  let source_ctx = Context::new(surface)
+  source_ctx.set_source_rgb(1.0, 0.0, 0.0)
+  source_ctx.rectangle(0.0, 0.0, 1.0, 1.0)
+  source_ctx.fill()
+  source_ctx.set_source_rgb(0.0, 1.0, 0.0)
+  source_ctx.rectangle(1.0, 0.0, 1.0, 1.0)
+  source_ctx.fill()
+  source_ctx.set_source_rgb(0.0, 0.0, 1.0)
+  source_ctx.rectangle(0.0, 1.0, 1.0, 1.0)
+  source_ctx.fill()
+  source_ctx.set_source_rgb(1.0, 1.0, 1.0)
+  source_ctx.rectangle(1.0, 1.0, 1.0, 1.0)
+  source_ctx.fill()
+}
+
+///|
+fn apply_vector_surface_pattern(ctx : Context) -> Unit raise CairoError {
+  let source = Surface::image(Argb32, 2, 2)
+  paint_quad_source_surface(source)
+  let pattern = Pattern::for_surface(source)
+  pattern.set_extend(Repeat)
+  pattern.set_filter(Nearest)
+  ctx.rectangle(0.0, 0.0, 10.0, 10.0)
+  ctx.set_source(pattern)
+  ctx.fill()
+}
+
+///|
+fn apply_vector_mask_surface(ctx : Context) -> Unit raise CairoError {
+  let mask = Surface::image(Argb32, 2, 2)
+  let mask_ctx = Context::new(mask)
+  mask_ctx.set_source_rgba(1.0, 1.0, 1.0, 1.0)
+  mask_ctx.rectangle(0.0, 0.0, 1.0, 1.0)
+  mask_ctx.fill()
+  mask_ctx.set_source_rgba(1.0, 1.0, 1.0, 0.5)
+  mask_ctx.rectangle(1.0, 0.0, 1.0, 1.0)
+  mask_ctx.fill()
+  mask_ctx.set_source_rgba(1.0, 1.0, 1.0, 1.0)
+  mask_ctx.rectangle(1.0, 1.0, 1.0, 1.0)
+  mask_ctx.fill()
+  ctx.set_source_rgb(1.0, 0.0, 0.0)
+  ctx.mask_surface(mask, x=4.0, y=4.0)
+}
+
+///|
+fn apply_vector_mesh_pattern(ctx : Context) -> Unit raise CairoError {
+  let pattern = Pattern::mesh()
+  pattern.mesh_begin_patch()
+  pattern.mesh_move_to(0.0, 0.0)
+  pattern.mesh_line_to(10.0, 0.0)
+  pattern.mesh_line_to(10.0, 10.0)
+  pattern.mesh_line_to(0.0, 10.0)
+  pattern.mesh_set_corner_color_rgba(0, 1.0, 0.0, 0.0, 1.0)
+  pattern.mesh_set_corner_color_rgba(1, 0.0, 1.0, 0.0, 1.0)
+  pattern.mesh_set_corner_color_rgba(2, 0.0, 0.0, 1.0, 0.75)
+  pattern.mesh_set_corner_color_rgba(3, 1.0, 1.0, 0.0, 1.0)
+  pattern.mesh_end_patch()
+  ctx.rectangle(0.0, 0.0, 10.0, 10.0)
+  ctx.set_source(pattern)
+  ctx.fill()
+}
+
+///|
 fn draw_vector_oracle_scene(
   ctx : Context,
   scene : Int,
@@ -220,6 +284,24 @@ fn draw_vector_oracle_scene(
       paint_page(ctx, 1.0, 0.0, 0.0)
       ctx.show_page()
     }
+    10 => {
+      ctx.rectangle(1.0, 1.0, 8.0, 8.0)
+      ctx.clip()
+      ctx.set_source_rgb(0.0, 1.0, 0.0)
+      ctx.paint()
+    }
+    11 => {
+      ctx.set_source_rgb(0.0, 0.0, 0.0)
+      ctx.set_line_width(1.0)
+      ctx.set_line_cap(LineCapRound)
+      ctx.set_dash([1.0, 1.5], offset=0.5)
+      ctx.move_to(1.0, 5.0)
+      ctx.line_to(9.0, 5.0)
+      ctx.stroke()
+    }
+    12 => apply_vector_surface_pattern(ctx)
+    13 => apply_vector_mask_surface(ctx)
+    14 => apply_vector_mesh_pattern(ctx)
     _ => raise CairoInvalidArgument(InvalidStatus, InvalidStatus.message())
   }
 }
@@ -631,6 +713,19 @@ test "vector output scenes match direct cairo C oracle" {
     for scene in 0..<10 {
       let cairoon_path = "/tmp/cairoon_vector_scene_\{kind}_\{scene}.\{ext}"
       let oracle_path = "/tmp/cairoon_vector_scene_\{kind}_\{scene}_oracle.\{ext}"
+      render_vector_oracle_scene(kind, scene, cairoon_path)
+      expect_vector_oracle_match(kind, scene, cairoon_path, oracle_path)
+    }
+  }
+}
+
+///|
+test "complex vector output scenes match direct cairo C oracle" {
+  for kind in 0..<3 {
+    let ext = vector_output_extension(kind)
+    for scene in 10..<15 {
+      let cairoon_path = "/tmp/cairoon_vector_complex_scene_\{kind}_\{scene}.\{ext}"
+      let oracle_path = "/tmp/cairoon_vector_complex_scene_\{kind}_\{scene}_oracle.\{ext}"
       render_vector_oracle_scene(kind, scene, cairoon_path)
       expect_vector_oracle_match(kind, scene, cairoon_path, oracle_path)
     }

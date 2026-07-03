@@ -227,9 +227,11 @@ stress for set/get/manual acquire/release/replace/clear paths, Cairo float
 image-format creation/readback coverage, `Format::stride_for_width` coverage
 for legacy, 16-bit, 30-bit, float, and invalid-width cases, stable
 structural vector-output markers plus direct C oracle comparisons
-for ten deterministic PDF/PS/SVG vector scenes covering paint, stroke,
+for fifteen deterministic PDF/PS/SVG vector scenes covering paint, stroke,
 fill/stroke rectangles, Bezier paths, transforms, linear/radial gradients,
-toy-font text paths, toy-font `show_text`, and a two-page paint scene, PDF metadata/custom-metadata/page-label/outline output
+toy-font text paths, toy-font `show_text`, two-page paint, clip, dashed
+stroke, repeated surface pattern, mask surface, and mesh pattern scenes, with
+SVG dynamic `source-*` image-id normalization, PDF metadata/custom-metadata/page-label/outline output
 markers, PDF/PS/SVG multi-page output markers, PDF JPEG MIME payload embedding,
 image/PDF/PS/SVG MIME support matrix checks,
 PDF URI link-tag annotation markers, PDF named-destination tag markers, PDF
@@ -311,12 +313,28 @@ Verified on 2026-07-02 and 2026-07-03:
   `/tmp/cairoon-raster-release-trampoline-blackbox-asan.txt` plus
   `/tmp/cairoon-raster-release-trampoline-lifetime-asan.txt` record the
   selected tests.
-- `moon -C cairoon test vector_output_wbtest.mbt --target native -v`: 19
-  white-box tests passed after adding combined two-page PDF metadata/custom
-  metadata/page-label/outline/tag marker coverage, PDF page-thumbnail marker
-  coverage, PS language-level/DSC setup/page-setup/multi-page marker coverage,
-  and SVG version-restricted/document-unit/multi-page marker coverage alongside
-  MIME-output, page structure, and direct C vector oracle checks.
+- `moon -C cairoon test vector_output_wbtest.mbt --target native -v`: 20
+  white-box tests passed after expanding the direct C vector oracle to fifteen
+  PDF/PS/SVG scenes. The added scenes cover clip, dashed stroke, repeated
+  surface pattern, mask surface, and mesh pattern output, with SVG dynamic
+  `source-*` image-id normalization, alongside existing MIME-output, page
+  structure, metadata/tag marker, and direct C vector oracle checks.
+- `run-asan.py --repo-root /Users/caimeo/code/pycairo/cairoon --pkg moon.pkg`:
+  rerun for the complex vector oracle slice. The full runner wrote
+  `/tmp/cairoon-complex-vector-asan.txt` and failed during the known macOS
+  FontRegistry/CoreText/ColorSync LeakSanitizer class after the black-box
+  executable ran; summary: `88927 byte(s) leaked in 470 allocation(s)`. A grep
+  of that log found no `ERROR: AddressSanitizer`, heap-use-after-free,
+  stack-use-after, heap-buffer-overflow, global-buffer-overflow, double-free,
+  `cairoon_test_apply_surface_pattern`, `cairoon_test_apply_mask_surface`,
+  `cairoon_test_apply_mesh_pattern`, `cairoon_test_files_equal_svg_normalized`,
+  or `cairoon_test_skip_digits_after_prefix` entries. The ASan-instrumented
+  white-box executable was then run directly with
+  `ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0` for
+  `vector_output_wbtest.mbt:0-20`; it exited 0 and
+  `/tmp/cairoon-complex-vector-whitebox-asan.txt` records all 20 selected
+  white-box tests, including `complex vector output scenes match direct cairo C
+  oracle`.
 - `moon -C cairoon test surface_context_test.mbt context_lifetime_test.mbt
   pattern_test.mbt --target native -v`: 32 tests passed after adding
   `Surface`/`Context`/`Pattern` pointer equality/hash.
@@ -950,13 +968,20 @@ Verified on 2026-07-02 and 2026-07-03:
   `Eq` for unhashable `Region`, and three black-box tests, raising the native
   suite to 328 tests. ASan/LSan was not rerun for that slice because it did not
   change C glue or ownership code.
+  The later complex vector oracle slice added five private direct C vector
+  scenes covering clip, dash, repeated surface patterns, mask surfaces, and
+  mesh patterns across PDF/PS/SVG, plus SVG dynamic `source-*` id
+  normalization. This changed only test-helper C glue and one white-box test,
+  raising the native suite to 329 tests. ASan/LSan validation is recorded
+  above.
 
 The missing reliability pieces are substantial: broader automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering
 LSan failure, broader callback fuzz/finalizer stress tests, additional
 failure-injection paths, CI wiring, vector-output normalization for broader
-multi-page/tag/metadata combinations beyond the current two-page direct C
-oracle scene and the current single-page toy-font `show_text` oracle scene,
+multi-page/tag/metadata combinations beyond the current fifteen-scene direct C
+fixture set, including the current two-page direct C oracle scene and the
+current single-page toy-font `show_text` oracle scene,
 broader tag-output assertions beyond the current PDF URI link,
 named-destination, document-structure, and PS/SVG Link coverage, and the
 remaining API families from `API_INVENTORY.md`.
