@@ -179,8 +179,9 @@ APIs, `FORMAT_INVALID` integer-sentinel coverage, FontOptions
 state/accessor APIs, FontFace/ToyFontFace APIs, ScaledFont
 basics including glyph extents and text-to-glyphs, and
 Device/ScriptDevice basics including status/type/equal/hash,
-finish/flush/acquire/release, scoped acquire, script mode/comment helpers,
-recording replay, `Surface::get_device`, `Surface::script`, and
+finish/flush/acquire/release, scoped acquire, file/stream script devices,
+script mode/comment helpers, recording replay, `Surface::get_device`,
+`Surface::script`, and
 `Surface::script_for_target`, TeeSurface mirrored drawing and target indexing,
 exhaustive `Status`/`CairoError` classification, retained-owner lifetime stress
 tests, stable structural vector-output markers for PDF/PS/SVG filename
@@ -192,7 +193,7 @@ construction plus predicates and boolean operations.
 Verified on 2026-07-02 and 2026-07-03:
 
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native -v`: 223 tests passed.
+- `moon -C cairoon test --target native -v`: 225 tests passed.
 - ASan/LSan via `run-asan.py`: ran on 2026-07-03 after adding retained-owner
   lifetime stress tests. The first run found a real heap-use-after-free when a
   `Surface` returned by `Context::get_target` outlived a context created from a
@@ -325,11 +326,19 @@ Verified on 2026-07-02 and 2026-07-03:
   global-buffer-overflow, `cairoon_image_surface_create_from_png_stream`,
   `cairoon_stream_read`, or `cairoon_stream` entries; summary:
   `55397 byte(s) leaked in 405 allocation(s)`.
+  The later script stream-device slice added device-retained write callbacks
+  and two black-box tests, raising the native suite to 225 tests. ASan/LSan was
+  rerun on 2026-07-03 and reported only the same macOS LeakSanitizer class. A
+  grep of `/tmp/cairoon-script-stream-asan.txt` found no
+  `ERROR: AddressSanitizer`, heap-use-after-free, stack-use-after,
+  global-buffer-overflow, `cairoon_script_device_create_for_stream`,
+  `cairoon_stream_attach_device`, or `cairoon_stream` entries; summary:
+  `64765 byte(s) leaked in 396 allocation(s)`.
 
 The missing reliability pieces are substantial: automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering
 LSan failure, finalizer stress tests, CI wiring, vector-output normalization,
-script stream callbacks, SVG/PS tag-materialization assertions, and
+SVG/PS tag-materialization assertions, and
 the remaining API families from `API_INVENTORY.md`.
 
 ## Porting pycairo Tests

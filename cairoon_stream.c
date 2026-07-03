@@ -101,6 +101,22 @@ cairo_status_t cairoon_stream_attach(cairo_surface_t *surface, void *state) {
   return status;
 }
 
+cairo_status_t cairoon_stream_attach_device(cairo_device_t *device, void *state) {
+  if (device == NULL) {
+    cairoon_stream_state_destroy(state);
+    return CAIRO_STATUS_NULL_POINTER;
+  }
+  cairo_status_t status = cairo_device_set_user_data(
+    device,
+    &cairoon_stream_state_key,
+    state,
+    cairoon_stream_state_destroy);
+  if (status != CAIRO_STATUS_SUCCESS) {
+    cairoon_stream_state_destroy(state);
+  }
+  return status;
+}
+
 void cairoon_stream_read_state_destroy(void *state_ptr) {
   CairoonStreamReadState *state = (CairoonStreamReadState *)state_ptr;
   if (state == NULL) {

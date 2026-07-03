@@ -123,6 +123,15 @@ extern "C" fn script_device_create_ffi(
 ) -> Device = "cairoon_script_device_create"
 
 ///|
+#owned(writer)
+#borrow(status)
+extern "C" fn script_device_create_for_stream_ffi(
+  call_writer : FuncRef[(Bytes, (Bytes) -> Status) -> Status],
+  writer : (Bytes) -> Status,
+  status : Ref[Status],
+) -> Device = "cairoon_script_device_create_for_stream"
+
+///|
 #borrow(device)
 extern "C" fn device_status_ffi(device : Device) -> Status = "cairoon_device_status"
 

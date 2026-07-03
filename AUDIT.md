@@ -66,8 +66,8 @@ Implemented in this workspace:
   SVGSurface filename/no-output/stream constructor, version helper, version
   restriction, and document-unit APIs,
   Device/ScriptDevice status/type/equal/hash, finish/flush/acquire/release,
-  scoped acquire helper, script mode/comment helpers, recording-surface replay,
-  and ScriptSurface creation/proxy helpers,
+  scoped acquire helper, file/stream script devices, script mode/comment
+  helpers, recording-surface replay, and ScriptSurface creation/proxy helpers,
   portable `Surface` base helpers for `create_similar`,
   `create_similar_image`, `create_for_rectangle` with retained parent-wrapper
   lifetime, content/type/get_device queries, dirty markers, device
@@ -170,10 +170,10 @@ Implemented in this workspace:
 2026-07-02 and 2026-07-03:
 
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native -v`: 223 tests passed.
+- `moon -C cairoon test --target native -v`: 225 tests passed.
 - `run-asan.py --repo-root /Users/caimeo/code/pycairo/cairoon --pkg moon.pkg`:
-  most recently ran the 223-test native suite on 2026-07-03 after the
-  PNG stream-read slice. An earlier retained-owner stress
+  most recently ran the 225-test native suite on 2026-07-03 after the
+  script stream-device slice. An earlier retained-owner stress
   ASan run found a heap-use-after-free in `cairoon_copy_image_surface_data` reached from
   `lifetime_stress_test.mbt` when a returned target surface outlived a context
   created from a mapped image. The fixed rerun, and the later TeeSurface rerun,
@@ -210,7 +210,13 @@ Implemented in this workspace:
   `ERROR: AddressSanitizer`, heap-use-after-free, stack-use-after,
   global-buffer-overflow, `cairoon_image_surface_create_from_png_stream`,
   `cairoon_stream_read`, or `cairoon_stream` entries. Summary:
-  `55397 byte(s) leaked in 405 allocation(s)`. The helper still emits
+  `55397 byte(s) leaked in 405 allocation(s)`. The script stream-device slice
+  then added device-retained write callbacks and two black-box tests; a grep of
+  `/tmp/cairoon-script-stream-asan.txt` found no
+  `ERROR: AddressSanitizer`, heap-use-after-free, stack-use-after,
+  global-buffer-overflow, `cairoon_script_device_create_for_stream`,
+  `cairoon_stream_attach_device`, or `cairoon_stream` entries. Summary:
+  `64765 byte(s) leaked in 396 allocation(s)`. The helper still emits
   a `moon.mod.json` lookup warning because this package uses `moon.mod`, but it
   correctly patched and restored the DSL `moon.pkg` and MoonBit runtime object
   for this package.
@@ -230,12 +236,14 @@ Implemented in this workspace:
   added two black-box tests; ASan/LSan was rerun as described above.
   The later PNG stream-read slice added exact-length reader callbacks and two
   black-box tests; ASan/LSan was rerun as described above.
+  The later script stream-device slice added device-retained write callbacks
+  and two black-box tests; ASan/LSan was rerun as described above.
 
 ## Known Gaps
 
-- No raster-source patterns, script stream callbacks, normalized
-  PDF/SVG/PS output comparison, or SVG/PS tag-materialization assertions yet.
-  PDF/PS/SVG stream-writer constructors and PNG stream read/write now have
+- No raster-source patterns, normalized PDF/SVG/PS output comparison, or
+  SVG/PS tag-materialization assertions yet. PDF/PS/SVG stream-writer
+  constructors, script stream devices, and PNG stream read/write now have
   copied-byte callback tests and read/write error propagation coverage.
 - `Surface::copy_data` still copies Cairo image data into MoonBit `Bytes`;
   `Surface::get_data` is the mutable image-surface view and intentionally

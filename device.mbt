@@ -8,6 +8,21 @@ pub fn Device::script(path : String) -> Device raise CairoError {
 }
 
 ///|
+pub fn Device::script_stream(
+  writer : (Bytes) -> Status,
+) -> Device raise CairoError {
+  let status = Ref(Success)
+  let device = script_device_create_for_stream_ffi(
+    fn(chunk, writer) { writer(chunk) },
+    writer,
+    status,
+  )
+  check_status(status.val)
+  check_status(device_status_ffi(device))
+  device
+}
+
+///|
 pub fn Device::status(self : Device) -> Status {
   device_status_ffi(self)
 }

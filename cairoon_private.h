@@ -117,6 +117,7 @@ cairo_status_t cairoon_stream_write(
   const unsigned char *data,
   unsigned int length);
 cairo_status_t cairoon_stream_attach(cairo_surface_t *surface, void *state);
+cairo_status_t cairoon_stream_attach_device(cairo_device_t *device, void *state);
 void cairoon_stream_state_destroy(void *state);
 void *cairoon_stream_read_state_new(
   CairoonStreamReadCallback callback,

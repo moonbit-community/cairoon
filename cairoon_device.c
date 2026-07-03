@@ -71,6 +71,46 @@ CairoonDevice *cairoon_script_device_create(
 }
 
 MOONBIT_FFI_EXPORT
+CairoonDevice *cairoon_script_device_create_for_stream(
+  CairoonStreamWriteCallback callback,
+  void *arg,
+  cairo_status_t *status_out) {
+  *status_out = CAIRO_STATUS_SUCCESS;
+#if CAIRO_HAS_SCRIPT_SURFACE
+  void *state = cairoon_stream_state_new(callback, arg, status_out);
+  if (*status_out != CAIRO_STATUS_SUCCESS) {
+    return cairoon_device_wrap_owned(NULL);
+  }
+
+  cairo_device_t *device =
+    cairo_script_create_for_stream(cairoon_stream_write, state);
+  if (device == NULL) {
+    cairoon_stream_state_destroy(state);
+    *status_out = CAIRO_STATUS_NO_MEMORY;
+    return cairoon_device_wrap_owned(NULL);
+  }
+  *status_out = cairo_device_status(device);
+  if (*status_out != CAIRO_STATUS_SUCCESS) {
+    cairoon_stream_state_destroy(state);
+    return cairoon_device_wrap_owned(device);
+  }
+  *status_out = cairoon_stream_attach_device(device, state);
+  if (*status_out != CAIRO_STATUS_SUCCESS) {
+    cairo_device_destroy(device);
+    return cairoon_device_wrap_owned(NULL);
+  }
+  return cairoon_device_wrap_owned(device);
+#else
+  (void)callback;
+  if (arg != NULL) {
+    moonbit_decref(arg);
+  }
+  *status_out = CAIRO_STATUS_INVALID_STATUS;
+  return cairoon_device_wrap_owned(NULL);
+#endif
+}
+
+MOONBIT_FFI_EXPORT
 int32_t cairoon_device_equal(CairoonDevice *device, CairoonDevice *other) {
   if (device == NULL || other == NULL || device->ptr == NULL ||
       other->ptr == NULL) {

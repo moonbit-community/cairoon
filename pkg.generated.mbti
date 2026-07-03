@@ -251,6 +251,7 @@ pub fn Device::script(String) -> Self raise CairoError
 pub fn Device::script_from_recording_surface(Self, Surface) -> Unit raise CairoError
 pub fn Device::script_get_mode(Self) -> ScriptMode raise CairoError
 pub fn Device::script_set_mode(Self, ScriptMode) -> Unit raise CairoError
+pub fn Device::script_stream((Bytes) -> Status) -> Self raise CairoError
 pub fn Device::script_write_comment(Self, String) -> Unit raise CairoError
 pub fn Device::status(Self) -> Status
 pub fn[T] Device::with_acquired(Self, () -> T raise CairoError) -> T raise CairoError
