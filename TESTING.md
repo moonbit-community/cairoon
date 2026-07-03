@@ -131,6 +131,10 @@ For surfaces and devices, add backend-specific smoke tests:
   normalized output.
 - Recording/script/tee: only mark Done when the backend is available and tests
   run in CI.
+- Cairo native observer surface/device APIs: not a pycairo migration gate.
+  pycairo exposes `SurfaceObserverMode` but not those native APIs, so cairoon
+  records the enum and leaves observer surfaces/devices to a future extension
+  layer.
 - Platform APIs such as Win32/XCB/Xlib: require a platform-specific test job or
   an explicit product-scope Decision.
 
@@ -152,6 +156,7 @@ pycairo-style C glue split into private shared declarations plus per-family
 stub files, opaque external-object wrappers for `Surface`,
 `MappedImageSurface`, `Context`, `Path`, `Pattern`, `FontOptions`, `FontFace`,
 `ScaledFont`, `Region`, and `Device`, pure value types, many portable enums,
+including enum-only `SurfaceObserverMode` pycairo compatibility,
 expanded Context path, painting/page, target/source borrowed returns,
 source-surface convenience, clip, matrix, drawing-state including hairline mode,
 compile-time Cairo
@@ -196,7 +201,7 @@ construction plus predicates and boolean operations.
 Verified on 2026-07-02 and 2026-07-03:
 
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native -v`: 231 tests passed.
+- `moon -C cairoon test --target native -v`: 233 tests passed.
 - ASan/LSan via `run-asan.py`: ran on 2026-07-03 after adding retained-owner
   lifetime stress tests. The first run found a real heap-use-after-free when a
   `Surface` returned by `Context::get_target` outlived a context created from a
@@ -367,6 +372,9 @@ Verified on 2026-07-02 and 2026-07-03:
   `cairoon_test_vector`, `cairoon_test_read_file`,
   `cairoon_test_files_equal`, or `cairoon_test_paint_vector` entries; summary:
   `55365 byte(s) leaked in 405 allocation(s)`.
+  The later vector tag inertness slice added two pure MoonBit tests for PS/SVG
+  Link tag no-op behavior, raising the native suite to 233 tests. ASan/LSan was
+  not rerun for that slice because it did not change C glue or ownership code.
 
 The missing reliability pieces are substantial: broader automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering

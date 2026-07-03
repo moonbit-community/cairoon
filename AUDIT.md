@@ -43,6 +43,8 @@ Implemented in this workspace:
   wrapper that can outlive the pattern wrapper.
 - Public `Status`, `CairoError`, version helpers, compile-time Cairo version
   constants, feature flags, MIME/tag constants, portable Cairo enum types,
+  including `SurfaceObserverMode` as an enum-only pycairo API surface entry
+  rather than Cairo's native observer surface/device extension APIs,
   `Format::stride_for_width`, `FORMAT_INVALID` as an explicit integer
   sentinel, pure `Matrix` parity operations, pure rectangle,
   glyph, text-cluster, and extents values, image `Surface` including PNG
@@ -150,7 +152,10 @@ Implemented in this workspace:
 ## Gate Status
 
 - Gate 1 API inventory: partial. A full inventory ledger exists in
-  `API_INVENTORY.md`; multiple rows remain Partial or Decision.
+  `API_INVENTORY.md`; multiple rows remain Partial or Decision. The
+  `SurfaceObserverMode` row is resolved as enum-only pycairo scope, with
+  Cairo's native observer surface/device APIs intentionally outside the current
+  migration product.
 - Gate 2 behavioral parity: partial. First MoonBit tests cover a small subset
   of pycairo's matrix, surface, context, pattern, raster-source callback,
   region, and error behavior.
@@ -179,7 +184,7 @@ Implemented in this workspace:
 2026-07-02 and 2026-07-03:
 
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native -v`: 231 tests passed.
+- `moon -C cairoon test --target native -v`: 233 tests passed.
 - `run-asan.py --repo-root /Users/caimeo/code/pycairo/cairoon --pkg moon.pkg`:
   most recently ran the 231-test native suite on 2026-07-03 after the
   vector-output direct C oracle slice. The rerun found no invalid access and no
@@ -261,6 +266,9 @@ Implemented in this workspace:
   coverage, and retained-owner stress-loop coverage; ASan/LSan was rerun as
   described above. The later get-acquire slice returned retained MoonBit
   acquire/release closures and added optional/clear/subtype tests.
+  The later PS/SVG Link tag inertness slice added two pure MoonBit vector-output
+  tests, raising the native suite to 233 tests; ASan/LSan was not rerun for that
+  non-C change.
 
 ## Known Gaps
 

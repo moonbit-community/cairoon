@@ -81,7 +81,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 | `PDFOutlineFlags`, `PDFOutlineFlagSet` | Done | Cairo bit values preserved; `PDFOutlineFlagSet` provides typed combinations for outline APIs |
 | `ScriptMode` | Done | Needed by script device |
 | `TextClusterFlags` | Done | Cairo bit value preserved |
-| `SurfaceObserverMode` | Done | Enum exists; observer surface APIs remain a product decision |
+| `SurfaceObserverMode` | Done | pycairo exposes only the enum; Cairo native observer surface/device APIs are outside the pycairo-migration API surface unless cairoon later grows an explicit Cairo-extension layer |
 | Tag and MIME string constants | Done | `TAG_*` and `MIME_TYPE_*` expose Cairo strings and are checked against compile-time C macros |
 
 ## Value Types
@@ -177,20 +177,21 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 
 ## Product Decisions Required
 
-These are not safe to guess if the goal is a full product.
+These are not safe to guess if the goal is a full pycairo-compatible product.
 
 1. Should cairoon include platform-specific pycairo APIs (`Win32Surface`,
    `XCBSurface`, `XlibSurface`) behind conditional builds, or should the first
    full product target only portable Cairo backends?
-2. Should observer APIs be part of the portable first product when Cairo was
-   compiled with observer support, or should they be deferred with other
-   optional backends?
 
 Resolved by `AGENTS.md`: cairoon uses opaque MoonBit owner types with
 constructor methods instead of CPython-style inheritance, and filename APIs
 come before callback stream APIs.
 Resolved here: pycairo's `version`, `version_info`, and `get_include()`
 packaging/C-extension helpers are out of cairoon's public runtime API.
+Resolved here: pycairo exposes `SurfaceObserverMode` but not Cairo's native
+observer surface/device APIs, so those native observer APIs are out of the
+pycairo-migration product scope until a separate Cairo-extension layer is
+explicitly designed.
 
 ## Reliability Gates
 
