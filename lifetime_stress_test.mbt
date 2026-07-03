@@ -109,7 +109,9 @@ fn lifetime_stress_value_wrappers(index : Int) -> Unit raise {
     RectangleInt::new(x=0, y=0, width=2, height=2),
   )
   let region_copy = region.copy()
-  region_copy.union_rectangle(RectangleInt::new(x=2, y=0, width=2, height=2))
+  let _ = region_copy.union_rectangle(
+    RectangleInt::new(x=2, y=0, width=2, height=2),
+  )
 
   let options = FontOptions::new()
   options.set_antialias(AntialiasGray)

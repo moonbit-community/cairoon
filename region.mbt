@@ -128,15 +128,16 @@ pub fn Region::translate(
 pub fn Region::intersect(
   self : Region,
   other : Region,
-) -> Unit raise CairoError {
+) -> Region raise CairoError {
   check_status(region_intersect_ffi(self, other))
+  self
 }
 
 ///|
 pub fn Region::intersect_rectangle(
   self : Region,
   rectangle : RectangleInt,
-) -> Unit raise CairoError {
+) -> Region raise CairoError {
   check_status(
     region_intersect_rectangle_ffi(
       self,
@@ -146,18 +147,23 @@ pub fn Region::intersect_rectangle(
       rectangle.height,
     ),
   )
+  self
 }
 
 ///|
-pub fn Region::subtract(self : Region, other : Region) -> Unit raise CairoError {
+pub fn Region::subtract(
+  self : Region,
+  other : Region,
+) -> Region raise CairoError {
   check_status(region_subtract_ffi(self, other))
+  self
 }
 
 ///|
 pub fn Region::subtract_rectangle(
   self : Region,
   rectangle : RectangleInt,
-) -> Unit raise CairoError {
+) -> Region raise CairoError {
   check_status(
     region_subtract_rectangle_ffi(
       self,
@@ -167,18 +173,20 @@ pub fn Region::subtract_rectangle(
       rectangle.height,
     ),
   )
+  self
 }
 
 ///|
-pub fn Region::union(self : Region, other : Region) -> Unit raise CairoError {
+pub fn Region::union(self : Region, other : Region) -> Region raise CairoError {
   check_status(region_union_ffi(self, other))
+  self
 }
 
 ///|
 pub fn Region::union_rectangle(
   self : Region,
   rectangle : RectangleInt,
-) -> Unit raise CairoError {
+) -> Region raise CairoError {
   check_status(
     region_union_rectangle_ffi(
       self,
@@ -188,18 +196,20 @@ pub fn Region::union_rectangle(
       rectangle.height,
     ),
   )
+  self
 }
 
 ///|
-pub fn Region::xor(self : Region, other : Region) -> Unit raise CairoError {
+pub fn Region::xor(self : Region, other : Region) -> Region raise CairoError {
   check_status(region_xor_ffi(self, other))
+  self
 }
 
 ///|
 pub fn Region::xor_rectangle(
   self : Region,
   rectangle : RectangleInt,
-) -> Unit raise CairoError {
+) -> Region raise CairoError {
   check_status(
     region_xor_rectangle_ffi(
       self,
@@ -209,4 +219,5 @@ pub fn Region::xor_rectangle(
       rectangle.height,
     ),
   )
+  self
 }

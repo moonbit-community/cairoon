@@ -627,19 +627,19 @@ pub fn Region::from_rectangle(RectangleInt) -> Self raise CairoError
 pub fn Region::from_rectangles(ArrayView[RectangleInt]) -> Self raise CairoError
 pub fn Region::get_extents(Self) -> RectangleInt raise CairoError
 pub fn Region::get_rectangle(Self, Int) -> RectangleInt raise CairoError
-pub fn Region::intersect(Self, Self) -> Unit raise CairoError
-pub fn Region::intersect_rectangle(Self, RectangleInt) -> Unit raise CairoError
+pub fn Region::intersect(Self, Self) -> Self raise CairoError
+pub fn Region::intersect_rectangle(Self, RectangleInt) -> Self raise CairoError
 pub fn Region::is_empty(Self) -> Bool
 pub fn Region::new() -> Self raise CairoError
 pub fn Region::num_rectangles(Self) -> Int
 pub fn Region::status(Self) -> Status
-pub fn Region::subtract(Self, Self) -> Unit raise CairoError
-pub fn Region::subtract_rectangle(Self, RectangleInt) -> Unit raise CairoError
+pub fn Region::subtract(Self, Self) -> Self raise CairoError
+pub fn Region::subtract_rectangle(Self, RectangleInt) -> Self raise CairoError
 pub fn Region::translate(Self, Int, Int) -> Unit raise CairoError
-pub fn Region::union(Self, Self) -> Unit raise CairoError
-pub fn Region::union_rectangle(Self, RectangleInt) -> Unit raise CairoError
-pub fn Region::xor(Self, Self) -> Unit raise CairoError
-pub fn Region::xor_rectangle(Self, RectangleInt) -> Unit raise CairoError
+pub fn Region::union(Self, Self) -> Self raise CairoError
+pub fn Region::union_rectangle(Self, RectangleInt) -> Self raise CairoError
+pub fn Region::xor(Self, Self) -> Self raise CairoError
+pub fn Region::xor_rectangle(Self, RectangleInt) -> Self raise CairoError
 pub impl Eq for Region
 
 pub(all) enum RegionOverlap {

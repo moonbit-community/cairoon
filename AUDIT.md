@@ -94,7 +94,7 @@ Implemented in this workspace:
   initial solid/surface/linear/radial/mesh `Pattern` APIs with
   pointer equality/hash, extend/filter/dither/matrix/gradient state, mesh patch lifecycle/query
   helpers, and complete portable `Region` APIs including multi-rectangle
-  construction.
+  construction and pycairo-style chainable boolean mutator returns.
 - `FontOptions` external object with copy/merge/equal/hash, variations,
   Cairo 1.18 color font options, classic antialias/subpixel/hint state, and
   Surface/Context font-options accessors.
@@ -434,6 +434,17 @@ Implemented in this workspace:
   font family, context font-family selection, and ScaledFont text extents.
 - `moon -C cairoon test region_test.mbt --target native -v`: 8 black-box
   tests passed after adding `Region::xor_rectangle` split-semantics coverage.
+- `moon -C cairoon test region_test.mbt region.mbt.md --target native -v`: 12
+  tests passed after changing Region boolean operations to return the mutated
+  receiver for pycairo-style chaining. This covered region and rectangle
+  operands, explicit returned-receiver checks, a chained rectangle-boolean
+  sequence, and executable Region docs.
+- `moon -C cairoon info --target native`: regenerated `pkg.generated.mbti`
+  after the public Region return-type change.
+- `moon -C cairoon test --target native`: 333 tests passed after the Region
+  chainable-mutator slice. ASan/LSan was not rerun because this slice changed
+  only MoonBit wrappers, docs, and tests, with no C glue, callback, finalizer,
+  or retained-owner changes.
 - `moon -C cairoon test object_traits_test.mbt --target native -v`: 3
   black-box tests passed after adding MoonBit `Eq`/`Hash` protocol coverage for
   hashable Cairo external objects, `Path` self-comparison coverage through
@@ -970,6 +981,12 @@ Implemented in this workspace:
   across two pages. This changed only test-helper C glue and one white-box
   test, raising the native suite to 332 tests; ASan/LSan validation is
   recorded above.
+  The later Region chainable-mutator slice changed public Region boolean
+  methods to return the mutated receiver, matching pycairo's
+  `intersect`/`subtract`/`union`/`xor` return semantics for both region and
+  rectangle operands, and added one black-box test. This raised the native
+  suite to 333 tests; ASan/LSan was not rerun because no C glue, finalizer,
+  callback, or retained-owner code changed.
 
 ## Known Gaps
 

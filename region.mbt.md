@@ -5,8 +5,8 @@ tracking raster areas such as invalidated tiles, clip approximations, and dirty
 rectangles.
 
 Regions own their Cairo handle. Copying a region creates a distinct Cairo
-object; boolean operations mutate the receiver and preserve checked Cairo error
-handling.
+object; boolean operations mutate and return the receiver, matching pycairo's
+chainable mutator behavior while preserving checked Cairo error handling.
 
 ## Construction And Queries
 
@@ -46,19 +46,26 @@ test "region docs: boolean rectangle operations" {
     RectangleInt::new(x=0, y=0, width=10, height=10),
   )
 
-  region.intersect_rectangle(RectangleInt::new(x=5, y=0, width=10, height=10))
+  let chained = region.intersect_rectangle(
+    RectangleInt::new(x=5, y=0, width=10, height=10),
+  )
+  inspect(chained.equal(region), content="true")
   debug_inspect(
     region.get_extents(),
     content="{ x: 5, y: 0, width: 5, height: 10 }",
   )
 
-  region.union_rectangle(RectangleInt::new(x=0, y=0, width=5, height=10))
+  let _ = chained.union_rectangle(
+    RectangleInt::new(x=0, y=0, width=5, height=10),
+  )
   debug_inspect(
     region.get_extents(),
     content="{ x: 0, y: 0, width: 10, height: 10 }",
   )
 
-  region.xor_rectangle(RectangleInt::new(x=5, y=0, width=10, height=10))
+  let _ = chained.xor_rectangle(
+    RectangleInt::new(x=5, y=0, width=10, height=10),
+  )
   debug_inspect(
     region.contains_rectangle(RectangleInt::new(x=5, y=0, width=5, height=10)),
     content="RegionOverlapOut",

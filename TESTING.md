@@ -252,8 +252,9 @@ pycairo-style string formatting, flattened append behavior, copied-path
 ownership, and checked invalid-matrix errors. Region now covers empty,
 single-rectangle, and multi-rectangle construction plus predicates, region
 boolean operations, and rectangle boolean operations including XOR split
-semantics; `region.mbt.md` adds executable reference examples for the same
-family. Matrix has executable reference examples for component access,
+semantics and pycairo-style chainable boolean mutator returns; `region.mbt.md`
+adds executable reference examples for the same family. Matrix has executable
+reference examples for component access,
 pure-value transforms, multiplication, inversion, and checked errors. Surface
 has executable reference examples for image properties, buffer-backed data,
 similar/subsurface constructors, mapped images, PNG/MIME helpers, and checked
@@ -428,6 +429,17 @@ Verified on 2026-07-02 and 2026-07-03:
   font family, context font-family selection, and ScaledFont text extents.
 - `moon -C cairoon test region_test.mbt --target native -v`: 8 black-box
   tests passed after adding `Region::xor_rectangle` split-semantics coverage.
+- `moon -C cairoon test region_test.mbt region.mbt.md --target native -v`: 12
+  tests passed after changing Region boolean operations to return the mutated
+  receiver for pycairo-style chaining. This covered region and rectangle
+  operands, explicit returned-receiver checks, a chained rectangle-boolean
+  sequence, and executable Region docs.
+- `moon -C cairoon info --target native`: regenerated `pkg.generated.mbti`
+  after the public Region return-type change.
+- `moon -C cairoon test --target native`: 333 tests passed after the Region
+  chainable-mutator slice. ASan/LSan was not rerun because this slice changed
+  only MoonBit wrappers, docs, and tests, with no C glue, callback, finalizer,
+  or retained-owner changes.
 - `moon -C cairoon test object_traits_test.mbt --target native -v`: 3
   black-box tests passed after adding MoonBit `Eq`/`Hash` protocol coverage for
   hashable Cairo external objects, `Path` self-comparison coverage through
@@ -1082,6 +1094,12 @@ Verified on 2026-07-02 and 2026-07-03:
   across two pages. This changed only test-helper C glue and one white-box
   test, raising the native suite to 332 tests. ASan/LSan validation is
   recorded above.
+  The later Region chainable-mutator slice changed public Region boolean
+  methods to return the mutated receiver, matching pycairo's
+  `intersect`/`subtract`/`union`/`xor` return semantics for both region and
+  rectangle operands, and added one black-box test. This raised the native
+  suite to 333 tests. ASan/LSan was not rerun because no C glue, finalizer,
+  callback, or retained-owner code changed.
 
 The missing reliability pieces are substantial: broader automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering

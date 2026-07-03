@@ -97,17 +97,24 @@ test "region boolean operations with rectangles" {
   let base = RectangleInt::new(x=0, y=0, width=10, height=10)
   let overlap = RectangleInt::new(x=5, y=0, width=10, height=10)
   let region = Region::from_rectangle(base)
-  region.intersect_rectangle(overlap)
+  let after_intersect = region.intersect_rectangle(overlap)
+  inspect(after_intersect.equal(region), content="true")
   debug_inspect(
     region.get_extents(),
     content="{ x: 5, y: 0, width: 5, height: 10 }",
   )
-  region.union_rectangle(RectangleInt::new(x=0, y=0, width=5, height=10))
+  let after_union = after_intersect.union_rectangle(
+    RectangleInt::new(x=0, y=0, width=5, height=10),
+  )
+  inspect(after_union.equal(region), content="true")
   debug_inspect(
     region.get_extents(),
     content="{ x: 0, y: 0, width: 10, height: 10 }",
   )
-  region.subtract_rectangle(RectangleInt::new(x=0, y=0, width=5, height=10))
+  let after_subtract = after_union.subtract_rectangle(
+    RectangleInt::new(x=0, y=0, width=5, height=10),
+  )
+  inspect(after_subtract.equal(region), content="true")
   debug_inspect(
     region.get_extents(),
     content="{ x: 5, y: 0, width: 5, height: 10 }",
@@ -119,7 +126,10 @@ test "region xor rectangle splits overlapping area" {
   let region = Region::from_rectangle(
     RectangleInt::new(x=0, y=0, width=10, height=10),
   )
-  region.xor_rectangle(RectangleInt::new(x=5, y=0, width=10, height=10))
+  let returned = region.xor_rectangle(
+    RectangleInt::new(x=5, y=0, width=10, height=10),
+  )
+  inspect(returned.equal(region), content="true")
   inspect(region.is_empty(), content="false")
   inspect(region.num_rectangles(), content="2")
   debug_inspect(
@@ -149,18 +159,38 @@ test "region boolean operations with regions" {
     RectangleInt::new(x=5, y=0, width=10, height=10),
   )
   let intersection = left.copy()
-  intersection.intersect(right)
+  let after_intersect = intersection.intersect(right)
+  inspect(after_intersect.equal(intersection), content="true")
   debug_inspect(
     intersection.get_extents(),
     content="{ x: 5, y: 0, width: 5, height: 10 }",
   )
   let combined = left.copy()
-  combined.union(right)
+  let after_union = combined.union(right)
+  inspect(after_union.equal(combined), content="true")
   debug_inspect(
     combined.get_extents(),
     content="{ x: 0, y: 0, width: 15, height: 10 }",
   )
   let difference = combined.copy()
-  difference.xor(intersection)
+  let after_xor = difference.xor(intersection)
+  inspect(after_xor.equal(difference), content="true")
   inspect(difference.is_empty(), content="false")
+}
+
+///|
+test "region boolean operations chain like pycairo mutators" {
+  let base = Region::from_rectangle(
+    RectangleInt::new(x=0, y=0, width=10, height=10),
+  )
+  let chained = base
+    .intersect_rectangle(RectangleInt::new(x=2, y=0, width=10, height=10))
+    .union_rectangle(RectangleInt::new(x=0, y=0, width=2, height=10))
+    .subtract_rectangle(RectangleInt::new(x=0, y=0, width=1, height=10))
+    .xor_rectangle(RectangleInt::new(x=11, y=0, width=1, height=10))
+  inspect(chained.equal(base), content="true")
+  debug_inspect(
+    chained.get_extents(),
+    content="{ x: 1, y: 0, width: 11, height: 10 }",
+  )
 }
