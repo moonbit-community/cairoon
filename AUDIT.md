@@ -279,12 +279,11 @@ Implemented in this workspace:
   and pattern oracle tests, the full native suite, `moon info --target native`,
   and targeted ASan image-oracle and pattern tests with leak detection disabled.
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native`: 340 tests passed after expanding
-  the ordinary and buffer-backed image oracle from eighteen to nineteen
-  scenes; the suite count is unchanged because two existing oracle tests now
-  iterate one additional scene.
+- `moon -C cairoon test --target native`: 341 tests passed after adding
+  raster-source acquire replacement/recovery coverage for the path where an
+  earlier acquire returned a finished surface and mapped to `NoMemory`.
 - `moon -C cairoon info --target native`: completed with no work to do; this
-  operator-output oracle slice changes no public API or generated interface
+  raster-source recovery slice changes no public API or generated interface
   metadata.
 - `moon -C cairoon test image_oracle_wbtest.mbt --target native -v`: 2
   white-box image rendering oracle tests passed. Ordinary image surfaces and
@@ -309,10 +308,10 @@ Implemented in this workspace:
 - `moon -C cairoon test raster_lifetime_stress_test.mbt --target native -v`: 1
   black-box raster-source callback lifetime test passed after adding the
   1000-iteration set/get/manual acquire/release/replace/clear stress case.
-- `moon -C cairoon test pattern_test.mbt --target native -v`: 17 black-box
+- `moon -C cairoon test pattern_test.mbt --target native -v`: 18 black-box
   pattern tests passed after adding release-only raster callback state,
-  finished-surface raster acquire failure-injection coverage, and the C-side
-  surface-finished sentinel.
+  finished-surface raster acquire failure-injection coverage, the C-side
+  surface-finished sentinel, and post-failure acquire replacement recovery.
 - `moon -C cairoon test pattern_raster_owner_wbtest.mbt --target native -v`: 1
   white-box raster-source owner-count test passed, asserting acquire-only
   repeated same-surface paints release cairoon's retained owner back to zero
@@ -339,9 +338,10 @@ Implemented in this workspace:
   change.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
-  pattern_test.mbt --target native -v`: 17 ASan-compiled black-box pattern
+  pattern_test.mbt --target native -v`: 18 ASan-compiled black-box pattern
   tests passed with leak detection disabled, covering release-only callback
-  state and the raster acquire finished-surface rejection path in C glue.
+  state, the raster acquire finished-surface rejection path, and replacement
+  recovery after that failure path.
 - `run-asan.py --repo-root /Users/caimeo/code/pycairo/cairoon --pkg moon.pkg`:
   rerun for the raster-source owner-count test-probe slice. The full runner
   still failed during the known macOS FontRegistry/CoreText/ColorSync
@@ -1079,6 +1079,13 @@ Implemented in this workspace:
   public API or adding a new test case. The targeted `image_oracle_wbtest.mbt`
   run passed 2 tests, the targeted ASan build passed 2 tests with leak
   detection disabled, and the full native suite remained at 340 tests.
+  The later raster-source acquire-replacement recovery slice added one
+  black-box test proving that a finished-surface acquire failure maps to
+  `NoMemory` for that paint, does not permanently poison the raster-source
+  pattern, and allows a replaced acquire/release pair to paint and release
+  correctly. This raised the native suite to 341 tests. `./scripts/verify.sh`
+  passed, including the 18-test `pattern_test.mbt` run and targeted
+  ASan-compiled pattern run with leak detection disabled.
 
 ## Known Gaps
 

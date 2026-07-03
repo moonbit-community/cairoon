@@ -237,6 +237,67 @@ test "raster source acquire rejects finished surfaces" {
 }
 
 ///|
+test "raster source acquire replacement recovers after failed surface" {
+  let failed_source = Surface::image(Argb32, 1, 1)
+  failed_source.finish()
+
+  let recovered_source = Surface::image(Argb32, 1, 1)
+  let recovered_ctx = Context::new(recovered_source)
+  recovered_ctx.set_source_rgba(0.0, 1.0, 0.0, 1.0)
+  recovered_ctx.paint()
+
+  let failed_acquire_calls = Ref(0)
+  let recovered_acquire_calls = Ref(0)
+  let release_calls = Ref(0)
+  let released_width = Ref(0)
+  let pattern = Pattern::raster_source(ContentColorAlpha, 1, 1)
+  pattern.raster_set_acquire(
+    fn(_, _) {
+      failed_acquire_calls.val += 1
+      failed_source
+    },
+    release=Some(fn(_) { release_calls.val += 1 }),
+  )
+
+  let failed_target = Surface::image(Argb32, 1, 1)
+  let failed_ctx = Context::new(failed_target)
+  failed_ctx.set_source(pattern)
+  let failed_result = run_cairo(() => failed_ctx.paint())
+  inspect(failed_acquire_calls.val > 0, content="true")
+  inspect(release_calls.val, content="0")
+  match failed_result {
+    Err(CairoMemoryError(NoMemory, _)) => ()
+    _ => @test.fail("expected NoMemory before acquire replacement")
+  }
+
+  pattern.raster_set_acquire(
+    fn(_, _) {
+      recovered_acquire_calls.val += 1
+      recovered_source
+    },
+    release=Some(fn(surface) {
+      release_calls.val += 1
+      released_width.val = try! surface.get_width()
+    }),
+  )
+
+  let recovered_target = Surface::image(Argb32, 1, 1)
+  let ctx = Context::new(recovered_target)
+  ctx.set_source(pattern)
+  ctx.paint()
+  recovered_target.flush()
+
+  let data = recovered_target.copy_data()
+  inspect(data[0].to_int(), content="0")
+  inspect(data[1].to_int(), content="255")
+  inspect(data[2].to_int(), content="0")
+  inspect(data[3].to_int(), content="255")
+  inspect(recovered_acquire_calls.val > 0, content="true")
+  inspect(release_calls.val == recovered_acquire_calls.val, content="true")
+  inspect(released_width.val, content="1")
+}
+
+///|
 fn make_data_backed_raster_source_pattern() -> Pattern raise CairoError {
   let data : FixedArray[Byte] = FixedArray::make(4, b'\x00')
   let source = Surface::image_for_data(data, Argb32, 1, 1)
