@@ -82,7 +82,8 @@ Implemented in this workspace:
   TeeSurface creation/add/remove/index helpers with retained primary and target
   wrapper lifetimes,
   mapped image surface readback/unmap helpers, plus Surface MIME data
-  set/get/clear/support checks that copy data across the MoonBit/C boundary,
+  set/get/clear/support checks that copy data across the MoonBit/C boundary
+  and lock image/PDF/PS/SVG backend support matrices,
   initial solid/surface/linear/radial/mesh `Pattern` APIs with
   pointer equality/hash, extend/filter/dither/matrix/gradient state, mesh patch lifecycle/query
   helpers, and complete portable `Region` APIs including multi-rectangle
@@ -135,7 +136,8 @@ Implemented in this workspace:
   mapped image whole-surface and rectangle-extents writeback behavior,
   wrong-base and double-unmap errors, core painting/page behavior, hit testing
   and extents, MIME data storage/clear behavior including embedded NUL bytes,
-  zero-length payloads, and PDF JPEG MIME passthrough, recording surface
+  zero-length payloads, invalid MIME type strings, image/PDF/PS/SVG support
+  matrices, and PDF JPEG MIME passthrough, recording surface
   bounded/unbounded extents,
   replay-through-surface-pattern behavior, subtype-mismatch errors,
   PDF surface version helper behavior, no-output and filename construction,
@@ -214,7 +216,8 @@ Implemented in this workspace:
   paths, toy-font `show_text`, and a two-page paint scene. PDF metadata/custom
   metadata, page labels, outlines, multi-page output, URI link-tag annotations,
   named-destination tags, document-structure tags, and JPEG MIME passthrough
-  have marker checks; PS and SVG multi-page output have marker checks; and
+  have marker checks; image/PDF/PS/SVG MIME support matrices are covered; PS
+  and SVG multi-page output have marker checks; and
   PS/SVG Link tags have inert-output checks matching Cairo 1.18.4 backend
   behavior.
   Full cross-run comparison against pycairo output is not yet automated.
@@ -287,6 +290,9 @@ Implemented in this workspace:
 - `moon -C cairoon test surface_context_test.mbt --target native -v`: 15
   black-box tests passed after adding ordinary image-surface finish/status
   coverage for idempotent finish and `SurfaceFinished` base-method errors.
+- `moon -C cairoon test surface_mime_test.mbt --target native -v`: 5
+  black-box tests passed after adding image/PDF/PS/SVG
+  `supports_mime_type` matrix coverage and invalid MIME type string coverage.
 - `moon -C cairoon test enums_test.mbt --target native -v`: 4 black-box tests
   passed after adding `Rgb16_565`, `Rgb30`, `Rgb96F`, `Rgba128F`, and
   negative-width `Format::stride_for_width` coverage.
@@ -323,9 +329,9 @@ Implemented in this workspace:
   stream output and writer errors, PDF metadata/outlines, PS DSC, SVG document
   units, recording replay, Tee fanout, script devices/surfaces, and checked
   backend-specific errors.
-- `moon -C cairoon test --target native`: 308 tests passed.
-- `moon -C cairoon info --target native`: passed; the latest raster-source
-  callback slice intentionally adds optional callback-state public APIs.
+- `moon -C cairoon test --target native`: 309 tests passed.
+- `moon -C cairoon info --target native`: passed; the latest MIME support
+  matrix slice did not change the public interface.
 - Test-only buffer-backed image oracle coverage plus Pure MoonBit Region
   rectangle-XOR and executable Matrix/Surface/Context/Font/Path/Pattern/Region
   documentation coverage were added without rerunning ASan because no C glue or
@@ -685,6 +691,9 @@ Implemented in this workspace:
   The later raster-source optional-callback slice added release-only callback
   state APIs and one black-box test, raising the native suite to 308 tests;
   targeted ASan with leak detection disabled passed for `pattern_test.mbt`.
+  The later backend MIME support matrix slice added one pure MoonBit black-box
+  test, raising the native suite to 309 tests; ASan was not rerun because no C
+  glue changed.
 
 ## Known Gaps
 

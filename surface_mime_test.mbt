@@ -74,4 +74,126 @@ test "surface mime data validates mime type strings" {
 test "surface reports unsupported mime type" {
   let surface = Surface::image(Argb32, 1, 1)
   inspect(surface.supports_mime_type(MIME_TYPE_JPEG), content="false")
+
+  let invalid = run_cairo(() => {
+    let _ = surface.supports_mime_type("bad\u{0}mime")
+    ()
+  })
+  match invalid {
+    Err(CairoInvalidArgument(InvalidString, _)) => ()
+    _ => @test.fail("expected InvalidString for supports_mime_type")
+  }
+}
+
+///|
+fn inspect_mime_support(
+  surface : Surface,
+  jpeg~ : Bool,
+  png~ : Bool,
+  jp2~ : Bool,
+  uri~ : Bool,
+  unique_id~ : Bool,
+  ccitt~ : Bool,
+  ccitt_params~ : Bool,
+  eps~ : Bool,
+  eps_params~ : Bool,
+  jbig2~ : Bool,
+  jbig2_global~ : Bool,
+  jbig2_global_id~ : Bool,
+) -> Unit raise {
+  inspect(surface.supports_mime_type(MIME_TYPE_JPEG), content="\{jpeg}")
+  inspect(surface.supports_mime_type(MIME_TYPE_PNG), content="\{png}")
+  inspect(surface.supports_mime_type(MIME_TYPE_JP2), content="\{jp2}")
+  inspect(surface.supports_mime_type(MIME_TYPE_URI), content="\{uri}")
+  inspect(
+    surface.supports_mime_type(MIME_TYPE_UNIQUE_ID),
+    content="\{unique_id}",
+  )
+  inspect(surface.supports_mime_type(MIME_TYPE_CCITT_FAX), content="\{ccitt}")
+  inspect(
+    surface.supports_mime_type(MIME_TYPE_CCITT_FAX_PARAMS),
+    content="\{ccitt_params}",
+  )
+  inspect(surface.supports_mime_type(MIME_TYPE_EPS), content="\{eps}")
+  inspect(
+    surface.supports_mime_type(MIME_TYPE_EPS_PARAMS),
+    content="\{eps_params}",
+  )
+  inspect(surface.supports_mime_type(MIME_TYPE_JBIG2), content="\{jbig2}")
+  inspect(
+    surface.supports_mime_type(MIME_TYPE_JBIG2_GLOBAL),
+    content="\{jbig2_global}",
+  )
+  inspect(
+    surface.supports_mime_type(MIME_TYPE_JBIG2_GLOBAL_ID),
+    content="\{jbig2_global_id}",
+  )
+  inspect(surface.supports_mime_type("nope"), content="false")
+}
+
+///|
+test "backend surfaces report cairo mime support matrix" {
+  inspect_mime_support(
+    Surface::image(Argb32, 1, 1),
+    jpeg=false,
+    png=false,
+    jp2=false,
+    uri=false,
+    unique_id=false,
+    ccitt=false,
+    ccitt_params=false,
+    eps=false,
+    eps_params=false,
+    jbig2=false,
+    jbig2_global=false,
+    jbig2_global_id=false,
+  )
+
+  inspect_mime_support(
+    Surface::pdf(1.0, 1.0),
+    jpeg=true,
+    png=false,
+    jp2=true,
+    uri=false,
+    unique_id=true,
+    ccitt=true,
+    ccitt_params=true,
+    eps=false,
+    eps_params=false,
+    jbig2=true,
+    jbig2_global=true,
+    jbig2_global_id=true,
+  )
+
+  inspect_mime_support(
+    Surface::ps(1.0, 1.0),
+    jpeg=true,
+    png=false,
+    jp2=false,
+    uri=false,
+    unique_id=true,
+    ccitt=true,
+    ccitt_params=true,
+    eps=true,
+    eps_params=true,
+    jbig2=false,
+    jbig2_global=false,
+    jbig2_global_id=false,
+  )
+
+  inspect_mime_support(
+    Surface::svg(1.0, 1.0),
+    jpeg=true,
+    png=true,
+    jp2=false,
+    uri=true,
+    unique_id=true,
+    ccitt=false,
+    ccitt_params=false,
+    eps=false,
+    eps_params=false,
+    jbig2=false,
+    jbig2_global=false,
+    jbig2_global_id=false,
+  )
 }

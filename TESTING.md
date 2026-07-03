@@ -186,7 +186,7 @@ surface creation with retained parent-wrapper lifetime, content/type queries,
 pointer equality/hash for ordinary surfaces, dirty markers, device offset/scale, fallback resolution, show-text-glyphs
 support checks, invalid-size error mapping for similar and rectangular child
 surface construction, MIME constants, MIME data storage/query/clear support including
-PDF JPEG MIME passthrough, and
+image/PDF/PS/SVG MIME support matrices and PDF JPEG MIME passthrough, and
 RecordingSurface constructor/extents/ink-extents plus replay, mapped image
 surface mapping/unmapping, PDFSurface filename/no-output/stream constructor,
 version helpers, version restriction, size, metadata, custom metadata,
@@ -225,6 +225,7 @@ for ten deterministic PDF/PS/SVG vector scenes covering paint, stroke,
 fill/stroke rectangles, Bezier paths, transforms, linear/radial gradients,
 toy-font text paths, toy-font `show_text`, and a two-page paint scene, PDF metadata/custom-metadata/page-label/outline output
 markers, PDF/PS/SVG multi-page output markers, PDF JPEG MIME payload embedding,
+image/PDF/PS/SVG MIME support matrix checks,
 PDF URI link-tag annotation markers, PDF named-destination tag markers, PDF
 document-structure tag markers, PS/SVG Link tag inert-output checks, mutable
 image/mapped-image data view tests, and initial tests. Pattern has executable
@@ -295,6 +296,9 @@ Verified on 2026-07-02 and 2026-07-03:
 - `moon -C cairoon test surface_context_test.mbt --target native -v`: 15
   black-box tests passed after adding ordinary image-surface finish/status
   coverage for idempotent finish and `SurfaceFinished` base-method errors.
+- `moon -C cairoon test surface_mime_test.mbt --target native -v`: 5
+  black-box tests passed after adding image/PDF/PS/SVG
+  `supports_mime_type` matrix coverage and invalid MIME type string coverage.
 - `moon -C cairoon test surface_subsurface_test.mbt --target native -v`: 3
   black-box tests passed after adding invalid-size coverage for
   `Surface::create_for_rectangle`.
@@ -331,9 +335,9 @@ Verified on 2026-07-02 and 2026-07-03:
 - `moon -C cairoon test enums_test.mbt --target native -v`: 4 black-box tests
   passed after adding `Rgb16_565`, `Rgb30`, `Rgb96F`, `Rgba128F`, and
   negative-width `Format::stride_for_width` coverage.
-- `moon -C cairoon test --target native`: 308 tests passed.
-- `moon -C cairoon info --target native`: passed; the latest raster-source
-  callback slice intentionally adds optional callback-state public APIs.
+- `moon -C cairoon test --target native`: 309 tests passed.
+- `moon -C cairoon info --target native`: passed; the latest MIME support
+  matrix slice did not change the public interface.
 - Test-only buffer-backed image oracle coverage plus Pure MoonBit Region
   rectangle-XOR and executable Matrix/Surface/Context/Font/Path/Pattern/Region
   documentation coverage were added without rerunning ASan because no C glue or
@@ -347,6 +351,9 @@ Verified on 2026-07-02 and 2026-07-03:
 - Raster-source optional callback-state coverage added release-only C callback
   ownership paths and reran targeted ASan with leak detection disabled for
   `pattern_test.mbt`.
+- Pure MoonBit backend MIME support matrix coverage was added without rerunning
+  ASan because no C glue, finalizer, callback trampoline, or retained owner
+  code changed in that slice.
 - Test-only source/mask offset image-oracle helper coverage was added without
   changing the public API or native test count; sanitizer validation is
   recorded below.
@@ -786,6 +793,9 @@ Verified on 2026-07-02 and 2026-07-03:
   The later raster-source optional-callback slice added release-only callback
   state APIs and one black-box test, raising the native suite to 308 tests.
   Targeted ASan with leak detection disabled passed for `pattern_test.mbt`.
+  The later backend MIME support matrix slice added one pure MoonBit black-box
+  test, raising the native suite to 309 tests. ASan/LSan was not rerun for
+  that slice because it did not change C glue or ownership code.
 
 The missing reliability pieces are substantial: broader automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering
