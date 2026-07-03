@@ -182,7 +182,8 @@ mapped-image surfaces, portable
 Surface base helpers such as similar-surface creation, rectangular child
 surface creation with retained parent-wrapper lifetime, content/type queries,
 pointer equality/hash for ordinary surfaces, dirty markers, device offset/scale, fallback resolution, show-text-glyphs
-support checks, MIME constants, MIME data storage/query/clear support including
+support checks, invalid-size error mapping for similar and rectangular child
+surface construction, MIME constants, MIME data storage/query/clear support including
 PDF JPEG MIME passthrough, and
 RecordingSurface constructor/extents/ink-extents plus replay, mapped image
 surface mapping/unmapping, PDFSurface filename/no-output/stream constructor,
@@ -248,9 +249,15 @@ Verified on 2026-07-02 and 2026-07-03:
 - `moon -C cairoon test surface_context_test.mbt context_lifetime_test.mbt
   pattern_test.mbt --target native -v`: 32 tests passed after adding
   `Surface`/`Context`/`Pattern` pointer equality/hash.
-- `moon -C cairoon test --target native`: 249 tests passed.
+- `moon -C cairoon test surface_context_test.mbt --target native -v`: 12
+  black-box tests passed after adding invalid-size coverage for
+  `Surface::create_similar` and `Surface::create_similar_image`.
+- `moon -C cairoon test surface_subsurface_test.mbt --target native -v`: 3
+  black-box tests passed after adding invalid-size coverage for
+  `Surface::create_for_rectangle`.
+- `moon -C cairoon test --target native`: 251 tests passed.
 - `moon -C cairoon info --target native`: passed; the latest
-  ScaledFont white-box oracle helper slices did not change the public
+  Surface invalid-size black-box tests did not change the public
   interface.
 - Documentation-only product-decision audit for pycairo `CAPI`, legacy enum
   aliases, and non-implemented FreeType/user-font classes: `moon -C cairoon
@@ -595,6 +602,11 @@ Verified on 2026-07-02 and 2026-07-03:
   fixtures to nine scenes, and the later two-page oracle slice expanded them to
   ten scenes without changing the number of tests. The latest sanitizer
   validation is recorded in the current verified block above.
+  The later Surface invalid-size slice added pure MoonBit black-box coverage for
+  `create_similar`, `create_similar_image`, and `create_for_rectangle` mapping
+  negative dimensions to `CairoInvalidArgument(InvalidSize, _)`, raising the
+  native suite to 251 tests. ASan/LSan was not rerun for that slice because it
+  did not change C glue or ownership code.
 
 The missing reliability pieces are substantial: broader automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering

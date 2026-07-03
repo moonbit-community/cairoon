@@ -21,6 +21,17 @@ fn child_surface_from_local_parent() -> Surface raise CairoError {
 }
 
 ///|
+fn expect_subsurface_invalid_size(
+  result : Result[Surface, CairoError],
+) -> Unit raise {
+  inspect(result is Err(_), content="true")
+  match result {
+    Err(CairoInvalidArgument(InvalidSize, _)) => ()
+    _ => @test.fail("expected InvalidSize")
+  }
+}
+
+///|
 test "subsurface clips and translates drawing into parent surface" {
   let parent = Surface::image(Argb32, 4, 4)
   let child = parent.create_for_rectangle(1.0, 1.0, 2.0, 2.0)
@@ -48,4 +59,15 @@ test "subsurface keeps parent wrapper alive after local scope exits" {
   ctx.paint()
   child.flush()
   inspect(child.status().is_success(), content="true")
+}
+
+///|
+test "subsurface validates invalid rectangle dimensions" {
+  let parent = Surface::image(Argb32, 4, 4)
+  expect_subsurface_invalid_size(
+    run_cairo(() => parent.create_for_rectangle(0.0, 0.0, -1.0, 1.0)),
+  )
+  expect_subsurface_invalid_size(
+    run_cairo(() => parent.create_for_rectangle(0.0, 0.0, 1.0, -1.0)),
+  )
 }

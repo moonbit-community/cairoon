@@ -103,7 +103,8 @@ Implemented in this workspace:
   exposure, pure value types, matrix behavior, image surface properties,
   buffer-backed image surface sharing and
   Cairo-reference lifetime behavior, PNG filename round trips and invalid path
-  validation, deterministic pixel rendering, direct C Cairo oracle comparisons
+  validation, Surface similar/subsurface invalid-size error mapping,
+  deterministic pixel rendering, direct C Cairo oracle comparisons
   for thirteen ARGB32 scenes covering paint, stroke, fill/stroke rectangles,
   Bezier paths, transforms, RGBA compositing, linear/radial gradients,
   toy-font `text_path`, toy-font `show_text`, `glyph_path`, `show_glyphs`,
@@ -249,9 +250,15 @@ Implemented in this workspace:
 - `moon -C cairoon test surface_context_test.mbt context_lifetime_test.mbt
   pattern_test.mbt --target native -v`: 32 tests passed after adding
   `Surface`/`Context`/`Pattern` pointer equality/hash.
-- `moon -C cairoon test --target native`: 249 tests passed.
+- `moon -C cairoon test surface_context_test.mbt --target native -v`: 12
+  black-box tests passed after adding invalid-size coverage for
+  `Surface::create_similar` and `Surface::create_similar_image`.
+- `moon -C cairoon test surface_subsurface_test.mbt --target native -v`: 3
+  black-box tests passed after adding invalid-size coverage for
+  `Surface::create_for_rectangle`.
+- `moon -C cairoon test --target native`: 251 tests passed.
 - `moon -C cairoon info --target native`: passed; the latest
-  ScaledFont white-box oracle helper slices did not change the public
+  Surface invalid-size black-box tests did not change the public
   interface.
 - Documentation-only product-decision audit for pycairo `CAPI`, legacy enum
   aliases, and non-implemented FreeType/user-font classes: `moon -C cairoon
@@ -504,6 +511,10 @@ Implemented in this workspace:
   fixtures to nine scenes, and the later two-page oracle slice expanded them to
   ten scenes without changing the number of tests. The latest sanitizer
   validation is recorded in `Last Verified` above.
+  The later Surface invalid-size slice added pure MoonBit black-box coverage for
+  `create_similar`, `create_similar_image`, and `create_for_rectangle` mapping
+  negative dimensions to `CairoInvalidArgument(InvalidSize, _)`, raising the
+  native suite to 251 tests; ASan was not rerun because no C glue changed.
 
 ## Known Gaps
 

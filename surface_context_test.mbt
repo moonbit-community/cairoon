@@ -5,6 +5,17 @@ fn surface_with_local_pixel_buffer() -> Surface raise CairoError {
 }
 
 ///|
+fn expect_surface_invalid_size(
+  result : Result[Surface, CairoError],
+) -> Unit raise {
+  inspect(result is Err(_), content="true")
+  match result {
+    Err(CairoInvalidArgument(InvalidSize, _)) => ()
+    _ => @test.fail("expected InvalidSize")
+  }
+}
+
+///|
 test "image surface properties" {
   let surface = Surface::image(Argb32, 2, 1)
   debug_inspect(surface.get_type(), content="SurfaceTypeImage")
@@ -43,6 +54,23 @@ test "surface similar constructors and state queries" {
   debug_inspect(image.get_format(), content="Rgb24")
   inspect(image.get_width(), content="3")
   inspect(image.get_height(), content="4")
+}
+
+///|
+test "surface similar constructors validate invalid dimensions" {
+  let source = Surface::image(Argb32, 2, 2)
+  expect_surface_invalid_size(
+    run_cairo(() => source.create_similar(ContentColor, -1, 1)),
+  )
+  expect_surface_invalid_size(
+    run_cairo(() => source.create_similar(ContentColor, 1, -1)),
+  )
+  expect_surface_invalid_size(
+    run_cairo(() => source.create_similar_image(Argb32, -1, 1)),
+  )
+  expect_surface_invalid_size(
+    run_cairo(() => source.create_similar_image(Argb32, 1, -1)),
+  )
 }
 
 ///|
