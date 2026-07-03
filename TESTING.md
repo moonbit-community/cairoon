@@ -237,12 +237,15 @@ family. Matrix has executable reference examples for component access,
 pure-value transforms, multiplication, inversion, and checked errors. Surface
 has executable reference examples for image properties, buffer-backed data,
 similar/subsurface constructors, mapped images, PNG/MIME helpers, and checked
-surface errors. Context has executable reference examples for construction and
-drawing state, transformations, paths, fill/stroke output, clipping, groups,
-text/glyph APIs, and checked context errors. Font has executable reference
-examples for FontOptions state/copy/merge, color palettes, toy font faces,
-Surface/Context font options, ScaledFont matrices/metrics, text-to-glyphs, and
-checked font errors.
+surface errors. Backend surfaces/devices have executable reference examples for
+PDF/PS/SVG stream output and writer errors, PDF metadata/outlines, PS DSC, SVG
+document units, recording replay, Tee fanout, script devices/surfaces, and
+checked backend-specific errors. Context has executable reference examples for
+construction and drawing state, transformations, paths, fill/stroke output,
+clipping, groups, text/glyph APIs, and checked context errors. Font has
+executable reference examples for FontOptions state/copy/merge, color
+palettes, toy font faces, Surface/Context font options, ScaledFont
+matrices/metrics, text-to-glyphs, and checked font errors.
 
 Verified on 2026-07-02 and 2026-07-03:
 
@@ -304,7 +307,12 @@ Verified on 2026-07-02 and 2026-07-03:
   reference examples passed, covering FontOptions state/copy/merge, color
   palettes, toy font faces, Surface/Context font options, ScaledFont
   matrices/metrics, text-to-glyphs, and checked font errors.
-- `moon -C cairoon test --target native`: 292 tests passed.
+- `moon -C cairoon test backend_surfaces.mbt.md --target native -v`: 8
+  executable Backend Surface reference examples passed, covering PDF/PS/SVG
+  stream output and writer errors, PDF metadata/outlines, PS DSC, SVG document
+  units, recording replay, Tee fanout, script devices/surfaces, and checked
+  backend-specific errors.
+- `moon -C cairoon test --target native`: 300 tests passed.
 - `moon -C cairoon info --target native`: passed; the latest
   source/mask offset image-oracle helper slice did not change the public
   interface.
@@ -719,6 +727,12 @@ Verified on 2026-07-02 and 2026-07-03:
   text-to-glyphs, and checked font errors, raising the native suite to 292
   tests. ASan/LSan was not rerun for that slice because it did not change C
   glue or ownership code.
+  The later Backend Surface documentation slice added `backend_surfaces.mbt.md`
+  with eight executable examples covering PDF/PS/SVG stream output and writer
+  errors, PDF metadata/outlines, PS DSC, SVG document units, recording replay,
+  Tee fanout, script devices/surfaces, and checked backend-specific errors,
+  raising the native suite to 300 tests. ASan/LSan was not rerun for that slice
+  because it did not change C glue or ownership code.
 
 The missing reliability pieces are substantial: broader automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering

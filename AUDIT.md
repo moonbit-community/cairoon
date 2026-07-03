@@ -175,9 +175,11 @@ Implemented in this workspace:
   allocation stress for set/get/manual acquire/release/replace/clear paths.
 - `API_INVENTORY.md` now tracks the full pycairo API surface against cairoon
   status.
-- `matrix.mbt.md`, `font.mbt.md`, `path.mbt.md`, `pattern.mbt.md`, and
-  `region.mbt.md` document Matrix, FontOptions, FontFace, ScaledFont, Path,
-  Pattern, and Region behavior with executable examples.
+- `matrix.mbt.md`, `surface.mbt.md`, `backend_surfaces.mbt.md`,
+  `context.mbt.md`, `font.mbt.md`, `path.mbt.md`, `pattern.mbt.md`, and
+  `region.mbt.md` document Matrix, Surface, backend surface/device, Context,
+  FontOptions, FontFace, ScaledFont, Path, Pattern, and Region behavior with
+  executable examples.
 - `TESTING.md` defines the migration reliability gates and records why the
   pycairo test suite is useful but insufficient by itself.
 
@@ -295,7 +297,12 @@ Implemented in this workspace:
   reference examples passed, covering FontOptions state/copy/merge, color
   palettes, toy font faces, Surface/Context font options, ScaledFont
   matrices/metrics, text-to-glyphs, and checked font errors.
-- `moon -C cairoon test --target native`: 292 tests passed.
+- `moon -C cairoon test backend_surfaces.mbt.md --target native -v`: 8
+  executable Backend Surface reference examples passed, covering PDF/PS/SVG
+  stream output and writer errors, PDF metadata/outlines, PS DSC, SVG document
+  units, recording replay, Tee fanout, script devices/surfaces, and checked
+  backend-specific errors.
+- `moon -C cairoon test --target native`: 300 tests passed.
 - `moon -C cairoon info --target native`: passed; the latest
   source/mask offset image-oracle helper slice did not change the public
   interface.
@@ -306,6 +313,9 @@ Implemented in this workspace:
 - Test-only source/mask offset image-oracle helper coverage was added without
   changing the public API or native test count; sanitizer validation is
   recorded below.
+- Executable backend surface/device reference documentation was added without
+  rerunning ASan because no C glue, finalizer, callback trampoline, or retained
+  owner code changed in that slice.
 - Documentation-only product-decision audit for pycairo `CAPI`, legacy enum
   aliases, and non-implemented FreeType/user-font classes: `moon -C cairoon
   check --target native`, `moon -C cairoon test --target native -v`, and
@@ -615,6 +625,12 @@ Implemented in this workspace:
   faces, Surface/Context font options, ScaledFont matrices/metrics,
   text-to-glyphs, and checked font errors, raising the native suite to 292
   tests; ASan was not rerun because no C glue changed.
+  The later Backend Surface documentation slice added `backend_surfaces.mbt.md`
+  with eight executable examples covering PDF/PS/SVG stream output and writer
+  errors, PDF metadata/outlines, PS DSC, SVG document units, recording replay,
+  Tee fanout, script devices/surfaces, and checked backend-specific errors,
+  raising the native suite to 300 tests; ASan was not rerun because no C glue
+  changed.
 
 ## Known Gaps
 
