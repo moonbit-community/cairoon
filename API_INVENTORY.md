@@ -45,8 +45,8 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 | `MIME_TYPE_*` constants | Done | Cairo MIME strings exposed and white-box tested against C macros |
 | `TAG_*` constants | Done | Cairo tag strings exposed and white-box tested against C macros |
 | `PDF_OUTLINE_ROOT`, `FORMAT_INVALID`, `COLOR_PALETTE_DEFAULT` | Done | Numeric constants exposed and white-box tested against C macros |
-| `version`, `version_info` | Decision | pycairo package-version surface; cairoon needs its own package-version policy before exposing an equivalent |
-| `get_include()` | Decision | pycairo-specific C-extension helper; decide whether cairoon needs an equivalent |
+| `version`, `version_info` | Decision | Resolved out of public API scope: Cairo library version is exposed through `cairo_version*` and package version remains Moon package metadata in `moon.mod` |
+| `get_include()` | Decision | Resolved out of public API scope: pycairo uses this for Python C-extension header discovery; cairoon uses `moon.pkg` native link configuration instead |
 
 ## Enums And Constants
 
@@ -182,16 +182,15 @@ These are not safe to guess if the goal is a full product.
 1. Should cairoon include platform-specific pycairo APIs (`Win32Surface`,
    `XCBSurface`, `XlibSurface`) behind conditional builds, or should the first
    full product target only portable Cairo backends?
-2. Should `get_include()`, `version`, `version_info`, or equivalent MoonBit
-   package-version and embedding-header surfaces be part of the MoonBit
-   product, or is that pycairo C-extension compatibility surface out of scope?
-3. Should observer APIs be part of the portable first product when Cairo was
+2. Should observer APIs be part of the portable first product when Cairo was
    compiled with observer support, or should they be deferred with other
    optional backends?
 
 Resolved by `AGENTS.md`: cairoon uses opaque MoonBit owner types with
 constructor methods instead of CPython-style inheritance, and filename APIs
 come before callback stream APIs.
+Resolved here: pycairo's `version`, `version_info`, and `get_include()`
+packaging/C-extension helpers are out of cairoon's public runtime API.
 
 ## Reliability Gates
 
