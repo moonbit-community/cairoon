@@ -4,6 +4,8 @@
 #include <string.h>
 
 static const cairo_user_data_key_t cairoon_image_surface_data_key;
+static const cairo_user_data_key_t cairoon_surface_finished_key;
+static const int cairoon_surface_finished_sentinel = 1;
 
 static void cairoon_decref_user_data(void *user_data) {
   if (user_data != NULL) {
@@ -50,6 +52,12 @@ static cairo_status_t cairoon_surface_require_type(
     return CAIRO_STATUS_SURFACE_TYPE_MISMATCH;
   }
   return CAIRO_STATUS_SUCCESS;
+}
+
+static int cairoon_surface_is_finished(cairo_surface_t *surface) {
+  return cairo_surface_get_user_data(
+    surface,
+    &cairoon_surface_finished_key) != NULL;
 }
 
 MOONBIT_FFI_EXPORT
@@ -302,7 +310,14 @@ cairo_status_t cairoon_surface_status(CairoonSurface *surface) {
   if (surface == NULL || surface->ptr == NULL) {
     return CAIRO_STATUS_NULL_POINTER;
   }
-  return cairo_surface_status(surface->ptr);
+  cairo_status_t status = cairo_surface_status(surface->ptr);
+  if (status != CAIRO_STATUS_SUCCESS) {
+    return status;
+  }
+  if (cairoon_surface_is_finished(surface->ptr)) {
+    return CAIRO_STATUS_SURFACE_FINISHED;
+  }
+  return CAIRO_STATUS_SUCCESS;
 }
 
 MOONBIT_FFI_EXPORT
@@ -562,7 +577,21 @@ int32_t cairoon_surface_supports_mime_type(
 
 MOONBIT_FFI_EXPORT
 cairo_status_t cairoon_surface_finish(CairoonSurface *surface) {
-  cairo_status_t status = cairoon_surface_status(surface);
+  if (surface == NULL || surface->ptr == NULL) {
+    return CAIRO_STATUS_NULL_POINTER;
+  }
+  cairo_status_t status = cairo_surface_status(surface->ptr);
+  if (status != CAIRO_STATUS_SUCCESS) {
+    return status;
+  }
+  if (cairoon_surface_is_finished(surface->ptr)) {
+    return CAIRO_STATUS_SUCCESS;
+  }
+  status = cairo_surface_set_user_data(
+    surface->ptr,
+    &cairoon_surface_finished_key,
+    (void *)&cairoon_surface_finished_sentinel,
+    NULL);
   if (status != CAIRO_STATUS_SUCCESS) {
     return status;
   }

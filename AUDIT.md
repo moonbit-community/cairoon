@@ -175,7 +175,8 @@ Implemented in this workspace:
   buffer-backed, and mapped image surfaces, plus backend stream callback
   allocation stress for PDF/PS/SVG surfaces, PNG stream write/read, script
   devices, and stream `WriteError` paths, plus raster-source callback
-  allocation stress for set/get/manual acquire/release/replace/clear paths.
+  allocation stress for set/get/manual acquire/release/replace/clear paths and
+  finished-surface acquire failure injection.
 - `API_INVENTORY.md` now tracks the full pycairo API surface against cairoon
   status.
 - `matrix.mbt.md`, `surface.mbt.md`, `backend_surfaces.mbt.md`,
@@ -264,6 +265,14 @@ Implemented in this workspace:
 - `moon -C cairoon test raster_lifetime_stress_test.mbt --target native -v`: 1
   black-box raster-source callback lifetime test passed after adding the
   1000-iteration set/get/manual acquire/release/replace/clear stress case.
+- `moon -C cairoon test pattern_test.mbt --target native -v`: 16 black-box
+  pattern tests passed after adding finished-surface raster acquire
+  failure-injection coverage and the C-side surface-finished sentinel.
+- `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
+  ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
+  pattern_test.mbt --target native -v`: 16 ASan-compiled black-box pattern
+  tests passed with leak detection disabled, covering the raster acquire
+  finished-surface rejection path in C glue.
 - `moon -C cairoon test vector_output_wbtest.mbt --target native -v`: 15
   white-box tests passed after adding PDF named-destination and
   document-structure tag output marker checks alongside metadata, URI
@@ -310,9 +319,9 @@ Implemented in this workspace:
   stream output and writer errors, PDF metadata/outlines, PS DSC, SVG document
   units, recording replay, Tee fanout, script devices/surfaces, and checked
   backend-specific errors.
-- `moon -C cairoon test --target native`: 305 tests passed.
-- `moon -C cairoon info --target native`: passed; the latest format-stride
-  coverage slice did not change the public interface.
+- `moon -C cairoon test --target native`: 306 tests passed.
+- `moon -C cairoon info --target native`: passed; the latest raster-source
+  finished-surface C glue slice did not change the public interface.
 - Test-only buffer-backed image oracle coverage plus Pure MoonBit Region
   rectangle-XOR and executable Matrix/Surface/Context/Font/Path/Pattern/Region
   documentation coverage were added without rerunning ASan because no C glue or
@@ -658,6 +667,10 @@ Implemented in this workspace:
   `Rgb16_565`, `Rgb30`, `Rgb96F`, `Rgba128F`, and negative-width
   `Format::stride_for_width`, raising the native suite to 305 tests; ASan was
   not rerun because no C glue changed.
+  The later raster-source finished-surface slice added one black-box
+  failure-injection test and C-side surface-finished tracking for callbacks,
+  raising the native suite to 306 tests; targeted ASan with leak detection
+  disabled passed for `pattern_test.mbt`.
 
 ## Known Gaps
 

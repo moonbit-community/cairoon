@@ -153,12 +153,12 @@ static cairo_surface_t *cairoon_raster_source_acquire(
     return NULL;
   }
 
-  cairo_surface_t *source = source_wrapper->ptr;
-  if (cairo_surface_status(source) != CAIRO_STATUS_SUCCESS) {
+  if (cairoon_surface_status(source_wrapper) != CAIRO_STATUS_SUCCESS) {
     moonbit_decref(source_wrapper);
     return NULL;
   }
 
+  cairo_surface_t *source = source_wrapper->ptr;
   cairo_status_t status = cairoon_raster_surface_owner_retain(source_wrapper);
   if (status != CAIRO_STATUS_SUCCESS) {
     moonbit_decref(source_wrapper);

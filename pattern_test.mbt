@@ -210,6 +210,33 @@ test "raster source pattern paints from acquire callback" {
 }
 
 ///|
+test "raster source acquire rejects finished surfaces" {
+  let source = Surface::image(Argb32, 1, 1)
+  source.finish()
+  let acquire_calls = Ref(0)
+  let release_calls = Ref(0)
+  let pattern = Pattern::raster_source(ContentColorAlpha, 1, 1)
+  pattern.raster_set_acquire(
+    fn(_, _) {
+      acquire_calls.val += 1
+      source
+    },
+    release=Some(fn(_) { release_calls.val += 1 }),
+  )
+
+  let target = Surface::image(Argb32, 1, 1)
+  let ctx = Context::new(target)
+  ctx.set_source(pattern)
+  let result = run_cairo(() => ctx.paint())
+  inspect(acquire_calls.val > 0, content="true")
+  inspect(release_calls.val, content="0")
+  match result {
+    Err(CairoMemoryError(NoMemory, _)) => ()
+    _ => @test.fail("expected NoMemory when raster acquire returns no surface")
+  }
+}
+
+///|
 fn make_data_backed_raster_source_pattern() -> Pattern raise CairoError {
   let data : FixedArray[Byte] = FixedArray::make(4, b'\x00')
   let source = Surface::image_for_data(data, Argb32, 1, 1)
