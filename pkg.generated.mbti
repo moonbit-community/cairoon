@@ -791,6 +791,7 @@ pub fn Surface::tee_index(Self, Int) -> Self raise CairoError
 pub fn Surface::tee_remove(Self, Self) -> Unit raise CairoError
 pub fn Surface::unmap_image(Self, MappedImageSurface) -> Unit raise CairoError
 pub fn Surface::write_to_png(Self, String) -> Unit raise CairoError
+pub fn Surface::write_to_png_stream(Self, (Bytes) -> Status) -> Unit raise CairoError
 
 pub(all) enum SurfaceObserverMode {
   SurfaceObserverNormal

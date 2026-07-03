@@ -1102,6 +1102,15 @@ extern "C" fn surface_write_to_png_ffi(
 ) -> Status = "cairoon_surface_write_to_png"
 
 ///|
+#borrow(surface)
+#owned(writer)
+extern "C" fn surface_write_to_png_stream_ffi(
+  surface : Surface,
+  call_writer : FuncRef[(Bytes, (Bytes) -> Status) -> Status],
+  writer : (Bytes) -> Status,
+) -> Status = "cairoon_surface_write_to_png_stream"
+
+///|
 #borrow(surface, mime_type, data)
 extern "C" fn surface_set_mime_data_ffi(
   surface : Surface,

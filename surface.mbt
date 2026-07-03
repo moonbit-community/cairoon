@@ -339,6 +339,20 @@ pub fn Surface::write_to_png(
 }
 
 ///|
+pub fn Surface::write_to_png_stream(
+  self : Surface,
+  writer : (Bytes) -> Status,
+) -> Unit raise CairoError {
+  check_status(
+    surface_write_to_png_stream_ffi(
+      self,
+      fn(chunk, writer) { writer(chunk) },
+      writer,
+    ),
+  )
+}
+
+///|
 pub fn Surface::set_mime_data(
   self : Surface,
   mime_type : String,

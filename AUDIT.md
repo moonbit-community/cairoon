@@ -171,10 +171,10 @@ Implemented in this workspace:
 2026-07-02 and 2026-07-03:
 
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native -v`: 219 tests passed.
+- `moon -C cairoon test --target native -v`: 221 tests passed.
 - `run-asan.py --repo-root /Users/caimeo/code/pycairo/cairoon --pkg moon.pkg`:
-  most recently ran the 219-test native suite on 2026-07-03 after the
-  PDF/PS/SVG stream-writer callback slice. An earlier retained-owner stress
+  most recently ran the 221-test native suite on 2026-07-03 after the
+  PNG stream-write slice. An earlier retained-owner stress
   ASan run found a heap-use-after-free in `cairoon_copy_image_surface_data` reached from
   `lifetime_stress_test.mbt` when a returned target surface outlived a context
   created from a mapped image. The fixed rerun, and the later TeeSurface rerun,
@@ -202,10 +202,10 @@ Implemented in this workspace:
   stack appeared in the visible leak roots of the latest rerun. The first
   stream-writer ASan run exposed a real `moonbit_make_bytes` leak rooted at
   `cairoon_stream_write`; the fixed rerun removed all `cairoon_stream` leak
-  roots. A grep of `/tmp/cairoon-stream-asan-fixed.txt` found no
+  roots. A grep of `/tmp/cairoon-png-stream-asan.txt` found no
   `ERROR: AddressSanitizer`, heap-use-after-free, stack-use-after, or
-  `cairoon_stream` entries.
-  Summary: `65485 byte(s) leaked in 405 allocation(s)`. The helper still emits
+  `cairoon_surface_write_to_png_stream` / `cairoon_stream` entries.
+  Summary: `64909 byte(s) leaked in 399 allocation(s)`. The helper still emits
   a `moon.mod.json` lookup warning because this package uses `moon.mod`, but it
   correctly patched and restored the DSL `moon.pkg` and MoonBit runtime object
   for this package.
@@ -221,13 +221,15 @@ Implemented in this workspace:
   rerun as described above.
   The later PDF/PS/SVG stream-writer slice added C callback state, copied-byte
   trampolines, and four black-box tests; ASan/LSan was rerun as described above.
+  The later PNG stream-write slice reused the copied-byte writer trampoline and
+  added two black-box tests; ASan/LSan was rerun as described above.
 
 ## Known Gaps
 
-- No raster-source patterns, PNG/script stream callbacks, normalized
+- No raster-source patterns, PNG read/script stream callbacks, normalized
   PDF/SVG/PS output comparison, or SVG/PS tag-materialization assertions yet.
-  PDF/PS/SVG stream-writer constructors now have copied-byte callback tests
-  and `WriteError` propagation coverage.
+  PDF/PS/SVG stream-writer constructors and PNG stream writes now have
+  copied-byte callback tests and `WriteError` propagation coverage.
 - `Surface::copy_data` still copies Cairo image data into MoonBit `Bytes`;
   `Surface::get_data` is the mutable image-surface view and intentionally
   retains the surface wrapper instead of exposing a raw pointer.
