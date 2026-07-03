@@ -46,7 +46,9 @@ enum {
   CAIROON_TEST_IMAGE_SHOW_TEXT = 9,
   CAIROON_TEST_IMAGE_GLYPH_PATH = 10,
   CAIROON_TEST_IMAGE_SHOW_GLYPHS = 11,
-  CAIROON_TEST_IMAGE_SHOW_TEXT_GLYPHS = 12
+  CAIROON_TEST_IMAGE_SHOW_TEXT_GLYPHS = 12,
+  CAIROON_TEST_IMAGE_SOURCE_SURFACE_OFFSET = 13,
+  CAIROON_TEST_IMAGE_MASK_SURFACE_OFFSET = 14
 };
 
 typedef struct {
@@ -465,6 +467,61 @@ static cairo_status_t cairoon_test_draw_argb32_scene(
       }
       cairo_glyph_free(glyphs);
       cairo_text_cluster_free(clusters);
+      return status;
+    }
+    case CAIROON_TEST_IMAGE_SOURCE_SURFACE_OFFSET: {
+      cairo_surface_t *source =
+        cairo_image_surface_create(CAIRO_FORMAT_ARGB32, 2, 2);
+      cairo_status_t status = cairo_surface_status(source);
+      if (status == CAIRO_STATUS_SUCCESS) {
+        cairo_t *source_cr = cairo_create(source);
+        cairo_set_source_rgb(source_cr, 1.0, 0.0, 0.0);
+        cairo_rectangle(source_cr, 0.0, 0.0, 1.0, 1.0);
+        cairo_fill(source_cr);
+        cairo_set_source_rgb(source_cr, 0.0, 1.0, 0.0);
+        cairo_rectangle(source_cr, 1.0, 0.0, 1.0, 1.0);
+        cairo_fill(source_cr);
+        cairo_set_source_rgb(source_cr, 0.0, 0.0, 1.0);
+        cairo_rectangle(source_cr, 0.0, 1.0, 1.0, 1.0);
+        cairo_fill(source_cr);
+        cairo_set_source_rgb(source_cr, 1.0, 1.0, 1.0);
+        cairo_rectangle(source_cr, 1.0, 1.0, 1.0, 1.0);
+        cairo_fill(source_cr);
+        status = cairo_status(source_cr);
+        cairo_destroy(source_cr);
+      }
+      if (status == CAIRO_STATUS_SUCCESS) {
+        cairo_set_source_surface(cr, source, 7.0, 6.0);
+        cairo_paint(cr);
+        status = cairo_status(cr);
+      }
+      cairo_surface_destroy(source);
+      return status;
+    }
+    case CAIROON_TEST_IMAGE_MASK_SURFACE_OFFSET: {
+      cairo_surface_t *mask =
+        cairo_image_surface_create(CAIRO_FORMAT_ARGB32, 2, 2);
+      cairo_status_t status = cairo_surface_status(mask);
+      if (status == CAIRO_STATUS_SUCCESS) {
+        cairo_t *mask_cr = cairo_create(mask);
+        cairo_set_source_rgba(mask_cr, 1.0, 1.0, 1.0, 1.0);
+        cairo_rectangle(mask_cr, 0.0, 0.0, 1.0, 1.0);
+        cairo_fill(mask_cr);
+        cairo_set_source_rgba(mask_cr, 1.0, 1.0, 1.0, 0.5);
+        cairo_rectangle(mask_cr, 1.0, 0.0, 1.0, 1.0);
+        cairo_fill(mask_cr);
+        cairo_set_source_rgba(mask_cr, 1.0, 1.0, 1.0, 1.0);
+        cairo_rectangle(mask_cr, 1.0, 1.0, 1.0, 1.0);
+        cairo_fill(mask_cr);
+        status = cairo_status(mask_cr);
+        cairo_destroy(mask_cr);
+      }
+      if (status == CAIRO_STATUS_SUCCESS) {
+        cairo_set_source_rgb(cr, 1.0, 0.0, 0.0);
+        cairo_mask_surface(cr, mask, 7.0, 6.0);
+        status = cairo_status(cr);
+      }
+      cairo_surface_destroy(mask);
       return status;
     }
     default:

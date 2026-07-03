@@ -174,9 +174,10 @@ documented product decisions for `CAPI`, legacy uppercase enum alias
 constants, and non-implemented FreeType/user-font classes,
 hit-testing/extents APIs, typed Path segment iteration and stringification,
 PNG filename load/save plus stream read/write, direct C Cairo oracle
-comparisons for thirteen deterministic ARGB32 image scenes on ordinary and
+comparisons for fifteen deterministic ARGB32 image scenes on ordinary and
 buffer-backed image surfaces including toy-font `text_path`, toy-font
-`show_text`, `glyph_path`, `show_glyphs`, and `show_text_glyphs`, and
+`show_text`, `glyph_path`, `show_glyphs`, `show_text_glyphs`,
+source-surface offsets, and mask-surface offsets, and
 buffer-backed creation plus mutable `ImageData`
 views for image and
 mapped-image surfaces, portable
@@ -249,8 +250,13 @@ Verified on 2026-07-02 and 2026-07-03:
 - `moon -C cairoon test image_oracle_wbtest.mbt --target native -v`: 2
   white-box image rendering oracle tests passed. Ordinary image surfaces and
   buffer-backed `Surface::image_for_data` surfaces both match the direct C
-  ARGB32 fixture across thirteen scenes with `glyph_path`, `show_glyphs`, and
-  `show_text_glyphs`.
+  ARGB32 fixture across fifteen scenes with `glyph_path`, `show_glyphs`,
+  `show_text_glyphs`, source-surface offsets, and mask-surface offsets.
+- `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
+  ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
+  image_oracle_wbtest.mbt --target native -v`: 2 ASan-compiled white-box image
+  oracle tests passed with leak detection disabled, directly exercising the
+  source/mask offset C oracle helper paths.
 - `moon -C cairoon test scaled_font_oracle_wbtest.mbt --target native -v`: 2
   white-box ScaledFont oracle tests passed, comparing font extents, text
   extents, glyph extents, and empty/ASCII/UTF-8 text-to-glyph coordinate cases
@@ -300,15 +306,29 @@ Verified on 2026-07-02 and 2026-07-03:
   matrices/metrics, text-to-glyphs, and checked font errors.
 - `moon -C cairoon test --target native`: 292 tests passed.
 - `moon -C cairoon info --target native`: passed; the latest
-  Font executable-documentation slice did not change the public interface.
+  source/mask offset image-oracle helper slice did not change the public
+  interface.
 - Test-only buffer-backed image oracle coverage plus Pure MoonBit Region
   rectangle-XOR and executable Matrix/Surface/Context/Font/Path/Pattern/Region
   documentation coverage were added without rerunning ASan because no C glue or
   finalizer ownership code changed in those slices.
+- Test-only source/mask offset image-oracle helper coverage was added without
+  changing the public API or native test count; sanitizer validation is
+  recorded below.
 - Documentation-only product-decision audit for pycairo `CAPI`, legacy enum
   aliases, and non-implemented FreeType/user-font classes: `moon -C cairoon
   check --target native`, `moon -C cairoon test --target native -v`, and
   `moon -C cairoon info --target native` passed on 2026-07-03.
+- ASan/LSan via `run-asan.py`: rerun on 2026-07-03 for the source/mask offset
+  image-oracle C helper slice. The full runner again failed during the known
+  macOS FontRegistry/CoreText/ColorSync LeakSanitizer class while running the
+  black-box executable, before Moon could launch the white-box executable. The
+  log at `/tmp/cairoon-source-mask-offset-asan.txt` reports
+  `89578 byte(s) leaked in 476 allocation(s)`. A grep of that log found no
+  `ERROR: AddressSanitizer`, heap-use-after-free, stack-use-after,
+  heap-buffer-overflow, global-buffer-overflow, or double-free entries. The
+  ASan-compiled white-box image oracle was therefore run directly with leak
+  detection disabled, and exited 0 as recorded above.
 - ASan/LSan via `run-asan.py`: rerun on 2026-07-03 for the ScaledFont
   text-to-glyph direct C oracle helper slice. The full runner still failed
   during the known macOS FontRegistry/CoreText/ColorSync LeakSanitizer class
@@ -608,15 +628,16 @@ Verified on 2026-07-02 and 2026-07-03:
   The later vector tag inertness slice added two pure MoonBit tests for PS/SVG
   Link tag no-op behavior, raising the native suite to 233 tests. ASan/LSan was
   not rerun for that slice because it did not change C glue or ownership code.
-  The later image oracle slices added private C helpers for thirteen deterministic
+  The later image oracle slices added private C helpers for fifteen deterministic
   ARGB32 scenes covering paint, stroke, fill/stroke rectangles, Bezier paths,
   transforms, RGBA compositing, linear/radial gradients, toy-font `text_path`,
-  toy-font `show_text`, `glyph_path`, `show_glyphs`, and `show_text_glyphs`,
-  without changing the current 243-test suite because they broaden one existing
-  white-box oracle test. ASan/LSan was rerun for the latest image glyph-oracle
-  helper slice as recorded above; the full runner still failed during the known macOS
-  LeakSanitizer class before the white-box executable launched, and the
-  instrumented white-box executable exited 0 with leak detection disabled.
+  toy-font `show_text`, `glyph_path`, `show_glyphs`, `show_text_glyphs`,
+  source-surface offset sampling, and mask-surface offset compositing, without
+  changing the current test count because they broaden one existing white-box
+  oracle test. ASan/LSan records for the image-oracle C helpers are recorded in
+  the current verified block above; the full runner still fails during the
+  known macOS LeakSanitizer class before the white-box executable launches, and
+  the instrumented white-box executable exits 0 with leak detection disabled.
   The later `ScaledFont::text_to_glyphs_only` slice added pure MoonBit API
   coverage for pycairo's `with_clusters=False` path, keeping the native suite
   at 233 tests; ASan/LSan was not rerun for that non-C change.
@@ -675,10 +696,13 @@ Verified on 2026-07-02 and 2026-07-03:
   errors, raising the native suite to 270 tests. ASan/LSan was not rerun for
   that slice because it did not change C glue or ownership code.
   The later buffer-backed image oracle slice expanded `image_oracle_wbtest.mbt`
-  so `Surface::image_for_data` renders the same thirteen ARGB32 scenes against
-  the existing direct C Cairo oracle and verifies backing-buffer bytes match
+  so `Surface::image_for_data` renders the same ARGB32 scenes against the
+  existing direct C Cairo oracle and verifies backing-buffer bytes match
   `copy_data`, raising the native suite to 271 tests. ASan/LSan was not rerun
-  for that slice because it did not change C glue or ownership code.
+  for that slice because it did not change C glue or ownership code. The later
+  source/mask offset oracle slice expanded that image oracle helper to fifteen
+  scenes covering non-zero `set_source_surface` and `mask_surface` offsets on
+  ordinary and buffer-backed image surfaces.
   The later Surface documentation slice added `surface.mbt.md` with six
   executable examples covering image properties, buffer-backed data,
   similar/subsurface constructors, mapped images, PNG/MIME helpers, and checked

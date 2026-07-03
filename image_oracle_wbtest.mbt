@@ -90,6 +90,39 @@ fn draw_image_oracle_scene(ctx : Context, scene : Int) -> Unit raise CairoError 
       let run = ctx.get_scaled_font().text_to_glyphs(2.0, 12.0, "a")
       ctx.show_text_glyphs("a", run.glyphs, run.clusters, flags=run.flags)
     }
+    13 => {
+      let source = Surface::image(Argb32, 2, 2)
+      let source_ctx = Context::new(source)
+      source_ctx.set_source_rgb(1.0, 0.0, 0.0)
+      source_ctx.rectangle(0.0, 0.0, 1.0, 1.0)
+      source_ctx.fill()
+      source_ctx.set_source_rgb(0.0, 1.0, 0.0)
+      source_ctx.rectangle(1.0, 0.0, 1.0, 1.0)
+      source_ctx.fill()
+      source_ctx.set_source_rgb(0.0, 0.0, 1.0)
+      source_ctx.rectangle(0.0, 1.0, 1.0, 1.0)
+      source_ctx.fill()
+      source_ctx.set_source_rgb(1.0, 1.0, 1.0)
+      source_ctx.rectangle(1.0, 1.0, 1.0, 1.0)
+      source_ctx.fill()
+      ctx.set_source_surface(source, x=7.0, y=6.0)
+      ctx.paint()
+    }
+    14 => {
+      let mask = Surface::image(Argb32, 2, 2)
+      let mask_ctx = Context::new(mask)
+      mask_ctx.set_source_rgba(1.0, 1.0, 1.0, 1.0)
+      mask_ctx.rectangle(0.0, 0.0, 1.0, 1.0)
+      mask_ctx.fill()
+      mask_ctx.set_source_rgba(1.0, 1.0, 1.0, 0.5)
+      mask_ctx.rectangle(1.0, 0.0, 1.0, 1.0)
+      mask_ctx.fill()
+      mask_ctx.set_source_rgba(1.0, 1.0, 1.0, 1.0)
+      mask_ctx.rectangle(1.0, 1.0, 1.0, 1.0)
+      mask_ctx.fill()
+      ctx.set_source_rgb(1.0, 0.0, 0.0)
+      ctx.mask_surface(mask, x=7.0, y=6.0)
+    }
     _ => raise CairoInvalidArgument(InvalidStatus, InvalidStatus.message())
   }
 }
@@ -119,7 +152,7 @@ fn render_buffered_image_oracle_scene(
 
 ///|
 test "image rendering scenes match direct cairo C oracle" {
-  for scene in 0..<13 {
+  for scene in 0..<15 {
     let actual = render_image_oracle_scene(scene)
     let expected = test_argb32_scene_oracle_ffi(scene, 16, 16)
     inspect(expected.length(), content="1024")
@@ -129,7 +162,7 @@ test "image rendering scenes match direct cairo C oracle" {
 
 ///|
 test "buffer backed image rendering scenes match direct cairo C oracle" {
-  for scene in 0..<13 {
+  for scene in 0..<15 {
     let (actual, copied) = render_buffered_image_oracle_scene(scene)
     let expected = test_argb32_scene_oracle_ffi(scene, 16, 16)
     inspect(expected.length(), content="1024")

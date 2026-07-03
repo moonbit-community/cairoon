@@ -106,10 +106,11 @@ Implemented in this workspace:
   Cairo-reference lifetime behavior, PNG filename round trips and invalid path
   validation, Surface similar/subsurface invalid-size error mapping,
   deterministic pixel rendering, direct C Cairo oracle comparisons
-  for thirteen ARGB32 scenes covering paint, stroke, fill/stroke rectangles,
+  for fifteen ARGB32 scenes covering paint, stroke, fill/stroke rectangles,
   Bezier paths, transforms, RGBA compositing, linear/radial gradients,
   toy-font `text_path`, toy-font `show_text`, `glyph_path`, `show_glyphs`,
-  and `show_text_glyphs`,
+  `show_text_glyphs`, source-surface offset sampling, and mask-surface offset
+  compositing,
   direct C Cairo oracle comparisons for ten deterministic PDF/PS/SVG vector
   scenes covering paint, stroke, fill/stroke rectangles, Bezier paths,
   transforms, linear/radial gradients, toy-font text paths, and toy-font
@@ -194,10 +195,11 @@ Implemented in this workspace:
   region, and error behavior.
 - Gate 3 differential rendering: partial. Deterministic raw-pixel rendering
   tests exist for direct colors and explicit patterns, a direct C image oracle
-  covers thirteen deterministic ARGB32 scenes including stroke, rectangle,
+  covers fifteen deterministic ARGB32 scenes including stroke, rectangle,
   Bezier, transform, RGBA, linear/radial gradient, toy-font `text_path`,
-  toy-font `show_text`, `glyph_path`, `show_glyphs`, and `show_text_glyphs`
-  cases, ScaledFont font/text/glyph extents and empty/ASCII/UTF-8
+  toy-font `show_text`, `glyph_path`, `show_glyphs`, `show_text_glyphs`,
+  source-surface offset sampling, and mask-surface offset compositing cases,
+  ScaledFont font/text/glyph extents and empty/ASCII/UTF-8
   text-to-glyph coordinate cases are compared against direct C Cairo primitive
   oracles, and vector outputs
   have stable structural marker checks plus direct C oracle comparisons for
@@ -239,8 +241,13 @@ Implemented in this workspace:
 - `moon -C cairoon test image_oracle_wbtest.mbt --target native -v`: 2
   white-box image rendering oracle tests passed. Ordinary image surfaces and
   buffer-backed `Surface::image_for_data` surfaces both match the direct C
-  ARGB32 fixture across thirteen scenes with `glyph_path`, `show_glyphs`, and
-  `show_text_glyphs`.
+  ARGB32 fixture across fifteen scenes with `glyph_path`, `show_glyphs`,
+  `show_text_glyphs`, source-surface offsets, and mask-surface offsets.
+- `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
+  ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
+  image_oracle_wbtest.mbt --target native -v`: 2 ASan-compiled white-box image
+  oracle tests passed with leak detection disabled, directly exercising the
+  source/mask offset C oracle helper paths.
 - `moon -C cairoon test scaled_font_oracle_wbtest.mbt --target native -v`: 2
   white-box ScaledFont oracle tests passed, comparing font extents, text
   extents, glyph extents, and empty/ASCII/UTF-8 text-to-glyph coordinate cases
@@ -290,15 +297,30 @@ Implemented in this workspace:
   matrices/metrics, text-to-glyphs, and checked font errors.
 - `moon -C cairoon test --target native`: 292 tests passed.
 - `moon -C cairoon info --target native`: passed; the latest
-  Font executable-documentation slice did not change the public interface.
+  source/mask offset image-oracle helper slice did not change the public
+  interface.
 - Test-only buffer-backed image oracle coverage plus Pure MoonBit Region
   rectangle-XOR and executable Matrix/Surface/Context/Font/Path/Pattern/Region
   documentation coverage were added without rerunning ASan because no C glue or
   finalizer ownership code changed in those slices.
+- Test-only source/mask offset image-oracle helper coverage was added without
+  changing the public API or native test count; sanitizer validation is
+  recorded below.
 - Documentation-only product-decision audit for pycairo `CAPI`, legacy enum
   aliases, and non-implemented FreeType/user-font classes: `moon -C cairoon
   check --target native`, `moon -C cairoon test --target native -v`, and
   `moon -C cairoon info --target native` passed on 2026-07-03.
+- `run-asan.py --repo-root /Users/caimeo/code/pycairo/cairoon --pkg moon.pkg`:
+  rerun for the source/mask offset image-oracle C helper slice. The full runner
+  again failed during the known macOS FontRegistry/CoreText/ColorSync
+  LeakSanitizer class while running the black-box executable, before Moon could
+  launch the white-box executable. The log at
+  `/tmp/cairoon-source-mask-offset-asan.txt` reports
+  `89578 byte(s) leaked in 476 allocation(s)`. A grep of that log found no
+  `ERROR: AddressSanitizer`, heap-use-after-free, stack-use-after,
+  heap-buffer-overflow, global-buffer-overflow, or double-free entries. The
+  ASan-compiled white-box image oracle was therefore run directly with leak
+  detection disabled, and exited 0 as recorded above.
 - `run-asan.py --repo-root /Users/caimeo/code/pycairo/cairoon --pkg moon.pkg`:
   rerun for the ScaledFont text-to-glyph direct C oracle helper slice. The full
   runner still failed during the known macOS FontRegistry/CoreText/ColorSync
@@ -571,10 +593,13 @@ Implemented in this workspace:
   errors, raising the native suite to 270 tests; ASan was not rerun because no
   C glue changed.
   The later buffer-backed image oracle slice expanded `image_oracle_wbtest.mbt`
-  so `Surface::image_for_data` renders the same thirteen ARGB32 scenes against
-  the existing direct C Cairo oracle and verifies backing-buffer bytes match
+  so `Surface::image_for_data` renders the same ARGB32 scenes against the
+  existing direct C Cairo oracle and verifies backing-buffer bytes match
   `copy_data`, raising the native suite to 271 tests; ASan was not rerun
-  because no C glue changed.
+  because no C glue changed. The later source/mask offset oracle slice expanded
+  that image oracle helper to fifteen scenes covering non-zero
+  `set_source_surface` and `mask_surface` offsets on ordinary and
+  buffer-backed image surfaces.
   The later Surface documentation slice added `surface.mbt.md` with six
   executable examples covering image properties, buffer-backed data,
   similar/subsurface constructors, mapped images, PNG/MIME helpers, and checked
