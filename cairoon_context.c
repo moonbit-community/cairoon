@@ -86,7 +86,7 @@ CairoonSurface *cairoon_context_get_target(CairoonContext *ctx, cairo_status_t *
     return cairoon_surface_wrap_owned(NULL);
   }
   *status_out = cairo_surface_status(surface);
-  return cairoon_surface_wrap_borrowed(surface);
+  return cairoon_surface_wrap_borrowed_with_base(surface, ctx->target_surface);
 }
 
 MOONBIT_FFI_EXPORT
@@ -120,7 +120,7 @@ CairoonSurface *cairoon_context_get_group_target(
     return cairoon_surface_wrap_owned(NULL);
   }
   *status_out = cairo_surface_status(surface);
-  return cairoon_surface_wrap_borrowed(surface);
+  return cairoon_surface_wrap_borrowed_with_base(surface, ctx->target_surface);
 }
 
 MOONBIT_FFI_EXPORT

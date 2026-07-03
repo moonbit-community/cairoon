@@ -135,6 +135,15 @@ CairoonSurface *cairoon_surface_wrap_borrowed(cairo_surface_t *ptr) {
   return cairoon_surface_wrap_owned(ptr);
 }
 
+CairoonSurface *cairoon_surface_wrap_borrowed_with_base(
+  cairo_surface_t *ptr,
+  void *base) {
+  if (ptr != NULL) {
+    cairo_surface_reference(ptr);
+  }
+  return cairoon_surface_wrap_owned_with_base(ptr, base);
+}
+
 CairoonDevice *cairoon_device_wrap_owned(cairo_device_t *ptr) {
   CairoonDevice *device = (CairoonDevice *)moonbit_make_external_object(
     cairoon_device_finalize, sizeof(CairoonDevice));

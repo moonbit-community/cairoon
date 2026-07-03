@@ -64,6 +64,9 @@ CairoonSurface *cairoon_surface_wrap_owned_with_base(
   cairo_surface_t *ptr,
   void *base);
 CairoonSurface *cairoon_surface_wrap_borrowed(cairo_surface_t *ptr);
+CairoonSurface *cairoon_surface_wrap_borrowed_with_base(
+  cairo_surface_t *ptr,
+  void *base);
 CairoonDevice *cairoon_device_wrap_owned(cairo_device_t *ptr);
 CairoonDevice *cairoon_device_wrap_borrowed(cairo_device_t *ptr);
 CairoonMappedImageSurface *cairoon_mapped_image_surface_wrap_owned(

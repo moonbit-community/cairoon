@@ -124,7 +124,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 | `ImageSurface` | Partial | Basic creation, buffer-backed creation, PNG path loading, and readback only |
 | `ImageSurface.create_for_data` | Partial | Exposed as `Surface::image_for_data` for `FixedArray[Byte]`; retains the MoonBit buffer, validates size/stride, and covers zero-size buffers, but still needs differential coverage and a clean ASan/LSan gate |
 | `ImageSurface.create_from_png/write_to_png` | Partial | Filename APIs exposed as `Surface::image_from_png` and `Surface::write_to_png`; stream/file-object callbacks deferred by `AGENTS.md` |
-| `Surface.map_to_image/unmap_image` | Partial | `MappedImageSurface` has a dedicated payload retaining the base `Surface`, explicit and finalizer unmap support, extent mapping, Context construction, and double/wrong-base checks; still needs GC stress and clean ASan/LSan gate |
+| `Surface.map_to_image/unmap_image` | Partial | `MappedImageSurface` has a dedicated payload retaining the base `Surface`, explicit and finalizer unmap support, extent mapping, Context construction, double/wrong-base checks, and retained-owner stress. Clean ASan/LSan remains blocked by the macOS font/text leak report. |
 | `Surface.get_mime_data/set_mime_data/supports_mime_type` | Partial | Exposed on `Surface`; data is copied into C-owned storage on set and copied back into MoonBit `Bytes` on get. This intentionally does not preserve pycairo's Python object identity for data set through the binding. Backend-specific support/output behavior still needs differential vector-output tests. |
 | `PDFSurface` | Partial | Exposed as `Surface::pdf`, `PDFVersion::supported`, `PDFVersion::to_string`, `Surface::pdf_restrict_to_version`, size, metadata, custom metadata, page label, thumbnail, single-flag outline compatibility, and typed outline flag sets. Filename and no-output constructors are covered; stream/file-object callback output and normalized PDF output tests remain. |
 | `PSSurface` | Partial | Exposed as `Surface::ps`, `PSLevel::supported`, `PSLevel::to_string`, `Surface::ps_restrict_to_level`, EPS get/set, size, and DSC helpers. Filename and no-output constructors are covered; stream/file-object callback output and normalized PS output tests remain. |
@@ -139,7 +139,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 
 | pycairo area | cairoon status | Notes |
 |---|---|---|
-| Construction and target lifetime | Partial | `Context::new(Surface)` retains target surface; `Context::new_for_mapped_image(MappedImageSurface)` retains mapped image wrappers; `get_target` returns a referenced `Surface` wrapper |
+| Construction and target lifetime | Partial | `Context::new(Surface)` retains target surface; `Context::new_for_mapped_image(MappedImageSurface)` retains mapped image wrappers; `get_target` and `get_group_target` return referenced `Surface` wrappers that retain the context target wrapper when needed. Stress + ASan caught and fixed a mapped-image returned-target use-after-free; clean ASan/LSan remains blocked by the macOS font/text leak report. |
 | Save/restore/status | Partial | Basic behavior and invalid-restore error test exist |
 | Paths | Done | move/rel-move/line/rel-line/curve/rel-curve/rectangle/arc/arc-negative, close/new path, current-point queries, and path data copying |
 | Painting | Done | `paint`, `paint_with_alpha`, `fill`, `fill_preserve`, `stroke`, `stroke_preserve`, `mask`, and `mask_surface` |
