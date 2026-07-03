@@ -285,10 +285,11 @@ Verified on 2026-07-02 and 2026-07-03:
   pattern_test.mbt --target native -v`: 17 ASan-compiled black-box pattern
   tests passed with leak detection disabled, covering release-only callback
   state and the raster acquire finished-surface rejection path in C glue.
-- `moon -C cairoon test vector_output_wbtest.mbt --target native -v`: 17
+- `moon -C cairoon test vector_output_wbtest.mbt --target native -v`: 18
   white-box tests passed after adding combined two-page PDF metadata/custom
-  metadata/page-label/outline/tag marker coverage and PS
-  language-level/DSC setup/page-setup/multi-page marker coverage alongside
+  metadata/page-label/outline/tag marker coverage, PS language-level/DSC
+  setup/page-setup/multi-page marker coverage, and SVG
+  version-restricted/document-unit/multi-page marker coverage alongside
   MIME-output, page structure, and direct C vector oracle checks.
 - `moon -C cairoon test surface_context_test.mbt context_lifetime_test.mbt
   pattern_test.mbt --target native -v`: 32 tests passed after adding
@@ -338,9 +339,10 @@ Verified on 2026-07-02 and 2026-07-03:
 - `moon -C cairoon test enums_test.mbt --target native -v`: 4 black-box tests
   passed after adding `Rgb16_565`, `Rgb30`, `Rgb96F`, `Rgba128F`, and
   negative-width `Format::stride_for_width` coverage.
-- `moon -C cairoon test --target native`: 315 tests passed.
-- `moon -C cairoon info --target native`: passed; the latest PS DSC
-  multi-page vector-output marker slice did not change the public interface.
+- `moon -C cairoon test --target native`: 316 tests passed.
+- `moon -C cairoon info --target native`: passed; the latest SVG
+  version-unit multi-page vector-output marker slice did not change the public
+  interface.
 - Test-only buffer-backed image oracle coverage plus Pure MoonBit Region
   rectangle-XOR and executable Matrix/Surface/Context/Font/Path/Pattern/Region
   documentation coverage were added without rerunning ASan because no C glue or
@@ -840,6 +842,11 @@ Verified on 2026-07-02 and 2026-07-03:
   page-setup DSC comments, and two-page drawing markers, raising the native
   suite to 315 tests. ASan/LSan was not rerun for that slice because it did not
   change C glue or ownership code.
+  The later SVG version-unit multi-page vector-output marker slice added one
+  pure MoonBit white-box test covering SVG 1.2 version restriction, `SvgUnitPx`
+  state, px width/height output, and two-page drawing markers, raising the
+  native suite to 316 tests. ASan/LSan was not rerun for that slice because it
+  did not change C glue or ownership code.
 
 The missing reliability pieces are substantial: broader automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering

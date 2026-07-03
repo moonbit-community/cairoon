@@ -279,10 +279,11 @@ Implemented in this workspace:
   pattern_test.mbt --target native -v`: 17 ASan-compiled black-box pattern
   tests passed with leak detection disabled, covering release-only callback
   state and the raster acquire finished-surface rejection path in C glue.
-- `moon -C cairoon test vector_output_wbtest.mbt --target native -v`: 17
+- `moon -C cairoon test vector_output_wbtest.mbt --target native -v`: 18
   white-box tests passed after adding combined two-page PDF metadata/custom
-  metadata/page-label/outline/tag marker coverage and PS
-  language-level/DSC setup/page-setup/multi-page marker coverage alongside
+  metadata/page-label/outline/tag marker coverage, PS language-level/DSC
+  setup/page-setup/multi-page marker coverage, and SVG
+  version-restricted/document-unit/multi-page marker coverage alongside
   MIME-output, page structure, and direct C vector oracle checks.
 - `moon -C cairoon test surface_context_test.mbt context_lifetime_test.mbt
   pattern_test.mbt --target native -v`: 32 tests passed after adding
@@ -332,9 +333,10 @@ Implemented in this workspace:
   stream output and writer errors, PDF metadata/outlines, PS DSC, SVG document
   units, recording replay, Tee fanout, script devices/surfaces, and checked
   backend-specific errors.
-- `moon -C cairoon test --target native`: 315 tests passed.
-- `moon -C cairoon info --target native`: passed; the latest PS DSC
-  multi-page vector-output marker slice did not change the public interface.
+- `moon -C cairoon test --target native`: 316 tests passed.
+- `moon -C cairoon info --target native`: passed; the latest SVG
+  version-unit multi-page vector-output marker slice did not change the public
+  interface.
 - Test-only buffer-backed image oracle coverage plus Pure MoonBit Region
   rectangle-XOR and executable Matrix/Surface/Context/Font/Path/Pattern/Region
   documentation coverage were added without rerunning ASan because no C glue or
@@ -736,6 +738,10 @@ Implemented in this workspace:
   white-box test covering language-level restriction, setup DSC comments,
   page-setup DSC comments, and two-page drawing markers, raising the native
   suite to 315 tests; ASan was not rerun because no C glue changed.
+  The later SVG version-unit multi-page vector-output marker slice added one
+  pure MoonBit white-box test covering SVG 1.2 version restriction, `SvgUnitPx`
+  state, px width/height output, and two-page drawing markers, raising the
+  native suite to 316 tests; ASan was not rerun because no C glue changed.
 
 ## Known Gaps
 
