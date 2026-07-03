@@ -280,11 +280,15 @@ Implemented in this workspace:
   Surface reference examples passed, covering image properties, buffer-backed
   data, similar/subsurface constructors, mapped images, PNG/MIME helpers, and
   checked surface errors.
-- `moon -C cairoon test --target native`: 277 tests passed.
+- `moon -C cairoon test context.mbt.md --target native -v`: 8 executable
+  Context reference examples passed, covering construction/state, transforms,
+  paths, fill/stroke output, clipping, groups, text/glyphs, and checked context
+  errors.
+- `moon -C cairoon test --target native`: 285 tests passed.
 - `moon -C cairoon info --target native`: passed; the latest
-  Surface executable-documentation slice did not change the public interface.
+  Context executable-documentation slice did not change the public interface.
 - Test-only buffer-backed image oracle coverage plus Pure MoonBit Region
-  rectangle-XOR and executable Matrix/Surface/Path/Pattern/Region
+  rectangle-XOR and executable Matrix/Surface/Context/Path/Pattern/Region
   documentation coverage were added without rerunning ASan because no C glue or
   finalizer ownership code changed in those slices.
 - Documentation-only product-decision audit for pycairo `CAPI`, legacy enum
@@ -572,6 +576,11 @@ Implemented in this workspace:
   similar/subsurface constructors, mapped images, PNG/MIME helpers, and checked
   surface errors, raising the native suite to 277 tests; ASan was not rerun
   because no C glue changed.
+  The later Context documentation slice added `context.mbt.md` with eight
+  executable examples covering construction/state, transforms, paths,
+  fill/stroke output, clipping, groups, text/glyphs, and checked context
+  errors, raising the native suite to 285 tests; ASan was not rerun because no
+  C glue changed.
 
 ## Known Gaps
 

@@ -236,7 +236,9 @@ family. Matrix has executable reference examples for component access,
 pure-value transforms, multiplication, inversion, and checked errors. Surface
 has executable reference examples for image properties, buffer-backed data,
 similar/subsurface constructors, mapped images, PNG/MIME helpers, and checked
-surface errors.
+surface errors. Context has executable reference examples for construction and
+drawing state, transformations, paths, fill/stroke output, clipping, groups,
+text/glyph APIs, and checked context errors.
 
 Verified on 2026-07-02 and 2026-07-03:
 
@@ -285,11 +287,15 @@ Verified on 2026-07-02 and 2026-07-03:
   Surface reference examples passed, covering image properties, buffer-backed
   data, similar/subsurface constructors, mapped images, PNG/MIME helpers, and
   checked surface errors.
-- `moon -C cairoon test --target native`: 277 tests passed.
+- `moon -C cairoon test context.mbt.md --target native -v`: 8 executable
+  Context reference examples passed, covering construction/state, transforms,
+  paths, fill/stroke output, clipping, groups, text/glyphs, and checked context
+  errors.
+- `moon -C cairoon test --target native`: 285 tests passed.
 - `moon -C cairoon info --target native`: passed; the latest
-  Surface executable-documentation slice did not change the public interface.
+  Context executable-documentation slice did not change the public interface.
 - Test-only buffer-backed image oracle coverage plus Pure MoonBit Region
-  rectangle-XOR and executable Matrix/Surface/Path/Pattern/Region
+  rectangle-XOR and executable Matrix/Surface/Context/Path/Pattern/Region
   documentation coverage were added without rerunning ASan because no C glue or
   finalizer ownership code changed in those slices.
 - Documentation-only product-decision audit for pycairo `CAPI`, legacy enum
@@ -671,6 +677,11 @@ Verified on 2026-07-02 and 2026-07-03:
   similar/subsurface constructors, mapped images, PNG/MIME helpers, and checked
   surface errors, raising the native suite to 277 tests. ASan/LSan was not
   rerun for that slice because it did not change C glue or ownership code.
+  The later Context documentation slice added `context.mbt.md` with eight
+  executable examples covering construction/state, transforms, paths,
+  fill/stroke output, clipping, groups, text/glyphs, and checked context
+  errors, raising the native suite to 285 tests. ASan/LSan was not rerun for
+  that slice because it did not change C glue or ownership code.
 
 The missing reliability pieces are substantial: broader automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering
