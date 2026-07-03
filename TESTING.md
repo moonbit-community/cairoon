@@ -203,8 +203,9 @@ surface owners, finished-surface acquire failure injection, MeshPattern patch li
 APIs, `FORMAT_INVALID` integer-sentinel coverage, FontOptions
 state/accessor APIs, FontFace/ToyFontFace APIs, ScaledFont
 basics including glyph extents, text-to-glyphs, and direct C Cairo oracle
-comparison for font/text/glyph extents and empty/ASCII/UTF-8 text-to-glyph
-coordinate cases plus sheared font/CTM scale-matrix composition, and
+comparison for font/text/glyph extents and empty, single/multi/spaced ASCII,
+and UTF-8 text-to-glyph coordinate cases plus sheared font/CTM scale-matrix
+composition, and
 Device/ScriptDevice basics including status/type/equal/hash,
 finish/flush/acquire/release, scoped acquire, file/stream script devices,
 script mode/comment helpers, recording replay, `Surface::get_device`,
@@ -266,8 +267,8 @@ Verified on 2026-07-02 and 2026-07-03:
   source/mask offset C oracle helper paths.
 - `moon -C cairoon test scaled_font_oracle_wbtest.mbt --target native -v`: 2
   white-box ScaledFont oracle tests passed, comparing font extents, text
-  extents, glyph extents, and empty/ASCII/UTF-8 text-to-glyph coordinate cases
-  against direct C Cairo results.
+  extents, glyph extents, and empty, single/multi/spaced ASCII, and UTF-8
+  text-to-glyph coordinate cases against direct C Cairo results.
 - `moon -C cairoon test lifetime_stress_test.mbt --target native -v`: 6
   black-box lifetime tests passed after adding the backend stream callback
   1000-iteration allocation stress case.
@@ -335,9 +336,9 @@ Verified on 2026-07-02 and 2026-07-03:
 - `moon -C cairoon test enums_test.mbt --target native -v`: 4 black-box tests
   passed after adding `Rgb16_565`, `Rgb30`, `Rgb96F`, `Rgba128F`, and
   negative-width `Format::stride_for_width` coverage.
-- `moon -C cairoon test --target native`: 309 tests passed.
-- `moon -C cairoon info --target native`: passed; the latest MIME support
-  matrix slice did not change the public interface.
+- `moon -C cairoon test --target native`: 310 tests passed.
+- `moon -C cairoon info --target native`: passed; the latest spaced-ASCII
+  text-to-glyph slice did not change the public interface.
 - Test-only buffer-backed image oracle coverage plus Pure MoonBit Region
   rectangle-XOR and executable Matrix/Surface/Context/Font/Path/Pattern/Region
   documentation coverage were added without rerunning ASan because no C glue or
@@ -796,6 +797,10 @@ Verified on 2026-07-02 and 2026-07-03:
   The later backend MIME support matrix slice added one pure MoonBit black-box
   test, raising the native suite to 309 tests. ASan/LSan was not rerun for
   that slice because it did not change C glue or ownership code.
+  The later spaced-ASCII text-to-glyph slice added one pure MoonBit black-box
+  test and expanded the existing ScaledFont direct C oracle case set, raising
+  the native suite to 310 tests. ASan/LSan was not rerun for that slice because
+  it did not change C glue or ownership code.
 
 The missing reliability pieces are substantial: broader automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering

@@ -99,7 +99,8 @@ Implemented in this workspace:
   matrix getters including sheared font/CTM scale-matrix composition, text and
   glyph extents, full and glyph-only text-to-glyphs,
   direct C Cairo oracle comparison for font/text/glyph extents and
-  empty/ASCII/UTF-8 text-to-glyph coordinate cases, and `Context`
+  empty, single/multi/spaced ASCII, and UTF-8 text-to-glyph coordinate cases,
+  and `Context`
   font matrix/size/extents plus scaled-font
   get/set/show-text-glyphs wrappers.
 - Initial parity tests for version helpers, compile-time Cairo constants, enum
@@ -207,9 +208,9 @@ Implemented in this workspace:
   Bezier, transform, RGBA, linear/radial gradient, toy-font `text_path`,
   toy-font `show_text`, `glyph_path`, `show_glyphs`, `show_text_glyphs`,
   source-surface offset sampling, and mask-surface offset compositing cases,
-  ScaledFont font/text/glyph extents and empty/ASCII/UTF-8
-  text-to-glyph coordinate cases are compared against direct C Cairo primitive
-  oracles, and vector outputs
+  ScaledFont font/text/glyph extents and empty, single/multi/spaced ASCII, and
+  UTF-8 text-to-glyph coordinate cases are compared against direct C Cairo
+  primitive oracles, and vector outputs
   have stable structural marker checks plus direct C oracle comparisons for
   ten deterministic PDF/PS/SVG scenes covering paint, stroke, fill/stroke
   rectangles, Bezier paths, transforms, linear/radial gradients, toy-font text
@@ -260,8 +261,8 @@ Implemented in this workspace:
   source/mask offset C oracle helper paths.
 - `moon -C cairoon test scaled_font_oracle_wbtest.mbt --target native -v`: 2
   white-box ScaledFont oracle tests passed, comparing font extents, text
-  extents, glyph extents, and empty/ASCII/UTF-8 text-to-glyph coordinate cases
-  against direct C Cairo results.
+  extents, glyph extents, and empty, single/multi/spaced ASCII, and UTF-8
+  text-to-glyph coordinate cases against direct C Cairo results.
 - `moon -C cairoon test lifetime_stress_test.mbt --target native -v`: 6
   black-box lifetime tests passed after adding the backend stream callback
   1000-iteration allocation stress case.
@@ -329,9 +330,9 @@ Implemented in this workspace:
   stream output and writer errors, PDF metadata/outlines, PS DSC, SVG document
   units, recording replay, Tee fanout, script devices/surfaces, and checked
   backend-specific errors.
-- `moon -C cairoon test --target native`: 309 tests passed.
-- `moon -C cairoon info --target native`: passed; the latest MIME support
-  matrix slice did not change the public interface.
+- `moon -C cairoon test --target native`: 310 tests passed.
+- `moon -C cairoon info --target native`: passed; the latest spaced-ASCII
+  text-to-glyph slice did not change the public interface.
 - Test-only buffer-backed image oracle coverage plus Pure MoonBit Region
   rectangle-XOR and executable Matrix/Surface/Context/Font/Path/Pattern/Region
   documentation coverage were added without rerunning ASan because no C glue or
@@ -694,6 +695,9 @@ Implemented in this workspace:
   The later backend MIME support matrix slice added one pure MoonBit black-box
   test, raising the native suite to 309 tests; ASan was not rerun because no C
   glue changed.
+  The later spaced-ASCII text-to-glyph slice added one pure MoonBit black-box
+  test and expanded the existing ScaledFont direct C oracle case set, raising
+  the native suite to 310 tests; ASan was not rerun because no C glue changed.
 
 ## Known Gaps
 

@@ -59,6 +59,29 @@ test "scaled font text_to_glyphs handles empty and single text" {
 }
 
 ///|
+test "scaled font text_to_glyphs preserves spaced ASCII clusters" {
+  let ctx = Context::new(Surface::image(Argb32, 32, 16))
+  ctx.select_font_face("serif")
+  ctx.set_font_size(12.0)
+  let scaled = ctx.get_scaled_font()
+  let run = scaled.text_to_glyphs(0.0, 0.0, "a b")
+  inspect(run.glyphs.length(), content="3")
+  inspect(run.clusters.length(), content="3")
+  for cluster in run.clusters {
+    inspect(cluster.num_bytes, content="1")
+    inspect(cluster.num_glyphs, content="1")
+  }
+  inspect(run.glyphs[0] != run.glyphs[1], content="true")
+  inspect(run.glyphs[1] != run.glyphs[2], content="true")
+
+  let glyphs_only = scaled.text_to_glyphs_only(0.0, 0.0, "a b")
+  inspect(glyphs_only.length(), content="3")
+  for index in 0..<glyphs_only.length() {
+    inspect(glyphs_only[index] == run.glyphs[index], content="true")
+  }
+}
+
+///|
 test "context show_text_glyphs renders text_to_glyphs output" {
   let surface = Surface::image(Argb32, 32, 16)
   let ctx = Context::new(surface)

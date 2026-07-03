@@ -146,6 +146,7 @@ test "scaled font text_to_glyphs matches direct cairo C oracle" {
   let scaled_font = scaled_font_oracle_make_font()
   scaled_font_oracle_expect_text_to_glyphs(scaled_font, 0.0, 0.0, "")
   scaled_font_oracle_expect_text_to_glyphs(scaled_font, 2.0, 12.0, "a")
+  scaled_font_oracle_expect_text_to_glyphs(scaled_font, 0.0, 0.0, "a b")
   scaled_font_oracle_expect_text_to_glyphs(scaled_font, 2.0, 11.0, "affinity")
   scaled_font_oracle_expect_text_to_glyphs(scaled_font, -3.5, 4.25, "\u{00e9}")
   scaled_font_oracle_expect_text_to_glyphs(
