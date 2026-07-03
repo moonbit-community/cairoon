@@ -237,6 +237,17 @@ fn fill_link_rect(ctx : Context, tagged : Bool) -> Unit raise CairoError {
 }
 
 ///|
+fn paint_page(
+  ctx : Context,
+  red : Double,
+  green : Double,
+  blue : Double,
+) -> Unit raise CairoError {
+  ctx.set_source_rgb(red, green, blue)
+  ctx.paint()
+}
+
+///|
 test "pdf output contains stable structural markers" {
   let path = "/tmp/cairoon_vector_output.pdf"
   let oracle_path = "/tmp/cairoon_vector_output_oracle.pdf"
@@ -301,6 +312,25 @@ test "pdf output contains page label and outline markers" {
 }
 
 ///|
+test "pdf output contains multi-page markers" {
+  let path = "/tmp/cairoon_vector_pdf_multipage.pdf"
+  let surface = Surface::pdf(12.0, 12.0, path=Some(path))
+  surface.pdf_restrict_to_version(PdfVersion1_4)
+  surface.pdf_set_metadata(PdfMetadataCreator, "cairoon multipage test")
+  surface.pdf_set_metadata(PdfMetadataCreateDate, fixed_pdf_metadata_date())
+  surface.pdf_set_metadata(PdfMetadataModDate, fixed_pdf_metadata_date())
+  let ctx = Context::new(surface)
+  paint_page(ctx, 0.0, 0.0, 1.0)
+  ctx.show_page()
+  paint_page(ctx, 1.0, 0.0, 0.0)
+  ctx.show_page()
+  surface.finish()
+  expect_vector_output(path, [
+    "%PDF-1.4", "/Count 2", "/Type /Page % 1", "/Type /Page % 2", "%%EOF",
+  ])
+}
+
+///|
 test "pdf link tag output contains annotation markers" {
   let path = "/tmp/cairoon_vector_tag_output.pdf"
   let surface = Surface::pdf(100.0, 100.0, path=Some(path))
@@ -347,6 +377,22 @@ test "ps output contains stable page and drawing markers" {
     "%!PS-Adobe-3.0", "%%Pages: 1", "0 0 1 rg", "0 0 10 10 rectfill", "%%EOF",
   ])
   expect_vector_oracle_match(1, 0, path, oracle_path)
+}
+
+///|
+test "ps output contains multi-page markers" {
+  let path = "/tmp/cairoon_vector_ps_multipage.ps"
+  let surface = Surface::ps(12.0, 12.0, path=Some(path))
+  let ctx = Context::new(surface)
+  paint_page(ctx, 0.0, 0.0, 1.0)
+  ctx.show_page()
+  paint_page(ctx, 1.0, 0.0, 0.0)
+  ctx.show_page()
+  surface.finish()
+  expect_vector_output(path, [
+    "%!PS-Adobe-3.0", "%%Pages: 2", "%%Page: 1 1", "%%Page: 2 2", "0 0 1 rg", "1 0 0 rg",
+    "%%EOF",
+  ])
 }
 
 ///|
