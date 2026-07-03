@@ -184,8 +184,10 @@ views for image and
 mapped-image surfaces, portable
 Surface base helpers such as similar-surface creation, rectangular child
 surface creation with retained parent-wrapper lifetime, content/type queries,
-pointer equality/hash for ordinary surfaces, dirty markers, device offset/scale, fallback resolution, show-text-glyphs
-support checks, invalid-size error mapping for similar and rectangular child
+pointer equality/hash for ordinary surfaces, dirty markers with
+finished-status coverage, device offset/scale, fallback resolution,
+show-text-glyphs support checks with finished-status coverage, invalid-size
+error mapping for similar and rectangular child
 surface construction, MIME constants, MIME data storage/query/clear support including
 image/PDF/PS/SVG MIME support matrices and PDF JPEG MIME passthrough, and
 RecordingSurface constructor/extents/ink-extents plus replay, mapped image
@@ -297,9 +299,10 @@ Verified on 2026-07-02 and 2026-07-03:
 - `moon -C cairoon test surface_context_test.mbt --target native -v`: 14
   black-box tests passed after adding `Rgb96F` and `Rgba128F` image-surface
   construction, stride, copied-data, and buffer-backed readback coverage.
-- `moon -C cairoon test surface_context_test.mbt --target native -v`: 15
+- `moon -C cairoon test surface_context_test.mbt --target native -v`: 17
   black-box tests passed after adding ordinary image-surface finish/status
-  coverage for idempotent finish and `SurfaceFinished` base-method errors.
+  coverage for idempotent finish and `SurfaceFinished` base-method,
+  capability, dirty-marker, and state-wrapper errors.
 - `moon -C cairoon test surface_mime_test.mbt --target native -v`: 5
   black-box tests passed after adding image/PDF/PS/SVG
   `supports_mime_type` matrix coverage and invalid MIME type string coverage.
@@ -339,9 +342,9 @@ Verified on 2026-07-02 and 2026-07-03:
 - `moon -C cairoon test enums_test.mbt --target native -v`: 4 black-box tests
   passed after adding `Rgb16_565`, `Rgb30`, `Rgb96F`, `Rgba128F`, and
   negative-width `Format::stride_for_width` coverage.
-- `moon -C cairoon test --target native`: 319 tests passed.
-- `moon -C cairoon info --target native`: passed; the latest UTF-8 string
-  boundary slice did not change the public interface.
+- `moon -C cairoon test --target native`: 320 tests passed.
+- `moon -C cairoon info --target native`: passed; the latest Surface
+  finished-status slice did not change the public interface.
 - Test-only buffer-backed image oracle coverage plus Pure MoonBit Region
   rectangle-XOR and executable Matrix/Surface/Context/Font/Path/Pattern/Region
   documentation coverage were added without rerunning ASan because no C glue or
@@ -855,6 +858,11 @@ Verified on 2026-07-02 and 2026-07-03:
   covering embedded-NUL rejection for `FontFace::toy`,
   `Context::select_font_face`, and `ScaledFont::text_extents`, raising the
   native suite to 319 tests. ASan/LSan was not rerun for that slice because it
+  did not change C glue or ownership code.
+  The later Surface finished-status slice added one pure MoonBit black-box test
+  covering `Surface::has_show_text_glyphs`, dirty markers, device offset/scale
+  wrappers, and fallback-resolution wrappers after `finish()`, raising the
+  native suite to 320 tests. ASan/LSan was not rerun for that slice because it
   did not change C glue or ownership code.
 
 The missing reliability pieces are substantial: broader automated differential tests,

@@ -16,7 +16,7 @@ fn expect_surface_invalid_size(
 }
 
 ///|
-fn expect_surface_finished(result : Result[Unit, CairoError]) -> Unit raise {
+fn[T] expect_surface_finished(result : Result[T, CairoError]) -> Unit raise {
   inspect(result is Err(_), content="true")
   match result {
     Err(CairoError(SurfaceFinished, _)) => ()
@@ -80,6 +80,29 @@ test "surface finish records status for base methods" {
   expect_surface_finished(run_cairo(() => surface.flush()))
   expect_surface_finished(run_cairo(() => surface.copy_page()))
   expect_surface_finished(run_cairo(() => surface.show_page()))
+}
+
+///|
+test "surface finished status covers capability dirty and state methods" {
+  let surface = Surface::image(Argb32, 2, 2)
+  inspect(
+    surface.has_show_text_glyphs() || !surface.has_show_text_glyphs(),
+    content="true",
+  )
+  surface.finish()
+  expect_surface_finished(run_cairo(() => surface.has_show_text_glyphs()))
+  expect_surface_finished(run_cairo(() => surface.mark_dirty()))
+  expect_surface_finished(
+    run_cairo(() => surface.mark_dirty_rectangle(0, 0, 1, 1)),
+  )
+  expect_surface_finished(run_cairo(() => surface.set_device_offset(1.0, 2.0)))
+  expect_surface_finished(run_cairo(() => surface.get_device_offset()))
+  expect_surface_finished(run_cairo(() => surface.set_device_scale(1.0, 2.0)))
+  expect_surface_finished(run_cairo(() => surface.get_device_scale()))
+  expect_surface_finished(
+    run_cairo(() => surface.set_fallback_resolution(72.0, 72.0)),
+  )
+  expect_surface_finished(run_cairo(() => surface.get_fallback_resolution()))
 }
 
 ///|
