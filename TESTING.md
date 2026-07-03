@@ -233,7 +233,10 @@ single-rectangle, and multi-rectangle construction plus predicates, region
 boolean operations, and rectangle boolean operations including XOR split
 semantics; `region.mbt.md` adds executable reference examples for the same
 family. Matrix has executable reference examples for component access,
-pure-value transforms, multiplication, inversion, and checked errors.
+pure-value transforms, multiplication, inversion, and checked errors. Surface
+has executable reference examples for image properties, buffer-backed data,
+similar/subsurface constructors, mapped images, PNG/MIME helpers, and checked
+surface errors.
 
 Verified on 2026-07-02 and 2026-07-03:
 
@@ -278,13 +281,17 @@ Verified on 2026-07-02 and 2026-07-03:
   reference examples passed.
 - `moon -C cairoon test pattern.mbt.md --target native -v`: 6 executable
   Pattern reference examples passed.
-- `moon -C cairoon test --target native`: 271 tests passed.
+- `moon -C cairoon test surface.mbt.md --target native -v`: 6 executable
+  Surface reference examples passed, covering image properties, buffer-backed
+  data, similar/subsurface constructors, mapped images, PNG/MIME helpers, and
+  checked surface errors.
+- `moon -C cairoon test --target native`: 277 tests passed.
 - `moon -C cairoon info --target native`: passed; the latest
-  buffer-backed image oracle slice did not change the public interface.
+  Surface executable-documentation slice did not change the public interface.
 - Test-only buffer-backed image oracle coverage plus Pure MoonBit Region
-  rectangle-XOR and executable Matrix/Path/Pattern/Region documentation
-  coverage were added without rerunning ASan because no C glue or finalizer
-  ownership code changed in those slices.
+  rectangle-XOR and executable Matrix/Surface/Path/Pattern/Region
+  documentation coverage were added without rerunning ASan because no C glue or
+  finalizer ownership code changed in those slices.
 - Documentation-only product-decision audit for pycairo `CAPI`, legacy enum
   aliases, and non-implemented FreeType/user-font classes: `moon -C cairoon
   check --target native`, `moon -C cairoon test --target native -v`, and
@@ -659,6 +666,11 @@ Verified on 2026-07-02 and 2026-07-03:
   the existing direct C Cairo oracle and verifies backing-buffer bytes match
   `copy_data`, raising the native suite to 271 tests. ASan/LSan was not rerun
   for that slice because it did not change C glue or ownership code.
+  The later Surface documentation slice added `surface.mbt.md` with six
+  executable examples covering image properties, buffer-backed data,
+  similar/subsurface constructors, mapped images, PNG/MIME helpers, and checked
+  surface errors, raising the native suite to 277 tests. ASan/LSan was not
+  rerun for that slice because it did not change C glue or ownership code.
 
 The missing reliability pieces are substantial: broader automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering

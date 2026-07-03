@@ -6,10 +6,12 @@ This package is intentionally native-only while MoonBit's LLVM backend does not
 support FFI. See `AGENTS.md` for the migration and audit rules.
 
 Additional executable reference notes are split by API family. Start with
-`matrix.mbt.md` for pure-value affine transforms, `path.mbt.md` for typed path
-segments and path ownership, `pattern.mbt.md` for solid/surface/gradient/mesh
-and raster-source patterns, and `region.mbt.md` for Region construction,
-rectangle queries, boolean operations, and checked error mapping.
+`matrix.mbt.md` for pure-value affine transforms, `surface.mbt.md` for image
+surfaces, buffer-backed data, mapped images, PNG/MIME helpers, and checked
+surface errors, `path.mbt.md` for typed path segments and path ownership,
+`pattern.mbt.md` for solid/surface/gradient/mesh and raster-source patterns,
+and `region.mbt.md` for Region construction, rectangle queries, boolean
+operations, and checked error mapping.
 
 ```mbt check
 ///|
