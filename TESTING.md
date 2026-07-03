@@ -175,11 +175,11 @@ documented product decisions for `CAPI`, legacy uppercase enum alias
 constants, and non-implemented FreeType/user-font classes,
 hit-testing/extents APIs, typed Path segment iteration and stringification,
 PNG filename load/save plus stream read/write, direct C Cairo oracle
-comparisons for sixteen deterministic ARGB32 image scenes on ordinary and
+comparisons for seventeen deterministic ARGB32 image scenes on ordinary and
 buffer-backed image surfaces including toy-font `text_path`, toy-font
 `show_text`, `glyph_path`, `show_glyphs`, `show_text_glyphs`,
-source-surface offsets, mask-surface offsets, and raster-source pattern repeat
-rendering, and
+source-surface offsets, mask-surface offsets, raster-source pattern repeat
+rendering, and dashed round-cap strokes;
 buffer-backed creation plus mutable `ImageData`
 views for image and
 mapped-image surfaces, pycairo-style scoped surface finish and mapped-image
@@ -274,17 +274,25 @@ matrices/metrics, text-to-glyphs, and checked font errors.
 Verified on 2026-07-02 and 2026-07-03:
 
 - `moon -C cairoon check --target native`: passed.
+- `moon -C cairoon test --target native`: 340 tests passed after expanding
+  the ordinary and buffer-backed image oracle from sixteen to seventeen
+  scenes; the suite count is unchanged because two existing oracle tests now
+  iterate one additional scene.
+- `moon -C cairoon info --target native`: completed with no work to do; this
+  dashed-stroke oracle slice changes no public API or generated interface
+  metadata.
 - `moon -C cairoon test image_oracle_wbtest.mbt --target native -v`: 2
   white-box image rendering oracle tests passed. Ordinary image surfaces and
   buffer-backed `Surface::image_for_data` surfaces both match the direct C
-  ARGB32 fixture across sixteen scenes with `glyph_path`, `show_glyphs`,
+  ARGB32 fixture across seventeen scenes with `glyph_path`, `show_glyphs`,
   `show_text_glyphs`, source-surface offsets, mask-surface offsets, and
-  raster-source pattern repeat rendering.
+  raster-source pattern repeat rendering, and dashed round-cap strokes.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
   image_oracle_wbtest.mbt --target native -v`: 2 ASan-compiled white-box image
   oracle tests passed with leak detection disabled, directly exercising the
-  source/mask offset C oracle helper paths.
+  source/mask offset, raster-source repeat, and dashed-stroke C oracle helper
+  paths.
 - `moon -C cairoon test scaled_font_oracle_wbtest.mbt --target native -v`: 2
   white-box ScaledFont oracle tests passed, comparing font extents, text
   extents, glyph extents, and empty, single/multi/spaced ASCII, and UTF-8
@@ -879,13 +887,14 @@ Verified on 2026-07-02 and 2026-07-03:
   The later vector tag inertness slice added two pure MoonBit tests for PS/SVG
   Link tag no-op behavior, raising the native suite to 233 tests. ASan/LSan was
   not rerun for that slice because it did not change C glue or ownership code.
-  The later image oracle slices added private C helpers for sixteen deterministic
+  The later image oracle slices added private C helpers for seventeen deterministic
   ARGB32 scenes covering paint, stroke, fill/stroke rectangles, Bezier paths,
   transforms, RGBA compositing, linear/radial gradients, toy-font `text_path`,
   toy-font `show_text`, `glyph_path`, `show_glyphs`, `show_text_glyphs`,
   source-surface offset sampling, mask-surface offset compositing, and
-  raster-source pattern repeat rendering, without changing the current test
-  count because they broaden one existing white-box oracle test. ASan/LSan
+  raster-source pattern repeat rendering, and dashed round-cap stroke state,
+  without changing the current test count because they broaden one existing
+  white-box oracle test. ASan/LSan
   records for the image-oracle C helpers are recorded in the current verified
   block above; the full runner still fails during the
   known macOS LeakSanitizer class before the white-box executable launches, and
@@ -956,7 +965,9 @@ Verified on 2026-07-02 and 2026-07-03:
   scenes covering non-zero `set_source_surface` and `mask_surface` offsets on
   ordinary and buffer-backed image surfaces. The later raster-source image
   oracle slice expanded it to sixteen scenes by comparing `Pattern::raster_source`
-  repeat rendering against direct C Cairo.
+  repeat rendering against direct C Cairo. The later dashed-stroke image oracle
+  slice expanded it to seventeen scenes by comparing dash and round-cap stroke
+  state against direct C Cairo.
   The later Surface documentation slice added `surface.mbt.md` with six
   executable examples covering image properties, buffer-backed data,
   similar/subsurface constructors, mapped images, PNG/MIME helpers, and checked
@@ -1127,6 +1138,12 @@ Verified on 2026-07-02 and 2026-07-03:
   17 tests. ASan/LSan was not rerun because this slice changed only MoonBit
   wrappers, tests, docs, and generated interface metadata, with no C glue,
   finalizer, callback trampoline, or retained-owner code change.
+  The later dashed-stroke image oracle slice expanded the ordinary and
+  buffer-backed direct C ARGB32 image oracle from sixteen to seventeen scenes,
+  adding dash and round-cap stroke-state coverage without adding a new test
+  case. The targeted `image_oracle_wbtest.mbt` run passed 2 tests, the targeted
+  ASan build passed 2 tests with leak detection disabled, and the full native
+  suite remained at 340 tests.
 
 The missing reliability pieces are substantial: broader automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering

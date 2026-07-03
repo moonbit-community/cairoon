@@ -117,11 +117,12 @@ Implemented in this workspace:
   Cairo-reference lifetime behavior, PNG filename round trips and invalid path
   validation, Surface similar/subsurface invalid-size error mapping,
   deterministic pixel rendering, direct C Cairo oracle comparisons
-  for fifteen ARGB32 scenes covering paint, stroke, fill/stroke rectangles,
+  for seventeen ARGB32 scenes covering paint, stroke, fill/stroke rectangles,
   Bezier paths, transforms, RGBA compositing, linear/radial gradients,
   toy-font `text_path`, toy-font `show_text`, `glyph_path`, `show_glyphs`,
   `show_text_glyphs`, source-surface offset sampling, and mask-surface offset
-  compositing,
+  compositing, raster-source pattern repeat rendering, and dashed round-cap
+  strokes,
   direct C Cairo oracle comparisons for fifteen deterministic PDF/PS/SVG vector
   scenes covering paint, stroke, fill/stroke rectangles, Bezier paths,
   transforms, linear/radial gradients, toy-font text paths, and toy-font
@@ -221,11 +222,11 @@ Implemented in this workspace:
   region, and error behavior.
 - Gate 3 differential rendering: partial. Deterministic raw-pixel rendering
   tests exist for direct colors and explicit patterns, a direct C image oracle
-  covers sixteen deterministic ARGB32 scenes including stroke, rectangle,
+  covers seventeen deterministic ARGB32 scenes including stroke, rectangle,
   Bezier, transform, RGBA, linear/radial gradient, toy-font `text_path`,
   toy-font `show_text`, `glyph_path`, `show_glyphs`, `show_text_glyphs`,
   source-surface offset sampling, mask-surface offset compositing, and
-  raster-source pattern repeat rendering cases,
+  raster-source pattern repeat rendering, and dashed round-cap stroke cases,
   ScaledFont font/text/glyph extents and empty, single/multi/spaced ASCII, and
   UTF-8 text-to-glyph coordinate cases are compared against direct C Cairo
   primitive oracles, and vector outputs
@@ -273,17 +274,25 @@ Implemented in this workspace:
 2026-07-02 and 2026-07-03:
 
 - `moon -C cairoon check --target native`: passed.
+- `moon -C cairoon test --target native`: 340 tests passed after expanding
+  the ordinary and buffer-backed image oracle from sixteen to seventeen
+  scenes; the suite count is unchanged because two existing oracle tests now
+  iterate one additional scene.
+- `moon -C cairoon info --target native`: completed with no work to do; this
+  dashed-stroke oracle slice changes no public API or generated interface
+  metadata.
 - `moon -C cairoon test image_oracle_wbtest.mbt --target native -v`: 2
   white-box image rendering oracle tests passed. Ordinary image surfaces and
   buffer-backed `Surface::image_for_data` surfaces both match the direct C
-  ARGB32 fixture across sixteen scenes with `glyph_path`, `show_glyphs`,
+  ARGB32 fixture across seventeen scenes with `glyph_path`, `show_glyphs`,
   `show_text_glyphs`, source-surface offsets, mask-surface offsets, and
-  raster-source pattern repeat rendering.
+  raster-source pattern repeat rendering, and dashed round-cap strokes.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
   image_oracle_wbtest.mbt --target native -v`: 2 ASan-compiled white-box image
   oracle tests passed with leak detection disabled, directly exercising the
-  source/mask offset C oracle helper paths.
+  source/mask offset, raster-source repeat, and dashed-stroke C oracle helper
+  paths.
 - `moon -C cairoon test scaled_font_oracle_wbtest.mbt --target native -v`: 2
   white-box ScaledFont oracle tests passed, comparing font extents, text
   extents, glyph extents, and empty, single/multi/spaced ASCII, and UTF-8
@@ -890,7 +899,9 @@ Implemented in this workspace:
   `set_source_surface` and `mask_surface` offsets on ordinary and
   buffer-backed image surfaces. The later raster-source image oracle slice
   expanded it to sixteen scenes by comparing `Pattern::raster_source` repeat
-  rendering against direct C Cairo.
+  rendering against direct C Cairo. The later dashed-stroke image oracle slice
+  expanded it to seventeen scenes by comparing dash and round-cap stroke state
+  against direct C Cairo.
   The later Surface documentation slice added `surface.mbt.md` with six
   executable examples covering image properties, buffer-backed data,
   similar/subsurface constructors, mapped images, PNG/MIME helpers, and checked
@@ -1041,6 +1052,12 @@ Implemented in this workspace:
   example and refreshed generated interface metadata. This raised the native
   suite to 340 tests; ASan/LSan was not rerun because no C glue, finalizer,
   callback trampoline, or retained-owner code changed.
+  The later dashed-stroke image oracle slice expanded the ordinary and
+  buffer-backed direct C ARGB32 image oracle from sixteen to seventeen scenes,
+  adding dash and round-cap stroke-state coverage without changing the public
+  API or adding a new test case. The targeted `image_oracle_wbtest.mbt` run
+  passed 2 tests, the targeted ASan build passed 2 tests with leak detection
+  disabled, and the full native suite remained at 340 tests.
 
 ## Known Gaps
 

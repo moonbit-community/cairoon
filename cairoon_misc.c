@@ -59,7 +59,8 @@ enum {
   CAIROON_TEST_IMAGE_SHOW_TEXT_GLYPHS = 12,
   CAIROON_TEST_IMAGE_SOURCE_SURFACE_OFFSET = 13,
   CAIROON_TEST_IMAGE_MASK_SURFACE_OFFSET = 14,
-  CAIROON_TEST_IMAGE_RASTER_SOURCE_PATTERN = 15
+  CAIROON_TEST_IMAGE_RASTER_SOURCE_PATTERN = 15,
+  CAIROON_TEST_IMAGE_DASHED_STROKE = 16
 };
 
 typedef struct {
@@ -973,6 +974,17 @@ static cairo_status_t cairoon_test_draw_argb32_scene(
     }
     case CAIROON_TEST_IMAGE_RASTER_SOURCE_PATTERN:
       return cairoon_test_apply_raster_source_pattern(cr, width, height);
+    case CAIROON_TEST_IMAGE_DASHED_STROKE: {
+      double dashes[] = {2.0, 2.0};
+      cairo_set_source_rgb(cr, 0.0, 0.0, 0.0);
+      cairo_set_line_width(cr, 2.0);
+      cairo_set_line_cap(cr, CAIRO_LINE_CAP_ROUND);
+      cairo_set_dash(cr, dashes, 2, 0.0);
+      cairo_move_to(cr, 2.0, height / 2.0);
+      cairo_line_to(cr, width - 2.0, height / 2.0);
+      cairo_stroke(cr);
+      break;
+    }
     default:
       return CAIRO_STATUS_INVALID_STATUS;
   }
