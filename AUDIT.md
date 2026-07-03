@@ -5,7 +5,9 @@
 Implemented in this workspace:
 
 - MoonBit native package initialization with `moon.mod` and `moon.pkg`.
-- System Cairo 1.18.4 linkage through `pkg-config`-derived flags.
+- System Cairo 1.18.4 linkage through `pkg-config`-derived flags, with
+  `scripts/configure-link-flags.sh` to refresh `moon.pkg` and
+  `scripts/configure-link-flags.sh --check` in the local reliability gate.
 - C FFI glue split by Cairo object family, following pycairo's
   `private.h` plus per-family C file architecture. GC-managed external objects
   currently cover `Surface`, `MappedImageSurface`, `ImageData`, `Context`,
@@ -277,9 +279,10 @@ Implemented in this workspace:
 2026-07-02 and 2026-07-03:
 
 - `./scripts/verify.sh`: passed. The local reliability gate ran
-  `moon fmt --check`, native `moon check`, targeted image, ScaledFont, vector,
-  and pattern oracle tests, the full native suite, `moon info --target native`,
-  and targeted ASan image-oracle and pattern tests with leak detection disabled.
+  `moon fmt --check`, `scripts/configure-link-flags.sh --check`, native
+  `moon check`, targeted image, ScaledFont, vector, and pattern oracle tests,
+  the full native suite, `moon info --target native`, and targeted ASan
+  image-oracle and pattern tests with leak detection disabled.
 - `moon -C cairoon check --target native`: passed.
 - `moon -C cairoon test --target native`: 342 tests passed after adding
   context `get_source` surface-pattern lifetime coverage for the path where
@@ -1128,8 +1131,11 @@ Implemented in this workspace:
 - `Surface::copy_data` still copies Cairo image data into MoonBit `Bytes`;
   `Surface::get_data` is the mutable image-surface view and intentionally
   retains the surface wrapper instead of exposing a raw pointer.
-- The package currently records Homebrew Cairo 1.18.4 paths. A portable setup
-  script or generated config should replace this before publishing.
+- The package records concrete native link flags in `moon.pkg`, as required by
+  the current MoonBit package DSL. `scripts/configure-link-flags.sh` refreshes
+  those flags from the target platform's `pkg-config`, and the local gate
+  checks for drift; a future publishing workflow may still want package-manager
+  specific guidance for non-`pkg-config` Cairo installations.
 - ASan was run manually for the current expanded slice; CI automation has not
   been wired into this repository yet. The current LSan failure on macOS
   toy-font, scaled-font, toy-text rendering, glyph rendering/path, and

@@ -5,6 +5,19 @@ MoonBit native bindings for the Cairo graphics library.
 This package is intentionally native-only while MoonBit's LLVM backend does not
 support FFI. See `AGENTS.md` for the migration and audit rules.
 
+## Native Link Configuration
+
+`moon.pkg` stores concrete native link flags for the current Cairo installation.
+After installing Cairo and `pkg-config`, refresh those flags with:
+
+```sh
+scripts/configure-link-flags.sh
+```
+
+The local reliability gate runs `scripts/configure-link-flags.sh --check` so
+checked-in flags cannot silently drift away from `pkg-config --cflags --libs
+cairo`.
+
 Additional executable reference notes are split by API family. Start with
 `matrix.mbt.md` for pure-value affine transforms, `surface.mbt.md` for image
 surfaces, buffer-backed data, mapped images, PNG/MIME helpers, and checked

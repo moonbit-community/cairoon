@@ -71,6 +71,9 @@ moon -C cairoon info --target native
 
 Review `pkg.generated.mbti` after `moon info`. Public additions, `raise`
 annotations, and enum constructors must match the intended API.
+Run `scripts/configure-link-flags.sh --check` before native checks when the
+system Cairo installation may have changed; the full local gate includes this
+check.
 
 ### Tier 1: MoonBit Unit And Black-Box Tests
 
@@ -162,11 +165,12 @@ The current local gate is executable as:
 ./scripts/verify.sh
 ```
 
-It runs `moon fmt --check`, native `moon check`, targeted white-box image,
-ScaledFont, vector-output, and raster-pattern tests, the full native test
-suite, `moon info --target native`, and targeted ASan builds for the image
-oracle and raster-pattern suites when an ASan-capable `clang` is available.
-Set `CAIROON_VERIFY_ASAN=0` to skip the targeted ASan portion intentionally.
+It runs `moon fmt --check`, `scripts/configure-link-flags.sh --check`, native
+`moon check`, targeted white-box image, ScaledFont, vector-output, and
+raster-pattern tests, the full native test suite, `moon info --target native`,
+and targeted ASan builds for the image oracle and raster-pattern suites when an
+ASan-capable `clang` is available. Set `CAIROON_VERIFY_ASAN=0` to skip the
+targeted ASan portion intentionally.
 
 ## Current Status
 
@@ -288,9 +292,10 @@ matrices/metrics, text-to-glyphs, and checked font errors.
 Verified on 2026-07-02 and 2026-07-03:
 
 - `./scripts/verify.sh`: passed. The local reliability gate ran
-  `moon fmt --check`, native `moon check`, targeted image, ScaledFont, vector,
-  and pattern oracle tests, the full native suite, `moon info --target native`,
-  and targeted ASan image-oracle and pattern tests with leak detection disabled.
+  `moon fmt --check`, `scripts/configure-link-flags.sh --check`, native
+  `moon check`, targeted image, ScaledFont, vector, and pattern oracle tests,
+  the full native suite, `moon info --target native`, and targeted ASan
+  image-oracle and pattern tests with leak detection disabled.
 - `moon -C cairoon check --target native`: passed.
 - `moon -C cairoon test --target native`: 342 tests passed after adding
   context `get_source` surface-pattern lifetime coverage for the path where

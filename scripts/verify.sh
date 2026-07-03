@@ -12,6 +12,7 @@ run() {
 }
 
 run moon fmt --check
+run ./scripts/configure-link-flags.sh --check
 run moon check --target native
 
 run moon test image_oracle_wbtest.mbt --target native -v
