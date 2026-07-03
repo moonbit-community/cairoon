@@ -179,10 +179,11 @@ Implemented in this workspace:
   have stable structural marker checks plus direct C oracle comparisons for
   nine deterministic PDF/PS/SVG scenes covering paint, stroke, fill/stroke
   rectangles, Bezier paths, transforms, linear/radial gradients, toy-font text
-  paths, and toy-font `show_text`. PDF metadata/custom metadata, page labels, outlines, multi-page
-  output, link-tag annotations, and JPEG MIME passthrough have marker checks;
-  PS multi-page output has marker checks; and PS/SVG Link tags have inert-output
-  checks matching Cairo 1.18.4 backend behavior.
+  paths, and toy-font `show_text`. PDF metadata/custom metadata, page labels,
+  outlines, multi-page output, link-tag annotations, and JPEG MIME passthrough
+  have marker checks; PS and SVG multi-page output have marker checks; and
+  PS/SVG Link tags have inert-output checks matching Cairo 1.18.4 backend
+  behavior.
   Full cross-run comparison against pycairo output is not yet automated.
 - Gate 4 memory and lifetime: partial. Stub ownership follows the documented
   external-object pattern, and retained-owner stress now covers subsurfaces,
@@ -201,16 +202,18 @@ Implemented in this workspace:
 2026-07-02 and 2026-07-03:
 
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test vector_output_wbtest.mbt --target native -v`: 12
-  white-box tests passed after adding toy-font `show_text` to the direct C
-  vector oracle scenes, alongside metadata, tag-output, MIME-output, and page
-  structure checks.
+- `moon -C cairoon test vector_output_wbtest.mbt --target native -v`: 13
+  white-box tests passed after adding SVG multi-page marker checks alongside
+  the direct C vector oracle scenes, metadata, tag-output, MIME-output, and
+  page structure checks.
 - `moon -C cairoon test surface_context_test.mbt context_lifetime_test.mbt
   pattern_test.mbt --target native -v`: 32 tests passed after adding
   `Surface`/`Context`/`Pattern` pointer equality/hash.
-- `moon -C cairoon test --target native -v`: 242 tests passed.
-- `moon -C cairoon info --target native`: passed; the vector `show_text` oracle
+- `moon -C cairoon test --target native -v`: 243 tests passed.
+- `moon -C cairoon info --target native`: passed; the SVG multi-page marker
   slice did not change the public interface.
+- ASan/LSan was not rerun for the SVG multi-page marker slice because it only
+  changes MoonBit tests and documentation, not C stubs or finalizers.
 - Documentation-only product-decision audit for pycairo `CAPI`, legacy enum
   aliases, and non-implemented FreeType/user-font classes: `moon -C cairoon
   check --target native`, `moon -C cairoon test --target native -v`, and
@@ -346,13 +349,13 @@ Implemented in this workspace:
 ## Known Gaps
 
 - Broader normalized PDF/SVG/PS output comparison is still missing beyond the
-  current nine-scene direct C fixtures. PDF/PS now have multi-page marker
+  current nine-scene direct C fixtures. PDF/PS/SVG now have multi-page marker
   checks, and PDF/PS/SVG have a single-page toy-font `show_text` oracle scene,
-  but multi-page differential comparison, SVG multi-page coverage, tag and
-  metadata combinations, and broader tag-output assertions are still absent
-  beyond PDF Link materialization and PS/SVG Link inertness. PDF/PS/SVG stream-writer
-  constructors, script stream devices, and PNG stream read/write now have
-  copied-byte callback tests and read/write error propagation coverage.
+  but multi-page differential comparison, tag and metadata combinations, and
+  broader tag-output assertions are still absent beyond PDF Link materialization
+  and PS/SVG Link inertness. PDF/PS/SVG stream-writer constructors, script
+  stream devices, and PNG stream read/write now have copied-byte callback tests
+  and read/write error propagation coverage.
 - `Surface::copy_data` still copies Cairo image data into MoonBit `Bytes`;
   `Surface::get_data` is the mutable image-surface view and intentionally
   retains the surface wrapper instead of exposing a raw pointer.

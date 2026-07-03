@@ -208,7 +208,7 @@ tests, stable structural vector-output markers plus direct C oracle comparisons
 for nine deterministic PDF/PS/SVG vector scenes covering paint, stroke,
 fill/stroke rectangles, Bezier paths, transforms, linear/radial gradients,
 toy-font text paths, and toy-font `show_text`, PDF metadata/custom-metadata/page-label/outline output
-markers, PDF/PS multi-page output markers, PDF JPEG MIME payload embedding,
+markers, PDF/PS/SVG multi-page output markers, PDF JPEG MIME payload embedding,
 PDF link-tag annotation markers, PS/SVG Link tag inert-output checks, mutable
 image/mapped-image data view tests, and initial tests. Region now covers empty, single-rectangle, and
 multi-rectangle
@@ -217,16 +217,18 @@ construction plus predicates and boolean operations.
 Verified on 2026-07-02 and 2026-07-03:
 
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test vector_output_wbtest.mbt --target native -v`: 12
-  white-box tests passed after adding toy-font `show_text` to the direct C
-  vector oracle scenes, alongside metadata, tag-output, MIME-output, and page
-  structure checks.
+- `moon -C cairoon test vector_output_wbtest.mbt --target native -v`: 13
+  white-box tests passed after adding SVG multi-page marker checks alongside
+  the direct C vector oracle scenes, metadata, tag-output, MIME-output, and
+  page structure checks.
 - `moon -C cairoon test surface_context_test.mbt context_lifetime_test.mbt
   pattern_test.mbt --target native -v`: 32 tests passed after adding
   `Surface`/`Context`/`Pattern` pointer equality/hash.
-- `moon -C cairoon test --target native -v`: 242 tests passed.
-- `moon -C cairoon info --target native`: passed; the vector `show_text` oracle
+- `moon -C cairoon test --target native -v`: 243 tests passed.
+- `moon -C cairoon info --target native`: passed; the SVG multi-page marker
   slice did not change the public interface.
+- ASan/LSan was not rerun for the SVG multi-page marker slice because it only
+  changes MoonBit tests and documentation, not C stubs or finalizers.
 - Documentation-only product-decision audit for pycairo `CAPI`, legacy enum
   aliases, and non-implemented FreeType/user-font classes: `moon -C cairoon
   check --target native`, `moon -C cairoon test --target native -v`, and
@@ -460,8 +462,8 @@ Verified on 2026-07-02 and 2026-07-03:
 The missing reliability pieces are substantial: broader automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering
 LSan failure, finalizer stress tests, CI wiring, vector-output normalization for
-multi-page, tag, and metadata cases beyond the current PDF/PS multi-page marker
-checks and the current single-page toy-font `show_text` oracle scene, broader
+multi-page, tag, and metadata cases beyond the current PDF/PS/SVG multi-page
+marker checks and the current single-page toy-font `show_text` oracle scene, broader
 tag-output assertions, and
 the remaining API families from `API_INVENTORY.md`.
 

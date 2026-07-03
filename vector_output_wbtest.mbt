@@ -435,6 +435,22 @@ test "svg output contains stable geometry and color markers" {
 }
 
 ///|
+test "svg output contains multi-page markers" {
+  let path = "/tmp/cairoon_vector_svg_multipage.svg"
+  let surface = Surface::svg(12.0, 12.0, path=Some(path))
+  let ctx = Context::new(surface)
+  paint_page(ctx, 0.0, 0.0, 1.0)
+  ctx.show_page()
+  paint_page(ctx, 1.0, 0.0, 0.0)
+  ctx.show_page()
+  surface.finish()
+  expect_vector_output(path, [
+    "<?xml version=\"1.0\"", "<svg", "width=\"12\" height=\"12\"", "<pageSet>", "<page>",
+    "fill=\"rgb(0%, 0%, 100%)\"", "fill=\"rgb(100%, 0%, 0%)\"", "</pageSet>", "</svg>",
+  ])
+}
+
+///|
 test "vector output scenes match direct cairo C oracle" {
   for kind in 0..<3 {
     let ext = vector_output_extension(kind)
