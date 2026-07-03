@@ -200,7 +200,8 @@ surface owners, MeshPattern patch lifecycle/query
 APIs, `FORMAT_INVALID` integer-sentinel coverage, FontOptions
 state/accessor APIs, FontFace/ToyFontFace APIs, ScaledFont
 basics including glyph extents, text-to-glyphs, and direct C Cairo oracle
-comparison for font/text/glyph extents and text-to-glyph output, and
+comparison for font/text/glyph extents and empty/ASCII/UTF-8 text-to-glyph
+coordinate cases, and
 Device/ScriptDevice basics including status/type/equal/hash,
 finish/flush/acquire/release, scoped acquire, file/stream script devices,
 script mode/comment helpers, recording replay, `Surface::get_device`,
@@ -233,8 +234,8 @@ Verified on 2026-07-02 and 2026-07-03:
   `show_text_glyphs`.
 - `moon -C cairoon test scaled_font_oracle_wbtest.mbt --target native -v`: 2
   white-box ScaledFont oracle tests passed, comparing font extents, text
-  extents, glyph extents, and a full text-to-glyph run against direct C Cairo
-  results.
+  extents, glyph extents, and empty/ASCII/UTF-8 text-to-glyph coordinate cases
+  against direct C Cairo results.
 - `moon -C cairoon test lifetime_stress_test.mbt --target native -v`: 6
   black-box lifetime tests passed after adding the backend stream callback
   1000-iteration allocation stress case.
@@ -569,6 +570,10 @@ Verified on 2026-07-02 and 2026-07-03:
   The later ScaledFont text-to-glyph oracle slice added a private C helper and
   a second white-box ScaledFont oracle test, raising the native suite to 249
   tests; ASan/LSan was rerun as recorded above.
+  The later ScaledFont text-to-glyph matrix slice expanded that same white-box
+  oracle test to cover empty, ASCII, precomposed Latin UTF-8, CJK UTF-8, and
+  varied baseline coordinates without changing public API or test count; ASan
+  was not rerun because no C glue changed.
   The later vector scene oracle slice broadened the private C vector oracle
   from a paint-only fixture to seven deterministic PDF/PS/SVG scenes covering
   paint, stroke, fill/stroke rectangles, Bezier paths, transforms, and

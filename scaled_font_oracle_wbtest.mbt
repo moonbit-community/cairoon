@@ -107,6 +107,21 @@ fn scaled_font_oracle_expect_run(
 }
 
 ///|
+fn scaled_font_oracle_expect_text_to_glyphs(
+  scaled_font : ScaledFont,
+  x : Double,
+  y : Double,
+  text : String,
+) -> Unit raise {
+  scaled_font_oracle_expect_run(
+    scaled_font.text_to_glyphs(x, y, text),
+    text_glyph_run_from_native(
+      test_scaled_font_text_to_glyphs_oracle_ffi(x, y, @utf8.encode(text)),
+    ),
+  )
+}
+
+///|
 test "scaled font extents match direct cairo C oracle" {
   let scaled_font = scaled_font_oracle_make_font()
   scaled_font_oracle_expect_font_extents(
@@ -129,11 +144,11 @@ test "scaled font extents match direct cairo C oracle" {
 ///|
 test "scaled font text_to_glyphs matches direct cairo C oracle" {
   let scaled_font = scaled_font_oracle_make_font()
-  let text = "affinity"
-  scaled_font_oracle_expect_run(
-    scaled_font.text_to_glyphs(2.0, 11.0, text),
-    text_glyph_run_from_native(
-      test_scaled_font_text_to_glyphs_oracle_ffi(2.0, 11.0, @utf8.encode(text)),
-    ),
+  scaled_font_oracle_expect_text_to_glyphs(scaled_font, 0.0, 0.0, "")
+  scaled_font_oracle_expect_text_to_glyphs(scaled_font, 2.0, 12.0, "a")
+  scaled_font_oracle_expect_text_to_glyphs(scaled_font, 2.0, 11.0, "affinity")
+  scaled_font_oracle_expect_text_to_glyphs(scaled_font, -3.5, 4.25, "\u{00e9}")
+  scaled_font_oracle_expect_text_to_glyphs(
+    scaled_font, 5.0, -6.0, "\u{4e2d}\u{6587}",
   )
 }

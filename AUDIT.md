@@ -96,7 +96,7 @@ Implemented in this workspace:
   constructor from `FontFace`/`Matrix`/`FontOptions`, font face/options and
   matrix getters, text and glyph extents, full and glyph-only text-to-glyphs,
   direct C Cairo oracle comparison for font/text/glyph extents and
-  text-to-glyph runs, and `Context`
+  empty/ASCII/UTF-8 text-to-glyph coordinate cases, and `Context`
   font matrix/size/extents plus scaled-font
   get/set/show-text-glyphs wrappers.
 - Initial parity tests for version helpers, compile-time Cairo constants, enum
@@ -124,7 +124,7 @@ Implemented in this workspace:
   array extents/path/show
   behavior, empty glyph arrays, glyph context-error propagation, text-to-glyphs
   output copying including glyph-only conversion, ScaledFont font/text/glyph
-  extents and text-to-glyph direct C oracle comparison,
+  extents and text-to-glyph string-matrix direct C oracle comparison,
   show-text-glyphs rendering, and
   text-glyph input validation,
   mapped image whole-surface and rectangle-extents writeback behavior,
@@ -190,8 +190,9 @@ Implemented in this workspace:
   covers thirteen deterministic ARGB32 scenes including stroke, rectangle,
   Bezier, transform, RGBA, linear/radial gradient, toy-font `text_path`,
   toy-font `show_text`, `glyph_path`, `show_glyphs`, and `show_text_glyphs`
-  cases, ScaledFont font/text/glyph extents and text-to-glyph output are
-  compared against direct C Cairo primitive oracles, and vector outputs
+  cases, ScaledFont font/text/glyph extents and empty/ASCII/UTF-8
+  text-to-glyph coordinate cases are compared against direct C Cairo primitive
+  oracles, and vector outputs
   have stable structural marker checks plus direct C oracle comparisons for
   ten deterministic PDF/PS/SVG scenes covering paint, stroke, fill/stroke
   rectangles, Bezier paths, transforms, linear/radial gradients, toy-font text
@@ -234,8 +235,8 @@ Implemented in this workspace:
   `show_text_glyphs`.
 - `moon -C cairoon test scaled_font_oracle_wbtest.mbt --target native -v`: 2
   white-box ScaledFont oracle tests passed, comparing font extents, text
-  extents, glyph extents, and a full text-to-glyph run against direct C Cairo
-  results.
+  extents, glyph extents, and empty/ASCII/UTF-8 text-to-glyph coordinate cases
+  against direct C Cairo results.
 - `moon -C cairoon test lifetime_stress_test.mbt --target native -v`: 6
   black-box lifetime tests passed after adding the backend stream callback
   1000-iteration allocation stress case.
@@ -483,6 +484,10 @@ Implemented in this workspace:
   The later ScaledFont text-to-glyph oracle slice added a private C helper and
   a second white-box ScaledFont oracle test, raising the native suite to 249
   tests; ASan/LSan validation is recorded in `Last Verified` above.
+  The later ScaledFont text-to-glyph matrix slice expanded that same white-box
+  oracle test to cover empty, ASCII, precomposed Latin UTF-8, CJK UTF-8, and
+  varied baseline coordinates without changing public API or test count; ASan
+  was not rerun because no C glue changed.
   The later vector scene oracle slice broadened the private C vector oracle
   from a paint-only fixture to seven deterministic PDF/PS/SVG scenes covering
   paint, stroke, fill/stroke rectangles, Bezier paths, transforms, and
