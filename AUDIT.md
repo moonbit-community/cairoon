@@ -32,7 +32,8 @@ Implemented in this workspace:
   wrapper that can outlive the pattern wrapper.
 - Public `Status`, `CairoError`, version helpers, compile-time Cairo version
   constants, feature flags, MIME/tag constants, portable Cairo enum types,
-  `Format::stride_for_width`, pure `Matrix` parity operations, pure rectangle,
+  `Format::stride_for_width`, `FORMAT_INVALID` as an explicit integer
+  sentinel, pure `Matrix` parity operations, pure rectangle,
   glyph, text-cluster, and extents values, image `Surface` including PNG
   filename load/save and buffer-backed creation, core `Context` drawing state
   including dash and hairline mode, clip APIs including rectangle-list copying,
@@ -87,7 +88,8 @@ Implemented in this workspace:
   relative/arc, copy/append, stringification, and iteration behavior,
   borrowed target/source/group-target lifetime behavior, group push/pop and
   pop-to-source rendering behavior, tag begin/end smoke behavior, tag and MIME
-  string constants, tag input validation, Context toy text
+  string constants, integer constant parity including `FORMAT_INVALID`, tag
+  input validation, Context toy text
   extents/current-point/path behavior, text input validation, Context glyph
   array extents/path/show
   behavior, empty glyph arrays, glyph context-error propagation, text-to-glyphs
@@ -148,14 +150,16 @@ Implemented in this workspace:
 2026-07-02 and 2026-07-03:
 
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native -v`: 201 tests passed.
+- `moon -C cairoon test --target native -v`: 202 tests passed.
 - `run-asan.py --repo-root /Users/caimeo/code/pycairo/cairoon --pkg moon.pkg`:
-  most recently ran the 201-test native suite on 2026-07-03 after the
-  TeeSurface slice. An earlier retained-owner stress ASan run found a
+  most recently ran the 202-test native suite on 2026-07-03 after the
+  `FORMAT_INVALID` constant-sentinel slice. An earlier retained-owner stress
+  ASan run found a
   heap-use-after-free in `cairoon_copy_image_surface_data` reached from
   `lifetime_stress_test.mbt` when a returned target surface outlived a context
   created from a mapped image. The fixed rerun, and the later TeeSurface rerun,
-  no longer report that invalid access and fail during LeakSanitizer reporting.
+  and this latest rerun no longer report that invalid access and fail during
+  LeakSanitizer reporting.
   The reported allocations are rooted in
   `cairo_toy_font_face_create`, `cairo_select_font_face`, macOS
   FontRegistry/CoreGraphics frames, and scaled-font Quartz/CoreText paths such
@@ -169,12 +173,15 @@ Implemented in this workspace:
   RecordingSurface helper, PDFSurface helper, PSSurface helper, SVGSurface
   helper, PDF outline helper, MeshPattern/Pattern helper,
   Device/ScriptSurface helper, Context text/tag/group, MIME-data stub, or
-  compile-time constant helper ownership stack, Surface `create_for_rectangle`
-  helper, retained-parent subsurface helper/finalizer stack, retained
-  target/group-target helper stack, mapped-image lifetime helper stack, Context
-  `set_source_surface` helper, Context hairline helper, or TeeSurface helper
-  stack appeared in the visible leak roots of the latest rerun.
-  Summary: `90213 byte(s) leaked in 490 allocation(s)`. The helper still emits
+  Surface `create_for_rectangle` helper, retained-parent subsurface
+  helper/finalizer stack, retained target/group-target helper stack,
+  mapped-image lifetime helper stack, Context `set_source_surface` helper,
+  Context hairline helper, TeeSurface helper stack, or compile-time constant
+  helper stack appeared in the visible leak roots of the latest rerun. A grep
+  of `/tmp/cairoon-format-asan.txt` found no `ERROR: AddressSanitizer`,
+  heap-use-after-free, stack-use-after, or `cairoon_compile_int_constant`
+  entries.
+  Summary: `89925 byte(s) leaked in 482 allocation(s)`. The helper still emits
   a `moon.mod.json` lookup warning because this package uses `moon.mod`, but it
   correctly patched and restored the DSL `moon.pkg` and MoonBit runtime object
   for this package.

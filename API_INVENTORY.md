@@ -17,7 +17,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 | Area | Status | Evidence |
 |---|---|---|
 | MoonBit package setup | Done | `moon.mod`, `moon.pkg`, native Cairo link flags, pycairo-style split C stubs |
-| Version helpers and module constants | Done | `cairo_version`, `cairo_version_string`, `CAIRO_VERSION*`, `HAS_*`, `MIME_TYPE_*`, tag constants, `PDF_OUTLINE_ROOT`, and `COLOR_PALETTE_DEFAULT` |
+| Version helpers and module constants | Done | `cairo_version`, `cairo_version_string`, `CAIRO_VERSION*`, `HAS_*`, `MIME_TYPE_*`, tag constants, `PDF_OUTLINE_ROOT`, `FORMAT_INVALID`, and `COLOR_PALETTE_DEFAULT` |
 | Status and error mapping | Done | `Status`, `CairoError`, `run_cairo`, and exhaustive status-classification tests; MoonBit intentionally splits invalid-argument statuses into `CairoInvalidArgument` |
 | Matrix | Done | Pure value equivalent with field access, transform/translate/scale/rotate/multiply/invert/component tests |
 | Image surface basics | Partial | Create, similar-image create, map/unmap to image, buffer-backed create-for-data, PNG path load/save, MIME data, status, finish, flush, width/height/stride/format, copied data |
@@ -44,7 +44,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 | `HAS_*` feature constants | Done | Feature flags exposed as Boolean constants and white-box tested against C macros for this native build |
 | `MIME_TYPE_*` constants | Done | Cairo MIME strings exposed and white-box tested against C macros |
 | `TAG_*` constants | Done | Cairo tag strings exposed and white-box tested against C macros |
-| `PDF_OUTLINE_ROOT`, `COLOR_PALETTE_DEFAULT` | Done | Numeric constants exposed and white-box tested against C macros |
+| `PDF_OUTLINE_ROOT`, `FORMAT_INVALID`, `COLOR_PALETTE_DEFAULT` | Done | Numeric constants exposed and white-box tested against C macros |
 | `version`, `version_info` | Decision | pycairo package-version surface; cairoon needs its own package-version policy before exposing an equivalent |
 | `get_include()` | Decision | pycairo-specific C-extension helper; decide whether cairoon needs an equivalent |
 
@@ -57,7 +57,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 | `SurfaceType` | Done | Values through Cairo 1.18.4 are listed for `Surface::get_type` |
 | `DeviceType` | Done | Valid non-negative values through Cairo 1.18.4 are listed for `Device::get_type`; `INVALID = -1` is not represented by the enum |
 | `FillRule` | Done | Constructors use `Fill*` prefixes |
-| `Format` | Partial | Image formats and `stride_for_width`; `CAIRO_FORMAT_INVALID = -1` cannot be represented by the current MoonBit enum and needs a decision between a separate integer constant or a new typed representation |
+| `Format` | Done | Valid image formats are represented as non-negative enum constructors; Cairo's `CAIRO_FORMAT_INVALID = -1` is exposed separately as the integer sentinel `FORMAT_INVALID` because MoonBit enum discriminants are non-negative |
 | `HintMetrics` | Done | Constructors use `HintMetrics*` prefixes |
 | `ColorMode` | Done | Cairo 1.18 font color options |
 | `Dither` | Done | Cairo 1.18 pattern dither enum and pattern methods |

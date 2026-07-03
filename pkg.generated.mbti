@@ -18,6 +18,8 @@ pub const CAIRO_VERSION_STRING : String = "1.18.4"
 
 pub const COLOR_PALETTE_DEFAULT : UInt = 0
 
+pub const FORMAT_INVALID : Int = -1
+
 pub const HAS_ATSUI_FONT : Bool = false
 
 pub const HAS_DWRITE_FONT : Bool = false

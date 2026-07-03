@@ -168,7 +168,8 @@ constructor, level helpers, level restriction, EPS mode, size and DSC helpers,
 SVGSurface filename/no-output constructor, version helpers, version
 restriction, and document-unit helpers,
 surface-pattern borrowed surface returns, MeshPattern patch lifecycle/query
-APIs, FontOptions state/accessor APIs, FontFace/ToyFontFace APIs, ScaledFont
+APIs, `FORMAT_INVALID` integer-sentinel coverage, FontOptions
+state/accessor APIs, FontFace/ToyFontFace APIs, ScaledFont
 basics including glyph extents and text-to-glyphs, and
 Device/ScriptDevice basics including status/type/equal/hash,
 finish/flush/acquire/release, scoped acquire, script mode/comment helpers,
@@ -182,7 +183,7 @@ construction plus predicates and boolean operations.
 Verified on 2026-07-02 and 2026-07-03:
 
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native -v`: 201 tests passed.
+- `moon -C cairoon test --target native -v`: 202 tests passed.
 - ASan/LSan via `run-asan.py`: ran on 2026-07-03 after adding retained-owner
   lifetime stress tests. The first run found a real heap-use-after-free when a
   `Surface` returned by `Context::get_target` outlived a context created from a
@@ -246,6 +247,14 @@ Verified on 2026-07-02 and 2026-07-03:
   stack, retained target/group-target helper stack, mapped-image lifetime
   helper stack, TeeSurface helper stack, or Context
   `set_source_surface`/hairline helpers appeared in the visible leak roots.
+  The later `FORMAT_INVALID` constant-sentinel slice touched the C
+  compile-time integer-constant oracle and raised the native suite to 202
+  tests; ASan/LSan was rerun on 2026-07-03. It reported only the same macOS
+  LeakSanitizer class. A grep of `/tmp/cairoon-format-asan.txt` found no
+  `ERROR: AddressSanitizer`, heap-use-after-free, stack-use-after,
+  `cairoon_compile_int_constant`, `cairoon_compile_string_constant`,
+  `cairoon_misc`, or compile-time constant helper stack entries; summary:
+  `89925 byte(s) leaked in 482 allocation(s)`.
 
 The missing reliability pieces are substantial: automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering

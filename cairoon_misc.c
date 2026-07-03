@@ -159,6 +159,8 @@ int32_t cairoon_compile_int_constant(int32_t constant) {
 #else
       return 0;
 #endif
+    case 6:
+      return CAIRO_FORMAT_INVALID;
     default:
       return 0;
   }

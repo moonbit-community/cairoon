@@ -65,3 +65,8 @@ test "format stride_for_width delegates to cairo" {
   inspect(a8.stride_for_width(8), content="8")
   inspect(a1.stride_for_width(8), content="4")
 }
+
+///|
+test "format invalid is exposed as an integer sentinel" {
+  inspect(FORMAT_INVALID, content="-1")
+}

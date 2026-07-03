@@ -80,4 +80,5 @@ test "cairo integer constants mirror compile-time cairo macros" {
     COLOR_PALETTE_DEFAULT.reinterpret_as_int() == compile_int_constant_ffi(5),
     content="true",
   )
+  inspect(FORMAT_INVALID == compile_int_constant_ffi(6), content="true")
 }

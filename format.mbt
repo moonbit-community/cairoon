@@ -1,4 +1,7 @@
 ///|
+pub const FORMAT_INVALID : Int = -1
+
+///|
 pub(all) enum Format {
   Argb32 = 0
   Rgb24 = 1
