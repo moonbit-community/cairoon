@@ -1,5 +1,9 @@
 #include "cairoon_private.h"
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 #if CAIRO_HAS_PDF_SURFACE
 #include <cairo-pdf.h>
 #endif
@@ -12,6 +16,67 @@ moonbit_bytes_t cairoon_version_string(void) {
 MOONBIT_FFI_EXPORT
 moonbit_bytes_t cairoon_status_to_string(cairo_status_t status) {
   return cairoon_copy_c_string(cairo_status_to_string(status));
+}
+
+MOONBIT_FFI_EXPORT
+int32_t cairoon_test_file_size(moonbit_bytes_t filename) {
+  FILE *file = fopen((const char *)filename, "rb");
+  if (file == NULL) {
+    return -1;
+  }
+  if (fseek(file, 0, SEEK_END) != 0) {
+    fclose(file);
+    return -1;
+  }
+  long size = ftell(file);
+  fclose(file);
+  if (size < 0) {
+    return -1;
+  }
+  if (size > INT32_MAX) {
+    return INT32_MAX;
+  }
+  return (int32_t)size;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t cairoon_test_file_contains(
+  moonbit_bytes_t filename,
+  moonbit_bytes_t needle) {
+  int32_t needle_len = Moonbit_array_length(needle);
+  if (needle_len == 0) {
+    return 1;
+  }
+  int32_t size = cairoon_test_file_size(filename);
+  if (size < needle_len) {
+    return 0;
+  }
+
+  FILE *file = fopen((const char *)filename, "rb");
+  if (file == NULL) {
+    return 0;
+  }
+  unsigned char *data = (unsigned char *)malloc((size_t)size);
+  if (data == NULL) {
+    fclose(file);
+    return 0;
+  }
+  size_t read_len = fread(data, 1, (size_t)size, file);
+  fclose(file);
+  if (read_len < (size_t)needle_len) {
+    free(data);
+    return 0;
+  }
+
+  int32_t found = 0;
+  for (size_t i = 0; i + (size_t)needle_len <= read_len; i++) {
+    if (memcmp(data + i, needle, (size_t)needle_len) == 0) {
+      found = 1;
+      break;
+    }
+  }
+  free(data);
+  return found;
 }
 
 MOONBIT_FFI_EXPORT

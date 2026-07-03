@@ -86,10 +86,20 @@ extern "C" fn compile_int_constant_ffi(constant : Int) -> Int = "cairoon_compile
 extern "C" fn compile_string_constant_ffi(constant : Int) -> Bytes = "cairoon_compile_string_constant"
 
 ///|
+#borrow(filename)
+extern "C" fn test_file_size_ffi(filename : Bytes) -> Int = "cairoon_test_file_size"
+
+///|
+#borrow(filename, needle)
+extern "C" fn test_file_contains_ffi(filename : Bytes, needle : Bytes) -> Bool = "cairoon_test_file_contains"
+
+///|
 fn init {
   ignore(compile_feature_flag_ffi)
   ignore(compile_int_constant_ffi)
   ignore(compile_string_constant_ffi)
+  ignore(test_file_size_ffi)
+  ignore(test_file_contains_ffi)
 }
 
 ///|

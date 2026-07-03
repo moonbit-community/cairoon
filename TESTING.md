@@ -176,14 +176,15 @@ finish/flush/acquire/release, scoped acquire, script mode/comment helpers,
 recording replay, `Surface::get_device`, `Surface::script`, and
 `Surface::script_for_target`, TeeSurface mirrored drawing and target indexing,
 exhaustive `Status`/`CairoError` classification, retained-owner lifetime stress
-tests, and initial tests. Region now covers empty, single-rectangle, and
+tests, stable structural vector-output markers for PDF/PS/SVG filename
+backends, and initial tests. Region now covers empty, single-rectangle, and
 multi-rectangle
 construction plus predicates and boolean operations.
 
 Verified on 2026-07-02 and 2026-07-03:
 
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native -v`: 202 tests passed.
+- `moon -C cairoon test --target native -v`: 205 tests passed.
 - ASan/LSan via `run-asan.py`: ran on 2026-07-03 after adding retained-owner
   lifetime stress tests. The first run found a real heap-use-after-free when a
   `Surface` returned by `Context::get_target` outlived a context created from a
@@ -254,6 +255,13 @@ Verified on 2026-07-02 and 2026-07-03:
   `ERROR: AddressSanitizer`, heap-use-after-free, stack-use-after,
   `cairoon_compile_int_constant`, `cairoon_compile_string_constant`,
   `cairoon_misc`, or compile-time constant helper stack entries; summary:
+  `89925 byte(s) leaked in 482 allocation(s)`.
+  The later vector-output marker slice added a private C file-scan test helper
+  and raised the native suite to 205 tests; ASan/LSan was rerun on
+  2026-07-03. It reported only the same macOS LeakSanitizer class. A grep of
+  `/tmp/cairoon-vector-output-asan.txt` found no `ERROR: AddressSanitizer`,
+  heap-use-after-free, stack-use-after, global-buffer-overflow, or
+  `cairoon_test_file` entries; summary:
   `89925 byte(s) leaked in 482 allocation(s)`.
 
 The missing reliability pieces are substantial: automated differential tests,

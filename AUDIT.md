@@ -102,17 +102,18 @@ Implemented in this workspace:
   PDF surface version helper behavior, no-output and filename construction,
   version restriction, page size, metadata, custom metadata, page label,
   thumbnail, single-flag and combined-flag outline behavior,
-  finished-surface errors, invalid string validation, and subtype-mismatch
-  errors,
+  stable structural output markers, finished-surface errors, invalid string
+  validation, and subtype-mismatch errors,
   image surfaces returning no device, script device lifecycle and device
   reference equality, script mode/comment validation, recording replay,
   script-surface proxy rendering behavior, and `DeviceFinished` propagation,
   PS surface level helper behavior, no-output and filename construction, EPS
   mode, level restriction, size/DSC helpers, finished-surface errors, invalid
-  DSC/path validation, and subtype-mismatch errors,
+  DSC/path validation, stable page/drawing output markers, and subtype-mismatch
+  errors,
   SVG surface version helper behavior, no-output and filename construction,
   document-unit behavior, finished-surface errors, invalid path validation, and
-  subtype-mismatch errors,
+  stable geometry/color output markers, and subtype-mismatch errors,
   clip behavior including non-rectangular clip status propagation,
   pattern RGBA, gradient geometry/color-stop behavior, mesh patch construction,
   control/corner/path queries, invalid-index and lifecycle errors, non-mesh
@@ -150,11 +151,10 @@ Implemented in this workspace:
 2026-07-02 and 2026-07-03:
 
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native -v`: 202 tests passed.
+- `moon -C cairoon test --target native -v`: 205 tests passed.
 - `run-asan.py --repo-root /Users/caimeo/code/pycairo/cairoon --pkg moon.pkg`:
-  most recently ran the 202-test native suite on 2026-07-03 after the
-  `FORMAT_INVALID` constant-sentinel slice. An earlier retained-owner stress
-  ASan run found a
+  most recently ran the 205-test native suite on 2026-07-03 after the
+  vector-output marker slice. An earlier retained-owner stress ASan run found a
   heap-use-after-free in `cairoon_copy_image_surface_data` reached from
   `lifetime_stress_test.mbt` when a returned target surface outlived a context
   created from a mapped image. The fixed rerun, and the later TeeSurface rerun,
@@ -176,11 +176,11 @@ Implemented in this workspace:
   Surface `create_for_rectangle` helper, retained-parent subsurface
   helper/finalizer stack, retained target/group-target helper stack,
   mapped-image lifetime helper stack, Context `set_source_surface` helper,
-  Context hairline helper, TeeSurface helper stack, or compile-time constant
-  helper stack appeared in the visible leak roots of the latest rerun. A grep
-  of `/tmp/cairoon-format-asan.txt` found no `ERROR: AddressSanitizer`,
-  heap-use-after-free, stack-use-after, or `cairoon_compile_int_constant`
-  entries.
+  Context hairline helper, TeeSurface helper stack, compile-time constant
+  helper stack, or vector-output file-scan helper stack appeared in the visible
+  leak roots of the latest rerun. A grep of
+  `/tmp/cairoon-vector-output-asan.txt` found no `ERROR: AddressSanitizer`,
+  heap-use-after-free, stack-use-after, or `cairoon_test_file` entries.
   Summary: `89925 byte(s) leaked in 482 allocation(s)`. The helper still emits
   a `moon.mod.json` lookup warning because this package uses `moon.mod`, but it
   correctly patched and restored the DSL `moon.pkg` and MoonBit runtime object
