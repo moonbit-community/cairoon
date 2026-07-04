@@ -36,6 +36,16 @@ test "context paint_with_alpha composites source alpha" {
 }
 
 ///|
+test "context set_source_rgb and rgba round trip through get_source" {
+  let ctx = Context::new(Surface::image(Argb32, 1, 1))
+  ctx.set_source_rgb(1.0, 1.0, 1.0)
+  debug_inspect(ctx.get_source().get_rgba(), content="(1, 1, 1, 1)")
+
+  ctx.set_source_rgba(1.0, 1.0, 1.0, 0.5)
+  debug_inspect(ctx.get_source().get_rgba(), content="(1, 1, 1, 0.5)")
+}
+
+///|
 test "context mask and mask_surface apply alpha masks" {
   let pattern_target = Surface::image(Argb32, 1, 1)
   let pattern_ctx = Context::new(pattern_target)

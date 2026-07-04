@@ -304,12 +304,13 @@ Implemented in this workspace:
   `moon check`, targeted image, ScaledFont, vector including PDF combined
   text document-feature plus PS DSC/SVG unit backend-feature oracle checks,
   stream black-box/white-box tests, mapped-image tests, TeeSurface tests,
-  context lifetime/state/matrix/extents/clip tests, pattern/gradient/mesh
-  tests, and raster-owner white-box tests,
+  context lifetime/state/matrix/extents/clip/painting tests,
+  pattern/gradient/mesh tests, and raster-owner white-box tests,
   the full native suite, `moon info --target native`, and targeted ASan
   image-oracle, vector-output, stream, mapped-image, TeeSurface,
-  context-lifetime/state/matrix/extents/clip, pattern/gradient/mesh, and
+  context-lifetime/state/matrix/extents/clip/painting, pattern/gradient/mesh, and
   raster-owner tests with leak detection disabled. The current run includes
+  the pycairo source RGBA round-trip slice,
   the pycairo empty-path clip `in_clip` slice,
   the pycairo mesh curve-first patch slice,
   the pycairo polygon fill-extents slice,
@@ -1398,6 +1399,12 @@ Implemented in this workspace:
   `reset_clip()` restores the surface clip, and added `context_clip_test.mbt`
   to the normal and ASan verification gates. This raised
   `context_clip_test.mbt` to 6 tests and the full native suite to 366 tests.
+  The later pycairo source RGBA round-trip slice added one black-box Context
+  painting test proving `set_source_rgb/rgba` installs a solid pattern whose
+  RGBA values are visible through `get_source().get_rgba()`, and added
+  `context_painting_test.mbt` to the normal and ASan verification gates. This
+  raised `context_painting_test.mbt` to 7 tests and the full native suite to
+  367 tests.
 
 ## Known Gaps
 
