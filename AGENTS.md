@@ -175,6 +175,9 @@ declarations that call the matrix/transform section of `cairoon_context.c`;
 `ffi_context_path.mbt` owns raw `Context` path construction, current-point,
 copy-path, and append-path extern declarations that call the path section of
 `cairoon_context.c`;
+`ffi_context_paint.mbt` owns raw `Context` source, paint, mask, fill, stroke,
+and page-operation extern declarations that call the painting/page section of
+`cairoon_context.c`;
 `ffi_context_state.mbt` owns raw `Context` drawing-state, line-style, and dash
 extern declarations that call the drawing-state section of
 `cairoon_context.c`;

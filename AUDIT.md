@@ -25,6 +25,8 @@ Implemented in this workspace:
   declarations, `ffi_context_matrix.mbt` owns raw `Context`
   matrix/coordinate-conversion extern declarations, `ffi_context_path.mbt`
   owns raw `Context` path construction/copy extern declarations,
+  `ffi_context_paint.mbt` owns raw `Context` source/painting/page extern
+  declarations,
   `ffi_context_state.mbt` owns raw `Context` drawing-state/line-style/dash
   extern declarations,
   `ffi_font.mbt` owns raw `FontOptions`, `FontFace`, `ScaledFont`, and
@@ -1586,6 +1588,11 @@ Implemented in this workspace:
   declarations from `ffi.mbt` into `ffi_context_clip_extents.mbt`, added that
   file to the native target list, and reduced `ffi.mbt` to 225 lines. This did
   not change public API or test count.
+  The later Context paint raw FFI split slice moved raw context source,
+  paint/mask/fill/stroke, and page-operation extern declarations from
+  `ffi.mbt` into `ffi_context_paint.mbt`, added that file to the native target
+  list, and reduced `ffi.mbt` to 142 lines. This did not change public API or
+  test count.
 
 ## Known Gaps
 
