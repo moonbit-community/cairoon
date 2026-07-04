@@ -43,7 +43,8 @@ enum {
   CAIROON_TEST_VECTOR_PDF_DEST_TEXT_TAG = 23,
   CAIROON_TEST_VECTOR_PDF_STRUCT_TEXT_TAG = 24,
   CAIROON_TEST_VECTOR_TAGGED_MULTI_PAGE_TEXT = 25,
-  CAIROON_TEST_VECTOR_MIXED_TAG_VECTOR = 26
+  CAIROON_TEST_VECTOR_MIXED_TAG_VECTOR = 26,
+  CAIROON_TEST_VECTOR_LAYERED_MULTI_PAGE = 27
 };
 
 static cairo_status_t cairoon_test_draw_pdf_uri_tag(cairo_t *cr) {
@@ -228,6 +229,76 @@ static cairo_status_t cairoon_test_draw_mixed_tag_vector(cairo_t *cr) {
   cairo_tag_end(cr, "P");
   cairo_tag_end(cr, "Sect");
   cairo_tag_end(cr, "Document");
+  return cairo_status(cr);
+}
+
+static cairo_status_t cairoon_test_draw_layered_multi_page(cairo_t *cr) {
+  double dashes[] = {1.0, 0.75};
+
+  cairo_save(cr);
+  cairo_rectangle(cr, 0.75, 0.75, 8.5, 8.5);
+  cairo_clip(cr);
+  cairo_set_source_rgb(cr, 0.8, 0.9, 1.0);
+  cairo_paint(cr);
+  cairo_restore(cr);
+
+  cairo_set_source_rgb(cr, 0.0, 0.0, 0.0);
+  cairo_set_line_width(cr, 0.75);
+  cairo_set_dash(cr, dashes, 2, 0.25);
+  cairo_move_to(cr, 1.0, 1.0);
+  cairo_line_to(cr, 9.0, 3.0);
+  cairo_stroke(cr);
+  cairo_set_dash(cr, NULL, 0, 0.0);
+
+  cairo_select_font_face(
+    cr,
+    "serif",
+    CAIRO_FONT_SLANT_NORMAL,
+    CAIRO_FONT_WEIGHT_NORMAL);
+  cairo_set_font_size(cr, 3.0);
+  cairo_move_to(cr, 1.0, 8.5);
+  cairo_show_text(cr, "page one");
+  cairo_show_page(cr);
+  if (cairo_status(cr) != CAIRO_STATUS_SUCCESS) {
+    return cairo_status(cr);
+  }
+
+  cairo_status_t status = cairoon_test_apply_surface_pattern(cr, 10.0, 10.0);
+  if (status != CAIRO_STATUS_SUCCESS) {
+    return status;
+  }
+  status = cairoon_test_apply_mask_surface(cr);
+  if (status != CAIRO_STATUS_SUCCESS) {
+    return status;
+  }
+  cairo_show_page(cr);
+  if (cairo_status(cr) != CAIRO_STATUS_SUCCESS) {
+    return cairo_status(cr);
+  }
+
+  cairo_set_source_rgb(cr, 0.0, 0.0, 0.0);
+  cairo_select_font_face(
+    cr,
+    "serif",
+    CAIRO_FONT_SLANT_NORMAL,
+    CAIRO_FONT_WEIGHT_NORMAL);
+  cairo_set_font_size(cr, 3.0);
+
+  cairo_tag_begin(cr, CAIRO_TAG_LINK, "uri='https://example.com/layered'");
+  cairo_move_to(cr, 1.0, 3.0);
+  cairo_show_text(cr, "layered link");
+  cairo_tag_end(cr, CAIRO_TAG_LINK);
+
+  cairo_tag_begin(cr, "Document", "");
+  cairo_tag_begin(cr, "Sect", "");
+  cairo_tag_begin(cr, "P", "");
+  cairo_move_to(cr, 1.0, 7.0);
+  cairo_show_text(cr, "layered doc");
+  cairo_tag_end(cr, "P");
+  cairo_tag_end(cr, "Sect");
+  cairo_tag_end(cr, "Document");
+
+  cairo_show_page(cr);
   return cairo_status(cr);
 }
 
@@ -678,6 +749,8 @@ static cairo_status_t cairoon_test_draw_vector_scene(
       return cairoon_test_draw_tagged_multi_page_text(cr);
     case CAIROON_TEST_VECTOR_MIXED_TAG_VECTOR:
       return cairoon_test_draw_mixed_tag_vector(cr);
+    case CAIROON_TEST_VECTOR_LAYERED_MULTI_PAGE:
+      return cairoon_test_draw_layered_multi_page(cr);
     default:
       return CAIRO_STATUS_INVALID_STATUS;
   }

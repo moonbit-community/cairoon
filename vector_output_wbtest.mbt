@@ -370,6 +370,52 @@ fn draw_mixed_tag_vector_scene(ctx : Context) -> Unit raise CairoError {
 }
 
 ///|
+fn draw_layered_multi_page_scene(ctx : Context) -> Unit raise CairoError {
+  ctx.save()
+  ctx.rectangle(0.75, 0.75, 8.5, 8.5)
+  ctx.clip()
+  ctx.set_source_rgb(0.8, 0.9, 1.0)
+  ctx.paint()
+  ctx.restore()
+
+  ctx.set_source_rgb(0.0, 0.0, 0.0)
+  ctx.set_line_width(0.75)
+  ctx.set_dash([1.0, 0.75], offset=0.25)
+  ctx.move_to(1.0, 1.0)
+  ctx.line_to(9.0, 3.0)
+  ctx.stroke()
+  ctx.set_dash([])
+
+  ctx.select_font_face("serif")
+  ctx.set_font_size(3.0)
+  ctx.move_to(1.0, 8.5)
+  ctx.show_text("page one")
+  ctx.show_page()
+
+  apply_vector_surface_pattern(ctx)
+  apply_vector_mask_surface(ctx)
+  ctx.show_page()
+
+  ctx.set_source_rgb(0.0, 0.0, 0.0)
+  ctx.select_font_face("serif")
+  ctx.set_font_size(3.0)
+  ctx.tag_begin(TAG_LINK, "uri='https://example.com/layered'")
+  ctx.move_to(1.0, 3.0)
+  ctx.show_text("layered link")
+  ctx.tag_end(TAG_LINK)
+
+  ctx.tag_begin("Document", "")
+  ctx.tag_begin("Sect", "")
+  ctx.tag_begin("P", "")
+  ctx.move_to(1.0, 7.0)
+  ctx.show_text("layered doc")
+  ctx.tag_end("P")
+  ctx.tag_end("Sect")
+  ctx.tag_end("Document")
+  ctx.show_page()
+}
+
+///|
 fn draw_vector_oracle_scene(
   ctx : Context,
   scene : Int,
@@ -472,6 +518,7 @@ fn draw_vector_oracle_scene(
     24 => draw_pdf_struct_text_tag_scene(ctx)
     25 => draw_tagged_multi_page_text_scene(ctx)
     26 => draw_mixed_tag_vector_scene(ctx)
+    27 => draw_layered_multi_page_scene(ctx)
     _ => raise CairoInvalidArgument(InvalidStatus, InvalidStatus.message())
   }
 }
@@ -1095,6 +1142,42 @@ test "mixed vector tag text scene matches direct cairo C oracle" {
     let oracle_path = "/tmp/cairoon_vector_mixed_tag_text_\{kind}_oracle.\{ext}"
     render_vector_oracle_scene(kind, 26, cairoon_path)
     expect_vector_oracle_match(kind, 26, cairoon_path, oracle_path)
+  }
+}
+
+///|
+test "layered multi-page vector tag scene matches direct cairo C oracle" {
+  for kind in 0..<3 {
+    let ext = vector_output_extension(kind)
+    let cairoon_path = "/tmp/cairoon_vector_layered_multipage_\{kind}.\{ext}"
+    let oracle_path = "/tmp/cairoon_vector_layered_multipage_\{kind}_oracle.\{ext}"
+    render_vector_oracle_scene(kind, 27, cairoon_path)
+    expect_vector_oracle_match(kind, 27, cairoon_path, oracle_path)
+  }
+}
+
+///|
+test "pdf layered multi-page vector tag output contains combined markers" {
+  let path = "/tmp/cairoon_vector_pdf_layered_multipage_markers.pdf"
+  render_vector_oracle_scene(0, 27, path)
+  expect_vector_output(path, [
+    "%PDF-1.4", "/Count 3", "/Type /Page % 1", "/Type /Page % 2", "/Type /Page % 3",
+    "/Subtype /Link", "/S /URI", "/URI (https://example.com/layered)", "/StructTreeRoot",
+    "/S /Document", "/S /Sect", "/S /P", "%%EOF",
+  ])
+}
+
+///|
+test "ps svg layered multi-page vector tags stay inert" {
+  let forbidden = [
+    "/Annots", "/Subtype /Link", "/URI", "/StructTreeRoot", "/S /Document", "/S /Sect",
+    "/S /P", "https://example.com/layered", "<a ",
+  ]
+  for kind in 1..<3 {
+    let ext = vector_output_extension(kind)
+    let path = "/tmp/cairoon_vector_backend_layered_tag_absent_\{kind}.\{ext}"
+    render_vector_oracle_scene(kind, 27, path)
+    expect_vector_output_absent(path, forbidden)
   }
 }
 
