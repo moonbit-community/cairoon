@@ -42,7 +42,10 @@ options(
     "cairoon_pattern.c",
     "cairoon_raster_source_pattern.c",
     "cairoon_mesh_pattern.c",
-    "cairoon_font.c",
+    "cairoon_font_options.c",
+    "cairoon_font_face.c",
+    "cairoon_scaled_font.c",
+    "cairoon_scaled_font_oracle.c",
     "cairoon_region.c",
   ],
   targets: {

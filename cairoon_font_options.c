@@ -1,0 +1,247 @@
+#include "cairoon_private.h"
+
+MOONBIT_FFI_EXPORT
+CairoonFontOptions *cairoon_font_options_create(void) {
+  return cairoon_font_options_wrap_owned(cairo_font_options_create());
+}
+
+MOONBIT_FFI_EXPORT
+cairo_status_t cairoon_font_options_status(CairoonFontOptions *options) {
+  if (options == NULL || options->ptr == NULL) {
+    return CAIRO_STATUS_NULL_POINTER;
+  }
+  return cairo_font_options_status(options->ptr);
+}
+
+MOONBIT_FFI_EXPORT
+CairoonFontOptions *cairoon_font_options_copy(
+  CairoonFontOptions *options,
+  cairo_status_t *status_out) {
+  cairo_status_t status = cairoon_font_options_status(options);
+  *status_out = status;
+  if (status != CAIRO_STATUS_SUCCESS) {
+    return cairoon_font_options_wrap_owned(NULL);
+  }
+  cairo_font_options_t *copy = cairo_font_options_copy(options->ptr);
+  *status_out = cairo_font_options_status(copy);
+  return cairoon_font_options_wrap_owned(copy);
+}
+
+MOONBIT_FFI_EXPORT
+cairo_status_t cairoon_font_options_merge(
+  CairoonFontOptions *options,
+  CairoonFontOptions *other) {
+  cairo_status_t status = cairoon_font_options_status(options);
+  if (status != CAIRO_STATUS_SUCCESS) {
+    return status;
+  }
+  status = cairoon_font_options_status(other);
+  if (status != CAIRO_STATUS_SUCCESS) {
+    return status;
+  }
+  cairo_font_options_merge(options->ptr, other->ptr);
+  return cairo_font_options_status(options->ptr);
+}
+
+MOONBIT_FFI_EXPORT
+int32_t cairoon_font_options_equal(
+  CairoonFontOptions *options,
+  CairoonFontOptions *other) {
+  if (cairoon_font_options_status(options) != CAIRO_STATUS_SUCCESS ||
+      cairoon_font_options_status(other) != CAIRO_STATUS_SUCCESS) {
+    return 0;
+  }
+  return cairo_font_options_equal(options->ptr, other->ptr) ? 1 : 0;
+}
+
+MOONBIT_FFI_EXPORT
+uint64_t cairoon_font_options_hash(CairoonFontOptions *options) {
+  if (cairoon_font_options_status(options) != CAIRO_STATUS_SUCCESS) {
+    return 0;
+  }
+  return (uint64_t)cairo_font_options_hash(options->ptr);
+}
+
+MOONBIT_FFI_EXPORT
+cairo_antialias_t cairoon_font_options_get_antialias(CairoonFontOptions *options) {
+  return cairo_font_options_get_antialias(options->ptr);
+}
+
+MOONBIT_FFI_EXPORT
+cairo_status_t cairoon_font_options_set_antialias(
+  CairoonFontOptions *options,
+  cairo_antialias_t antialias) {
+  cairo_status_t status = cairoon_font_options_status(options);
+  if (status != CAIRO_STATUS_SUCCESS) {
+    return status;
+  }
+  cairo_font_options_set_antialias(options->ptr, antialias);
+  return cairo_font_options_status(options->ptr);
+}
+
+MOONBIT_FFI_EXPORT
+cairo_subpixel_order_t cairoon_font_options_get_subpixel_order(CairoonFontOptions *options) {
+  return cairo_font_options_get_subpixel_order(options->ptr);
+}
+
+MOONBIT_FFI_EXPORT
+cairo_status_t cairoon_font_options_set_subpixel_order(
+  CairoonFontOptions *options,
+  cairo_subpixel_order_t subpixel_order) {
+  cairo_status_t status = cairoon_font_options_status(options);
+  if (status != CAIRO_STATUS_SUCCESS) {
+    return status;
+  }
+  cairo_font_options_set_subpixel_order(options->ptr, subpixel_order);
+  return cairo_font_options_status(options->ptr);
+}
+
+MOONBIT_FFI_EXPORT
+cairo_hint_style_t cairoon_font_options_get_hint_style(CairoonFontOptions *options) {
+  return cairo_font_options_get_hint_style(options->ptr);
+}
+
+MOONBIT_FFI_EXPORT
+cairo_status_t cairoon_font_options_set_hint_style(
+  CairoonFontOptions *options,
+  cairo_hint_style_t hint_style) {
+  cairo_status_t status = cairoon_font_options_status(options);
+  if (status != CAIRO_STATUS_SUCCESS) {
+    return status;
+  }
+  cairo_font_options_set_hint_style(options->ptr, hint_style);
+  return cairo_font_options_status(options->ptr);
+}
+
+MOONBIT_FFI_EXPORT
+cairo_hint_metrics_t cairoon_font_options_get_hint_metrics(CairoonFontOptions *options) {
+  return cairo_font_options_get_hint_metrics(options->ptr);
+}
+
+MOONBIT_FFI_EXPORT
+cairo_status_t cairoon_font_options_set_hint_metrics(
+  CairoonFontOptions *options,
+  cairo_hint_metrics_t hint_metrics) {
+  cairo_status_t status = cairoon_font_options_status(options);
+  if (status != CAIRO_STATUS_SUCCESS) {
+    return status;
+  }
+  cairo_font_options_set_hint_metrics(options->ptr, hint_metrics);
+  return cairo_font_options_status(options->ptr);
+}
+
+MOONBIT_FFI_EXPORT
+moonbit_bytes_t cairoon_font_options_get_variations(
+  CairoonFontOptions *options,
+  int32_t *has_variations) {
+  if (cairoon_font_options_status(options) != CAIRO_STATUS_SUCCESS) {
+    *has_variations = 0;
+    return moonbit_make_bytes(0, 0);
+  }
+  const char *variations = cairo_font_options_get_variations(options->ptr);
+  if (variations == NULL) {
+    *has_variations = 0;
+    return moonbit_make_bytes(0, 0);
+  }
+  *has_variations = 1;
+  return cairoon_copy_c_string(variations);
+}
+
+MOONBIT_FFI_EXPORT
+cairo_status_t cairoon_font_options_set_variations(
+  CairoonFontOptions *options,
+  moonbit_bytes_t variations) {
+  cairo_status_t status = cairoon_font_options_status(options);
+  if (status != CAIRO_STATUS_SUCCESS) {
+    return status;
+  }
+  cairo_font_options_set_variations(options->ptr, (const char *)variations);
+  return cairo_font_options_status(options->ptr);
+}
+
+MOONBIT_FFI_EXPORT
+cairo_status_t cairoon_font_options_clear_variations(CairoonFontOptions *options) {
+  cairo_status_t status = cairoon_font_options_status(options);
+  if (status != CAIRO_STATUS_SUCCESS) {
+    return status;
+  }
+  cairo_font_options_set_variations(options->ptr, NULL);
+  return cairo_font_options_status(options->ptr);
+}
+
+MOONBIT_FFI_EXPORT
+cairo_color_mode_t cairoon_font_options_get_color_mode(CairoonFontOptions *options) {
+  return cairo_font_options_get_color_mode(options->ptr);
+}
+
+MOONBIT_FFI_EXPORT
+cairo_status_t cairoon_font_options_set_color_mode(
+  CairoonFontOptions *options,
+  cairo_color_mode_t color_mode) {
+  cairo_status_t status = cairoon_font_options_status(options);
+  if (status != CAIRO_STATUS_SUCCESS) {
+    return status;
+  }
+  cairo_font_options_set_color_mode(options->ptr, color_mode);
+  return cairo_font_options_status(options->ptr);
+}
+
+MOONBIT_FFI_EXPORT
+uint32_t cairoon_font_options_get_color_palette(CairoonFontOptions *options) {
+  return (uint32_t)cairo_font_options_get_color_palette(options->ptr);
+}
+
+MOONBIT_FFI_EXPORT
+cairo_status_t cairoon_font_options_set_color_palette(
+  CairoonFontOptions *options,
+  uint32_t palette_index) {
+  cairo_status_t status = cairoon_font_options_status(options);
+  if (status != CAIRO_STATUS_SUCCESS) {
+    return status;
+  }
+  cairo_font_options_set_color_palette(options->ptr, (unsigned int)palette_index);
+  return cairo_font_options_status(options->ptr);
+}
+
+MOONBIT_FFI_EXPORT
+cairo_status_t cairoon_font_options_set_custom_palette_color(
+  CairoonFontOptions *options,
+  uint32_t index,
+  double red,
+  double green,
+  double blue,
+  double alpha) {
+  cairo_status_t status = cairoon_font_options_status(options);
+  if (status != CAIRO_STATUS_SUCCESS) {
+    return status;
+  }
+  cairo_font_options_set_custom_palette_color(
+    options->ptr,
+    (unsigned int)index,
+    red,
+    green,
+    blue,
+    alpha);
+  return cairo_font_options_status(options->ptr);
+}
+
+MOONBIT_FFI_EXPORT
+cairo_status_t cairoon_font_options_get_custom_palette_color(
+  CairoonFontOptions *options,
+  uint32_t index,
+  double *red,
+  double *green,
+  double *blue,
+  double *alpha) {
+  cairo_status_t status = cairoon_font_options_status(options);
+  if (status != CAIRO_STATUS_SUCCESS) {
+    return status;
+  }
+  return cairo_font_options_get_custom_palette_color(
+    options->ptr,
+    (unsigned int)index,
+    red,
+    green,
+    blue,
+    alpha);
+}
