@@ -751,6 +751,18 @@ test "pdf document structure tags output structure tree markers" {
 }
 
 ///|
+test "pdf tagged multi-page text output contains structure markers" {
+  let path = "/tmp/cairoon_vector_pdf_tagged_multipage_text_markers.pdf"
+  render_vector_oracle_scene(0, 25, path)
+  expect_vector_output(path, [
+    "%PDF-1.4", "/Count 2", "/Type /Page % 1", "/Type /Page % 2", "/Annots [", "/Subtype /Link",
+    "/S /URI", "/URI (https://example.com/multipage)", "/Dest", "(cairoon-multi-dest)",
+    "/Type /StructElem", "/S /Link", "/S /Document", "/S /Sect", "/S /P", "/StructTreeRoot",
+    "/Names", "/Dests", "%%EOF",
+  ])
+}
+
+///|
 test "pdf output embeds jpeg mime data from image source" {
   let path = "/tmp/cairoon_vector_pdf_jpeg_mime.pdf"
   let jpeg = tiny_jpeg_payload()
