@@ -55,6 +55,9 @@ targeted_tests=(
   pattern_raster_owner_wbtest.mbt
   region_test.mbt
   lifetime_stress_test.mbt
+  lifetime_value_stress_test.mbt
+  lifetime_image_data_stress_test.mbt
+  lifetime_stream_stress_test.mbt
 )
 
 for test_file in "${targeted_tests[@]}"; do

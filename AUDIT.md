@@ -546,12 +546,14 @@ Implemented in this workspace:
   stream callbacks, script writer invalid-status fallback, script surfaces, and
   external-object `Eq`/`Hash` behavior.
 - `moon -C cairoon test device_test.mbt backend_surfaces.mbt.md
-  lifetime_stress_test.mbt --target native -v`: 24 black-box and executable
-  backend/lifetime tests passed, covering script file/stream devices,
-  script-surface target proxying, script writer `WriteError` and
-  invalid-status fallback mapping, scoped
+  lifetime_stress_test.mbt lifetime_value_stress_test.mbt
+  lifetime_image_data_stress_test.mbt lifetime_stream_stress_test.mbt
+  --target native -v`: 24 black-box and executable backend/lifetime tests
+  passed, covering script file/stream devices, script-surface target proxying,
+  script writer `WriteError` and invalid-status fallback mapping, scoped
   script-device finish, retained script surface/device wrappers, executable
-  backend docs, and backend stream callback allocation stress.
+  backend docs, retained owner graph stress, external value-wrapper stress,
+  image-data view stress, and backend stream callback allocation stress.
 - `moon -C cairoon test vector_output_wbtest.mbt
   vector_output_oracle_wbtest.mbt --target native -v`: 37 white-box vector
   tests passed after splitting marker/output checks from direct C oracle and
@@ -640,9 +642,11 @@ Implemented in this workspace:
   scaled_font_oracle_wbtest.mbt --target native -v`: 2 ASan-compiled
   white-box ScaledFont oracle tests passed with leak detection disabled,
   covering the expanded UTF-8 text-extents and text-to-glyph input set.
-- `moon -C cairoon test lifetime_stress_test.mbt --target native -v`: 6
-  black-box lifetime tests passed after adding the backend stream callback
-  1000-iteration allocation stress case.
+- `moon -C cairoon test lifetime_stress_test.mbt
+  lifetime_value_stress_test.mbt lifetime_image_data_stress_test.mbt
+  lifetime_stream_stress_test.mbt --target native -v`: 6 black-box lifetime
+  tests passed after splitting owner graph, external value-wrapper, image-data
+  view, and backend stream callback stress into separate files.
 - `moon -C cairoon test raster_lifetime_stress_test.mbt --target native -v`: 1
   black-box raster-source callback lifetime test passed after adding the
   1000-iteration set/get/manual acquire/release/replace/clear stress case.
@@ -1887,6 +1891,12 @@ Implemented in this workspace:
   `vector_output_scenes_wbtest.mbt` as the 192-line scene dispatcher and
   document-feature renderer file. This did not change public API or test
   count.
+  The later lifetime stress test split moved external value-wrapper stress,
+  image-data view stress, and backend stream callback stress into
+  `lifetime_value_stress_test.mbt`, `lifetime_image_data_stress_test.mbt`, and
+  `lifetime_stream_stress_test.mbt`, leaving `lifetime_stress_test.mbt`
+  focused on mapped-image lifetime and retained owner graph stress. This did
+  not change public API or test count.
 
 ## Known Gaps
 
