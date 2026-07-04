@@ -416,6 +416,54 @@ fn draw_layered_multi_page_scene(ctx : Context) -> Unit raise CairoError {
 }
 
 ///|
+fn draw_wide_multi_page_tag_vector_scene(
+  ctx : Context,
+) -> Unit raise CairoError {
+  ctx.save()
+  ctx.rectangle(0.75, 0.75, 8.5, 8.5)
+  ctx.clip()
+  ctx.set_source_rgb(0.9, 0.92, 1.0)
+  ctx.paint()
+  ctx.restore()
+
+  ctx.set_source_rgb(0.0, 0.0, 0.0)
+  ctx.select_font_face("serif")
+  ctx.set_font_size(3.0)
+  ctx.tag_begin(TAG_LINK, "uri='https://example.com/wide'")
+  ctx.move_to(1.0, 4.0)
+  ctx.show_text("wide uri")
+  ctx.tag_end(TAG_LINK)
+  ctx.show_page()
+
+  apply_vector_surface_pattern(ctx)
+  ctx.set_source_rgb(1.0, 0.0, 0.0)
+  ctx.tag_begin(TAG_LINK, "dest='cairoon-wide-dest'")
+  ctx.rectangle(1.0, 1.0, 4.0, 3.0)
+  ctx.fill()
+  ctx.tag_end(TAG_LINK)
+  ctx.show_page()
+
+  ctx.set_source_rgb(0.0, 0.0, 1.0)
+  ctx.tag_begin(TAG_DEST, "name='cairoon-wide-dest' x=1 y=5")
+  ctx.arc(2.0, 5.0, 1.0, 0.0, 6.283185307179586)
+  ctx.fill()
+  ctx.tag_end(TAG_DEST)
+
+  ctx.set_source_rgb(0.1, 0.1, 0.1)
+  ctx.select_font_face("serif")
+  ctx.set_font_size(3.0)
+  ctx.tag_begin("Document", "")
+  ctx.tag_begin("Sect", "")
+  ctx.tag_begin("P", "")
+  ctx.move_to(1.0, 8.5)
+  ctx.show_text("wide doc")
+  ctx.tag_end("P")
+  ctx.tag_end("Sect")
+  ctx.tag_end("Document")
+  ctx.show_page()
+}
+
+///|
 fn draw_vector_oracle_scene(
   ctx : Context,
   scene : Int,
@@ -519,6 +567,7 @@ fn draw_vector_oracle_scene(
     25 => draw_tagged_multi_page_text_scene(ctx)
     26 => draw_mixed_tag_vector_scene(ctx)
     27 => draw_layered_multi_page_scene(ctx)
+    28 => draw_wide_multi_page_tag_vector_scene(ctx)
     _ => raise CairoInvalidArgument(InvalidStatus, InvalidStatus.message())
   }
 }
@@ -1157,6 +1206,17 @@ test "layered multi-page vector tag scene matches direct cairo C oracle" {
 }
 
 ///|
+test "wide multi-page tag vector scene matches direct cairo C oracle" {
+  for kind in 0..<3 {
+    let ext = vector_output_extension(kind)
+    let cairoon_path = "/tmp/cairoon_vector_wide_multipage_tag_\{kind}.\{ext}"
+    let oracle_path = "/tmp/cairoon_vector_wide_multipage_tag_\{kind}_oracle.\{ext}"
+    render_vector_oracle_scene(kind, 28, cairoon_path)
+    expect_vector_oracle_match(kind, 28, cairoon_path, oracle_path)
+  }
+}
+
+///|
 test "pdf layered multi-page vector tag output contains combined markers" {
   let path = "/tmp/cairoon_vector_pdf_layered_multipage_markers.pdf"
   render_vector_oracle_scene(0, 27, path)
@@ -1164,6 +1224,18 @@ test "pdf layered multi-page vector tag output contains combined markers" {
     "%PDF-1.4", "/Count 3", "/Type /Page % 1", "/Type /Page % 2", "/Type /Page % 3",
     "/Subtype /Link", "/S /URI", "/URI (https://example.com/layered)", "/StructTreeRoot",
     "/S /Document", "/S /Sect", "/S /P", "%%EOF",
+  ])
+}
+
+///|
+test "pdf wide multi-page tag vector output contains combined markers" {
+  let path = "/tmp/cairoon_vector_pdf_wide_multipage_tag_markers.pdf"
+  render_vector_oracle_scene(0, 28, path)
+  expect_vector_output(path, [
+    "%PDF-1.4", "/Count 3", "/Type /Page % 1", "/Type /Page % 2", "/Type /Page % 3",
+    "/Subtype /Link", "/S /URI", "/URI (https://example.com/wide)", "/Dest (cairoon-wide-dest)",
+    "/Names", "/Dests", "(cairoon-wide-dest)", "/StructTreeRoot", "/S /Document",
+    "/S /Sect", "/S /P", "%%EOF",
   ])
 }
 
@@ -1177,6 +1249,20 @@ test "ps svg layered multi-page vector tags stay inert" {
     let ext = vector_output_extension(kind)
     let path = "/tmp/cairoon_vector_backend_layered_tag_absent_\{kind}.\{ext}"
     render_vector_oracle_scene(kind, 27, path)
+    expect_vector_output_absent(path, forbidden)
+  }
+}
+
+///|
+test "ps svg wide multi-page vector tags stay inert" {
+  let forbidden = [
+    "/Annots", "/Subtype /Link", "/URI", "/Dest", "/Dests", "/StructTreeRoot", "/S /Document",
+    "/S /Sect", "/S /P", "https://example.com/wide", "cairoon-wide-dest", "<a ",
+  ]
+  for kind in 1..<3 {
+    let ext = vector_output_extension(kind)
+    let path = "/tmp/cairoon_vector_backend_wide_tag_absent_\{kind}.\{ext}"
+    render_vector_oracle_scene(kind, 28, path)
     expect_vector_output_absent(path, forbidden)
   }
 }

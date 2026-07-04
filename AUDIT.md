@@ -157,7 +157,9 @@ Implemented in this workspace:
   scenes covering paint, stroke, fill/stroke rectangles, Bezier paths,
   transforms, linear/radial gradients, toy-font text paths, and toy-font
   `show_text`, two-page paint, clip, dashed stroke, repeated surface pattern,
-  mask surface, mesh pattern scenes, and a layered three-page clip/dash/surface-pattern/mask/tag/text scene, mutable image-data read/write/copy, buffer-backed storage sharing,
+  mask surface, mesh pattern scenes, a layered three-page clip/dash/surface-pattern/mask/tag/text scene,
+  and a wide three-page URI/destination/document-structure tag/vector scene,
+  mutable image-data read/write/copy, buffer-backed storage sharing,
   image-data surface-retention, mapped-image data upload/unmap invalidation, and
   invalid-surface/index error mapping, context CTM, coordinate conversion,
   drawing-state behavior, path current-point,
@@ -192,7 +194,8 @@ Implemented in this workspace:
   scenes, three PDF text-tag oracle scenes, one cross-backend tagged
   multi-page text oracle scene, one cross-backend mixed vector/tag/text oracle
   scene, one cross-backend layered three-page clip/dash/surface-pattern/mask/tag/text
-  oracle scene, and two PDF document-feature oracle scenes,
+  oracle scene, one cross-backend wide three-page URI/destination/
+  document-structure tag/vector oracle scene, and two PDF document-feature oracle scenes,
   including one text/tag-aware combined scene, PDF JPEG MIME data
   embedding, PDF 1.4 URI link-tag annotation markers,
   PDF named-destination tag markers, PDF document-structure tag markers,
@@ -285,11 +288,12 @@ Implemented in this workspace:
   destination/document-structure rectangle and text tag output, and
   cross-backend tagged multi-page text output, a mixed vector/tag/text
   scene, and a layered three-page clip/dash/surface-pattern/mask/tag/text
+  scene, and a wide three-page URI/destination/document-structure tag/vector
   scene have normalized direct C oracle checks matching Cairo 1.18.4 backend
   behavior. PDF tagged multi-page text, mixed vector/tag/text output, and layered
-  three-page output also have explicit marker checks for page objects, link annotations, URI/
+  three-page output plus the wide three-page tag/vector output also have explicit marker checks for page objects, link annotations, URI/
   destination entries, and StructTreeRoot elements. PS/SVG destination,
-  document-structure, mixed vector/tag/text, and layered three-page tag
+  document-structure, mixed vector/tag/text, layered three-page, and wide three-page tag
   scenes also have negative marker checks proving PDF-only tag metadata is not emitted.
   Full cross-run comparison against pycairo output is not yet automated.
 - Gate 4 memory and lifetime: partial. Stub ownership follows the documented
@@ -361,6 +365,7 @@ Implemented in this workspace:
   the raster-source stale-release replacement slice,
   the raster-source acquire-only owner fuzz slice,
   the raster-source failed-acquire owner-count fuzz slice,
+  the wide multi-page vector/tag oracle slice,
   the packaging/pycairo-porting documentation slice, the mixed
   vector/tag/text marker slice, the direct C oracle slice, and the prior C
   stub split that moved private test oracles out of `cairoon_misc.c` into
@@ -368,7 +373,7 @@ Implemented in this workspace:
   font and pattern extern declarations into `ffi_font.mbt` and
   `ffi_pattern.mbt`.
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native`: 378 tests passed. The current run
+- `moon -C cairoon test --target native`: 381 tests passed. The current run
   includes the pycairo context font-extents parity slice,
   the pycairo group-target stack-restoration slice,
   the pycairo rectangle path-extents slice,
@@ -396,7 +401,7 @@ Implemented in this workspace:
   document-feature oracle slice, and the earlier context `get_source`
   surface-pattern lifetime coverage for the path where both the original source
   wrapper and context scope have exited, plus the layered multi-page vector/tag
-  oracle slice and the raw FFI split slices that keep public API and test count
+  oracle slice, the wide multi-page vector/tag oracle slice, and the raw FFI split slices that keep public API and test count
   unchanged while reducing `ffi.mbt`.
 - `moon -C cairoon test path_test.mbt --target native -v`: 7 black-box Path
   tests passed, covering empty paths, pycairo-compatible stringification
@@ -453,8 +458,9 @@ Implemented in this workspace:
   script-surface target proxying, script writer `WriteError` mapping, scoped
   script-device finish, retained script surface/device wrappers, executable
   backend docs, and backend stream callback allocation stress.
-- `moon -C cairoon test vector_output_wbtest.mbt --target native -v`: 34
+- `moon -C cairoon test vector_output_wbtest.mbt --target native -v`: 37
   white-box vector tests passed, including the layered multi-page direct C
+  oracle and marker checks, the wide multi-page direct C
   oracle and marker checks, the mixed vector/tag/text marker
   checks, mixed vector/tag/text direct C oracle scene, PS/SVG destination and
   document-structure tag metadata absence checks, PDF tagged multi-page text
@@ -478,10 +484,10 @@ Implemented in this workspace:
   metadata.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
-  vector_output_wbtest.mbt --target native -v`: 34 ASan-compiled
+  vector_output_wbtest.mbt --target native -v`: 37 ASan-compiled
   white-box vector tests passed with leak detection disabled, directly
-  exercising the layered multi-page marker/C-oracle paths plus the mixed
-  vector/tag/text marker and C oracle paths.
+  exercising the layered and wide multi-page marker/C-oracle paths plus the
+  mixed vector/tag/text marker and C oracle paths.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
   surface_stream_test.mbt --target native -v`: 8 ASan-compiled black-box
@@ -1620,6 +1626,12 @@ Implemented in this workspace:
   callback replacements while asserting cairoon's retained owner counts return
   to zero after each paint. This raised `pattern_raster_owner_wbtest.mbt` to 4
   tests and the full native suite to 378 tests.
+  The later wide multi-page vector/tag oracle slice added scene 28, a
+  three-page PDF/PS/SVG direct C oracle combining URI link tags, destination
+  links, named destinations, Document/Sect/P structure tags, toy-font text, and
+  surface-pattern vector drawing. It also added PDF combined marker assertions
+  and PS/SVG negative PDF-metadata marker assertions for that scene. This raised
+  `vector_output_wbtest.mbt` to 37 tests and the full native suite to 381 tests.
 
 ## Known Gaps
 
@@ -1630,23 +1642,24 @@ Implemented in this workspace:
   rectangle and text tag oracle scenes, one cross-backend tagged multi-page
   text oracle scene, one cross-backend mixed vector/tag/text oracle scene, one
   cross-backend layered three-page clip/dash/surface-pattern/mask/tag/text oracle
-  scene, and two PDF document-feature oracle scenes. PDF/PS/SVG now
+  scene, one cross-backend wide three-page URI/destination/document-structure
+  tag/vector oracle scene, and two PDF document-feature oracle scenes. PDF/PS/SVG now
   have multi-page marker checks and three two-page direct C oracle scenes,
   PDF/PS/SVG have a single-page toy-font `show_text` oracle scene, and PDF has
   direct C coverage for URI links, named destinations, Document/Sect/H1/P
   structure tags in both rectangle and text cases, plus two two-page
   metadata/custom-metadata/page-label/outline/tag combinations, including one
   text/tag-aware scene, plus explicit PDF tagged multi-page text, mixed
-  vector/tag/text, and layered three-page structure/tag markers. PS/SVG Link tag inertness plus
+  vector/tag/text, layered three-page, and wide three-page structure/tag markers. PS/SVG Link tag inertness plus
   destination/document-structure rectangle/text and tagged multi-page text tags
   also have direct C oracle coverage, and PS/SVG destination/document-structure
-  rectangle/text tags, mixed vector/tag/text tags, and layered three-page tags
+  rectangle/text tags, mixed vector/tag/text tags, layered three-page tags, and wide three-page tags
   now have negative PDF-metadata marker checks.
   Broader cross-backend tag/metadata combinations, broader multi-page
   combinations, and richer tag-output assertions are still absent beyond those
-  PDF scenes, the tagged multi-page, mixed vector/tag/text, and layered three-page PDF marker tests,
+  PDF scenes, the tagged multi-page, mixed vector/tag/text, layered three-page, and wide three-page PDF marker tests,
   PS/SVG tag-metadata absence checks, and PS/SVG Link/destination/
-  document-structure rectangle/text plus tagged multi-page, mixed vector/tag/text, and layered three-page
+  document-structure rectangle/text plus tagged multi-page, mixed vector/tag/text, layered three-page, and wide three-page
   direct-oracle coverage.
   PDF/PS/SVG stream-writer constructors now also have deterministic two-page
   and tagged three-page stream-vs-file normalized equality coverage; script stream devices and PNG
