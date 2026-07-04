@@ -366,6 +366,7 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   the Context wrapper split slice,
   the Pattern wrapper split slice,
   the Pattern black-box test split slice,
+  the raster-source black-box test split slice,
   the Pattern raw FFI family split slice,
   the raster-source stale-release replacement slice,
   the raster-source acquire-only owner fuzz slice,
@@ -399,6 +400,7 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   family split slice, the Context wrapper
   split slice, the Pattern wrapper split slice,
   the Pattern black-box test split slice,
+  the raster-source black-box test split slice,
   the Pattern raw FFI family split slice, the Font C glue split slice,
   the Pattern C glue split slice, the raster-source callback C glue split
   slice, the Surface C glue split slice,
@@ -1783,6 +1785,14 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   callback/lifetime/error tests from the 682-line `pattern_test.mbt` into
   `pattern_raster_source_test.mbt`, leaving `pattern_test.mbt` focused on
   solid/surface/common-state behavior. This did not change public API or test
+  count.
+  The later raster-source black-box test split slice moved deterministic
+  callback fuzz and callback getter/state tests from the 515-line
+  `pattern_raster_source_test.mbt` into
+  `pattern_raster_source_fuzz_test.mbt` and
+  `pattern_raster_source_state_test.mbt`, leaving
+  `pattern_raster_source_test.mbt` as the 246-line core raster-source
+  render/error/lifetime test file. This did not change public API or test
   count.
   The later Font C glue split slice moved font-options, toy-font-face,
   scaled-font, and scaled-font oracle stubs from the 772-line
