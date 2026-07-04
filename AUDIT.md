@@ -306,13 +306,15 @@ Implemented in this workspace:
   document-feature plus PS DSC/SVG unit backend-feature oracle checks,
   stream black-box/white-box tests, mapped-image tests, TeeSurface tests,
   context lifetime/state/matrix/path/group/text/glyph/extents/clip/painting tests,
+  Path tests,
   pattern/gradient/mesh tests, raster-owner white-box tests, and
-  lifetime-stress tests,
+  Region/lifetime-stress tests,
   the full native suite, `moon info --target native`, and targeted ASan
   image-oracle, font-options/font-face/scaled-font, vector-output, stream,
   mapped-image, TeeSurface,
-  context-lifetime/state/matrix/path/group/text/glyph/extents/clip/painting, pattern/gradient/mesh, and
-  raster-owner/lifetime-stress tests with leak detection disabled. The current run includes
+  context-lifetime/state/matrix/path/group/text/glyph/extents/clip/painting, Path,
+  pattern/gradient/mesh, and raster-owner/Region/lifetime-stress tests with
+  leak detection disabled. The current run includes
   the pycairo context font-extents parity slice,
   the pycairo group-target stack-restoration slice,
   the pycairo rectangle path-extents slice,
@@ -1451,6 +1453,12 @@ Implemented in this workspace:
   `font_face_test.mbt`, `scaled_font_test.mbt`, and `lifetime_stress_test.mbt`
   to the normal and ASan verification gates. This raised
   `scaled_font_test.mbt` to 8 tests and the full native suite to 371 tests.
+  The later Path/Region lifetime gate slice added black-box tests proving a
+  copied `Path` remains usable after its source `Context` scope exits and a
+  copied `Region` remains usable after its source `Region` scope exits, then
+  added `path_test.mbt` and `region_test.mbt` to the normal and ASan
+  verification gates. This raised `path_test.mbt` to 7 tests,
+  `region_test.mbt` to 10 tests, and the full native suite to 373 tests.
 
 ## Known Gaps
 

@@ -1,4 +1,12 @@
 ///|
+fn copied_region_from_local_source() -> Region raise CairoError {
+  let source = Region::from_rectangle(
+    RectangleInt::new(x=0, y=0, width=10, height=10),
+  )
+  source.copy()
+}
+
+///|
 test "region empty and rectangle construction" {
   let empty = Region::new()
   inspect(empty.is_empty(), content="true")
@@ -40,6 +48,16 @@ test "region construction from multiple rectangles" {
   debug_inspect(
     region.contains_rectangle(RectangleInt::new(x=0, y=0, width=13, height=2)),
     content="RegionOverlapPart",
+  )
+}
+
+///|
+test "region copy survives source region scope" {
+  let copy = copied_region_from_local_source()
+  inspect(copy.contains_point(5, 5), content="true")
+  debug_inspect(
+    copy.get_extents(),
+    content="{ x: 0, y: 0, width: 10, height: 10 }",
   )
 }
 

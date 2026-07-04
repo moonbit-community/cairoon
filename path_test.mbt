@@ -4,6 +4,14 @@ fn path_test_context() -> Context raise CairoError {
 }
 
 ///|
+fn copied_path_from_local_context() -> Path raise CairoError {
+  let ctx = path_test_context()
+  ctx.move_to(1.0, 2.0)
+  ctx.line_to(3.0, 4.0)
+  ctx.copy_path()
+}
+
+///|
 test "path empty string segments and length" {
   let ctx = path_test_context()
   let path = ctx.copy_path()
@@ -41,6 +49,16 @@ test "path string includes pycairo close path continuation" {
   inspect(
     ctx.copy_path().to_string(),
     content="move_to 1.000000 2.000000\nclose path\nmove_to 1.000000 2.000000",
+  )
+}
+
+///|
+test "path copy survives source context scope" {
+  let path = copied_path_from_local_context()
+  inspect(path.length(), content="2")
+  inspect(
+    path.to_string(),
+    content="move_to 1.000000 2.000000\nline_to 3.000000 4.000000",
   )
 }
 

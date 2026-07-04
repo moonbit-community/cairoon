@@ -92,7 +92,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 | pycairo API | cairoon status | Notes |
 |---|---|---|
 | `Matrix` | Done | MoonBit pure-value API returns transformed copies; `component`/`components` cover pycairo indexing/unpacking semantics; executable reference docs cover pure-value transform usage |
-| `Path` | Done | Opaque owned `cairo_path_t *`, status/equality/hash, MoonBit `Eq`/`Hash`/`Compare` traits, pycairo-compatible stringification including close-path continuation formatting, segment values, iteration, and executable reference docs |
+| `Path` | Done | Opaque owned `cairo_path_t *`, status/equality/hash, MoonBit `Eq`/`Hash`/`Compare` traits, pycairo-compatible stringification including close-path continuation formatting, segment values, iteration, copied-path lifetime after the source context exits, targeted normal/ASan gate coverage, and executable reference docs |
 | `Rectangle` | Done | Pure value type with field/component access and pycairo numeric-limit coverage |
 | `RectangleInt` | Done | Pure value type with defaults; needed by region, map-to-image, and raster-source acquire extents |
 | `Glyph` | Done | Pure value type with `UInt64` index matching Cairo's `unsigned long` width on 64-bit platforms; array marshaling remains separate |
@@ -175,7 +175,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 
 | pycairo API | cairoon status | Notes |
 |---|---|---|
-| `Region` | Done | External object, empty/single/multi-rectangle constructors, copy, extents, rectangle access, predicates, equality plus MoonBit `Eq`, translate, and executable reference docs |
+| `Region` | Done | External object, empty/single/multi-rectangle constructors, copy, extents, rectangle access, predicates, equality plus MoonBit `Eq`, translate, copied-region lifetime after the source region exits, targeted normal/ASan gate coverage, and executable reference docs |
 | Region boolean ops | Done | intersect/subtract/union/xor implemented for region and rectangle operands; mutating boolean operations return the receiver for pycairo-style chaining; rectangle-op tests cover XOR split semantics and chainable return behavior |
 | `RegionOverlap` | Done | Enum implemented |
 
