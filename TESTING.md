@@ -244,8 +244,10 @@ ordinary, buffer-backed, and mapped image surfaces, backend stream callback
 allocation stress for PDF/PS/SVG surfaces, PNG stream write/read, script
 devices, and stream `WriteError` paths, raster-source callback allocation
 stress for set/get/manual acquire/release/replace/clear paths plus a
-white-box owner-count check for acquire-only repeated same-surface paints and
+white-box owner-count check for acquire-only repeated same-surface paints,
 compatible target/extents acquire rendering with device-offset source surfaces,
+and deterministic callback replacement/failure fuzz with dynamic compatible
+source surfaces,
 Cairo float
 image-format creation/readback coverage, `Format::stride_for_width` coverage
 for legacy, 16-bit, 30-bit, float, and invalid-width cases, stable
@@ -308,10 +310,11 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   the full native suite, `moon info --target native`, and targeted ASan
   image-oracle and pattern tests with leak detection disabled.
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native`: 348 tests passed. The current run
+- `moon -C cairoon test --target native`: 349 tests passed. The current run
   includes the cross-backend tagged multi-page text direct C oracle slice, the
   PS/SVG tag and text-tag direct C oracle slice, the PDF text-tag direct C
-  oracle slice, the raster-source compatible target/extents acquire slice, the
+  oracle slice, the raster-source deterministic callback fuzz slice, the
+  raster-source compatible target/extents acquire slice, the
   PS/SVG Link tag direct C oracle slice, the context
   `get_group_target` post-scope lifetime slice, the PDF combined text
   document-feature oracle slice, and the earlier context `get_source`
@@ -336,8 +339,8 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   document-structure test matched against a direct C Cairo output oracle that
   also draws tagged text.
 - `moon -C cairoon info --target native`: completed with no work to do; this
-  group-target lifetime slice changes no public API or generated interface
-  metadata.
+  raster-source deterministic fuzz slice changes no public API or generated
+  interface metadata.
 - `moon -C cairoon test image_oracle_wbtest.mbt --target native -v`: 2
   white-box image rendering oracle tests passed. Ordinary image surfaces and
   buffer-backed `Surface::image_for_data` surfaces both match the direct C
@@ -372,18 +375,21 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   returning a surface that remains readable after the creating context helper
   scope exits, and `get_source` returning a surface pattern that still exposes
   and paints from its source after the source wrapper and context scope exit.
-- `moon -C cairoon test pattern_test.mbt --target native -v`: 19 black-box
+- `moon -C cairoon test pattern_test.mbt --target native -v`: 20 black-box
   pattern tests passed after adding compatible target/extents raster-source
   acquire coverage, release-only raster callback state, finished-surface raster
   acquire failure-injection coverage, the C-side surface-finished sentinel, and
-  post-failure acquire replacement recovery.
+  post-failure acquire replacement recovery, plus deterministic 25-step
+  callback replacement/failure fuzz with dynamic compatible source surfaces and
+  final post-clear recovery.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
-  pattern_test.mbt --target native -v`: 19 ASan-compiled black-box pattern
+  pattern_test.mbt --target native -v`: 20 ASan-compiled black-box pattern
   tests passed with leak detection disabled, covering compatible target/extents
   raster-source acquire, release-only callback state, the raster acquire
-  finished-surface rejection path, and replacement recovery after that failure
-  path.
+  finished-surface rejection path, replacement recovery after that failure
+  path, and deterministic callback replacement/failure fuzz with dynamic
+  compatible source surfaces.
 - `run-asan.py --repo-root /Users/caimeo/code/pycairo/cairoon --pkg moon.pkg`:
   rerun for the raster-source acquire-only release-trampoline slice. The full
   runner still failed during the known macOS FontRegistry/CoreText/ColorSync
@@ -1289,11 +1295,17 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   Document/Sect/P text tags on page two. This raised
   `vector_output_wbtest.mbt` to 26 tests and the full native suite to 348
   tests.
+  The later raster-source deterministic callback fuzz slice added a 25-step
+  replacement/failure/recovery test covering temporary release-only state,
+  callback clearing, finished-surface failure injection, dynamic compatible
+  source-surface returns from acquire callbacks, manual callback retrieval, and
+  final post-clear recovery. This raised `pattern_test.mbt` to 20 tests and the
+  full native suite to 349 tests.
 
 The missing reliability pieces are substantial: broader automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering
-LSan failure, broader callback fuzz/finalizer stress tests, additional
-failure-injection paths, CI wiring, vector-output normalization for broader
+LSan failure, broader randomized callback fuzz/finalizer stress tests,
+additional failure-injection paths, CI wiring, vector-output normalization for broader
 multi-page/tag/metadata combinations beyond the current fifteen-scene
 cross-backend direct C fixture set, three PDF rectangle tag oracle scenes, three
 PDF text-tag oracle scenes, PS/SVG Link tag inertness oracle scenes, PS/SVG
