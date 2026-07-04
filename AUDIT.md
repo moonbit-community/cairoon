@@ -429,6 +429,7 @@ Implemented in this workspace:
   the Context C glue split slice,
   the Context wrapper split slice,
   the Pattern wrapper split slice,
+  the Pattern black-box test split slice,
   the Pattern raw FFI family split slice,
   the raster-source stale-release replacement slice,
   the raster-source acquire-only owner fuzz slice,
@@ -464,6 +465,7 @@ Implemented in this workspace:
   glue split slice, the Surface wrapper split slice, the Surface raw FFI
   family split slice, the Context wrapper
   split slice, the Pattern wrapper split slice,
+  the Pattern black-box test split slice,
   the Pattern raw FFI family split slice, the raster-source stale-release
   replacement slice, the raster-source acquire-only owner fuzz slice,
   the raster-source failed-acquire owner-count fuzz slice, the mixed
@@ -632,13 +634,14 @@ Implemented in this workspace:
   and paints from its source after the source wrapper and context scope exit,
   and PDF/PS stream target wrappers that remain usable after the creating
   surface helper scope exits.
-- `moon -C cairoon test pattern_test.mbt --target native -v`: 20 black-box
-  pattern tests passed after adding compatible target/extents raster-source
-  acquire coverage, release-only raster callback state, finished-surface raster
-  acquire failure-injection coverage, the C-side surface-finished sentinel, and
-  post-failure acquire replacement recovery, plus deterministic 25-step
-  callback replacement/failure fuzz with dynamic compatible source surfaces and
-  final post-clear recovery.
+- `moon -C cairoon test pattern_test.mbt pattern_raster_source_test.mbt
+  --target native -v`: 20 black-box pattern tests passed after splitting the
+  core/surface-pattern coverage from raster-source callback/lifetime/error
+  coverage; the raster-source file retains compatible target/extents acquire
+  coverage, release-only raster callback state, finished-surface failure
+  injection, post-failure acquire replacement recovery, and deterministic
+  25-step callback replacement/failure fuzz with dynamic compatible source
+  surfaces plus final post-clear recovery.
 - `moon -C cairoon test pattern_gradient_test.mbt --target native -v`: 5
   black-box gradient tests passed, covering linear/radial gradient geometry,
   color-stop count/tuple retrieval, duplicate-offset insertion order, copied
@@ -673,12 +676,12 @@ Implemented in this workspace:
   change.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
-  pattern_test.mbt --target native -v`: 20 ASan-compiled black-box pattern
-  tests passed with leak detection disabled, covering compatible target/extents
-  raster-source acquire, release-only callback state, the raster acquire
-  finished-surface rejection path, replacement recovery after that failure
-  path, and deterministic callback replacement/failure fuzz with dynamic
-  compatible source surfaces.
+  pattern_test.mbt pattern_raster_source_test.mbt --target native -v`: 20
+  ASan-compiled black-box pattern tests passed with leak detection disabled
+  after the split, covering compatible target/extents raster-source acquire,
+  release-only callback state, the raster acquire finished-surface rejection
+  path, replacement recovery after that failure path, and deterministic
+  callback replacement/failure fuzz with dynamic compatible source surfaces.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
   pattern_raster_owner_wbtest.mbt --target native -v`: 4 ASan-compiled
@@ -1755,6 +1758,11 @@ Implemented in this workspace:
   `pattern_raster_source.mbt`, leaving `pattern.mbt` as the 136-line
   solid/surface/common-state wrapper file. This did not change public API or
   test count.
+  The later Pattern black-box test split slice moved the raster-source
+  callback/lifetime/error tests from the 682-line `pattern_test.mbt` into
+  `pattern_raster_source_test.mbt`, leaving `pattern_test.mbt` focused on
+  solid/surface/common-state behavior. This did not change public API or test
+  count.
   The later Font C glue split slice moved font-options, toy-font-face,
   scaled-font, and scaled-font oracle stubs from the 772-line
   `cairoon_font.c` into `cairoon_font_options.c`,
