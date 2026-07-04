@@ -293,6 +293,36 @@ fn draw_pdf_struct_text_tag_scene(ctx : Context) -> Unit raise CairoError {
 }
 
 ///|
+fn draw_tagged_multi_page_text_scene(ctx : Context) -> Unit raise CairoError {
+  ctx.select_font_face("serif")
+  ctx.set_font_size(4.0)
+  ctx.set_source_rgb(0.0, 0.0, 0.0)
+  ctx.tag_begin(TAG_LINK, "uri='https://example.com/multipage'")
+  ctx.move_to(1.0, 4.0)
+  ctx.show_text("one")
+  ctx.tag_end(TAG_LINK)
+  ctx.show_page()
+
+  ctx.tag_begin(TAG_LINK, "dest='cairoon-multi-dest'")
+  ctx.move_to(1.0, 4.0)
+  ctx.show_text("two")
+  ctx.tag_end(TAG_LINK)
+  ctx.tag_begin(TAG_DEST, "name='cairoon-multi-dest' x=1 y=7")
+  ctx.move_to(1.0, 7.0)
+  ctx.show_text("dst")
+  ctx.tag_end(TAG_DEST)
+  ctx.tag_begin("Document", "")
+  ctx.tag_begin("Sect", "")
+  ctx.tag_begin("P", "")
+  ctx.move_to(1.0, 9.0)
+  ctx.show_text("doc")
+  ctx.tag_end("P")
+  ctx.tag_end("Sect")
+  ctx.tag_end("Document")
+  ctx.show_page()
+}
+
+///|
 fn draw_vector_oracle_scene(
   ctx : Context,
   scene : Int,
@@ -393,6 +423,7 @@ fn draw_vector_oracle_scene(
     22 => draw_pdf_uri_text_tag_scene(ctx)
     23 => draw_pdf_dest_text_tag_scene(ctx)
     24 => draw_pdf_struct_text_tag_scene(ctx)
+    25 => draw_tagged_multi_page_text_scene(ctx)
     _ => raise CairoInvalidArgument(InvalidStatus, InvalidStatus.message())
   }
 }
@@ -935,6 +966,17 @@ test "ps svg tag and text tag scenes match direct cairo C oracle" {
       render_vector_oracle_scene(kind, scene, cairoon_path)
       expect_vector_oracle_match(kind, scene, cairoon_path, oracle_path)
     }
+  }
+}
+
+///|
+test "tagged multi-page text scene matches direct cairo C oracle" {
+  for kind in 0..<3 {
+    let ext = vector_output_extension(kind)
+    let cairoon_path = "/tmp/cairoon_vector_tagged_multipage_text_\{kind}.\{ext}"
+    let oracle_path = "/tmp/cairoon_vector_tagged_multipage_text_\{kind}_oracle.\{ext}"
+    render_vector_oracle_scene(kind, 25, cairoon_path)
+    expect_vector_oracle_match(kind, 25, cairoon_path, oracle_path)
   }
 }
 

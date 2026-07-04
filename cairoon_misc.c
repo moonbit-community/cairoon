@@ -46,7 +46,8 @@ enum {
   CAIROON_TEST_VECTOR_PDF_TEXT_DOCUMENT_FEATURES = 21,
   CAIROON_TEST_VECTOR_PDF_URI_TEXT_TAG = 22,
   CAIROON_TEST_VECTOR_PDF_DEST_TEXT_TAG = 23,
-  CAIROON_TEST_VECTOR_PDF_STRUCT_TEXT_TAG = 24
+  CAIROON_TEST_VECTOR_PDF_STRUCT_TEXT_TAG = 24,
+  CAIROON_TEST_VECTOR_TAGGED_MULTI_PAGE_TEXT = 25
 };
 
 enum {
@@ -580,6 +581,46 @@ static cairo_status_t cairoon_test_draw_pdf_struct_text_tag(cairo_t *cr) {
   return cairo_status(cr);
 }
 
+static cairo_status_t cairoon_test_draw_tagged_multi_page_text(cairo_t *cr) {
+  cairo_select_font_face(
+    cr,
+    "serif",
+    CAIRO_FONT_SLANT_NORMAL,
+    CAIRO_FONT_WEIGHT_NORMAL);
+  cairo_set_font_size(cr, 4.0);
+  cairo_set_source_rgb(cr, 0.0, 0.0, 0.0);
+
+  cairo_tag_begin(cr, CAIRO_TAG_LINK, "uri='https://example.com/multipage'");
+  cairo_move_to(cr, 1.0, 4.0);
+  cairo_show_text(cr, "one");
+  cairo_tag_end(cr, CAIRO_TAG_LINK);
+  cairo_show_page(cr);
+  if (cairo_status(cr) != CAIRO_STATUS_SUCCESS) {
+    return cairo_status(cr);
+  }
+
+  cairo_tag_begin(cr, CAIRO_TAG_LINK, "dest='cairoon-multi-dest'");
+  cairo_move_to(cr, 1.0, 4.0);
+  cairo_show_text(cr, "two");
+  cairo_tag_end(cr, CAIRO_TAG_LINK);
+
+  cairo_tag_begin(cr, CAIRO_TAG_DEST, "name='cairoon-multi-dest' x=1 y=7");
+  cairo_move_to(cr, 1.0, 7.0);
+  cairo_show_text(cr, "dst");
+  cairo_tag_end(cr, CAIRO_TAG_DEST);
+
+  cairo_tag_begin(cr, "Document", "");
+  cairo_tag_begin(cr, "Sect", "");
+  cairo_tag_begin(cr, "P", "");
+  cairo_move_to(cr, 1.0, 9.0);
+  cairo_show_text(cr, "doc");
+  cairo_tag_end(cr, "P");
+  cairo_tag_end(cr, "Sect");
+  cairo_tag_end(cr, "Document");
+  cairo_show_page(cr);
+  return cairo_status(cr);
+}
+
 static cairo_status_t cairoon_test_render_pdf_document_features(
   const char *name) {
 #if CAIRO_HAS_PDF_SURFACE && CAIRO_VERSION >= CAIRO_VERSION_ENCODE(1, 17, 6)
@@ -1023,6 +1064,8 @@ static cairo_status_t cairoon_test_draw_vector_scene(
       return cairoon_test_draw_pdf_dest_text_tag(cr);
     case CAIROON_TEST_VECTOR_PDF_STRUCT_TEXT_TAG:
       return cairoon_test_draw_pdf_struct_text_tag(cr);
+    case CAIROON_TEST_VECTOR_TAGGED_MULTI_PAGE_TEXT:
+      return cairoon_test_draw_tagged_multi_page_text(cr);
     default:
       return CAIRO_STATUS_INVALID_STATUS;
   }
