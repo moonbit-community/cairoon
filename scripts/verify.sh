@@ -22,6 +22,7 @@ targeted_tests=(
   font_face_test.mbt
   scaled_font_test.mbt
   vector_output_wbtest.mbt
+  vector_output_oracle_wbtest.mbt
   surface_context_test.mbt
   image_data_test.mbt
   surface_stream_test.mbt

@@ -351,6 +351,7 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   the vector stream invalid-status fallback slice,
   the PNG/script stream invalid-status fallback slice,
   the vector output white-box split slice,
+  the vector output marker/oracle test split slice,
   the test-vector C glue split slice,
   the Font raw FFI family split slice,
   the Font C glue split slice,
@@ -389,7 +390,8 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   wide multi-page stream equivalence slice, the vector stream invalid-status
   fallback slice, the PNG/script stream invalid-status
   fallback slice, the vector output white-box split slice, the test-vector C
-  glue split slice, the Font raw FFI family split slice, the base Surface C
+  glue split slice, the vector output marker/oracle test split slice, the
+  Font raw FFI family split slice, the base Surface C
   glue split slice, the Surface wrapper split slice, the Surface raw FFI
   family split slice, the Context wrapper
   split slice, the Pattern wrapper split slice,
@@ -460,16 +462,17 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   invalid-status fallback mapping, scoped
   script-device finish, retained script surface/device wrappers, executable
   backend docs, and backend stream callback allocation stress.
-- `moon -C cairoon test vector_output_wbtest.mbt --target native -v`: 37
-  white-box vector tests passed, including the layered multi-page direct C
-  oracle and marker checks, the wide multi-page direct C
-  oracle and marker checks, the mixed vector/tag/text marker
-  checks, mixed vector/tag/text direct C oracle scene, PS/SVG destination and
-  document-structure tag metadata absence checks, PDF tagged multi-page text
-  structure markers, cross-backend tagged multi-page text, PS/SVG destination
-  and document-structure rectangle and text tag scenes, PDF URI-link/
-  named-destination/document-structure text tag scenes, and PS/SVG Link tag
-  inertness matched against direct C Cairo output and the combined PDF
+- `moon -C cairoon test vector_output_wbtest.mbt
+  vector_output_oracle_wbtest.mbt --target native -v`: 37 white-box vector
+  tests passed after splitting marker/output checks from direct C oracle and
+  cross-backend tag checks. The split set still covers layered and wide
+  multi-page direct C oracle and marker checks, mixed vector/tag/text marker
+  checks, the mixed vector/tag/text direct C oracle scene, PS/SVG destination
+  and document-structure tag metadata absence checks, PDF tagged multi-page
+  text structure markers, cross-backend tagged multi-page text, PS/SVG
+  destination and document-structure rectangle and text tag scenes, PDF
+  URI-link/named-destination/document-structure text tag scenes, PS/SVG Link
+  tag inertness matched against direct C Cairo output, and the combined PDF
   metadata/custom-metadata/page-label/outline/URI/named-destination/
   document-structure test matched against a direct C Cairo output oracle that
   also draws tagged text.
@@ -488,10 +491,11 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   metadata.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
-  vector_output_wbtest.mbt --target native -v`: 37 ASan-compiled
-  white-box vector tests passed with leak detection disabled, directly
-  exercising the layered and wide multi-page marker/C-oracle paths plus the
-  mixed vector/tag/text marker and C oracle paths.
+  vector_output_wbtest.mbt vector_output_oracle_wbtest.mbt --target native -v`:
+  37 ASan-compiled white-box vector tests passed with leak detection disabled
+  after the split, directly exercising the layered and wide multi-page
+  marker/C-oracle paths plus the mixed vector/tag/text marker and C oracle
+  paths.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
   surface_stream_test.mbt --target native -v`: 10 ASan-compiled black-box
@@ -1823,6 +1827,11 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   `vector_output_scenes_wbtest.mbt`, and left the 37 executable tests in
   `vector_output_wbtest.mbt`. This reduced the main vector-output test file
   from 1292 lines to 623 lines without changing public API or test count.
+  The later vector output marker/oracle test split slice moved the direct C
+  oracle, cross-backend tag, and late combined marker tests from the 623-line
+  `vector_output_wbtest.mbt` into `vector_output_oracle_wbtest.mbt`, leaving
+  `vector_output_wbtest.mbt` focused on structural output markers. This did
+  not change public API or test count.
 
 The missing reliability pieces are substantial: broader automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering
