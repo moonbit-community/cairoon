@@ -45,6 +45,50 @@ fn make_source_pattern_from_local_context() -> Pattern raise CairoError {
 }
 
 ///|
+fn lifetime_chunks_to_string(chunks : Array[Bytes]) -> String {
+  let builder = StringBuilder()
+  for chunk in chunks {
+    builder.write_string(@utf8.decode_lossy(chunk))
+  }
+  builder.to_string()
+}
+
+///|
+fn lifetime_chunks_contain(chunks : Array[Bytes], marker : String) -> Bool {
+  lifetime_chunks_to_string(chunks).contains(marker)
+}
+
+///|
+fn make_context_with_local_pdf_stream_target(
+  chunks : Array[Bytes],
+) -> Context raise CairoError {
+  let surface = Surface::pdf_stream(8.0, 8.0, fn(chunk) {
+    chunks.push(chunk)
+    Success
+  })
+  Context::new(surface)
+}
+
+///|
+fn make_context_with_local_ps_stream_target(
+  chunks : Array[Bytes],
+) -> Context raise CairoError {
+  let surface = Surface::ps_stream(8.0, 8.0, fn(chunk) {
+    chunks.push(chunk)
+    Success
+  })
+  Context::new(surface)
+}
+
+///|
+fn paint_and_finish_context_target(ctx : Context) -> Unit raise CairoError {
+  ctx.set_source_rgb(0.0, 0.0, 1.0)
+  ctx.paint()
+  ctx.show_page()
+  ctx.get_target().finish()
+}
+
+///|
 test "context get_target returns a referenced surface wrapper" {
   let target = make_returned_target_surface()
   let data = target.copy_data()
@@ -123,6 +167,21 @@ test "context get_source surface pattern survives source and context scopes" {
   inspect(target_data[1].to_int(), content="0")
   inspect(target_data[2].to_int(), content="0")
   inspect(target_data[3].to_int(), content="255")
+}
+
+///|
+test "context keeps pdf and ps stream targets alive after surface scope exits" {
+  let pdf_chunks : Array[Bytes] = []
+  let pdf_ctx = make_context_with_local_pdf_stream_target(pdf_chunks)
+  paint_and_finish_context_target(pdf_ctx)
+  inspect(lifetime_chunks_contain(pdf_chunks, "%PDF-1."), content="true")
+  inspect(lifetime_chunks_contain(pdf_chunks, "%%EOF"), content="true")
+
+  let ps_chunks : Array[Bytes] = []
+  let ps_ctx = make_context_with_local_ps_stream_target(ps_chunks)
+  paint_and_finish_context_target(ps_ctx)
+  inspect(lifetime_chunks_contain(ps_chunks, "%!PS-Adobe-3.0"), content="true")
+  inspect(lifetime_chunks_contain(ps_chunks, "%%EOF"), content="true")
 }
 
 ///|

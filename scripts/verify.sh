@@ -20,6 +20,7 @@ run moon test scaled_font_oracle_wbtest.mbt --target native -v
 run moon test vector_output_wbtest.mbt --target native -v
 run moon test surface_stream_test.mbt --target native -v
 run moon test surface_stream_wbtest.mbt --target native -v
+run moon test context_lifetime_test.mbt --target native -v
 run moon test pattern_test.mbt --target native -v
 run moon test pattern_raster_owner_wbtest.mbt --target native -v
 
@@ -56,6 +57,11 @@ if [[ "$asan_mode" != "0" ]]; then
       "MOON_AR=$moon_ar" \
       "ASAN_OPTIONS=$asan_options" \
       moon test surface_stream_wbtest.mbt --target native -v
+    run env \
+      "MOON_CC=$clang_path" \
+      "MOON_AR=$moon_ar" \
+      "ASAN_OPTIONS=$asan_options" \
+      moon test context_lifetime_test.mbt --target native -v
     run env \
       "MOON_CC=$clang_path" \
       "MOON_AR=$moon_ar" \

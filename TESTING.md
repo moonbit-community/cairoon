@@ -311,12 +311,13 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   `moon fmt --check`, `scripts/configure-link-flags.sh --check`, native
   `moon check`, targeted image, ScaledFont, vector including PDF combined
   text document-feature plus PS DSC/SVG unit backend-feature oracle checks,
-  stream black-box/white-box tests, pattern oracle tests, and raster-owner
-  white-box tests,
+  stream black-box/white-box tests, context lifetime tests, pattern oracle
+  tests, and raster-owner white-box tests,
   the full native suite, `moon info --target native`, and targeted ASan
-  image-oracle, vector-output, stream, pattern, and raster-owner tests with
-  leak detection disabled. The current run includes the pycairo append-path
-  string equivalence slice, the pycairo close-path stringification slice,
+  image-oracle, vector-output, stream, context-lifetime, pattern, and
+  raster-owner tests with leak detection disabled. The current run includes
+  the PDF/PS stream target lifetime slice, the pycairo append-path string
+  equivalence slice, the pycairo close-path stringification slice,
   the gradient color-stop ordering/snapshot slice,
   the stream-vs-file vector output equivalence slice,
   the raster-source stale-release replacement slice,
@@ -324,10 +325,10 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   the packaging/pycairo-porting documentation slice, the mixed
   vector/tag/text marker slice, and the direct C oracle slice.
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native`: 360 tests passed. The current run
-  includes the pycairo append-path string equivalence slice, the pycairo
-  close-path stringification slice, the gradient color-stop ordering/snapshot
-  slice, the stream-vs-file vector output
+- `moon -C cairoon test --target native`: 361 tests passed. The current run
+  includes the PDF/PS stream target lifetime slice, the pycairo append-path
+  string equivalence slice, the pycairo close-path stringification slice, the
+  gradient color-stop ordering/snapshot slice, the stream-vs-file vector output
   equivalence slice, the raster-source stale-release replacement slice, the
   raster-source
   acquire-only owner fuzz slice, the mixed
@@ -352,10 +353,10 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   creation, path copy/append independence, pycairo-style append string
   equivalence after clearing the source context, flattened append behavior, and
   path error propagation.
-- `moon -C cairoon test context_lifetime_test.mbt --target native -v`: 8
+- `moon -C cairoon test context_lifetime_test.mbt --target native -v`: 9
   black-box context lifetime tests passed, including `get_target`,
-  `get_group_target`, and `get_source` returned wrappers that remain usable
-  after their creating helper scopes exit.
+  `get_group_target`, `get_source`, and PDF/PS stream target wrappers that
+  remain usable after their creating helper scopes exit.
 - `moon -C cairoon test device_test.mbt backend_surfaces.mbt.md
   lifetime_stress_test.mbt --target native -v`: 23 black-box and executable
   backend/lifetime tests passed, covering script file/stream devices,
@@ -426,11 +427,13 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
 - `moon -C cairoon test raster_lifetime_stress_test.mbt --target native -v`: 1
   black-box raster-source callback lifetime test passed after adding the
   1000-iteration set/get/manual acquire/release/replace/clear stress case.
-- `moon -C cairoon test context_lifetime_test.mbt --target native -v`: 8
+- `moon -C cairoon test context_lifetime_test.mbt --target native -v`: 9
   black-box context lifetime tests passed, including `get_group_target`
   returning a surface that remains readable after the creating context helper
-  scope exits, and `get_source` returning a surface pattern that still exposes
-  and paints from its source after the source wrapper and context scope exit.
+  scope exits, `get_source` returning a surface pattern that still exposes
+  and paints from its source after the source wrapper and context scope exit,
+  and PDF/PS stream target wrappers that remain usable after the creating
+  surface helper scope exits.
 - `moon -C cairoon test pattern_test.mbt --target native -v`: 20 black-box
   pattern tests passed after adding compatible target/extents raster-source
   acquire coverage, release-only raster callback state, finished-surface raster
@@ -1422,6 +1425,11 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   Context path test proving `append_path` preserves the copied path's
   pycairo-style string after the source context has been cleared. This raised
   `context_path_test.mbt` to 10 tests and the full native suite to 360 tests.
+  The later PDF/PS stream target lifetime slice added one black-box Context
+  lifetime test proving `Context::new` keeps vector stream targets alive after
+  the original surface wrapper leaves scope, and added `context_lifetime_test.mbt`
+  to the normal and ASan verification gates. This raised
+  `context_lifetime_test.mbt` to 9 tests and the full native suite to 361 tests.
 
 The missing reliability pieces are substantial: broader automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering
