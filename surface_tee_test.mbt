@@ -63,6 +63,17 @@ test "tee surface retains primary and added target wrappers" {
 }
 
 ///|
+test "tee index preserves cairo no-memory status for positive out of range" {
+  let primary = Surface::image(Argb32, 1, 1)
+  let tee = Surface::tee(primary)
+  let out_of_range = run_cairo(() => tee.tee_index(1))
+  match out_of_range {
+    Err(CairoMemoryError(NoMemory, _)) => ()
+    _ => @test.fail("expected NoMemory for out-of-range tee index")
+  }
+}
+
+///|
 test "tee methods map subtype and index errors" {
   let image = Surface::image(Argb32, 1, 1)
   let other = Surface::image(Argb32, 1, 1)
