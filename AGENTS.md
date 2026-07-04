@@ -48,6 +48,7 @@ cairoon/
   moon.pkg
   ffi.mbt
   ffi_context_core.mbt
+  ffi_context_font_text.mbt
   ffi_device.mbt
   ffi_font.mbt
   ffi_image_data.mbt
@@ -121,6 +122,7 @@ options(
   targets: {
     "ffi.mbt": ["native"],
     "ffi_context_core.mbt": ["native"],
+    "ffi_context_font_text.mbt": ["native"],
     "ffi_device.mbt": ["native"],
     "ffi_font.mbt": ["native"],
     "ffi_image_data.mbt": ["native"],
@@ -161,6 +163,9 @@ raster-source-pattern extern declarations that call `cairoon_pattern.c`;
 `ffi_context_core.mbt` owns raw `Context` construction, status, identity,
 save/restore, tag, target/source, and group extern declarations that call the
 opening lifecycle/state section of `cairoon_context.c`;
+`ffi_context_font_text.mbt` owns raw `Context` font-options, font-face, toy-font
+selection, font-matrix, text, glyph, show-text-glyphs, and scaled-font extern
+declarations that call the font/text section of `cairoon_context.c`;
 `ffi_device.mbt` owns raw `Device`, script-device, script-surface, and
 surface-get-device extern declarations that call `cairoon_device.c`;
 `ffi_image_data.mbt` owns raw `ImageData` and image/mapped get-data extern

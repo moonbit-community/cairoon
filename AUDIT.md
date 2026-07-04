@@ -19,6 +19,8 @@ Implemented in this workspace:
   `ffi.mbt` keeps object type declarations and small module-level exports, while
   `ffi_context_core.mbt` owns raw `Context` construction, status, identity,
   save/restore, tag, target/source, and group extern declarations,
+  `ffi_context_font_text.mbt` owns raw `Context` font/text/scaled-font extern
+  declarations,
   `ffi_font.mbt` owns raw `FontOptions`, `FontFace`, `ScaledFont`, and
   text-to-glyphs extern declarations, `ffi_pattern.mbt` owns raw `Pattern`,
   mesh-pattern, and raster-source-pattern extern declarations, and
@@ -1553,6 +1555,11 @@ Implemented in this workspace:
   declarations from `ffi.mbt` into `ffi_context_core.mbt`, added that file to
   the native target list, and reduced `ffi.mbt` to 820 lines. This did not
   change public API or test count.
+  The later Context font/text raw FFI split slice moved raw context
+  font-options, font-face, toy-font selection, font-matrix, text, glyph,
+  show-text-glyphs, and scaled-font extern declarations from `ffi.mbt` into
+  `ffi_context_font_text.mbt`, added that file to the native target list, and
+  reduced `ffi.mbt` to 659 lines. This did not change public API or test count.
 
 ## Known Gaps
 

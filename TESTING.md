@@ -1616,6 +1616,11 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   declarations from `ffi.mbt` into `ffi_context_core.mbt`, added that file to
   the native target list, and reduced `ffi.mbt` to 820 lines. This did not
   change public API or test count.
+  The later Context font/text raw FFI split slice moved raw context
+  font-options, font-face, toy-font selection, font-matrix, text, glyph,
+  show-text-glyphs, and scaled-font extern declarations from `ffi.mbt` into
+  `ffi_context_font_text.mbt`, added that file to the native target list, and
+  reduced `ffi.mbt` to 659 lines. This did not change public API or test count.
 
 The missing reliability pieces are substantial: broader automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering
