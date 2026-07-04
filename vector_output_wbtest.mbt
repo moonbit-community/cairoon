@@ -982,6 +982,27 @@ test "ps svg tag and text tag scenes match direct cairo C oracle" {
 }
 
 ///|
+test "ps svg destination and structure tags omit pdf metadata markers" {
+  let forbidden = [
+    "/Annots", "/Subtype /Link", "/URI", "/Dest", "/Dests", "/StructTreeRoot", "/S /Document",
+    "/S /Sect", "/S /P", "cairoon-direct-dest", "cairoon-dest", "xlink:href=", "<a ",
+  ]
+  for kind in 1..<3 {
+    let ext = vector_output_extension(kind)
+    for scene in 16..<18 {
+      let path = "/tmp/cairoon_vector_backend_tag_absent_\{kind}_\{scene}.\{ext}"
+      render_vector_oracle_scene(kind, scene, path)
+      expect_vector_output_absent(path, forbidden)
+    }
+    for scene in 23..<25 {
+      let path = "/tmp/cairoon_vector_backend_text_tag_absent_\{kind}_\{scene}.\{ext}"
+      render_vector_oracle_scene(kind, scene, path)
+      expect_vector_output_absent(path, forbidden)
+    }
+  }
+}
+
+///|
 test "tagged multi-page text scene matches direct cairo C oracle" {
   for kind in 0..<3 {
     let ext = vector_output_extension(kind)

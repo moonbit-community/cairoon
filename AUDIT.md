@@ -258,7 +258,8 @@ Implemented in this workspace:
   checks matching Cairo 1.18.4 backend behavior. PDF tagged multi-page text
   output also has explicit structure marker checks for page count, page
   objects, link annotations, URI/destination entries, and StructTreeRoot
-  elements.
+  elements. PS/SVG destination and document-structure tag scenes also have
+  negative marker checks proving PDF-only tag metadata is not emitted.
   Full cross-run comparison against pycairo output is not yet automated.
 - Gate 4 memory and lifetime: partial. Stub ownership follows the documented
   external-object pattern, and retained-owner stress now covers subsurfaces,
@@ -302,8 +303,9 @@ Implemented in this workspace:
   the full native suite, `moon info --target native`, and targeted ASan
   image-oracle and pattern tests with leak detection disabled.
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native`: 350 tests passed. The current run
-  includes the PDF tagged multi-page text marker slice, the cross-backend
+- `moon -C cairoon test --target native`: 351 tests passed. The current run
+  includes the PS/SVG tag metadata absence slice, the PDF tagged multi-page
+  text marker slice, the cross-backend
   tagged multi-page text direct C oracle slice, the
   PS/SVG tag and text-tag direct C oracle slice, the PDF text-tag direct C
   oracle slice, the raster-source deterministic callback fuzz slice, the
@@ -323,17 +325,18 @@ Implemented in this workspace:
   script-surface target proxying, script writer `WriteError` mapping, scoped
   script-device finish, retained script surface/device wrappers, executable
   backend docs, and backend stream callback allocation stress.
-- `moon -C cairoon test vector_output_wbtest.mbt --target native -v`: 27
-  white-box vector tests passed, including PDF tagged multi-page text structure
-  markers, cross-backend tagged multi-page text, PS/SVG destination and
-  document-structure rectangle and text tag scenes, PDF URI-link/
+- `moon -C cairoon test vector_output_wbtest.mbt --target native -v`: 28
+  white-box vector tests passed, including PS/SVG destination and
+  document-structure tag metadata absence checks, PDF tagged multi-page text
+  structure markers, cross-backend tagged multi-page text, PS/SVG destination
+  and document-structure rectangle and text tag scenes, PDF URI-link/
   named-destination/document-structure text tag scenes, and PS/SVG Link tag
   inertness matched against direct C Cairo output and the combined PDF
   metadata/custom-metadata/page-label/outline/URI/named-destination/
   document-structure test matched against a direct C Cairo output oracle that
   also draws tagged text.
 - `moon -C cairoon info --target native`: completed with no work to do; this
-  PDF tagged multi-page text marker slice changes no public API or generated
+  PS/SVG tag metadata absence slice changes no public API or generated
   interface metadata.
 - `moon -C cairoon test image_oracle_wbtest.mbt --target native -v`: 2
   white-box image rendering oracle tests passed. Ordinary image surfaces and
@@ -1215,6 +1218,12 @@ Implemented in this workspace:
   StructTreeRoot elements in the emitted PDF. This raised
   `vector_output_wbtest.mbt` to 27 tests and the full native suite to 350
   tests.
+  The later PS/SVG tag metadata absence slice added negative marker checks for
+  destination and document-structure rectangle/text tag scenes, proving those
+  backends do not emit PDF-only annotations, destinations, structure-tree
+  markers, or link metadata for those tags. This raised
+  `vector_output_wbtest.mbt` to 28 tests and the full native suite to 351
+  tests.
 
 ## Known Gaps
 
@@ -1232,12 +1241,13 @@ Implemented in this workspace:
   text/tag-aware scene, plus explicit PDF tagged multi-page text structure
   markers. PS/SVG Link tag inertness plus
   destination/document-structure rectangle/text and tagged multi-page text tags
-  also have direct C oracle coverage.
+  also have direct C oracle coverage, and PS/SVG destination/document-structure
+  rectangle/text tags now have negative PDF-metadata marker checks.
   Broader cross-backend tag/metadata combinations, broader multi-page
   combinations, and richer tag-output assertions are still absent beyond those
-  PDF scenes, the tagged multi-page PDF marker test, and PS/SVG Link/
-  destination/document-structure rectangle/text plus tagged multi-page
-  direct-oracle coverage. PDF/PS/SVG stream-writer constructors,
+  PDF scenes, the tagged multi-page PDF marker test, PS/SVG tag-metadata
+  absence checks, and PS/SVG Link/destination/document-structure rectangle/text
+  plus tagged multi-page direct-oracle coverage. PDF/PS/SVG stream-writer constructors,
   script stream devices, and PNG stream read/write now have copied-byte
   callback tests and read/write error propagation coverage.
 - `Surface::copy_data` still copies Cairo image data into MoonBit `Bytes`;
