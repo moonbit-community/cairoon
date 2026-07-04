@@ -37,6 +37,18 @@ fn expect_text_invalid_matrix(result : Result[Unit, CairoError]) -> Unit raise {
 }
 
 ///|
+test "context font_extents matches current scaled font" {
+  let ctx = Context::new(Surface::image(Argb32, 32, 32))
+  ctx.select_font_face("serif")
+  ctx.set_font_size(12.0)
+  let context_extents = ctx.font_extents()
+  let scaled_extents = ctx.get_scaled_font().extents()
+  inspect(context_extents == scaled_extents, content="true")
+  inspect(context_extents.height > 0.0, content="true")
+  inspect(context_extents.ascent >= 0.0, content="true")
+}
+
+///|
 test "context text_extents matches current scaled font" {
   let ctx = Context::new(Surface::image(Argb32, 32, 32))
   ctx.select_font_face("serif")

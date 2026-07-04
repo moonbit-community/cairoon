@@ -304,12 +304,13 @@ Implemented in this workspace:
   `moon check`, targeted image, ScaledFont, vector including PDF combined
   text document-feature plus PS DSC/SVG unit backend-feature oracle checks,
   stream black-box/white-box tests, mapped-image tests, TeeSurface tests,
-  context lifetime/state/matrix/path/group/extents/clip/painting tests,
+  context lifetime/state/matrix/path/group/text/glyph/extents/clip/painting tests,
   pattern/gradient/mesh tests, and raster-owner white-box tests,
   the full native suite, `moon info --target native`, and targeted ASan
   image-oracle, vector-output, stream, mapped-image, TeeSurface,
-  context-lifetime/state/matrix/path/group/extents/clip/painting, pattern/gradient/mesh, and
+  context-lifetime/state/matrix/path/group/text/glyph/extents/clip/painting, pattern/gradient/mesh, and
   raster-owner tests with leak detection disabled. The current run includes
+  the pycairo context font-extents parity slice,
   the pycairo group-target stack-restoration slice,
   the pycairo rectangle path-extents slice,
   the pycairo source RGBA round-trip slice,
@@ -329,8 +330,9 @@ Implemented in this workspace:
   stub split that moved private test oracles out of `cairoon_misc.c` into
   common/file/vector/image helper files.
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native`: 369 tests passed. The current run
-  includes the pycairo group-target stack-restoration slice,
+- `moon -C cairoon test --target native`: 370 tests passed. The current run
+  includes the pycairo context font-extents parity slice,
+  the pycairo group-target stack-restoration slice,
   the pycairo rectangle path-extents slice,
   the pycairo source RGBA round-trip slice,
   the pycairo empty-path clip `in_clip` slice,
@@ -371,6 +373,11 @@ Implemented in this workspace:
   `pop_group_to_source`, `push_group_with_content`, group-target stack
   restoration to the original target, returned group patterns, and unmatched
   pop error mapping.
+- `moon -C cairoon test context_text_test.mbt glyph_array_test.mbt --target
+  native -v`: 11 black-box Context text/glyph tests passed, covering
+  context/scaled-font font-extents and text-extents parity, `show_text`
+  current-point advance, text/glyph path creation, empty glyph arrays,
+  embedded-NUL validation, and context error propagation.
 - `moon -C cairoon test context_lifetime_test.mbt --target native -v`: 9
   black-box context lifetime tests passed, including `get_target`,
   `get_group_target`, `get_source`, and PDF/PS stream target wrappers that
@@ -1430,6 +1437,11 @@ Implemented in this workspace:
   `context_group_test.mbt` to the normal and ASan verification gates. This
   raised `context_group_test.mbt` to 4 tests and the full native suite to 369
   tests.
+  The later pycairo context font-extents parity slice added one black-box
+  Context text test proving `Context::font_extents()` matches the current
+  `ScaledFont::extents()`, and added `context_text_test.mbt` and
+  `glyph_array_test.mbt` to the normal and ASan verification gates. This raised
+  `context_text_test.mbt` to 6 tests and the full native suite to 370 tests.
 
 ## Known Gaps
 

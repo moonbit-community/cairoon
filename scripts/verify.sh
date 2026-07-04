@@ -27,6 +27,8 @@ run moon test context_state_test.mbt --target native -v
 run moon test context_matrix_test.mbt --target native -v
 run moon test context_path_test.mbt --target native -v
 run moon test context_group_test.mbt --target native -v
+run moon test context_text_test.mbt --target native -v
+run moon test glyph_array_test.mbt --target native -v
 run moon test context_extents_test.mbt --target native -v
 run moon test context_clip_test.mbt --target native -v
 run moon test context_painting_test.mbt --target native -v
@@ -103,6 +105,16 @@ if [[ "$asan_mode" != "0" ]]; then
       "MOON_AR=$moon_ar" \
       "ASAN_OPTIONS=$asan_options" \
       moon test context_group_test.mbt --target native -v
+    run env \
+      "MOON_CC=$clang_path" \
+      "MOON_AR=$moon_ar" \
+      "ASAN_OPTIONS=$asan_options" \
+      moon test context_text_test.mbt --target native -v
+    run env \
+      "MOON_CC=$clang_path" \
+      "MOON_AR=$moon_ar" \
+      "ASAN_OPTIONS=$asan_options" \
+      moon test glyph_array_test.mbt --target native -v
     run env \
       "MOON_CC=$clang_path" \
       "MOON_AR=$moon_ar" \
