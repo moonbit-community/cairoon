@@ -244,7 +244,8 @@ ordinary, buffer-backed, and mapped image surfaces, backend stream callback
 allocation stress for PDF/PS/SVG surfaces, PNG stream write/read, script
 devices, and stream `WriteError` paths, raster-source callback allocation
 stress for set/get/manual acquire/release/replace/clear paths plus a
-white-box owner-count check for acquire-only repeated same-surface paints,
+white-box owner-count check for acquire-only repeated same-surface paints and
+compatible target/extents acquire rendering with device-offset source surfaces,
 Cairo float
 image-format creation/readback coverage, `Format::stride_for_width` coverage
 for legacy, 16-bit, 30-bit, float, and invalid-width cases, stable
@@ -303,8 +304,9 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   the full native suite, `moon info --target native`, and targeted ASan
   image-oracle and pattern tests with leak detection disabled.
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native`: 344 tests passed. The current run
-  includes the PS/SVG Link tag direct C oracle slice, the context
+- `moon -C cairoon test --target native`: 345 tests passed. The current run
+  includes the raster-source compatible target/extents acquire slice, the
+  PS/SVG Link tag direct C oracle slice, the context
   `get_group_target` post-scope lifetime slice, the PDF combined text
   document-feature oracle slice, and the earlier context `get_source`
   surface-pattern lifetime coverage for the path where both the original source
@@ -362,16 +364,18 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   returning a surface that remains readable after the creating context helper
   scope exits, and `get_source` returning a surface pattern that still exposes
   and paints from its source after the source wrapper and context scope exit.
-- `moon -C cairoon test pattern_test.mbt --target native -v`: 18 black-box
-  pattern tests passed after adding release-only raster callback state,
-  finished-surface raster acquire failure-injection coverage, the C-side
-  surface-finished sentinel, and post-failure acquire replacement recovery.
+- `moon -C cairoon test pattern_test.mbt --target native -v`: 19 black-box
+  pattern tests passed after adding compatible target/extents raster-source
+  acquire coverage, release-only raster callback state, finished-surface raster
+  acquire failure-injection coverage, the C-side surface-finished sentinel, and
+  post-failure acquire replacement recovery.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
-  pattern_test.mbt --target native -v`: 18 ASan-compiled black-box pattern
-  tests passed with leak detection disabled, covering release-only callback
-  state, the raster acquire finished-surface rejection path, and replacement
-  recovery after that failure path.
+  pattern_test.mbt --target native -v`: 19 ASan-compiled black-box pattern
+  tests passed with leak detection disabled, covering compatible target/extents
+  raster-source acquire, release-only callback state, the raster acquire
+  finished-surface rejection path, and replacement recovery after that failure
+  path.
 - `run-asan.py --repo-root /Users/caimeo/code/pycairo/cairoon --pkg moon.pkg`:
   rerun for the raster-source acquire-only release-trampoline slice. The full
   runner still failed during the known macOS FontRegistry/CoreText/ColorSync
@@ -1258,6 +1262,11 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   did not add public API or a new test case; the targeted 2-test
   `scaled_font_oracle_wbtest.mbt` run passed, including an ASan-compiled rerun
   with leak detection disabled.
+  The later raster-source compatible-extents slice ported pycairo's acquire
+  pattern that creates a compatible image from callback target/extents, applies
+  the extents device offset, paints into it, and balances release callbacks.
+  This raised `pattern_test.mbt` to 19 tests and the full native suite to 345
+  tests.
 
 The missing reliability pieces are substantial: broader automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering

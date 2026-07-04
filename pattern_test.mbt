@@ -210,6 +210,60 @@ test "raster source pattern paints from acquire callback" {
 }
 
 ///|
+test "raster source acquire can draw into compatible extents surface" {
+  let acquire_calls = Ref(0)
+  let release_calls = Ref(0)
+  let extent_width = Ref(0)
+  let extent_height = Ref(0)
+  let target_width = Ref(0)
+  let released_width = Ref(0)
+  let pattern = Pattern::raster_source(ContentColor, 2, 2)
+  pattern.raster_set_acquire(
+    fn(target, extents) {
+      acquire_calls.val += 1
+      extent_width.val = extents.width
+      extent_height.val = extents.height
+      target_width.val = try! target.get_width()
+      let source = try! target.create_similar_image(
+        Argb32,
+        extents.width,
+        extents.height,
+      )
+      try! source.set_device_offset(
+        extents.x.to_double(),
+        extents.y.to_double(),
+      )
+      let source_ctx = try! Context::new(source)
+      try! source_ctx.set_source_rgb(1.0, 0.0, 0.0)
+      try! source_ctx.paint()
+      source
+    },
+    release=Some(fn(surface) {
+      release_calls.val += 1
+      released_width.val = try! surface.get_width()
+    }),
+  )
+
+  let target = Surface::image(Argb32, 10, 10)
+  let ctx = Context::new(target)
+  ctx.set_source(pattern)
+  ctx.paint()
+  target.flush()
+
+  let data = target.copy_data()
+  inspect(data[0].to_int(), content="0")
+  inspect(data[1].to_int(), content="0")
+  inspect(data[2].to_int(), content="255")
+  inspect(data[3].to_int(), content="255")
+  inspect(acquire_calls.val > 0, content="true")
+  inspect(release_calls.val == acquire_calls.val, content="true")
+  inspect(extent_width.val > 0, content="true")
+  inspect(extent_height.val > 0, content="true")
+  inspect(target_width.val, content="10")
+  inspect(released_width.val > 0, content="true")
+}
+
+///|
 test "raster source acquire rejects finished surfaces" {
   let source = Surface::image(Argb32, 1, 1)
   source.finish()
