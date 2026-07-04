@@ -77,6 +77,40 @@ fn render_stream_equivalence_scene(surface : Surface) -> Unit raise CairoError {
 }
 
 ///|
+fn render_stream_tagged_multipage_scene(
+  surface : Surface,
+) -> Unit raise CairoError {
+  let ctx = Context::new(surface)
+  ctx.select_font_face("serif")
+  ctx.set_font_size(2.0)
+
+  ctx.set_source_rgb(0.9, 0.95, 1.0)
+  ctx.paint()
+  ctx.set_source_rgb(0.0, 0.0, 0.0)
+  ctx.tag_begin(TAG_LINK, "uri='https://example.com/stream'")
+  ctx.move_to(1.0, 4.0)
+  ctx.show_text("stream link")
+  ctx.tag_end(TAG_LINK)
+  ctx.show_page()
+
+  ctx.tag_begin("Document", "")
+  ctx.tag_begin("Sect", "")
+  ctx.tag_begin("P", "")
+  ctx.move_to(1.0, 4.0)
+  ctx.show_text("stream document")
+  ctx.tag_end("P")
+  ctx.tag_end("Sect")
+  ctx.tag_end("Document")
+  ctx.show_page()
+
+  ctx.set_source_rgb(1.0, 0.0, 0.0)
+  ctx.rectangle(2.0, 2.0, 8.0, 8.0)
+  ctx.fill()
+  ctx.show_page()
+  surface.finish()
+}
+
+///|
 fn stream_equivalence_chunks_to_bytes(chunks : Array[Bytes]) -> Bytes {
   let mut bytes = Bytes::default()
   for chunk in chunks {
@@ -96,6 +130,29 @@ test "vector stream output matches file output after normalization" {
     let chunks : Array[Bytes] = []
     let stream_surface = make_stream_equivalence_stream_surface(kind, chunks)
     render_stream_equivalence_scene(stream_surface)
+    inspect(chunks.length() > 0, content="true")
+    inspect(
+      test_vector_file_equals_bytes_ffi(
+        kind,
+        @utf8.encode(path),
+        stream_equivalence_chunks_to_bytes(chunks),
+      ),
+      content="true",
+    )
+  }
+}
+
+///|
+test "tagged multi-page vector stream output matches file output after normalization" {
+  for kind in 0..<3 {
+    let ext = stream_equivalence_extension(kind)
+    let path = "/tmp/cairoon_stream_tagged_file_equivalence_\{kind}.\{ext}"
+    let file_surface = make_stream_equivalence_file_surface(kind, path)
+    render_stream_tagged_multipage_scene(file_surface)
+
+    let chunks : Array[Bytes] = []
+    let stream_surface = make_stream_equivalence_stream_surface(kind, chunks)
+    render_stream_tagged_multipage_scene(stream_surface)
     inspect(chunks.length() > 0, content="true")
     inspect(
       test_vector_file_equals_bytes_ffi(

@@ -350,7 +350,7 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   vector/tag oracle slice, the mixed vector/tag/text marker slice, and the
   direct C oracle slice.
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native`: 376 tests passed. The current run
+- `moon -C cairoon test --target native`: 377 tests passed. The current run
   includes the pycairo context font-extents parity slice,
   the pycairo group-target stack-restoration slice,
   the pycairo rectangle path-extents slice,
@@ -363,7 +363,7 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   the PDF/PS stream target lifetime slice, the pycairo append-path
   string equivalence slice, the pycairo close-path stringification slice, the
   gradient color-stop ordering/snapshot slice, the stream-vs-file vector output
-  equivalence slice, the raster-source stale-release replacement slice, the
+  equivalence slice, the tagged multi-page stream equivalence slice, the raster-source stale-release replacement slice, the
   raster-source
   acquire-only owner fuzz slice, the mixed
   vector/tag/text marker slice, the direct C oracle slice, the PS/SVG tag
@@ -440,12 +440,12 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   black-box stream callback tests passed, covering PDF/PS/SVG stream chunks,
   vector stream `WriteError`, PNG stream write/read, PNG write `WriteError`,
   and PNG short-read error mapping.
-- `moon -C cairoon test surface_stream_wbtest.mbt --target native -v`: 1
-  white-box stream equivalence test passed, comparing PDF/PS/SVG stream output
-  with file output after normalized comparison for a deterministic two-page
-  scene.
-- `moon -C cairoon info --target native`: completed with no work to do; this
-  stream equivalence slice changes no public API or generated interface
+- `moon -C cairoon test surface_stream_wbtest.mbt --target native -v`: 2
+  white-box stream equivalence tests passed, comparing PDF/PS/SVG stream output
+  with file output after normalized comparison for deterministic two-page and
+  tagged three-page scenes.
+- `moon -C cairoon info --target native`: completed with no work to do; these
+  stream equivalence slices change no public API or generated interface
   metadata.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
@@ -459,8 +459,8 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   stream callback tests passed with leak detection disabled.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
-  surface_stream_wbtest.mbt --target native -v`: 1 ASan-compiled white-box
-  stream equivalence test passed with leak detection disabled.
+  surface_stream_wbtest.mbt --target native -v`: 2 ASan-compiled white-box
+  stream equivalence tests passed with leak detection disabled.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
   surface_mapped_test.mbt --target native -v`: 6 ASan-compiled black-box
@@ -1662,6 +1662,11 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   PDF-metadata marker assertions for that scene. This raised
   `vector_output_wbtest.mbt` to 34 tests and the full native suite to 376
   tests.
+  The later tagged multi-page stream equivalence slice added one
+  `surface_stream_wbtest.mbt` case proving PDF/PS/SVG stream-writer output
+  matches file output after normalization for a three-page URI-link and
+  Document/Sect/P text-tag scene. This raised `surface_stream_wbtest.mbt` to 2
+  tests and the full native suite to 377 tests.
 
 The missing reliability pieces are substantial: broader automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering
@@ -1677,7 +1682,7 @@ clip/dash/surface-pattern/mask/tag/text oracle scene, PDF tagged multi-page
 text, mixed vector/tag/text, and layered three-page marker tests, PS/SVG tag metadata absence checks, two PDF document-feature
 oracle scenes, one PS DSC/multi-page oracle scene, one SVG
 version/unit/multi-page oracle scene, and the current PDF/PS/SVG
-stream-vs-file two-page equality check, including the current two-page direct
+stream-vs-file two-page and tagged three-page equality checks, including the current two-page direct
 C oracle scenes and the current single-page toy-font `show_text` oracle scene,
 broader tag-output assertions
 beyond the current URI link, named-destination, document-structure, PDF
