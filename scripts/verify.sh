@@ -27,6 +27,8 @@ run moon test context_state_test.mbt --target native -v
 run moon test context_matrix_test.mbt --target native -v
 run moon test context_extents_test.mbt --target native -v
 run moon test pattern_test.mbt --target native -v
+run moon test pattern_gradient_test.mbt --target native -v
+run moon test pattern_mesh_test.mbt --target native -v
 run moon test pattern_raster_owner_wbtest.mbt --target native -v
 
 run moon test --target native
@@ -97,6 +99,16 @@ if [[ "$asan_mode" != "0" ]]; then
       "MOON_AR=$moon_ar" \
       "ASAN_OPTIONS=$asan_options" \
       moon test pattern_test.mbt --target native -v
+    run env \
+      "MOON_CC=$clang_path" \
+      "MOON_AR=$moon_ar" \
+      "ASAN_OPTIONS=$asan_options" \
+      moon test pattern_gradient_test.mbt --target native -v
+    run env \
+      "MOON_CC=$clang_path" \
+      "MOON_AR=$moon_ar" \
+      "ASAN_OPTIONS=$asan_options" \
+      moon test pattern_mesh_test.mbt --target native -v
     run env \
       "MOON_CC=$clang_path" \
       "MOON_AR=$moon_ar" \

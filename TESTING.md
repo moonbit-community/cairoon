@@ -168,12 +168,13 @@ The current local gate is executable as:
 It runs `moon fmt --check`, `scripts/configure-link-flags.sh --check`, native
 `moon check`, targeted white-box image, ScaledFont, vector-output,
 stream black-box/white-box, mapped-image, TeeSurface, context-lifetime,
-context-state, context-matrix, context-extents, and raster-pattern tests, the
-full native test suite, `moon info --target native`, and targeted ASan builds
-for the image oracle, vector-output, stream, mapped-image, TeeSurface,
-context-lifetime, context-state, context-matrix, context-extents, and
-raster-pattern suites when an ASan-capable `clang` is available. Set
-`CAIROON_VERIFY_ASAN=0` to skip the targeted ASan portion intentionally.
+context-state, context-matrix, context-extents, gradient/mesh pattern, and
+raster-pattern tests, the full native test suite, `moon info --target native`,
+and targeted ASan builds for the image oracle, vector-output, stream,
+mapped-image, TeeSurface, context-lifetime, context-state, context-matrix,
+context-extents, and gradient/mesh/raster-pattern suites when an ASan-capable
+`clang` is available. Set `CAIROON_VERIFY_ASAN=0` to skip the targeted ASan
+portion intentionally.
 
 ## Current Status
 
@@ -314,12 +315,13 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   `moon check`, targeted image, ScaledFont, vector including PDF combined
   text document-feature plus PS DSC/SVG unit backend-feature oracle checks,
   stream black-box/white-box tests, mapped-image tests, TeeSurface tests,
-  context lifetime/state/matrix/extents tests, pattern oracle tests, and
+  context lifetime/state/matrix/extents tests, pattern/gradient/mesh tests, and
   raster-owner white-box tests,
   the full native suite, `moon info --target native`, and targeted ASan
   image-oracle, vector-output, stream, mapped-image, TeeSurface,
-  context-lifetime/state/matrix/extents, pattern, and raster-owner tests with
-  leak detection disabled. The current run includes
+  context-lifetime/state/matrix/extents, pattern/gradient/mesh, and
+  raster-owner tests with leak detection disabled. The current run includes
+  the pycairo mesh curve-first patch slice,
   the pycairo polygon fill-extents slice,
   the mapped-image scoped-error upload slice,
   the TeeSurface positive out-of-range status slice,
@@ -1483,6 +1485,12 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   pycairo's `(0, 0, 1, 1)` expectation, and added context state/matrix/extents
   tests to the normal and ASan verification gates. This raised
   `context_extents_test.mbt` to 5 tests and the full native suite to 364 tests.
+  The later pycairo mesh curve-first patch slice added one black-box
+  MeshPattern test proving a patch can start with `curve_to` before any
+  explicit `move_to`, added the missing `set_corner_color_rgb` construction
+  error check, and added gradient/mesh pattern tests to the normal and ASan
+  verification gates. This raised `pattern_mesh_test.mbt` to 6 tests and the
+  full native suite to 365 tests.
 
 The missing reliability pieces are substantial: broader automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering

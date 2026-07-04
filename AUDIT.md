@@ -304,12 +304,13 @@ Implemented in this workspace:
   `moon check`, targeted image, ScaledFont, vector including PDF combined
   text document-feature plus PS DSC/SVG unit backend-feature oracle checks,
   stream black-box/white-box tests, mapped-image tests, TeeSurface tests,
-  context lifetime/state/matrix/extents tests, pattern oracle tests, and
+  context lifetime/state/matrix/extents tests, pattern/gradient/mesh tests, and
   raster-owner white-box tests,
   the full native suite, `moon info --target native`, and targeted ASan
   image-oracle, vector-output, stream, mapped-image, TeeSurface,
-  context-lifetime/state/matrix/extents, pattern, and raster-owner tests with
-  leak detection disabled. The current run includes
+  context-lifetime/state/matrix/extents, pattern/gradient/mesh, and
+  raster-owner tests with leak detection disabled. The current run includes
+  the pycairo mesh curve-first patch slice,
   the pycairo polygon fill-extents slice,
   the mapped-image scoped-error upload slice,
   the TeeSurface positive out-of-range status slice,
@@ -1385,6 +1386,12 @@ Implemented in this workspace:
   pycairo's `(0, 0, 1, 1)` expectation, and added context state/matrix/extents
   tests to the normal and ASan verification gates. This raised
   `context_extents_test.mbt` to 5 tests and the full native suite to 364 tests.
+  The later pycairo mesh curve-first patch slice added one black-box
+  MeshPattern test proving a patch can start with `curve_to` before any
+  explicit `move_to`, added the missing `set_corner_color_rgb` construction
+  error check, and added gradient/mesh pattern tests to the normal and ASan
+  verification gates. This raised `pattern_mesh_test.mbt` to 6 tests and the
+  full native suite to 365 tests.
 
 ## Known Gaps
 

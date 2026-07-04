@@ -71,6 +71,33 @@ test "mesh pattern builds triangle patch and paints" {
 }
 
 ///|
+test "mesh pattern accepts curve command as first patch path segment" {
+  let pattern = Pattern::mesh()
+  pattern.mesh_begin_patch()
+  pattern.mesh_curve_to(0.0, 1.0, 2.0, 3.0, 4.0, 5.0)
+  pattern.mesh_set_corner_color_rgba(0, 0.125, 0.25, 0.5, 0.75)
+  pattern.mesh_set_control_point(0, 10.0, 12.0)
+  pattern.mesh_end_patch()
+
+  inspect(pattern.mesh_get_patch_count(), content="1")
+  debug_inspect(
+    pattern.mesh_get_corner_color_rgba(0, 0),
+    content="(0.125, 0.25, 0.5, 0.75)",
+  )
+  debug_inspect(pattern.mesh_get_control_point(0, 0), content="(10, 12)")
+  inspect(
+    pattern.mesh_get_path(0).to_string().contains("curve_to"),
+    content="true",
+  )
+  expect_mesh_invalid_index(
+    run_cairo(() => {
+      let _ = pattern.mesh_get_control_point(1, 0)
+      ()
+    }),
+  )
+}
+
+///|
 test "mesh pattern invalid patch and point indexes map to invalid argument" {
   let pattern = Pattern::mesh()
   pattern.mesh_begin_patch()
@@ -123,6 +150,11 @@ test "mesh pattern lifecycle errors propagate cairo status" {
   expect_mesh_error(
     run_cairo(() => {
       Pattern::mesh().mesh_set_corner_color_rgba(0, 0.125, 0.25, 0.5, 0.75)
+    }),
+  )
+  expect_mesh_error(
+    run_cairo(() => {
+      Pattern::mesh().mesh_set_corner_color_rgb(0, 0.125, 0.25, 0.5)
     }),
   )
 }
