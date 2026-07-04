@@ -311,6 +311,12 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   black-box context lifetime tests passed, including `get_target`,
   `get_group_target`, and `get_source` returned wrappers that remain usable
   after their creating helper scopes exit.
+- `moon -C cairoon test device_test.mbt backend_surfaces.mbt.md
+  lifetime_stress_test.mbt --target native -v`: 23 black-box and executable
+  backend/lifetime tests passed, covering script file/stream devices,
+  script-surface target proxying, script writer `WriteError` mapping, scoped
+  script-device finish, retained script surface/device wrappers, executable
+  backend docs, and backend stream callback allocation stress.
 - `moon -C cairoon test vector_output_wbtest.mbt --target native -v`: 22
   white-box vector tests passed, including the combined PDF
   metadata/custom-metadata/page-label/outline/URI/named-destination/
@@ -1235,6 +1241,10 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   helper scope exits, and closed the `Construction and target lifetime` sub-row
   as Done. This raised the native suite to 343 tests. `./scripts/verify.sh`
   passed, including the full 343-test native suite.
+  The later ScriptDevice product-scope slice marked `ScriptDevice` /
+  `ScriptSurface` Done by recording that Python file-like object adapters are
+  represented by explicit MoonBit stream callbacks rather than Python objects;
+  the existing 23-test device/backend/lifetime target passed.
   The later ScaledFont UTF-8 oracle slice expanded the existing direct C Cairo
   ScaledFont oracle inputs to cover decomposed Latin text extents plus
   decomposed Latin, Arabic RTL, and emoji/non-BMP `text_to_glyphs` cases. This

@@ -458,7 +458,8 @@ What does not transfer directly:
 - CPython type errors, `memoryview`, GIL behavior, reference counts,
   `PyCapsule`, `PyBuffer`, and Python extension API tests.
 - Static typing tests for `cairo/__init__.pyi`.
-- Python file-like object behavior.
+- Python file-like object behavior. Cairoon represents these paths with
+  explicit MoonBit stream callbacks instead of Python file objects.
 - Python-specific object identity and subclass behavior.
 
 What is missing for MoonBit reliability:
