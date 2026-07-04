@@ -307,17 +307,19 @@ Implemented in this workspace:
   white-box tests,
   the full native suite, `moon info --target native`, and targeted ASan
   image-oracle, vector-output, stream, pattern, and raster-owner tests with
-  leak detection disabled. The current run includes the stream-vs-file vector
-  output equivalence slice, the raster-source stale-release replacement slice,
+  leak detection disabled. The current run includes the gradient color-stop
+  ordering/snapshot slice, the stream-vs-file vector output equivalence slice,
+  the raster-source stale-release replacement slice,
   the raster-source acquire-only owner fuzz slice,
   the packaging/pycairo-porting documentation slice, the mixed
   vector/tag/text marker slice, the direct C oracle slice, and the prior C
   stub split that moved private test oracles out of `cairoon_misc.c` into
   common/file/vector/image helper files.
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native`: 357 tests passed. The current run
-  includes the stream-vs-file vector output equivalence slice, the
-  raster-source stale-release replacement slice, the raster-source
+- `moon -C cairoon test --target native`: 358 tests passed. The current run
+  includes the gradient color-stop ordering/snapshot slice, the stream-vs-file
+  vector output equivalence slice, the raster-source stale-release replacement
+  slice, the raster-source
   acquire-only owner fuzz slice, the mixed
   vector/tag/text marker slice, the direct C oracle slice, the PS/SVG tag
   metadata absence slice, the PDF tagged multi-page text marker slice,
@@ -416,6 +418,11 @@ Implemented in this workspace:
   post-failure acquire replacement recovery, plus deterministic 25-step
   callback replacement/failure fuzz with dynamic compatible source surfaces and
   final post-clear recovery.
+- `moon -C cairoon test pattern_gradient_test.mbt --target native -v`: 5
+  black-box gradient tests passed, covering linear/radial gradient geometry,
+  color-stop count/tuple retrieval, duplicate-offset insertion order, copied
+  color-stop snapshot stability after later pattern mutation, pattern-type
+  mismatch mapping, and invalid-index mapping.
 - `moon -C cairoon test pattern_raster_owner_wbtest.mbt --target native -v`: 3
   white-box raster-source owner-count tests passed, asserting acquire-only
   repeated same-surface paints, a 64-step acquire-only replacement fuzz, and
@@ -1292,6 +1299,11 @@ Implemented in this workspace:
   still balances retained owners. This raised
   `pattern_raster_owner_wbtest.mbt` to 3 tests and the full native suite to
   357 tests.
+  The later gradient color-stop ordering/snapshot slice added one black-box
+  test proving duplicate-offset color stops preserve cairo insertion order and
+  `get_color_stops_rgba` returns a copied MoonBit snapshot that does not grow
+  after later pattern mutation. This raised `pattern_gradient_test.mbt` to 5
+  tests and the full native suite to 358 tests.
 
 ## Known Gaps
 
