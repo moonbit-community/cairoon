@@ -169,6 +169,9 @@ declarations that call the font/text section of `cairoon_context.c`;
 `ffi_context_matrix.mbt` owns raw `Context` transform, current-transformation
 matrix, identity-matrix, and user/device coordinate-conversion extern
 declarations that call the matrix/transform section of `cairoon_context.c`;
+`ffi_context_path.mbt` owns raw `Context` path construction, current-point,
+copy-path, and append-path extern declarations that call the path section of
+`cairoon_context.c`;
 `ffi_context_state.mbt` owns raw `Context` drawing-state, line-style, and dash
 extern declarations that call the drawing-state section of
 `cairoon_context.c`;

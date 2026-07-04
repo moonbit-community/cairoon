@@ -21,8 +21,10 @@ Implemented in this workspace:
   save/restore, tag, target/source, and group extern declarations,
   `ffi_context_font_text.mbt` owns raw `Context` font/text/scaled-font extern
   declarations, `ffi_context_matrix.mbt` owns raw `Context`
-  matrix/coordinate-conversion extern declarations, `ffi_context_state.mbt`
-  owns raw `Context` drawing-state/line-style/dash extern declarations,
+  matrix/coordinate-conversion extern declarations, `ffi_context_path.mbt`
+  owns raw `Context` path construction/copy extern declarations,
+  `ffi_context_state.mbt` owns raw `Context` drawing-state/line-style/dash
+  extern declarations,
   `ffi_font.mbt` owns raw `FontOptions`, `FontFace`, `ScaledFont`, and
   text-to-glyphs extern declarations, `ffi_pattern.mbt` owns raw `Pattern`,
   mesh-pattern, and raster-source-pattern extern declarations, and
@@ -1572,6 +1574,11 @@ Implemented in this workspace:
   extern declarations from `ffi.mbt` into `ffi_context_state.mbt`, added that
   file to the native target list, and reduced `ffi.mbt` to 444 lines. This did
   not change public API or test count.
+  The later Context path raw FFI split slice moved raw context path
+  construction, current-point, copy-path, and append-path extern declarations
+  from `ffi.mbt` into `ffi_context_path.mbt`, added that file to the native
+  target list, and reduced `ffi.mbt` to 311 lines. This did not change public
+  API or test count.
 
 ## Known Gaps
 
