@@ -79,6 +79,7 @@ typedef CairoonSurface *(*CairoonRasterSourceAcquireCallback)(
 typedef void (*CairoonRasterSourceReleaseCallback)(
   CairoonSurface *surface,
   void *arg);
+typedef struct CairoonRasterSourceState CairoonRasterSourceState;
 
 CairoonSurface *cairoon_surface_wrap_owned(cairo_surface_t *ptr);
 CairoonSurface *cairoon_surface_wrap_owned_with_base(
@@ -138,6 +139,27 @@ cairo_status_t cairoon_stream_read(
   unsigned char *data,
   unsigned int length);
 void cairoon_stream_read_state_destroy(void *state);
+
+CairoonRasterSourceState *cairoon_raster_source_state_new(
+  CairoonRasterSourceAcquireCallback acquire,
+  void *acquire_arg,
+  CairoonRasterSourceReleaseCallback release,
+  void *release_arg,
+  cairo_status_t *status_out);
+cairo_status_t cairoon_raster_source_pattern_set_state(
+  CairoonPattern *pattern,
+  CairoonRasterSourceState *state);
+CairoonRasterSourceState *cairoon_raster_source_pattern_get_state(
+  CairoonPattern *pattern,
+  cairo_status_t *status_out);
+int32_t cairoon_raster_source_state_has_acquire(
+  CairoonRasterSourceState *state);
+int32_t cairoon_raster_source_state_has_release(
+  CairoonRasterSourceState *state);
+void *cairoon_raster_source_state_get_acquire_arg(
+  CairoonRasterSourceState *state);
+void *cairoon_raster_source_state_get_release_arg(
+  CairoonRasterSourceState *state);
 
 moonbit_bytes_t cairoon_copy_c_string(const char *str);
 cairo_status_t cairoon_test_apply_linear_gradient(

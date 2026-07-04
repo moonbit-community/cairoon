@@ -356,6 +356,7 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   the Font raw FFI family split slice,
   the Font C glue split slice,
   the Pattern C glue split slice,
+  the raster-source callback C glue split slice,
   the Surface C glue split slice,
   the base Surface C glue split slice,
   the Surface wrapper split slice,
@@ -397,7 +398,8 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   split slice, the Pattern wrapper split slice,
   the Pattern black-box test split slice,
   the Pattern raw FFI family split slice, the Font C glue split slice,
-  the Pattern C glue split slice, the Surface C glue split slice,
+  the Pattern C glue split slice, the raster-source callback C glue split
+  slice, the Surface C glue split slice,
   the Context C glue split slice,
   the raster-source stale-release replacement slice, the raster-source
   acquire-only owner fuzz slice, the raster-source
@@ -1761,6 +1763,14 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   `cairoon_raster_source_pattern.c`, leaving `cairoon_pattern.c` as the
   283-line base/surface/solid/gradient state glue file. This did not change
   public API or test count.
+  The later raster-source callback C glue split slice moved retained callback
+  state, acquired-surface owner tracking, Cairo acquire/release trampolines,
+  and the owner-count test probe from the 417-line
+  `cairoon_raster_source_pattern.c` into
+  `cairoon_raster_source_callbacks.c`, leaving
+  `cairoon_raster_source_pattern.c` as the 125-line public raster-source
+  constructor/callback-accessor export file. This did not change public API or
+  test count.
   The later Pattern wrapper split slice moved gradient, mesh, and raster-source
   public wrapper methods from the 514-line `pattern.mbt` into
   `pattern_gradient.mbt`, `pattern_mesh.mbt`, and

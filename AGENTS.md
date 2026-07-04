@@ -128,6 +128,7 @@ cairoon/
   cairoon_glyph.c
   cairoon_path.c
   cairoon_pattern.c
+  cairoon_raster_source_callbacks.c
   cairoon_raster_source_pattern.c
   cairoon_mesh_pattern.c
   cairoon_font_options.c
@@ -184,6 +185,7 @@ options(
     "cairoon_glyph.c",
     "cairoon_path.c",
     "cairoon_pattern.c",
+    "cairoon_raster_source_callbacks.c",
     "cairoon_raster_source_pattern.c",
     "cairoon_mesh_pattern.c",
     "cairoon_font_options.c",
@@ -252,7 +254,9 @@ that call `cairoon_glyph.c`;
 declarations that call `cairoon_pattern.c`; `ffi_pattern_mesh.mbt` owns raw
 mesh-pattern extern declarations that call `cairoon_mesh_pattern.c`;
 `ffi_pattern_raster_source.mbt` owns raw raster-source-pattern extern
-declarations that call `cairoon_raster_source_pattern.c`;
+declarations that call public exports in `cairoon_raster_source_pattern.c`;
+retained callback state, acquired-surface owner tracking, and Cairo
+acquire/release trampolines live in `cairoon_raster_source_callbacks.c`;
 `ffi_context_clip_extents.mbt` owns raw `Context` clip, extents, and
 hit-testing extern declarations that call `cairoon_context_clip_extents.c`;
 `ffi_context_core.mbt` owns raw `Context` construction, status, identity,
@@ -356,8 +360,11 @@ payload types and cross-file helpers declared in `cairoon_private.h`.
   helpers.
 - `cairoon_pattern.c`: base/surface/solid/gradient pattern exports.
 - `cairoon_mesh_pattern.c`: mesh-pattern operations.
-- `cairoon_raster_source_pattern.c`: raster-source callback and owner
-  lifecycle exports.
+- `cairoon_raster_source_pattern.c`: public raster-source constructor and
+  callback accessor exports.
+- `cairoon_raster_source_callbacks.c`: retained raster-source callback state,
+  acquired-surface owner tracking, Cairo acquire/release trampolines, and the
+  owner-count test probe.
 - `cairoon_font_options.c`, `cairoon_font_face.c`,
   `cairoon_scaled_font.c`, and `cairoon_scaled_font_oracle.c`: font-options,
   toy-font-face, scaled-font, and scaled-font oracle exports.
