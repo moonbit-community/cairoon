@@ -1,5 +1,7 @@
 #include "cairoon_test_vector_private.h"
 
+#include <string.h>
+
 cairo_status_t cairoon_test_draw_pdf_uri_tag(cairo_t *cr) {
   cairo_set_source_rgb(cr, 0.0, 0.0, 1.0);
   cairo_tag_begin(cr, CAIRO_TAG_LINK, "uri='https://example.com/direct'");
@@ -92,6 +94,57 @@ cairo_status_t cairoon_test_draw_pdf_struct_text_tag(cairo_t *cr) {
   cairo_tag_end(cr, "Sect");
   cairo_tag_end(cr, "Document");
   return cairo_status(cr);
+}
+
+cairo_status_t cairoon_test_draw_tagged_show_text_glyphs(cairo_t *cr) {
+  const char *text = "a";
+  int text_len = (int)strlen(text);
+  cairo_glyph_t *glyphs = NULL;
+  int num_glyphs = 0;
+  cairo_text_cluster_t *clusters = NULL;
+  int num_clusters = 0;
+  cairo_text_cluster_flags_t flags = 0;
+
+  cairo_select_font_face(
+    cr,
+    "serif",
+    CAIRO_FONT_SLANT_NORMAL,
+    CAIRO_FONT_WEIGHT_NORMAL);
+  cairo_set_font_size(cr, 4.0);
+  cairo_set_source_rgb(cr, 0.0, 0.0, 0.0);
+  cairo_tag_begin(cr, CAIRO_TAG_LINK, "uri='https://example.com/text-glyphs'");
+
+  cairo_status_t status = cairo_scaled_font_text_to_glyphs(
+    cairo_get_scaled_font(cr),
+    1.0,
+    6.5,
+    text,
+    text_len,
+    &glyphs,
+    &num_glyphs,
+    &clusters,
+    &num_clusters,
+    &flags);
+  if (status == CAIRO_STATUS_SUCCESS) {
+    cairo_show_text_glyphs(
+      cr,
+      text,
+      text_len,
+      glyphs,
+      num_glyphs,
+      clusters,
+      num_clusters,
+      flags);
+    status = cairo_status(cr);
+  }
+
+  cairo_tag_end(cr, CAIRO_TAG_LINK);
+  if (status == CAIRO_STATUS_SUCCESS) {
+    status = cairo_status(cr);
+  }
+  cairo_glyph_free(glyphs);
+  cairo_text_cluster_free(clusters);
+  return status;
 }
 
 cairo_status_t cairoon_test_draw_tagged_multi_page_text(cairo_t *cr) {

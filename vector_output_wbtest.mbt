@@ -250,6 +250,16 @@ test "pdf mixed vector tag text output contains combined tag markers" {
 }
 
 ///|
+test "pdf tagged show_text_glyphs output contains link markers" {
+  let path = "/tmp/cairoon_vector_pdf_tagged_text_glyphs_markers.pdf"
+  render_vector_oracle_scene(0, 29, path)
+  expect_vector_output(path, [
+    "%PDF-1.4", "/Annots [", "/Subtype /Link", "/S /URI", "/URI (https://example.com/text-glyphs)",
+    "/S /Link", "/StructTreeRoot", "%%EOF",
+  ])
+}
+
+///|
 test "ps svg mixed vector tag text output omits pdf tag metadata" {
   let forbidden = [
     "/Annots", "/Subtype /Link", "/URI", "/Dest", "/Dests", "/StructTreeRoot", "/S /Document",

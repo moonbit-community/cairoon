@@ -84,6 +84,17 @@ fn draw_pdf_struct_text_tag_scene(ctx : Context) -> Unit raise CairoError {
 }
 
 ///|
+fn draw_tagged_show_text_glyphs_scene(ctx : Context) -> Unit raise CairoError {
+  ctx.select_font_face("serif")
+  ctx.set_font_size(4.0)
+  ctx.set_source_rgb(0.0, 0.0, 0.0)
+  ctx.tag_begin(TAG_LINK, "uri='https://example.com/text-glyphs'")
+  let run = ctx.get_scaled_font().text_to_glyphs(1.0, 6.5, "a")
+  ctx.show_text_glyphs("a", run.glyphs, run.clusters, flags=run.flags)
+  ctx.tag_end(TAG_LINK)
+}
+
+///|
 fn draw_tagged_multi_page_text_scene(ctx : Context) -> Unit raise CairoError {
   ctx.select_font_face("serif")
   ctx.set_font_size(4.0)

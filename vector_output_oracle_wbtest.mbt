@@ -118,6 +118,17 @@ test "mixed vector tag text scene matches direct cairo C oracle" {
 }
 
 ///|
+test "tagged show_text_glyphs vector scene matches direct cairo C oracle" {
+  for kind in 0..<3 {
+    let ext = vector_output_extension(kind)
+    let cairoon_path = "/tmp/cairoon_vector_tagged_text_glyphs_\{kind}.\{ext}"
+    let oracle_path = "/tmp/cairoon_vector_tagged_text_glyphs_\{kind}_oracle.\{ext}"
+    render_vector_oracle_scene(kind, 29, cairoon_path)
+    expect_vector_oracle_match(kind, 29, cairoon_path, oracle_path)
+  }
+}
+
+///|
 test "layered multi-page vector tag scene matches direct cairo C oracle" {
   for kind in 0..<3 {
     let ext = vector_output_extension(kind)
