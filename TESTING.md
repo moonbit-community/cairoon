@@ -349,6 +349,7 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   the wide multi-page stream equivalence slice,
   the vector stream invalid-status fallback slice,
   the PNG/script stream invalid-status fallback slice,
+  the vector output white-box split slice,
   the raster-source stale-release replacement slice,
   the raster-source acquire-only owner fuzz slice,
   the raster-source failed-acquire owner-count fuzz slice,
@@ -373,9 +374,9 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   equivalence slice, the tagged multi-page stream equivalence slice, the
   wide multi-page stream equivalence slice, the vector stream invalid-status
   fallback slice, the PNG/script stream invalid-status
-  fallback slice, the raster-source stale-release
-  replacement slice, the raster-source acquire-only owner fuzz slice, the
-  raster-source failed-acquire owner-count fuzz slice, the mixed
+  fallback slice, the vector output white-box split slice, the raster-source
+  stale-release replacement slice, the raster-source acquire-only owner fuzz
+  slice, the raster-source failed-acquire owner-count fuzz slice, the mixed
   vector/tag/text marker slice, the direct C oracle slice, the PS/SVG tag
   metadata absence slice, the PDF tagged multi-page text marker slice,
   the cross-backend tagged multi-page text direct C oracle slice, the
@@ -1710,6 +1711,11 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   invalid callback statuses to `WriteError` beyond vector surfaces. This raised
   `surface_stream_test.mbt` to 10 tests, `device_test.mbt` to 9 tests, and the
   full native suite to 385 tests.
+  The later vector output white-box split slice moved shared marker/oracle
+  helpers into `vector_output_common_wbtest.mbt`, scene rendering helpers into
+  `vector_output_scenes_wbtest.mbt`, and left the 37 executable tests in
+  `vector_output_wbtest.mbt`. This reduced the main vector-output test file
+  from 1292 lines to 623 lines without changing public API or test count.
 
 The missing reliability pieces are substantial: broader automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering
