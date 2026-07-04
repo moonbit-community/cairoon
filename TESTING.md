@@ -266,13 +266,15 @@ three PDF-only text-tag oracle scenes, PS/SVG Link tag inertness oracle
 scenes, PS/SVG destination and document-structure rectangle/text tag oracle
 scenes, one cross-backend tagged multi-page text oracle scene, one
 cross-backend tagged `show_text_glyphs` oracle scene, one cross-backend grouped
-glyph/tag multi-page oracle scene, one cross-backend mixed
+glyph/tag multi-page oracle scene, one cross-backend copy_page retained
+two-page oracle scene, one cross-backend mixed
 vector/tag/text oracle scene, one cross-backend layered
 three-page clip/dash/surface-pattern/mask/tag/text oracle scene, one
 cross-backend wide three-page URI/destination/document-structure tag/vector
 oracle scene, PDF tagged `show_text_glyphs` marker checks, PDF grouped
-glyph/tag marker checks, PDF mixed vector/tag/text marker checks, PDF layered
-three-page marker checks, PDF wide three-page marker checks, two
+glyph/tag marker checks, PDF copy_page retained two-page marker checks, PDF
+mixed vector/tag/text marker checks, PDF layered three-page marker checks, PDF
+wide three-page marker checks, two
 PDF-only document-feature oracle scenes including one text/tag-aware combined scene, one
 PS-only DSC/multi-page oracle scene, one SVG-only
 version/unit/multi-page oracle scene, PDF metadata/custom-metadata/page-label/
@@ -385,7 +387,7 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   vector/tag oracle slice, the mixed vector/tag/text marker slice, and the
   direct C oracle slice.
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native`: 401 tests passed. The current run
+- `moon -C cairoon test --target native`: 404 tests passed. The current run
   includes the pycairo context font-extents parity slice,
   the pycairo group-target stack-restoration slice,
   the pycairo rectangle path-extents slice,
@@ -431,7 +433,8 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   `get_group_target` post-scope lifetime slice, the PDF combined text
   document-feature oracle slice, the tagged `show_text_glyphs` vector-output
   slice, the tagged `show_text_glyphs` stream/inert-marker slice, the grouped
-  glyph/tag vector-output slice, and the earlier context `get_source`
+  glyph/tag vector-output slice, the copy_page retained vector-output slice, and
+  the earlier context `get_source`
   surface-pattern lifetime coverage for the path where both the original source
   wrapper and context scope have exited, plus the Path/Region lifetime gate,
   Surface/Device targeted gate, raw FFI split slices through context painting,
@@ -486,7 +489,7 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   backend docs, retained owner graph stress, external value-wrapper stress,
   image-data view stress, and backend stream callback allocation stress.
 - `moon -C cairoon test vector_output_wbtest.mbt
-  vector_output_oracle_wbtest.mbt --target native -v`: 43 white-box vector
+  vector_output_oracle_wbtest.mbt --target native -v`: 45 white-box vector
   tests passed after splitting marker/output checks from direct C oracle and
   cross-backend tag checks. The split set still covers layered and wide
   multi-page direct C oracle and marker checks, mixed vector/tag/text marker
@@ -494,7 +497,8 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   and document-structure tag metadata absence checks, PDF tagged multi-page
   text structure markers, tagged `show_text_glyphs` PDF Link/structure
   markers, cross-backend tagged multi-page text, tagged `show_text_glyphs`,
-  grouped multi-page glyph/tag direct C oracle and PDF marker checks, PS/SVG
+  grouped multi-page glyph/tag direct C oracle and PDF marker checks,
+  copy_page retained direct C oracle and PDF two-page marker checks, PS/SVG
   tagged `show_text_glyphs` and grouped glyph/tag metadata absence checks,
   and PS/SVG destination and document-structure rectangle and text tag scenes, PDF
   URI-link/named-destination/document-structure text tag scenes, PS/SVG Link
@@ -508,11 +512,12 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   fallback to `WriteError`, PNG stream write/read, PNG write `WriteError`, PNG
   writer invalid-status fallback to `WriteError`, and PNG short-read error
   mapping.
-- `moon -C cairoon test surface_stream_wbtest.mbt --target native -v`: 8
+- `moon -C cairoon test surface_stream_wbtest.mbt --target native -v`: 9
   white-box stream equivalence tests passed, comparing PDF/PS/SVG stream output
   with file output after normalized comparison for deterministic two-page and
-  tagged three-page scenes plus tagged `show_text_glyphs`, grouped glyph/tag
-  multi-page, mixed vector/tag/text, layered three-page
+  copy_page retained two-page scenes plus tagged three-page, tagged
+  `show_text_glyphs`, grouped glyph/tag multi-page, mixed vector/tag/text,
+  layered three-page
   clip/dash/surface-pattern/mask/tag/text, wide three-page tag/vector, and
   backend document-feature scenes covering PDF metadata/custom metadata/page
   labels/outlines/tags, PS DSC, and SVG document units.
@@ -522,20 +527,22 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
   vector_output_wbtest.mbt vector_output_oracle_wbtest.mbt --target native -v`:
-  43 ASan-compiled white-box vector tests passed with leak detection disabled
+  45 ASan-compiled white-box vector tests passed with leak detection disabled
   after the split, directly exercising the layered and wide multi-page
   marker/C-oracle paths, the mixed vector/tag/text marker and C oracle paths,
-  the tagged `show_text_glyphs` marker/C-oracle/PS-SVG inert paths, and the
-  grouped glyph/tag marker/C-oracle/PS-SVG inert paths.
+  the tagged `show_text_glyphs` marker/C-oracle/PS-SVG inert paths, the grouped
+  glyph/tag marker/C-oracle/PS-SVG inert paths, and the copy_page retained
+  marker/C-oracle path.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
   surface_stream_test.mbt --target native -v`: 10 ASan-compiled black-box
   stream callback tests passed with leak detection disabled.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
-  surface_stream_wbtest.mbt --target native -v`: 8 ASan-compiled white-box
+  surface_stream_wbtest.mbt --target native -v`: 9 ASan-compiled white-box
   stream equivalence tests passed with leak detection disabled, including the
-  tagged `show_text_glyphs` and grouped glyph/tag stream-vs-file paths.
+  tagged `show_text_glyphs`, grouped glyph/tag, and copy_page retained
+  stream-vs-file paths.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
   surface_mapped_test.mbt --target native -v`: 6 ASan-compiled black-box
@@ -1954,6 +1961,13 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   coverage. This raised the full native suite to 401 tests, the vector
   white-box target to 43 tests, and the surface stream white-box target to 8
   tests.
+  The later copy_page retained vector-output slice added scene 31, using
+  `copy_page` to emit a first vector page while retaining its drawing state for
+  a second page with additional geometry. It added PDF/PS/SVG direct C oracle
+  coverage, a PDF two-page marker check, and PDF/PS/SVG stream-vs-file
+  normalized equality coverage. This raised the full native suite to 404 tests,
+  the vector white-box target to 45 tests, and the surface stream white-box
+  target to 9 tests.
 
 The missing reliability pieces are substantial: broader automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering
@@ -1966,18 +1980,22 @@ cross-backend direct C fixture set, three PDF rectangle tag oracle scenes, three
 PDF text-tag oracle scenes, PS/SVG Link tag inertness oracle scenes, PS/SVG
 destination and document-structure rectangle/text tag oracle scenes, one
 cross-backend tagged multi-page text oracle scene, one cross-backend tagged
-`show_text_glyphs` oracle scene, one cross-backend mixed
+  `show_text_glyphs` oracle scene, one cross-backend grouped glyph/tag
+  multi-page oracle scene, one cross-backend copy_page retained two-page oracle
+  scene, one cross-backend mixed
 vector/tag/text oracle scene, one cross-backend layered three-page
 clip/dash/surface-pattern/mask/tag/text oracle scene, one cross-backend wide
-three-page URI/destination/document-structure tag/vector oracle scene, one
-cross-backend grouped glyph/tag multi-page oracle scene, PDF tagged multi-page
-text, tagged `show_text_glyphs`, grouped glyph/tag multi-page,
+  three-page URI/destination/document-structure tag/vector oracle scene, PDF
+  tagged multi-page
+text, tagged `show_text_glyphs`, grouped glyph/tag multi-page, copy_page
+retained two-page,
 mixed vector/tag/text, layered three-page, and wide three-page marker tests,
 PS/SVG tag metadata absence checks, two PDF document-feature
 oracle scenes, one PS DSC/multi-page oracle scene, one SVG
 version/unit/multi-page oracle scene, and the current PDF/PS/SVG
-stream-vs-file two-page, tagged three-page, tagged `show_text_glyphs`, grouped
-glyph/tag multi-page, mixed vector/tag/text, layered three-page
+stream-vs-file two-page, copy_page retained two-page, tagged three-page,
+tagged `show_text_glyphs`, grouped glyph/tag multi-page, mixed vector/tag/text,
+layered three-page
 clip/dash/surface-pattern/mask/tag/text, wide three-page tag/vector, and
 backend document-feature equality checks, plus PDF/PS/SVG, PNG-writer, and
 script-writer `WriteError` and

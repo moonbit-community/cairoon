@@ -75,6 +75,16 @@ fn draw_vector_oracle_scene(
       paint_page(ctx, 1.0, 0.0, 0.0)
       ctx.show_page()
     }
+    31 => {
+      ctx.set_source_rgb(0.0, 0.0, 1.0)
+      ctx.rectangle(1.0, 1.0, 3.0, 8.0)
+      ctx.fill()
+      ctx.copy_page()
+      ctx.set_source_rgb(1.0, 0.0, 0.0)
+      ctx.rectangle(1.0, 6.0, 8.0, 3.0)
+      ctx.fill()
+      ctx.show_page()
+    }
     10 => {
       ctx.rectangle(1.0, 1.0, 8.0, 8.0)
       ctx.clip()

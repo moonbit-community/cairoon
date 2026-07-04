@@ -96,6 +96,15 @@ test "pdf output contains multi-page markers" {
 }
 
 ///|
+test "pdf copy_page retained output contains two page markers" {
+  let path = "/tmp/cairoon_vector_pdf_copy_page_retained.pdf"
+  render_vector_oracle_scene(0, 31, path)
+  expect_vector_output(path, [
+    "%PDF-1.4", "/Count 2", "/Type /Page % 1", "/Type /Page % 2", "%%EOF",
+  ])
+}
+
+///|
 test "pdf output preserves metadata outlines labels and tags across pages" {
   let path = "/tmp/cairoon_vector_pdf_combined_document.pdf"
   let oracle_path = "/tmp/cairoon_vector_pdf_combined_document_oracle.pdf"

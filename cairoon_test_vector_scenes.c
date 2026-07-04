@@ -85,6 +85,19 @@ cairo_status_t cairoon_test_draw_vector_scene(
       cairo_paint(cr);
       cairo_show_page(cr);
       break;
+    case CAIROON_TEST_VECTOR_COPY_PAGE_RETAINED:
+      cairo_set_source_rgb(cr, 0.0, 0.0, 1.0);
+      cairo_rectangle(cr, 1.0, 1.0, width * 0.3, height - 2.0);
+      cairo_fill(cr);
+      cairo_copy_page(cr);
+      if (cairo_status(cr) != CAIRO_STATUS_SUCCESS) {
+        return cairo_status(cr);
+      }
+      cairo_set_source_rgb(cr, 1.0, 0.0, 0.0);
+      cairo_rectangle(cr, 1.0, height * 0.6, width - 2.0, height * 0.3);
+      cairo_fill(cr);
+      cairo_show_page(cr);
+      break;
     case CAIROON_TEST_VECTOR_CLIP:
       cairo_rectangle(cr, 1.0, 1.0, width - 2.0, height - 2.0);
       cairo_clip(cr);

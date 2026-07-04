@@ -115,6 +115,15 @@ fn render_stream_equivalence_scene(surface : Surface) -> Unit raise CairoError {
 }
 
 ///|
+fn render_stream_copy_page_retained_scene(
+  surface : Surface,
+) -> Unit raise CairoError {
+  let ctx = Context::new(surface)
+  draw_vector_oracle_scene(ctx, 31)
+  surface.finish()
+}
+
+///|
 fn render_stream_tagged_multipage_scene(
   surface : Surface,
 ) -> Unit raise CairoError {
@@ -226,6 +235,29 @@ test "vector stream output matches file output after normalization" {
     let chunks : Array[Bytes] = []
     let stream_surface = make_stream_equivalence_stream_surface(kind, chunks)
     render_stream_equivalence_scene(stream_surface)
+    inspect(chunks.length() > 0, content="true")
+    inspect(
+      test_vector_file_equals_bytes_ffi(
+        kind,
+        @utf8.encode(path),
+        stream_equivalence_chunks_to_bytes(chunks),
+      ),
+      content="true",
+    )
+  }
+}
+
+///|
+test "copy_page retained vector stream output matches file output after normalization" {
+  for kind in 0..<3 {
+    let ext = stream_equivalence_extension(kind)
+    let path = "/tmp/cairoon_stream_copy_page_retained_file_equivalence_\{kind}.\{ext}"
+    let file_surface = make_stream_equivalence_file_surface(kind, path)
+    render_stream_copy_page_retained_scene(file_surface)
+
+    let chunks : Array[Bytes] = []
+    let stream_surface = make_stream_equivalence_stream_surface(kind, chunks)
+    render_stream_copy_page_retained_scene(stream_surface)
     inspect(chunks.length() > 0, content="true")
     inspect(
       test_vector_file_equals_bytes_ffi(

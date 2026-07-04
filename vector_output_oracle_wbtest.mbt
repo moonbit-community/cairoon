@@ -140,6 +140,17 @@ test "grouped glyph tag multi-page scene matches direct cairo C oracle" {
 }
 
 ///|
+test "copy_page retained vector scene matches direct cairo C oracle" {
+  for kind in 0..<3 {
+    let ext = vector_output_extension(kind)
+    let cairoon_path = "/tmp/cairoon_vector_copy_page_retained_\{kind}.\{ext}"
+    let oracle_path = "/tmp/cairoon_vector_copy_page_retained_\{kind}_oracle.\{ext}"
+    render_vector_oracle_scene(kind, 31, cairoon_path)
+    expect_vector_oracle_match(kind, 31, cairoon_path, oracle_path)
+  }
+}
+
+///|
 test "ps svg tagged show_text_glyphs tags stay inert" {
   let forbidden = [
     "/Annots", "/Subtype /Link", "/URI", "/StructTreeRoot", "/S /Link", "https://example.com/text-glyphs",
