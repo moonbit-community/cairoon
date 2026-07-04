@@ -53,6 +53,7 @@ cairoon/
   ffi_path.mbt
   ffi_pdf_surface.mbt
   ffi_ps_surface.mbt
+  ffi_svg_surface.mbt
   ffi_region.mbt
   error.mbt
   types.mbt
@@ -121,6 +122,7 @@ options(
     "ffi_path.mbt": ["native"],
     "ffi_pdf_surface.mbt": ["native"],
     "ffi_ps_surface.mbt": ["native"],
+    "ffi_svg_surface.mbt": ["native"],
     "ffi_region.mbt": ["native"]
   },
 )
@@ -155,8 +157,9 @@ surface-get-device extern declarations that call `cairoon_device.c`;
 `cairoon_pdf_surface.c`;
 `ffi_ps_surface.mbt` owns raw PostScript surface extern declarations that call
 `cairoon_ps_surface.c`;
-and `ffi_region.mbt` owns raw `Region` extern declarations that call
-`cairoon_region.c`.
+`ffi_svg_surface.mbt` owns raw SVG surface extern declarations that call
+`cairoon_svg_surface.c`; and `ffi_region.mbt` owns raw `Region` extern
+declarations that call `cairoon_region.c`.
 
 Do not add public wrappers to `ffi_*.mbt`; these files are private native FFI
 plumbing only. Public MoonBit APIs stay in focused wrapper files such as

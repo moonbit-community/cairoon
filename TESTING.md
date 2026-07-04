@@ -1594,6 +1594,10 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   extern declarations from `ffi.mbt` into `ffi_ps_surface.mbt`, added that file
   to the native target list, and reduced `ffi.mbt` to 1404 lines. This did not
   change public API or test count.
+  The later SVG surface raw FFI split slice moved raw SVG surface extern
+  declarations from `ffi.mbt` into `ffi_svg_surface.mbt`, added that file to the
+  native target list, and reduced `ffi.mbt` to 1344 lines. This did not change
+  public API or test count.
 
 The missing reliability pieces are substantial: broader automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering

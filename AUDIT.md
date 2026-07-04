@@ -22,9 +22,9 @@ Implemented in this workspace:
   mesh-pattern, and raster-source-pattern extern declarations, and
   `ffi_device.mbt` owns raw `Device`, script-device, script-surface, and
   surface-get-device extern declarations.
-  `ffi_path.mbt`, `ffi_pdf_surface.mbt`, `ffi_ps_surface.mbt`, and
-  `ffi_region.mbt` own raw `Path`, PDF surface, PostScript surface, and
-  `Region` extern declarations.
+  `ffi_path.mbt`, `ffi_pdf_surface.mbt`, `ffi_ps_surface.mbt`,
+  `ffi_svg_surface.mbt`, and `ffi_region.mbt` own raw `Path`, PDF surface,
+  PostScript surface, SVG surface, and `Region` extern declarations.
 - MoonBit `Eq`/`Hash` traits are implemented for hashable Cairo external
   objects that already expose cairoon equality/hash helpers: `Surface`,
   `Context`, `Pattern`, `Device`, `FontOptions`, `FontFace`, `ScaledFont`, and
@@ -1527,6 +1527,10 @@ Implemented in this workspace:
   extern declarations from `ffi.mbt` into `ffi_ps_surface.mbt`, added that file
   to the native target list, and reduced `ffi.mbt` to 1404 lines. This did not
   change public API or test count.
+  The later SVG surface raw FFI split slice moved raw SVG surface extern
+  declarations from `ffi.mbt` into `ffi_svg_surface.mbt`, added that file to the
+  native target list, and reduced `ffi.mbt` to 1344 lines. This did not change
+  public API or test count.
 
 ## Known Gaps
 
