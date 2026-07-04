@@ -14,7 +14,8 @@ Implemented in this workspace:
   `Path`, `Pattern`, `FontOptions`, `FontFace`, `ScaledFont`, `Region`, and
   `Device`. Private test-only oracle glue is also split by responsibility:
   common drawing helpers, file/normalized-output comparison, vector-output
-  oracles, and ARGB32 image oracles. Context C glue follows the same family
+  entry points, vector-output scene drawing, PDF/PS/SVG vector feature
+  renderers, and ARGB32 image oracles. Context C glue follows the same family
   split: `cairoon_context.c` keeps core construction/status/tag/target/source
   and group glue, while `cairoon_context_font_text.c`,
   `cairoon_context_matrix.c`, `cairoon_context_state.c`,
@@ -390,6 +391,7 @@ Implemented in this workspace:
   the vector stream invalid-status fallback slice,
   the PNG/script stream invalid-status fallback slice,
   the vector output white-box split slice,
+  the test-vector C glue split slice,
   the Font C glue split slice,
   the Pattern C glue split slice,
   the Surface C glue split slice,
@@ -422,8 +424,9 @@ Implemented in this workspace:
   equivalence slice, the tagged multi-page stream equivalence slice, the
   wide multi-page stream equivalence slice, the vector stream invalid-status
   fallback slice, the PNG/script stream invalid-status
-  fallback slice, the vector output white-box split slice, the Context wrapper
-  split slice, the raster-source stale-release replacement slice, the
+  fallback slice, the vector output white-box split slice, the test-vector C
+  glue split slice, the Context wrapper split slice, the raster-source
+  stale-release replacement slice, the
   raster-source acquire-only owner fuzz slice, the raster-source
   failed-acquire owner-count fuzz slice, the mixed
   vector/tag/text marker slice, the direct C oracle slice, the PS/SVG tag
@@ -1679,6 +1682,12 @@ Implemented in this workspace:
   `cairoon_font_face.c`, `cairoon_scaled_font.c`, and
   `cairoon_scaled_font_oracle.c`. This did not change public API or test
   count.
+  The later test-vector C glue split slice moved shared vector scene ids and
+  prototypes into `cairoon_test_vector_private.h`, common vector scene drawing
+  into `cairoon_test_vector_scenes.c`, and backend-specific feature renderers
+  into `cairoon_test_pdf_vector.c`, `cairoon_test_ps_vector.c`, and
+  `cairoon_test_svg_vector.c`, leaving `cairoon_test_vector.c` as the 92-line
+  exported oracle entry file. This did not change public API or test count.
   The later layered multi-page vector/tag oracle slice added scene 27, a
   three-page PDF/PS/SVG direct C oracle combining clip, dash, surface pattern,
   mask surface, URI link tags, Document/Sect/P structure tags, and toy-font

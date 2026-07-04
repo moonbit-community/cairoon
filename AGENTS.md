@@ -71,21 +71,43 @@ cairoon/
   region.mbt
   cairoon_private.h
   cairoon_objects.c
+  cairoon_stream.c
   cairoon_misc.c
   cairoon_test_common.c
   cairoon_test_file.c
+  cairoon_test_vector_private.h
   cairoon_test_vector.c
+  cairoon_test_vector_scenes.c
+  cairoon_test_pdf_vector.c
+  cairoon_test_ps_vector.c
+  cairoon_test_svg_vector.c
   cairoon_test_image.c
   cairoon_device.c
   cairoon_surface.c
+  cairoon_image_surface.c
+  cairoon_mapped_image_surface.c
+  cairoon_recording_surface.c
+  cairoon_image_data.c
   cairoon_pdf_surface.c
   cairoon_ps_surface.c
   cairoon_svg_surface.c
+  cairoon_tee_surface.c
   cairoon_context.c
+  cairoon_context_font_text.c
+  cairoon_context_matrix.c
+  cairoon_context_state.c
+  cairoon_context_path.c
+  cairoon_context_clip_extents.c
+  cairoon_context_paint.c
   cairoon_glyph.c
   cairoon_path.c
   cairoon_pattern.c
-  cairoon_font.c
+  cairoon_raster_source_pattern.c
+  cairoon_mesh_pattern.c
+  cairoon_font_options.c
+  cairoon_font_face.c
+  cairoon_scaled_font.c
+  cairoon_scaled_font_oracle.c
   cairoon_region.c
   tests/
 ```
@@ -102,21 +124,42 @@ The package config must gate raw FFI code to native and compile the stub:
 options(
   "native-stub": [
     "cairoon_objects.c",
+    "cairoon_stream.c",
     "cairoon_misc.c",
     "cairoon_test_common.c",
     "cairoon_test_file.c",
     "cairoon_test_vector.c",
+    "cairoon_test_vector_scenes.c",
+    "cairoon_test_pdf_vector.c",
+    "cairoon_test_ps_vector.c",
+    "cairoon_test_svg_vector.c",
     "cairoon_test_image.c",
     "cairoon_device.c",
     "cairoon_surface.c",
+    "cairoon_image_surface.c",
+    "cairoon_mapped_image_surface.c",
+    "cairoon_recording_surface.c",
+    "cairoon_image_data.c",
     "cairoon_pdf_surface.c",
     "cairoon_ps_surface.c",
     "cairoon_svg_surface.c",
+    "cairoon_tee_surface.c",
     "cairoon_context.c",
+    "cairoon_context_font_text.c",
+    "cairoon_context_matrix.c",
+    "cairoon_context_state.c",
+    "cairoon_context_path.c",
+    "cairoon_context_clip_extents.c",
+    "cairoon_context_paint.c",
     "cairoon_glyph.c",
     "cairoon_path.c",
     "cairoon_pattern.c",
-    "cairoon_font.c",
+    "cairoon_raster_source_pattern.c",
+    "cairoon_mesh_pattern.c",
+    "cairoon_font_options.c",
+    "cairoon_font_face.c",
+    "cairoon_scaled_font.c",
+    "cairoon_scaled_font_oracle.c",
     "cairoon_region.c",
   ],
   targets: {
@@ -158,29 +201,29 @@ exports in `ffi.mbt`; move larger families into files named
 `ffi_<family>.mbt`, and add every such file to `moon.pkg` `targets` with
 `["native"]`. For example, `ffi_font.mbt` owns the raw `FontOptions`,
 `FontFace`, `ScaledFont`, and text-to-glyphs extern declarations that call
-`cairoon_font.c`; `ffi_pattern.mbt` owns the raw `Pattern`, mesh-pattern, and
-raster-source-pattern extern declarations that call `cairoon_pattern.c`;
+`cairoon_font_options.c`, `cairoon_font_face.c`,
+`cairoon_scaled_font.c`, and `cairoon_scaled_font_oracle.c`;
+`ffi_pattern.mbt` owns the raw `Pattern`, mesh-pattern, and
+raster-source-pattern extern declarations that call `cairoon_pattern.c`,
+`cairoon_mesh_pattern.c`, and `cairoon_raster_source_pattern.c`;
 `ffi_context_clip_extents.mbt` owns raw `Context` clip, extents, and
-hit-testing extern declarations that call the clip/extents section of
-`cairoon_context.c`;
+hit-testing extern declarations that call `cairoon_context_clip_extents.c`;
 `ffi_context_core.mbt` owns raw `Context` construction, status, identity,
 save/restore, tag, target/source, and group extern declarations that call the
-opening lifecycle/state section of `cairoon_context.c`;
+core `cairoon_context.c` file;
 `ffi_context_font_text.mbt` owns raw `Context` font-options, font-face, toy-font
 selection, font-matrix, text, glyph, show-text-glyphs, and scaled-font extern
-declarations that call the font/text section of `cairoon_context.c`;
+declarations that call `cairoon_context_font_text.c`;
 `ffi_context_matrix.mbt` owns raw `Context` transform, current-transformation
 matrix, identity-matrix, and user/device coordinate-conversion extern
-declarations that call the matrix/transform section of `cairoon_context.c`;
+declarations that call `cairoon_context_matrix.c`;
 `ffi_context_path.mbt` owns raw `Context` path construction, current-point,
-copy-path, and append-path extern declarations that call the path section of
-`cairoon_context.c`;
+copy-path, and append-path extern declarations that call
+`cairoon_context_path.c`;
 `ffi_context_paint.mbt` owns raw `Context` source, paint, mask, fill, stroke,
-and page-operation extern declarations that call the painting/page section of
-`cairoon_context.c`;
+and page-operation extern declarations that call `cairoon_context_paint.c`;
 `ffi_context_state.mbt` owns raw `Context` drawing-state, line-style, and dash
-extern declarations that call the drawing-state section of
-`cairoon_context.c`;
+extern declarations that call `cairoon_context_state.c`;
 `ffi_device.mbt` owns raw `Device`, script-device, script-surface, and
 surface-get-device extern declarations that call `cairoon_device.c`;
 `ffi_image_data.mbt` owns raw `ImageData` and image/mapped get-data extern
@@ -192,7 +235,9 @@ declarations that call `cairoon_image_data.c`;
 `cairoon_ps_surface.c`;
 `ffi_surface.mbt` owns raw image, recording, base surface, mapped-image-surface,
 PNG stream, MIME-data, and surface font-options extern declarations that call
-`cairoon_surface.c` plus Cairo's `cairo_format_stride_for_width`;
+`cairoon_surface.c`, `cairoon_image_surface.c`,
+`cairoon_mapped_image_surface.c`, `cairoon_recording_surface.c`, and Cairo's
+`cairo_format_stride_for_width`;
 `ffi_svg_surface.mbt` owns raw SVG surface extern declarations that call
 `cairoon_svg_surface.c`; `ffi_tee_surface.mbt` owns raw Tee surface extern
 declarations that call `cairoon_tee_surface.c`; and `ffi_region.mbt` owns raw
@@ -216,24 +261,44 @@ payload types and cross-file helpers declared in `cairoon_private.h`.
   exports.
 - `cairoon_device.c`: `Device`, script-device, script-surface, and
   `Surface::get_device` exports.
-- `cairoon_surface.c`: `Surface`, image-surface, and recording-surface exports.
+- `cairoon_surface.c`: base `Surface` creation/status/MIME/lifecycle/state,
+  page, and font-options exports.
+- `cairoon_image_surface.c`: image-surface constructors, PNG-read helpers,
+  image queries, and copy-data exports.
+- `cairoon_mapped_image_surface.c`: mapped-image lifecycle and query exports.
+- `cairoon_recording_surface.c`: recording-surface constructors and extents.
 - `cairoon_pdf_surface.c`: PDF surface exports.
 - `cairoon_ps_surface.c`: PostScript surface exports.
 - `cairoon_svg_surface.c`: SVG surface exports.
-- `cairoon_context.c`: `Context` exports.
+- `cairoon_context.c`: core `Context` construction/status/tag/target/source
+  and group exports.
+- `cairoon_context_font_text.c`, `cairoon_context_matrix.c`,
+  `cairoon_context_state.c`, `cairoon_context_path.c`,
+  `cairoon_context_clip_extents.c`, and `cairoon_context_paint.c`: split
+  context font/text, transform, drawing-state, path, clip/extents/hit-test,
+  and source/paint/page exports.
 - `cairoon_glyph.c`: shared `cairo_glyph_t` array marshaling helpers used by
   context and scaled-font exports.
 - `cairoon_path.c`: `Path` data decoding, stringification, and status/equality
   helpers.
-- `cairoon_pattern.c`: `Pattern` exports.
-- `cairoon_font.c`: `FontOptions`, `FontFace`, and `ScaledFont` exports until
-  the file grows enough to split into `cairoon_font_options.c`,
-  `cairoon_font_face.c`, and `cairoon_scaled_font.c`.
+- `cairoon_pattern.c`: base/surface/solid/gradient pattern exports.
+- `cairoon_mesh_pattern.c`: mesh-pattern operations.
+- `cairoon_raster_source_pattern.c`: raster-source callback and owner
+  lifecycle exports.
+- `cairoon_font_options.c`, `cairoon_font_face.c`,
+  `cairoon_scaled_font.c`, and `cairoon_scaled_font_oracle.c`: font-options,
+  toy-font-face, scaled-font, and scaled-font oracle exports.
 - `cairoon_region.c`: `Region` exports.
-- `cairoon_test_common.c`, `cairoon_test_file.c`, `cairoon_test_vector.c`, and
-  `cairoon_test_image.c`: private white-box oracle helpers only. Keep public
-  binding exports out of these files, and keep test oracles out of
-  `cairoon_misc.c` except for truly tiny module-level probes.
+- `cairoon_test_common.c`, `cairoon_test_file.c`,
+  `cairoon_test_vector.c`, `cairoon_test_vector_scenes.c`,
+  `cairoon_test_pdf_vector.c`, `cairoon_test_ps_vector.c`,
+  `cairoon_test_svg_vector.c`, and `cairoon_test_image.c`: private white-box
+  oracle helpers only. Keep public binding exports out of these files, and
+  keep test oracles out of `cairoon_misc.c` except for truly tiny module-level
+  probes. Keep vector-output exports in `cairoon_test_vector.c`; shared vector
+  scene ids and prototypes belong in `cairoon_test_vector_private.h`; common
+  drawing scenes belong in `cairoon_test_vector_scenes.c`; backend-specific
+  feature renderers belong in the PDF/PS/SVG vector files.
 
 When a new Cairo family is migrated, create a new C file named after that
 family instead of adding unrelated code to an existing file. Keep files small
