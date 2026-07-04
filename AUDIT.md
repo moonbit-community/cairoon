@@ -17,8 +17,10 @@ Implemented in this workspace:
   oracles, and ARGB32 image oracles.
 - MoonBit raw FFI declarations are beginning to follow the same family split:
   `ffi.mbt` keeps object type declarations and small module-level exports, while
-  `ffi_context_core.mbt` owns raw `Context` construction, status, identity,
-  save/restore, tag, target/source, and group extern declarations,
+  `ffi_context_clip_extents.mbt` owns raw `Context` clip/extents/hit-testing
+  extern declarations, `ffi_context_core.mbt` owns raw `Context` construction,
+  status, identity, save/restore, tag, target/source, and group extern
+  declarations,
   `ffi_context_font_text.mbt` owns raw `Context` font/text/scaled-font extern
   declarations, `ffi_context_matrix.mbt` owns raw `Context`
   matrix/coordinate-conversion extern declarations, `ffi_context_path.mbt`
@@ -1579,6 +1581,11 @@ Implemented in this workspace:
   from `ffi.mbt` into `ffi_context_path.mbt`, added that file to the native
   target list, and reduced `ffi.mbt` to 311 lines. This did not change public
   API or test count.
+  The later Context clip/extents raw FFI split slice moved raw context clip,
+  clip-rectangle-list, fill/stroke/path extents, and hit-testing extern
+  declarations from `ffi.mbt` into `ffi_context_clip_extents.mbt`, added that
+  file to the native target list, and reduced `ffi.mbt` to 225 lines. This did
+  not change public API or test count.
 
 ## Known Gaps
 

@@ -160,6 +160,9 @@ exports in `ffi.mbt`; move larger families into files named
 `FontFace`, `ScaledFont`, and text-to-glyphs extern declarations that call
 `cairoon_font.c`; `ffi_pattern.mbt` owns the raw `Pattern`, mesh-pattern, and
 raster-source-pattern extern declarations that call `cairoon_pattern.c`;
+`ffi_context_clip_extents.mbt` owns raw `Context` clip, extents, and
+hit-testing extern declarations that call the clip/extents section of
+`cairoon_context.c`;
 `ffi_context_core.mbt` owns raw `Context` construction, status, identity,
 save/restore, tag, target/source, and group extern declarations that call the
 opening lifecycle/state section of `cairoon_context.c`;

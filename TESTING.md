@@ -1636,6 +1636,11 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   from `ffi.mbt` into `ffi_context_path.mbt`, added that file to the native
   target list, and reduced `ffi.mbt` to 311 lines. This did not change public
   API or test count.
+  The later Context clip/extents raw FFI split slice moved raw context clip,
+  clip-rectangle-list, fill/stroke/path extents, and hit-testing extern
+  declarations from `ffi.mbt` into `ffi_context_clip_extents.mbt`, added that
+  file to the native target list, and reduced `ffi.mbt` to 225 lines. This did
+  not change public API or test count.
 
 The missing reliability pieces are substantial: broader automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering
