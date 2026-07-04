@@ -106,6 +106,22 @@ test "context copy_path appends an independent path" {
 }
 
 ///|
+test "context append_path preserves pycairo path string" {
+  let source = Context::new(context_path_surface())
+  source.line_to(1.0, 2.0)
+  let path = source.copy_path()
+  source.new_path()
+
+  let target = Context::new(context_path_surface())
+  target.append_path(path)
+  let source_string = path.to_string()
+  let target_string = target.copy_path().to_string()
+  inspect(source_string, content="move_to 1.000000 2.000000")
+  inspect(target_string, content="move_to 1.000000 2.000000")
+  inspect(target_string == source_string, content="true")
+}
+
+///|
 test "context copy_path_flat appends a flattened path" {
   let source = Context::new(context_path_surface())
   source.move_to(1.0, 1.0)
