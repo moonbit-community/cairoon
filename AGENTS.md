@@ -166,6 +166,13 @@ system.
 - Do not rely on MoonBit payload `struct` or payload `enum` layout across FFI.
   When a C struct must cross the boundary, split it into primitive fields in a
   C stub or keep it in a MoonBit-managed external object.
+- The first full-product scope is the portable pycairo API surface that can be
+  built and verified on this workspace's Cairo installation: image, PDF, PS,
+  SVG, recording, script, tee, device, context, pattern, font, path, and region
+  families. Platform-native pycairo surfaces such as Win32, XCB, and Xlib are
+  explicit product decisions out of this portable scope until cairoon grows a
+  separately designed conditional extension layer with matching headers,
+  link flags, and CI/test environments.
 
 ## Object Mapping
 

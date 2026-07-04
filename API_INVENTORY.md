@@ -135,8 +135,8 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 | `RecordingSurface` | Done | Exposed as `Surface::recording`, `Surface::recording_get_extents`, and `Surface::recording_ink_extents`; tests and executable backend reference docs cover bounded/unbounded extents, replay through `Pattern::for_surface`, and `SurfaceTypeMismatch` for non-recording surfaces |
 | `ScriptDevice` / `ScriptSurface` | Done | File-path and stream `Device::script` constructors exist as `Device::script` and `Device::script_stream`; mode, comments, recording replay, `Surface::script`, and `Surface::script_for_target` exist. Executable backend reference docs, stream output/error callbacks, device/surface retained-owner behavior, scoped `Device::with_finished`, subtype/string error checks, and 1000-iteration stream callback allocation stress are covered. Python file-like object behavior is explicitly out of scope per `AGENTS.md` and represented by explicit MoonBit stream callbacks. |
 | `TeeSurface` | Done | Exposed as `Surface::tee`, `Surface::tee_add`, `Surface::tee_remove`, and `Surface::tee_index`; tests and executable backend reference docs cover mirrored drawing, index wrappers, subtype errors, negative index handling, and retained primary/target wrappers on this `HAS_TEE_SURFACE` build |
-| `Win32Surface` / `Win32PrintingSurface` | Decision | Platform-specific; cannot be validated on this macOS workspace |
-| `XCBSurface` / `XlibSurface` | Decision | Platform-specific; requires X11/XCB headers and test environment |
+| `Win32Surface` / `Win32PrintingSurface` | Decision | Out of the first portable full-product scope per `AGENTS.md`; requires a future conditional extension layer with Win32 headers, link flags, and CI/test environment |
+| `XCBSurface` / `XlibSurface` | Decision | Out of the first portable full-product scope per `AGENTS.md`; requires a future conditional extension layer with X11/XCB headers, link flags, and CI/test environment |
 
 ## Context APIs
 
@@ -179,17 +179,19 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 | Region boolean ops | Done | intersect/subtract/union/xor implemented for region and rectangle operands; mutating boolean operations return the receiver for pycairo-style chaining; rectangle-op tests cover XOR split semantics and chainable return behavior |
 | `RegionOverlap` | Done | Enum implemented |
 
-## Product Decisions Required
+## Product Decisions
 
-These are not safe to guess if the goal is a full pycairo-compatible product.
-
-1. Should cairoon include platform-specific pycairo APIs (`Win32Surface`,
-   `XCBSurface`, `XlibSurface`) behind conditional builds, or should the first
-   full product target only portable Cairo backends?
+These are resolved scope choices for the first full portable pycairo-compatible
+MoonBit product.
 
 Resolved by `AGENTS.md`: cairoon uses opaque MoonBit owner types with
 constructor methods instead of CPython-style inheritance, and filename APIs
 come before callback stream APIs.
+Resolved by `AGENTS.md`: the first full-product scope targets portable Cairo
+backends that can be built and verified in this workspace. Platform-native
+Win32/XCB/Xlib surface APIs are out of that portable scope until cairoon grows a
+separately designed conditional extension layer with matching platform headers,
+link flags, and CI/test environments.
 Resolved here: pycairo's `version`, `version_info`, and `get_include()`
 packaging/C-extension helpers are out of cairoon's public runtime API.
 Resolved here: pycairo's `CAPI` CPython capsule table is out of cairoon's
