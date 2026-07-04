@@ -111,6 +111,15 @@ fn render_stream_tagged_multipage_scene(
 }
 
 ///|
+fn render_stream_wide_multipage_tag_vector_scene(
+  surface : Surface,
+) -> Unit raise CairoError {
+  let ctx = Context::new(surface)
+  draw_wide_multi_page_tag_vector_scene(ctx)
+  surface.finish()
+}
+
+///|
 fn stream_equivalence_chunks_to_bytes(chunks : Array[Bytes]) -> Bytes {
   let mut bytes = Bytes::default()
   for chunk in chunks {
@@ -130,6 +139,29 @@ test "vector stream output matches file output after normalization" {
     let chunks : Array[Bytes] = []
     let stream_surface = make_stream_equivalence_stream_surface(kind, chunks)
     render_stream_equivalence_scene(stream_surface)
+    inspect(chunks.length() > 0, content="true")
+    inspect(
+      test_vector_file_equals_bytes_ffi(
+        kind,
+        @utf8.encode(path),
+        stream_equivalence_chunks_to_bytes(chunks),
+      ),
+      content="true",
+    )
+  }
+}
+
+///|
+test "wide multi-page tag vector stream output matches file output after normalization" {
+  for kind in 0..<3 {
+    let ext = stream_equivalence_extension(kind)
+    let path = "/tmp/cairoon_stream_wide_multipage_file_equivalence_\{kind}.\{ext}"
+    let file_surface = make_stream_equivalence_file_surface(kind, path)
+    render_stream_wide_multipage_tag_vector_scene(file_surface)
+
+    let chunks : Array[Bytes] = []
+    let stream_surface = make_stream_equivalence_stream_surface(kind, chunks)
+    render_stream_wide_multipage_tag_vector_scene(stream_surface)
     inspect(chunks.length() > 0, content="true")
     inspect(
       test_vector_file_equals_bytes_ffi(
