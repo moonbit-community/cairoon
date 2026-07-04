@@ -48,6 +48,7 @@ cairoon/
   moon.pkg
   ffi.mbt
   ffi_font.mbt
+  ffi_pattern.mbt
   error.mbt
   types.mbt
   device.mbt
@@ -109,7 +110,8 @@ options(
   ],
   targets: {
     "ffi.mbt": ["native"],
-    "ffi_font.mbt": ["native"]
+    "ffi_font.mbt": ["native"],
+    "ffi_pattern.mbt": ["native"]
   },
 )
 ```
@@ -134,11 +136,12 @@ exports in `ffi.mbt`; move larger families into files named
 `ffi_<family>.mbt`, and add every such file to `moon.pkg` `targets` with
 `["native"]`. For example, `ffi_font.mbt` owns the raw `FontOptions`,
 `FontFace`, `ScaledFont`, and text-to-glyphs extern declarations that call
-`cairoon_font.c`.
+`cairoon_font.c`; `ffi_pattern.mbt` owns the raw `Pattern`, mesh-pattern, and
+raster-source-pattern extern declarations that call `cairoon_pattern.c`.
 
 Do not add public wrappers to `ffi_*.mbt`; these files are private native FFI
 plumbing only. Public MoonBit APIs stay in focused wrapper files such as
-`font_options.mbt`, `font_face.mbt`, and `scaled_font.mbt`.
+`font_options.mbt`, `font_face.mbt`, `scaled_font.mbt`, and `pattern.mbt`.
 
 ## C Glue File Boundaries
 
@@ -184,7 +187,7 @@ Follow Cairo's C API closely, adjusted only for MoonBit's type and error
 system.
 
 - Public APIs must be safe wrappers. Raw `extern "C"` declarations stay private
-  in `ffi.mbt`.
+  in `ffi.mbt` or native-gated `ffi_*.mbt` files.
 - Public APIs that can observe a Cairo error must be declared
   `raise CairoError`.
 - Do not expose `cairo_reference`, `cairo_destroy`, `cairo_surface_reference`,

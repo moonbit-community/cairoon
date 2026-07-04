@@ -18,7 +18,8 @@ Implemented in this workspace:
 - MoonBit raw FFI declarations are beginning to follow the same family split:
   `ffi.mbt` keeps object type declarations and small module-level exports, while
   `ffi_font.mbt` owns raw `FontOptions`, `FontFace`, `ScaledFont`, and
-  text-to-glyphs extern declarations.
+  text-to-glyphs extern declarations, and `ffi_pattern.mbt` owns raw
+  `Pattern`, mesh-pattern, and raster-source-pattern extern declarations.
 - MoonBit `Eq`/`Hash` traits are implemented for hashable Cairo external
   objects that already expose cairoon equality/hash helpers: `Surface`,
   `Context`, `Pattern`, `Device`, `FontOptions`, `FontFace`, `ScaledFont`, and
@@ -340,9 +341,11 @@ Implemented in this workspace:
   the packaging/pycairo-porting documentation slice, the mixed
   vector/tag/text marker slice, the direct C oracle slice, and the prior C
   stub split that moved private test oracles out of `cairoon_misc.c` into
-  common/file/vector/image helper files.
+  common/file/vector/image helper files, plus the raw FFI splits that moved
+  font and pattern extern declarations into `ffi_font.mbt` and
+  `ffi_pattern.mbt`.
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native`: 370 tests passed. The current run
+- `moon -C cairoon test --target native`: 373 tests passed. The current run
   includes the pycairo context font-extents parity slice,
   the pycairo group-target stack-restoration slice,
   the pycairo rectangle path-extents slice,
@@ -368,11 +371,13 @@ Implemented in this workspace:
   `get_group_target` post-scope lifetime slice, the PDF combined text
   document-feature oracle slice, and the earlier context `get_source`
   surface-pattern lifetime coverage for the path where both the original source
-  wrapper and context scope have exited.
-- `moon -C cairoon test path_test.mbt --target native -v`: 6 black-box Path
+  wrapper and context scope have exited, plus the raw FFI split slices that
+  keep public API and test count unchanged while reducing `ffi.mbt`.
+- `moon -C cairoon test path_test.mbt --target native -v`: 7 black-box Path
   tests passed, covering empty paths, pycairo-compatible stringification
-  including close-path continuation formatting, typed segment iteration,
-  flattened copies, and path equality/hash behavior.
+  including close-path continuation formatting, copied-path lifetime after the
+  source context exits, typed segment iteration, flattened copies, and path
+  equality/hash behavior.
 - `moon -C cairoon test context_path_test.mbt --target native -v`: 11
   black-box Context path tests passed, covering current-point behavior,
   relative path operations, pycairo rectangle path-extents behavior,
@@ -1496,6 +1501,10 @@ Implemented in this workspace:
   `ffi.mbt` into `ffi_font.mbt`, added that file to the native target list, and
   reduced `ffi.mbt` to 2226 lines. This did not change public API or test
   count.
+  The later pattern raw FFI split slice moved raw `Pattern`, mesh-pattern, and
+  raster-source-pattern extern declarations from `ffi.mbt` into
+  `ffi_pattern.mbt`, added that file to the native target list, and reduced
+  `ffi.mbt` to 1866 lines. This did not change public API or test count.
 
 ## Known Gaps
 
