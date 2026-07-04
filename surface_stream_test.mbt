@@ -62,6 +62,30 @@ fn paint_stream_surface(surface : Surface) -> Unit raise CairoError {
 }
 
 ///|
+fn make_vector_stream_surface_returning_status(
+  kind : Int,
+  status : Status,
+) -> Surface raise CairoError {
+  match kind {
+    0 => Surface::pdf_stream(10.0, 10.0, fn(_) { status })
+    1 => Surface::ps_stream(10.0, 10.0, fn(_) { status })
+    _ => Surface::svg_stream(10.0, 10.0, fn(_) { status })
+  }
+}
+
+///|
+fn expect_vector_stream_write_error(kind : Int, status : Status) -> Unit raise {
+  let result = run_cairo(() => {
+    let surface = make_vector_stream_surface_returning_status(kind, status)
+    paint_stream_surface(surface)
+  })
+  match result {
+    Err(CairoIOError(WriteError, _)) => ()
+    _ => @test.fail("expected WriteError from vector stream writer")
+  }
+}
+
+///|
 test "pdf stream writer receives output chunks" {
   let chunks : Array[Bytes] = []
   let surface = Surface::pdf_stream(10.0, 10.0, fn(chunk) {
@@ -105,11 +129,15 @@ test "svg stream writer receives output chunks" {
 
 ///|
 test "stream writer status maps to cairo IO error" {
-  let surface = Surface::pdf_stream(10.0, 10.0, fn(_) { WriteError })
-  let result = run_cairo(() => paint_stream_surface(surface))
-  match result {
-    Err(CairoIOError(WriteError, _)) => ()
-    _ => @test.fail("expected WriteError from stream writer")
+  for kind in 0..<3 {
+    expect_vector_stream_write_error(kind, WriteError)
+  }
+}
+
+///|
+test "stream writer invalid status maps to write error" {
+  for kind in 0..<3 {
+    expect_vector_stream_write_error(kind, LastStatus)
   }
 }
 

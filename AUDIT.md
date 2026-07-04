@@ -363,6 +363,7 @@ Implemented in this workspace:
   the gradient color-stop ordering/snapshot slice,
   the stream-vs-file vector output equivalence slice,
   the wide multi-page stream equivalence slice,
+  the vector stream invalid-status fallback slice,
   the raster-source stale-release replacement slice,
   the raster-source acquire-only owner fuzz slice,
   the raster-source failed-acquire owner-count fuzz slice,
@@ -374,7 +375,7 @@ Implemented in this workspace:
   font and pattern extern declarations into `ffi_font.mbt` and
   `ffi_pattern.mbt`.
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native`: 382 tests passed. The current run
+- `moon -C cairoon test --target native`: 383 tests passed. The current run
   includes the pycairo context font-extents parity slice,
   the pycairo group-target stack-restoration slice,
   the pycairo rectangle path-extents slice,
@@ -388,7 +389,8 @@ Implemented in this workspace:
   string equivalence slice, the pycairo close-path stringification slice, the
   gradient color-stop ordering/snapshot slice, the stream-vs-file vector output
   equivalence slice, the tagged multi-page stream equivalence slice, the
-  wide multi-page stream equivalence slice, the raster-source stale-release
+  wide multi-page stream equivalence slice, the vector stream invalid-status
+  fallback slice, the raster-source stale-release
   replacement slice, the raster-source acquire-only owner fuzz slice, the
   raster-source failed-acquire owner-count fuzz slice, the mixed
   vector/tag/text marker slice, the direct C oracle slice, the PS/SVG tag
@@ -472,10 +474,11 @@ Implemented in this workspace:
   metadata/custom-metadata/page-label/outline/URI/named-destination/
   document-structure test matched against a direct C Cairo output oracle that
   also draws tagged text.
-- `moon -C cairoon test surface_stream_test.mbt --target native -v`: 8
+- `moon -C cairoon test surface_stream_test.mbt --target native -v`: 9
   black-box stream callback tests passed, covering PDF/PS/SVG stream chunks,
-  vector stream `WriteError`, PNG stream write/read, PNG write `WriteError`,
-  and PNG short-read error mapping.
+  PDF/PS/SVG vector stream `WriteError`, PDF/PS/SVG vector stream invalid-status
+  fallback to `WriteError`, PNG stream write/read, PNG write `WriteError`, and
+  PNG short-read error mapping.
 - `moon -C cairoon test surface_stream_wbtest.mbt --target native -v`: 3
   white-box stream equivalence tests passed, comparing PDF/PS/SVG stream output
   with file output after normalized comparison for deterministic two-page and
@@ -491,7 +494,7 @@ Implemented in this workspace:
   mixed vector/tag/text marker and C oracle paths.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
-  surface_stream_test.mbt --target native -v`: 8 ASan-compiled black-box
+  surface_stream_test.mbt --target native -v`: 9 ASan-compiled black-box
   stream callback tests passed with leak detection disabled.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
@@ -1638,6 +1641,10 @@ Implemented in this workspace:
   matches file output after normalization for the wide three-page URI/
   destination/Document/Sect/P tag/vector scene. This raised
   `surface_stream_wbtest.mbt` to 3 tests and the full native suite to 382 tests.
+  The later vector stream invalid-status fallback slice expanded
+  `surface_stream_test.mbt` to cover PDF/PS/SVG writer `WriteError` mapping and
+  `LastStatus` callback-return normalization to `WriteError`. This raised
+  `surface_stream_test.mbt` to 9 tests and the full native suite to 383 tests.
 
 ## Known Gaps
 
@@ -1669,7 +1676,8 @@ Implemented in this workspace:
   direct-oracle coverage.
   PDF/PS/SVG stream-writer constructors now also have deterministic two-page,
   tagged three-page, and wide three-page tag/vector stream-vs-file normalized
-  equality coverage; script stream devices and PNG
+  equality coverage plus PDF/PS/SVG writer `WriteError` and invalid-status
+  fallback mapping; script stream devices and PNG
   stream read/write now have copied-byte callback tests and read/write error
   propagation coverage.
 - `Surface::copy_data` still copies Cairo image data into MoonBit `Bytes`;
