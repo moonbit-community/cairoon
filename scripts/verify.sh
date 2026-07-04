@@ -42,6 +42,11 @@ if [[ "$asan_mode" != "0" ]]; then
       "MOON_CC=$clang_path" \
       "MOON_AR=$moon_ar" \
       "ASAN_OPTIONS=$asan_options" \
+      moon test vector_output_wbtest.mbt --target native -v
+    run env \
+      "MOON_CC=$clang_path" \
+      "MOON_AR=$moon_ar" \
+      "ASAN_OPTIONS=$asan_options" \
       moon test pattern_test.mbt --target native -v
   else
     printf '\nSkipping targeted ASan: set MOON_CC to an ASan-capable clang, or set CAIROON_VERIFY_ASAN=0 to silence this message.\n'

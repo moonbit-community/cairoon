@@ -304,7 +304,7 @@ Implemented in this workspace:
   text document-feature plus PS DSC/SVG unit backend-feature oracle checks,
   and pattern oracle tests,
   the full native suite, `moon info --target native`, and targeted ASan
-  image-oracle and pattern tests with leak detection disabled. The current run
+  image-oracle, vector-output, and pattern tests with leak detection disabled. The current run
   includes the mixed vector/tag/text direct C oracle slice and the prior C stub
   split that moved private test oracles out of `cairoon_misc.c` into
   common/file/vector/image helper files.

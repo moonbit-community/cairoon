@@ -168,9 +168,9 @@ The current local gate is executable as:
 It runs `moon fmt --check`, `scripts/configure-link-flags.sh --check`, native
 `moon check`, targeted white-box image, ScaledFont, vector-output, and
 raster-pattern tests, the full native test suite, `moon info --target native`,
-and targeted ASan builds for the image oracle and raster-pattern suites when an
-ASan-capable `clang` is available. Set `CAIROON_VERIFY_ASAN=0` to skip the
-targeted ASan portion intentionally.
+and targeted ASan builds for the image oracle, vector-output, and
+raster-pattern suites when an ASan-capable `clang` is available. Set
+`CAIROON_VERIFY_ASAN=0` to skip the targeted ASan portion intentionally.
 
 ## Current Status
 
@@ -312,7 +312,7 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   text document-feature plus PS DSC/SVG unit backend-feature oracle checks,
   and pattern oracle tests,
   the full native suite, `moon info --target native`, and targeted ASan
-  image-oracle and pattern tests with leak detection disabled. The current run
+  image-oracle, vector-output, and pattern tests with leak detection disabled. The current run
   includes the mixed vector/tag/text direct C oracle slice.
 - `moon -C cairoon check --target native`: passed.
 - `moon -C cairoon test --target native`: 352 tests passed. The current run
