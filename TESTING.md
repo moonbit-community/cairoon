@@ -347,6 +347,8 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   equivalence slice, the pycairo close-path stringification slice,
   the gradient color-stop ordering/snapshot slice,
   the stream-vs-file vector output equivalence slice,
+  the tagged multi-page stream equivalence slice,
+  the mixed/layered stream equivalence slice,
   the wide multi-page stream equivalence slice,
   the vector stream invalid-status fallback slice,
   the PNG/script stream invalid-status fallback slice,
@@ -377,7 +379,7 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   vector/tag oracle slice, the mixed vector/tag/text marker slice, and the
   direct C oracle slice.
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native`: 385 tests passed. The current run
+- `moon -C cairoon test --target native`: 387 tests passed. The current run
   includes the pycairo context font-extents parity slice,
   the pycairo group-target stack-restoration slice,
   the pycairo rectangle path-extents slice,
@@ -391,7 +393,8 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   string equivalence slice, the pycairo close-path stringification slice, the
   gradient color-stop ordering/snapshot slice, the stream-vs-file vector output
   equivalence slice, the tagged multi-page stream equivalence slice, the
-  wide multi-page stream equivalence slice, the vector stream invalid-status
+  mixed/layered stream equivalence slice, the wide multi-page stream
+  equivalence slice, the vector stream invalid-status
   fallback slice, the PNG/script stream invalid-status
   fallback slice, the vector output white-box split slice, the vector output
   scene helper split slice, the test-vector C glue split slice, the
@@ -490,10 +493,12 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   fallback to `WriteError`, PNG stream write/read, PNG write `WriteError`, PNG
   writer invalid-status fallback to `WriteError`, and PNG short-read error
   mapping.
-- `moon -C cairoon test surface_stream_wbtest.mbt --target native -v`: 3
+- `moon -C cairoon test surface_stream_wbtest.mbt --target native -v`: 5
   white-box stream equivalence tests passed, comparing PDF/PS/SVG stream output
   with file output after normalized comparison for deterministic two-page and
-  tagged three-page scenes plus the wide three-page tag/vector scene.
+  tagged three-page scenes plus mixed vector/tag/text, layered three-page
+  clip/dash/surface-pattern/mask/tag/text, and wide three-page tag/vector
+  scenes.
 - `moon -C cairoon info --target native`: completed with no work to do; these
   stream equivalence slices change no public API or generated interface
   metadata.
@@ -510,7 +515,7 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   stream callback tests passed with leak detection disabled.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
-  surface_stream_wbtest.mbt --target native -v`: 3 ASan-compiled white-box
+  surface_stream_wbtest.mbt --target native -v`: 5 ASan-compiled white-box
   stream equivalence tests passed with leak detection disabled.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
@@ -1853,6 +1858,13 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   invalid callback statuses to `WriteError` beyond vector surfaces. This raised
   `surface_stream_test.mbt` to 10 tests, `device_test.mbt` to 9 tests, and the
   full native suite to 385 tests.
+  The later mixed/layered stream equivalence slice added two
+  `surface_stream_wbtest.mbt` cases proving PDF/PS/SVG stream-writer output
+  matches file output after normalization for the single-page mixed
+  URI/destination/Document/Sect/P vector/text scene and the layered three-page
+  clip/dash/surface-pattern/mask/tag/text scene. This raised
+  `surface_stream_wbtest.mbt` to 5 tests and the full native suite to 387
+  tests.
   The later vector output white-box split slice moved shared marker/oracle
   helpers into `vector_output_common_wbtest.mbt`, scene rendering helpers into
   `vector_output_scenes_wbtest.mbt`, and left the 37 executable tests in
@@ -1887,7 +1899,7 @@ three-page URI/destination/document-structure tag/vector oracle scene, PDF tagge
 text, mixed vector/tag/text, layered three-page, and wide three-page marker tests, PS/SVG tag metadata absence checks, two PDF document-feature
 oracle scenes, one PS DSC/multi-page oracle scene, one SVG
 version/unit/multi-page oracle scene, and the current PDF/PS/SVG
-stream-vs-file two-page, tagged three-page, and wide three-page tag/vector equality checks, plus PDF/PS/SVG, PNG-writer, and script-writer `WriteError` and
+stream-vs-file two-page, tagged three-page, mixed vector/tag/text, layered three-page clip/dash/surface-pattern/mask/tag/text, and wide three-page tag/vector equality checks, plus PDF/PS/SVG, PNG-writer, and script-writer `WriteError` and
 invalid-status fallback checks, including the current two-page direct
 C oracle scenes and the current single-page toy-font `show_text` oracle scene,
 broader tag-output assertions
