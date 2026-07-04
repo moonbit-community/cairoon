@@ -49,6 +49,7 @@ cairoon/
   ffi.mbt
   ffi_device.mbt
   ffi_font.mbt
+  ffi_image_data.mbt
   ffi_pattern.mbt
   ffi_path.mbt
   ffi_pdf_surface.mbt
@@ -119,6 +120,7 @@ options(
     "ffi.mbt": ["native"],
     "ffi_device.mbt": ["native"],
     "ffi_font.mbt": ["native"],
+    "ffi_image_data.mbt": ["native"],
     "ffi_pattern.mbt": ["native"],
     "ffi_path.mbt": ["native"],
     "ffi_pdf_surface.mbt": ["native"],
@@ -154,6 +156,8 @@ exports in `ffi.mbt`; move larger families into files named
 raster-source-pattern extern declarations that call `cairoon_pattern.c`;
 `ffi_device.mbt` owns raw `Device`, script-device, script-surface, and
 surface-get-device extern declarations that call `cairoon_device.c`;
+`ffi_image_data.mbt` owns raw `ImageData` and image/mapped get-data extern
+declarations that call `cairoon_image_data.c`;
 `ffi_path.mbt` owns raw `Path` extern declarations that call `cairoon_path.c`;
 `ffi_pdf_surface.mbt` owns raw PDF surface extern declarations that call
 `cairoon_pdf_surface.c`;
