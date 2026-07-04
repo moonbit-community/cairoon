@@ -313,7 +313,8 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   and pattern oracle tests,
   the full native suite, `moon info --target native`, and targeted ASan
   image-oracle, vector-output, and pattern tests with leak detection disabled. The current run
-  includes the mixed vector/tag/text marker slice and direct C oracle slice.
+  includes the packaging/pycairo-porting documentation slice, the mixed
+  vector/tag/text marker slice, and the direct C oracle slice.
 - `moon -C cairoon check --target native`: passed.
 - `moon -C cairoon test --target native`: 354 tests passed. The current run
   includes the mixed vector/tag/text marker slice, the direct C oracle slice, the PS/SVG tag

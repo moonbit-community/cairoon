@@ -305,8 +305,9 @@ Implemented in this workspace:
   and pattern oracle tests,
   the full native suite, `moon info --target native`, and targeted ASan
   image-oracle, vector-output, and pattern tests with leak detection disabled. The current run
-  includes the mixed vector/tag/text marker slice, the direct C oracle slice,
-  and the prior C stub split that moved private test oracles out of
+  includes the packaging/pycairo-porting documentation slice, the mixed
+  vector/tag/text marker slice, the direct C oracle slice, and the prior C stub
+  split that moved private test oracles out of
   `cairoon_misc.c` into common/file/vector/image helper files.
 - `moon -C cairoon check --target native`: passed.
 - `moon -C cairoon test --target native`: 354 tests passed. The current run
