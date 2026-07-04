@@ -1568,6 +1568,11 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   both gates. This did not add public API or new tests; it makes the existing
   67 surface/device/object-trait tests part of the routine ASan reliability
   sweep.
+  The later raw FFI split slice moved the `FontOptions`, `FontFace`,
+  `ScaledFont`, and text-to-glyphs extern declarations from the 2580-line
+  `ffi.mbt` into `ffi_font.mbt`, added that file to the native target list, and
+  reduced `ffi.mbt` to 2226 lines. This did not change public API or test
+  count.
 
 The missing reliability pieces are substantial: broader automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering

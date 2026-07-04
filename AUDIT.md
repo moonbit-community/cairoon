@@ -15,6 +15,10 @@ Implemented in this workspace:
   `Device`. Private test-only oracle glue is also split by responsibility:
   common drawing helpers, file/normalized-output comparison, vector-output
   oracles, and ARGB32 image oracles.
+- MoonBit raw FFI declarations are beginning to follow the same family split:
+  `ffi.mbt` keeps object type declarations and small module-level exports, while
+  `ffi_font.mbt` owns raw `FontOptions`, `FontFace`, `ScaledFont`, and
+  text-to-glyphs extern declarations.
 - MoonBit `Eq`/`Hash` traits are implemented for hashable Cairo external
   objects that already expose cairoon equality/hash helpers: `Surface`,
   `Context`, `Pattern`, `Device`, `FontOptions`, `FontFace`, `ScaledFont`, and
@@ -1487,6 +1491,11 @@ Implemented in this workspace:
   both gates. This did not add public API or new tests; it makes the existing
   67 surface/device/object-trait tests part of the routine ASan reliability
   sweep.
+  The later raw FFI split slice moved the `FontOptions`, `FontFace`,
+  `ScaledFont`, and text-to-glyphs extern declarations from the 2580-line
+  `ffi.mbt` into `ffi_font.mbt`, added that file to the native target list, and
+  reduced `ffi.mbt` to 2226 lines. This did not change public API or test
+  count.
 
 ## Known Gaps
 

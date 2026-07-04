@@ -47,6 +47,7 @@ cairoon/
   moon.mod
   moon.pkg
   ffi.mbt
+  ffi_font.mbt
   error.mbt
   types.mbt
   device.mbt
@@ -107,7 +108,8 @@ options(
     "cairoon_region.c",
   ],
   targets: {
-    "ffi.mbt": ["native"]
+    "ffi.mbt": ["native"],
+    "ffi_font.mbt": ["native"]
   },
 )
 ```
@@ -123,6 +125,20 @@ derive `cc-flags` and `cc-link-flags`, then record the concrete flags in
 `scripts/configure-link-flags.sh`, and keep `scripts/configure-link-flags.sh
 --check` in the local verification gate so `moon.pkg` cannot silently drift
 away from the target platform's `pkg-config` result.
+
+## Raw FFI File Boundaries
+
+Raw `extern "C"` declarations may be split by Cairo concept family, mirroring
+the C glue split. Keep object type declarations and very small module-level
+exports in `ffi.mbt`; move larger families into files named
+`ffi_<family>.mbt`, and add every such file to `moon.pkg` `targets` with
+`["native"]`. For example, `ffi_font.mbt` owns the raw `FontOptions`,
+`FontFace`, `ScaledFont`, and text-to-glyphs extern declarations that call
+`cairoon_font.c`.
+
+Do not add public wrappers to `ffi_*.mbt`; these files are private native FFI
+plumbing only. Public MoonBit APIs stay in focused wrapper files such as
+`font_options.mbt`, `font_face.mbt`, and `scaled_font.mbt`.
 
 ## C Glue File Boundaries
 
