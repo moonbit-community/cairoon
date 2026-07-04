@@ -419,6 +419,7 @@ Implemented in this workspace:
   the vector stream invalid-status fallback slice,
   the PNG/script stream invalid-status fallback slice,
   the vector output white-box split slice,
+  the vector output scene helper split slice,
   the vector output marker/oracle test split slice,
   the test-vector C glue split slice,
   the Font raw FFI family split slice,
@@ -463,8 +464,9 @@ Implemented in this workspace:
   equivalence slice, the tagged multi-page stream equivalence slice, the
   wide multi-page stream equivalence slice, the vector stream invalid-status
   fallback slice, the PNG/script stream invalid-status
-  fallback slice, the vector output white-box split slice, the test-vector C
-  glue split slice, the vector output marker/oracle test split slice, the
+  fallback slice, the vector output white-box split slice, the vector output
+  scene helper split slice, the test-vector C glue split slice, the
+  vector output marker/oracle test split slice, the
   Font raw FFI family split slice, the base Surface C
   glue split slice, the Surface wrapper split slice, the Surface raw FFI
   family split slice, the Context wrapper
@@ -1838,6 +1840,14 @@ Implemented in this workspace:
   `vector_output_wbtest.mbt` into `vector_output_oracle_wbtest.mbt`, leaving
   `vector_output_wbtest.mbt` focused on structural output markers. This did
   not change public API or test count.
+  The later vector output scene helper split slice moved pattern, surface,
+  mask, mesh, and tag-heavy scene helpers from the 525-line
+  `vector_output_scenes_wbtest.mbt` into
+  `vector_output_pattern_scenes_wbtest.mbt` and
+  `vector_output_tag_scenes_wbtest.mbt`, leaving
+  `vector_output_scenes_wbtest.mbt` as the 192-line scene dispatcher and
+  document-feature renderer file. This did not change public API or test
+  count.
 
 ## Known Gaps
 
