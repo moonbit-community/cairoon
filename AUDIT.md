@@ -21,6 +21,11 @@ Implemented in this workspace:
   `cairoon_context_path.c`, `cairoon_context_clip_extents.c`, and
   `cairoon_context_paint.c` own the corresponding font/text, transform,
   drawing-state, path, clip/extents/hit-test, and source/paint/page stubs.
+  Surface C glue is also split by responsibility: `cairoon_surface.c` keeps
+  base surface creation/status/MIME/lifecycle/state/page/font-options glue,
+  while `cairoon_image_surface.c`, `cairoon_mapped_image_surface.c`, and
+  `cairoon_recording_surface.c` own image, mapped-image, and recording stubs;
+  PDF, PS, SVG, and Tee surfaces continue to live in their dedicated files.
 - MoonBit raw FFI declarations are beginning to follow the same family split:
   `ffi.mbt` keeps object type declarations and small module-level exports, while
   `ffi_context_clip_extents.mbt` owns raw `Context` clip/extents/hit-testing
@@ -378,6 +383,7 @@ Implemented in this workspace:
   the vector stream invalid-status fallback slice,
   the PNG/script stream invalid-status fallback slice,
   the vector output white-box split slice,
+  the Surface C glue split slice,
   the Context C glue split slice,
   the Context wrapper split slice,
   the raster-source stale-release replacement slice,
@@ -1645,6 +1651,13 @@ Implemented in this workspace:
   FFI and wrapper splits, leaving `cairoon_context.c` as the 195-line core
   construction/status/tag/target/source/group glue file. This did not change
   public API or test count.
+  The later Surface C glue split slice moved image surface constructors,
+  PNG-read helpers, image queries/copy-data, mapped-image lifecycle/queries,
+  and recording-surface constructors/extents from the 975-line
+  `cairoon_surface.c` into `cairoon_image_surface.c`,
+  `cairoon_mapped_image_surface.c`, and `cairoon_recording_surface.c`, leaving
+  `cairoon_surface.c` as the 516-line base surface glue file. This did not
+  change public API or test count.
   The later layered multi-page vector/tag oracle slice added scene 27, a
   three-page PDF/PS/SVG direct C oracle combining clip, dash, surface pattern,
   mask surface, URI link tags, Document/Sect/P structure tags, and toy-font

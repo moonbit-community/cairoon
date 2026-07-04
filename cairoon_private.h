@@ -171,6 +171,12 @@ cairo_status_t cairoon_text_clusters_from_fields(
   int *count_out);
 
 cairo_status_t cairoon_surface_status(CairoonSurface *surface);
+cairo_status_t cairoon_surface_require_type(
+  CairoonSurface *surface,
+  cairo_surface_type_t type);
+moonbit_bytes_t cairoon_copy_image_surface_data(
+  cairo_surface_t *surface,
+  cairo_status_t *status_out);
 cairo_status_t cairoon_device_status(CairoonDevice *device);
 cairo_status_t cairoon_mapped_image_surface_status(CairoonMappedImageSurface *surface);
 cairo_status_t cairoon_context_status(CairoonContext *ctx);
