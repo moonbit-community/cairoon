@@ -260,6 +260,18 @@ test "pdf tagged show_text_glyphs output contains link markers" {
 }
 
 ///|
+test "pdf grouped glyph tag multi-page output contains combined markers" {
+  let path = "/tmp/cairoon_vector_pdf_grouped_glyph_tag_markers.pdf"
+  render_vector_oracle_scene(0, 30, path)
+  expect_vector_output(path, [
+    "%PDF-1.4", "/Count 2", "/Type /Page % 1", "/Type /Page % 2", "/Annots [", "/Subtype /Link",
+    "/S /URI", "/URI (https://example.com/grouped-glyphs)", "/Dest (cairoon-grouped-dest)",
+    "/Names", "/Dests", "(cairoon-grouped-dest)", "/StructTreeRoot", "/Type /StructElem",
+    "/S /Link", "/S /Document", "/S /Sect", "/S /P", "%%EOF",
+  ])
+}
+
+///|
 test "ps svg mixed vector tag text output omits pdf tag metadata" {
   let forbidden = [
     "/Annots", "/Subtype /Link", "/URI", "/Dest", "/Dests", "/StructTreeRoot", "/S /Document",

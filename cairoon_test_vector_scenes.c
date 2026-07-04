@@ -130,6 +130,8 @@ cairo_status_t cairoon_test_draw_vector_scene(
       return cairoon_test_draw_wide_multi_page_tag_vector(cr);
     case CAIROON_TEST_VECTOR_TAGGED_SHOW_TEXT_GLYPHS:
       return cairoon_test_draw_tagged_show_text_glyphs(cr);
+    case CAIROON_TEST_VECTOR_GROUPED_GLYPH_TAG_MULTI_PAGE:
+      return cairoon_test_draw_grouped_glyph_tag_multi_page(cr);
     default:
       return CAIRO_STATUS_INVALID_STATUS;
   }

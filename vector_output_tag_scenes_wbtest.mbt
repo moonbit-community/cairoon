@@ -266,6 +266,71 @@ fn draw_wide_multi_page_tag_vector_scene(
 }
 
 ///|
+fn draw_grouped_glyph_tag_multi_page_scene(
+  ctx : Context,
+) -> Unit raise CairoError {
+  ctx.save()
+  ctx.push_group_with_content(ContentColorAlpha)
+  let background = Pattern::linear(0.0, 0.0, 10.0, 0.0)
+  background.add_color_stop_rgba(0.0, 1.0, 0.0, 0.0, 1.0)
+  background.add_color_stop_rgba(1.0, 0.0, 0.0, 1.0, 1.0)
+  ctx.rectangle(0.0, 0.0, 10.0, 10.0)
+  ctx.set_source(background)
+  ctx.fill()
+  ctx.set_source_rgba(1.0, 1.0, 1.0, 0.45)
+  ctx.arc(5.0, 5.0, 3.0, 0.0, 6.283185307179586)
+  ctx.fill()
+  let group = ctx.pop_group()
+  ctx.translate(1.0, 0.5)
+  ctx.scale(0.8, 0.8)
+  ctx.set_source(group)
+  ctx.paint_with_alpha(0.65)
+  ctx.restore()
+
+  ctx.select_font_face("serif")
+  ctx.set_font_size(3.0)
+  ctx.set_source_rgb(0.0, 0.0, 0.0)
+  ctx.tag_begin(TAG_LINK, "uri='https://example.com/grouped-glyphs'")
+  let first_run = ctx.get_scaled_font().text_to_glyphs(1.0, 6.5, "ffi")
+  ctx.show_text_glyphs(
+    "ffi",
+    first_run.glyphs,
+    first_run.clusters,
+    flags=first_run.flags,
+  )
+  ctx.tag_end(TAG_LINK)
+  ctx.show_page()
+
+  ctx.set_source_rgb(0.0, 0.35, 0.8)
+  ctx.tag_begin(TAG_LINK, "dest='cairoon-grouped-dest'")
+  ctx.rectangle(1.0, 1.0, 4.0, 2.0)
+  ctx.fill()
+  ctx.tag_end(TAG_LINK)
+
+  ctx.set_source_rgb(0.85, 0.1, 0.1)
+  ctx.tag_begin(TAG_DEST, "name='cairoon-grouped-dest' x=6 y=3")
+  ctx.move_to(6.0, 3.0)
+  ctx.show_text("dest")
+  ctx.tag_end(TAG_DEST)
+
+  ctx.set_source_rgb(0.1, 0.1, 0.1)
+  ctx.tag_begin("Document", "")
+  ctx.tag_begin("Sect", "")
+  ctx.tag_begin("P", "")
+  let second_run = ctx.get_scaled_font().text_to_glyphs(1.0, 8.5, "doc")
+  ctx.show_text_glyphs(
+    "doc",
+    second_run.glyphs,
+    second_run.clusters,
+    flags=second_run.flags,
+  )
+  ctx.tag_end("P")
+  ctx.tag_end("Sect")
+  ctx.tag_end("Document")
+  ctx.show_page()
+}
+
+///|
 fn fill_link_rect(ctx : Context, tagged : Bool) -> Unit raise CairoError {
   ctx.set_source_rgb(0.0, 0.0, 1.0)
   if tagged {

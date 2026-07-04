@@ -57,6 +57,47 @@ static void cairoon_test_select_pdf_tag_font(cairo_t *cr) {
   cairo_set_font_size(cr, 12.0);
 }
 
+static cairo_status_t cairoon_test_show_text_glyphs(
+  cairo_t *cr,
+  double x,
+  double y,
+  const char *text) {
+  int text_len = (int)strlen(text);
+  cairo_glyph_t *glyphs = NULL;
+  int num_glyphs = 0;
+  cairo_text_cluster_t *clusters = NULL;
+  int num_clusters = 0;
+  cairo_text_cluster_flags_t flags = 0;
+
+  cairo_status_t status = cairo_scaled_font_text_to_glyphs(
+    cairo_get_scaled_font(cr),
+    x,
+    y,
+    text,
+    text_len,
+    &glyphs,
+    &num_glyphs,
+    &clusters,
+    &num_clusters,
+    &flags);
+  if (status == CAIRO_STATUS_SUCCESS) {
+    cairo_show_text_glyphs(
+      cr,
+      text,
+      text_len,
+      glyphs,
+      num_glyphs,
+      clusters,
+      num_clusters,
+      flags);
+    status = cairo_status(cr);
+  }
+
+  cairo_glyph_free(glyphs);
+  cairo_text_cluster_free(clusters);
+  return status;
+}
+
 cairo_status_t cairoon_test_draw_pdf_uri_text_tag(cairo_t *cr) {
   cairoon_test_select_pdf_tag_font(cr);
   cairo_tag_begin(cr, CAIRO_TAG_LINK, "uri='https://example.com/'");
@@ -97,14 +138,6 @@ cairo_status_t cairoon_test_draw_pdf_struct_text_tag(cairo_t *cr) {
 }
 
 cairo_status_t cairoon_test_draw_tagged_show_text_glyphs(cairo_t *cr) {
-  const char *text = "a";
-  int text_len = (int)strlen(text);
-  cairo_glyph_t *glyphs = NULL;
-  int num_glyphs = 0;
-  cairo_text_cluster_t *clusters = NULL;
-  int num_clusters = 0;
-  cairo_text_cluster_flags_t flags = 0;
-
   cairo_select_font_face(
     cr,
     "serif",
@@ -114,36 +147,11 @@ cairo_status_t cairoon_test_draw_tagged_show_text_glyphs(cairo_t *cr) {
   cairo_set_source_rgb(cr, 0.0, 0.0, 0.0);
   cairo_tag_begin(cr, CAIRO_TAG_LINK, "uri='https://example.com/text-glyphs'");
 
-  cairo_status_t status = cairo_scaled_font_text_to_glyphs(
-    cairo_get_scaled_font(cr),
-    1.0,
-    6.5,
-    text,
-    text_len,
-    &glyphs,
-    &num_glyphs,
-    &clusters,
-    &num_clusters,
-    &flags);
-  if (status == CAIRO_STATUS_SUCCESS) {
-    cairo_show_text_glyphs(
-      cr,
-      text,
-      text_len,
-      glyphs,
-      num_glyphs,
-      clusters,
-      num_clusters,
-      flags);
-    status = cairo_status(cr);
-  }
-
+  cairo_status_t status = cairoon_test_show_text_glyphs(cr, 1.0, 6.5, "a");
   cairo_tag_end(cr, CAIRO_TAG_LINK);
   if (status == CAIRO_STATUS_SUCCESS) {
     status = cairo_status(cr);
   }
-  cairo_glyph_free(glyphs);
-  cairo_text_cluster_free(clusters);
   return status;
 }
 
@@ -368,6 +376,98 @@ cairo_status_t cairoon_test_draw_wide_multi_page_tag_vector(cairo_t *cr) {
   cairo_tag_end(cr, "P");
   cairo_tag_end(cr, "Sect");
   cairo_tag_end(cr, "Document");
+  cairo_show_page(cr);
+  return cairo_status(cr);
+}
+
+cairo_status_t cairoon_test_draw_grouped_glyph_tag_multi_page(cairo_t *cr) {
+  cairo_save(cr);
+  cairo_push_group_with_content(cr, CAIRO_CONTENT_COLOR_ALPHA);
+  cairo_status_t status = cairo_status(cr);
+  if (status == CAIRO_STATUS_SUCCESS) {
+    status = cairoon_test_apply_linear_gradient(cr, 10.0, 10.0);
+  }
+  if (status == CAIRO_STATUS_SUCCESS) {
+    cairo_set_source_rgba(cr, 1.0, 1.0, 1.0, 0.45);
+    cairo_arc(cr, 5.0, 5.0, 3.0, 0.0, 6.283185307179586);
+    cairo_fill(cr);
+    status = cairo_status(cr);
+  }
+
+  cairo_pattern_t *group = cairo_pop_group(cr);
+  if (status == CAIRO_STATUS_SUCCESS) {
+    status = cairo_pattern_status(group);
+  }
+  if (status == CAIRO_STATUS_SUCCESS) {
+    cairo_translate(cr, 1.0, 0.5);
+    cairo_scale(cr, 0.8, 0.8);
+    cairo_set_source(cr, group);
+    cairo_paint_with_alpha(cr, 0.65);
+    status = cairo_status(cr);
+  }
+  if (group != NULL) {
+    cairo_pattern_destroy(group);
+  }
+  cairo_restore(cr);
+  if (status == CAIRO_STATUS_SUCCESS) {
+    status = cairo_status(cr);
+  }
+  if (status != CAIRO_STATUS_SUCCESS) {
+    return status;
+  }
+
+  cairo_select_font_face(
+    cr,
+    "serif",
+    CAIRO_FONT_SLANT_NORMAL,
+    CAIRO_FONT_WEIGHT_NORMAL);
+  cairo_set_font_size(cr, 3.0);
+  cairo_set_source_rgb(cr, 0.0, 0.0, 0.0);
+  cairo_tag_begin(
+    cr,
+    CAIRO_TAG_LINK,
+    "uri='https://example.com/grouped-glyphs'");
+  status = cairoon_test_show_text_glyphs(cr, 1.0, 6.5, "ffi");
+  cairo_tag_end(cr, CAIRO_TAG_LINK);
+  if (status == CAIRO_STATUS_SUCCESS) {
+    status = cairo_status(cr);
+  }
+  if (status != CAIRO_STATUS_SUCCESS) {
+    return status;
+  }
+
+  cairo_show_page(cr);
+  if (cairo_status(cr) != CAIRO_STATUS_SUCCESS) {
+    return cairo_status(cr);
+  }
+
+  cairo_set_source_rgb(cr, 0.0, 0.35, 0.8);
+  cairo_tag_begin(cr, CAIRO_TAG_LINK, "dest='cairoon-grouped-dest'");
+  cairo_rectangle(cr, 1.0, 1.0, 4.0, 2.0);
+  cairo_fill(cr);
+  cairo_tag_end(cr, CAIRO_TAG_LINK);
+
+  cairo_set_source_rgb(cr, 0.85, 0.1, 0.1);
+  cairo_tag_begin(cr, CAIRO_TAG_DEST, "name='cairoon-grouped-dest' x=6 y=3");
+  cairo_move_to(cr, 6.0, 3.0);
+  cairo_show_text(cr, "dest");
+  cairo_tag_end(cr, CAIRO_TAG_DEST);
+
+  cairo_set_source_rgb(cr, 0.1, 0.1, 0.1);
+  cairo_tag_begin(cr, "Document", "");
+  cairo_tag_begin(cr, "Sect", "");
+  cairo_tag_begin(cr, "P", "");
+  status = cairoon_test_show_text_glyphs(cr, 1.0, 8.5, "doc");
+  cairo_tag_end(cr, "P");
+  cairo_tag_end(cr, "Sect");
+  cairo_tag_end(cr, "Document");
+  if (status == CAIRO_STATUS_SUCCESS) {
+    status = cairo_status(cr);
+  }
+  if (status != CAIRO_STATUS_SUCCESS) {
+    return status;
+  }
+
   cairo_show_page(cr);
   return cairo_status(cr);
 }

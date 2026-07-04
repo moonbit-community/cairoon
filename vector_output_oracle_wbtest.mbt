@@ -129,6 +129,17 @@ test "tagged show_text_glyphs vector scene matches direct cairo C oracle" {
 }
 
 ///|
+test "grouped glyph tag multi-page scene matches direct cairo C oracle" {
+  for kind in 0..<3 {
+    let ext = vector_output_extension(kind)
+    let cairoon_path = "/tmp/cairoon_vector_grouped_glyph_tag_\{kind}.\{ext}"
+    let oracle_path = "/tmp/cairoon_vector_grouped_glyph_tag_\{kind}_oracle.\{ext}"
+    render_vector_oracle_scene(kind, 30, cairoon_path)
+    expect_vector_oracle_match(kind, 30, cairoon_path, oracle_path)
+  }
+}
+
+///|
 test "ps svg tagged show_text_glyphs tags stay inert" {
   let forbidden = [
     "/Annots", "/Subtype /Link", "/URI", "/StructTreeRoot", "/S /Link", "https://example.com/text-glyphs",
@@ -138,6 +149,21 @@ test "ps svg tagged show_text_glyphs tags stay inert" {
     let ext = vector_output_extension(kind)
     let path = "/tmp/cairoon_vector_backend_text_glyphs_tag_absent_\{kind}.\{ext}"
     render_vector_oracle_scene(kind, 29, path)
+    expect_vector_output_absent(path, forbidden)
+  }
+}
+
+///|
+test "ps svg grouped glyph tags stay inert" {
+  let forbidden = [
+    "/Annots", "/Subtype /Link", "/URI", "/Dest", "/Dests", "/StructTreeRoot", "/S /Document",
+    "/S /Sect", "/S /P", "https://example.com/grouped-glyphs", "cairoon-grouped-dest",
+    "<a ",
+  ]
+  for kind in 1..<3 {
+    let ext = vector_output_extension(kind)
+    let path = "/tmp/cairoon_vector_backend_grouped_glyph_tag_absent_\{kind}.\{ext}"
+    render_vector_oracle_scene(kind, 30, path)
     expect_vector_output_absent(path, forbidden)
   }
 }
