@@ -1586,6 +1586,10 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   into `ffi_device.mbt`, added that file to the native target list, and
   reduced `ffi.mbt` to 1578 lines. This did not change public API or test
   count.
+  The later PDF surface raw FFI split slice moved raw PDF surface extern
+  declarations from `ffi.mbt` into `ffi_pdf_surface.mbt`, added that file to
+  the native target list, and reduced `ffi.mbt` to 1481 lines. This did not
+  change public API or test count.
 
 The missing reliability pieces are substantial: broader automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering

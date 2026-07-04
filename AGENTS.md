@@ -51,6 +51,7 @@ cairoon/
   ffi_font.mbt
   ffi_pattern.mbt
   ffi_path.mbt
+  ffi_pdf_surface.mbt
   ffi_region.mbt
   error.mbt
   types.mbt
@@ -117,6 +118,7 @@ options(
     "ffi_font.mbt": ["native"],
     "ffi_pattern.mbt": ["native"],
     "ffi_path.mbt": ["native"],
+    "ffi_pdf_surface.mbt": ["native"],
     "ffi_region.mbt": ["native"]
   },
 )
@@ -147,6 +149,8 @@ raster-source-pattern extern declarations that call `cairoon_pattern.c`;
 `ffi_device.mbt` owns raw `Device`, script-device, script-surface, and
 surface-get-device extern declarations that call `cairoon_device.c`;
 `ffi_path.mbt` owns raw `Path` extern declarations that call `cairoon_path.c`;
+`ffi_pdf_surface.mbt` owns raw PDF surface extern declarations that call
+`cairoon_pdf_surface.c`;
 and `ffi_region.mbt` owns raw `Region` extern declarations that call
 `cairoon_region.c`.
 
