@@ -920,12 +920,18 @@ test "ps svg link tag scenes match direct cairo C oracle" {
 }
 
 ///|
-test "ps svg destination and structure tag scenes match direct cairo C oracle" {
+test "ps svg tag and text tag scenes match direct cairo C oracle" {
   for kind in 1..<3 {
     let ext = vector_output_extension(kind)
     for scene in 16..<18 {
       let cairoon_path = "/tmp/cairoon_vector_backend_tag_scene_\{kind}_\{scene}.\{ext}"
       let oracle_path = "/tmp/cairoon_vector_backend_tag_scene_\{kind}_\{scene}_oracle.\{ext}"
+      render_vector_oracle_scene(kind, scene, cairoon_path)
+      expect_vector_oracle_match(kind, scene, cairoon_path, oracle_path)
+    }
+    for scene in 22..<25 {
+      let cairoon_path = "/tmp/cairoon_vector_backend_text_tag_scene_\{kind}_\{scene}.\{ext}"
+      let oracle_path = "/tmp/cairoon_vector_backend_text_tag_scene_\{kind}_\{scene}_oracle.\{ext}"
       render_vector_oracle_scene(kind, scene, cairoon_path)
       expect_vector_oracle_match(kind, scene, cairoon_path, oracle_path)
     }

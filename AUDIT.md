@@ -296,9 +296,9 @@ Implemented in this workspace:
   image-oracle and pattern tests with leak detection disabled.
 - `moon -C cairoon check --target native`: passed.
 - `moon -C cairoon test --target native`: 347 tests passed. The current run
-  includes the PS/SVG destination and document-structure tag direct C oracle
-  slice, the PDF text-tag direct C oracle slice, the raster-source compatible
-  target/extents acquire slice, the PS/SVG Link tag direct C oracle slice, the context
+  includes the PS/SVG tag and text-tag direct C oracle slice, the PDF text-tag
+  direct C oracle slice, the raster-source compatible target/extents acquire
+  slice, the PS/SVG Link tag direct C oracle slice, the context
   `get_group_target` post-scope lifetime slice, the PDF combined text
   document-feature oracle slice, and the earlier context `get_source`
   surface-pattern lifetime coverage for the path where both the original source
@@ -315,9 +315,9 @@ Implemented in this workspace:
   backend docs, and backend stream callback allocation stress.
 - `moon -C cairoon test vector_output_wbtest.mbt --target native -v`: 25
   white-box vector tests passed, including PS/SVG destination and
-  document-structure tags, PDF URI-link/named-destination/document-structure
-  text tag scenes, and PS/SVG Link tag inertness matched against direct C Cairo
-  output and the combined PDF
+  document-structure rectangle and text tag scenes, PDF
+  URI-link/named-destination/document-structure text tag scenes, and PS/SVG
+  Link tag inertness matched against direct C Cairo output and the combined PDF
   metadata/custom-metadata/page-label/outline/URI/named-destination/
   document-structure test matched against a direct C Cairo output oracle that
   also draws tagged text.
@@ -1179,9 +1179,9 @@ Implemented in this workspace:
   for URI-link, named-destination, and document-structure tags drawn with
   `show_text`. This raised `vector_output_wbtest.mbt` to 24 tests and the full
   native suite to 346 tests.
-  The later backend destination/document-structure tag oracle slice expanded
-  that check to normalized direct C Cairo comparisons for PS and SVG destination
-  and shared Document/Sect/H1/P tag scenes. This raised
+  The later backend tag/text-tag oracle slice expanded that check to normalized
+  direct C Cairo comparisons for PS and SVG destination and shared
+  Document/Sect/H1/P rectangle and text tag scenes. This raised
   `vector_output_wbtest.mbt` to 25 tests and the full native suite to 347
   tests.
 
@@ -1190,20 +1190,20 @@ Implemented in this workspace:
 - Broader normalized PDF/SVG/PS output comparison is still missing for
   tag/metadata/multi-page combinations beyond the current fifteen-scene
   cross-backend direct C fixtures, three PDF rectangle tag oracle scenes, three
-  PDF text-tag oracle scenes, PS/SVG destination and document-structure tag
-  oracle scenes, and two PDF document-feature oracle scenes. PDF/PS/SVG now
-  have multi-page marker
+  PDF text-tag oracle scenes, PS/SVG destination and document-structure
+  rectangle and text tag oracle scenes, and two PDF document-feature oracle
+  scenes. PDF/PS/SVG now have multi-page marker
   checks and two two-page direct C oracle scenes, PDF/PS/SVG have a single-page
   toy-font `show_text` oracle scene, and PDF has direct C coverage for URI
   links, named destinations, Document/Sect/H1/P structure tags in both
   rectangle and text cases, plus two two-page metadata/custom-metadata/page-
   label/outline/tag combinations, including one text/tag-aware scene. PS/SVG
-  Link tag inertness plus destination/document-structure tags also have direct C
-  oracle coverage.
+  Link tag inertness plus destination/document-structure rectangle and text tags
+  also have direct C oracle coverage.
   Broader cross-backend tag/metadata combinations, broader multi-page
   combinations, and richer tag-output assertions are still absent beyond those
-  PDF scenes and PS/SVG Link/destination/document-structure direct-oracle
-  coverage. PDF/PS/SVG stream-writer constructors,
+  PDF scenes and PS/SVG Link/destination/document-structure rectangle/text
+  direct-oracle coverage. PDF/PS/SVG stream-writer constructors,
   script stream devices, and PNG stream read/write now have copied-byte
   callback tests and read/write error propagation coverage.
 - `Surface::copy_data` still copies Cairo image data into MoonBit `Bytes`;
