@@ -529,24 +529,25 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, and 2026-07-05:
   fallback to `WriteError`, PNG stream write/read, PNG write `WriteError`, PNG
   writer invalid-status fallback to `WriteError`, and PNG short-read error
   mapping.
-- `moon -C cairoon test surface_stream_wbtest.mbt --target native -v`: 16
+- `moon -C cairoon test surface_stream_wbtest.mbt --target native -v`: 6
   white-box stream equivalence tests passed, comparing PDF/PS/SVG stream output
-  with file output after normalized comparison for non-text primitive
-  paint/stroke/fill/path/transform/gradient/multi-page/clip/dash/
-  surface-pattern/mask/mesh scenes, deterministic two-page and copy_page
-  retained two-page and Surface::copy_page retained two-page scenes plus
-  Surface::show_page cleared two-page scenes, tagged three-page, tagged
-  `show_text_glyphs`, grouped glyph/tag multi-page, mixed vector/tag/text,
-  glyph_path/show_glyphs vector scenes,
-  layered three-page
-  clip/dash/surface-pattern/mask/tag/text, wide three-page tag/vector, and
-  backend document-feature scenes covering PDF metadata/custom metadata/page
-  labels/outlines/tags, PS DSC, and SVG document units, plus PDF text
-  document-feature, PDF JPEG MIME, and PDF thumbnail output.
-- `moon -C cairoon test surface_stream_tag_wbtest.mbt --target native -v`: 1
-  white-box stream equivalence test passed, comparing PDF/PS/SVG file output
+  with file output after normalized comparison for deterministic two-page,
+  copy_page retained two-page, Surface::copy_page retained two-page,
+  Surface::show_page cleared two-page, glyph_path/show_glyphs vector, and
+  non-text primitive paint/stroke/fill/path/transform/gradient/multi-page/
+  clip/dash/surface-pattern/mask/mesh scenes.
+- `moon -C cairoon test surface_stream_backend_wbtest.mbt --target native -v`:
+  4 white-box stream equivalence tests passed, covering backend document-feature
+  scenes for PDF metadata/custom metadata/page labels/outlines/tags, PS DSC,
+  and SVG document units, plus PDF text document-feature, PDF JPEG MIME, and
+  PDF thumbnail output.
+- `moon -C cairoon test surface_stream_tag_wbtest.mbt --target native -v`: 7
+  white-box stream equivalence tests passed, comparing PDF/PS/SVG file output
   with stream output after normalized comparison for single-page URI-link,
-  named-destination, and document-structure rectangle/text tag scenes.
+  named-destination, and document-structure rectangle/text tag scenes, tagged
+  multi-page, mixed vector/tag/text, tagged `show_text_glyphs`, grouped
+  glyph/tag multi-page, layered three-page clip/dash/surface-pattern/mask/tag/
+  text, and wide three-page tag/vector scenes.
 - `moon -C cairoon info --target native`: completed with no work to do; these
   stream equivalence slices change no public API or generated interface
   metadata.
@@ -568,20 +569,24 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, and 2026-07-05:
   stream callback tests passed with leak detection disabled.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
-  surface_stream_wbtest.mbt --target native -v`: 16 ASan-compiled white-box
+  surface_stream_wbtest.mbt --target native -v`: 6 ASan-compiled white-box
   stream equivalence tests passed with leak detection disabled, including the
-  non-text primitive paint/stroke/fill/path/transform/gradient/multi-page/
-  clip/dash/surface-pattern/mask/mesh paths, tagged `show_text_glyphs`, grouped
-  glyph/tag, copy_page retained, and Surface::copy_page retained and
-  Surface::show_page cleared stream-vs-file paths, plus glyph_path/show_glyphs
-  vector scenes and the PDF text document-feature, PDF JPEG MIME, and PDF
-  thumbnail stream-vs-file paths.
+  deterministic two-page, copy_page retained, Surface::copy_page retained,
+  Surface::show_page cleared, glyph_path/show_glyphs, and non-text primitive
+  vector stream-vs-file paths.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
-  surface_stream_tag_wbtest.mbt --target native -v`: 1 ASan-compiled white-box
-  stream equivalence test passed with leak detection disabled, covering the
-  single-page URI-link, named-destination, and document-structure rectangle/text
-  tag stream-vs-file paths.
+  surface_stream_backend_wbtest.mbt --target native -v`: 4 ASan-compiled
+  white-box stream equivalence tests passed with leak detection disabled,
+  covering backend document-feature, PDF text document-feature, PDF JPEG MIME,
+  and PDF thumbnail stream-vs-file paths.
+- `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
+  ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
+  surface_stream_tag_wbtest.mbt --target native -v`: 7 ASan-compiled white-box
+  stream equivalence tests passed with leak detection disabled, covering
+  single-page tag, tagged multi-page, mixed tag/vector/text, tagged
+  `show_text_glyphs`, grouped glyph/tag, layered multi-page, and wide
+  multi-page tag/vector stream-vs-file paths.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
   surface_mapped_test.mbt --target native -v`: 6 ASan-compiled black-box
@@ -2056,14 +2061,20 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, and 2026-07-05:
   non-text primitive vector scenes covering paint, stroke, fill, paths,
   transforms, gradients, multi-page, clip, dash, surface-pattern, mask-surface,
   and mesh-pattern rendering. This raised the full native suite to 418 tests
-  and the surface stream white-box target to 16 tests; the vector white-box
-  target remained at 52 tests.
+  and the then-combined surface stream white-box target to 16 tests; the vector
+  white-box target remained at 52 tests.
   The later single-page tag stream-equivalence slice added a separate
   `surface_stream_tag_wbtest.mbt` case proving PDF/PS/SVG file-vs-stream
   normalized equality for URI-link, named-destination, and document-structure
   rectangle/text tag scenes. This raised the full native suite to 419 tests;
-  `surface_stream_wbtest.mbt` remained at 16 tests and the vector white-box
-  target remained at 52 tests.
+  the then-combined `surface_stream_wbtest.mbt` target remained at 16 tests and
+  the vector white-box target remained at 52 tests.
+  The later stream-equivalence organization slice split the 17 stream
+  equivalence tests across `surface_stream_wbtest.mbt` (6 base/vector tests),
+  `surface_stream_backend_wbtest.mbt` (4 backend feature tests), and
+  `surface_stream_tag_wbtest.mbt` (7 tag-heavy tests), with shared helpers in
+  `surface_stream_helpers_wbtest.mbt`. This preserved the full native suite at
+  419 tests and changed no public API.
 
 The missing reliability pieces are substantial: broader automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering
