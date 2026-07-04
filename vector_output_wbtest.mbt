@@ -811,6 +811,32 @@ test "pdf tagged multi-page text output contains structure markers" {
 }
 
 ///|
+test "pdf mixed vector tag text output contains combined tag markers" {
+  let path = "/tmp/cairoon_vector_pdf_mixed_tag_text_markers.pdf"
+  render_vector_oracle_scene(0, 26, path)
+  expect_vector_output(path, [
+    "%PDF-1.4", "/Type /Page % 1", "/Annots [", "/Subtype /Link", "/S /URI", "/URI (https://example.com/mixed)",
+    "/Dest (cairoon-mixed-dest)", "/Names", "/Dests", "(cairoon-mixed-dest)", "/StructTreeRoot",
+    "/Type /StructElem", "/S /Link", "/S /Document", "/S /Sect", "/S /P", "/StructParents 0",
+    "%%EOF",
+  ])
+}
+
+///|
+test "ps svg mixed vector tag text output omits pdf tag metadata" {
+  let forbidden = [
+    "/Annots", "/Subtype /Link", "/URI", "/Dest", "/Dests", "/StructTreeRoot", "/S /Document",
+    "/S /Sect", "/S /P", "cairoon-mixed-dest", "https://example.com/mixed", "<a ",
+  ]
+  for kind in 1..<3 {
+    let ext = vector_output_extension(kind)
+    let path = "/tmp/cairoon_vector_backend_mixed_tag_absent_\{kind}.\{ext}"
+    render_vector_oracle_scene(kind, 26, path)
+    expect_vector_output_absent(path, forbidden)
+  }
+}
+
+///|
 test "pdf output embeds jpeg mime data from image source" {
   let path = "/tmp/cairoon_vector_pdf_jpeg_mime.pdf"
   let jpeg = tiny_jpeg_payload()
