@@ -176,7 +176,9 @@ targeted ASan portion intentionally.
 
 The current cairoon slice is not a full migration. It has native package setup,
 pycairo-style C glue split into private shared declarations plus per-family
-stub files, opaque external-object wrappers for `Surface`,
+stub files, with private test-only oracle glue split into common drawing,
+file/normalized-output comparison, vector-output, and ARGB32 image helpers,
+opaque external-object wrappers for `Surface`,
 `MappedImageSurface`, `Context`, `Path`, `Pattern`, `FontOptions`, `FontFace`,
 `ScaledFont`, `Region`, and `Device`, pure value types including `Glyph` with
 `UInt64` index width, many portable enums,

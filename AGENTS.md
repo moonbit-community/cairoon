@@ -59,6 +59,10 @@ cairoon/
   cairoon_private.h
   cairoon_objects.c
   cairoon_misc.c
+  cairoon_test_common.c
+  cairoon_test_file.c
+  cairoon_test_vector.c
+  cairoon_test_image.c
   cairoon_device.c
   cairoon_surface.c
   cairoon_pdf_surface.c
@@ -86,6 +90,10 @@ options(
   "native-stub": [
     "cairoon_objects.c",
     "cairoon_misc.c",
+    "cairoon_test_common.c",
+    "cairoon_test_file.c",
+    "cairoon_test_vector.c",
+    "cairoon_test_image.c",
     "cairoon_device.c",
     "cairoon_surface.c",
     "cairoon_pdf_surface.c",
@@ -143,6 +151,10 @@ payload types and cross-file helpers declared in `cairoon_private.h`.
   the file grows enough to split into `cairoon_font_options.c`,
   `cairoon_font_face.c`, and `cairoon_scaled_font.c`.
 - `cairoon_region.c`: `Region` exports.
+- `cairoon_test_common.c`, `cairoon_test_file.c`, `cairoon_test_vector.c`, and
+  `cairoon_test_image.c`: private white-box oracle helpers only. Keep public
+  binding exports out of these files, and keep test oracles out of
+  `cairoon_misc.c` except for truly tiny module-level probes.
 
 When a new Cairo family is migrated, create a new C file named after that
 family instead of adding unrelated code to an existing file. Keep files small

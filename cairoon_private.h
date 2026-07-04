@@ -140,6 +140,24 @@ cairo_status_t cairoon_stream_read(
 void cairoon_stream_read_state_destroy(void *state);
 
 moonbit_bytes_t cairoon_copy_c_string(const char *str);
+cairo_status_t cairoon_test_apply_linear_gradient(
+  cairo_t *cr,
+  double width,
+  double height);
+cairo_status_t cairoon_test_apply_radial_gradient(
+  cairo_t *cr,
+  double width,
+  double height);
+cairo_status_t cairoon_test_apply_surface_pattern(
+  cairo_t *cr,
+  double width,
+  double height);
+cairo_status_t cairoon_test_apply_raster_source_pattern(
+  cairo_t *cr,
+  double width,
+  double height);
+cairo_status_t cairoon_test_apply_mask_surface(cairo_t *cr);
+cairo_status_t cairoon_test_apply_mesh_pattern(cairo_t *cr);
 cairo_status_t cairoon_glyphs_from_fields(
   uint64_t *indices,
   double *xs,

@@ -12,7 +12,9 @@ Implemented in this workspace:
   `private.h` plus per-family C file architecture. GC-managed external objects
   currently cover `Surface`, `MappedImageSurface`, `ImageData`, `Context`,
   `Path`, `Pattern`, `FontOptions`, `FontFace`, `ScaledFont`, `Region`, and
-  `Device`.
+  `Device`. Private test-only oracle glue is also split by responsibility:
+  common drawing helpers, file/normalized-output comparison, vector-output
+  oracles, and ARGB32 image oracles.
 - MoonBit `Eq`/`Hash` traits are implemented for hashable Cairo external
   objects that already expose cairoon equality/hash helpers: `Surface`,
   `Context`, `Pattern`, `Device`, `FontOptions`, `FontFace`, `ScaledFont`, and
@@ -301,7 +303,10 @@ Implemented in this workspace:
   text document-feature plus PS DSC/SVG unit backend-feature oracle checks,
   and pattern oracle tests,
   the full native suite, `moon info --target native`, and targeted ASan
-  image-oracle and pattern tests with leak detection disabled.
+  image-oracle and pattern tests with leak detection disabled. The current run
+  includes the C stub split that moved private test oracles out of
+  `cairoon_misc.c` into common/file/vector/image helper files without changing
+  public API or test count.
 - `moon -C cairoon check --target native`: passed.
 - `moon -C cairoon test --target native`: 351 tests passed. The current run
   includes the PS/SVG tag metadata absence slice, the PDF tagged multi-page
@@ -336,7 +341,7 @@ Implemented in this workspace:
   document-structure test matched against a direct C Cairo output oracle that
   also draws tagged text.
 - `moon -C cairoon info --target native`: completed with no work to do; this
-  PS/SVG tag metadata absence slice changes no public API or generated
+  C stub split changes no public API or generated
   interface metadata.
 - `moon -C cairoon test image_oracle_wbtest.mbt --target native -v`: 2
   white-box image rendering oracle tests passed. Ordinary image surfaces and
