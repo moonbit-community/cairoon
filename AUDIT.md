@@ -455,7 +455,8 @@ Implemented in this workspace:
   the wide multi-page vector/tag oracle slice,
   the packaging/pycairo-porting documentation slice, the mixed
   vector/tag/text marker slice, the direct C oracle slice, the PDF thumbnail
-  direct C oracle slice, and the prior C
+  direct C oracle slice, the PDF thumbnail stream equivalence slice, and the
+  prior C
   stub split that moved private test oracles out of `cairoon_misc.c` into
   common/file/vector/image helper files, plus the raw FFI splits that moved
   font and pattern extern declarations into `ffi_font_options.mbt`,
@@ -463,7 +464,7 @@ Implemented in this workspace:
   `ffi_pattern.mbt`, `ffi_pattern_mesh.mbt`, and
   `ffi_pattern_raster_source.mbt`.
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native`: 414 tests passed. The current run
+- `moon -C cairoon test --target native`: 415 tests passed. The current run
   includes the pycairo context font-extents parity slice,
   the pycairo group-target stack-restoration slice,
   the pycairo rectangle path-extents slice,
@@ -508,7 +509,8 @@ Implemented in this workspace:
   glyph/tag vector-output slice, the copy_page retained vector-output slice, the
   Surface page primitive vector-output slice, the Surface show-page cleared
   primitive slice, the glyph vector backend oracle slice, the PDF JPEG MIME
-  direct C oracle slice, the PDF thumbnail direct C oracle slice, and
+  direct C oracle slice, the PDF thumbnail direct C oracle slice, the PDF
+  thumbnail stream equivalence slice, and
   the earlier context `get_source`
   surface-pattern lifetime coverage for the path where both the original source
   wrapper and context scope have exited, plus the layered multi-page vector/tag
@@ -600,7 +602,7 @@ Implemented in this workspace:
   fallback to `WriteError`, PNG stream write/read, PNG write `WriteError`, PNG
   writer invalid-status fallback to `WriteError`, and PNG short-read error
   mapping.
-- `moon -C cairoon test surface_stream_wbtest.mbt --target native -v`: 12
+- `moon -C cairoon test surface_stream_wbtest.mbt --target native -v`: 13
   white-box stream equivalence tests passed, comparing PDF/PS/SVG stream output
   with file output after normalized comparison for deterministic two-page and
   copy_page retained two-page and Surface::copy_page retained two-page scenes
@@ -610,7 +612,8 @@ Implemented in this workspace:
   layered three-page
   clip/dash/surface-pattern/mask/tag/text, wide three-page tag/vector, and
   backend document-feature scenes covering PDF metadata/custom metadata/page
-  labels/outlines/tags, PS DSC, and SVG document units.
+  labels/outlines/tags, PS DSC, and SVG document units, plus PDF thumbnail
+  output.
 - `moon -C cairoon info --target native`: completed with no work to do; these
   stream equivalence slices change no public API or generated interface
   metadata.
@@ -632,11 +635,12 @@ Implemented in this workspace:
   stream callback tests passed with leak detection disabled.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
-  surface_stream_wbtest.mbt --target native -v`: 12 ASan-compiled white-box
+  surface_stream_wbtest.mbt --target native -v`: 13 ASan-compiled white-box
   stream equivalence tests passed with leak detection disabled, including the
   tagged `show_text_glyphs`, grouped glyph/tag, copy_page retained, and
   Surface::copy_page retained and Surface::show_page cleared stream-vs-file
-  paths, plus glyph_path/show_glyphs vector scenes.
+  paths, plus glyph_path/show_glyphs vector scenes and the PDF thumbnail
+  stream-vs-file path.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
   surface_mapped_test.mbt --target native -v`: 6 ASan-compiled black-box
@@ -2008,6 +2012,11 @@ Implemented in this workspace:
   direct C oracle comparison with fixed metadata dates. This raised the full
   native suite to 414 tests and the vector white-box target to 52 tests; the
   surface stream white-box target remained at 12 tests.
+  The later PDF thumbnail stream-equivalence slice added a PDF-only
+  file-vs-stream output equality check for `Surface::pdf_set_thumbnail_size`.
+  This raised the full native suite to 415 tests and the surface stream
+  white-box target to 13 tests; the vector white-box target remained at 52
+  tests.
 
 ## Known Gaps
 
@@ -2051,8 +2060,8 @@ Implemented in this workspace:
   PDF/PS/SVG stream-writer constructors now also have deterministic two-page,
   tagged three-page, tagged `show_text_glyphs`, grouped glyph/tag multi-page,
   copy_page retained two-page, mixed vector/tag/text, layered three-page clip/dash/surface-pattern/mask/tag/text,
-  wide three-page tag/vector, and backend document-feature stream-vs-file
-  normalized equality coverage plus
+  wide three-page tag/vector, PDF thumbnail output, and backend
+  document-feature stream-vs-file normalized equality coverage plus
   PDF/PS/SVG, PNG-writer, and script-writer `WriteError`
   and invalid-status fallback mapping; script stream devices and PNG
   stream read/write now have copied-byte callback tests and read/write error

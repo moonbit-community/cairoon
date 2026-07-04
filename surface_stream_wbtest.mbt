@@ -416,6 +416,28 @@ test "document feature stream output matches file output after normalization" {
 }
 
 ///|
+test "pdf thumbnail stream output matches file output" {
+  let path = "/tmp/cairoon_stream_pdf_thumbnail_file_equivalence.pdf"
+  render_pdf_thumbnail_scene(path)
+
+  let chunks : Array[Bytes] = []
+  let stream_surface = Surface::pdf_stream(20.0, 20.0, fn(chunk) {
+    chunks.push(chunk)
+    Success
+  })
+  render_pdf_thumbnail_surface(stream_surface)
+  inspect(chunks.length() > 0, content="true")
+  inspect(
+    test_vector_file_equals_bytes_ffi(
+      0,
+      @utf8.encode(path),
+      stream_equivalence_chunks_to_bytes(chunks),
+    ),
+    content="true",
+  )
+}
+
+///|
 test "mixed tag vector stream output matches file output after normalization" {
   for kind in 0..<3 {
     let ext = stream_equivalence_extension(kind)
