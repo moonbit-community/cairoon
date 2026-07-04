@@ -18,8 +18,10 @@ Implemented in this workspace:
 - MoonBit raw FFI declarations are beginning to follow the same family split:
   `ffi.mbt` keeps object type declarations and small module-level exports, while
   `ffi_font.mbt` owns raw `FontOptions`, `FontFace`, `ScaledFont`, and
-  text-to-glyphs extern declarations, and `ffi_pattern.mbt` owns raw
-  `Pattern`, mesh-pattern, and raster-source-pattern extern declarations.
+  text-to-glyphs extern declarations, `ffi_pattern.mbt` owns raw `Pattern`,
+  mesh-pattern, and raster-source-pattern extern declarations, and
+  `ffi_device.mbt` owns raw `Device`, script-device, script-surface, and
+  surface-get-device extern declarations.
   `ffi_path.mbt` and `ffi_region.mbt` own raw `Path` and `Region` extern
   declarations.
 - MoonBit `Eq`/`Hash` traits are implemented for hashable Cairo external
@@ -1511,6 +1513,11 @@ Implemented in this workspace:
   extern declarations from `ffi.mbt` into `ffi_path.mbt` and
   `ffi_region.mbt`, added both files to the native target list, and reduced
   `ffi.mbt` to 1683 lines. This did not change public API or test count.
+  The later Device raw FFI split slice moved raw `Device`, script-device,
+  script-surface, and surface-get-device extern declarations from `ffi.mbt`
+  into `ffi_device.mbt`, added that file to the native target list, and
+  reduced `ffi.mbt` to 1578 lines. This did not change public API or test
+  count.
 
 ## Known Gaps
 

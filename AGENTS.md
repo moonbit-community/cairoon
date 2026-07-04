@@ -47,6 +47,7 @@ cairoon/
   moon.mod
   moon.pkg
   ffi.mbt
+  ffi_device.mbt
   ffi_font.mbt
   ffi_pattern.mbt
   ffi_path.mbt
@@ -112,6 +113,7 @@ options(
   ],
   targets: {
     "ffi.mbt": ["native"],
+    "ffi_device.mbt": ["native"],
     "ffi_font.mbt": ["native"],
     "ffi_pattern.mbt": ["native"],
     "ffi_path.mbt": ["native"],
@@ -142,6 +144,8 @@ exports in `ffi.mbt`; move larger families into files named
 `FontFace`, `ScaledFont`, and text-to-glyphs extern declarations that call
 `cairoon_font.c`; `ffi_pattern.mbt` owns the raw `Pattern`, mesh-pattern, and
 raster-source-pattern extern declarations that call `cairoon_pattern.c`;
+`ffi_device.mbt` owns raw `Device`, script-device, script-surface, and
+surface-get-device extern declarations that call `cairoon_device.c`;
 `ffi_path.mbt` owns raw `Path` extern declarations that call `cairoon_path.c`;
 and `ffi_region.mbt` owns raw `Region` extern declarations that call
 `cairoon_region.c`.
