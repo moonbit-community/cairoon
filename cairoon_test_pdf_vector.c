@@ -1,5 +1,87 @@
 #include "cairoon_test_vector_private.h"
 
+MOONBIT_FFI_EXPORT
+cairo_status_t cairoon_test_render_pdf_jpeg_mime_oracle(
+  moonbit_bytes_t filename,
+  moonbit_bytes_t payload) {
+#if CAIRO_HAS_PDF_SURFACE && defined(CAIRO_HAS_MIME_SURFACE)
+  if (filename == NULL || payload == NULL) {
+    return CAIRO_STATUS_INVALID_STRING;
+  }
+  int32_t payload_len = Moonbit_array_length(payload);
+  if (payload_len < 0) {
+    return CAIRO_STATUS_INVALID_SIZE;
+  }
+
+  cairo_surface_t *surface = cairo_pdf_surface_create(
+    (const char *)filename,
+    3.0,
+    3.0);
+  cairo_status_t status = cairo_surface_status(surface);
+
+  if (status == CAIRO_STATUS_SUCCESS) {
+    cairo_pdf_surface_restrict_to_version(surface, CAIRO_PDF_VERSION_1_4);
+    cairo_pdf_surface_set_metadata(
+      surface,
+      CAIRO_PDF_METADATA_CREATOR,
+      "cairoon-vector-oracle");
+    cairo_pdf_surface_set_metadata(
+      surface,
+      CAIRO_PDF_METADATA_CREATE_DATE,
+      "2026-01-02T03:04:05+00:00");
+    cairo_pdf_surface_set_metadata(
+      surface,
+      CAIRO_PDF_METADATA_MOD_DATE,
+      "2026-01-02T03:04:05+00:00");
+    status = cairo_surface_status(surface);
+  }
+
+  cairo_surface_t *image = NULL;
+  if (status == CAIRO_STATUS_SUCCESS) {
+    image = cairo_image_surface_create(CAIRO_FORMAT_RGB24, 1, 1);
+    status = cairo_surface_status(image);
+  }
+  if (status == CAIRO_STATUS_SUCCESS) {
+    status = cairo_surface_set_mime_data(
+      image,
+      CAIRO_MIME_TYPE_JPEG,
+      (const unsigned char *)payload,
+      (unsigned long)payload_len,
+      NULL,
+      NULL);
+  }
+
+  cairo_t *cr = NULL;
+  if (status == CAIRO_STATUS_SUCCESS) {
+    cr = cairo_create(surface);
+    status = cairo_status(cr);
+  }
+  if (status == CAIRO_STATUS_SUCCESS) {
+    cairo_set_source_surface(cr, image, 0.0, 0.0);
+    cairo_paint(cr);
+    status = cairo_status(cr);
+  }
+
+  if (cr != NULL) {
+    cairo_destroy(cr);
+  }
+  if (image != NULL) {
+    cairo_surface_destroy(image);
+  }
+  cairo_surface_finish(surface);
+  cairo_status_t surface_status = cairo_surface_status(surface);
+  cairo_surface_destroy(surface);
+  if (status != CAIRO_STATUS_SUCCESS) {
+    return status;
+  }
+  return surface_status;
+#else
+  (void)filename;
+  (void)payload;
+  return CAIRO_STATUS_INVALID_STATUS;
+#endif
+}
+
 cairo_status_t cairoon_test_render_pdf_document_features(
   const char *name) {
 #if CAIRO_HAS_PDF_SURFACE && CAIRO_VERSION >= CAIRO_VERSION_ENCODE(1, 17, 6)

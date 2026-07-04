@@ -316,14 +316,10 @@ test "ps svg mixed vector tag text output omits pdf tag metadata" {
 test "pdf output embeds jpeg mime data from image source" {
   let path = "/tmp/cairoon_vector_pdf_jpeg_mime.pdf"
   let jpeg = tiny_jpeg_payload()
-  let surface = Surface::pdf(3.0, 3.0, path=Some(path))
-  inspect(surface.supports_mime_type(MIME_TYPE_JPEG), content="true")
-  let ctx = Context::new(surface)
-  let image = Surface::image(Rgb24, 1, 1)
-  image.set_mime_data(MIME_TYPE_JPEG, Some(jpeg))
-  ctx.set_source_surface(image)
-  ctx.paint()
-  surface.finish()
+  let support_surface = Surface::pdf(3.0, 3.0)
+  inspect(support_surface.supports_mime_type(MIME_TYPE_JPEG), content="true")
+  support_surface.finish()
+  render_pdf_jpeg_mime_scene(path, jpeg)
   expect_vector_output_bytes(path, jpeg)
 }
 

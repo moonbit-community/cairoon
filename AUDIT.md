@@ -206,11 +206,11 @@ Implemented in this workspace:
   `show_text_glyphs`, source-surface offset sampling, and mask-surface offset
   compositing, raster-source pattern repeat rendering, dashed round-cap
   strokes, clipped paint/fill output, and `OperatorClear` compositing output,
-  direct C Cairo oracle comparisons for fifteen deterministic PDF/PS/SVG vector
-  scenes covering paint, stroke, fill/stroke rectangles, Bezier paths,
-  transforms, linear/radial gradients, toy-font text paths, and toy-font
-  `show_text`, two-page paint, clip, dashed stroke, repeated surface pattern,
-  mask surface, mesh pattern scenes, a layered three-page clip/dash/surface-pattern/mask/tag/text scene,
+  direct C Cairo oracle comparisons for seventeen deterministic PDF/PS/SVG
+  vector scenes covering paint, stroke, fill/stroke rectangles, Bezier paths,
+  transforms, linear/radial gradients, toy-font text paths, toy-font
+  `show_text`, `glyph_path`, `show_glyphs`, two-page paint, clip, dashed
+  stroke, repeated surface pattern, mask surface, mesh pattern scenes, a layered three-page clip/dash/surface-pattern/mask/tag/text scene,
   and a wide three-page URI/destination/document-structure tag/vector scene,
   mutable image-data read/write/copy, buffer-backed storage sharing,
   image-data surface-retention, mapped-image data upload/unmap invalidation, and
@@ -235,16 +235,16 @@ Implemented in this workspace:
   base-finish invalidation, core painting/page behavior, hit testing
   and extents, MIME data storage/clear behavior including embedded NUL bytes,
   zero-length payloads, invalid MIME type strings, image/PDF/PS/SVG support
-  matrices, and PDF JPEG MIME passthrough, recording surface
+  matrices, and PDF JPEG MIME passthrough with direct C oracle coverage, recording surface
   bounded/unbounded extents,
   replay-through-surface-pattern behavior, subtype-mismatch errors,
   PDF surface version helper behavior, no-output and filename construction,
   version restriction, page size, metadata, custom metadata, page label,
   thumbnail, single-flag and combined-flag outline behavior,
   stable structural output markers, PDF metadata/custom-metadata/page-label/outline
-  output markers, PDF multi-page output markers, PDF 1.4 fifteen-scene
-  cross-backend direct C vector-oracle comparison plus three PDF tag oracle
-  scenes, three PDF text-tag oracle scenes, one cross-backend tagged
+  output markers, PDF multi-page output markers, PDF 1.4 seventeen-scene
+  cross-backend direct C vector-oracle comparison including `glyph_path` and
+  `show_glyphs` plus three PDF tag oracle scenes, three PDF text-tag oracle scenes, one cross-backend tagged
   multi-page text oracle scene, one cross-backend tagged `show_text_glyphs`
   oracle scene, one cross-backend grouped glyph/tag multi-page oracle scene,
   one cross-backend copy_page retained two-page oracle scene,
@@ -252,8 +252,8 @@ Implemented in this workspace:
   scene, one cross-backend layered three-page clip/dash/surface-pattern/mask/tag/text
   oracle scene, one cross-backend wide three-page URI/destination/
   document-structure tag/vector oracle scene, and two PDF document-feature oracle scenes,
-  including one text/tag-aware combined scene, PDF JPEG MIME data
-  embedding, PDF 1.4 URI link-tag annotation markers,
+  including one text/tag-aware combined scene, PDF JPEG MIME data embedding
+  with direct C oracle comparison, PDF 1.4 URI link-tag annotation markers,
   PDF named-destination tag markers, PDF document-structure tag markers,
   finished-surface errors, invalid string validation, and subtype-mismatch
   errors across bound page-size/version/metadata/custom-metadata/page-label/
@@ -263,15 +263,17 @@ Implemented in this workspace:
   script-surface proxy rendering behavior, and `DeviceFinished` propagation,
   PS surface level helper behavior, no-output and filename construction, EPS
   mode, level restriction, size/DSC helpers, finished-surface errors, invalid
-  DSC/path validation, stable page/drawing output markers, fifteen-scene direct C
-  vector-oracle comparison with `CreationDate` normalization, normalized direct
+  DSC/path validation, stable page/drawing output markers, seventeen-scene direct C
+  vector-oracle comparison with `glyph_path`, `show_glyphs`, and
+  `CreationDate` normalization, normalized direct
   C oracle comparison for the combined language-level/DSC setup/page-setup/
   two-page feature scene and Link tag inertness on PS output, and subtype-mismatch
   errors across bound EPS/level/page-size/DSC helpers,
   SVG surface version helper behavior, no-output and filename construction,
   document-unit behavior, finished-surface errors including document-unit
   getters, invalid path validation, and
-  stable geometry/color output markers, normalized fifteen-scene direct C vector-oracle comparison,
+  stable geometry/color output markers, normalized seventeen-scene direct C
+  vector-oracle comparison including `glyph_path` and `show_glyphs`,
   normalized direct C oracle comparison for the combined version-restricted/
   document-unit/two-page feature scene and Link tag inertness on SVG output, and
   subtype-mismatch errors,
@@ -330,9 +332,9 @@ Implemented in this workspace:
   text-to-glyph coordinate cases are compared against direct C Cairo primitive
   oracles, and vector outputs
   have stable structural marker checks plus direct C oracle comparisons for
-  fifteen deterministic PDF/PS/SVG scenes covering paint, stroke, fill/stroke
+  seventeen deterministic PDF/PS/SVG scenes covering paint, stroke, fill/stroke
   rectangles, Bezier paths, transforms, linear/radial gradients, toy-font text
-  paths, toy-font `show_text`, two-page paint, clip, dashed stroke, repeated
+  paths, toy-font `show_text`, `glyph_path`, `show_glyphs`, two-page paint, clip, dashed stroke, repeated
   surface pattern, mask surface, and mesh pattern scenes. SVG comparison
   normalizes Cairo's dynamic `source-*` image ids. PDF metadata/custom
   metadata, page labels, outlines, multi-page output, URI link-tag annotations,
@@ -459,7 +461,7 @@ Implemented in this workspace:
   `ffi_pattern.mbt`, `ffi_pattern_mesh.mbt`, and
   `ffi_pattern_raster_source.mbt`.
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native`: 412 tests passed. The current run
+- `moon -C cairoon test --target native`: 413 tests passed. The current run
   includes the pycairo context font-extents parity slice,
   the pycairo group-target stack-restoration slice,
   the pycairo rectangle path-extents slice,
@@ -503,7 +505,8 @@ Implemented in this workspace:
   slice, the tagged `show_text_glyphs` stream/inert-marker slice, the grouped
   glyph/tag vector-output slice, the copy_page retained vector-output slice, the
   Surface page primitive vector-output slice, the Surface show-page cleared
-  primitive slice, the glyph vector backend oracle slice, and
+  primitive slice, the glyph vector backend oracle slice, the PDF JPEG MIME
+  direct C oracle slice, and
   the earlier context `get_source`
   surface-pattern lifetime coverage for the path where both the original source
   wrapper and context scope have exited, plus the layered multi-page vector/tag
@@ -568,7 +571,7 @@ Implemented in this workspace:
   backend docs, retained owner graph stress, external value-wrapper stress,
   image-data view stress, and backend stream callback allocation stress.
 - `moon -C cairoon test vector_output_wbtest.mbt
-  vector_output_oracle_wbtest.mbt --target native -v`: 50 white-box vector
+  vector_output_oracle_wbtest.mbt --target native -v`: 51 white-box vector
   tests passed after splitting marker/output checks from direct C oracle and
   cross-backend tag checks. The split set still covers layered and wide
   multi-page direct C oracle and marker checks, mixed vector/tag/text marker
@@ -587,7 +590,8 @@ Implemented in this workspace:
   tag inertness matched against direct C Cairo output, and the combined PDF
   metadata/custom-metadata/page-label/outline/URI/named-destination/
   document-structure test matched against a direct C Cairo output oracle that
-  also draws tagged text.
+  also draws tagged text, plus PDF JPEG MIME data passthrough matched against
+  a direct C Cairo output oracle.
 - `moon -C cairoon test surface_stream_test.mbt --target native -v`: 10
   black-box stream callback tests passed, covering PDF/PS/SVG stream chunks,
   PDF/PS/SVG vector stream `WriteError`, PDF/PS/SVG vector stream invalid-status
@@ -611,14 +615,15 @@ Implemented in this workspace:
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
   vector_output_wbtest.mbt vector_output_oracle_wbtest.mbt --target native -v`:
-  50 ASan-compiled white-box vector tests passed with leak detection disabled
+  51 ASan-compiled white-box vector tests passed with leak detection disabled
   after the split, directly exercising the layered and wide multi-page
   marker/C-oracle paths, the mixed vector/tag/text marker and C oracle paths,
   the tagged `show_text_glyphs` marker/C-oracle/PS-SVG inert paths, the grouped
   glyph/tag marker/C-oracle/PS-SVG inert paths, the copy_page retained
   marker/C-oracle path, the Surface page primitive marker/C-oracle path, and
   the Surface show-page cleared marker/C-oracle path, plus the PDF/PS/SVG
-  glyph_path/show_glyphs direct C oracle path.
+  glyph_path/show_glyphs direct C oracle path and the PDF JPEG MIME direct C
+  oracle path.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
   surface_stream_test.mbt --target native -v`: 10 ASan-compiled black-box
@@ -1991,11 +1996,16 @@ Implemented in this workspace:
   and stream-vs-file normalized equality. This raised the full native suite to
   412 tests, the vector white-box target to 50 tests, and the surface stream
   white-box target to 12 tests.
+  The later PDF JPEG MIME direct C oracle slice added a PDF-only oracle that
+  paints an image surface with JPEG MIME data and compares the complete PDF
+  output against the MoonBit wrapper path. This raised the full native suite to
+  413 tests and the vector white-box target to 51 tests; the surface stream
+  white-box target remained at 12 tests.
 
 ## Known Gaps
 
 - Broader normalized PDF/SVG/PS output comparison is still missing for
-  tag/metadata/multi-page combinations beyond the current fifteen-scene
+  tag/metadata/multi-page combinations beyond the current seventeen-scene
   cross-backend direct C fixtures, three PDF rectangle tag oracle scenes, three
   PDF text-tag oracle scenes, PS/SVG destination and document-structure
   rectangle and text tag oracle scenes, one cross-backend tagged multi-page

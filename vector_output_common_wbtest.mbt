@@ -144,3 +144,21 @@ fn vector_oracle_surface(kind : Int, path : String) -> Surface raise CairoError 
 }
 
 ///|
+fn render_pdf_jpeg_mime_scene(
+  path : String,
+  jpeg : Bytes,
+) -> Unit raise CairoError {
+  let surface = Surface::pdf(3.0, 3.0, path=Some(path))
+  surface.pdf_restrict_to_version(PdfVersion1_4)
+  surface.pdf_set_metadata(PdfMetadataCreator, "cairoon-vector-oracle")
+  surface.pdf_set_metadata(PdfMetadataCreateDate, fixed_pdf_metadata_date())
+  surface.pdf_set_metadata(PdfMetadataModDate, fixed_pdf_metadata_date())
+  let ctx = Context::new(surface)
+  let image = Surface::image(Rgb24, 1, 1)
+  image.set_mime_data(MIME_TYPE_JPEG, Some(jpeg))
+  ctx.set_source_surface(image)
+  ctx.paint()
+  surface.finish()
+}
+
+///|

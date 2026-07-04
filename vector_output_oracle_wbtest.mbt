@@ -319,6 +319,25 @@ test "pdf document feature scene matches direct cairo C oracle" {
 }
 
 ///|
+test "pdf jpeg mime output matches direct cairo C oracle" {
+  let cairoon_path = "/tmp/cairoon_vector_pdf_jpeg_mime_oracle.pdf"
+  let oracle_path = "/tmp/cairoon_vector_pdf_jpeg_mime_direct_oracle.pdf"
+  let jpeg = tiny_jpeg_payload()
+  render_pdf_jpeg_mime_scene(cairoon_path, jpeg)
+  check_status(
+    test_render_pdf_jpeg_mime_oracle_ffi(checked_path_bytes(oracle_path), jpeg),
+  )
+  inspect(
+    test_vector_files_equal_ffi(
+      0,
+      checked_path_bytes(cairoon_path),
+      checked_path_bytes(oracle_path),
+    ),
+    content="true",
+  )
+}
+
+///|
 test "svg link tags are inert for svg output" {
   let plain_path = "/tmp/cairoon_vector_svg_plain_tag_scene.svg"
   let tagged_path = "/tmp/cairoon_vector_svg_tag_scene.svg"
