@@ -23,7 +23,8 @@ static cairo_status_t cairoon_test_render_vector_surface(
 }
 
 static cairo_status_t cairoon_test_render_surface_page_surface(
-  cairo_surface_t *surface) {
+  cairo_surface_t *surface,
+  int32_t retain_first_page) {
   cairo_status_t status = cairo_surface_status(surface);
   if (status != CAIRO_STATUS_SUCCESS) {
     cairo_surface_destroy(surface);
@@ -37,7 +38,11 @@ static cairo_status_t cairoon_test_render_surface_page_surface(
   status = cairo_status(ctx);
 
   if (status == CAIRO_STATUS_SUCCESS) {
-    cairo_surface_copy_page(surface);
+    if (retain_first_page) {
+      cairo_surface_copy_page(surface);
+    } else {
+      cairo_surface_show_page(surface);
+    }
     status = cairo_surface_status(surface);
   }
   if (status == CAIRO_STATUS_SUCCESS) {
@@ -143,21 +148,67 @@ cairo_status_t cairoon_test_render_surface_page_oracle(
         surface,
         CAIRO_PDF_METADATA_MOD_DATE,
         "2026-01-02T03:04:05+00:00");
-      return cairoon_test_render_surface_page_surface(surface);
+      return cairoon_test_render_surface_page_surface(surface, 1);
 #else
       return CAIRO_STATUS_SURFACE_TYPE_MISMATCH;
 #endif
     case CAIROON_TEST_VECTOR_PS:
 #if CAIRO_HAS_PS_SURFACE
       surface = cairo_ps_surface_create(name, 10.0, 10.0);
-      return cairoon_test_render_surface_page_surface(surface);
+      return cairoon_test_render_surface_page_surface(surface, 1);
 #else
       return CAIRO_STATUS_SURFACE_TYPE_MISMATCH;
 #endif
     case CAIROON_TEST_VECTOR_SVG:
 #if CAIRO_HAS_SVG_SURFACE
       surface = cairo_svg_surface_create(name, 10.0, 10.0);
-      return cairoon_test_render_surface_page_surface(surface);
+      return cairoon_test_render_surface_page_surface(surface, 1);
+#else
+      return CAIRO_STATUS_SURFACE_TYPE_MISMATCH;
+#endif
+    default:
+      return CAIRO_STATUS_INVALID_STATUS;
+  }
+}
+
+MOONBIT_FFI_EXPORT
+cairo_status_t cairoon_test_render_surface_show_page_oracle(
+  int32_t kind,
+  moonbit_bytes_t filename) {
+  const char *name = (const char *)filename;
+  cairo_surface_t *surface = NULL;
+  switch (kind) {
+    case CAIROON_TEST_VECTOR_PDF:
+#if CAIRO_HAS_PDF_SURFACE
+      surface = cairo_pdf_surface_create(name, 10.0, 10.0);
+      cairo_pdf_surface_restrict_to_version(surface, CAIRO_PDF_VERSION_1_4);
+      cairo_pdf_surface_set_metadata(
+        surface,
+        CAIRO_PDF_METADATA_CREATOR,
+        "cairoon-vector-oracle");
+      cairo_pdf_surface_set_metadata(
+        surface,
+        CAIRO_PDF_METADATA_CREATE_DATE,
+        "2026-01-02T03:04:05+00:00");
+      cairo_pdf_surface_set_metadata(
+        surface,
+        CAIRO_PDF_METADATA_MOD_DATE,
+        "2026-01-02T03:04:05+00:00");
+      return cairoon_test_render_surface_page_surface(surface, 0);
+#else
+      return CAIRO_STATUS_SURFACE_TYPE_MISMATCH;
+#endif
+    case CAIROON_TEST_VECTOR_PS:
+#if CAIRO_HAS_PS_SURFACE
+      surface = cairo_ps_surface_create(name, 10.0, 10.0);
+      return cairoon_test_render_surface_page_surface(surface, 0);
+#else
+      return CAIRO_STATUS_SURFACE_TYPE_MISMATCH;
+#endif
+    case CAIROON_TEST_VECTOR_SVG:
+#if CAIRO_HAS_SVG_SURFACE
+      surface = cairo_svg_surface_create(name, 10.0, 10.0);
+      return cairoon_test_render_surface_page_surface(surface, 0);
 #else
       return CAIRO_STATUS_SURFACE_TYPE_MISMATCH;
 #endif
