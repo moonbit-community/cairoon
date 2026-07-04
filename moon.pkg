@@ -41,6 +41,7 @@ options(
     "ffi_pattern.mbt": [ "native" ],
     "ffi_path.mbt": [ "native" ],
     "ffi_pdf_surface.mbt": [ "native" ],
+    "ffi_ps_surface.mbt": [ "native" ],
     "ffi_region.mbt": [ "native" ],
   },
   link: {

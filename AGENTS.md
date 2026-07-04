@@ -52,6 +52,7 @@ cairoon/
   ffi_pattern.mbt
   ffi_path.mbt
   ffi_pdf_surface.mbt
+  ffi_ps_surface.mbt
   ffi_region.mbt
   error.mbt
   types.mbt
@@ -119,6 +120,7 @@ options(
     "ffi_pattern.mbt": ["native"],
     "ffi_path.mbt": ["native"],
     "ffi_pdf_surface.mbt": ["native"],
+    "ffi_ps_surface.mbt": ["native"],
     "ffi_region.mbt": ["native"]
   },
 )
@@ -151,6 +153,8 @@ surface-get-device extern declarations that call `cairoon_device.c`;
 `ffi_path.mbt` owns raw `Path` extern declarations that call `cairoon_path.c`;
 `ffi_pdf_surface.mbt` owns raw PDF surface extern declarations that call
 `cairoon_pdf_surface.c`;
+`ffi_ps_surface.mbt` owns raw PostScript surface extern declarations that call
+`cairoon_ps_surface.c`;
 and `ffi_region.mbt` owns raw `Region` extern declarations that call
 `cairoon_region.c`.
 
