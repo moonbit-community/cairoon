@@ -43,7 +43,10 @@ enum {
   CAIROON_TEST_VECTOR_PDF_DOCUMENT_FEATURES = 18,
   CAIROON_TEST_VECTOR_PS_DSC_FEATURES = 19,
   CAIROON_TEST_VECTOR_SVG_UNIT_FEATURES = 20,
-  CAIROON_TEST_VECTOR_PDF_TEXT_DOCUMENT_FEATURES = 21
+  CAIROON_TEST_VECTOR_PDF_TEXT_DOCUMENT_FEATURES = 21,
+  CAIROON_TEST_VECTOR_PDF_URI_TEXT_TAG = 22,
+  CAIROON_TEST_VECTOR_PDF_DEST_TEXT_TAG = 23,
+  CAIROON_TEST_VECTOR_PDF_STRUCT_TEXT_TAG = 24
 };
 
 enum {
@@ -529,6 +532,54 @@ static cairo_status_t cairoon_test_draw_pdf_struct_tag(cairo_t *cr) {
   return cairo_status(cr);
 }
 
+static void cairoon_test_select_pdf_tag_font(cairo_t *cr) {
+  cairo_select_font_face(
+    cr,
+    "serif",
+    CAIRO_FONT_SLANT_NORMAL,
+    CAIRO_FONT_WEIGHT_NORMAL);
+  cairo_set_font_size(cr, 12.0);
+}
+
+static cairo_status_t cairoon_test_draw_pdf_uri_text_tag(cairo_t *cr) {
+  cairoon_test_select_pdf_tag_font(cr);
+  cairo_tag_begin(cr, CAIRO_TAG_LINK, "uri='https://example.com/'");
+  cairo_move_to(cr, 10.0, 20.0);
+  cairo_show_text(cr, "example link");
+  cairo_tag_end(cr, CAIRO_TAG_LINK);
+  return cairo_status(cr);
+}
+
+static cairo_status_t cairoon_test_draw_pdf_dest_text_tag(cairo_t *cr) {
+  cairoon_test_select_pdf_tag_font(cr);
+  cairo_tag_begin(cr, CAIRO_TAG_LINK, "dest='cairoon-dest'");
+  cairo_move_to(cr, 10.0, 20.0);
+  cairo_show_text(cr, "jump to destination");
+  cairo_tag_end(cr, CAIRO_TAG_LINK);
+  cairo_tag_begin(cr, CAIRO_TAG_DEST, "name='cairoon-dest' x=10 y=60");
+  cairo_move_to(cr, 10.0, 60.0);
+  cairo_show_text(cr, "destination");
+  cairo_tag_end(cr, CAIRO_TAG_DEST);
+  return cairo_status(cr);
+}
+
+static cairo_status_t cairoon_test_draw_pdf_struct_text_tag(cairo_t *cr) {
+  cairoon_test_select_pdf_tag_font(cr);
+  cairo_tag_begin(cr, "Document", "");
+  cairo_tag_begin(cr, "Sect", "");
+  cairo_tag_begin(cr, "H1", "");
+  cairo_move_to(cr, 10.0, 20.0);
+  cairo_show_text(cr, "Heading");
+  cairo_tag_end(cr, "H1");
+  cairo_tag_begin(cr, "P", "");
+  cairo_move_to(cr, 10.0, 40.0);
+  cairo_show_text(cr, "Paragraph");
+  cairo_tag_end(cr, "P");
+  cairo_tag_end(cr, "Sect");
+  cairo_tag_end(cr, "Document");
+  return cairo_status(cr);
+}
+
 static cairo_status_t cairoon_test_render_pdf_document_features(
   const char *name) {
 #if CAIRO_HAS_PDF_SURFACE && CAIRO_VERSION >= CAIRO_VERSION_ENCODE(1, 17, 6)
@@ -966,6 +1017,12 @@ static cairo_status_t cairoon_test_draw_vector_scene(
       return cairoon_test_draw_pdf_dest_tag(cr);
     case CAIROON_TEST_VECTOR_PDF_STRUCT_TAG:
       return cairoon_test_draw_pdf_struct_tag(cr);
+    case CAIROON_TEST_VECTOR_PDF_URI_TEXT_TAG:
+      return cairoon_test_draw_pdf_uri_text_tag(cr);
+    case CAIROON_TEST_VECTOR_PDF_DEST_TEXT_TAG:
+      return cairoon_test_draw_pdf_dest_text_tag(cr);
+    case CAIROON_TEST_VECTOR_PDF_STRUCT_TEXT_TAG:
+      return cairoon_test_draw_pdf_struct_text_tag(cr);
     default:
       return CAIRO_STATUS_INVALID_STATUS;
   }

@@ -251,6 +251,48 @@ fn draw_pdf_struct_tag_scene(ctx : Context) -> Unit raise CairoError {
 }
 
 ///|
+fn draw_pdf_uri_text_tag_scene(ctx : Context) -> Unit raise CairoError {
+  ctx.select_font_face("serif")
+  ctx.set_font_size(12.0)
+  ctx.tag_begin(TAG_LINK, "uri='https://example.com/'")
+  ctx.move_to(10.0, 20.0)
+  ctx.show_text("example link")
+  ctx.tag_end(TAG_LINK)
+}
+
+///|
+fn draw_pdf_dest_text_tag_scene(ctx : Context) -> Unit raise CairoError {
+  ctx.select_font_face("serif")
+  ctx.set_font_size(12.0)
+  ctx.tag_begin(TAG_LINK, "dest='cairoon-dest'")
+  ctx.move_to(10.0, 20.0)
+  ctx.show_text("jump to destination")
+  ctx.tag_end(TAG_LINK)
+  ctx.tag_begin(TAG_DEST, "name='cairoon-dest' x=10 y=60")
+  ctx.move_to(10.0, 60.0)
+  ctx.show_text("destination")
+  ctx.tag_end(TAG_DEST)
+}
+
+///|
+fn draw_pdf_struct_text_tag_scene(ctx : Context) -> Unit raise CairoError {
+  ctx.select_font_face("serif")
+  ctx.set_font_size(12.0)
+  ctx.tag_begin("Document", "")
+  ctx.tag_begin("Sect", "")
+  ctx.tag_begin("H1", "")
+  ctx.move_to(10.0, 20.0)
+  ctx.show_text("Heading")
+  ctx.tag_end("H1")
+  ctx.tag_begin("P", "")
+  ctx.move_to(10.0, 40.0)
+  ctx.show_text("Paragraph")
+  ctx.tag_end("P")
+  ctx.tag_end("Sect")
+  ctx.tag_end("Document")
+}
+
+///|
 fn draw_vector_oracle_scene(
   ctx : Context,
   scene : Int,
@@ -348,6 +390,9 @@ fn draw_vector_oracle_scene(
     15 => draw_pdf_uri_tag_scene(ctx)
     16 => draw_pdf_dest_tag_scene(ctx)
     17 => draw_pdf_struct_tag_scene(ctx)
+    22 => draw_pdf_uri_text_tag_scene(ctx)
+    23 => draw_pdf_dest_text_tag_scene(ctx)
+    24 => draw_pdf_struct_text_tag_scene(ctx)
     _ => raise CairoInvalidArgument(InvalidStatus, InvalidStatus.message())
   }
 }
@@ -848,6 +893,16 @@ test "pdf tag output scenes match direct cairo C oracle" {
   for scene in 15..<18 {
     let cairoon_path = "/tmp/cairoon_vector_pdf_tag_scene_\{scene}.pdf"
     let oracle_path = "/tmp/cairoon_vector_pdf_tag_scene_\{scene}_oracle.pdf"
+    render_vector_oracle_scene(0, scene, cairoon_path)
+    expect_vector_oracle_match(0, scene, cairoon_path, oracle_path)
+  }
+}
+
+///|
+test "pdf text tag output scenes match direct cairo C oracle" {
+  for scene in 22..<25 {
+    let cairoon_path = "/tmp/cairoon_vector_pdf_text_tag_scene_\{scene}.pdf"
+    let oracle_path = "/tmp/cairoon_vector_pdf_text_tag_scene_\{scene}_oracle.pdf"
     render_vector_oracle_scene(0, scene, cairoon_path)
     expect_vector_oracle_match(0, scene, cairoon_path, oracle_path)
   }

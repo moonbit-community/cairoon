@@ -163,7 +163,8 @@ Implemented in this workspace:
   stable structural output markers, PDF metadata/custom-metadata/page-label/outline
   output markers, PDF multi-page output markers, PDF 1.4 fifteen-scene
   cross-backend direct C vector-oracle comparison plus three PDF tag oracle
-  scenes and two PDF document-feature oracle scenes, including one
+  scenes, three PDF text-tag oracle scenes, and two PDF document-feature oracle
+  scenes, including one
   text/tag-aware combined scene, PDF JPEG MIME data
   embedding, PDF 1.4 URI link-tag annotation markers,
   PDF named-destination tag markers, PDF document-structure tag markers,
@@ -293,9 +294,9 @@ Implemented in this workspace:
   the full native suite, `moon info --target native`, and targeted ASan
   image-oracle and pattern tests with leak detection disabled.
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native`: 345 tests passed. The current run
-  includes the raster-source compatible target/extents acquire slice, the
-  PS/SVG Link tag direct C oracle slice, the context
+- `moon -C cairoon test --target native`: 346 tests passed. The current run
+  includes the PDF text-tag direct C oracle slice, the raster-source compatible
+  target/extents acquire slice, the PS/SVG Link tag direct C oracle slice, the context
   `get_group_target` post-scope lifetime slice, the PDF combined text
   document-feature oracle slice, and the earlier context `get_source`
   surface-pattern lifetime coverage for the path where both the original source
@@ -310,8 +311,9 @@ Implemented in this workspace:
   script-surface target proxying, script writer `WriteError` mapping, scoped
   script-device finish, retained script surface/device wrappers, executable
   backend docs, and backend stream callback allocation stress.
-- `moon -C cairoon test vector_output_wbtest.mbt --target native -v`: 23
-  white-box vector tests passed, including PS/SVG Link tag inertness matched
+- `moon -C cairoon test vector_output_wbtest.mbt --target native -v`: 24
+  white-box vector tests passed, including PDF URI-link/named-destination/
+  document-structure text tag scenes and PS/SVG Link tag inertness matched
   against direct C Cairo output and the combined PDF
   metadata/custom-metadata/page-label/outline/URI/named-destination/
   document-structure test matched against a direct C Cairo output oracle that
@@ -1170,19 +1172,24 @@ Implemented in this workspace:
   the extents device offset, paints into it, and balances release callbacks.
   This raised `pattern_test.mbt` to 19 tests and the full native suite to 345
   tests.
+  The later PDF text-tag oracle slice added three direct C Cairo oracle scenes
+  for URI-link, named-destination, and document-structure tags drawn with
+  `show_text`. This raised `vector_output_wbtest.mbt` to 24 tests and the full
+  native suite to 346 tests.
 
 ## Known Gaps
 
 - Broader normalized PDF/SVG/PS output comparison is still missing for
   tag/metadata/multi-page combinations beyond the current fifteen-scene
-  cross-backend direct C fixtures, three PDF tag oracle scenes, and two PDF
-  document-feature oracle scenes. PDF/PS/SVG now have multi-page marker checks
-  and two two-page direct C oracle scenes, PDF/PS/SVG have a single-page
-  toy-font `show_text` oracle scene, and PDF has direct C coverage for URI
-  links, named destinations, Document/Sect/H1/P structure tags, plus two
+  cross-backend direct C fixtures, three PDF rectangle tag oracle scenes, three
+  PDF text-tag oracle scenes, and two PDF document-feature oracle scenes.
+  PDF/PS/SVG now have multi-page marker checks and two two-page direct C oracle
+  scenes, PDF/PS/SVG have a single-page toy-font `show_text` oracle scene, and
+  PDF has direct C coverage for URI links, named destinations,
+  Document/Sect/H1/P structure tags in both rectangle and text cases, plus two
   two-page metadata/custom-metadata/page-label/outline/tag combinations,
-  including one text/tag-aware scene. PS/SVG Link tag inertness also has
-  direct C oracle coverage.
+  including one text/tag-aware scene. PS/SVG Link tag inertness also has direct
+  C oracle coverage.
   Broader cross-backend tag/metadata combinations, broader multi-page
   combinations, and richer tag-output assertions are still absent beyond those
   PDF scenes and PS/SVG Link direct-oracle inertness. PDF/PS/SVG stream-writer constructors,
