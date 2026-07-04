@@ -42,7 +42,8 @@ enum {
   CAIROON_TEST_VECTOR_PDF_URI_TEXT_TAG = 22,
   CAIROON_TEST_VECTOR_PDF_DEST_TEXT_TAG = 23,
   CAIROON_TEST_VECTOR_PDF_STRUCT_TEXT_TAG = 24,
-  CAIROON_TEST_VECTOR_TAGGED_MULTI_PAGE_TEXT = 25
+  CAIROON_TEST_VECTOR_TAGGED_MULTI_PAGE_TEXT = 25,
+  CAIROON_TEST_VECTOR_MIXED_TAG_VECTOR = 26
 };
 
 static cairo_status_t cairoon_test_draw_pdf_uri_tag(cairo_t *cr) {
@@ -175,6 +176,58 @@ static cairo_status_t cairoon_test_draw_tagged_multi_page_text(cairo_t *cr) {
   cairo_tag_end(cr, "Sect");
   cairo_tag_end(cr, "Document");
   cairo_show_page(cr);
+  return cairo_status(cr);
+}
+
+static cairo_status_t cairoon_test_draw_mixed_tag_vector(cairo_t *cr) {
+  cairo_save(cr);
+  cairo_rectangle(cr, 0.5, 0.5, 9.0, 9.0);
+  cairo_clip(cr);
+  cairo_set_source_rgba(cr, 0.85, 0.9, 1.0, 1.0);
+  cairo_paint(cr);
+  cairo_restore(cr);
+
+  cairo_set_source_rgb(cr, 0.0, 0.0, 0.0);
+  cairo_set_line_width(cr, 0.75);
+  double dashes[] = {1.0, 0.75};
+  cairo_set_dash(cr, dashes, 2, 0.25);
+  cairo_move_to(cr, 1.0, 1.0);
+  cairo_line_to(cr, 9.0, 1.0);
+  cairo_stroke(cr);
+  cairo_set_dash(cr, NULL, 0, 0.0);
+
+  cairo_select_font_face(
+    cr,
+    "serif",
+    CAIRO_FONT_SLANT_NORMAL,
+    CAIRO_FONT_WEIGHT_NORMAL);
+  cairo_set_font_size(cr, 3.0);
+  cairo_tag_begin(cr, CAIRO_TAG_LINK, "uri='https://example.com/mixed'");
+  cairo_move_to(cr, 1.0, 3.5);
+  cairo_show_text(cr, "mix");
+  cairo_tag_end(cr, CAIRO_TAG_LINK);
+
+  cairo_set_source_rgb(cr, 1.0, 0.0, 0.0);
+  cairo_tag_begin(cr, CAIRO_TAG_LINK, "dest='cairoon-mixed-dest'");
+  cairo_rectangle(cr, 1.0, 5.0, 3.0, 2.0);
+  cairo_fill(cr);
+  cairo_tag_end(cr, CAIRO_TAG_LINK);
+
+  cairo_set_source_rgb(cr, 0.0, 0.0, 1.0);
+  cairo_tag_begin(cr, CAIRO_TAG_DEST, "name='cairoon-mixed-dest' x=7 y=8");
+  cairo_arc(cr, 7.0, 8.0, 1.0, 0.0, 6.283185307179586);
+  cairo_fill(cr);
+  cairo_tag_end(cr, CAIRO_TAG_DEST);
+
+  cairo_set_source_rgb(cr, 0.15, 0.15, 0.15);
+  cairo_tag_begin(cr, "Document", "");
+  cairo_tag_begin(cr, "Sect", "");
+  cairo_tag_begin(cr, "P", "");
+  cairo_move_to(cr, 4.0, 9.0);
+  cairo_show_text(cr, "doc");
+  cairo_tag_end(cr, "P");
+  cairo_tag_end(cr, "Sect");
+  cairo_tag_end(cr, "Document");
   return cairo_status(cr);
 }
 
@@ -623,6 +676,8 @@ static cairo_status_t cairoon_test_draw_vector_scene(
       return cairoon_test_draw_pdf_struct_text_tag(cr);
     case CAIROON_TEST_VECTOR_TAGGED_MULTI_PAGE_TEXT:
       return cairoon_test_draw_tagged_multi_page_text(cr);
+    case CAIROON_TEST_VECTOR_MIXED_TAG_VECTOR:
+      return cairoon_test_draw_mixed_tag_vector(cr);
     default:
       return CAIRO_STATUS_INVALID_STATUS;
   }

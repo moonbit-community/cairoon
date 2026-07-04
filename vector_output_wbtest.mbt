@@ -323,6 +323,53 @@ fn draw_tagged_multi_page_text_scene(ctx : Context) -> Unit raise CairoError {
 }
 
 ///|
+fn draw_mixed_tag_vector_scene(ctx : Context) -> Unit raise CairoError {
+  ctx.save()
+  ctx.rectangle(0.5, 0.5, 9.0, 9.0)
+  ctx.clip()
+  ctx.set_source_rgba(0.85, 0.9, 1.0, 1.0)
+  ctx.paint()
+  ctx.restore()
+
+  ctx.set_source_rgb(0.0, 0.0, 0.0)
+  ctx.set_line_width(0.75)
+  ctx.set_dash([1.0, 0.75], offset=0.25)
+  ctx.move_to(1.0, 1.0)
+  ctx.line_to(9.0, 1.0)
+  ctx.stroke()
+  ctx.set_dash([])
+
+  ctx.select_font_face("serif")
+  ctx.set_font_size(3.0)
+  ctx.tag_begin(TAG_LINK, "uri='https://example.com/mixed'")
+  ctx.move_to(1.0, 3.5)
+  ctx.show_text("mix")
+  ctx.tag_end(TAG_LINK)
+
+  ctx.set_source_rgb(1.0, 0.0, 0.0)
+  ctx.tag_begin(TAG_LINK, "dest='cairoon-mixed-dest'")
+  ctx.rectangle(1.0, 5.0, 3.0, 2.0)
+  ctx.fill()
+  ctx.tag_end(TAG_LINK)
+
+  ctx.set_source_rgb(0.0, 0.0, 1.0)
+  ctx.tag_begin(TAG_DEST, "name='cairoon-mixed-dest' x=7 y=8")
+  ctx.arc(7.0, 8.0, 1.0, 0.0, 6.283185307179586)
+  ctx.fill()
+  ctx.tag_end(TAG_DEST)
+
+  ctx.set_source_rgb(0.15, 0.15, 0.15)
+  ctx.tag_begin("Document", "")
+  ctx.tag_begin("Sect", "")
+  ctx.tag_begin("P", "")
+  ctx.move_to(4.0, 9.0)
+  ctx.show_text("doc")
+  ctx.tag_end("P")
+  ctx.tag_end("Sect")
+  ctx.tag_end("Document")
+}
+
+///|
 fn draw_vector_oracle_scene(
   ctx : Context,
   scene : Int,
@@ -424,6 +471,7 @@ fn draw_vector_oracle_scene(
     23 => draw_pdf_dest_text_tag_scene(ctx)
     24 => draw_pdf_struct_text_tag_scene(ctx)
     25 => draw_tagged_multi_page_text_scene(ctx)
+    26 => draw_mixed_tag_vector_scene(ctx)
     _ => raise CairoInvalidArgument(InvalidStatus, InvalidStatus.message())
   }
 }
@@ -1010,6 +1058,17 @@ test "tagged multi-page text scene matches direct cairo C oracle" {
     let oracle_path = "/tmp/cairoon_vector_tagged_multipage_text_\{kind}_oracle.\{ext}"
     render_vector_oracle_scene(kind, 25, cairoon_path)
     expect_vector_oracle_match(kind, 25, cairoon_path, oracle_path)
+  }
+}
+
+///|
+test "mixed vector tag text scene matches direct cairo C oracle" {
+  for kind in 0..<3 {
+    let ext = vector_output_extension(kind)
+    let cairoon_path = "/tmp/cairoon_vector_mixed_tag_text_\{kind}.\{ext}"
+    let oracle_path = "/tmp/cairoon_vector_mixed_tag_text_\{kind}_oracle.\{ext}"
+    render_vector_oracle_scene(kind, 26, cairoon_path)
+    expect_vector_oracle_match(kind, 26, cairoon_path, oracle_path)
   }
 }
 
