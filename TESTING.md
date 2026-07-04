@@ -1626,6 +1626,11 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   declarations from `ffi.mbt` into `ffi_context_matrix.mbt`, added that file to
   the native target list, and reduced `ffi.mbt` to 559 lines. This did not
   change public API or test count.
+  The later Context drawing-state raw FFI split slice moved raw context
+  line-style, hairline, fill/operator/antialias/tolerance, miter, and dash
+  extern declarations from `ffi.mbt` into `ffi_context_state.mbt`, added that
+  file to the native target list, and reduced `ffi.mbt` to 444 lines. This did
+  not change public API or test count.
 
 The missing reliability pieces are substantial: broader automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering
