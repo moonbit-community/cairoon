@@ -167,15 +167,11 @@ The current local gate is executable as:
 
 It runs `moon fmt --check`, `scripts/configure-link-flags.sh --check`, native
 `moon check`, targeted white-box image, ScaledFont, vector-output,
-stream black-box/white-box, mapped-image, TeeSurface, context-lifetime,
-context-state, context-matrix, context-path, context-group, context-text,
-context-glyph, context-extents, context-clip, gradient/mesh
-pattern, context-painting, and raster-pattern tests, the full native test suite,
-`moon info --target native`, and targeted ASan builds for the image oracle,
-vector-output, stream, mapped-image, TeeSurface, context-lifetime,
-context-state, context-matrix, context-path, context-group, context-text,
-context-glyph, context-extents, context-clip, and
-context-painting/gradient/mesh/raster-pattern suites when an ASan-capable `clang` is available.
+surface base/ImageData/stream/mapped/subsurface/recording/MIME/PDF/PS/SVG/Tee,
+script-device, object-trait, context-lifetime/state/matrix/path/group/text/glyph/
+extents/clip/painting, gradient/mesh pattern, and raster-pattern tests, the full
+native test suite, `moon info --target native`, and targeted ASan builds for
+the same target list when an ASan-capable `clang` is available.
 Set `CAIROON_VERIFY_ASAN=0` to skip the targeted ASan portion intentionally.
 
 ## Current Status
@@ -317,14 +313,17 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   `moon check`, targeted image, ScaledFont oracle,
   font-options/font-face/scaled-font, vector including PDF combined text
   document-feature plus PS DSC/SVG unit backend-feature oracle checks,
-  stream black-box/white-box tests, mapped-image tests, TeeSurface tests,
+  surface base/ImageData tests,
+  stream black-box/white-box tests, mapped-image, subsurface, recording,
+  MIME, PDF/PS/SVG helper, TeeSurface, script-device, and object-trait tests,
   context lifetime/state/matrix/path/group/text/glyph/extents/clip/painting tests,
   Path tests,
   pattern/gradient/mesh tests, raster-owner white-box tests, and
   Region/lifetime-stress tests,
   the full native suite, `moon info --target native`, and targeted ASan
   image-oracle, font-options/font-face/scaled-font, vector-output, stream,
-  mapped-image, TeeSurface,
+  surface base/ImageData, mapped-image, subsurface, recording, MIME,
+  PDF/PS/SVG helpers, TeeSurface, script-device, object-trait,
   context-lifetime/state/matrix/path/group/text/glyph/extents/clip/painting, Path,
   pattern/gradient/mesh, and raster-owner/Region/lifetime-stress tests with
   leak detection disabled. The current run includes
@@ -1560,6 +1559,15 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   added `path_test.mbt` and `region_test.mbt` to the normal and ASan
   verification gates. This raised `path_test.mbt` to 7 tests,
   `region_test.mbt` to 10 tests, and the full native suite to 373 tests.
+  The later Surface/Device targeted gate slice refactored `scripts/verify.sh`
+  to drive the normal and ASan target lists from one shared array, then added
+  `surface_context_test.mbt`, `image_data_test.mbt`,
+  `surface_subsurface_test.mbt`, `surface_recording_test.mbt`,
+  `surface_mime_test.mbt`, `surface_pdf_test.mbt`, `surface_ps_test.mbt`,
+  `surface_svg_test.mbt`, `device_test.mbt`, and `object_traits_test.mbt` to
+  both gates. This did not add public API or new tests; it makes the existing
+  67 surface/device/object-trait tests part of the routine ASan reliability
+  sweep.
 
 The missing reliability pieces are substantial: broader automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering

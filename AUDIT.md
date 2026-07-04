@@ -304,14 +304,17 @@ Implemented in this workspace:
   `moon check`, targeted image, ScaledFont oracle,
   font-options/font-face/scaled-font, vector including PDF combined text
   document-feature plus PS DSC/SVG unit backend-feature oracle checks,
-  stream black-box/white-box tests, mapped-image tests, TeeSurface tests,
+  surface base/ImageData tests,
+  stream black-box/white-box tests, mapped-image, subsurface, recording,
+  MIME, PDF/PS/SVG helper, TeeSurface, script-device, and object-trait tests,
   context lifetime/state/matrix/path/group/text/glyph/extents/clip/painting tests,
   Path tests,
   pattern/gradient/mesh tests, raster-owner white-box tests, and
   Region/lifetime-stress tests,
   the full native suite, `moon info --target native`, and targeted ASan
   image-oracle, font-options/font-face/scaled-font, vector-output, stream,
-  mapped-image, TeeSurface,
+  surface base/ImageData, mapped-image, subsurface, recording, MIME,
+  PDF/PS/SVG helpers, TeeSurface, script-device, object-trait,
   context-lifetime/state/matrix/path/group/text/glyph/extents/clip/painting, Path,
   pattern/gradient/mesh, and raster-owner/Region/lifetime-stress tests with
   leak detection disabled. The current run includes
@@ -401,6 +404,15 @@ Implemented in this workspace:
   primary/target wrappers, subtype errors, self add/remove errors,
   negative-index `InvalidIndex`, and positive out-of-range `NoMemory`
   status handling.
+- `moon -C cairoon test surface_context_test.mbt image_data_test.mbt
+  surface_subsurface_test.mbt surface_recording_test.mbt surface_mime_test.mbt
+  surface_pdf_test.mbt surface_ps_test.mbt surface_svg_test.mbt
+  device_test.mbt object_traits_test.mbt --target native -v`: 67 black-box
+  surface/device/object-trait tests passed, covering base surface state,
+  retained image-data views, retained subsurface parents, recording replay,
+  MIME storage/support, PDF/PS/SVG helper errors, script devices, script
+  stream callbacks, script surfaces, and external-object `Eq`/`Hash`
+  behavior.
 - `moon -C cairoon test device_test.mbt backend_surfaces.mbt.md
   lifetime_stress_test.mbt --target native -v`: 23 black-box and executable
   backend/lifetime tests passed, covering script file/stream devices,
@@ -450,6 +462,13 @@ Implemented in this workspace:
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
   surface_tee_test.mbt --target native -v`: 4 ASan-compiled black-box
   TeeSurface tests passed with leak detection disabled.
+- `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
+  ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
+  surface_context_test.mbt image_data_test.mbt surface_subsurface_test.mbt
+  surface_recording_test.mbt surface_mime_test.mbt surface_pdf_test.mbt
+  surface_ps_test.mbt surface_svg_test.mbt device_test.mbt
+  object_traits_test.mbt --target native -v`: 67 ASan-compiled
+  surface/device/object-trait tests passed with leak detection disabled.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
   context_state_test.mbt context_matrix_test.mbt context_extents_test.mbt
@@ -1459,6 +1478,15 @@ Implemented in this workspace:
   added `path_test.mbt` and `region_test.mbt` to the normal and ASan
   verification gates. This raised `path_test.mbt` to 7 tests,
   `region_test.mbt` to 10 tests, and the full native suite to 373 tests.
+  The later Surface/Device targeted gate slice refactored `scripts/verify.sh`
+  to drive the normal and ASan target lists from one shared array, then added
+  `surface_context_test.mbt`, `image_data_test.mbt`,
+  `surface_subsurface_test.mbt`, `surface_recording_test.mbt`,
+  `surface_mime_test.mbt`, `surface_pdf_test.mbt`, `surface_ps_test.mbt`,
+  `surface_svg_test.mbt`, `device_test.mbt`, and `object_traits_test.mbt` to
+  both gates. This did not add public API or new tests; it makes the existing
+  67 surface/device/object-trait tests part of the routine ASan reliability
+  sweep.
 
 ## Known Gaps
 
