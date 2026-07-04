@@ -63,6 +63,44 @@ fn make_stream_equivalence_stream_surface(
 }
 
 ///|
+fn make_stream_document_feature_file_surface(
+  kind : Int,
+  path : String,
+) -> Surface raise CairoError {
+  match kind {
+    0 => Surface::pdf(100.0, 100.0, path=Some(path))
+    1 => Surface::ps(12.0, 12.0, path=Some(path))
+    2 => Surface::svg(12.0, 12.0, path=Some(path))
+    _ => raise CairoInvalidArgument(InvalidStatus, InvalidStatus.message())
+  }
+}
+
+///|
+fn make_stream_document_feature_stream_surface(
+  kind : Int,
+  chunks : Array[Bytes],
+) -> Surface raise CairoError {
+  match kind {
+    0 =>
+      Surface::pdf_stream(100.0, 100.0, fn(chunk) {
+        chunks.push(chunk)
+        Success
+      })
+    1 =>
+      Surface::ps_stream(12.0, 12.0, fn(chunk) {
+        chunks.push(chunk)
+        Success
+      })
+    2 =>
+      Surface::svg_stream(12.0, 12.0, fn(chunk) {
+        chunks.push(chunk)
+        Success
+      })
+    _ => raise CairoInvalidArgument(InvalidStatus, InvalidStatus.message())
+  }
+}
+
+///|
 fn render_stream_equivalence_scene(surface : Surface) -> Unit raise CairoError {
   let ctx = Context::new(surface)
   ctx.set_source_rgb(0.0, 0.0, 1.0)
@@ -138,6 +176,19 @@ fn render_stream_layered_multipage_scene(
 }
 
 ///|
+fn render_stream_document_feature_scene(
+  kind : Int,
+  surface : Surface,
+) -> Unit raise CairoError {
+  match kind {
+    0 => render_pdf_document_feature_surface(surface)
+    1 => render_ps_dsc_multipage_surface(surface)
+    2 => render_svg_unit_multipage_surface(surface)
+    _ => raise CairoInvalidArgument(InvalidStatus, InvalidStatus.message())
+  }
+}
+
+///|
 fn stream_equivalence_chunks_to_bytes(chunks : Array[Bytes]) -> Bytes {
   let mut bytes = Bytes::default()
   for chunk in chunks {
@@ -180,6 +231,31 @@ test "wide multi-page tag vector stream output matches file output after normali
     let chunks : Array[Bytes] = []
     let stream_surface = make_stream_equivalence_stream_surface(kind, chunks)
     render_stream_wide_multipage_tag_vector_scene(stream_surface)
+    inspect(chunks.length() > 0, content="true")
+    inspect(
+      test_vector_file_equals_bytes_ffi(
+        kind,
+        @utf8.encode(path),
+        stream_equivalence_chunks_to_bytes(chunks),
+      ),
+      content="true",
+    )
+  }
+}
+
+///|
+test "document feature stream output matches file output after normalization" {
+  for kind in 0..<3 {
+    let ext = stream_equivalence_extension(kind)
+    let path = "/tmp/cairoon_stream_document_feature_file_equivalence_\{kind}.\{ext}"
+    let file_surface = make_stream_document_feature_file_surface(kind, path)
+    render_stream_document_feature_scene(kind, file_surface)
+
+    let chunks : Array[Bytes] = []
+    let stream_surface = make_stream_document_feature_stream_surface(
+      kind, chunks,
+    )
+    render_stream_document_feature_scene(kind, stream_surface)
     inspect(chunks.length() > 0, content="true")
     inspect(
       test_vector_file_equals_bytes_ffi(

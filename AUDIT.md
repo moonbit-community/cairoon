@@ -417,6 +417,7 @@ Implemented in this workspace:
   the stream-vs-file vector output equivalence slice,
   the tagged multi-page stream equivalence slice,
   the mixed/layered stream equivalence slice,
+  the document-feature stream equivalence slice,
   the wide multi-page stream equivalence slice,
   the vector stream invalid-status fallback slice,
   the PNG/script stream invalid-status fallback slice,
@@ -452,7 +453,7 @@ Implemented in this workspace:
   `ffi_pattern.mbt`, `ffi_pattern_mesh.mbt`, and
   `ffi_pattern_raster_source.mbt`.
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native`: 387 tests passed. The current run
+- `moon -C cairoon test --target native`: 388 tests passed. The current run
   includes the pycairo context font-extents parity slice,
   the pycairo group-target stack-restoration slice,
   the pycairo rectangle path-extents slice,
@@ -467,8 +468,8 @@ Implemented in this workspace:
   gradient color-stop ordering/snapshot slice, the stream-vs-file vector output
   equivalence slice, the tagged multi-page stream equivalence slice, the
   mixed/layered stream equivalence slice, the wide multi-page stream
-  equivalence slice, the vector stream invalid-status
-  fallback slice, the PNG/script stream invalid-status
+  equivalence slice, the document-feature stream equivalence slice, the vector
+  stream invalid-status fallback slice, the PNG/script stream invalid-status
   fallback slice, the vector output white-box split slice, the vector output
   scene helper split slice, the test-vector C glue split slice, the
   test-vector tag scene C glue split slice, the
@@ -571,12 +572,13 @@ Implemented in this workspace:
   fallback to `WriteError`, PNG stream write/read, PNG write `WriteError`, PNG
   writer invalid-status fallback to `WriteError`, and PNG short-read error
   mapping.
-- `moon -C cairoon test surface_stream_wbtest.mbt --target native -v`: 5
+- `moon -C cairoon test surface_stream_wbtest.mbt --target native -v`: 6
   white-box stream equivalence tests passed, comparing PDF/PS/SVG stream output
   with file output after normalized comparison for deterministic two-page and
   tagged three-page scenes plus mixed vector/tag/text, layered three-page
-  clip/dash/surface-pattern/mask/tag/text, and wide three-page tag/vector
-  scenes.
+  clip/dash/surface-pattern/mask/tag/text, wide three-page tag/vector, and
+  backend document-feature scenes covering PDF metadata/custom metadata/page
+  labels/outlines/tags, PS DSC, and SVG document units.
 - `moon -C cairoon info --target native`: completed with no work to do; these
   stream equivalence slices change no public API or generated interface
   metadata.
@@ -593,7 +595,7 @@ Implemented in this workspace:
   stream callback tests passed with leak detection disabled.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
-  surface_stream_wbtest.mbt --target native -v`: 5 ASan-compiled white-box
+  surface_stream_wbtest.mbt --target native -v`: 6 ASan-compiled white-box
   stream equivalence tests passed with leak detection disabled.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
@@ -1860,6 +1862,13 @@ Implemented in this workspace:
   clip/dash/surface-pattern/mask/tag/text scene. This raised
   `surface_stream_wbtest.mbt` to 5 tests and the full native suite to 387
   tests.
+  The later document-feature stream equivalence slice added one
+  `surface_stream_wbtest.mbt` case proving PDF/PS/SVG stream-writer output
+  matches file output after normalization for backend-specific document
+  features: PDF metadata/custom metadata/page labels/outlines/tags, PS DSC
+  comments, and SVG version/document-unit output. This raised
+  `surface_stream_wbtest.mbt` to 6 tests and the full native suite to 388
+  tests.
   The later vector output white-box split slice moved shared marker/oracle
   helpers into `vector_output_common_wbtest.mbt`, scene rendering helpers into
   `vector_output_scenes_wbtest.mbt`, and left the 37 executable tests in
@@ -1909,9 +1918,9 @@ Implemented in this workspace:
   direct-oracle coverage.
   PDF/PS/SVG stream-writer constructors now also have deterministic two-page,
   tagged three-page, mixed vector/tag/text, layered three-page
-  clip/dash/surface-pattern/mask/tag/text, and wide three-page tag/vector
-  stream-vs-file normalized equality coverage plus PDF/PS/SVG, PNG-writer, and
-  script-writer `WriteError`
+  clip/dash/surface-pattern/mask/tag/text, wide three-page tag/vector, and
+  backend document-feature stream-vs-file normalized equality coverage plus
+  PDF/PS/SVG, PNG-writer, and script-writer `WriteError`
   and invalid-status fallback mapping; script stream devices and PNG
   stream read/write now have copied-byte callback tests and read/write error
   propagation coverage.

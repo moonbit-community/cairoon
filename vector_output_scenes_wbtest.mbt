@@ -120,8 +120,9 @@ fn render_vector_oracle_scene(
 }
 
 ///|
-fn render_pdf_document_feature_scene(path : String) -> Unit raise CairoError {
-  let surface = Surface::pdf(100.0, 100.0, path=Some(path))
+fn render_pdf_document_feature_surface(
+  surface : Surface,
+) -> Unit raise CairoError {
   surface.pdf_restrict_to_version(PdfVersion1_4)
   surface.pdf_set_metadata(PdfMetadataTitle, "Cairoon Combined Oracle")
   surface.pdf_set_metadata(PdfMetadataCreator, "cairoon-combined-oracle")
@@ -174,6 +175,44 @@ fn render_pdf_document_feature_scene(path : String) -> Unit raise CairoError {
   ctx.tag_end("Sect")
   ctx.tag_end("Document")
 
+  ctx.show_page()
+  surface.finish()
+}
+
+///|
+fn render_pdf_document_feature_scene(path : String) -> Unit raise CairoError {
+  let surface = Surface::pdf(100.0, 100.0, path=Some(path))
+  render_pdf_document_feature_surface(surface)
+}
+
+///|
+fn render_ps_dsc_multipage_surface(surface : Surface) -> Unit raise CairoError {
+  surface.ps_restrict_to_level(PsLevel2)
+  surface.ps_dsc_begin_setup()
+  surface.ps_dsc_comment("%%Title: Cairoon PS Combined")
+  surface.ps_dsc_comment("%%IncludeFeature: *MediaColor White")
+  surface.ps_dsc_begin_page_setup()
+  surface.ps_dsc_comment("%%IncludeFeature: *PageSize A4")
+  let ctx = Context::new(surface)
+  paint_page(ctx, 0.0, 0.0, 1.0)
+  ctx.show_page()
+  surface.ps_dsc_begin_page_setup()
+  surface.ps_dsc_comment("%%IncludeFeature: *MediaType Plain")
+  paint_page(ctx, 1.0, 0.0, 0.0)
+  ctx.show_page()
+  surface.finish()
+}
+
+///|
+fn render_svg_unit_multipage_surface(
+  surface : Surface,
+) -> Unit raise CairoError {
+  surface.svg_restrict_to_version(SvgVersion1_2)
+  surface.svg_set_document_unit(SvgUnitPx)
+  let ctx = Context::new(surface)
+  paint_page(ctx, 0.0, 0.0, 1.0)
+  ctx.show_page()
+  paint_page(ctx, 1.0, 0.0, 0.0)
   ctx.show_page()
   surface.finish()
 }

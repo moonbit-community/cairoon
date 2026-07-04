@@ -314,20 +314,7 @@ test "ps output preserves dsc comments across multiple pages" {
   let path = "/tmp/cairoon_vector_ps_dsc_multipage.ps"
   let oracle_path = "/tmp/cairoon_vector_ps_dsc_multipage_oracle.ps"
   let surface = Surface::ps(12.0, 12.0, path=Some(path))
-  surface.ps_restrict_to_level(PsLevel2)
-  surface.ps_dsc_begin_setup()
-  surface.ps_dsc_comment("%%Title: Cairoon PS Combined")
-  surface.ps_dsc_comment("%%IncludeFeature: *MediaColor White")
-  surface.ps_dsc_begin_page_setup()
-  surface.ps_dsc_comment("%%IncludeFeature: *PageSize A4")
-  let ctx = Context::new(surface)
-  paint_page(ctx, 0.0, 0.0, 1.0)
-  ctx.show_page()
-  surface.ps_dsc_begin_page_setup()
-  surface.ps_dsc_comment("%%IncludeFeature: *MediaType Plain")
-  paint_page(ctx, 1.0, 0.0, 0.0)
-  ctx.show_page()
-  surface.finish()
+  render_ps_dsc_multipage_surface(surface)
   expect_vector_output(path, [
     "%!PS-Adobe-3.0", "%%LanguageLevel: 2", "%%Title: Cairoon PS Combined", "%%IncludeFeature: *MediaColor White",
     "%%IncludeFeature: *PageSize A4", "%%IncludeFeature: *MediaType Plain", "%%Pages: 2",
@@ -389,15 +376,7 @@ test "svg output preserves version unit and page markers" {
   let path = "/tmp/cairoon_vector_svg_unit_multipage.svg"
   let oracle_path = "/tmp/cairoon_vector_svg_unit_multipage_oracle.svg"
   let surface = Surface::svg(12.0, 12.0, path=Some(path))
-  surface.svg_restrict_to_version(SvgVersion1_2)
-  surface.svg_set_document_unit(SvgUnitPx)
-  debug_inspect(surface.svg_get_document_unit(), content="SvgUnitPx")
-  let ctx = Context::new(surface)
-  paint_page(ctx, 0.0, 0.0, 1.0)
-  ctx.show_page()
-  paint_page(ctx, 1.0, 0.0, 0.0)
-  ctx.show_page()
-  surface.finish()
+  render_svg_unit_multipage_surface(surface)
   expect_vector_output(path, [
     "<?xml version=\"1.0\"", "<svg", "width=\"12px\" height=\"12px\"", "<pageSet>",
     "<page>", "fill=\"rgb(0%, 0%, 100%)\"", "fill=\"rgb(100%, 0%, 0%)\"", "</pageSet>",
