@@ -357,6 +357,7 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   the Surface C glue split slice,
   the base Surface C glue split slice,
   the Surface wrapper split slice,
+  the Surface raw FFI family split slice,
   the Context C glue split slice,
   the Context wrapper split slice,
   the Pattern wrapper split slice,
@@ -387,7 +388,8 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   fallback slice, the PNG/script stream invalid-status
   fallback slice, the vector output white-box split slice, the test-vector C
   glue split slice, the base Surface C glue split slice, the Surface wrapper
-  split slice, the Context wrapper split slice, the Pattern wrapper split slice,
+  split slice, the Surface raw FFI family split slice, the Context wrapper
+  split slice, the Pattern wrapper split slice,
   the Pattern raw FFI family split slice, the Font C glue split slice,
   the Pattern C glue split slice, the Surface C glue split slice,
   the Context C glue split slice,
@@ -1661,6 +1663,15 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   font-options extern declarations from `ffi.mbt` into `ffi_surface.mbt`, added
   that file to the native target list, and reduced `ffi.mbt` to 906 lines. This
   did not change public API or test count.
+  The later Surface raw FFI family split slice moved image, mapped-image,
+  recording, PNG, MIME, state/page, and surface font-options extern
+  declarations from the 363-line `ffi_surface.mbt` into
+  `ffi_image_surface.mbt`, `ffi_mapped_image_surface.mbt`,
+  `ffi_recording_surface.mbt`, `ffi_surface_png.mbt`,
+  `ffi_surface_mime.mbt`, `ffi_surface_state.mbt`, and
+  `ffi_surface_font_options.mbt`, added all seven files to the native target
+  list, and left `ffi_surface.mbt` as the 54-line base-surface extern file.
+  This did not change public API or test count.
   The later Context core raw FFI split slice moved raw context construction,
   status, identity, save/restore, tag, target/source, and group extern
   declarations from `ffi.mbt` into `ffi_context_core.mbt`, added that file to

@@ -60,10 +60,15 @@ Implemented in this workspace:
   declarations.
   `ffi_device.mbt` owns raw `Device`, script-device, script-surface, and
   surface-get-device extern declarations.
-  `ffi_image_data.mbt`, `ffi_path.mbt`, `ffi_pdf_surface.mbt`,
-  `ffi_ps_surface.mbt`, `ffi_surface.mbt`, `ffi_svg_surface.mbt`,
-  `ffi_tee_surface.mbt`, and `ffi_region.mbt` own raw `ImageData`, `Path`, PDF
-  surface, PostScript surface, image/recording/base/mapped surface, SVG
+  `ffi_image_data.mbt` owns raw `ImageData` extern declarations;
+  `ffi_image_surface.mbt`, `ffi_mapped_image_surface.mbt`,
+  `ffi_recording_surface.mbt`, `ffi_surface.mbt`,
+  `ffi_surface_font_options.mbt`, `ffi_surface_mime.mbt`,
+  `ffi_surface_png.mbt`, and `ffi_surface_state.mbt` own raw image, mapped
+  image, recording, base, font-options, MIME, PNG, and state/page surface
+  extern declarations; and `ffi_path.mbt`, `ffi_pdf_surface.mbt`,
+  `ffi_ps_surface.mbt`, `ffi_svg_surface.mbt`, `ffi_tee_surface.mbt`, and
+  `ffi_region.mbt` own raw `Path`, PDF surface, PostScript surface, SVG
   surface, Tee surface, and `Region` extern declarations.
 - MoonBit `Context` public wrappers now follow the same family split as their
   raw FFI files: `context.mbt` keeps core construction/status/tag/group
@@ -416,6 +421,7 @@ Implemented in this workspace:
   the Surface C glue split slice,
   the base Surface C glue split slice,
   the Surface wrapper split slice,
+  the Surface raw FFI family split slice,
   the Context C glue split slice,
   the Context wrapper split slice,
   the Pattern wrapper split slice,
@@ -449,7 +455,8 @@ Implemented in this workspace:
   fallback slice, the PNG/script stream invalid-status
   fallback slice, the vector output white-box split slice, the test-vector C
   glue split slice, the base Surface C glue split slice, the Surface wrapper
-  split slice, the Context wrapper split slice, the Pattern wrapper split slice,
+  split slice, the Surface raw FFI family split slice, the Context wrapper
+  split slice, the Pattern wrapper split slice,
   the Pattern raw FFI family split slice, the raster-source stale-release
   replacement slice, the raster-source acquire-only owner fuzz slice,
   the raster-source failed-acquire owner-count fuzz slice, the mixed
@@ -1646,6 +1653,15 @@ Implemented in this workspace:
   font-options extern declarations from `ffi.mbt` into `ffi_surface.mbt`, added
   that file to the native target list, and reduced `ffi.mbt` to 906 lines. This
   did not change public API or test count.
+  The later Surface raw FFI family split slice moved image, mapped-image,
+  recording, PNG, MIME, state/page, and surface font-options extern
+  declarations from the 363-line `ffi_surface.mbt` into
+  `ffi_image_surface.mbt`, `ffi_mapped_image_surface.mbt`,
+  `ffi_recording_surface.mbt`, `ffi_surface_png.mbt`,
+  `ffi_surface_mime.mbt`, `ffi_surface_state.mbt`, and
+  `ffi_surface_font_options.mbt`, added all seven files to the native target
+  list, and left `ffi_surface.mbt` as the 54-line base-surface extern file.
+  This did not change public API or test count.
   The later Context core raw FFI split slice moved raw context construction,
   status, identity, save/restore, tag, target/source, and group extern
   declarations from `ffi.mbt` into `ffi_context_core.mbt`, added that file to

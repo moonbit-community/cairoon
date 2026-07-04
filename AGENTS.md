@@ -52,13 +52,20 @@ cairoon/
   ffi_device.mbt
   ffi_font.mbt
   ffi_image_data.mbt
+  ffi_image_surface.mbt
+  ffi_mapped_image_surface.mbt
   ffi_pattern.mbt
   ffi_pattern_mesh.mbt
   ffi_pattern_raster_source.mbt
   ffi_path.mbt
   ffi_pdf_surface.mbt
   ffi_ps_surface.mbt
+  ffi_recording_surface.mbt
   ffi_surface.mbt
+  ffi_surface_font_options.mbt
+  ffi_surface_mime.mbt
+  ffi_surface_png.mbt
+  ffi_surface_state.mbt
   ffi_svg_surface.mbt
   ffi_tee_surface.mbt
   ffi_region.mbt
@@ -189,13 +196,20 @@ options(
     "ffi_device.mbt": ["native"],
     "ffi_font.mbt": ["native"],
     "ffi_image_data.mbt": ["native"],
+    "ffi_image_surface.mbt": ["native"],
+    "ffi_mapped_image_surface.mbt": ["native"],
     "ffi_pattern.mbt": ["native"],
     "ffi_pattern_mesh.mbt": ["native"],
     "ffi_pattern_raster_source.mbt": ["native"],
     "ffi_path.mbt": ["native"],
     "ffi_pdf_surface.mbt": ["native"],
     "ffi_ps_surface.mbt": ["native"],
+    "ffi_recording_surface.mbt": ["native"],
     "ffi_surface.mbt": ["native"],
+    "ffi_surface_font_options.mbt": ["native"],
+    "ffi_surface_mime.mbt": ["native"],
+    "ffi_surface_png.mbt": ["native"],
+    "ffi_surface_state.mbt": ["native"],
     "ffi_svg_surface.mbt": ["native"],
     "ffi_tee_surface.mbt": ["native"],
     "ffi_region.mbt": ["native"]
@@ -257,13 +271,19 @@ declarations that call `cairoon_image_data.c`;
 `cairoon_pdf_surface.c`;
 `ffi_ps_surface.mbt` owns raw PostScript surface extern declarations that call
 `cairoon_ps_surface.c`;
-`ffi_surface.mbt` owns raw image, recording, base surface, mapped-image-surface,
-PNG stream, MIME-data, and surface font-options extern declarations that call
-`cairoon_surface.c`, `cairoon_surface_png.c`,
-`cairoon_surface_mime.c`, `cairoon_surface_state.c`,
-`cairoon_surface_font_options.c`, `cairoon_image_surface.c`,
-`cairoon_mapped_image_surface.c`, `cairoon_recording_surface.c`, and Cairo's
-`cairo_format_stride_for_width`;
+`ffi_surface.mbt` owns raw base surface extern declarations that call
+`cairoon_surface.c`; `ffi_image_surface.mbt` owns raw image surface and
+`cairo_format_stride_for_width` extern declarations that call
+`cairoon_image_surface.c` and Cairo; `ffi_surface_png.mbt` owns raw PNG extern
+declarations that call `cairoon_surface_png.c`; `ffi_surface_mime.mbt` owns raw
+MIME-data extern declarations that call `cairoon_surface_mime.c`;
+`ffi_surface_state.mbt` owns raw state/page extern declarations that call
+`cairoon_surface_state.c`; `ffi_surface_font_options.mbt` owns raw surface
+font-options extern declarations that call `cairoon_surface_font_options.c`;
+`ffi_recording_surface.mbt` owns raw recording-surface extern declarations that
+call `cairoon_recording_surface.c`; `ffi_mapped_image_surface.mbt` owns raw
+mapped-image-surface extern declarations that call
+`cairoon_mapped_image_surface.c`;
 `ffi_svg_surface.mbt` owns raw SVG surface extern declarations that call
 `cairoon_svg_surface.c`; `ffi_tee_surface.mbt` owns raw Tee surface extern
 declarations that call `cairoon_tee_surface.c`; and `ffi_region.mbt` owns raw
