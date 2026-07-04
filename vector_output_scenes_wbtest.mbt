@@ -132,6 +132,29 @@ fn render_vector_oracle_scene(
 }
 
 ///|
+fn draw_surface_page_retained_scene(surface : Surface) -> Unit raise CairoError {
+  let ctx = Context::new(surface)
+  ctx.set_source_rgb(0.0, 0.0, 1.0)
+  ctx.rectangle(1.0, 1.0, 3.0, 8.0)
+  ctx.fill()
+  surface.copy_page()
+  ctx.set_source_rgb(1.0, 0.0, 0.0)
+  ctx.rectangle(1.0, 6.0, 8.0, 3.0)
+  ctx.fill()
+  surface.show_page()
+}
+
+///|
+fn render_surface_page_retained_scene(
+  kind : Int,
+  path : String,
+) -> Unit raise CairoError {
+  let surface = vector_oracle_surface(kind, path)
+  draw_surface_page_retained_scene(surface)
+  surface.finish()
+}
+
+///|
 fn render_pdf_document_feature_surface(
   surface : Surface,
 ) -> Unit raise CairoError {

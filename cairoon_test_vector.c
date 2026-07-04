@@ -22,6 +22,45 @@ static cairo_status_t cairoon_test_render_vector_surface(
   return surface_status;
 }
 
+static cairo_status_t cairoon_test_render_surface_page_surface(
+  cairo_surface_t *surface) {
+  cairo_status_t status = cairo_surface_status(surface);
+  if (status != CAIRO_STATUS_SUCCESS) {
+    cairo_surface_destroy(surface);
+    return status;
+  }
+
+  cairo_t *ctx = cairo_create(surface);
+  cairo_set_source_rgb(ctx, 0.0, 0.0, 1.0);
+  cairo_rectangle(ctx, 1.0, 1.0, 3.0, 8.0);
+  cairo_fill(ctx);
+  status = cairo_status(ctx);
+
+  if (status == CAIRO_STATUS_SUCCESS) {
+    cairo_surface_copy_page(surface);
+    status = cairo_surface_status(surface);
+  }
+  if (status == CAIRO_STATUS_SUCCESS) {
+    cairo_set_source_rgb(ctx, 1.0, 0.0, 0.0);
+    cairo_rectangle(ctx, 1.0, 6.0, 8.0, 3.0);
+    cairo_fill(ctx);
+    status = cairo_status(ctx);
+  }
+  if (status == CAIRO_STATUS_SUCCESS) {
+    cairo_surface_show_page(surface);
+    status = cairo_surface_status(surface);
+  }
+
+  cairo_destroy(ctx);
+  cairo_surface_finish(surface);
+  cairo_status_t surface_status = cairo_surface_status(surface);
+  cairo_surface_destroy(surface);
+  if (status != CAIRO_STATUS_SUCCESS) {
+    return status;
+  }
+  return surface_status;
+}
+
 MOONBIT_FFI_EXPORT
 cairo_status_t cairoon_test_render_vector_scene_oracle(
   int32_t kind,
@@ -73,6 +112,52 @@ cairo_status_t cairoon_test_render_vector_scene_oracle(
       }
       surface = cairo_svg_surface_create(name, 10.0, 10.0);
       return cairoon_test_render_vector_surface(surface, scene);
+#else
+      return CAIRO_STATUS_SURFACE_TYPE_MISMATCH;
+#endif
+    default:
+      return CAIRO_STATUS_INVALID_STATUS;
+  }
+}
+
+MOONBIT_FFI_EXPORT
+cairo_status_t cairoon_test_render_surface_page_oracle(
+  int32_t kind,
+  moonbit_bytes_t filename) {
+  const char *name = (const char *)filename;
+  cairo_surface_t *surface = NULL;
+  switch (kind) {
+    case CAIROON_TEST_VECTOR_PDF:
+#if CAIRO_HAS_PDF_SURFACE
+      surface = cairo_pdf_surface_create(name, 10.0, 10.0);
+      cairo_pdf_surface_restrict_to_version(surface, CAIRO_PDF_VERSION_1_4);
+      cairo_pdf_surface_set_metadata(
+        surface,
+        CAIRO_PDF_METADATA_CREATOR,
+        "cairoon-vector-oracle");
+      cairo_pdf_surface_set_metadata(
+        surface,
+        CAIRO_PDF_METADATA_CREATE_DATE,
+        "2026-01-02T03:04:05+00:00");
+      cairo_pdf_surface_set_metadata(
+        surface,
+        CAIRO_PDF_METADATA_MOD_DATE,
+        "2026-01-02T03:04:05+00:00");
+      return cairoon_test_render_surface_page_surface(surface);
+#else
+      return CAIRO_STATUS_SURFACE_TYPE_MISMATCH;
+#endif
+    case CAIROON_TEST_VECTOR_PS:
+#if CAIRO_HAS_PS_SURFACE
+      surface = cairo_ps_surface_create(name, 10.0, 10.0);
+      return cairoon_test_render_surface_page_surface(surface);
+#else
+      return CAIRO_STATUS_SURFACE_TYPE_MISMATCH;
+#endif
+    case CAIROON_TEST_VECTOR_SVG:
+#if CAIRO_HAS_SVG_SURFACE
+      surface = cairo_svg_surface_create(name, 10.0, 10.0);
+      return cairoon_test_render_surface_page_surface(surface);
 #else
       return CAIRO_STATUS_SURFACE_TYPE_MISMATCH;
 #endif

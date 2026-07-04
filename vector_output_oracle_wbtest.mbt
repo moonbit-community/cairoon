@@ -151,6 +151,27 @@ test "copy_page retained vector scene matches direct cairo C oracle" {
 }
 
 ///|
+test "surface copy_page retained vector scene matches direct cairo C oracle" {
+  for kind in 0..<3 {
+    let ext = vector_output_extension(kind)
+    let cairoon_path = "/tmp/cairoon_vector_surface_copy_page_\{kind}.\{ext}"
+    let oracle_path = "/tmp/cairoon_vector_surface_copy_page_\{kind}_oracle.\{ext}"
+    render_surface_page_retained_scene(kind, cairoon_path)
+    check_status(
+      test_render_surface_page_oracle_ffi(kind, checked_path_bytes(oracle_path)),
+    )
+    inspect(
+      test_vector_files_equal_ffi(
+        kind,
+        checked_path_bytes(cairoon_path),
+        checked_path_bytes(oracle_path),
+      ),
+      content="true",
+    )
+  }
+}
+
+///|
 test "ps svg tagged show_text_glyphs tags stay inert" {
   let forbidden = [
     "/Annots", "/Subtype /Link", "/URI", "/StructTreeRoot", "/S /Link", "https://example.com/text-glyphs",
