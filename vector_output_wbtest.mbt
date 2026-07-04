@@ -920,11 +920,16 @@ test "ps svg link tag scenes match direct cairo C oracle" {
 }
 
 ///|
-test "svg document structure tag scene matches direct cairo C oracle" {
-  let cairoon_path = "/tmp/cairoon_vector_svg_struct_tag_scene.svg"
-  let oracle_path = "/tmp/cairoon_vector_svg_struct_tag_scene_oracle.svg"
-  render_vector_oracle_scene(2, 17, cairoon_path)
-  expect_vector_oracle_match(2, 17, cairoon_path, oracle_path)
+test "ps svg destination and structure tag scenes match direct cairo C oracle" {
+  for kind in 1..<3 {
+    let ext = vector_output_extension(kind)
+    for scene in 16..<18 {
+      let cairoon_path = "/tmp/cairoon_vector_backend_tag_scene_\{kind}_\{scene}.\{ext}"
+      let oracle_path = "/tmp/cairoon_vector_backend_tag_scene_\{kind}_\{scene}_oracle.\{ext}"
+      render_vector_oracle_scene(kind, scene, cairoon_path)
+      expect_vector_oracle_match(kind, scene, cairoon_path, oracle_path)
+    }
+  }
 }
 
 ///|
