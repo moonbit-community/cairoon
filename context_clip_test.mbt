@@ -41,6 +41,16 @@ test "context clip extents in_clip and reset_clip" {
 }
 
 ///|
+test "context empty path clip matches pycairo in_clip behavior" {
+  let ctx = Context::new(Surface::image(Argb32, 100, 100))
+  inspect(ctx.in_clip(50.0, 50.0), content="true")
+  ctx.clip()
+  inspect(ctx.in_clip(50.0, 50.0), content="false")
+  ctx.reset_clip()
+  inspect(ctx.in_clip(50.0, 50.0), content="true")
+}
+
+///|
 test "context clip_preserve keeps current path drawable" {
   let surface = Surface::image(Argb32, 4, 4)
   let ctx = Context::new(surface)
