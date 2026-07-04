@@ -1577,6 +1577,10 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   raster-source-pattern extern declarations from `ffi.mbt` into
   `ffi_pattern.mbt`, added that file to the native target list, and reduced
   `ffi.mbt` to 1866 lines. This did not change public API or test count.
+  The later Path/Region raw FFI split slice moved raw `Path` and `Region`
+  extern declarations from `ffi.mbt` into `ffi_path.mbt` and
+  `ffi_region.mbt`, added both files to the native target list, and reduced
+  `ffi.mbt` to 1683 lines. This did not change public API or test count.
 
 The missing reliability pieces are substantial: broader automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering

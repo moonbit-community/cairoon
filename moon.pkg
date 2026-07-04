@@ -38,6 +38,8 @@ options(
     "ffi.mbt": [ "native" ],
     "ffi_font.mbt": [ "native" ],
     "ffi_pattern.mbt": [ "native" ],
+    "ffi_path.mbt": [ "native" ],
+    "ffi_region.mbt": [ "native" ],
   },
   link: {
     "native": {

@@ -49,6 +49,8 @@ cairoon/
   ffi.mbt
   ffi_font.mbt
   ffi_pattern.mbt
+  ffi_path.mbt
+  ffi_region.mbt
   error.mbt
   types.mbt
   device.mbt
@@ -111,7 +113,9 @@ options(
   targets: {
     "ffi.mbt": ["native"],
     "ffi_font.mbt": ["native"],
-    "ffi_pattern.mbt": ["native"]
+    "ffi_pattern.mbt": ["native"],
+    "ffi_path.mbt": ["native"],
+    "ffi_region.mbt": ["native"]
   },
 )
 ```
@@ -137,11 +141,15 @@ exports in `ffi.mbt`; move larger families into files named
 `["native"]`. For example, `ffi_font.mbt` owns the raw `FontOptions`,
 `FontFace`, `ScaledFont`, and text-to-glyphs extern declarations that call
 `cairoon_font.c`; `ffi_pattern.mbt` owns the raw `Pattern`, mesh-pattern, and
-raster-source-pattern extern declarations that call `cairoon_pattern.c`.
+raster-source-pattern extern declarations that call `cairoon_pattern.c`;
+`ffi_path.mbt` owns raw `Path` extern declarations that call `cairoon_path.c`;
+and `ffi_region.mbt` owns raw `Region` extern declarations that call
+`cairoon_region.c`.
 
 Do not add public wrappers to `ffi_*.mbt`; these files are private native FFI
 plumbing only. Public MoonBit APIs stay in focused wrapper files such as
-`font_options.mbt`, `font_face.mbt`, `scaled_font.mbt`, and `pattern.mbt`.
+`font_options.mbt`, `font_face.mbt`, `scaled_font.mbt`, `pattern.mbt`,
+`path.mbt`, and `region.mbt`.
 
 ## C Glue File Boundaries
 

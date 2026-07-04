@@ -20,6 +20,8 @@ Implemented in this workspace:
   `ffi_font.mbt` owns raw `FontOptions`, `FontFace`, `ScaledFont`, and
   text-to-glyphs extern declarations, and `ffi_pattern.mbt` owns raw
   `Pattern`, mesh-pattern, and raster-source-pattern extern declarations.
+  `ffi_path.mbt` and `ffi_region.mbt` own raw `Path` and `Region` extern
+  declarations.
 - MoonBit `Eq`/`Hash` traits are implemented for hashable Cairo external
   objects that already expose cairoon equality/hash helpers: `Surface`,
   `Context`, `Pattern`, `Device`, `FontOptions`, `FontFace`, `ScaledFont`, and
@@ -1505,6 +1507,10 @@ Implemented in this workspace:
   raster-source-pattern extern declarations from `ffi.mbt` into
   `ffi_pattern.mbt`, added that file to the native target list, and reduced
   `ffi.mbt` to 1866 lines. This did not change public API or test count.
+  The later Path/Region raw FFI split slice moved raw `Path` and `Region`
+  extern declarations from `ffi.mbt` into `ffi_path.mbt` and
+  `ffi_region.mbt`, added both files to the native target list, and reduced
+  `ffi.mbt` to 1683 lines. This did not change public API or test count.
 
 ## Known Gaps
 
