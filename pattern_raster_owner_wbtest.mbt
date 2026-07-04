@@ -103,6 +103,83 @@ test "raster source acquire-only owner count balances across replacement fuzz" {
 }
 
 ///|
+test "raster source failed acquire replacement keeps owner counts balanced" {
+  let sources = [
+    make_raster_owner_color_source(0),
+    make_raster_owner_color_source(1),
+    make_raster_owner_color_source(2),
+  ]
+  let failed_source = Surface::image(Argb32, 1, 1)
+  failed_source.finish()
+  expect_raster_owner_counts_zero(sources)
+  inspect(test_raster_surface_owner_count_ffi(failed_source), content="0")
+
+  let acquire_calls = Ref(0)
+  let release_calls = Ref(0)
+  let failed_paints = Ref(0)
+  let successful_paints = Ref(0)
+  let last_release_width = Ref(0)
+  let pattern = Pattern::raster_source(ContentColorAlpha, 3, 3)
+  for step in 0..<36 {
+    if step % 7 == 0 {
+      pattern.raster_clear_callbacks()
+      expect_raster_owner_counts_zero(sources)
+      inspect(test_raster_surface_owner_count_ffi(failed_source), content="0")
+    }
+
+    let should_fail = step % 5 == 0
+    let color = (step * 5 + 1) % 3
+    let source = sources[color]
+    pattern.raster_set_acquire(
+      fn(target, extents) {
+        acquire_calls.val += 1
+        ignore(try! target.get_content())
+        ignore(extents.components())
+        if should_fail {
+          failed_source
+        } else {
+          source
+        }
+      },
+      release=Some(fn(surface) {
+        release_calls.val += 1
+        last_release_width.val = try! surface.get_width()
+      }),
+    )
+
+    let target = Surface::image(Argb32, 2 + step % 2, 2 + step / 2 % 2)
+    let ctx = Context::new(target)
+    ctx.set_source(pattern)
+    let result = run_cairo(() => ctx.paint())
+    if should_fail {
+      match result {
+        Err(CairoMemoryError(NoMemory, _)) => failed_paints.val += 1
+        _ => fail("expected NoMemory from finished acquire surface")
+      }
+    } else {
+      match result {
+        Ok(_) => ()
+        _ => fail("expected paint to recover after failed acquire")
+      }
+      successful_paints.val += 1
+      target.flush()
+      expect_raster_owner_first_pixel(target.copy_data(), color)
+    }
+    expect_raster_owner_counts_zero(sources)
+    inspect(test_raster_surface_owner_count_ffi(failed_source), content="0")
+  }
+
+  inspect(failed_paints.val, content="8")
+  inspect(successful_paints.val, content="28")
+  inspect(acquire_calls.val > release_calls.val, content="true")
+  inspect(release_calls.val >= successful_paints.val, content="true")
+  inspect(last_release_width.val > 0, content="true")
+  pattern.raster_clear_callbacks()
+  expect_raster_owner_counts_zero(sources)
+  inspect(test_raster_surface_owner_count_ffi(failed_source), content="0")
+}
+
+///|
 test "raster source acquire-only replacement drops stale release callback" {
   let source = make_raster_owner_color_source(1)
   inspect(test_raster_surface_owner_count_ffi(source), content="0")
