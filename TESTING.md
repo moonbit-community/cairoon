@@ -352,6 +352,7 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   the PNG/script stream invalid-status fallback slice,
   the vector output white-box split slice,
   the test-vector C glue split slice,
+  the Font raw FFI family split slice,
   the Font C glue split slice,
   the Pattern C glue split slice,
   the Surface C glue split slice,
@@ -387,8 +388,9 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   wide multi-page stream equivalence slice, the vector stream invalid-status
   fallback slice, the PNG/script stream invalid-status
   fallback slice, the vector output white-box split slice, the test-vector C
-  glue split slice, the base Surface C glue split slice, the Surface wrapper
-  split slice, the Surface raw FFI family split slice, the Context wrapper
+  glue split slice, the Font raw FFI family split slice, the base Surface C
+  glue split slice, the Surface wrapper split slice, the Surface raw FFI
+  family split slice, the Context wrapper
   split slice, the Pattern wrapper split slice,
   the Pattern raw FFI family split slice, the Font C glue split slice,
   the Pattern C glue split slice, the Surface C glue split slice,
@@ -1619,6 +1621,12 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   `ffi.mbt` into `ffi_font.mbt`, added that file to the native target list, and
   reduced `ffi.mbt` to 2226 lines. This did not change public API or test
   count.
+  The later Font raw FFI family split slice moved FontOptions, FontFace,
+  ScaledFont, and text-to-glyphs result extern declarations from the 353-line
+  `ffi_font.mbt` into `ffi_font_options.mbt`, `ffi_font_face.mbt`,
+  `ffi_scaled_font.mbt`, and `ffi_text_to_glyphs.mbt`, added all four files to
+  the native target list, and removed the now-empty aggregate `ffi_font.mbt`.
+  This did not change public API or test count.
   The later pattern raw FFI split slice moved raw `Pattern`, mesh-pattern, and
   raster-source-pattern extern declarations from `ffi.mbt` into
   `ffi_pattern.mbt`, added that file to the native target list, and reduced

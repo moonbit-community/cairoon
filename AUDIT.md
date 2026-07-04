@@ -52,8 +52,11 @@ Implemented in this workspace:
   declarations,
   `ffi_context_state.mbt` owns raw `Context` drawing-state/line-style/dash
   extern declarations,
-  `ffi_font.mbt` owns raw `FontOptions`, `FontFace`, `ScaledFont`, and
-  text-to-glyphs extern declarations, `ffi_pattern.mbt` owns raw
+  `ffi_font_options.mbt` owns raw `FontOptions` extern declarations,
+  `ffi_font_face.mbt` owns raw toy-font-face and `FontFace` extern
+  declarations, `ffi_scaled_font.mbt` owns raw `ScaledFont` extern
+  declarations, and `ffi_text_to_glyphs.mbt` owns raw text-to-glyphs result
+  extern declarations. `ffi_pattern.mbt` owns raw
   base/surface/solid/gradient `Pattern` extern declarations,
   `ffi_pattern_mesh.mbt` owns raw mesh-pattern extern declarations, and
   `ffi_pattern_raster_source.mbt` owns raw raster-source-pattern extern
@@ -416,6 +419,7 @@ Implemented in this workspace:
   the PNG/script stream invalid-status fallback slice,
   the vector output white-box split slice,
   the test-vector C glue split slice,
+  the Font raw FFI family split slice,
   the Font C glue split slice,
   the Pattern C glue split slice,
   the Surface C glue split slice,
@@ -434,8 +438,10 @@ Implemented in this workspace:
   vector/tag/text marker slice, the direct C oracle slice, and the prior C
   stub split that moved private test oracles out of `cairoon_misc.c` into
   common/file/vector/image helper files, plus the raw FFI splits that moved
-  font and pattern extern declarations into `ffi_font.mbt`, `ffi_pattern.mbt`,
-  `ffi_pattern_mesh.mbt`, and `ffi_pattern_raster_source.mbt`.
+  font and pattern extern declarations into `ffi_font_options.mbt`,
+  `ffi_font_face.mbt`, `ffi_scaled_font.mbt`, `ffi_text_to_glyphs.mbt`,
+  `ffi_pattern.mbt`, `ffi_pattern_mesh.mbt`, and
+  `ffi_pattern_raster_source.mbt`.
 - `moon -C cairoon check --target native`: passed.
 - `moon -C cairoon test --target native`: 385 tests passed. The current run
   includes the pycairo context font-extents parity slice,
@@ -454,8 +460,9 @@ Implemented in this workspace:
   wide multi-page stream equivalence slice, the vector stream invalid-status
   fallback slice, the PNG/script stream invalid-status
   fallback slice, the vector output white-box split slice, the test-vector C
-  glue split slice, the base Surface C glue split slice, the Surface wrapper
-  split slice, the Surface raw FFI family split slice, the Context wrapper
+  glue split slice, the Font raw FFI family split slice, the base Surface C
+  glue split slice, the Surface wrapper split slice, the Surface raw FFI
+  family split slice, the Context wrapper
   split slice, the Pattern wrapper split slice,
   the Pattern raw FFI family split slice, the raster-source stale-release
   replacement slice, the raster-source acquire-only owner fuzz slice,
@@ -1609,6 +1616,12 @@ Implemented in this workspace:
   `ffi.mbt` into `ffi_font.mbt`, added that file to the native target list, and
   reduced `ffi.mbt` to 2226 lines. This did not change public API or test
   count.
+  The later Font raw FFI family split slice moved FontOptions, FontFace,
+  ScaledFont, and text-to-glyphs result extern declarations from the 353-line
+  `ffi_font.mbt` into `ffi_font_options.mbt`, `ffi_font_face.mbt`,
+  `ffi_scaled_font.mbt`, and `ffi_text_to_glyphs.mbt`, added all four files to
+  the native target list, and removed the now-empty aggregate `ffi_font.mbt`.
+  This did not change public API or test count.
   The later pattern raw FFI split slice moved raw `Pattern`, mesh-pattern, and
   raster-source-pattern extern declarations from `ffi.mbt` into
   `ffi_pattern.mbt`, added that file to the native target list, and reduced

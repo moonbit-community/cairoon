@@ -50,7 +50,8 @@ cairoon/
   ffi_context_core.mbt
   ffi_context_font_text.mbt
   ffi_device.mbt
-  ffi_font.mbt
+  ffi_font_face.mbt
+  ffi_font_options.mbt
   ffi_image_data.mbt
   ffi_image_surface.mbt
   ffi_mapped_image_surface.mbt
@@ -68,6 +69,8 @@ cairoon/
   ffi_surface_state.mbt
   ffi_svg_surface.mbt
   ffi_tee_surface.mbt
+  ffi_scaled_font.mbt
+  ffi_text_to_glyphs.mbt
   ffi_region.mbt
   error.mbt
   types.mbt
@@ -194,7 +197,8 @@ options(
     "ffi_context_core.mbt": ["native"],
     "ffi_context_font_text.mbt": ["native"],
     "ffi_device.mbt": ["native"],
-    "ffi_font.mbt": ["native"],
+    "ffi_font_face.mbt": ["native"],
+    "ffi_font_options.mbt": ["native"],
     "ffi_image_data.mbt": ["native"],
     "ffi_image_surface.mbt": ["native"],
     "ffi_mapped_image_surface.mbt": ["native"],
@@ -212,6 +216,8 @@ options(
     "ffi_surface_state.mbt": ["native"],
     "ffi_svg_surface.mbt": ["native"],
     "ffi_tee_surface.mbt": ["native"],
+    "ffi_scaled_font.mbt": ["native"],
+    "ffi_text_to_glyphs.mbt": ["native"],
     "ffi_region.mbt": ["native"]
   },
 )
@@ -235,10 +241,13 @@ Raw `extern "C"` declarations may be split by Cairo concept family, mirroring
 the C glue split. Keep object type declarations and very small module-level
 exports in `ffi.mbt`; move larger families into files named
 `ffi_<family>.mbt`, and add every such file to `moon.pkg` `targets` with
-`["native"]`. For example, `ffi_font.mbt` owns the raw `FontOptions`,
-`FontFace`, `ScaledFont`, and text-to-glyphs extern declarations that call
-`cairoon_font_options.c`, `cairoon_font_face.c`,
-`cairoon_scaled_font.c`, and `cairoon_scaled_font_oracle.c`;
+`["native"]`. For example, `ffi_font_options.mbt` owns raw `FontOptions`
+extern declarations that call `cairoon_font_options.c`;
+`ffi_font_face.mbt` owns raw toy-font-face and `FontFace` extern declarations
+that call `cairoon_font_face.c`; `ffi_scaled_font.mbt` owns raw `ScaledFont`
+extern declarations that call `cairoon_scaled_font.c`;
+`ffi_text_to_glyphs.mbt` owns raw text-to-glyphs result extern declarations
+that call `cairoon_glyph.c`;
 `ffi_pattern.mbt` owns raw base/surface/solid/gradient `Pattern` extern
 declarations that call `cairoon_pattern.c`; `ffi_pattern_mesh.mbt` owns raw
 mesh-pattern extern declarations that call `cairoon_mesh_pattern.c`;
