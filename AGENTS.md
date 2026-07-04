@@ -166,6 +166,9 @@ opening lifecycle/state section of `cairoon_context.c`;
 `ffi_context_font_text.mbt` owns raw `Context` font-options, font-face, toy-font
 selection, font-matrix, text, glyph, show-text-glyphs, and scaled-font extern
 declarations that call the font/text section of `cairoon_context.c`;
+`ffi_context_matrix.mbt` owns raw `Context` transform, current-transformation
+matrix, identity-matrix, and user/device coordinate-conversion extern
+declarations that call the matrix/transform section of `cairoon_context.c`;
 `ffi_device.mbt` owns raw `Device`, script-device, script-surface, and
 surface-get-device extern declarations that call `cairoon_device.c`;
 `ffi_image_data.mbt` owns raw `ImageData` and image/mapped get-data extern

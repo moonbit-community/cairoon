@@ -38,6 +38,7 @@ options(
     "ffi.mbt": [ "native" ],
     "ffi_context_core.mbt": [ "native" ],
     "ffi_context_font_text.mbt": [ "native" ],
+    "ffi_context_matrix.mbt": [ "native" ],
     "ffi_device.mbt": [ "native" ],
     "ffi_font.mbt": [ "native" ],
     "ffi_image_data.mbt": [ "native" ],

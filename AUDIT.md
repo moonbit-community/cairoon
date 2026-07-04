@@ -20,7 +20,8 @@ Implemented in this workspace:
   `ffi_context_core.mbt` owns raw `Context` construction, status, identity,
   save/restore, tag, target/source, and group extern declarations,
   `ffi_context_font_text.mbt` owns raw `Context` font/text/scaled-font extern
-  declarations,
+  declarations, `ffi_context_matrix.mbt` owns raw `Context`
+  matrix/coordinate-conversion extern declarations,
   `ffi_font.mbt` owns raw `FontOptions`, `FontFace`, `ScaledFont`, and
   text-to-glyphs extern declarations, `ffi_pattern.mbt` owns raw `Pattern`,
   mesh-pattern, and raster-source-pattern extern declarations, and
@@ -1560,6 +1561,11 @@ Implemented in this workspace:
   show-text-glyphs, and scaled-font extern declarations from `ffi.mbt` into
   `ffi_context_font_text.mbt`, added that file to the native target list, and
   reduced `ffi.mbt` to 659 lines. This did not change public API or test count.
+  The later Context matrix raw FFI split slice moved raw context transform,
+  CTM, identity-matrix, and user/device coordinate-conversion extern
+  declarations from `ffi.mbt` into `ffi_context_matrix.mbt`, added that file to
+  the native target list, and reduced `ffi.mbt` to 559 lines. This did not
+  change public API or test count.
 
 ## Known Gaps
 
