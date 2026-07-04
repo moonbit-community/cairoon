@@ -316,13 +316,15 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   the full native suite, `moon info --target native`, and targeted ASan
   image-oracle, vector-output, stream, pattern, and raster-owner tests with
   leak detection disabled. The current run includes the stream-vs-file vector
-  output equivalence slice, the raster-source acquire-only owner fuzz slice,
+  output equivalence slice, the raster-source stale-release replacement slice,
+  the raster-source acquire-only owner fuzz slice,
   the packaging/pycairo-porting documentation slice, the mixed
   vector/tag/text marker slice, and the direct C oracle slice.
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native`: 356 tests passed. The current run
+- `moon -C cairoon test --target native`: 357 tests passed. The current run
   includes the stream-vs-file vector output equivalence slice, the
-  raster-source acquire-only owner fuzz slice, the mixed
+  raster-source stale-release replacement slice, the raster-source
+  acquire-only owner fuzz slice, the mixed
   vector/tag/text marker slice, the direct C oracle slice, the PS/SVG tag
   metadata absence slice, the PDF tagged multi-page text marker slice,
   the cross-backend tagged multi-page text direct C oracle slice, the
@@ -420,10 +422,11 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   post-failure acquire replacement recovery, plus deterministic 25-step
   callback replacement/failure fuzz with dynamic compatible source surfaces and
   final post-clear recovery.
-- `moon -C cairoon test pattern_raster_owner_wbtest.mbt --target native -v`: 2
+- `moon -C cairoon test pattern_raster_owner_wbtest.mbt --target native -v`: 3
   white-box raster-source owner-count tests passed, asserting acquire-only
-  repeated same-surface paints and a 64-step acquire-only replacement fuzz
-  release cairoon's retained owner back to zero after each paint.
+  repeated same-surface paints, a 64-step acquire-only replacement fuzz, and
+  release-only to acquire-only replacement all release cairoon's retained owner
+  back to zero without calling stale release callbacks.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
   pattern_test.mbt --target native -v`: 20 ASan-compiled black-box pattern
@@ -434,10 +437,11 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   compatible source surfaces.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
-  pattern_raster_owner_wbtest.mbt --target native -v`: 2 ASan-compiled
+  pattern_raster_owner_wbtest.mbt --target native -v`: 3 ASan-compiled
   white-box raster-source owner-count tests passed with leak detection
-  disabled, covering acquire-only repeated same-surface paints and the 64-step
-  acquire-only replacement fuzz.
+  disabled, covering acquire-only repeated same-surface paints, the 64-step
+  acquire-only replacement fuzz, and stale release-to-acquire-only
+  replacement.
 - `run-asan.py --repo-root /Users/caimeo/code/pycairo/cairoon --pkg moon.pkg`:
   rerun for the raster-source acquire-only release-trampoline slice. The full
   runner still failed during the known macOS FontRegistry/CoreText/ColorSync
@@ -1378,6 +1382,12 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   PDF/PS/SVG stream-vs-file normalized equality test for a deterministic
   two-page scene and added stream black-box/white-box files to the normal and
   ASan verification gates. This raised the full native suite to 356 tests.
+  The later raster-source stale-release replacement slice added one white-box
+  owner-count test proving release-only to acquire-only callback replacement
+  drops the stale release closure while cairoon's internal release trampoline
+  still balances retained owners. This raised
+  `pattern_raster_owner_wbtest.mbt` to 3 tests and the full native suite to
+  357 tests.
 
 The missing reliability pieces are substantial: broader automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering

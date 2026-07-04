@@ -101,3 +101,46 @@ test "raster source acquire-only owner count balances across replacement fuzz" {
   pattern.raster_clear_callbacks()
   expect_raster_owner_counts_zero(sources)
 }
+
+///|
+test "raster source acquire-only replacement drops stale release callback" {
+  let source = make_raster_owner_color_source(1)
+  inspect(test_raster_surface_owner_count_ffi(source), content="0")
+
+  let stale_release_calls = Ref(0)
+  let pattern = Pattern::raster_source(ContentColorAlpha, 3, 3)
+  pattern.raster_set_callbacks(
+    release=Some(fn(_) { stale_release_calls.val += 1 }),
+  )
+  let (release_only_acquire, release_only_release) = pattern.raster_get_callbacks()
+  guard release_only_acquire is None && release_only_release is Some(_) else {
+    fail("expected release-only raster callback state")
+  }
+
+  let acquire_calls = Ref(0)
+  pattern.raster_set_acquire(fn(target, extents) {
+    acquire_calls.val += 1
+    ignore(try! target.get_content())
+    ignore(extents.components())
+    source
+  })
+  let (acquire_only_acquire, acquire_only_release) = pattern.raster_get_callbacks()
+  guard acquire_only_acquire is Some(_) && acquire_only_release is None else {
+    fail("expected acquire-only replacement to drop stale release")
+  }
+
+  for _ in 0..<4 {
+    let target = Surface::image(Argb32, 2, 2)
+    let ctx = Context::new(target)
+    ctx.set_source(pattern)
+    ctx.paint()
+    target.flush()
+    expect_raster_owner_first_pixel(target.copy_data(), 1)
+    inspect(test_raster_surface_owner_count_ffi(source), content="0")
+    inspect(stale_release_calls.val, content="0")
+  }
+
+  inspect(acquire_calls.val > 0, content="true")
+  pattern.raster_clear_callbacks()
+  inspect(test_raster_surface_owner_count_ffi(source), content="0")
+}
