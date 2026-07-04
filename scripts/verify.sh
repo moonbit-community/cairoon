@@ -54,6 +54,7 @@ targeted_tests=(
   pattern_gradient_test.mbt
   pattern_mesh_test.mbt
   pattern_raster_owner_wbtest.mbt
+  pattern_raster_state_wbtest.mbt
   region_test.mbt
   lifetime_stress_test.mbt
   lifetime_value_stress_test.mbt
