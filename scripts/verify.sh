@@ -17,6 +17,9 @@ run moon check --target native
 
 run moon test image_oracle_wbtest.mbt --target native -v
 run moon test scaled_font_oracle_wbtest.mbt --target native -v
+run moon test font_options_test.mbt --target native -v
+run moon test font_face_test.mbt --target native -v
+run moon test scaled_font_test.mbt --target native -v
 run moon test vector_output_wbtest.mbt --target native -v
 run moon test surface_stream_test.mbt --target native -v
 run moon test surface_stream_wbtest.mbt --target native -v
@@ -36,6 +39,7 @@ run moon test pattern_test.mbt --target native -v
 run moon test pattern_gradient_test.mbt --target native -v
 run moon test pattern_mesh_test.mbt --target native -v
 run moon test pattern_raster_owner_wbtest.mbt --target native -v
+run moon test lifetime_stress_test.mbt --target native -v
 
 run moon test --target native
 run moon info --target native
@@ -60,6 +64,21 @@ if [[ "$asan_mode" != "0" ]]; then
       "MOON_AR=$moon_ar" \
       "ASAN_OPTIONS=$asan_options" \
       moon test vector_output_wbtest.mbt --target native -v
+    run env \
+      "MOON_CC=$clang_path" \
+      "MOON_AR=$moon_ar" \
+      "ASAN_OPTIONS=$asan_options" \
+      moon test font_options_test.mbt --target native -v
+    run env \
+      "MOON_CC=$clang_path" \
+      "MOON_AR=$moon_ar" \
+      "ASAN_OPTIONS=$asan_options" \
+      moon test font_face_test.mbt --target native -v
+    run env \
+      "MOON_CC=$clang_path" \
+      "MOON_AR=$moon_ar" \
+      "ASAN_OPTIONS=$asan_options" \
+      moon test scaled_font_test.mbt --target native -v
     run env \
       "MOON_CC=$clang_path" \
       "MOON_AR=$moon_ar" \
@@ -150,6 +169,11 @@ if [[ "$asan_mode" != "0" ]]; then
       "MOON_AR=$moon_ar" \
       "ASAN_OPTIONS=$asan_options" \
       moon test pattern_raster_owner_wbtest.mbt --target native -v
+    run env \
+      "MOON_CC=$clang_path" \
+      "MOON_AR=$moon_ar" \
+      "ASAN_OPTIONS=$asan_options" \
+      moon test lifetime_stress_test.mbt --target native -v
   else
     printf '\nSkipping targeted ASan: set MOON_CC to an ASan-capable clang, or set CAIROON_VERIFY_ASAN=0 to silence this message.\n'
   fi

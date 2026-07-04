@@ -301,15 +301,18 @@ Implemented in this workspace:
 
 - `./scripts/verify.sh`: passed. The local reliability gate ran
   `moon fmt --check`, `scripts/configure-link-flags.sh --check`, native
-  `moon check`, targeted image, ScaledFont, vector including PDF combined
-  text document-feature plus PS DSC/SVG unit backend-feature oracle checks,
+  `moon check`, targeted image, ScaledFont oracle,
+  font-options/font-face/scaled-font, vector including PDF combined text
+  document-feature plus PS DSC/SVG unit backend-feature oracle checks,
   stream black-box/white-box tests, mapped-image tests, TeeSurface tests,
   context lifetime/state/matrix/path/group/text/glyph/extents/clip/painting tests,
-  pattern/gradient/mesh tests, and raster-owner white-box tests,
+  pattern/gradient/mesh tests, raster-owner white-box tests, and
+  lifetime-stress tests,
   the full native suite, `moon info --target native`, and targeted ASan
-  image-oracle, vector-output, stream, mapped-image, TeeSurface,
+  image-oracle, font-options/font-face/scaled-font, vector-output, stream,
+  mapped-image, TeeSurface,
   context-lifetime/state/matrix/path/group/text/glyph/extents/clip/painting, pattern/gradient/mesh, and
-  raster-owner tests with leak detection disabled. The current run includes
+  raster-owner/lifetime-stress tests with leak detection disabled. The current run includes
   the pycairo context font-extents parity slice,
   the pycairo group-target stack-restoration slice,
   the pycairo rectangle path-extents slice,
@@ -1442,6 +1445,12 @@ Implemented in this workspace:
   `ScaledFont::extents()`, and added `context_text_test.mbt` and
   `glyph_array_test.mbt` to the normal and ASan verification gates. This raised
   `context_text_test.mbt` to 6 tests and the full native suite to 370 tests.
+  The later ScaledFont returned-object lifetime slice added one black-box test
+  proving `ScaledFont::get_font_face()` and `get_font_options()` remain usable
+  after the source scaled-font scope exits, and added `font_options_test.mbt`,
+  `font_face_test.mbt`, `scaled_font_test.mbt`, and `lifetime_stress_test.mbt`
+  to the normal and ASan verification gates. This raised
+  `scaled_font_test.mbt` to 8 tests and the full native suite to 371 tests.
 
 ## Known Gaps
 

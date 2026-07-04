@@ -40,6 +40,12 @@ fn make_scaled_font() -> ScaledFont raise CairoError {
 }
 
 ///|
+fn returned_scaled_font_parts_from_local_parent() -> (FontFace, FontOptions) raise CairoError {
+  let scaled_font = make_scaled_font()
+  (scaled_font.get_font_face(), scaled_font.get_font_options())
+}
+
+///|
 test "scaled font construction exposes font face options and matrices" {
   let scaled_font = make_scaled_font()
   inspect(scaled_font.status().is_success(), content="true")
@@ -60,6 +66,16 @@ test "scaled font construction exposes font face options and matrices" {
     scaled_font.get_scale_matrix(),
     Matrix::new(xx=24.0, yy=36.0),
   )
+}
+
+///|
+test "scaled font returned face and options survive source scaled font scope" {
+  let (returned_face, returned_options) = returned_scaled_font_parts_from_local_parent()
+  inspect(returned_face.status().is_success(), content="true")
+  inspect(returned_face.get_family(), content="serif")
+  debug_inspect(returned_face.get_weight(), content="FontWeightBold")
+  inspect(returned_options.status().is_success(), content="true")
+  debug_inspect(returned_options.get_antialias(), content="AntialiasGray")
 }
 
 ///|
