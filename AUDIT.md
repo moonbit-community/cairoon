@@ -453,7 +453,7 @@ Implemented in this workspace:
   `ffi_pattern.mbt`, `ffi_pattern_mesh.mbt`, and
   `ffi_pattern_raster_source.mbt`.
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native`: 388 tests passed. The current run
+- `moon -C cairoon test --target native`: 392 tests passed. The current run
   includes the pycairo context font-extents parity slice,
   the pycairo group-target stack-restoration slice,
   the pycairo rectangle path-extents slice,
@@ -470,7 +470,8 @@ Implemented in this workspace:
   mixed/layered stream equivalence slice, the wide multi-page stream
   equivalence slice, the document-feature stream equivalence slice, the vector
   stream invalid-status fallback slice, the PNG/script stream invalid-status
-  fallback slice, the vector output white-box split slice, the vector output
+  fallback slice, the matrix property-test slice, the lifetime stress test
+  split slice, the vector output white-box split slice, the vector output
   scene helper split slice, the test-vector C glue split slice, the
   test-vector tag scene C glue split slice, the
   vector output marker/oracle test split slice, the
@@ -873,8 +874,11 @@ Implemented in this workspace:
   `Compare`, and `Region` equality coverage without `Hash`.
 - `moon -C cairoon test region.mbt.md --target native -v`: 3 executable
   Region reference examples passed.
-- `moon -C cairoon test matrix.mbt.md --target native -v`: 4 executable
-  Matrix reference examples passed.
+- `moon -C cairoon test matrix_test.mbt matrix_property_test.mbt matrix.mbt.md
+  --target native -v`: 13 Matrix tests passed, covering field/component
+  semantics, deterministic property checks for multiplication associativity,
+  inverse identity, composed point/distance transforms, distance-vs-point-delta
+  behavior, and executable Matrix reference examples.
 - `moon -C cairoon test path.mbt.md --target native -v`: 4 executable Path
   reference examples passed.
 - `moon -C cairoon test pattern.mbt.md --target native -v`: 6 executable
@@ -1256,6 +1260,12 @@ Implemented in this workspace:
   The later Matrix documentation slice added `matrix.mbt.md` with four
   executable examples, raising the native suite to 260 tests; ASan was not
   rerun because no C glue changed.
+  The later Matrix property-test slice added `matrix_property_test.mbt` with
+  four deterministic property checks for multiplication associativity, inverse
+  identity, composed point/distance transforms, and distance-vs-point-delta
+  behavior, raising the native suite to 392 tests. The file is included in the
+  targeted normal and ASan verification gate because it exercises value-level
+  transform semantics used throughout drawing code.
   The later Path documentation slice added `path.mbt.md` with four executable
   examples covering typed segments, pycairo-style string formatting, flattened
   append behavior, copied-path ownership, and checked invalid-matrix errors,

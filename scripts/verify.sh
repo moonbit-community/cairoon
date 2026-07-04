@@ -37,6 +37,7 @@ targeted_tests=(
   surface_tee_test.mbt
   device_test.mbt
   object_traits_test.mbt
+  matrix_property_test.mbt
   context_lifetime_test.mbt
   context_state_test.mbt
   context_matrix_test.mbt
