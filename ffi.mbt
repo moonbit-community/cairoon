@@ -120,6 +120,14 @@ extern "C" fn test_vector_files_equal_ffi(
 ) -> Bool = "cairoon_test_vector_files_equal"
 
 ///|
+#borrow(filename, bytes)
+extern "C" fn test_vector_file_equals_bytes_ffi(
+  kind : Int,
+  filename : Bytes,
+  bytes : Bytes,
+) -> Bool = "cairoon_test_vector_file_equals_bytes"
+
+///|
 extern "C" fn test_argb32_blue_paint_oracle_ffi(
   width : Int,
   height : Int,
@@ -161,6 +169,7 @@ fn init {
   ignore(test_render_vector_oracle_ffi)
   ignore(test_render_vector_scene_oracle_ffi)
   ignore(test_vector_files_equal_ffi)
+  ignore(test_vector_file_equals_bytes_ffi)
   ignore(test_argb32_blue_paint_oracle_ffi)
   ignore(test_argb32_scene_oracle_ffi)
   ignore(test_scaled_font_extents_oracle_ffi)

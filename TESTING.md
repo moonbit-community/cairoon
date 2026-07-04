@@ -166,10 +166,11 @@ The current local gate is executable as:
 ```
 
 It runs `moon fmt --check`, `scripts/configure-link-flags.sh --check`, native
-`moon check`, targeted white-box image, ScaledFont, vector-output, and
-raster-pattern tests, the full native test suite, `moon info --target native`,
-and targeted ASan builds for the image oracle, vector-output, and
-raster-pattern suites when an ASan-capable `clang` is available. Set
+`moon check`, targeted white-box image, ScaledFont, vector-output,
+stream black-box/white-box, and raster-pattern tests, the full native test
+suite, `moon info --target native`, and targeted ASan builds for the image
+oracle, vector-output, stream, and raster-pattern suites when an ASan-capable
+`clang` is available. Set
 `CAIROON_VERIFY_ASAN=0` to skip the targeted ASan portion intentionally.
 
 ## Current Status
@@ -310,15 +311,18 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   `moon fmt --check`, `scripts/configure-link-flags.sh --check`, native
   `moon check`, targeted image, ScaledFont, vector including PDF combined
   text document-feature plus PS DSC/SVG unit backend-feature oracle checks,
-  pattern oracle tests, and raster-owner white-box tests,
+  stream black-box/white-box tests, pattern oracle tests, and raster-owner
+  white-box tests,
   the full native suite, `moon info --target native`, and targeted ASan
-  image-oracle, vector-output, pattern, and raster-owner tests with leak
-  detection disabled. The current run includes the raster-source acquire-only
-  owner fuzz slice, the packaging/pycairo-porting documentation slice, the
-  mixed vector/tag/text marker slice, and the direct C oracle slice.
+  image-oracle, vector-output, stream, pattern, and raster-owner tests with
+  leak detection disabled. The current run includes the stream-vs-file vector
+  output equivalence slice, the raster-source acquire-only owner fuzz slice,
+  the packaging/pycairo-porting documentation slice, the mixed
+  vector/tag/text marker slice, and the direct C oracle slice.
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native`: 355 tests passed. The current run
-  includes the raster-source acquire-only owner fuzz slice, the mixed
+- `moon -C cairoon test --target native`: 356 tests passed. The current run
+  includes the stream-vs-file vector output equivalence slice, the
+  raster-source acquire-only owner fuzz slice, the mixed
   vector/tag/text marker slice, the direct C oracle slice, the PS/SVG tag
   metadata absence slice, the PDF tagged multi-page text marker slice,
   the cross-backend tagged multi-page text direct C oracle slice, the
@@ -351,14 +355,30 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   metadata/custom-metadata/page-label/outline/URI/named-destination/
   document-structure test matched against a direct C Cairo output oracle that
   also draws tagged text.
+- `moon -C cairoon test surface_stream_test.mbt --target native -v`: 8
+  black-box stream callback tests passed, covering PDF/PS/SVG stream chunks,
+  vector stream `WriteError`, PNG stream write/read, PNG write `WriteError`,
+  and PNG short-read error mapping.
+- `moon -C cairoon test surface_stream_wbtest.mbt --target native -v`: 1
+  white-box stream equivalence test passed, comparing PDF/PS/SVG stream output
+  with file output after normalized comparison for a deterministic two-page
+  scene.
 - `moon -C cairoon info --target native`: completed with no work to do; this
-  raster-source owner fuzz slice changes no public API or generated interface
+  stream equivalence slice changes no public API or generated interface
   metadata.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
   vector_output_wbtest.mbt --target native -v`: 31 ASan-compiled
   white-box vector tests passed with leak detection disabled, directly
   exercising the mixed vector/tag/text marker and C oracle paths.
+- `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
+  ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
+  surface_stream_test.mbt --target native -v`: 8 ASan-compiled black-box
+  stream callback tests passed with leak detection disabled.
+- `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
+  ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
+  surface_stream_wbtest.mbt --target native -v`: 1 ASan-compiled white-box
+  stream equivalence test passed with leak detection disabled.
 - `moon -C cairoon test image_oracle_wbtest.mbt --target native -v`: 2
   white-box image rendering oracle tests passed. Ordinary image surfaces and
   buffer-backed `Surface::image_for_data` surfaces both match the direct C
@@ -1354,6 +1374,10 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   replacement fuzz for retained-owner balancing and added that white-box file
   to the normal and ASan verification gates. This raised the full native suite
   to 355 tests.
+  The later stream vector output equivalence slice added a white-box
+  PDF/PS/SVG stream-vs-file normalized equality test for a deterministic
+  two-page scene and added stream black-box/white-box files to the normal and
+  ASan verification gates. This raised the full native suite to 356 tests.
 
 The missing reliability pieces are substantial: broader automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering
@@ -1365,9 +1389,10 @@ PDF text-tag oracle scenes, PS/SVG Link tag inertness oracle scenes, PS/SVG
 destination and document-structure rectangle/text tag oracle scenes, one
 cross-backend tagged multi-page text oracle scene, one cross-backend mixed
 vector/tag/text oracle scene, PDF tagged multi-page text and mixed vector/tag/text marker tests, PS/SVG tag metadata absence checks, two PDF document-feature
-oracle scenes, one PS DSC/multi-page oracle scene, and one SVG
-version/unit/multi-page oracle scene, including the current two-page direct C
-oracle scenes and the current single-page toy-font `show_text` oracle scene,
+oracle scenes, one PS DSC/multi-page oracle scene, one SVG
+version/unit/multi-page oracle scene, and the current PDF/PS/SVG
+stream-vs-file two-page equality check, including the current two-page direct
+C oracle scenes and the current single-page toy-font `show_text` oracle scene,
 broader tag-output assertions
 beyond the current URI link, named-destination, document-structure, PDF
 document-feature, PDF tagged multi-page text and mixed vector/tag/text marker

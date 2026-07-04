@@ -270,3 +270,21 @@ int32_t cairoon_test_vector_files_equal(
   cairoon_test_free_file(&right);
   return equal;
 }
+
+MOONBIT_FFI_EXPORT
+int32_t cairoon_test_vector_file_equals_bytes(
+  int32_t kind,
+  moonbit_bytes_t filename,
+  moonbit_bytes_t bytes) {
+  CairoonTestFile file;
+  if (!cairoon_test_read_file((const char *)filename, &file)) {
+    return 0;
+  }
+  CairoonTestFile memory = {
+    .data = (unsigned char *)bytes,
+    .len = (size_t)Moonbit_array_length(bytes)
+  };
+  int32_t equal = cairoon_test_files_equal_normalized(kind, &file, &memory);
+  cairoon_test_free_file(&file);
+  return equal;
+}

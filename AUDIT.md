@@ -303,17 +303,20 @@ Implemented in this workspace:
   `moon fmt --check`, `scripts/configure-link-flags.sh --check`, native
   `moon check`, targeted image, ScaledFont, vector including PDF combined
   text document-feature plus PS DSC/SVG unit backend-feature oracle checks,
-  pattern oracle tests, and raster-owner white-box tests,
+  stream black-box/white-box tests, pattern oracle tests, and raster-owner
+  white-box tests,
   the full native suite, `moon info --target native`, and targeted ASan
-  image-oracle, vector-output, pattern, and raster-owner tests with leak
-  detection disabled. The current run includes the raster-source acquire-only
-  owner fuzz slice, the packaging/pycairo-porting documentation slice, the
-  mixed vector/tag/text marker slice, the direct C oracle slice, and the prior
-  C stub split that moved private test oracles out of `cairoon_misc.c` into
+  image-oracle, vector-output, stream, pattern, and raster-owner tests with
+  leak detection disabled. The current run includes the stream-vs-file vector
+  output equivalence slice, the raster-source acquire-only owner fuzz slice,
+  the packaging/pycairo-porting documentation slice, the mixed
+  vector/tag/text marker slice, the direct C oracle slice, and the prior C
+  stub split that moved private test oracles out of `cairoon_misc.c` into
   common/file/vector/image helper files.
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native`: 355 tests passed. The current run
-  includes the raster-source acquire-only owner fuzz slice, the mixed
+- `moon -C cairoon test --target native`: 356 tests passed. The current run
+  includes the stream-vs-file vector output equivalence slice, the
+  raster-source acquire-only owner fuzz slice, the mixed
   vector/tag/text marker slice, the direct C oracle slice, the PS/SVG tag
   metadata absence slice, the PDF tagged multi-page text marker slice,
   the cross-backend tagged multi-page text direct C oracle slice, the
@@ -346,14 +349,30 @@ Implemented in this workspace:
   metadata/custom-metadata/page-label/outline/URI/named-destination/
   document-structure test matched against a direct C Cairo output oracle that
   also draws tagged text.
+- `moon -C cairoon test surface_stream_test.mbt --target native -v`: 8
+  black-box stream callback tests passed, covering PDF/PS/SVG stream chunks,
+  vector stream `WriteError`, PNG stream write/read, PNG write `WriteError`,
+  and PNG short-read error mapping.
+- `moon -C cairoon test surface_stream_wbtest.mbt --target native -v`: 1
+  white-box stream equivalence test passed, comparing PDF/PS/SVG stream output
+  with file output after normalized comparison for a deterministic two-page
+  scene.
 - `moon -C cairoon info --target native`: completed with no work to do; this
-  raster-source owner fuzz slice changes no public API or generated interface
+  stream equivalence slice changes no public API or generated interface
   metadata.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
   vector_output_wbtest.mbt --target native -v`: 31 ASan-compiled
   white-box vector tests passed with leak detection disabled, directly
   exercising the mixed vector/tag/text marker and C oracle paths.
+- `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
+  ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
+  surface_stream_test.mbt --target native -v`: 8 ASan-compiled black-box
+  stream callback tests passed with leak detection disabled.
+- `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
+  ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
+  surface_stream_wbtest.mbt --target native -v`: 1 ASan-compiled white-box
+  stream equivalence test passed with leak detection disabled.
 - `moon -C cairoon test image_oracle_wbtest.mbt --target native -v`: 2
   white-box image rendering oracle tests passed. Ordinary image surfaces and
   buffer-backed `Surface::image_for_data` surfaces both match the direct C
@@ -1259,6 +1278,10 @@ Implemented in this workspace:
   replacement fuzz for retained-owner balancing and added that white-box file
   to the normal and ASan verification gates. This raised the full native suite
   to 355 tests.
+  The later stream vector output equivalence slice added a white-box
+  PDF/PS/SVG stream-vs-file normalized equality test for a deterministic
+  two-page scene and added stream black-box/white-box files to the normal and
+  ASan verification gates. This raised the full native suite to 356 tests.
 
 ## Known Gaps
 
@@ -1286,9 +1309,10 @@ Implemented in this workspace:
   PS/SVG tag-metadata absence checks, and PS/SVG Link/destination/
   document-structure rectangle/text plus tagged multi-page and mixed vector/
   tag/text direct-oracle coverage.
-  PDF/PS/SVG stream-writer constructors,
-  script stream devices, and PNG stream read/write now have copied-byte
-  callback tests and read/write error propagation coverage.
+  PDF/PS/SVG stream-writer constructors now also have deterministic two-page
+  stream-vs-file normalized equality coverage; script stream devices and PNG
+  stream read/write now have copied-byte callback tests and read/write error
+  propagation coverage.
 - `Surface::copy_data` still copies Cairo image data into MoonBit `Bytes`;
   `Surface::get_data` is the mutable image-surface view and intentionally
   retains the surface wrapper instead of exposing a raw pointer.
