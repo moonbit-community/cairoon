@@ -207,8 +207,9 @@ Implemented in this workspace:
   allocation stress for PDF/PS/SVG surfaces, PNG stream write/read, script
   devices, and stream `WriteError` paths, plus raster-source callback
   allocation stress for set/get/manual acquire/release/replace/clear paths,
-  acquire-only retained-owner release-trampoline cleanup, and finished-surface
-  acquire failure injection.
+  acquire-only retained-owner release-trampoline cleanup, 64-step acquire-only
+  retained-owner replacement fuzz, and finished-surface acquire failure
+  injection.
 - `API_INVENTORY.md` now tracks the full pycairo API surface against cairoon
   status.
 - `matrix.mbt.md`, `surface.mbt.md`, `backend_surfaces.mbt.md`,
@@ -302,16 +303,18 @@ Implemented in this workspace:
   `moon fmt --check`, `scripts/configure-link-flags.sh --check`, native
   `moon check`, targeted image, ScaledFont, vector including PDF combined
   text document-feature plus PS DSC/SVG unit backend-feature oracle checks,
-  and pattern oracle tests,
+  pattern oracle tests, and raster-owner white-box tests,
   the full native suite, `moon info --target native`, and targeted ASan
-  image-oracle, vector-output, and pattern tests with leak detection disabled. The current run
-  includes the packaging/pycairo-porting documentation slice, the mixed
-  vector/tag/text marker slice, the direct C oracle slice, and the prior C stub
-  split that moved private test oracles out of
-  `cairoon_misc.c` into common/file/vector/image helper files.
+  image-oracle, vector-output, pattern, and raster-owner tests with leak
+  detection disabled. The current run includes the raster-source acquire-only
+  owner fuzz slice, the packaging/pycairo-porting documentation slice, the
+  mixed vector/tag/text marker slice, the direct C oracle slice, and the prior
+  C stub split that moved private test oracles out of `cairoon_misc.c` into
+  common/file/vector/image helper files.
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native`: 354 tests passed. The current run
-  includes the mixed vector/tag/text marker slice, the direct C oracle slice, the PS/SVG tag
+- `moon -C cairoon test --target native`: 355 tests passed. The current run
+  includes the raster-source acquire-only owner fuzz slice, the mixed
+  vector/tag/text marker slice, the direct C oracle slice, the PS/SVG tag
   metadata absence slice, the PDF tagged multi-page text marker slice,
   the cross-backend tagged multi-page text direct C oracle slice, the
   PS/SVG tag and text-tag direct C oracle slice, the PDF text-tag direct C
@@ -344,8 +347,8 @@ Implemented in this workspace:
   document-structure test matched against a direct C Cairo output oracle that
   also draws tagged text.
 - `moon -C cairoon info --target native`: completed with no work to do; this
-  mixed vector/tag/text marker slice changes no public API or generated
-  interface metadata.
+  raster-source owner fuzz slice changes no public API or generated interface
+  metadata.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
   vector_output_wbtest.mbt --target native -v`: 31 ASan-compiled
@@ -392,10 +395,10 @@ Implemented in this workspace:
   post-failure acquire replacement recovery, plus deterministic 25-step
   callback replacement/failure fuzz with dynamic compatible source surfaces and
   final post-clear recovery.
-- `moon -C cairoon test pattern_raster_owner_wbtest.mbt --target native -v`: 1
-  white-box raster-source owner-count test passed, asserting acquire-only
-  repeated same-surface paints release cairoon's retained owner back to zero
-  after each paint.
+- `moon -C cairoon test pattern_raster_owner_wbtest.mbt --target native -v`: 2
+  white-box raster-source owner-count tests passed, asserting acquire-only
+  repeated same-surface paints and a 64-step acquire-only replacement fuzz
+  release cairoon's retained owner back to zero after each paint.
 - `moon -C cairoon test surface_context_test.mbt surface_mapped_test.mbt
   surface.mbt.md --target native -v`: 32 scoped Surface/mapped-image tests and
   executable docs passed after adding pycairo-style success/error cleanup
@@ -424,6 +427,12 @@ Implemented in this workspace:
   finished-surface rejection path, replacement recovery after that failure
   path, and deterministic callback replacement/failure fuzz with dynamic
   compatible source surfaces.
+- `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
+  ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
+  pattern_raster_owner_wbtest.mbt --target native -v`: 2 ASan-compiled
+  white-box raster-source owner-count tests passed with leak detection
+  disabled, covering acquire-only repeated same-surface paints and the 64-step
+  acquire-only replacement fuzz.
 - `run-asan.py --repo-root /Users/caimeo/code/pycairo/cairoon --pkg moon.pkg`:
   rerun for the raster-source owner-count test-probe slice. The full runner
   still failed during the known macOS FontRegistry/CoreText/ColorSync
@@ -1246,6 +1255,10 @@ Implemented in this workspace:
   assertions and PS/SVG negative PDF-metadata marker assertions for that mixed
   scene. This raised `vector_output_wbtest.mbt` to 31 tests and the full
   native suite to 354 tests.
+  The later raster-source acquire-only owner fuzz slice added a 64-step
+  replacement fuzz for retained-owner balancing and added that white-box file
+  to the normal and ASan verification gates. This raised the full native suite
+  to 355 tests.
 
 ## Known Gaps
 
