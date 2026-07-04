@@ -35,6 +35,17 @@ test "context fill and path extents follow current path" {
 }
 
 ///|
+test "context fill extents match pycairo polygon path" {
+  let ctx = Context::new(context_extents_surface())
+  ctx.line_to(1.0, 1.0)
+  ctx.line_to(1.0, 0.0)
+  ctx.line_to(0.0, 0.0)
+  ctx.line_to(0.0, 1.0)
+  ctx.line_to(1.0, 1.0)
+  assert_context_extents_close(ctx.fill_extents(), (0.0, 0.0, 1.0, 1.0))
+}
+
+///|
 test "context stroke extents include stroke width" {
   let ctx = Context::new(context_extents_surface())
   assert_context_extents_close(ctx.stroke_extents(), (0.0, 0.0, 0.0, 0.0))

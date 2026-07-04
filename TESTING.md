@@ -167,11 +167,12 @@ The current local gate is executable as:
 
 It runs `moon fmt --check`, `scripts/configure-link-flags.sh --check`, native
 `moon check`, targeted white-box image, ScaledFont, vector-output,
-stream black-box/white-box, mapped-image, TeeSurface, context-lifetime, and
-raster-pattern tests, the full native test suite, `moon info --target native`,
-and targeted ASan builds for the image oracle, vector-output, stream,
-mapped-image, TeeSurface, context-lifetime, and raster-pattern suites when an
-ASan-capable `clang` is available. Set
+stream black-box/white-box, mapped-image, TeeSurface, context-lifetime,
+context-state, context-matrix, context-extents, and raster-pattern tests, the
+full native test suite, `moon info --target native`, and targeted ASan builds
+for the image oracle, vector-output, stream, mapped-image, TeeSurface,
+context-lifetime, context-state, context-matrix, context-extents, and
+raster-pattern suites when an ASan-capable `clang` is available. Set
 `CAIROON_VERIFY_ASAN=0` to skip the targeted ASan portion intentionally.
 
 ## Current Status
@@ -313,11 +314,13 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   `moon check`, targeted image, ScaledFont, vector including PDF combined
   text document-feature plus PS DSC/SVG unit backend-feature oracle checks,
   stream black-box/white-box tests, mapped-image tests, TeeSurface tests,
-  context lifetime tests, pattern oracle tests, and raster-owner white-box tests,
+  context lifetime/state/matrix/extents tests, pattern oracle tests, and
+  raster-owner white-box tests,
   the full native suite, `moon info --target native`, and targeted ASan
   image-oracle, vector-output, stream, mapped-image, TeeSurface,
-  context-lifetime, pattern, and raster-owner tests with leak detection
-  disabled. The current run includes
+  context-lifetime/state/matrix/extents, pattern, and raster-owner tests with
+  leak detection disabled. The current run includes
+  the pycairo polygon fill-extents slice,
   the mapped-image scoped-error upload slice,
   the TeeSurface positive out-of-range status slice,
   the PDF/PS stream target lifetime slice, the pycairo append-path string
@@ -329,8 +332,9 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   the packaging/pycairo-porting documentation slice, the mixed
   vector/tag/text marker slice, and the direct C oracle slice.
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native`: 363 tests passed. The current run
-  includes the mapped-image scoped-error upload slice,
+- `moon -C cairoon test --target native`: 364 tests passed. The current run
+  includes the pycairo polygon fill-extents slice,
+  the mapped-image scoped-error upload slice,
   the TeeSurface positive out-of-range status slice,
   the PDF/PS stream target lifetime slice, the pycairo append-path
   string equivalence slice, the pycairo close-path stringification slice, the
@@ -363,6 +367,11 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   black-box context lifetime tests passed, including `get_target`,
   `get_group_target`, `get_source`, and PDF/PS stream target wrappers that
   remain usable after their creating helper scopes exit.
+- `moon -C cairoon test context_state_test.mbt context_matrix_test.mbt
+  context_extents_test.mbt --target native -v`: 15 black-box context
+  state/matrix/extents tests passed, including save/restore, sticky error
+  status, dash validation, CTM conversion, invalid-matrix propagation,
+  pycairo polygon fill-extents coverage, stroke extents, and hit-testing.
 - `moon -C cairoon test surface_mapped_test.mbt --target native -v`: 6
   black-box mapped-image tests passed, covering whole-surface and extent
   uploads, wrong-base and double-unmap failures, mapped-wrapper unmap,
@@ -421,6 +430,11 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
   surface_tee_test.mbt --target native -v`: 4 ASan-compiled black-box
   TeeSurface tests passed with leak detection disabled.
+- `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
+  ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
+  context_state_test.mbt context_matrix_test.mbt context_extents_test.mbt
+  --target native -v`: 15 ASan-compiled black-box context state/matrix/extents
+  tests passed with leak detection disabled.
 - `moon -C cairoon test image_oracle_wbtest.mbt --target native -v`: 2
   white-box image rendering oracle tests passed. Ordinary image surfaces and
   buffer-backed `Surface::image_for_data` surfaces both match the direct C
@@ -1464,6 +1478,11 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   propagating a Cairo error, and added `surface_mapped_test.mbt` to the normal
   and ASan verification gates. This raised `surface_mapped_test.mbt` to 6 tests
   and the full native suite to 363 tests.
+  The later pycairo polygon fill-extents slice added one black-box Context
+  extents test proving Cairo's line-to-created polygon fill bounds match
+  pycairo's `(0, 0, 1, 1)` expectation, and added context state/matrix/extents
+  tests to the normal and ASan verification gates. This raised
+  `context_extents_test.mbt` to 5 tests and the full native suite to 364 tests.
 
 The missing reliability pieces are substantial: broader automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering
