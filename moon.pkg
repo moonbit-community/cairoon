@@ -20,6 +20,7 @@ options(
     "cairoon_test_file.c",
     "cairoon_test_vector.c",
     "cairoon_test_vector_scenes.c",
+    "cairoon_test_vector_tag_scenes.c",
     "cairoon_test_pdf_vector.c",
     "cairoon_test_ps_vector.c",
     "cairoon_test_svg_vector.c",

@@ -56,6 +56,16 @@ cairo_status_t cairoon_test_draw_vector_scene(
   int32_t scene,
   double width,
   double height);
+cairo_status_t cairoon_test_draw_pdf_uri_tag(cairo_t *cr);
+cairo_status_t cairoon_test_draw_pdf_dest_tag(cairo_t *cr);
+cairo_status_t cairoon_test_draw_pdf_struct_tag(cairo_t *cr);
+cairo_status_t cairoon_test_draw_pdf_uri_text_tag(cairo_t *cr);
+cairo_status_t cairoon_test_draw_pdf_dest_text_tag(cairo_t *cr);
+cairo_status_t cairoon_test_draw_pdf_struct_text_tag(cairo_t *cr);
+cairo_status_t cairoon_test_draw_tagged_multi_page_text(cairo_t *cr);
+cairo_status_t cairoon_test_draw_mixed_tag_vector(cairo_t *cr);
+cairo_status_t cairoon_test_draw_layered_multi_page(cairo_t *cr);
+cairo_status_t cairoon_test_draw_wide_multi_page_tag_vector(cairo_t *cr);
 cairo_status_t cairoon_test_render_pdf_document_features(const char *name);
 cairo_status_t cairoon_test_render_pdf_text_document_features(const char *name);
 cairo_status_t cairoon_test_render_ps_dsc_features(const char *name);

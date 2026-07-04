@@ -422,6 +422,7 @@ Implemented in this workspace:
   the vector output scene helper split slice,
   the vector output marker/oracle test split slice,
   the test-vector C glue split slice,
+  the test-vector tag scene C glue split slice,
   the Font raw FFI family split slice,
   the Font C glue split slice,
   the Pattern C glue split slice,
@@ -467,6 +468,7 @@ Implemented in this workspace:
   fallback slice, the PNG/script stream invalid-status
   fallback slice, the vector output white-box split slice, the vector output
   scene helper split slice, the test-vector C glue split slice, the
+  test-vector tag scene C glue split slice, the
   vector output marker/oracle test split slice, the
   Font raw FFI family split slice, the base Surface C
   glue split slice, the Surface wrapper split slice, the Surface raw FFI
@@ -1801,6 +1803,13 @@ Implemented in this workspace:
   into `cairoon_test_pdf_vector.c`, `cairoon_test_ps_vector.c`, and
   `cairoon_test_svg_vector.c`, leaving `cairoon_test_vector.c` as the 92-line
   exported oracle entry file. This did not change public API or test count.
+  The later test-vector tag scene C glue split slice moved direct-C
+  URI/destination/structure tag, text-tag, mixed tag/vector, layered multi-page,
+  and wide multi-page tag scene fixtures from the 452-line
+  `cairoon_test_vector_scenes.c` into
+  `cairoon_test_vector_tag_scenes.c`, leaving
+  `cairoon_test_vector_scenes.c` as the 135-line primitive scene dispatcher
+  file. This did not change public API or test count.
   The later layered multi-page vector/tag oracle slice added scene 27, a
   three-page PDF/PS/SVG direct C oracle combining clip, dash, surface pattern,
   mask surface, URI link tags, Document/Sect/P structure tags, and toy-font
