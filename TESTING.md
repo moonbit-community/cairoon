@@ -355,6 +355,7 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   the Font C glue split slice,
   the Pattern C glue split slice,
   the Surface C glue split slice,
+  the base Surface C glue split slice,
   the Context C glue split slice,
   the Context wrapper split slice,
   the raster-source stale-release replacement slice,
@@ -382,9 +383,9 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   wide multi-page stream equivalence slice, the vector stream invalid-status
   fallback slice, the PNG/script stream invalid-status
   fallback slice, the vector output white-box split slice, the test-vector C
-  glue split slice, the Context wrapper split slice, the Font C glue split
-  slice, the Pattern C glue split slice, the Surface C glue split slice,
-  the Context C glue split slice,
+  glue split slice, the base Surface C glue split slice, the Context wrapper
+  split slice, the Font C glue split slice, the Pattern C glue split slice,
+  the Surface C glue split slice, the Context C glue split slice,
   the raster-source stale-release replacement slice, the raster-source
   acquire-only owner fuzz slice, the raster-source
   failed-acquire owner-count fuzz slice, the mixed
@@ -1703,6 +1704,13 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   `cairoon_mapped_image_surface.c`, and `cairoon_recording_surface.c`, leaving
   `cairoon_surface.c` as the 516-line base surface glue file. This did not
   change public API or test count.
+  The later base Surface C glue split slice moved PNG writers, MIME helpers,
+  state/page helpers, and surface font-options from the 516-line
+  `cairoon_surface.c` into `cairoon_surface_png.c`,
+  `cairoon_surface_mime.c`, `cairoon_surface_state.c`, and
+  `cairoon_surface_font_options.c`, leaving `cairoon_surface.c` as the
+  161-line base creation/status/equality/hash/type/finish glue file. This did
+  not change public API or test count.
   The later Pattern C glue split slice moved mesh-pattern operations and
   raster-source callback/owner lifecycle glue from the 921-line
   `cairoon_pattern.c` into `cairoon_mesh_pattern.c` and

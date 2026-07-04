@@ -84,6 +84,10 @@ cairoon/
   cairoon_test_image.c
   cairoon_device.c
   cairoon_surface.c
+  cairoon_surface_png.c
+  cairoon_surface_mime.c
+  cairoon_surface_state.c
+  cairoon_surface_font_options.c
   cairoon_image_surface.c
   cairoon_mapped_image_surface.c
   cairoon_recording_surface.c
@@ -136,6 +140,10 @@ options(
     "cairoon_test_image.c",
     "cairoon_device.c",
     "cairoon_surface.c",
+    "cairoon_surface_png.c",
+    "cairoon_surface_mime.c",
+    "cairoon_surface_state.c",
+    "cairoon_surface_font_options.c",
     "cairoon_image_surface.c",
     "cairoon_mapped_image_surface.c",
     "cairoon_recording_surface.c",
@@ -235,7 +243,9 @@ declarations that call `cairoon_image_data.c`;
 `cairoon_ps_surface.c`;
 `ffi_surface.mbt` owns raw image, recording, base surface, mapped-image-surface,
 PNG stream, MIME-data, and surface font-options extern declarations that call
-`cairoon_surface.c`, `cairoon_image_surface.c`,
+`cairoon_surface.c`, `cairoon_surface_png.c`,
+`cairoon_surface_mime.c`, `cairoon_surface_state.c`,
+`cairoon_surface_font_options.c`, `cairoon_image_surface.c`,
 `cairoon_mapped_image_surface.c`, `cairoon_recording_surface.c`, and Cairo's
 `cairo_format_stride_for_width`;
 `ffi_svg_surface.mbt` owns raw SVG surface extern declarations that call
@@ -261,8 +271,13 @@ payload types and cross-file helpers declared in `cairoon_private.h`.
   exports.
 - `cairoon_device.c`: `Device`, script-device, script-surface, and
   `Surface::get_device` exports.
-- `cairoon_surface.c`: base `Surface` creation/status/MIME/lifecycle/state,
-  page, and font-options exports.
+- `cairoon_surface.c`: base `Surface` creation/status/equality/hash/type and
+  finish exports.
+- `cairoon_surface_png.c`: PNG file and stream writer exports.
+- `cairoon_surface_mime.c`: MIME data and MIME support exports.
+- `cairoon_surface_state.c`: flush, dirty markers, device offset/scale,
+  fallback resolution, show-text-glyphs support, and page-operation exports.
+- `cairoon_surface_font_options.c`: surface font-options export.
 - `cairoon_image_surface.c`: image-surface constructors, PNG-read helpers,
   image queries, and copy-data exports.
 - `cairoon_mapped_image_surface.c`: mapped-image lifecycle and query exports.
