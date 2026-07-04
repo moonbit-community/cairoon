@@ -167,6 +167,15 @@ fn render_stream_mixed_tag_vector_scene(
 }
 
 ///|
+fn render_stream_tagged_show_text_glyphs_scene(
+  surface : Surface,
+) -> Unit raise CairoError {
+  let ctx = Context::new(surface)
+  draw_tagged_show_text_glyphs_scene(ctx)
+  surface.finish()
+}
+
+///|
 fn render_stream_layered_multipage_scene(
   surface : Surface,
 ) -> Unit raise CairoError {
@@ -279,6 +288,29 @@ test "mixed tag vector stream output matches file output after normalization" {
     let chunks : Array[Bytes] = []
     let stream_surface = make_stream_equivalence_stream_surface(kind, chunks)
     render_stream_mixed_tag_vector_scene(stream_surface)
+    inspect(chunks.length() > 0, content="true")
+    inspect(
+      test_vector_file_equals_bytes_ffi(
+        kind,
+        @utf8.encode(path),
+        stream_equivalence_chunks_to_bytes(chunks),
+      ),
+      content="true",
+    )
+  }
+}
+
+///|
+test "tagged show_text_glyphs stream output matches file output after normalization" {
+  for kind in 0..<3 {
+    let ext = stream_equivalence_extension(kind)
+    let path = "/tmp/cairoon_stream_tagged_text_glyphs_file_equivalence_\{kind}.\{ext}"
+    let file_surface = make_stream_equivalence_file_surface(kind, path)
+    render_stream_tagged_show_text_glyphs_scene(file_surface)
+
+    let chunks : Array[Bytes] = []
+    let stream_surface = make_stream_equivalence_stream_surface(kind, chunks)
+    render_stream_tagged_show_text_glyphs_scene(stream_surface)
     inspect(chunks.length() > 0, content="true")
     inspect(
       test_vector_file_equals_bytes_ffi(

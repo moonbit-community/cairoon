@@ -348,7 +348,8 @@ Implemented in this workspace:
   vector/tag/text output, and layered three-page output plus the wide
   three-page tag/vector output also have explicit marker checks for page objects, link annotations, URI/
   destination entries, and StructTreeRoot elements. PS/SVG destination,
-  document-structure, mixed vector/tag/text, layered three-page, and wide three-page tag
+  document-structure, tagged `show_text_glyphs`, mixed vector/tag/text,
+  layered three-page, and wide three-page tag
   scenes also have negative marker checks proving PDF-only tag metadata is not emitted.
   Full cross-run comparison against pycairo output is not yet automated.
 - Gate 4 memory and lifetime: partial. Stub ownership follows the documented
@@ -455,7 +456,7 @@ Implemented in this workspace:
   `ffi_pattern.mbt`, `ffi_pattern_mesh.mbt`, and
   `ffi_pattern_raster_source.mbt`.
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native`: 395 tests passed. The current run
+- `moon -C cairoon test --target native`: 397 tests passed. The current run
   includes the pycairo context font-extents parity slice,
   the pycairo group-target stack-restoration slice,
   the pycairo rectangle path-extents slice,
@@ -496,7 +497,7 @@ Implemented in this workspace:
   PS/SVG Link tag direct C oracle slice, the context
   `get_group_target` post-scope lifetime slice, the PDF combined text
   document-feature oracle slice, the tagged `show_text_glyphs` vector-output
-  slice, and the earlier context `get_source`
+  slice, the tagged `show_text_glyphs` stream/inert-marker slice, and the earlier context `get_source`
   surface-pattern lifetime coverage for the path where both the original source
   wrapper and context scope have exited, plus the layered multi-page vector/tag
   oracle slice, the wide multi-page vector/tag oracle slice, and the raw FFI split slices that keep public API and test count
@@ -560,7 +561,7 @@ Implemented in this workspace:
   backend docs, retained owner graph stress, external value-wrapper stress,
   image-data view stress, and backend stream callback allocation stress.
 - `moon -C cairoon test vector_output_wbtest.mbt
-  vector_output_oracle_wbtest.mbt --target native -v`: 39 white-box vector
+  vector_output_oracle_wbtest.mbt --target native -v`: 40 white-box vector
   tests passed after splitting marker/output checks from direct C oracle and
   cross-backend tag checks. The split set still covers layered and wide
   multi-page direct C oracle and marker checks, mixed vector/tag/text marker
@@ -568,6 +569,7 @@ Implemented in this workspace:
   and document-structure tag metadata absence checks, PDF tagged multi-page
   text structure markers, tagged `show_text_glyphs` PDF Link/structure
   markers, cross-backend tagged multi-page text, tagged `show_text_glyphs`,
+  PS/SVG tagged `show_text_glyphs` metadata absence checks,
   and PS/SVG destination and document-structure rectangle and text tag scenes, PDF
   URI-link/named-destination/document-structure text tag scenes, PS/SVG Link
   tag inertness matched against direct C Cairo output, and the combined PDF
@@ -580,10 +582,10 @@ Implemented in this workspace:
   fallback to `WriteError`, PNG stream write/read, PNG write `WriteError`, PNG
   writer invalid-status fallback to `WriteError`, and PNG short-read error
   mapping.
-- `moon -C cairoon test surface_stream_wbtest.mbt --target native -v`: 6
+- `moon -C cairoon test surface_stream_wbtest.mbt --target native -v`: 7
   white-box stream equivalence tests passed, comparing PDF/PS/SVG stream output
   with file output after normalized comparison for deterministic two-page and
-  tagged three-page scenes plus mixed vector/tag/text, layered three-page
+  tagged three-page scenes plus tagged `show_text_glyphs`, mixed vector/tag/text, layered three-page
   clip/dash/surface-pattern/mask/tag/text, wide three-page tag/vector, and
   backend document-feature scenes covering PDF metadata/custom metadata/page
   labels/outlines/tags, PS DSC, and SVG document units.
@@ -593,18 +595,19 @@ Implemented in this workspace:
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
   vector_output_wbtest.mbt vector_output_oracle_wbtest.mbt --target native -v`:
-  39 ASan-compiled white-box vector tests passed with leak detection disabled
+  40 ASan-compiled white-box vector tests passed with leak detection disabled
   after the split, directly exercising the layered and wide multi-page
   marker/C-oracle paths, the mixed vector/tag/text marker and C oracle paths,
-  and the tagged `show_text_glyphs` marker/C-oracle paths.
+  and the tagged `show_text_glyphs` marker/C-oracle/PS-SVG inert paths.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
   surface_stream_test.mbt --target native -v`: 10 ASan-compiled black-box
   stream callback tests passed with leak detection disabled.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
-  surface_stream_wbtest.mbt --target native -v`: 6 ASan-compiled white-box
-  stream equivalence tests passed with leak detection disabled.
+  surface_stream_wbtest.mbt --target native -v`: 7 ASan-compiled white-box
+  stream equivalence tests passed with leak detection disabled, including the
+  tagged `show_text_glyphs` stream-vs-file path.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
   surface_mapped_test.mbt --target native -v`: 6 ASan-compiled black-box
@@ -1927,6 +1930,11 @@ Implemented in this workspace:
   `cairo_show_text_glyphs`, plus a PDF Link/structure marker check. This raised
   the full native suite to 395 tests and expanded the vector white-box target to
   39 tests.
+  The later tagged `show_text_glyphs` stream/inert-marker slice added PS/SVG
+  negative marker checks for the same scene and a PDF/PS/SVG stream-vs-file
+  normalized equality test for the text-glyph tag path. This raised the full
+  native suite to 397 tests, the vector white-box target to 40 tests, and the
+  surface stream white-box target to 7 tests.
 
 ## Known Gaps
 
@@ -1964,7 +1972,7 @@ Implemented in this workspace:
   the current deterministic raster-source owner-count, state-machine, callback
   allocation, and retained-owner stress tests.
   PDF/PS/SVG stream-writer constructors now also have deterministic two-page,
-  tagged three-page, mixed vector/tag/text, layered three-page
+  tagged three-page, tagged `show_text_glyphs`, mixed vector/tag/text, layered three-page
   clip/dash/surface-pattern/mask/tag/text, wide three-page tag/vector, and
   backend document-feature stream-vs-file normalized equality coverage plus
   PDF/PS/SVG, PNG-writer, and script-writer `WriteError`
