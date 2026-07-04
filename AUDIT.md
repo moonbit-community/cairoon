@@ -23,9 +23,10 @@ Implemented in this workspace:
   `ffi_device.mbt` owns raw `Device`, script-device, script-surface, and
   surface-get-device extern declarations.
   `ffi_image_data.mbt`, `ffi_path.mbt`, `ffi_pdf_surface.mbt`,
-  `ffi_ps_surface.mbt`, `ffi_svg_surface.mbt`, `ffi_tee_surface.mbt`, and
-  `ffi_region.mbt` own raw `ImageData`, `Path`, PDF surface, PostScript
-  surface, SVG surface, Tee surface, and `Region` extern declarations.
+  `ffi_ps_surface.mbt`, `ffi_surface.mbt`, `ffi_svg_surface.mbt`,
+  `ffi_tee_surface.mbt`, and `ffi_region.mbt` own raw `ImageData`, `Path`, PDF
+  surface, PostScript surface, image/recording/base/mapped surface, SVG
+  surface, Tee surface, and `Region` extern declarations.
 - MoonBit `Eq`/`Hash` traits are implemented for hashable Cairo external
   objects that already expose cairoon equality/hash helpers: `Surface`,
   `Context`, `Pattern`, `Device`, `FontOptions`, `FontFace`, `ScaledFont`, and
@@ -1539,6 +1540,11 @@ Implemented in this workspace:
   The later ImageData raw FFI split slice moved raw `ImageData` and image/mapped
   get-data extern declarations from `ffi.mbt` into `ffi_image_data.mbt`, added
   that file to the native target list, and reduced `ffi.mbt` to 1270 lines. This
+  did not change public API or test count.
+  The later surface raw FFI split slice moved raw image, recording, base
+  surface, mapped-image-surface, PNG stream, MIME-data, and surface
+  font-options extern declarations from `ffi.mbt` into `ffi_surface.mbt`, added
+  that file to the native target list, and reduced `ffi.mbt` to 906 lines. This
   did not change public API or test count.
 
 ## Known Gaps

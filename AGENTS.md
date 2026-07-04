@@ -54,6 +54,7 @@ cairoon/
   ffi_path.mbt
   ffi_pdf_surface.mbt
   ffi_ps_surface.mbt
+  ffi_surface.mbt
   ffi_svg_surface.mbt
   ffi_tee_surface.mbt
   ffi_region.mbt
@@ -125,6 +126,7 @@ options(
     "ffi_path.mbt": ["native"],
     "ffi_pdf_surface.mbt": ["native"],
     "ffi_ps_surface.mbt": ["native"],
+    "ffi_surface.mbt": ["native"],
     "ffi_svg_surface.mbt": ["native"],
     "ffi_tee_surface.mbt": ["native"],
     "ffi_region.mbt": ["native"]
@@ -163,6 +165,9 @@ declarations that call `cairoon_image_data.c`;
 `cairoon_pdf_surface.c`;
 `ffi_ps_surface.mbt` owns raw PostScript surface extern declarations that call
 `cairoon_ps_surface.c`;
+`ffi_surface.mbt` owns raw image, recording, base surface, mapped-image-surface,
+PNG stream, MIME-data, and surface font-options extern declarations that call
+`cairoon_surface.c` plus Cairo's `cairo_format_stride_for_width`;
 `ffi_svg_surface.mbt` owns raw SVG surface extern declarations that call
 `cairoon_svg_surface.c`; `ffi_tee_surface.mbt` owns raw Tee surface extern
 declarations that call `cairoon_tee_surface.c`; and `ffi_region.mbt` owns raw
