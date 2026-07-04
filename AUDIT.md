@@ -459,7 +459,7 @@ Implemented in this workspace:
   `ffi_pattern.mbt`, `ffi_pattern_mesh.mbt`, and
   `ffi_pattern_raster_source.mbt`.
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native`: 410 tests passed. The current run
+- `moon -C cairoon test --target native`: 412 tests passed. The current run
   includes the pycairo context font-extents parity slice,
   the pycairo group-target stack-restoration slice,
   the pycairo rectangle path-extents slice,
@@ -503,7 +503,7 @@ Implemented in this workspace:
   slice, the tagged `show_text_glyphs` stream/inert-marker slice, the grouped
   glyph/tag vector-output slice, the copy_page retained vector-output slice, the
   Surface page primitive vector-output slice, the Surface show-page cleared
-  primitive slice, and
+  primitive slice, the glyph vector backend oracle slice, and
   the earlier context `get_source`
   surface-pattern lifetime coverage for the path where both the original source
   wrapper and context scope have exited, plus the layered multi-page vector/tag
@@ -568,7 +568,7 @@ Implemented in this workspace:
   backend docs, retained owner graph stress, external value-wrapper stress,
   image-data view stress, and backend stream callback allocation stress.
 - `moon -C cairoon test vector_output_wbtest.mbt
-  vector_output_oracle_wbtest.mbt --target native -v`: 49 white-box vector
+  vector_output_oracle_wbtest.mbt --target native -v`: 50 white-box vector
   tests passed after splitting marker/output checks from direct C oracle and
   cross-backend tag checks. The split set still covers layered and wide
   multi-page direct C oracle and marker checks, mixed vector/tag/text marker
@@ -579,7 +579,8 @@ Implemented in this workspace:
   grouped multi-page glyph/tag direct C oracle and PDF marker checks,
   copy_page retained direct C oracle and PDF two-page marker checks,
   Surface::copy_page/Surface::show_page direct C oracle and PDF two-page marker
-  checks, Surface::show_page direct C oracle and PDF two-page marker checks, PS/SVG
+  checks, Surface::show_page direct C oracle and PDF two-page marker checks,
+  PDF/PS/SVG `glyph_path` and `show_glyphs` direct C oracle checks, PS/SVG
   tagged `show_text_glyphs` and grouped glyph/tag metadata absence checks,
   and PS/SVG destination and document-structure rectangle and text tag scenes, PDF
   URI-link/named-destination/document-structure text tag scenes, PS/SVG Link
@@ -593,12 +594,13 @@ Implemented in this workspace:
   fallback to `WriteError`, PNG stream write/read, PNG write `WriteError`, PNG
   writer invalid-status fallback to `WriteError`, and PNG short-read error
   mapping.
-- `moon -C cairoon test surface_stream_wbtest.mbt --target native -v`: 11
+- `moon -C cairoon test surface_stream_wbtest.mbt --target native -v`: 12
   white-box stream equivalence tests passed, comparing PDF/PS/SVG stream output
   with file output after normalized comparison for deterministic two-page and
   copy_page retained two-page and Surface::copy_page retained two-page scenes
   plus Surface::show_page cleared two-page scenes, tagged three-page, tagged
   `show_text_glyphs`, grouped glyph/tag multi-page, mixed vector/tag/text,
+  glyph_path/show_glyphs vector scenes,
   layered three-page
   clip/dash/surface-pattern/mask/tag/text, wide three-page tag/vector, and
   backend document-feature scenes covering PDF metadata/custom metadata/page
@@ -609,24 +611,25 @@ Implemented in this workspace:
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
   vector_output_wbtest.mbt vector_output_oracle_wbtest.mbt --target native -v`:
-  49 ASan-compiled white-box vector tests passed with leak detection disabled
+  50 ASan-compiled white-box vector tests passed with leak detection disabled
   after the split, directly exercising the layered and wide multi-page
   marker/C-oracle paths, the mixed vector/tag/text marker and C oracle paths,
   the tagged `show_text_glyphs` marker/C-oracle/PS-SVG inert paths, the grouped
   glyph/tag marker/C-oracle/PS-SVG inert paths, the copy_page retained
   marker/C-oracle path, the Surface page primitive marker/C-oracle path, and
-  the Surface show-page cleared marker/C-oracle path.
+  the Surface show-page cleared marker/C-oracle path, plus the PDF/PS/SVG
+  glyph_path/show_glyphs direct C oracle path.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
   surface_stream_test.mbt --target native -v`: 10 ASan-compiled black-box
   stream callback tests passed with leak detection disabled.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
-  surface_stream_wbtest.mbt --target native -v`: 11 ASan-compiled white-box
+  surface_stream_wbtest.mbt --target native -v`: 12 ASan-compiled white-box
   stream equivalence tests passed with leak detection disabled, including the
   tagged `show_text_glyphs`, grouped glyph/tag, copy_page retained, and
   Surface::copy_page retained and Surface::show_page cleared stream-vs-file
-  paths.
+  paths, plus glyph_path/show_glyphs vector scenes.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
   surface_mapped_test.mbt --target native -v`: 6 ASan-compiled black-box
@@ -1983,6 +1986,11 @@ Implemented in this workspace:
   the cleared-page primitive path. This raised the full native suite to 410
   tests, the vector white-box target to 49 tests, and the surface stream
   white-box target to 11 tests.
+  The later glyph vector backend oracle slice added scenes 32 and 33 covering
+  `glyph_path` and `show_glyphs` on PDF/PS/SVG, with direct C oracle coverage
+  and stream-vs-file normalized equality. This raised the full native suite to
+  412 tests, the vector white-box target to 50 tests, and the surface stream
+  white-box target to 12 tests.
 
 ## Known Gaps
 

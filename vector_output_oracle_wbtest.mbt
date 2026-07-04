@@ -196,6 +196,19 @@ test "surface show_page cleared vector scene matches direct cairo C oracle" {
 }
 
 ///|
+test "glyph vector scenes match direct cairo C oracle" {
+  for kind in 0..<3 {
+    let ext = vector_output_extension(kind)
+    for scene in 32..<34 {
+      let cairoon_path = "/tmp/cairoon_vector_glyph_scene_\{kind}_\{scene}.\{ext}"
+      let oracle_path = "/tmp/cairoon_vector_glyph_scene_\{kind}_\{scene}_oracle.\{ext}"
+      render_vector_oracle_scene(kind, scene, cairoon_path)
+      expect_vector_oracle_match(kind, scene, cairoon_path, oracle_path)
+    }
+  }
+}
+
+///|
 test "ps svg tagged show_text_glyphs tags stay inert" {
   let forbidden = [
     "/Annots", "/Subtype /Link", "/URI", "/StructTreeRoot", "/S /Link", "https://example.com/text-glyphs",

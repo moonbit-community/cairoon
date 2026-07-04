@@ -69,6 +69,19 @@ fn draw_vector_oracle_scene(
       ctx.move_to(1.0, 6.5)
       ctx.show_text("Hi")
     }
+    32 => {
+      ctx.select_font_face("serif")
+      ctx.set_font_size(8.0)
+      ctx.glyph_path([Glyph::new(0UL, 2.0, 8.0)])
+      ctx.set_source_rgb(0.0, 0.0, 1.0)
+      ctx.fill()
+    }
+    33 => {
+      ctx.select_font_face("serif")
+      ctx.set_font_size(8.0)
+      ctx.set_source_rgb(1.0, 0.0, 0.0)
+      ctx.show_glyphs([Glyph::new(0UL, 2.0, 8.0)])
+    }
     9 => {
       paint_page(ctx, 0.0, 0.0, 1.0)
       ctx.show_page()
