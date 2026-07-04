@@ -69,6 +69,13 @@ test "context relative path operations update current point" {
 }
 
 ///|
+test "context rectangle path extents match pycairo width and height" {
+  let ctx = Context::new(context_path_surface())
+  ctx.rectangle(1.0, 2.0, 4.0, 5.0)
+  assert_path_extents_close(ctx.path_extents(), (1.0, 2.0, 5.0, 7.0))
+}
+
+///|
 test "context close_path resets current point to subpath start" {
   let ctx = Context::new(context_path_surface())
   ctx.move_to(2.0, 3.0)

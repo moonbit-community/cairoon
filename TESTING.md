@@ -168,11 +168,11 @@ The current local gate is executable as:
 It runs `moon fmt --check`, `scripts/configure-link-flags.sh --check`, native
 `moon check`, targeted white-box image, ScaledFont, vector-output,
 stream black-box/white-box, mapped-image, TeeSurface, context-lifetime,
-context-state, context-matrix, context-extents, context-clip, gradient/mesh
+context-state, context-matrix, context-path, context-extents, context-clip, gradient/mesh
 pattern, context-painting, and raster-pattern tests, the full native test suite,
 `moon info --target native`, and targeted ASan builds for the image oracle,
 vector-output, stream, mapped-image, TeeSurface, context-lifetime,
-context-state, context-matrix, context-extents, context-clip, and
+context-state, context-matrix, context-path, context-extents, context-clip, and
 context-painting/gradient/mesh/raster-pattern suites when an ASan-capable `clang` is available.
 Set `CAIROON_VERIFY_ASAN=0` to skip the targeted ASan portion intentionally.
 
@@ -315,12 +315,13 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   `moon check`, targeted image, ScaledFont, vector including PDF combined
   text document-feature plus PS DSC/SVG unit backend-feature oracle checks,
   stream black-box/white-box tests, mapped-image tests, TeeSurface tests,
-  context lifetime/state/matrix/extents/clip/painting tests,
+  context lifetime/state/matrix/path/extents/clip/painting tests,
   pattern/gradient/mesh tests, and raster-owner white-box tests,
   the full native suite, `moon info --target native`, and targeted ASan
   image-oracle, vector-output, stream, mapped-image, TeeSurface,
-  context-lifetime/state/matrix/extents/clip/painting, pattern/gradient/mesh, and
+  context-lifetime/state/matrix/path/extents/clip/painting, pattern/gradient/mesh, and
   raster-owner tests with leak detection disabled. The current run includes
+  the pycairo rectangle path-extents slice,
   the pycairo source RGBA round-trip slice,
   the pycairo empty-path clip `in_clip` slice,
   the pycairo mesh curve-first patch slice,
@@ -336,8 +337,12 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   the packaging/pycairo-porting documentation slice, the mixed
   vector/tag/text marker slice, and the direct C oracle slice.
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native`: 364 tests passed. The current run
-  includes the pycairo polygon fill-extents slice,
+- `moon -C cairoon test --target native`: 368 tests passed. The current run
+  includes the pycairo rectangle path-extents slice,
+  the pycairo source RGBA round-trip slice,
+  the pycairo empty-path clip `in_clip` slice,
+  the pycairo mesh curve-first patch slice,
+  the pycairo polygon fill-extents slice,
   the mapped-image scoped-error upload slice,
   the TeeSurface positive out-of-range status slice,
   the PDF/PS stream target lifetime slice, the pycairo append-path
@@ -361,10 +366,11 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   tests passed, covering empty paths, pycairo-compatible stringification
   including close-path continuation formatting, typed segment iteration,
   flattened copies, and path equality/hash behavior.
-- `moon -C cairoon test context_path_test.mbt --target native -v`: 10
+- `moon -C cairoon test context_path_test.mbt --target native -v`: 11
   black-box Context path tests passed, covering current-point behavior,
-  relative path operations, close-path current-point reset, arc current-point
-  creation, path copy/append independence, pycairo-style append string
+  relative path operations, pycairo rectangle path-extents behavior,
+  close-path current-point reset, arc current-point creation,
+  path copy/append independence, pycairo-style append string
   equivalence after clearing the source context, flattened append behavior, and
   path error propagation.
 - `moon -C cairoon test context_lifetime_test.mbt --target native -v`: 9
@@ -1504,6 +1510,11 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   `context_painting_test.mbt` to the normal and ASan verification gates. This
   raised `context_painting_test.mbt` to 7 tests and the full native suite to
   367 tests.
+  The later pycairo rectangle path-extents slice added one black-box Context
+  path test proving `rectangle(1, 2, 4, 5)` yields path extents
+  `(1, 2, 5, 7)`, and added `context_path_test.mbt` to the normal and ASan
+  verification gates. This raised `context_path_test.mbt` to 11 tests and the
+  full native suite to 368 tests.
 
 The missing reliability pieces are substantial: broader automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering
