@@ -39,6 +39,26 @@ fn script_chunks_to_string(chunks : Array[Bytes]) -> String {
 }
 
 ///|
+fn write_script_stream_with_status(status : Status) -> Unit raise CairoError {
+  let device = Device::script_stream(fn(_) { status })
+  let surface = Surface::script(device, ContentColorAlpha, 4.0, 4.0)
+  let ctx = Context::new(surface)
+  ctx.set_source_rgb(1.0, 0.0, 0.0)
+  ctx.paint()
+  surface.finish()
+  device.finish()
+}
+
+///|
+fn expect_script_stream_write_error(status : Status) -> Unit raise {
+  let result = run_cairo(() => write_script_stream_with_status(status))
+  match result {
+    Err(CairoIOError(WriteError, _)) => ()
+    _ => @test.fail("expected WriteError from script stream writer")
+  }
+}
+
+///|
 test "image surfaces report no device" {
   let surface = Surface::image(Argb32, 10, 10)
   inspect(surface.get_device() is None, content="true")
@@ -129,19 +149,12 @@ test "script stream device writes output chunks" {
 
 ///|
 test "script stream writer status maps to cairo IO error" {
-  let result = run_cairo(() => {
-    let device = Device::script_stream(fn(_) { WriteError })
-    let surface = Surface::script(device, ContentColorAlpha, 4.0, 4.0)
-    let ctx = Context::new(surface)
-    ctx.set_source_rgb(1.0, 0.0, 0.0)
-    ctx.paint()
-    surface.finish()
-    device.finish()
-  })
-  match result {
-    Err(CairoIOError(WriteError, _)) => ()
-    _ => @test.fail("expected WriteError from script stream writer")
-  }
+  expect_script_stream_write_error(WriteError)
+}
+
+///|
+test "script stream writer invalid status maps to write error" {
+  expect_script_stream_write_error(LastStatus)
 }
 
 ///|

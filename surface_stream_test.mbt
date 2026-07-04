@@ -86,6 +86,16 @@ fn expect_vector_stream_write_error(kind : Int, status : Status) -> Unit raise {
 }
 
 ///|
+fn expect_png_stream_write_error(status : Status) -> Unit raise {
+  let surface = Surface::image(Argb32, 2, 2)
+  let result = run_cairo(() => surface.write_to_png_stream(fn(_) { status }))
+  match result {
+    Err(CairoIOError(WriteError, _)) => ()
+    _ => @test.fail("expected WriteError from PNG stream writer")
+  }
+}
+
+///|
 test "pdf stream writer receives output chunks" {
   let chunks : Array[Bytes] = []
   let surface = Surface::pdf_stream(10.0, 10.0, fn(chunk) {
@@ -150,12 +160,12 @@ test "png stream writer receives image bytes" {
 
 ///|
 test "png stream writer status maps to cairo IO error" {
-  let surface = Surface::image(Argb32, 2, 2)
-  let result = run_cairo(() => surface.write_to_png_stream(fn(_) { WriteError }))
-  match result {
-    Err(CairoIOError(WriteError, _)) => ()
-    _ => @test.fail("expected WriteError from PNG stream writer")
-  }
+  expect_png_stream_write_error(WriteError)
+}
+
+///|
+test "png stream writer invalid status maps to write error" {
+  expect_png_stream_write_error(LastStatus)
 }
 
 ///|

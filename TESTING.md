@@ -348,6 +348,7 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   the stream-vs-file vector output equivalence slice,
   the wide multi-page stream equivalence slice,
   the vector stream invalid-status fallback slice,
+  the PNG/script stream invalid-status fallback slice,
   the raster-source stale-release replacement slice,
   the raster-source acquire-only owner fuzz slice,
   the raster-source failed-acquire owner-count fuzz slice,
@@ -356,7 +357,7 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   vector/tag oracle slice, the mixed vector/tag/text marker slice, and the
   direct C oracle slice.
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native`: 383 tests passed. The current run
+- `moon -C cairoon test --target native`: 385 tests passed. The current run
   includes the pycairo context font-extents parity slice,
   the pycairo group-target stack-restoration slice,
   the pycairo rectangle path-extents slice,
@@ -371,6 +372,7 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   gradient color-stop ordering/snapshot slice, the stream-vs-file vector output
   equivalence slice, the tagged multi-page stream equivalence slice, the
   wide multi-page stream equivalence slice, the vector stream invalid-status
+  fallback slice, the PNG/script stream invalid-status
   fallback slice, the raster-source stale-release
   replacement slice, the raster-source acquire-only owner fuzz slice, the
   raster-source failed-acquire owner-count fuzz slice, the mixed
@@ -428,9 +430,10 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   negative-index `InvalidIndex`, and positive out-of-range `NoMemory`
   status handling.
 - `moon -C cairoon test device_test.mbt backend_surfaces.mbt.md
-  lifetime_stress_test.mbt --target native -v`: 23 black-box and executable
+  lifetime_stress_test.mbt --target native -v`: 24 black-box and executable
   backend/lifetime tests passed, covering script file/stream devices,
-  script-surface target proxying, script writer `WriteError` mapping, scoped
+  script-surface target proxying, script writer `WriteError` and
+  invalid-status fallback mapping, scoped
   script-device finish, retained script surface/device wrappers, executable
   backend docs, and backend stream callback allocation stress.
 - `moon -C cairoon test vector_output_wbtest.mbt --target native -v`: 37
@@ -446,11 +449,12 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   metadata/custom-metadata/page-label/outline/URI/named-destination/
   document-structure test matched against a direct C Cairo output oracle that
   also draws tagged text.
-- `moon -C cairoon test surface_stream_test.mbt --target native -v`: 9
+- `moon -C cairoon test surface_stream_test.mbt --target native -v`: 10
   black-box stream callback tests passed, covering PDF/PS/SVG stream chunks,
   PDF/PS/SVG vector stream `WriteError`, PDF/PS/SVG vector stream invalid-status
-  fallback to `WriteError`, PNG stream write/read, PNG write `WriteError`, and
-  PNG short-read error mapping.
+  fallback to `WriteError`, PNG stream write/read, PNG write `WriteError`, PNG
+  writer invalid-status fallback to `WriteError`, and PNG short-read error
+  mapping.
 - `moon -C cairoon test surface_stream_wbtest.mbt --target native -v`: 3
   white-box stream equivalence tests passed, comparing PDF/PS/SVG stream output
   with file output after normalized comparison for deterministic two-page and
@@ -466,7 +470,7 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   mixed vector/tag/text marker and C oracle paths.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
-  surface_stream_test.mbt --target native -v`: 9 ASan-compiled black-box
+  surface_stream_test.mbt --target native -v`: 10 ASan-compiled black-box
   stream callback tests passed with leak detection disabled.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
@@ -1700,6 +1704,12 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   `surface_stream_test.mbt` to cover PDF/PS/SVG writer `WriteError` mapping and
   `LastStatus` callback-return normalization to `WriteError`. This raised
   `surface_stream_test.mbt` to 9 tests and the full native suite to 383 tests.
+  The later PNG/script stream invalid-status fallback slice added one PNG
+  writer `LastStatus` fallback test and one script stream writer `LastStatus`
+  fallback test, proving the shared copied-byte writer trampoline normalizes
+  invalid callback statuses to `WriteError` beyond vector surfaces. This raised
+  `surface_stream_test.mbt` to 10 tests, `device_test.mbt` to 9 tests, and the
+  full native suite to 385 tests.
 
 The missing reliability pieces are substantial: broader automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering
@@ -1716,7 +1726,7 @@ three-page URI/destination/document-structure tag/vector oracle scene, PDF tagge
 text, mixed vector/tag/text, layered three-page, and wide three-page marker tests, PS/SVG tag metadata absence checks, two PDF document-feature
 oracle scenes, one PS DSC/multi-page oracle scene, one SVG
 version/unit/multi-page oracle scene, and the current PDF/PS/SVG
-stream-vs-file two-page, tagged three-page, and wide three-page tag/vector equality checks, plus PDF/PS/SVG writer `WriteError` and
+stream-vs-file two-page, tagged three-page, and wide three-page tag/vector equality checks, plus PDF/PS/SVG, PNG-writer, and script-writer `WriteError` and
 invalid-status fallback checks, including the current two-page direct
 C oracle scenes and the current single-page toy-font `show_text` oracle scene,
 broader tag-output assertions
