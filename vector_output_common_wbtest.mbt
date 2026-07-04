@@ -149,6 +149,14 @@ fn render_pdf_jpeg_mime_scene(
   jpeg : Bytes,
 ) -> Unit raise CairoError {
   let surface = Surface::pdf(3.0, 3.0, path=Some(path))
+  render_pdf_jpeg_mime_surface(surface, jpeg)
+}
+
+///|
+fn render_pdf_jpeg_mime_surface(
+  surface : Surface,
+  jpeg : Bytes,
+) -> Unit raise CairoError {
   surface.pdf_restrict_to_version(PdfVersion1_4)
   surface.pdf_set_metadata(PdfMetadataCreator, "cairoon-vector-oracle")
   surface.pdf_set_metadata(PdfMetadataCreateDate, fixed_pdf_metadata_date())

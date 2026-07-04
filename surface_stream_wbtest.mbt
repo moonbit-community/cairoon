@@ -416,6 +416,29 @@ test "document feature stream output matches file output after normalization" {
 }
 
 ///|
+test "pdf jpeg mime stream output matches file output" {
+  let path = "/tmp/cairoon_stream_pdf_jpeg_mime_file_equivalence.pdf"
+  let jpeg = tiny_jpeg_payload()
+  render_pdf_jpeg_mime_scene(path, jpeg)
+
+  let chunks : Array[Bytes] = []
+  let stream_surface = Surface::pdf_stream(3.0, 3.0, fn(chunk) {
+    chunks.push(chunk)
+    Success
+  })
+  render_pdf_jpeg_mime_surface(stream_surface, jpeg)
+  inspect(chunks.length() > 0, content="true")
+  inspect(
+    test_vector_file_equals_bytes_ffi(
+      0,
+      @utf8.encode(path),
+      stream_equivalence_chunks_to_bytes(chunks),
+    ),
+    content="true",
+  )
+}
+
+///|
 test "pdf thumbnail stream output matches file output" {
   let path = "/tmp/cairoon_stream_pdf_thumbnail_file_equivalence.pdf"
   render_pdf_thumbnail_scene(path)
