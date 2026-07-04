@@ -360,6 +360,7 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   the Context C glue split slice,
   the Context wrapper split slice,
   the Pattern wrapper split slice,
+  the Pattern raw FFI family split slice,
   the raster-source stale-release replacement slice,
   the raster-source acquire-only owner fuzz slice,
   the raster-source failed-acquire owner-count fuzz slice,
@@ -387,7 +388,7 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   fallback slice, the vector output white-box split slice, the test-vector C
   glue split slice, the base Surface C glue split slice, the Surface wrapper
   split slice, the Context wrapper split slice, the Pattern wrapper split slice,
-  the Font C glue split slice,
+  the Pattern raw FFI family split slice, the Font C glue split slice,
   the Pattern C glue split slice, the Surface C glue split slice,
   the Context C glue split slice,
   the raster-source stale-release replacement slice, the raster-source
@@ -1620,6 +1621,12 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   raster-source-pattern extern declarations from `ffi.mbt` into
   `ffi_pattern.mbt`, added that file to the native target list, and reduced
   `ffi.mbt` to 1866 lines. This did not change public API or test count.
+  The later Pattern raw FFI family split slice moved mesh-pattern and
+  raster-source-pattern extern declarations from the 359-line
+  `ffi_pattern.mbt` into `ffi_pattern_mesh.mbt` and
+  `ffi_pattern_raster_source.mbt`, added both files to the native target list,
+  and left `ffi_pattern.mbt` as the 184-line base/surface/solid/gradient extern
+  file. This did not change public API or test count.
   The later Path/Region raw FFI split slice moved raw `Path` and `Region`
   extern declarations from `ffi.mbt` into `ffi_path.mbt` and
   `ffi_region.mbt`, added both files to the native target list, and reduced

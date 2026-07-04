@@ -69,6 +69,8 @@ options(
     "ffi_font.mbt": [ "native" ],
     "ffi_image_data.mbt": [ "native" ],
     "ffi_pattern.mbt": [ "native" ],
+    "ffi_pattern_mesh.mbt": [ "native" ],
+    "ffi_pattern_raster_source.mbt": [ "native" ],
     "ffi_path.mbt": [ "native" ],
     "ffi_pdf_surface.mbt": [ "native" ],
     "ffi_ps_surface.mbt": [ "native" ],

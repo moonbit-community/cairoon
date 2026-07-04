@@ -53,8 +53,11 @@ Implemented in this workspace:
   `ffi_context_state.mbt` owns raw `Context` drawing-state/line-style/dash
   extern declarations,
   `ffi_font.mbt` owns raw `FontOptions`, `FontFace`, `ScaledFont`, and
-  text-to-glyphs extern declarations, `ffi_pattern.mbt` owns raw `Pattern`,
-  mesh-pattern, and raster-source-pattern extern declarations, and
+  text-to-glyphs extern declarations, `ffi_pattern.mbt` owns raw
+  base/surface/solid/gradient `Pattern` extern declarations,
+  `ffi_pattern_mesh.mbt` owns raw mesh-pattern extern declarations, and
+  `ffi_pattern_raster_source.mbt` owns raw raster-source-pattern extern
+  declarations.
   `ffi_device.mbt` owns raw `Device`, script-device, script-surface, and
   surface-get-device extern declarations.
   `ffi_image_data.mbt`, `ffi_path.mbt`, `ffi_pdf_surface.mbt`,
@@ -416,6 +419,7 @@ Implemented in this workspace:
   the Context C glue split slice,
   the Context wrapper split slice,
   the Pattern wrapper split slice,
+  the Pattern raw FFI family split slice,
   the raster-source stale-release replacement slice,
   the raster-source acquire-only owner fuzz slice,
   the raster-source failed-acquire owner-count fuzz slice,
@@ -424,8 +428,8 @@ Implemented in this workspace:
   vector/tag/text marker slice, the direct C oracle slice, and the prior C
   stub split that moved private test oracles out of `cairoon_misc.c` into
   common/file/vector/image helper files, plus the raw FFI splits that moved
-  font and pattern extern declarations into `ffi_font.mbt` and
-  `ffi_pattern.mbt`.
+  font and pattern extern declarations into `ffi_font.mbt`, `ffi_pattern.mbt`,
+  `ffi_pattern_mesh.mbt`, and `ffi_pattern_raster_source.mbt`.
 - `moon -C cairoon check --target native`: passed.
 - `moon -C cairoon test --target native`: 385 tests passed. The current run
   includes the pycairo context font-extents parity slice,
@@ -446,7 +450,7 @@ Implemented in this workspace:
   fallback slice, the vector output white-box split slice, the test-vector C
   glue split slice, the base Surface C glue split slice, the Surface wrapper
   split slice, the Context wrapper split slice, the Pattern wrapper split slice,
-  the raster-source stale-release
+  the Pattern raw FFI family split slice, the raster-source stale-release
   replacement slice, the raster-source acquire-only owner fuzz slice,
   the raster-source failed-acquire owner-count fuzz slice, the mixed
   vector/tag/text marker slice, the direct C oracle slice, the PS/SVG tag
@@ -1602,6 +1606,12 @@ Implemented in this workspace:
   raster-source-pattern extern declarations from `ffi.mbt` into
   `ffi_pattern.mbt`, added that file to the native target list, and reduced
   `ffi.mbt` to 1866 lines. This did not change public API or test count.
+  The later Pattern raw FFI family split slice moved mesh-pattern and
+  raster-source-pattern extern declarations from the 359-line
+  `ffi_pattern.mbt` into `ffi_pattern_mesh.mbt` and
+  `ffi_pattern_raster_source.mbt`, added both files to the native target list,
+  and left `ffi_pattern.mbt` as the 184-line base/surface/solid/gradient extern
+  file. This did not change public API or test count.
   The later Path/Region raw FFI split slice moved raw `Path` and `Region`
   extern declarations from `ffi.mbt` into `ffi_path.mbt` and
   `ffi_region.mbt`, added both files to the native target list, and reduced

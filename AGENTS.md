@@ -53,6 +53,8 @@ cairoon/
   ffi_font.mbt
   ffi_image_data.mbt
   ffi_pattern.mbt
+  ffi_pattern_mesh.mbt
+  ffi_pattern_raster_source.mbt
   ffi_path.mbt
   ffi_pdf_surface.mbt
   ffi_ps_surface.mbt
@@ -188,6 +190,8 @@ options(
     "ffi_font.mbt": ["native"],
     "ffi_image_data.mbt": ["native"],
     "ffi_pattern.mbt": ["native"],
+    "ffi_pattern_mesh.mbt": ["native"],
+    "ffi_pattern_raster_source.mbt": ["native"],
     "ffi_path.mbt": ["native"],
     "ffi_pdf_surface.mbt": ["native"],
     "ffi_ps_surface.mbt": ["native"],
@@ -221,9 +225,11 @@ exports in `ffi.mbt`; move larger families into files named
 `FontFace`, `ScaledFont`, and text-to-glyphs extern declarations that call
 `cairoon_font_options.c`, `cairoon_font_face.c`,
 `cairoon_scaled_font.c`, and `cairoon_scaled_font_oracle.c`;
-`ffi_pattern.mbt` owns the raw `Pattern`, mesh-pattern, and
-raster-source-pattern extern declarations that call `cairoon_pattern.c`,
-`cairoon_mesh_pattern.c`, and `cairoon_raster_source_pattern.c`;
+`ffi_pattern.mbt` owns raw base/surface/solid/gradient `Pattern` extern
+declarations that call `cairoon_pattern.c`; `ffi_pattern_mesh.mbt` owns raw
+mesh-pattern extern declarations that call `cairoon_mesh_pattern.c`;
+`ffi_pattern_raster_source.mbt` owns raw raster-source-pattern extern
+declarations that call `cairoon_raster_source_pattern.c`;
 `ffi_context_clip_extents.mbt` owns raw `Context` clip, extents, and
 hit-testing extern declarations that call `cairoon_context_clip_extents.c`;
 `ffi_context_core.mbt` owns raw `Context` construction, status, identity,
