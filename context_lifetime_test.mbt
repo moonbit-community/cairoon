@@ -8,6 +8,17 @@ fn make_returned_target_surface() -> Surface raise CairoError {
 }
 
 ///|
+fn make_returned_group_target_surface() -> Surface raise CairoError {
+  let surface = Surface::image(Argb32, 1, 1)
+  let ctx = Context::new(surface)
+  ctx.push_group()
+  let group_target = ctx.get_group_target()
+  ctx.set_source_rgba(0.0, 1.0, 0.0, 1.0)
+  ctx.paint()
+  group_target
+}
+
+///|
 fn make_context_with_local_surface_source() -> Context raise CairoError {
   let target = Surface::image(Argb32, 1, 1)
   let source = Surface::image(Argb32, 1, 1)
@@ -41,6 +52,17 @@ test "context get_target returns a referenced surface wrapper" {
   inspect(data[0].to_int(), content="0")
   inspect(data[1].to_int(), content="0")
   inspect(data[2].to_int(), content="255")
+  inspect(data[3].to_int(), content="255")
+}
+
+///|
+test "context get_group_target survives context scope" {
+  let target = make_returned_group_target_surface()
+  let data = target.copy_data()
+  inspect(data.length(), content="4")
+  inspect(data[0].to_int(), content="0")
+  inspect(data[1].to_int(), content="255")
+  inspect(data[2].to_int(), content="0")
   inspect(data[3].to_int(), content="255")
 }
 

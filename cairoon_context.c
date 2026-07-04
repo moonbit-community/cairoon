@@ -136,7 +136,7 @@ CairoonSurface *cairoon_context_get_group_target(
     return cairoon_surface_wrap_owned(NULL);
   }
   *status_out = cairo_surface_status(surface);
-  return cairoon_surface_wrap_borrowed_with_base(surface, ctx->target_surface);
+  return cairoon_surface_wrap_borrowed_with_base(surface, ctx);
 }
 
 MOONBIT_FFI_EXPORT

@@ -302,17 +302,22 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   the full native suite, `moon info --target native`, and targeted ASan
   image-oracle and pattern tests with leak detection disabled.
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native`: 342 tests passed. The current run
-  includes the PDF combined text document-feature oracle slice and the earlier
-  context `get_source` surface-pattern lifetime coverage for the path where
-  both the original source wrapper and context scope have exited.
+- `moon -C cairoon test --target native`: 343 tests passed. The current run
+  includes the context `get_group_target` post-scope lifetime slice, the PDF
+  combined text document-feature oracle slice, and the earlier context
+  `get_source` surface-pattern lifetime coverage for the path where both the
+  original source wrapper and context scope have exited.
+- `moon -C cairoon test context_lifetime_test.mbt --target native -v`: 8
+  black-box context lifetime tests passed, including `get_target`,
+  `get_group_target`, and `get_source` returned wrappers that remain usable
+  after their creating helper scopes exit.
 - `moon -C cairoon test vector_output_wbtest.mbt --target native -v`: 22
   white-box vector tests passed, including the combined PDF
   metadata/custom-metadata/page-label/outline/URI/named-destination/
   document-structure test matched against a direct C Cairo output oracle that
   also draws tagged text.
 - `moon -C cairoon info --target native`: completed with no work to do; this
-  source-lifetime test slice changes no public API or generated interface
+  group-target lifetime slice changes no public API or generated interface
   metadata.
 - `moon -C cairoon test image_oracle_wbtest.mbt --target native -v`: 2
   white-box image rendering oracle tests passed. Ordinary image surfaces and
@@ -343,10 +348,11 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
 - `moon -C cairoon test raster_lifetime_stress_test.mbt --target native -v`: 1
   black-box raster-source callback lifetime test passed after adding the
   1000-iteration set/get/manual acquire/release/replace/clear stress case.
-- `moon -C cairoon test context_lifetime_test.mbt --target native -v`: 7
-  black-box context lifetime tests passed, including `get_source` returning a
-  surface pattern that still exposes and paints from its source after the
-  source wrapper and context scope exit.
+- `moon -C cairoon test context_lifetime_test.mbt --target native -v`: 8
+  black-box context lifetime tests passed, including `get_group_target`
+  returning a surface that remains readable after the creating context helper
+  scope exits, and `get_source` returning a surface pattern that still exposes
+  and paints from its source after the source wrapper and context scope exit.
 - `moon -C cairoon test pattern_test.mbt --target native -v`: 18 black-box
   pattern tests passed after adding release-only raster callback state,
   finished-surface raster acquire failure-injection coverage, the C-side
@@ -1223,6 +1229,12 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   original source wrapper and context scope have exited. This closed the
   `Sources` sub-row as Done and raised the native suite to 342 tests.
   `./scripts/verify.sh` passed, including the full 342-test native suite.
+  The later context group-target lifetime slice changed `get_group_target`
+  returned surfaces to retain the `Context` wrapper, added one black-box test
+  proving the returned group target remains readable after its creating context
+  helper scope exits, and closed the `Construction and target lifetime` sub-row
+  as Done. This raised the native suite to 343 tests. `./scripts/verify.sh`
+  passed, including the full 343-test native suite.
   The later ScaledFont UTF-8 oracle slice expanded the existing direct C Cairo
   ScaledFont oracle inputs to cover decomposed Latin text extents plus
   decomposed Latin, Arabic RTL, and emoji/non-BMP `text_to_glyphs` cases. This
