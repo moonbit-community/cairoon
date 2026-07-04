@@ -40,6 +40,8 @@ options(
     "cairoon_glyph.c",
     "cairoon_path.c",
     "cairoon_pattern.c",
+    "cairoon_raster_source_pattern.c",
+    "cairoon_mesh_pattern.c",
     "cairoon_font.c",
     "cairoon_region.c",
   ],

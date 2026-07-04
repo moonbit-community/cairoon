@@ -350,6 +350,7 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   the vector stream invalid-status fallback slice,
   the PNG/script stream invalid-status fallback slice,
   the vector output white-box split slice,
+  the Pattern C glue split slice,
   the Surface C glue split slice,
   the Context C glue split slice,
   the Context wrapper split slice,
@@ -378,9 +379,9 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   wide multi-page stream equivalence slice, the vector stream invalid-status
   fallback slice, the PNG/script stream invalid-status
   fallback slice, the vector output white-box split slice, the Context wrapper
-  split slice, the Surface C glue split slice, the Context C glue split slice,
-  the raster-source stale-release replacement slice, the
-  raster-source acquire-only owner fuzz slice, the raster-source
+  split slice, the Pattern C glue split slice, the Surface C glue split slice,
+  the Context C glue split slice, the raster-source stale-release replacement
+  slice, the raster-source acquire-only owner fuzz slice, the raster-source
   failed-acquire owner-count fuzz slice, the mixed
   vector/tag/text marker slice, the direct C oracle slice, the PS/SVG tag
   metadata absence slice, the PDF tagged multi-page text marker slice,
@@ -1697,6 +1698,12 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   `cairoon_mapped_image_surface.c`, and `cairoon_recording_surface.c`, leaving
   `cairoon_surface.c` as the 516-line base surface glue file. This did not
   change public API or test count.
+  The later Pattern C glue split slice moved mesh-pattern operations and
+  raster-source callback/owner lifecycle glue from the 921-line
+  `cairoon_pattern.c` into `cairoon_mesh_pattern.c` and
+  `cairoon_raster_source_pattern.c`, leaving `cairoon_pattern.c` as the
+  283-line base/surface/solid/gradient state glue file. This did not change
+  public API or test count.
   The later layered multi-page vector/tag oracle slice added scene 27, a
   three-page PDF/PS/SVG direct C oracle combining clip, dash, surface pattern,
   mask surface, URI link tags, Document/Sect/P structure tags, and toy-font

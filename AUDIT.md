@@ -26,6 +26,10 @@ Implemented in this workspace:
   while `cairoon_image_surface.c`, `cairoon_mapped_image_surface.c`, and
   `cairoon_recording_surface.c` own image, mapped-image, and recording stubs;
   PDF, PS, SVG, and Tee surfaces continue to live in their dedicated files.
+  Pattern C glue is split into base/surface/solid/gradient state in
+  `cairoon_pattern.c`, mesh-pattern operations in `cairoon_mesh_pattern.c`,
+  and raster-source callback/owner lifecycle glue in
+  `cairoon_raster_source_pattern.c`.
 - MoonBit raw FFI declarations are beginning to follow the same family split:
   `ffi.mbt` keeps object type declarations and small module-level exports, while
   `ffi_context_clip_extents.mbt` owns raw `Context` clip/extents/hit-testing
@@ -383,6 +387,7 @@ Implemented in this workspace:
   the vector stream invalid-status fallback slice,
   the PNG/script stream invalid-status fallback slice,
   the vector output white-box split slice,
+  the Pattern C glue split slice,
   the Surface C glue split slice,
   the Context C glue split slice,
   the Context wrapper split slice,
@@ -1658,6 +1663,12 @@ Implemented in this workspace:
   `cairoon_mapped_image_surface.c`, and `cairoon_recording_surface.c`, leaving
   `cairoon_surface.c` as the 516-line base surface glue file. This did not
   change public API or test count.
+  The later Pattern C glue split slice moved mesh-pattern operations and
+  raster-source callback/owner lifecycle glue from the 921-line
+  `cairoon_pattern.c` into `cairoon_mesh_pattern.c` and
+  `cairoon_raster_source_pattern.c`, leaving `cairoon_pattern.c` as the
+  283-line base/surface/solid/gradient state glue file. This did not change
+  public API or test count.
   The later layered multi-page vector/tag oracle slice added scene 27, a
   three-page PDF/PS/SVG direct C oracle combining clip, dash, surface pattern,
   mask surface, URI link tags, Document/Sect/P structure tags, and toy-font
