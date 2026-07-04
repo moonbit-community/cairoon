@@ -350,6 +350,7 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   the vector stream invalid-status fallback slice,
   the PNG/script stream invalid-status fallback slice,
   the vector output white-box split slice,
+  the Context C glue split slice,
   the Context wrapper split slice,
   the raster-source stale-release replacement slice,
   the raster-source acquire-only owner fuzz slice,
@@ -376,7 +377,8 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   wide multi-page stream equivalence slice, the vector stream invalid-status
   fallback slice, the PNG/script stream invalid-status
   fallback slice, the vector output white-box split slice, the Context wrapper
-  split slice, the raster-source stale-release replacement slice, the
+  split slice, the Context C glue split slice, the raster-source stale-release
+  replacement slice, the
   raster-source acquire-only owner fuzz slice, the raster-source
   failed-acquire owner-count fuzz slice, the mixed
   vector/tag/text marker slice, the direct C oracle slice, the PS/SVG tag
@@ -1680,6 +1682,13 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   wrappers from the 1000-line `context.mbt` into six family files matching the
   raw FFI split, leaving `context.mbt` as the 117-line core wrapper file. This
   did not change public API or test count.
+  The later Context C glue split slice moved context font/text,
+  matrix/coordinate-conversion, drawing-state/line-style/dash, path
+  construction/copy, clip/extents/hit-test, and source/paint/page C stubs from
+  the 1518-line `cairoon_context.c` into six family C files matching the raw
+  FFI and wrapper splits, leaving `cairoon_context.c` as the 195-line core
+  construction/status/tag/target/source/group glue file. This did not change
+  public API or test count.
   The later layered multi-page vector/tag oracle slice added scene 27, a
   three-page PDF/PS/SVG direct C oracle combining clip, dash, surface pattern,
   mask surface, URI link tags, Document/Sect/P structure tags, and toy-font

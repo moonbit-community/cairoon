@@ -14,7 +14,13 @@ Implemented in this workspace:
   `Path`, `Pattern`, `FontOptions`, `FontFace`, `ScaledFont`, `Region`, and
   `Device`. Private test-only oracle glue is also split by responsibility:
   common drawing helpers, file/normalized-output comparison, vector-output
-  oracles, and ARGB32 image oracles.
+  oracles, and ARGB32 image oracles. Context C glue follows the same family
+  split: `cairoon_context.c` keeps core construction/status/tag/target/source
+  and group glue, while `cairoon_context_font_text.c`,
+  `cairoon_context_matrix.c`, `cairoon_context_state.c`,
+  `cairoon_context_path.c`, `cairoon_context_clip_extents.c`, and
+  `cairoon_context_paint.c` own the corresponding font/text, transform,
+  drawing-state, path, clip/extents/hit-test, and source/paint/page stubs.
 - MoonBit raw FFI declarations are beginning to follow the same family split:
   `ffi.mbt` keeps object type declarations and small module-level exports, while
   `ffi_context_clip_extents.mbt` owns raw `Context` clip/extents/hit-testing
@@ -372,6 +378,7 @@ Implemented in this workspace:
   the vector stream invalid-status fallback slice,
   the PNG/script stream invalid-status fallback slice,
   the vector output white-box split slice,
+  the Context C glue split slice,
   the Context wrapper split slice,
   the raster-source stale-release replacement slice,
   the raster-source acquire-only owner fuzz slice,
@@ -1631,6 +1638,13 @@ Implemented in this workspace:
   wrappers from the 1000-line `context.mbt` into six family files matching the
   raw FFI split, leaving `context.mbt` as the 117-line core wrapper file. This
   did not change public API or test count.
+  The later Context C glue split slice moved context font/text,
+  matrix/coordinate-conversion, drawing-state/line-style/dash, path
+  construction/copy, clip/extents/hit-test, and source/paint/page C stubs from
+  the 1518-line `cairoon_context.c` into six family C files matching the raw
+  FFI and wrapper splits, leaving `cairoon_context.c` as the 195-line core
+  construction/status/tag/target/source/group glue file. This did not change
+  public API or test count.
   The later layered multi-page vector/tag oracle slice added scene 27, a
   three-page PDF/PS/SVG direct C oracle combining clip, dash, surface pattern,
   mask surface, URI link tags, Document/Sect/P structure tags, and toy-font
