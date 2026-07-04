@@ -92,7 +92,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 | pycairo API | cairoon status | Notes |
 |---|---|---|
 | `Matrix` | Done | MoonBit pure-value API returns transformed copies; `component`/`components` cover pycairo indexing/unpacking semantics; executable reference docs cover pure-value transform usage |
-| `Path` | Done | Opaque owned `cairo_path_t *`, status/equality/hash, MoonBit `Eq`/`Hash`/`Compare` traits, stringification, segment values, iteration, and executable reference docs |
+| `Path` | Done | Opaque owned `cairo_path_t *`, status/equality/hash, MoonBit `Eq`/`Hash`/`Compare` traits, pycairo-compatible stringification including close-path continuation formatting, segment values, iteration, and executable reference docs |
 | `Rectangle` | Done | Pure value type with field/component access and pycairo numeric-limit coverage |
 | `RectangleInt` | Done | Pure value type with defaults; needed by region, map-to-image, and raster-source acquire extents |
 | `Glyph` | Done | Pure value type with `UInt64` index matching Cairo's `unsigned long` width on 64-bit platforms; array marshaling remains separate |

@@ -307,8 +307,9 @@ Implemented in this workspace:
   white-box tests,
   the full native suite, `moon info --target native`, and targeted ASan
   image-oracle, vector-output, stream, pattern, and raster-owner tests with
-  leak detection disabled. The current run includes the gradient color-stop
-  ordering/snapshot slice, the stream-vs-file vector output equivalence slice,
+  leak detection disabled. The current run includes the pycairo close-path
+  stringification slice, the gradient color-stop ordering/snapshot slice,
+  the stream-vs-file vector output equivalence slice,
   the raster-source stale-release replacement slice,
   the raster-source acquire-only owner fuzz slice,
   the packaging/pycairo-porting documentation slice, the mixed
@@ -316,10 +317,11 @@ Implemented in this workspace:
   stub split that moved private test oracles out of `cairoon_misc.c` into
   common/file/vector/image helper files.
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native`: 358 tests passed. The current run
-  includes the gradient color-stop ordering/snapshot slice, the stream-vs-file
-  vector output equivalence slice, the raster-source stale-release replacement
-  slice, the raster-source
+- `moon -C cairoon test --target native`: 359 tests passed. The current run
+  includes the pycairo close-path stringification slice, the gradient
+  color-stop ordering/snapshot slice, the stream-vs-file vector output
+  equivalence slice, the raster-source stale-release replacement slice, the
+  raster-source
   acquire-only owner fuzz slice, the mixed
   vector/tag/text marker slice, the direct C oracle slice, the PS/SVG tag
   metadata absence slice, the PDF tagged multi-page text marker slice,
@@ -332,6 +334,10 @@ Implemented in this workspace:
   document-feature oracle slice, and the earlier context `get_source`
   surface-pattern lifetime coverage for the path where both the original source
   wrapper and context scope have exited.
+- `moon -C cairoon test path_test.mbt --target native -v`: 6 black-box Path
+  tests passed, covering empty paths, pycairo-compatible stringification
+  including close-path continuation formatting, typed segment iteration,
+  flattened copies, and path equality/hash behavior.
 - `moon -C cairoon test context_lifetime_test.mbt --target native -v`: 8
   black-box context lifetime tests passed, including `get_target`,
   `get_group_target`, and `get_source` returned wrappers that remain usable
@@ -1304,6 +1310,10 @@ Implemented in this workspace:
   `get_color_stops_rgba` returns a copied MoonBit snapshot that does not grow
   after later pattern mutation. This raised `pattern_gradient_test.mbt` to 5
   tests and the full native suite to 358 tests.
+  The later pycairo close-path stringification slice added one black-box Path
+  test proving `Path::to_string` matches pycairo's `close path` line plus the
+  continuation `move_to` segment emitted by cairo after closing a subpath. This
+  raised `path_test.mbt` to 6 tests and the full native suite to 359 tests.
 
 ## Known Gaps
 

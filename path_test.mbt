@@ -34,6 +34,17 @@ test "path string mirrors pycairo path formatting" {
 }
 
 ///|
+test "path string includes pycairo close path continuation" {
+  let ctx = path_test_context()
+  ctx.line_to(1.0, 2.0)
+  ctx.close_path()
+  inspect(
+    ctx.copy_path().to_string(),
+    content="move_to 1.000000 2.000000\nclose path\nmove_to 1.000000 2.000000",
+  )
+}
+
+///|
 test "path segments mirror pycairo iterator data" {
   let ctx = path_test_context()
   ctx.line_to(1.0, 2.0)
