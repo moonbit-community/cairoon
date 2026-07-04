@@ -39,6 +39,12 @@ Implemented in this workspace:
   `ffi_tee_surface.mbt`, and `ffi_region.mbt` own raw `ImageData`, `Path`, PDF
   surface, PostScript surface, image/recording/base/mapped surface, SVG
   surface, Tee surface, and `Region` extern declarations.
+- MoonBit `Context` public wrappers now follow the same family split as their
+  raw FFI files: `context.mbt` keeps core construction/status/tag/group
+  wrappers, while `context_font_text.mbt`, `context_matrix.mbt`,
+  `context_state.mbt`, `context_path.mbt`, `context_clip_extents.mbt`, and
+  `context_paint.mbt` own the corresponding font/text, transform, drawing
+  state, path, clip/extents/hit-test, and source/paint/page wrappers.
 - MoonBit `Eq`/`Hash` traits are implemented for hashable Cairo external
   objects that already expose cairoon equality/hash helpers: `Surface`,
   `Context`, `Pattern`, `Device`, `FontOptions`, `FontFace`, `ScaledFont`, and
@@ -366,6 +372,7 @@ Implemented in this workspace:
   the vector stream invalid-status fallback slice,
   the PNG/script stream invalid-status fallback slice,
   the vector output white-box split slice,
+  the Context wrapper split slice,
   the raster-source stale-release replacement slice,
   the raster-source acquire-only owner fuzz slice,
   the raster-source failed-acquire owner-count fuzz slice,
@@ -393,9 +400,10 @@ Implemented in this workspace:
   equivalence slice, the tagged multi-page stream equivalence slice, the
   wide multi-page stream equivalence slice, the vector stream invalid-status
   fallback slice, the PNG/script stream invalid-status
-  fallback slice, the vector output white-box split slice, the raster-source
-  stale-release replacement slice, the raster-source acquire-only owner fuzz
-  slice, the raster-source failed-acquire owner-count fuzz slice, the mixed
+  fallback slice, the vector output white-box split slice, the Context wrapper
+  split slice, the raster-source stale-release replacement slice, the
+  raster-source acquire-only owner fuzz slice, the raster-source
+  failed-acquire owner-count fuzz slice, the mixed
   vector/tag/text marker slice, the direct C oracle slice, the PS/SVG tag
   metadata absence slice, the PDF tagged multi-page text marker slice,
   the cross-backend tagged multi-page text direct C oracle slice, the
@@ -1618,6 +1626,11 @@ Implemented in this workspace:
   `ffi.mbt` into `ffi_context_paint.mbt`, added that file to the native target
   list, and reduced `ffi.mbt` to 142 lines. This did not change public API or
   test count.
+  The later Context wrapper split slice moved public `Context` font/text,
+  transform, drawing-state, path, clip/extents/hit-test, and source/paint/page
+  wrappers from the 1000-line `context.mbt` into six family files matching the
+  raw FFI split, leaving `context.mbt` as the 117-line core wrapper file. This
+  did not change public API or test count.
   The later layered multi-page vector/tag oracle slice added scene 27, a
   three-page PDF/PS/SVG direct C oracle combining clip, dash, surface pattern,
   mask surface, URI link tags, Document/Sect/P structure tags, and toy-font

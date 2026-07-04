@@ -350,6 +350,7 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   the vector stream invalid-status fallback slice,
   the PNG/script stream invalid-status fallback slice,
   the vector output white-box split slice,
+  the Context wrapper split slice,
   the raster-source stale-release replacement slice,
   the raster-source acquire-only owner fuzz slice,
   the raster-source failed-acquire owner-count fuzz slice,
@@ -374,9 +375,10 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   equivalence slice, the tagged multi-page stream equivalence slice, the
   wide multi-page stream equivalence slice, the vector stream invalid-status
   fallback slice, the PNG/script stream invalid-status
-  fallback slice, the vector output white-box split slice, the raster-source
-  stale-release replacement slice, the raster-source acquire-only owner fuzz
-  slice, the raster-source failed-acquire owner-count fuzz slice, the mixed
+  fallback slice, the vector output white-box split slice, the Context wrapper
+  split slice, the raster-source stale-release replacement slice, the
+  raster-source acquire-only owner fuzz slice, the raster-source
+  failed-acquire owner-count fuzz slice, the mixed
   vector/tag/text marker slice, the direct C oracle slice, the PS/SVG tag
   metadata absence slice, the PDF tagged multi-page text marker slice,
   the cross-backend tagged multi-page text direct C oracle slice, the
@@ -1673,6 +1675,11 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   `ffi.mbt` into `ffi_context_paint.mbt`, added that file to the native target
   list, and reduced `ffi.mbt` to 142 lines. This did not change public API or
   test count.
+  The later Context wrapper split slice moved public `Context` font/text,
+  transform, drawing-state, path, clip/extents/hit-test, and source/paint/page
+  wrappers from the 1000-line `context.mbt` into six family files matching the
+  raw FFI split, leaving `context.mbt` as the 117-line core wrapper file. This
+  did not change public API or test count.
   The later layered multi-page vector/tag oracle slice added scene 27, a
   three-page PDF/PS/SVG direct C oracle combining clip, dash, surface pattern,
   mask surface, URI link tags, Document/Sect/P structure tags, and toy-font
