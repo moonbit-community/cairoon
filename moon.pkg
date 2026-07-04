@@ -43,6 +43,7 @@ options(
     "ffi_pdf_surface.mbt": [ "native" ],
     "ffi_ps_surface.mbt": [ "native" ],
     "ffi_svg_surface.mbt": [ "native" ],
+    "ffi_tee_surface.mbt": [ "native" ],
     "ffi_region.mbt": [ "native" ],
   },
   link: {
