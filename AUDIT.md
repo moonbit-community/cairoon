@@ -162,7 +162,8 @@ Implemented in this workspace:
   stable structural output markers, PDF metadata/custom-metadata/page-label/outline
   output markers, PDF multi-page output markers, PDF 1.4 fifteen-scene
   cross-backend direct C vector-oracle comparison plus three PDF tag oracle
-  scenes and one PDF document-feature oracle scene, PDF JPEG MIME data
+  scenes and two PDF document-feature oracle scenes, including one
+  text/tag-aware combined scene, PDF JPEG MIME data
   embedding, PDF 1.4 URI link-tag annotation markers,
   PDF named-destination tag markers, PDF document-structure tag markers,
   finished-surface errors, invalid string validation, and subtype-mismatch
@@ -245,8 +246,8 @@ Implemented in this workspace:
   surface pattern, mask surface, and mesh pattern scenes. SVG comparison
   normalizes Cairo's dynamic `source-*` image ids. PDF metadata/custom
   metadata, page labels, outlines, multi-page output, URI link-tag annotations,
-  named-destination tags, document-structure tags, and one two-page PDF
-  document-feature combination also have direct C oracle or marker checks; PDF
+  named-destination tags, document-structure tags, and two two-page PDF
+  document-feature combinations also have direct C oracle or marker checks; PDF
   JPEG MIME passthrough has output checks; image/PDF/PS/SVG MIME support
   matrices are covered; PS combined DSC/multi-page output and SVG combined
   version/unit/multi-page output have normalized direct C oracle checks; and
@@ -280,18 +281,25 @@ Implemented in this workspace:
 
 ## Last Verified
 
-2026-07-02 and 2026-07-03:
+2026-07-02, 2026-07-03, and 2026-07-04:
 
 - `./scripts/verify.sh`: passed. The local reliability gate ran
   `moon fmt --check`, `scripts/configure-link-flags.sh --check`, native
-  `moon check`, targeted image, ScaledFont, vector including PS DSC/SVG unit
-  backend-feature oracle checks, and pattern oracle tests,
+  `moon check`, targeted image, ScaledFont, vector including PDF combined
+  text document-feature plus PS DSC/SVG unit backend-feature oracle checks,
+  and pattern oracle tests,
   the full native suite, `moon info --target native`, and targeted ASan
   image-oracle and pattern tests with leak detection disabled.
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native`: 342 tests passed after adding
+- `moon -C cairoon test --target native`: 342 tests passed. The current run
+  includes the PDF combined text document-feature oracle slice and the earlier
   context `get_source` surface-pattern lifetime coverage for the path where
   both the original source wrapper and context scope have exited.
+- `moon -C cairoon test vector_output_wbtest.mbt --target native -v`: 22
+  white-box vector tests passed, including the combined PDF
+  metadata/custom-metadata/page-label/outline/URI/named-destination/
+  document-structure test matched against a direct C Cairo output oracle that
+  also draws tagged text.
 - `moon -C cairoon info --target native`: completed with no work to do; this
   source-lifetime test slice changes no public API or generated interface
   metadata.
@@ -1060,6 +1068,11 @@ Implemented in this workspace:
   across two pages. This changed only test-helper C glue and one white-box
   test, raising the native suite to 332 tests; ASan/LSan validation is
   recorded above.
+  The later PDF combined text document-feature oracle slice upgraded the
+  combined metadata/custom-metadata/page-label/outline/URI/named-destination/
+  document-structure marker test with a second private PDF-only direct C
+  vector scene that includes text under Link, Dest, and Document/Sect/P tags.
+  This changed only test-helper C glue and one existing white-box test.
   The later Region chainable-mutator slice changed public Region boolean
   methods to return the mutated receiver, matching pycairo's
   `intersect`/`subtract`/`union`/`xor` return semantics for both region and
@@ -1124,12 +1137,13 @@ Implemented in this workspace:
 
 - Broader normalized PDF/SVG/PS output comparison is still missing for
   tag/metadata/multi-page combinations beyond the current fifteen-scene
-  cross-backend direct C fixtures, three PDF tag oracle scenes, and one PDF
-  document-feature oracle scene. PDF/PS/SVG now have multi-page marker checks
-  and one two-page direct C oracle scene, PDF/PS/SVG have a single-page
+  cross-backend direct C fixtures, three PDF tag oracle scenes, and two PDF
+  document-feature oracle scenes. PDF/PS/SVG now have multi-page marker checks
+  and two two-page direct C oracle scenes, PDF/PS/SVG have a single-page
   toy-font `show_text` oracle scene, and PDF has direct C coverage for URI
   links, named destinations, Document/Sect/H1/P structure tags, plus a
-  two-page metadata/custom-metadata/page-label/outline/tag combination.
+  two two-page metadata/custom-metadata/page-label/outline/tag combinations,
+  including one text/tag-aware scene.
   Broader cross-backend tag/metadata combinations, broader multi-page
   combinations, and richer tag-output assertions are still absent beyond those
   PDF scenes and PS/SVG Link inertness. PDF/PS/SVG stream-writer constructors,

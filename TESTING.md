@@ -254,8 +254,9 @@ fill/stroke rectangles, Bezier paths, transforms, linear/radial gradients,
 toy-font text paths, toy-font `show_text`, two-page paint, clip, dashed
 stroke, repeated surface pattern, mask surface, and mesh pattern scenes, with
 SVG dynamic `source-*` image-id normalization, three PDF-only tag oracle scenes,
-one PDF-only document-feature oracle scene, one PS-only DSC/multi-page oracle
-scene, one SVG-only version/unit/multi-page oracle scene, PDF
+two PDF-only document-feature oracle scenes including one text/tag-aware
+combined scene, one PS-only DSC/multi-page oracle scene, one SVG-only
+version/unit/multi-page oracle scene, PDF
 metadata/custom-metadata/page-label/outline output markers, PDF/PS/SVG
 multi-page output markers, PDF JPEG MIME payload embedding,
 image/PDF/PS/SVG MIME support matrix checks,
@@ -291,18 +292,25 @@ executable reference examples for FontOptions state/copy/merge, color
 palettes, toy font faces, Surface/Context font options, ScaledFont
 matrices/metrics, text-to-glyphs, and checked font errors.
 
-Verified on 2026-07-02 and 2026-07-03:
+Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
 
 - `./scripts/verify.sh`: passed. The local reliability gate ran
   `moon fmt --check`, `scripts/configure-link-flags.sh --check`, native
-  `moon check`, targeted image, ScaledFont, vector including PS DSC/SVG unit
-  backend-feature oracle checks, and pattern oracle tests,
+  `moon check`, targeted image, ScaledFont, vector including PDF combined
+  text document-feature plus PS DSC/SVG unit backend-feature oracle checks,
+  and pattern oracle tests,
   the full native suite, `moon info --target native`, and targeted ASan
   image-oracle and pattern tests with leak detection disabled.
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native`: 342 tests passed after adding
+- `moon -C cairoon test --target native`: 342 tests passed. The current run
+  includes the PDF combined text document-feature oracle slice and the earlier
   context `get_source` surface-pattern lifetime coverage for the path where
   both the original source wrapper and context scope have exited.
+- `moon -C cairoon test vector_output_wbtest.mbt --target native -v`: 22
+  white-box vector tests passed, including the combined PDF
+  metadata/custom-metadata/page-label/outline/URI/named-destination/
+  document-structure test matched against a direct C Cairo output oracle that
+  also draws tagged text.
 - `moon -C cairoon info --target native`: completed with no work to do; this
   source-lifetime test slice changes no public API or generated interface
   metadata.
@@ -1150,6 +1158,11 @@ Verified on 2026-07-02 and 2026-07-03:
   across two pages. This changed only test-helper C glue and one white-box
   test, raising the native suite to 332 tests. ASan/LSan validation is
   recorded above.
+  The later PDF combined text document-feature oracle slice upgraded the
+  combined metadata/custom-metadata/page-label/outline/URI/named-destination/
+  document-structure marker test with a second private PDF-only direct C
+  vector scene that includes text under Link, Dest, and Document/Sect/P tags.
+  This changed only test-helper C glue and one existing white-box test.
   The later Region chainable-mutator slice changed public Region boolean
   methods to return the mutated receiver, matching pycairo's
   `intersect`/`subtract`/`union`/`xor` return semantics for both region and
@@ -1222,11 +1235,11 @@ the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering
 LSan failure, broader callback fuzz/finalizer stress tests, additional
 failure-injection paths, CI wiring, vector-output normalization for broader
 multi-page/tag/metadata combinations beyond the current fifteen-scene
-cross-backend direct C fixture set, three PDF tag oracle scenes, one PDF
-document-feature oracle scene, one PS DSC/multi-page oracle scene, and one SVG
+cross-backend direct C fixture set, three PDF tag oracle scenes, two PDF
+document-feature oracle scenes, one PS DSC/multi-page oracle scene, and one SVG
 version/unit/multi-page oracle scene, including the current two-page direct C
-oracle scene and the current single-page toy-font `show_text` oracle scene, broader
-tag-output assertions beyond the current URI link, named-destination,
+oracle scenes and the current single-page toy-font `show_text` oracle scene,
+broader tag-output assertions beyond the current URI link, named-destination,
 document-structure, PDF document-feature, and PS/SVG Link coverage, and the
 remaining API families from `API_INVENTORY.md`.
 

@@ -547,6 +547,7 @@ test "pdf output contains multi-page markers" {
 ///|
 test "pdf output preserves metadata outlines labels and tags across pages" {
   let path = "/tmp/cairoon_vector_pdf_combined_document.pdf"
+  let oracle_path = "/tmp/cairoon_vector_pdf_combined_document_oracle.pdf"
   let surface = Surface::pdf(100.0, 100.0, path=Some(path))
   surface.pdf_restrict_to_version(PdfVersion1_4)
   surface.pdf_set_metadata(PdfMetadataTitle, "Cairoon Combined")
@@ -601,6 +602,7 @@ test "pdf output preserves metadata outlines labels and tags across pages" {
     "/Dests", "(combined-dest)", "/StructTreeRoot", "/S /Document", "/S /Sect", "/S /P",
     "%%EOF",
   ])
+  expect_vector_oracle_match(0, 21, path, oracle_path)
 }
 
 ///|
