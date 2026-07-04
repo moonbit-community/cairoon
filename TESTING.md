@@ -168,11 +168,11 @@ The current local gate is executable as:
 It runs `moon fmt --check`, `scripts/configure-link-flags.sh --check`, native
 `moon check`, targeted white-box image, ScaledFont, vector-output,
 stream black-box/white-box, mapped-image, TeeSurface, context-lifetime,
-context-state, context-matrix, context-path, context-extents, context-clip, gradient/mesh
+context-state, context-matrix, context-path, context-group, context-extents, context-clip, gradient/mesh
 pattern, context-painting, and raster-pattern tests, the full native test suite,
 `moon info --target native`, and targeted ASan builds for the image oracle,
 vector-output, stream, mapped-image, TeeSurface, context-lifetime,
-context-state, context-matrix, context-path, context-extents, context-clip, and
+context-state, context-matrix, context-path, context-group, context-extents, context-clip, and
 context-painting/gradient/mesh/raster-pattern suites when an ASan-capable `clang` is available.
 Set `CAIROON_VERIFY_ASAN=0` to skip the targeted ASan portion intentionally.
 
@@ -315,12 +315,13 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   `moon check`, targeted image, ScaledFont, vector including PDF combined
   text document-feature plus PS DSC/SVG unit backend-feature oracle checks,
   stream black-box/white-box tests, mapped-image tests, TeeSurface tests,
-  context lifetime/state/matrix/path/extents/clip/painting tests,
+  context lifetime/state/matrix/path/group/extents/clip/painting tests,
   pattern/gradient/mesh tests, and raster-owner white-box tests,
   the full native suite, `moon info --target native`, and targeted ASan
   image-oracle, vector-output, stream, mapped-image, TeeSurface,
-  context-lifetime/state/matrix/path/extents/clip/painting, pattern/gradient/mesh, and
+  context-lifetime/state/matrix/path/group/extents/clip/painting, pattern/gradient/mesh, and
   raster-owner tests with leak detection disabled. The current run includes
+  the pycairo group-target stack-restoration slice,
   the pycairo rectangle path-extents slice,
   the pycairo source RGBA round-trip slice,
   the pycairo empty-path clip `in_clip` slice,
@@ -337,8 +338,9 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   the packaging/pycairo-porting documentation slice, the mixed
   vector/tag/text marker slice, and the direct C oracle slice.
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native`: 368 tests passed. The current run
-  includes the pycairo rectangle path-extents slice,
+- `moon -C cairoon test --target native`: 369 tests passed. The current run
+  includes the pycairo group-target stack-restoration slice,
+  the pycairo rectangle path-extents slice,
   the pycairo source RGBA round-trip slice,
   the pycairo empty-path clip `in_clip` slice,
   the pycairo mesh curve-first patch slice,
@@ -373,6 +375,11 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   path copy/append independence, pycairo-style append string
   equivalence after clearing the source context, flattened append behavior, and
   path error propagation.
+- `moon -C cairoon test context_group_test.mbt --target native -v`: 4
+  black-box Context group tests passed, covering `push_group`, `pop_group`,
+  `pop_group_to_source`, `push_group_with_content`, group-target stack
+  restoration to the original target, returned group patterns, and unmatched
+  pop error mapping.
 - `moon -C cairoon test context_lifetime_test.mbt --target native -v`: 9
   black-box context lifetime tests passed, including `get_target`,
   `get_group_target`, `get_source`, and PDF/PS stream target wrappers that
@@ -1515,6 +1522,13 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   `(1, 2, 5, 7)`, and added `context_path_test.mbt` to the normal and ASan
   verification gates. This raised `context_path_test.mbt` to 11 tests and the
   full native suite to 368 tests.
+  The later pycairo group-target stack-restoration slice added one black-box
+  Context group test proving `get_group_target()` switches away from the
+  original target inside `push_group()` and restores to the original target
+  after both `pop_group()` and `pop_group_to_source()`, and added
+  `context_group_test.mbt` to the normal and ASan verification gates. This
+  raised `context_group_test.mbt` to 4 tests and the full native suite to 369
+  tests.
 
 The missing reliability pieces are substantial: broader automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering

@@ -50,6 +50,23 @@ test "context pop_group_to_source installs the group pattern" {
 }
 
 ///|
+test "context group target stack restores original target" {
+  let target = Surface::image(Argb32, 1, 1)
+  let ctx = Context::new(target)
+  inspect(ctx.get_group_target() == target, content="true")
+
+  ctx.push_group()
+  inspect(ctx.get_group_target() == target, content="false")
+  let _ = ctx.pop_group()
+  inspect(ctx.get_group_target() == target, content="true")
+
+  ctx.push_group()
+  inspect(ctx.get_group_target() == target, content="false")
+  ctx.pop_group_to_source()
+  inspect(ctx.get_group_target() == target, content="true")
+}
+
+///|
 test "context group APIs report unmatched pop errors" {
   let pop = run_cairo(() => {
     let _ = Context::new(Surface::image(Argb32, 1, 1)).pop_group()
