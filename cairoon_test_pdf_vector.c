@@ -82,6 +82,65 @@ cairo_status_t cairoon_test_render_pdf_jpeg_mime_oracle(
 #endif
 }
 
+MOONBIT_FFI_EXPORT
+cairo_status_t cairoon_test_render_pdf_thumbnail_oracle(
+  moonbit_bytes_t filename) {
+#if CAIRO_HAS_PDF_SURFACE && CAIRO_VERSION >= CAIRO_VERSION_ENCODE(1, 16, 0)
+  if (filename == NULL) {
+    return CAIRO_STATUS_INVALID_STRING;
+  }
+
+  cairo_surface_t *surface = cairo_pdf_surface_create(
+    (const char *)filename,
+    20.0,
+    20.0);
+  cairo_status_t status = cairo_surface_status(surface);
+
+  if (status == CAIRO_STATUS_SUCCESS) {
+    cairo_pdf_surface_restrict_to_version(surface, CAIRO_PDF_VERSION_1_4);
+    cairo_pdf_surface_set_metadata(
+      surface,
+      CAIRO_PDF_METADATA_CREATOR,
+      "cairoon-vector-oracle");
+    cairo_pdf_surface_set_metadata(
+      surface,
+      CAIRO_PDF_METADATA_CREATE_DATE,
+      "2026-01-02T03:04:05+00:00");
+    cairo_pdf_surface_set_metadata(
+      surface,
+      CAIRO_PDF_METADATA_MOD_DATE,
+      "2026-01-02T03:04:05+00:00");
+    cairo_pdf_surface_set_thumbnail_size(surface, 4, 4);
+    status = cairo_surface_status(surface);
+  }
+
+  cairo_t *cr = NULL;
+  if (status == CAIRO_STATUS_SUCCESS) {
+    cr = cairo_create(surface);
+    status = cairo_status(cr);
+  }
+  if (status == CAIRO_STATUS_SUCCESS) {
+    cairo_set_source_rgb(cr, 0.0, 0.0, 1.0);
+    cairo_paint(cr);
+    status = cairo_status(cr);
+  }
+
+  if (cr != NULL) {
+    cairo_destroy(cr);
+  }
+  cairo_surface_finish(surface);
+  cairo_status_t surface_status = cairo_surface_status(surface);
+  cairo_surface_destroy(surface);
+  if (status != CAIRO_STATUS_SUCCESS) {
+    return status;
+  }
+  return surface_status;
+#else
+  (void)filename;
+  return CAIRO_STATUS_INVALID_STATUS;
+#endif
+}
+
 cairo_status_t cairoon_test_render_pdf_document_features(
   const char *name) {
 #if CAIRO_HAS_PDF_SURFACE && CAIRO_VERSION >= CAIRO_VERSION_ENCODE(1, 17, 6)

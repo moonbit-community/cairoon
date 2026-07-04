@@ -213,7 +213,7 @@ finished-status coverage, device offset/scale, fallback resolution,
 show-text-glyphs support checks with finished-status coverage, invalid-size
 error mapping for similar and rectangular child
 surface construction, MIME constants, MIME data storage/query/clear support including
-image/PDF/PS/SVG MIME support matrices and PDF JPEG MIME passthrough with direct C oracle coverage, and
+image/PDF/PS/SVG MIME support matrices, PDF JPEG MIME passthrough with direct C oracle coverage, PDF thumbnail direct C oracle coverage, and
 RecordingSurface constructor/extents/ink-extents plus replay, mapped image
 surface mapping/unmapping, PDFSurface filename/no-output/stream constructor,
 version helpers, version restriction, size, metadata, custom metadata,
@@ -280,7 +280,7 @@ PS-only DSC/multi-page oracle scene, one SVG-only
 version/unit/multi-page oracle scene, PDF metadata/custom-metadata/page-label/
 outline output markers, PDF/PS/SVG
 multi-page output markers, PDF tagged multi-page text structure markers, PDF
-tagged `show_text_glyphs` Link/structure markers, PDF JPEG MIME payload embedding with direct C oracle comparison,
+tagged `show_text_glyphs` Link/structure markers, PDF JPEG MIME payload embedding and PDF thumbnail output with direct C oracle comparison,
 image/PDF/PS/SVG MIME support matrix checks,
 PDF URI link-tag annotation markers, PDF named-destination tag markers, PDF
 document-structure tag markers, PS/SVG Link tag inert-output checks, PS/SVG
@@ -320,7 +320,7 @@ executable reference examples for FontOptions state/copy/merge, color
 palettes, toy font faces, Surface/Context font options, ScaledFont
 matrices/metrics, text-to-glyphs, and checked font errors.
 
-Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
+Verified on 2026-07-02, 2026-07-03, 2026-07-04, and 2026-07-05:
 
 - `./scripts/verify.sh`: passed. The local reliability gate ran
   `moon fmt --check`, `scripts/configure-link-flags.sh --check`, native
@@ -384,10 +384,10 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   the raster-source failed-acquire owner-count fuzz slice,
   the wide multi-page vector/tag oracle slice,
   the packaging/pycairo-porting documentation slice, the layered multi-page
-  vector/tag oracle slice, the mixed vector/tag/text marker slice, and the
-  direct C oracle slice.
+  vector/tag oracle slice, the mixed vector/tag/text marker slice, the direct
+  C oracle slice, and the PDF thumbnail direct C oracle slice.
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native`: 413 tests passed. The current run
+- `moon -C cairoon test --target native`: 414 tests passed. The current run
   includes the pycairo context font-extents parity slice,
   the pycairo group-target stack-restoration slice,
   the pycairo rectangle path-extents slice,
@@ -436,7 +436,7 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   glyph/tag vector-output slice, the copy_page retained vector-output slice, the
   Surface page primitive vector-output slice, the Surface show-page cleared
   primitive slice, the glyph vector backend oracle slice, the PDF JPEG MIME
-  direct C oracle slice, and
+  direct C oracle slice, the PDF thumbnail direct C oracle slice, and
   the earlier context `get_source`
   surface-pattern lifetime coverage for the path where both the original source
   wrapper and context scope have exited, plus the Path/Region lifetime gate,
@@ -492,7 +492,7 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   backend docs, retained owner graph stress, external value-wrapper stress,
   image-data view stress, and backend stream callback allocation stress.
 - `moon -C cairoon test vector_output_wbtest.mbt
-  vector_output_oracle_wbtest.mbt --target native -v`: 51 white-box vector
+  vector_output_oracle_wbtest.mbt --target native -v`: 52 white-box vector
   tests passed after splitting marker/output checks from direct C oracle and
   cross-backend tag checks. The split set still covers layered and wide
   multi-page direct C oracle and marker checks, mixed vector/tag/text marker
@@ -511,8 +511,8 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   tag inertness matched against direct C Cairo output, and the combined PDF
   metadata/custom-metadata/page-label/outline/URI/named-destination/
   document-structure test matched against a direct C Cairo output oracle that
-  also draws tagged text, plus PDF JPEG MIME data passthrough matched against
-  a direct C Cairo output oracle.
+  also draws tagged text, plus PDF JPEG MIME data passthrough and PDF thumbnail
+  output matched against direct C Cairo output oracles.
 - `moon -C cairoon test surface_stream_test.mbt --target native -v`: 10
   black-box stream callback tests passed, covering PDF/PS/SVG stream chunks,
   PDF/PS/SVG vector stream `WriteError`, PDF/PS/SVG vector stream invalid-status
@@ -536,15 +536,15 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
   vector_output_wbtest.mbt vector_output_oracle_wbtest.mbt --target native -v`:
-  51 ASan-compiled white-box vector tests passed with leak detection disabled
+  52 ASan-compiled white-box vector tests passed with leak detection disabled
   after the split, directly exercising the layered and wide multi-page
   marker/C-oracle paths, the mixed vector/tag/text marker and C oracle paths,
   the tagged `show_text_glyphs` marker/C-oracle/PS-SVG inert paths, the grouped
   glyph/tag marker/C-oracle/PS-SVG inert paths, the copy_page retained
   marker/C-oracle path, the Surface page primitive marker/C-oracle path, and
   the Surface show-page cleared marker/C-oracle path, plus the PDF/PS/SVG
-  glyph_path/show_glyphs direct C oracle path and the PDF JPEG MIME direct C
-  oracle path.
+  glyph_path/show_glyphs direct C oracle path and the PDF JPEG MIME and PDF
+  thumbnail direct C oracle paths.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
   surface_stream_test.mbt --target native -v`: 10 ASan-compiled black-box
@@ -2005,6 +2005,11 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   output against the MoonBit wrapper path. This raised the full native suite to
   413 tests and the vector white-box target to 51 tests; the surface stream
   white-box target remained at 12 tests.
+  The later PDF thumbnail direct C oracle slice upgraded
+  `Surface::pdf_set_thumbnail_size` from marker-only coverage to a PDF-only
+  direct C oracle comparison with fixed metadata dates. This raised the full
+  native suite to 414 tests and the vector white-box target to 52 tests; the
+  surface stream white-box target remained at 12 tests.
 
 The missing reliability pieces are substantial: broader automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering

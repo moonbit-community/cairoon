@@ -94,6 +94,10 @@ extern "C" fn test_render_pdf_jpeg_mime_oracle_ffi(
 ) -> Status = "cairoon_test_render_pdf_jpeg_mime_oracle"
 
 ///|
+#borrow(filename)
+extern "C" fn test_render_pdf_thumbnail_oracle_ffi(filename : Bytes) -> Status = "cairoon_test_render_pdf_thumbnail_oracle"
+
+///|
 #borrow(left_filename, right_filename)
 extern "C" fn test_vector_files_equal_ffi(
   kind : Int,
@@ -153,6 +157,7 @@ fn init {
   ignore(test_render_surface_page_oracle_ffi)
   ignore(test_render_surface_show_page_oracle_ffi)
   ignore(test_render_pdf_jpeg_mime_oracle_ffi)
+  ignore(test_render_pdf_thumbnail_oracle_ffi)
   ignore(test_vector_files_equal_ffi)
   ignore(test_vector_file_equals_bytes_ffi)
   ignore(test_argb32_blue_paint_oracle_ffi)

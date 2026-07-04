@@ -235,7 +235,8 @@ Implemented in this workspace:
   base-finish invalidation, core painting/page behavior, hit testing
   and extents, MIME data storage/clear behavior including embedded NUL bytes,
   zero-length payloads, invalid MIME type strings, image/PDF/PS/SVG support
-  matrices, and PDF JPEG MIME passthrough with direct C oracle coverage, recording surface
+  matrices, PDF JPEG MIME passthrough with direct C oracle coverage, PDF
+  thumbnail direct C oracle coverage, recording surface
   bounded/unbounded extents,
   replay-through-surface-pattern behavior, subtype-mismatch errors,
   PDF surface version helper behavior, no-output and filename construction,
@@ -253,7 +254,7 @@ Implemented in this workspace:
   oracle scene, one cross-backend wide three-page URI/destination/
   document-structure tag/vector oracle scene, and two PDF document-feature oracle scenes,
   including one text/tag-aware combined scene, PDF JPEG MIME data embedding
-  with direct C oracle comparison, PDF 1.4 URI link-tag annotation markers,
+  and PDF thumbnail output with direct C oracle comparison, PDF 1.4 URI link-tag annotation markers,
   PDF named-destination tag markers, PDF document-structure tag markers,
   finished-surface errors, invalid string validation, and subtype-mismatch
   errors across bound page-size/version/metadata/custom-metadata/page-label/
@@ -453,7 +454,8 @@ Implemented in this workspace:
   the raster-source failed-acquire owner-count fuzz slice,
   the wide multi-page vector/tag oracle slice,
   the packaging/pycairo-porting documentation slice, the mixed
-  vector/tag/text marker slice, the direct C oracle slice, and the prior C
+  vector/tag/text marker slice, the direct C oracle slice, the PDF thumbnail
+  direct C oracle slice, and the prior C
   stub split that moved private test oracles out of `cairoon_misc.c` into
   common/file/vector/image helper files, plus the raw FFI splits that moved
   font and pattern extern declarations into `ffi_font_options.mbt`,
@@ -461,7 +463,7 @@ Implemented in this workspace:
   `ffi_pattern.mbt`, `ffi_pattern_mesh.mbt`, and
   `ffi_pattern_raster_source.mbt`.
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native`: 413 tests passed. The current run
+- `moon -C cairoon test --target native`: 414 tests passed. The current run
   includes the pycairo context font-extents parity slice,
   the pycairo group-target stack-restoration slice,
   the pycairo rectangle path-extents slice,
@@ -506,7 +508,7 @@ Implemented in this workspace:
   glyph/tag vector-output slice, the copy_page retained vector-output slice, the
   Surface page primitive vector-output slice, the Surface show-page cleared
   primitive slice, the glyph vector backend oracle slice, the PDF JPEG MIME
-  direct C oracle slice, and
+  direct C oracle slice, the PDF thumbnail direct C oracle slice, and
   the earlier context `get_source`
   surface-pattern lifetime coverage for the path where both the original source
   wrapper and context scope have exited, plus the layered multi-page vector/tag
@@ -571,7 +573,7 @@ Implemented in this workspace:
   backend docs, retained owner graph stress, external value-wrapper stress,
   image-data view stress, and backend stream callback allocation stress.
 - `moon -C cairoon test vector_output_wbtest.mbt
-  vector_output_oracle_wbtest.mbt --target native -v`: 51 white-box vector
+  vector_output_oracle_wbtest.mbt --target native -v`: 52 white-box vector
   tests passed after splitting marker/output checks from direct C oracle and
   cross-backend tag checks. The split set still covers layered and wide
   multi-page direct C oracle and marker checks, mixed vector/tag/text marker
@@ -590,8 +592,8 @@ Implemented in this workspace:
   tag inertness matched against direct C Cairo output, and the combined PDF
   metadata/custom-metadata/page-label/outline/URI/named-destination/
   document-structure test matched against a direct C Cairo output oracle that
-  also draws tagged text, plus PDF JPEG MIME data passthrough matched against
-  a direct C Cairo output oracle.
+  also draws tagged text, plus PDF JPEG MIME data passthrough and PDF thumbnail
+  output matched against direct C Cairo output oracles.
 - `moon -C cairoon test surface_stream_test.mbt --target native -v`: 10
   black-box stream callback tests passed, covering PDF/PS/SVG stream chunks,
   PDF/PS/SVG vector stream `WriteError`, PDF/PS/SVG vector stream invalid-status
@@ -615,15 +617,15 @@ Implemented in this workspace:
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
   vector_output_wbtest.mbt vector_output_oracle_wbtest.mbt --target native -v`:
-  51 ASan-compiled white-box vector tests passed with leak detection disabled
+  52 ASan-compiled white-box vector tests passed with leak detection disabled
   after the split, directly exercising the layered and wide multi-page
   marker/C-oracle paths, the mixed vector/tag/text marker and C oracle paths,
   the tagged `show_text_glyphs` marker/C-oracle/PS-SVG inert paths, the grouped
   glyph/tag marker/C-oracle/PS-SVG inert paths, the copy_page retained
   marker/C-oracle path, the Surface page primitive marker/C-oracle path, and
   the Surface show-page cleared marker/C-oracle path, plus the PDF/PS/SVG
-  glyph_path/show_glyphs direct C oracle path and the PDF JPEG MIME direct C
-  oracle path.
+  glyph_path/show_glyphs direct C oracle path and the PDF JPEG MIME and PDF
+  thumbnail direct C oracle paths.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
   surface_stream_test.mbt --target native -v`: 10 ASan-compiled black-box
@@ -2001,6 +2003,11 @@ Implemented in this workspace:
   output against the MoonBit wrapper path. This raised the full native suite to
   413 tests and the vector white-box target to 51 tests; the surface stream
   white-box target remained at 12 tests.
+  The later PDF thumbnail direct C oracle slice upgraded
+  `Surface::pdf_set_thumbnail_size` from marker-only coverage to a PDF-only
+  direct C oracle comparison with fixed metadata dates. This raised the full
+  native suite to 414 tests and the vector white-box target to 52 tests; the
+  surface stream white-box target remained at 12 tests.
 
 ## Known Gaps
 

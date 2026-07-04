@@ -162,3 +162,17 @@ fn render_pdf_jpeg_mime_scene(
 }
 
 ///|
+fn render_pdf_thumbnail_scene(path : String) -> Unit raise CairoError {
+  let surface = Surface::pdf(20.0, 20.0, path=Some(path))
+  surface.pdf_restrict_to_version(PdfVersion1_4)
+  surface.pdf_set_metadata(PdfMetadataCreator, "cairoon-vector-oracle")
+  surface.pdf_set_metadata(PdfMetadataCreateDate, fixed_pdf_metadata_date())
+  surface.pdf_set_metadata(PdfMetadataModDate, fixed_pdf_metadata_date())
+  surface.pdf_set_thumbnail_size(4, 4)
+  let ctx = Context::new(surface)
+  ctx.set_source_rgb(0.0, 0.0, 1.0)
+  ctx.paint()
+  surface.finish()
+}
+
+///|

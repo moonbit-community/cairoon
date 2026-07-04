@@ -65,12 +65,7 @@ test "pdf output contains page label and outline markers" {
 ///|
 test "pdf output contains page thumbnail markers" {
   let path = "/tmp/cairoon_vector_pdf_thumbnail.pdf"
-  let surface = Surface::pdf(20.0, 20.0, path=Some(path))
-  surface.pdf_restrict_to_version(PdfVersion1_4)
-  surface.pdf_set_thumbnail_size(4, 4)
-  let ctx = Context::new(surface)
-  paint_page(ctx, 0.0, 0.0, 1.0)
-  surface.finish()
+  render_pdf_thumbnail_scene(path)
   expect_vector_output(path, [
     "%PDF-1.4", "/Thumb", "/Subtype /Image", "/Width 4", "/Height 4", "%%EOF",
   ])
