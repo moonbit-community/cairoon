@@ -134,3 +134,30 @@ test "mapped image with_unmapped unmaps after success and cairo errors" {
     }),
   )
 }
+
+///|
+test "mapped image with_unmapped uploads before propagated cairo error" {
+  let main = Surface::image(Rgb24, 1, 1)
+  let mapped = main.map_to_image()
+  let failed = run_cairo(() => {
+    mapped.with_unmapped(() => {
+      let ctx = Context::new_for_mapped_image(mapped)
+      ctx.set_source_rgb(1.0, 1.0, 1.0)
+      ctx.paint()
+      let _ = main.create_similar(ContentColor, -1, 1)
+      ()
+    })
+  })
+  match failed {
+    Err(CairoInvalidArgument(InvalidSize, _)) => ()
+    _ => @test.fail("expected InvalidSize")
+  }
+  main.flush()
+  inspect_rgb24_bytes(main.copy_data(), [255, 255, 255, 255])
+  expect_mapped_surface_finished(
+    run_cairo(() => {
+      let _ = mapped.copy_data()
+      ()
+    }),
+  )
+}
