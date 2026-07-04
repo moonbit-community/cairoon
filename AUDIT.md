@@ -68,6 +68,13 @@ Implemented in this workspace:
   `context_state.mbt`, `context_path.mbt`, `context_clip_extents.mbt`, and
   `context_paint.mbt` own the corresponding font/text, transform, drawing
   state, path, clip/extents/hit-test, and source/paint/page wrappers.
+- MoonBit `Surface` public wrappers follow the Surface C glue split:
+  `surface.mbt` keeps string helpers, similar/subsurface constructors,
+  identity/status/type/device, and finish/with-finished wrappers, while
+  `image_surface.mbt`, `surface_png.mbt`, `surface_mime.mbt`,
+  `surface_state.mbt`, `surface_font_options.mbt`, `recording_surface.mbt`,
+  and `tee_surface.mbt` own the corresponding image, PNG, MIME, state/page,
+  font-options, recording-surface, and TeeSurface wrappers.
 - MoonBit `Pattern` public wrappers are split by family: `pattern.mbt` keeps
   solid/surface/common-state wrappers, `pattern_gradient.mbt` owns gradient
   constructors and color-stop/geometry queries, `pattern_mesh.mbt` owns
@@ -405,6 +412,7 @@ Implemented in this workspace:
   the Pattern C glue split slice,
   the Surface C glue split slice,
   the base Surface C glue split slice,
+  the Surface wrapper split slice,
   the Context C glue split slice,
   the Context wrapper split slice,
   the Pattern wrapper split slice,
@@ -436,8 +444,9 @@ Implemented in this workspace:
   wide multi-page stream equivalence slice, the vector stream invalid-status
   fallback slice, the PNG/script stream invalid-status
   fallback slice, the vector output white-box split slice, the test-vector C
-  glue split slice, the base Surface C glue split slice, the Context wrapper
-  split slice, the Pattern wrapper split slice, the raster-source stale-release
+  glue split slice, the base Surface C glue split slice, the Surface wrapper
+  split slice, the Context wrapper split slice, the Pattern wrapper split slice,
+  the raster-source stale-release
   replacement slice, the raster-source acquire-only owner fuzz slice,
   the raster-source failed-acquire owner-count fuzz slice, the mixed
   vector/tag/text marker slice, the direct C oracle slice, the PS/SVG tag
@@ -1688,6 +1697,13 @@ Implemented in this workspace:
   `cairoon_surface_font_options.c`, leaving `cairoon_surface.c` as the
   161-line base creation/status/equality/hash/type/finish glue file. This did
   not change public API or test count.
+  The later Surface wrapper split slice moved image, PNG, MIME, recording,
+  TeeSurface, state/page, and surface font-options public wrapper methods from
+  the 496-line `surface.mbt` into `image_surface.mbt`, `surface_png.mbt`,
+  `surface_mime.mbt`, `recording_surface.mbt`, `tee_surface.mbt`,
+  `surface_state.mbt`, and `surface_font_options.mbt`, leaving `surface.mbt`
+  as the 122-line core helper/constructor/status/device/finish wrapper file.
+  This did not change public API or test count.
   The later Pattern C glue split slice moved mesh-pattern operations and
   raster-source callback/owner lifecycle glue from the 921-line
   `cairoon_pattern.c` into `cairoon_mesh_pattern.c` and

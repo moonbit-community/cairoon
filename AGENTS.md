@@ -65,6 +65,13 @@ cairoon/
   device.mbt
   matrix.mbt
   surface.mbt
+  image_surface.mbt
+  surface_png.mbt
+  surface_mime.mbt
+  surface_state.mbt
+  surface_font_options.mbt
+  recording_surface.mbt
+  tee_surface.mbt
   pattern.mbt
   pattern_gradient.mbt
   pattern_mesh.mbt
@@ -258,12 +265,21 @@ declarations that call `cairoon_tee_surface.c`; and `ffi_region.mbt` owns raw
 
 Do not add public wrappers to `ffi_*.mbt`; these files are private native FFI
 plumbing only. Public MoonBit APIs stay in focused wrapper files such as
-`font_options.mbt`, `font_face.mbt`, `scaled_font.mbt`, `pattern.mbt`,
-`pattern_gradient.mbt`, `pattern_mesh.mbt`, `pattern_raster_source.mbt`,
-`path.mbt`, and `region.mbt`. For `Pattern`, keep solid/surface/common-state
-wrappers in `pattern.mbt`, gradient constructors and color-stop/geometry
-queries in `pattern_gradient.mbt`, mesh-patch methods in `pattern_mesh.mbt`,
-and raster-source callback accessors in `pattern_raster_source.mbt`.
+`surface.mbt`, `image_surface.mbt`, `surface_png.mbt`, `surface_mime.mbt`,
+`surface_state.mbt`, `surface_font_options.mbt`, `recording_surface.mbt`,
+`tee_surface.mbt`, `font_options.mbt`, `font_face.mbt`, `scaled_font.mbt`,
+`pattern.mbt`, `pattern_gradient.mbt`, `pattern_mesh.mbt`,
+`pattern_raster_source.mbt`, `path.mbt`, and `region.mbt`. For `Surface`, keep
+string helpers, similar/subsurface constructors, identity/status/type/device,
+and finish/with-finished wrappers in `surface.mbt`; keep image-surface
+constructors/properties/data in `image_surface.mbt`; PNG path/stream helpers in
+`surface_png.mbt`; MIME helpers in `surface_mime.mbt`; dirty/state/page helpers
+in `surface_state.mbt`; surface font-options in `surface_font_options.mbt`;
+recording-surface helpers in `recording_surface.mbt`; and TeeSurface helpers in
+`tee_surface.mbt`. For `Pattern`, keep solid/surface/common-state wrappers in
+`pattern.mbt`, gradient constructors and color-stop/geometry queries in
+`pattern_gradient.mbt`, mesh-patch methods in `pattern_mesh.mbt`, and
+raster-source callback accessors in `pattern_raster_source.mbt`.
 
 ## C Glue File Boundaries
 
