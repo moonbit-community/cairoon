@@ -66,6 +66,9 @@ cairoon/
   matrix.mbt
   surface.mbt
   pattern.mbt
+  pattern_gradient.mbt
+  pattern_mesh.mbt
+  pattern_raster_source.mbt
   context.mbt
   font.mbt
   region.mbt
@@ -256,7 +259,11 @@ declarations that call `cairoon_tee_surface.c`; and `ffi_region.mbt` owns raw
 Do not add public wrappers to `ffi_*.mbt`; these files are private native FFI
 plumbing only. Public MoonBit APIs stay in focused wrapper files such as
 `font_options.mbt`, `font_face.mbt`, `scaled_font.mbt`, `pattern.mbt`,
-`path.mbt`, and `region.mbt`.
+`pattern_gradient.mbt`, `pattern_mesh.mbt`, `pattern_raster_source.mbt`,
+`path.mbt`, and `region.mbt`. For `Pattern`, keep solid/surface/common-state
+wrappers in `pattern.mbt`, gradient constructors and color-stop/geometry
+queries in `pattern_gradient.mbt`, mesh-patch methods in `pattern_mesh.mbt`,
+and raster-source callback accessors in `pattern_raster_source.mbt`.
 
 ## C Glue File Boundaries
 

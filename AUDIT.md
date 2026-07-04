@@ -68,6 +68,11 @@ Implemented in this workspace:
   `context_state.mbt`, `context_path.mbt`, `context_clip_extents.mbt`, and
   `context_paint.mbt` own the corresponding font/text, transform, drawing
   state, path, clip/extents/hit-test, and source/paint/page wrappers.
+- MoonBit `Pattern` public wrappers are split by family: `pattern.mbt` keeps
+  solid/surface/common-state wrappers, `pattern_gradient.mbt` owns gradient
+  constructors and color-stop/geometry queries, `pattern_mesh.mbt` owns
+  mesh-patch methods, and `pattern_raster_source.mbt` owns raster-source
+  callback accessors.
 - MoonBit `Eq`/`Hash` traits are implemented for hashable Cairo external
   objects that already expose cairoon equality/hash helpers: `Surface`,
   `Context`, `Pattern`, `Device`, `FontOptions`, `FontFace`, `ScaledFont`, and
@@ -402,6 +407,7 @@ Implemented in this workspace:
   the base Surface C glue split slice,
   the Context C glue split slice,
   the Context wrapper split slice,
+  the Pattern wrapper split slice,
   the raster-source stale-release replacement slice,
   the raster-source acquire-only owner fuzz slice,
   the raster-source failed-acquire owner-count fuzz slice,
@@ -431,9 +437,9 @@ Implemented in this workspace:
   fallback slice, the PNG/script stream invalid-status
   fallback slice, the vector output white-box split slice, the test-vector C
   glue split slice, the base Surface C glue split slice, the Context wrapper
-  split slice, the raster-source stale-release replacement slice, the
-  raster-source acquire-only owner fuzz slice, the raster-source
-  failed-acquire owner-count fuzz slice, the mixed
+  split slice, the Pattern wrapper split slice, the raster-source stale-release
+  replacement slice, the raster-source acquire-only owner fuzz slice,
+  the raster-source failed-acquire owner-count fuzz slice, the mixed
   vector/tag/text marker slice, the direct C oracle slice, the PS/SVG tag
   metadata absence slice, the PDF tagged multi-page text marker slice,
   the cross-backend tagged multi-page text direct C oracle slice, the
@@ -1688,6 +1694,12 @@ Implemented in this workspace:
   `cairoon_raster_source_pattern.c`, leaving `cairoon_pattern.c` as the
   283-line base/surface/solid/gradient state glue file. This did not change
   public API or test count.
+  The later Pattern wrapper split slice moved gradient, mesh, and raster-source
+  public wrapper methods from the 514-line `pattern.mbt` into
+  `pattern_gradient.mbt`, `pattern_mesh.mbt`, and
+  `pattern_raster_source.mbt`, leaving `pattern.mbt` as the 136-line
+  solid/surface/common-state wrapper file. This did not change public API or
+  test count.
   The later Font C glue split slice moved font-options, toy-font-face,
   scaled-font, and scaled-font oracle stubs from the 772-line
   `cairoon_font.c` into `cairoon_font_options.c`,

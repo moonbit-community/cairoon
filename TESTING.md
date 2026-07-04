@@ -358,6 +358,7 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   the base Surface C glue split slice,
   the Context C glue split slice,
   the Context wrapper split slice,
+  the Pattern wrapper split slice,
   the raster-source stale-release replacement slice,
   the raster-source acquire-only owner fuzz slice,
   the raster-source failed-acquire owner-count fuzz slice,
@@ -384,8 +385,9 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   fallback slice, the PNG/script stream invalid-status
   fallback slice, the vector output white-box split slice, the test-vector C
   glue split slice, the base Surface C glue split slice, the Context wrapper
-  split slice, the Font C glue split slice, the Pattern C glue split slice,
-  the Surface C glue split slice, the Context C glue split slice,
+  split slice, the Pattern wrapper split slice, the Font C glue split slice,
+  the Pattern C glue split slice, the Surface C glue split slice,
+  the Context C glue split slice,
   the raster-source stale-release replacement slice, the raster-source
   acquire-only owner fuzz slice, the raster-source
   failed-acquire owner-count fuzz slice, the mixed
@@ -1717,6 +1719,12 @@ Verified on 2026-07-02, 2026-07-03, and 2026-07-04:
   `cairoon_raster_source_pattern.c`, leaving `cairoon_pattern.c` as the
   283-line base/surface/solid/gradient state glue file. This did not change
   public API or test count.
+  The later Pattern wrapper split slice moved gradient, mesh, and raster-source
+  public wrapper methods from the 514-line `pattern.mbt` into
+  `pattern_gradient.mbt`, `pattern_mesh.mbt`, and
+  `pattern_raster_source.mbt`, leaving `pattern.mbt` as the 136-line
+  solid/surface/common-state wrapper file. This did not change public API or
+  test count.
   The later Font C glue split slice moved font-options, toy-font-face,
   scaled-font, and scaled-font oracle stubs from the 772-line
   `cairoon_font.c` into `cairoon_font_options.c`,
