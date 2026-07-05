@@ -48,6 +48,18 @@ pub fn Context::select_font_face(
 }
 
 ///|
+pub fn Context::select_font_face_raw(
+  self : Context,
+  family : String,
+  slant? : Int = 0,
+  weight? : Int = 0,
+) -> Unit raise CairoError {
+  let bytes = @utf8.encode(family)
+  check_no_embedded_nul(bytes)
+  check_status(context_select_font_face_raw_ffi(self, bytes, slant, weight))
+}
+
+///|
 pub fn Context::set_font_matrix(
   self : Context,
   matrix : Matrix,

@@ -40,6 +40,15 @@ extern "C" fn context_select_font_face_ffi(
 ) -> Status = "cairoon_context_select_font_face"
 
 ///|
+#borrow(ctx, family)
+extern "C" fn context_select_font_face_raw_ffi(
+  ctx : Context,
+  family : Bytes,
+  slant : Int,
+  weight : Int,
+) -> Status = "cairoon_context_select_font_face_raw"
+
+///|
 #borrow(ctx)
 extern "C" fn context_set_font_matrix_ffi(
   ctx : Context,

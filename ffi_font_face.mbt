@@ -7,6 +7,14 @@ extern "C" fn toy_font_face_create_ffi(
 ) -> FontFace = "cairoon_toy_font_face_create"
 
 ///|
+#borrow(family)
+extern "C" fn toy_font_face_create_raw_ffi(
+  family : Bytes,
+  slant : Int,
+  weight : Int,
+) -> FontFace = "cairoon_toy_font_face_create_raw"
+
+///|
 #borrow(font_face)
 extern "C" fn font_face_status_ffi(font_face : FontFace) -> Status = "cairoon_font_face_status"
 
@@ -30,14 +38,14 @@ extern "C" fn toy_font_face_get_family_ffi(
 
 ///|
 #borrow(font_face, status)
-extern "C" fn toy_font_face_get_slant_ffi(
+extern "C" fn toy_font_face_get_slant_raw_ffi(
   font_face : FontFace,
   status : Ref[Status],
-) -> FontSlant = "cairoon_toy_font_face_get_slant"
+) -> Int = "cairoon_toy_font_face_get_slant_raw"
 
 ///|
 #borrow(font_face, status)
-extern "C" fn toy_font_face_get_weight_ffi(
+extern "C" fn toy_font_face_get_weight_raw_ffi(
   font_face : FontFace,
   status : Ref[Status],
-) -> FontWeight = "cairoon_toy_font_face_get_weight"
+) -> Int = "cairoon_toy_font_face_get_weight_raw"

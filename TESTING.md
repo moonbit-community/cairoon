@@ -441,7 +441,7 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, and 2026-07-05:
   text vector stream equivalence slice, and the single-page tag stream
   equivalence slice.
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native`: 472 tests passed. The current run
+- `moon -C cairoon test --target native`: 474 tests passed. The current run
   includes the backend lifecycle-matrix differential slice,
   the backend tag-matrix differential slice,
   the resized backend page-sequence combo slice,
@@ -451,6 +451,7 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, and 2026-07-05:
   the pycairo raw C-int operator passthrough slice,
   the pycairo raw C-int context drawing-state enum passthrough slice,
   the pycairo raw C-int FontOptions enum passthrough slice,
+  the pycairo raw C-int toy-font slant/weight parsing slice,
   the pycairo context font-extents parity slice,
   the pycairo group-target stack-restoration slice,
   the pycairo rectangle path-extents slice,
@@ -491,6 +492,7 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, and 2026-07-05:
   the Pattern raw enum documentation slice,
   the pycairo raw C-int context drawing-state enum passthrough slice,
   the pycairo raw C-int FontOptions enum passthrough slice,
+  the pycairo raw C-int toy-font slant/weight parsing slice,
   the Pattern raw FFI family split slice, the Font C glue split slice,
   the Pattern C glue split slice, the raster-source callback C glue split
   slice, the Surface C glue split slice,
@@ -1017,6 +1019,11 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, and 2026-07-05:
 - `moon -C cairoon test font_face_test.mbt scaled_font_test.mbt --target native
   -v`: 15 black-box tests passed after adding embedded-NUL validation for toy
   font family, context font-family selection, and ScaledFont text extents.
+- `moon -C cairoon test font_face_test.mbt --target native -v`: 10
+  black-box tests passed after adding pycairo-compatible raw C-int toy
+  slant/weight parsing for `FontFace::toy_raw` and
+  `Context::select_font_face_raw`, including `InvalidSlant`/`InvalidWeight`
+  error mapping for invalid raw values.
 - `moon -C cairoon test region_test.mbt --target native -v`: 8 black-box
   tests passed after adding `Region::xor_rectangle` split-semantics coverage.
 - `moon -C cairoon test region_test.mbt region.mbt.md --target native -v`: 12
@@ -1055,9 +1062,9 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, and 2026-07-05:
   errors.
 - `moon -C cairoon test font.mbt.md --target native -v`: 7 executable Font
   reference examples passed, covering FontOptions state/raw enum
-  compatibility/copy/merge, color palettes, toy font faces, Surface/Context
-  font options, ScaledFont matrices/metrics, text-to-glyphs, and checked font
-  errors.
+  compatibility/copy/merge, color palettes, toy font faces with raw slant/weight
+  parsing, Surface/Context font options, ScaledFont matrices/metrics,
+  text-to-glyphs, and checked font errors.
 - `moon -C cairoon test backend_surfaces.mbt.md --target native -v`: 8
   executable Backend Surface reference examples passed, covering PDF/PS/SVG
   stream output and writer errors, PDF metadata/outlines, PS DSC, SVG document
@@ -2543,6 +2550,13 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, and 2026-07-05:
   getters checked with `CairoInvalidArgument(InvalidStatus, _)` for unknown raw
   values. It raises `font_options_test.mbt` to 8 tests and the expected full
   native suite to 472 tests.
+  A later Toy font raw slant/weight parity slice added `FontFace::toy_raw`,
+  `FontFace::get_slant_raw`, `FontFace::get_weight_raw`, and
+  `Context::select_font_face_raw`, covering pycairo `font.c`/`context.c` C-int
+  parsing for toy font slant/weight. Known raw values round trip through raw
+  getters and invalid raw values map to Cairo's `InvalidSlant`/`InvalidWeight`
+  status. It raises `font_face_test.mbt` to 10 tests and the expected full
+  native suite to 474 tests.
 
 Remaining reliability work is now narrower and should be tracked as evidence,
 not as an unstructured checklist:

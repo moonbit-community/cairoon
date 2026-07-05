@@ -79,8 +79,11 @@ test "font docs: color palette custom colors" {
 
 ## Toy Font Faces
 
-`FontFace::toy` maps pycairo's `ToyFontFace`. Context setters retain and return
-referenced wrappers for the same Cairo font-face pointer.
+`FontFace::toy` maps pycairo's `ToyFontFace`. `toy_raw` and
+`select_font_face_raw` are compatibility helpers for pycairo's C-int slant and
+weight parsing; known raw values round trip through raw getters, while invalid
+values map to Cairo's `InvalidSlant`/`InvalidWeight` status. Context setters
+retain and return referenced wrappers for the same Cairo font-face pointer.
 
 ```mbt check
 ///|
@@ -93,12 +96,28 @@ test "font docs: toy font face and context round trip" {
   inspect(face.get_family(), content="serif")
   debug_inspect(face.get_slant(), content="FontSlantItalic")
   debug_inspect(face.get_weight(), content="FontWeightBold")
+  inspect(face.get_slant_raw(), content="1")
+  inspect(face.get_weight_raw(), content="1")
+
+  let raw_face = FontFace::toy_raw("serif", slant=2, weight=1)
+  inspect(raw_face.get_slant_raw(), content="2")
+  inspect(raw_face.get_weight_raw(), content="1")
+  match
+    run_cairo(() => {
+      let _ = FontFace::toy_raw("serif", slant=42)
+      ()
+    }) {
+    Err(CairoError(InvalidSlant, _)) => ()
+    _ => @test.fail("expected invalid raw slant to fail")
+  }
 
   let ctx = Context::new(Surface::image(Rgb24, 8, 8))
   ctx.set_font_face(Some(face))
   let returned = ctx.get_font_face()
   inspect(returned.equal(face), content="true")
   inspect(returned.get_family(), content="serif")
+  ctx.select_font_face_raw("serif", slant=2, weight=1)
+  debug_inspect(ctx.get_font_face().get_slant(), content="FontSlantOblique")
   ctx.set_font_face(None)
   inspect(ctx.get_font_face().status().is_success(), content="true")
 }

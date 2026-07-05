@@ -31,6 +31,62 @@ test "toy font face defaults match cairo defaults" {
 }
 
 ///|
+test "toy font face raw slant weight mirrors pycairo c int passthrough" {
+  let typed = FontFace::toy(
+    "serif",
+    slant=FontSlantOblique,
+    weight=FontWeightBold,
+  )
+  inspect(typed.get_slant_raw(), content="2")
+  inspect(typed.get_weight_raw(), content="1")
+
+  let raw_known = FontFace::toy_raw("serif", slant=1, weight=0)
+  debug_inspect(raw_known.get_slant(), content="FontSlantItalic")
+  debug_inspect(raw_known.get_weight(), content="FontWeightNormal")
+
+  match
+    run_cairo(() => {
+      let _ = FontFace::toy_raw("serif", slant=42, weight=0)
+      ()
+    }) {
+    Err(CairoError(InvalidSlant, _)) => ()
+    _ => @test.fail("expected invalid raw slant to map to InvalidSlant")
+  }
+  match
+    run_cairo(() => {
+      let _ = FontFace::toy_raw("serif", slant=0, weight=42)
+      ()
+    }) {
+    Err(CairoError(InvalidWeight, _)) => ()
+    _ => @test.fail("expected invalid raw weight to map to InvalidWeight")
+  }
+}
+
+///|
+test "context select_font_face_raw mirrors pycairo c int passthrough" {
+  let ctx = Context::new(Surface::image(Argb32, 4, 4))
+  ctx.select_font_face_raw("serif", slant=2, weight=1)
+  let known_selected = ctx.get_font_face()
+  inspect(known_selected.get_slant_raw(), content="2")
+  inspect(known_selected.get_weight_raw(), content="1")
+  debug_inspect(known_selected.get_slant(), content="FontSlantOblique")
+  debug_inspect(known_selected.get_weight(), content="FontWeightBold")
+
+  let slant_ctx = Context::new(Surface::image(Argb32, 4, 4))
+  match run_cairo(() => slant_ctx.select_font_face_raw("serif", slant=42)) {
+    Err(CairoError(InvalidSlant, _)) => ()
+    _ => @test.fail("expected invalid raw context slant to map to InvalidSlant")
+  }
+
+  let weight_ctx = Context::new(Surface::image(Argb32, 4, 4))
+  match run_cairo(() => weight_ctx.select_font_face_raw("serif", weight=42)) {
+    Err(CairoError(InvalidWeight, _)) => ()
+    _ =>
+      @test.fail("expected invalid raw context weight to map to InvalidWeight")
+  }
+}
+
+///|
 test "font family APIs validate embedded nul strings" {
   expect_font_face_invalid_string(
     run_cairo(() => {
@@ -38,9 +94,18 @@ test "font family APIs validate embedded nul strings" {
       ()
     }),
   )
+  expect_font_face_invalid_string(
+    run_cairo(() => {
+      let _ = FontFace::toy_raw("bad\u{0}family")
+      ()
+    }),
+  )
   let ctx = Context::new(Surface::image(Argb32, 1, 1))
   expect_font_face_invalid_string(
     run_cairo(() => ctx.select_font_face("bad\u{0}family")),
+  )
+  expect_font_face_invalid_string(
+    run_cairo(() => ctx.select_font_face_raw("bad\u{0}family")),
   )
 }
 

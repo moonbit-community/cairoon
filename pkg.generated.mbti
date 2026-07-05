@@ -209,6 +209,7 @@ pub fn Context::rotate(Self, Double) -> Unit raise CairoError
 pub fn Context::save(Self) -> Unit raise CairoError
 pub fn Context::scale(Self, Double, Double) -> Unit raise CairoError
 pub fn Context::select_font_face(Self, String, slant? : FontSlant, weight? : FontWeight) -> Unit raise CairoError
+pub fn Context::select_font_face_raw(Self, String, slant? : Int, weight? : Int) -> Unit raise CairoError
 pub fn Context::set_antialias(Self, Antialias) -> Unit raise CairoError
 pub fn Context::set_antialias_raw(Self, Int) -> Unit raise CairoError
 pub fn Context::set_dash(Self, ArrayView[Double], offset? : Double) -> Unit raise CairoError
@@ -328,10 +329,13 @@ type FontFace
 pub fn FontFace::equal(Self, Self) -> Bool
 pub fn FontFace::get_family(Self) -> String raise CairoError
 pub fn FontFace::get_slant(Self) -> FontSlant raise CairoError
+pub fn FontFace::get_slant_raw(Self) -> Int raise CairoError
 pub fn FontFace::get_weight(Self) -> FontWeight raise CairoError
+pub fn FontFace::get_weight_raw(Self) -> Int raise CairoError
 pub fn FontFace::hash(Self) -> UInt64
 pub fn FontFace::status(Self) -> Status
 pub fn FontFace::toy(String, slant? : FontSlant, weight? : FontWeight) -> Self raise CairoError
+pub fn FontFace::toy_raw(String, slant? : Int, weight? : Int) -> Self raise CairoError
 pub impl Eq for FontFace
 pub impl Hash for FontFace
 

@@ -100,6 +100,24 @@ cairo_status_t cairoon_context_select_font_face(
 }
 
 MOONBIT_FFI_EXPORT
+cairo_status_t cairoon_context_select_font_face_raw(
+  CairoonContext *ctx,
+  moonbit_bytes_t family,
+  int32_t slant,
+  int32_t weight) {
+  cairo_status_t status = cairoon_context_status(ctx);
+  if (status != CAIRO_STATUS_SUCCESS) {
+    return status;
+  }
+  cairo_select_font_face(
+    ctx->ptr,
+    (const char *)family,
+    (cairo_font_slant_t)slant,
+    (cairo_font_weight_t)weight);
+  return cairo_status(ctx->ptr);
+}
+
+MOONBIT_FFI_EXPORT
 cairo_status_t cairoon_context_set_font_matrix(
   CairoonContext *ctx,
   double xx,

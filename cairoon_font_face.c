@@ -10,6 +10,18 @@ CairoonFontFace *cairoon_toy_font_face_create(
 }
 
 MOONBIT_FFI_EXPORT
+CairoonFontFace *cairoon_toy_font_face_create_raw(
+  moonbit_bytes_t family,
+  int32_t slant,
+  int32_t weight) {
+  return cairoon_font_face_wrap_owned(
+    cairo_toy_font_face_create(
+      (const char *)family,
+      (cairo_font_slant_t)slant,
+      (cairo_font_weight_t)weight));
+}
+
+MOONBIT_FFI_EXPORT
 cairo_status_t cairoon_font_face_status(CairoonFontFace *font_face) {
   if (font_face == NULL || font_face->ptr == NULL) {
     return CAIRO_STATUS_NULL_POINTER;
@@ -77,6 +89,18 @@ cairo_font_slant_t cairoon_toy_font_face_get_slant(
 }
 
 MOONBIT_FFI_EXPORT
+int32_t cairoon_toy_font_face_get_slant_raw(
+  CairoonFontFace *font_face,
+  cairo_status_t *status_out) {
+  cairo_status_t status = cairoon_toy_font_face_status(font_face);
+  *status_out = status;
+  if (status != CAIRO_STATUS_SUCCESS) {
+    return CAIRO_FONT_SLANT_NORMAL;
+  }
+  return (int32_t)cairo_toy_font_face_get_slant(font_face->ptr);
+}
+
+MOONBIT_FFI_EXPORT
 cairo_font_weight_t cairoon_toy_font_face_get_weight(
   CairoonFontFace *font_face,
   cairo_status_t *status_out) {
@@ -86,4 +110,16 @@ cairo_font_weight_t cairoon_toy_font_face_get_weight(
     return CAIRO_FONT_WEIGHT_NORMAL;
   }
   return cairo_toy_font_face_get_weight(font_face->ptr);
+}
+
+MOONBIT_FFI_EXPORT
+int32_t cairoon_toy_font_face_get_weight_raw(
+  CairoonFontFace *font_face,
+  cairo_status_t *status_out) {
+  cairo_status_t status = cairoon_toy_font_face_status(font_face);
+  *status_out = status;
+  if (status != CAIRO_STATUS_SUCCESS) {
+    return CAIRO_FONT_WEIGHT_NORMAL;
+  }
+  return (int32_t)cairo_toy_font_face_get_weight(font_face->ptr);
 }
