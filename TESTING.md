@@ -436,7 +436,7 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, and 2026-07-05:
   text vector stream equivalence slice, and the single-page tag stream
   equivalence slice.
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native`: 449 tests passed. The current run
+- `moon -C cairoon test --target native`: 450 tests passed. The current run
   includes the resized backend page-sequence combo slice,
   the backend nested tag/page sequence slice,
   the backend surface-page feature/tag combo slice,
@@ -461,6 +461,7 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, and 2026-07-05:
   stream invalid-status fallback slice, the PNG/script stream invalid-status
   fallback slice, the callback invocation reference-balance slice,
   the backend stream callback multi-seed fuzz slice,
+  the finalizer graph multi-seed fuzz slice,
   the matrix property-test slice, the lifetime stress test
   split slice, the vector output white-box split slice, the vector output
   scene helper split slice, the test-vector C glue split slice, the
@@ -553,13 +554,15 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, and 2026-07-05:
   status handling.
 - `moon -C cairoon test device_test.mbt backend_surfaces.mbt.md
   lifetime_stress_test.mbt lifetime_value_stress_test.mbt
-  lifetime_image_data_stress_test.mbt lifetime_stream_stress_test.mbt
-  --target native -v`: 25 black-box and executable backend/lifetime tests
+  lifetime_image_data_stress_test.mbt lifetime_finalizer_fuzz_test.mbt
+  lifetime_stream_stress_test.mbt --target native -v`: 26 black-box and
+  executable backend/lifetime tests
   passed, covering script file/stream devices, script-surface target proxying,
   script writer `WriteError` and invalid-status fallback mapping, scoped
   script-device finish, retained script surface/device wrappers, executable
   backend docs, retained owner graph stress, external value-wrapper stress,
-  image-data view stress, backend stream callback allocation stress, and
+  image-data view stress, finalizer graph multi-seed fuzz, backend stream
+  callback allocation stress, and
   backend stream callback multi-seed fuzz.
 - `moon -C cairoon test vector_output_wbtest.mbt
   vector_output_oracle_wbtest.mbt --target native -v`: 58 white-box vector
@@ -766,10 +769,11 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, and 2026-07-05:
   covering the expanded UTF-8 text-extents and text-to-glyph input set.
 - `moon -C cairoon test lifetime_stress_test.mbt
   lifetime_value_stress_test.mbt lifetime_image_data_stress_test.mbt
-  lifetime_stream_stress_test.mbt --target native -v`: 7 black-box lifetime
-  tests passed after splitting owner graph, external value-wrapper, image-data
-  view, backend stream callback stress, and backend stream callback
-  multi-seed fuzz into separate files.
+  lifetime_finalizer_fuzz_test.mbt lifetime_stream_stress_test.mbt --target
+  native -v`: 8 black-box lifetime tests passed after splitting owner graph,
+  external value-wrapper, image-data view, finalizer graph fuzz, backend stream
+  callback stress, and backend stream callback multi-seed fuzz into separate
+  files.
 - `moon -C cairoon test raster_lifetime_stress_test.mbt --target native -v`: 1
   black-box raster-source callback lifetime test passed after adding the
   1000-iteration set/get/manual acquire/release/replace/clear stress case.
@@ -2155,6 +2159,13 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, and 2026-07-05:
   reader exact and short reads, `WriteError`, invalid-status fallback, and
   reader-error paths. This raises the expected full native suite to 449 tests
   and keeps the file in the targeted normal/ASan verify gate.
+  The later finalizer graph multi-seed fuzz slice added
+  `lifetime_finalizer_fuzz_test.mbt` with four seeds and 160 deterministic
+  transitions covering surface/context/pattern/font/path/region/mapped-image/
+  raster-source/script-device owner graphs, explicit and implicit mapped-image
+  cleanup edges, expected Cairo errors, callback clearing, and allocation
+  pressure. This raises the expected full native suite to 450 tests and adds
+  the file to the targeted normal/ASan verify gate.
   The later raster-source callback state-machine fuzz slice added
   `pattern_raster_state_wbtest.mbt` with a 72-step deterministic transition
   test covering clear, release-only, acquire-only, acquire+release, failed
@@ -2341,7 +2352,7 @@ not as an unstructured checklist:
 - Add broader platform coverage and finalizer fuzz beyond the
   deterministic raster-source owner-count, state-machine, manual
   get-callback, callback allocation, retained-owner, stream retention, and
-  backend stream multi-seed callback fuzz tests.
+  backend stream multi-seed callback and finalizer graph fuzz tests.
 - Keep the CI workflow green and expand it as the supported release platform
   matrix grows; generated-interface review, differential oracles, and sanitizer
   gates should be required before release.
