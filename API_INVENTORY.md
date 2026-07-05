@@ -38,6 +38,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 
 | Slice | Status | Notes |
 |---|---|---|
+| Top-level pycairo API inventory parity | Done | Adds `scripts/check-api-inventory.py` and wires it into `scripts/verify.sh`; the script parses parent `cairo/__init__.pyi` and requires every public top-level pycairo class/function to have an implementation or explicit product-decision anchor in this inventory |
 | FFI ownership annotation lint | Done | Adds `scripts/check-ffi-ownership.py` and wires it into `scripts/verify.sh`, so every non-primitive raw C FFI parameter in `ffi*.mbt` must be covered by `#borrow` or `#owned`; fixes the existing stream and raster-source callback trampoline annotations caught by the lint |
 | Backend combo deep structure tags | Done | Broadens the existing backend feature/tag stream-combo scene with a third PDF outline and nested Document/Sect/H1/P/Span structure tags, keeping file-vs-stream equality, direct C oracle comparison, PDF marker checks, and PS/SVG inertness checks on the same scene |
 | CI reliability workflow | Done | Adds `.github/workflows/ci.yml` with Ubuntu/macOS native `./scripts/verify.sh` jobs and a dedicated Ubuntu ASan verify job, using the official MoonBit CLI installer plus Cairo development packages |
@@ -245,6 +246,9 @@ Detailed execution rules live in `TESTING.md`.
 
 - Every row above must move to Done or an explicit documented Decision before a
   full-product claim.
+- `scripts/check-api-inventory.py` must pass; every public top-level entry in
+  parent `cairo/__init__.pyi` must have an implementation or product-decision
+  anchor in this file.
 - Each Done row must have black-box MoonBit tests and, where rendering is
   involved, deterministic pixel or vector-output assertions.
 - Rendering APIs must gain differential tests against pycairo or Cairo C

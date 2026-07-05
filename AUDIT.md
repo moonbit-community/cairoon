@@ -12,6 +12,10 @@ Implemented in this workspace:
   `scripts/check-ffi-ownership.py`, wired into `scripts/verify.sh`, so every
   non-primitive `ffi*.mbt` parameter must be annotated with `#borrow` or
   `#owned`.
+- Static top-level pycairo API inventory linting through
+  `scripts/check-api-inventory.py`, wired into `scripts/verify.sh`, so every
+  public class/function in parent `cairo/__init__.pyi` must have an
+  implementation or explicit product-decision anchor in `API_INVENTORY.md`.
 - C FFI glue split by Cairo object family, following pycairo's
   `private.h` plus per-family C file architecture. GC-managed external objects
   currently cover `Surface`, `MappedImageSurface`, `ImageData`, `Context`,
@@ -398,8 +402,8 @@ Implemented in this workspace:
 
 - `./scripts/verify.sh`: passed. The local reliability gate ran
   `moon fmt --check`, `scripts/configure-link-flags.sh --check`,
-  `scripts/check-ffi-ownership.py`, native `moon check`, targeted image,
-  ScaledFont oracle,
+  `scripts/check-ffi-ownership.py`, `scripts/check-api-inventory.py`, native
+  `moon check`, targeted image, ScaledFont oracle,
   font-options/font-face/scaled-font, vector including PDF combined text
   document-feature plus PS DSC/SVG unit backend-feature oracle checks,
   surface base/ImageData tests,

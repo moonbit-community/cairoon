@@ -11,7 +11,7 @@ Required:
 - MoonBit toolchain with native target support.
 - Cairo development headers and library.
 - `pkg-config` that can resolve `cairo`.
-- Python 3 for static FFI ownership linting.
+- Python 3 for static FFI ownership and API-inventory linting.
 
 Optional but recommended:
 
@@ -41,9 +41,10 @@ Use:
 ```
 
 The gate runs formatting, link-flag drift checks, static FFI ownership linting,
-native type checking, targeted image/scaled-font/vector/pattern oracle tests,
-the full native test suite, `moon info --target native`, and targeted ASan
-tests when an ASan-capable `clang` is available.
+top-level pycairo API inventory linting, native type checking, targeted
+image/scaled-font/vector/pattern oracle tests, the full native test suite,
+`moon info --target native`, and targeted ASan tests when an ASan-capable
+`clang` is available.
 
 Set `CAIROON_VERIFY_ASAN=0` only when intentionally skipping the targeted ASan
 portion. Set `MOON_CC` and `MOON_AR` to force a specific compiler pair.
