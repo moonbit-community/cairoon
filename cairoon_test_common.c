@@ -238,6 +238,25 @@ cairo_status_t cairoon_test_apply_mask_pattern(
   return status;
 }
 
+cairo_status_t cairoon_test_apply_even_odd_fill(
+  cairo_t *cr,
+  double width,
+  double height) {
+  cairo_set_source_rgb(cr, 0.0, 0.0, 0.25);
+  cairo_paint(cr);
+  cairo_status_t status = cairo_status(cr);
+
+  if (status == CAIRO_STATUS_SUCCESS) {
+    cairo_set_fill_rule(cr, CAIRO_FILL_RULE_EVEN_ODD);
+    cairo_rectangle(cr, 2.0, 2.0, width - 4.0, height - 4.0);
+    cairo_rectangle(cr, 5.0, 5.0, width - 10.0, height - 10.0);
+    cairo_set_source_rgba(cr, 0.0, 0.85, 0.25, 0.9);
+    cairo_fill(cr);
+    status = cairo_status(cr);
+  }
+  return status;
+}
+
 static cairo_surface_t *cairoon_test_raster_source_acquire(
   cairo_pattern_t *pattern,
   void *callback_data,

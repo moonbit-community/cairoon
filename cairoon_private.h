@@ -190,6 +190,10 @@ cairo_status_t cairoon_test_apply_mask_pattern(
   cairo_t *cr,
   double width,
   double height);
+cairo_status_t cairoon_test_apply_even_odd_fill(
+  cairo_t *cr,
+  double width,
+  double height);
 cairo_status_t cairoon_test_apply_raster_source_pattern(
   cairo_t *cr,
   double width,
