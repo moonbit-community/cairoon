@@ -508,7 +508,7 @@ Implemented in this workspace:
   slice, the mixed vector/tag/text marker slice,
   the direct C oracle slice, the PS/SVG tag metadata absence slice, the PDF
   tagged multi-page text marker slice, the PS/SVG tagged multi-page text
-  inertness slice,
+  inertness slice, the PDF rectangle tag marker slice,
   the cross-backend tagged multi-page text direct C oracle slice, the
   PS/SVG tag and text-tag direct C oracle slice, the PDF text-tag direct C
   oracle slice, the raster-source deterministic callback fuzz slice, the
@@ -592,11 +592,12 @@ Implemented in this workspace:
   backend docs, retained owner graph stress, external value-wrapper stress,
   image-data view stress, and backend stream callback allocation stress.
 - `moon -C cairoon test vector_output_wbtest.mbt
-  vector_output_oracle_wbtest.mbt --target native -v`: 55 white-box vector
+  vector_output_oracle_wbtest.mbt --target native -v`: 56 white-box vector
   tests passed after splitting marker/output checks from direct C oracle and
   cross-backend tag checks. The split set still covers layered and wide
   multi-page direct C oracle and marker checks, mixed vector/tag/text marker
-  checks, the mixed vector/tag/text direct C oracle scene, PS/SVG destination
+  checks, PDF rectangle tag marker checks, the mixed vector/tag/text direct C
+  oracle scene, PS/SVG destination
   and document-structure tag metadata absence checks, PDF tagged multi-page
   text structure markers, PS/SVG tagged multi-page text tag-metadata absence
   checks, tagged `show_text_glyphs` PDF Link/structure
@@ -655,9 +656,10 @@ Implemented in this workspace:
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
   vector_output_wbtest.mbt vector_output_oracle_wbtest.mbt --target native -v`:
-  55 ASan-compiled white-box vector tests passed with leak detection disabled
+  56 ASan-compiled white-box vector tests passed with leak detection disabled
   after the split, directly exercising the layered and wide multi-page
-  marker/C-oracle paths, the mixed vector/tag/text marker and C oracle paths,
+  marker/C-oracle paths, the PDF rectangle tag marker paths, the mixed
+  vector/tag/text marker and C oracle paths,
   the tagged multi-page text C-oracle/PS-SVG inert paths, the tagged
   `show_text_glyphs` marker/C-oracle/PS-SVG inert paths, the grouped
   glyph/tag marker/C-oracle/PS-SVG inert paths, the copy_page retained
@@ -1637,6 +1639,10 @@ Implemented in this workspace:
   checks for the same two-page Link/Dest/Document/Sect/P text scene on
   PostScript and SVG, proving those backends do not emit PDF-only annotations,
   destinations, URI strings, or structure-tree metadata for the scene.
+  The later PDF rectangle tag marker slice added stable marker assertions for
+  the direct-C URI-link, named-destination, and Document/Sect/H1/P rectangle
+  tag scenes, covering annotations, destination names, and structure-tree
+  output from the compact geometry fixtures.
   The later PS/SVG tag metadata absence slice added negative marker checks for
   destination and document-structure rectangle/text tag scenes, proving those
   backends do not emit PDF-only annotations, destinations, structure-tree
@@ -2142,8 +2148,11 @@ Implemented in this workspace:
   not emit PDF annotation, destination, URI, or structure-tree metadata on
   those backends. A later tagged multi-page negative-marker slice added PS/SVG
   checks proving the two-page Link/Dest/Document/Sect/P text scene stays inert
-  on those backends. This raises the expected full native suite to 429 tests
-  and leaves the combined split backend/stream output targets at 23 tests.
+  on those backends. A later PDF rectangle tag marker slice added marker
+  checks for the direct-C rectangle URI-link, named-destination, and
+  Document/Sect/H1/P scenes. This raises the expected full native suite to
+  430 tests and leaves the combined split backend/stream output targets at
+  23 tests.
 
 ## Known Gaps
 
