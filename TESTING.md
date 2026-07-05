@@ -441,8 +441,9 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, and 2026-07-05:
   text vector stream equivalence slice, and the single-page tag stream
   equivalence slice.
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native`: 484 tests passed. The current run
-  includes the backend stream-to-direct-oracle differential slice,
+- `moon -C cairoon test --target native`: 485 tests passed. The current run
+  includes the tag-heavy stream-to-direct-oracle differential slice,
+  the backend stream-to-direct-oracle differential slice,
   the backend lifecycle-matrix differential slice,
   the backend tag-matrix differential slice,
   the resized backend page-sequence combo slice,
@@ -2590,6 +2591,14 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, and 2026-07-05:
   nested-tag, resized page-sequence, tag-matrix, and lifecycle-matrix fixtures
   through the callback path, adds the file to the targeted normal/ASan verify
   gate, and raises the current full native suite to 484 tests.
+  A later tag-heavy stream-to-direct-oracle differential slice extended
+  `surface_stream_oracle_wbtest.mbt` with matched 10x10 stream surfaces for
+  scenes 15 through 17 and 22 through 30, comparing PDF/PS/SVG stream callback
+  output directly with normalized direct C Cairo oracle files for URI-link,
+  destination-link, document-structure, text-tag, tagged multi-page,
+  mixed-tag/text, layered, wide, `show_text_glyphs`, and grouped glyph/tag
+  vector scenes. It raises `surface_stream_oracle_wbtest.mbt` to 2 tests and
+  the current full native suite to 485 tests.
 
 Remaining reliability work is now narrower and should be tracked as evidence,
 not as an unstructured checklist:
