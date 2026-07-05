@@ -212,6 +212,32 @@ cairo_status_t cairoon_test_apply_group_compositing(
   return status;
 }
 
+cairo_status_t cairoon_test_apply_mask_pattern(
+  cairo_t *cr,
+  double width,
+  double height) {
+  cairo_pattern_t *mask =
+    cairo_pattern_create_linear(0.0, 0.0, width, height);
+  cairo_status_t status = cairo_pattern_status(mask);
+  if (status == CAIRO_STATUS_SUCCESS) {
+    cairo_pattern_add_color_stop_rgba(mask, 0.0, 1.0, 1.0, 1.0, 0.0);
+    cairo_pattern_add_color_stop_rgba(mask, 0.45, 1.0, 1.0, 1.0, 0.35);
+    cairo_pattern_add_color_stop_rgba(mask, 1.0, 1.0, 1.0, 1.0, 1.0);
+    status = cairo_pattern_status(mask);
+  }
+  if (status == CAIRO_STATUS_SUCCESS) {
+    cairo_set_source_rgb(cr, 0.0, 0.0, 0.25);
+    cairo_paint(cr);
+    cairo_rectangle(cr, 2.0, 2.0, width - 4.0, height - 4.0);
+    cairo_clip(cr);
+    cairo_set_source_rgba(cr, 1.0, 0.25, 0.0, 0.9);
+    cairo_mask(cr, mask);
+    status = cairo_status(cr);
+  }
+  cairo_pattern_destroy(mask);
+  return status;
+}
+
 static cairo_surface_t *cairoon_test_raster_source_acquire(
   cairo_pattern_t *pattern,
   void *callback_data,
