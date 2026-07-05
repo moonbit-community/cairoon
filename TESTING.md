@@ -75,7 +75,7 @@ Evaluate each slice with this scorecard:
 | Rendering parity | Deterministic image pixels or normalized PDF/PS/SVG bytes match direct C Cairo output | Strong for the enumerated image and vector fixtures; still partial for broader tag/metadata/multi-page combinations |
 | Lifetime safety | External-object ownership, borrowed returns, callback retention, and error exits run under ASan/LSan or stress tests | Strong for targeted local gates; macOS LSan remains intentionally disabled for known toy-font/glyph leak reports |
 | Callback safety | C-held MoonBit callbacks and callback arguments are retained across the callback invocation and released deterministically | Strong for stream writers/readers and raster-source callbacks covered by current stress/fuzz tests |
-| Portability | Required backends pass on each supported platform, or unsupported APIs have explicit `Decision` rows | Partial until CI runs the native, oracle, and sanitizer gates across the release platform matrix |
+| Portability | Required backends pass on each supported platform, or unsupported APIs have explicit `Decision` rows | Partial until the shipped CI workflow has passing native, oracle, and sanitizer runs across the release platform matrix |
 | Documentation | Public behavior has executable reference examples where practical | Strong for current migrated families; keep this synchronized with public API additions |
 
 The practical release rule is simple: a feature can be trusted when its
@@ -2233,9 +2233,9 @@ not as an unstructured checklist:
 - Add randomized/platform fuzz for callback and finalizer behavior beyond the
   deterministic raster-source owner-count, state-machine, manual
   get-callback, callback allocation, retained-owner, and stream retention tests.
-- Wire CI so native checks, full tests, generated-interface review,
-  differential oracles, and sanitizer gates run on every supported release
-  platform instead of relying on local verification logs.
+- Keep the CI workflow green and expand it as the supported release platform
+  matrix grows; generated-interface review, differential oracles, and sanitizer
+  gates should be required before release.
 - Resolve the known macOS LSan reports for toy-font, scaled-font, toy-text,
   glyph rendering/path, and `show_text_glyphs`, or document a Cairo/upstream
   suppression with version bounds.

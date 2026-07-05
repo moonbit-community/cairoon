@@ -1,0 +1,93 @@
+name: cairoon
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  MOONBIT_INSTALL_VERSION: latest
+
+jobs:
+  native:
+    name: native (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install system dependencies (Ubuntu)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y pkg-config libcairo2-dev
+
+      - name: Install system dependencies (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          brew update
+          brew install cairo pkg-config
+
+      - name: Install MoonBit
+        run: |
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
+          echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
+
+      - name: Show tool versions
+        run: |
+          moon version
+          pkg-config --modversion cairo
+
+      - name: Configure native link flags
+        run: scripts/configure-link-flags.sh
+
+      - name: Run native reliability gate
+        env:
+          CAIROON_VERIFY_ASAN: "0"
+        run: ./scripts/verify.sh
+
+  asan:
+    name: asan (ubuntu)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y pkg-config libcairo2-dev clang llvm
+
+      - name: Install MoonBit
+        run: |
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
+          echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
+
+      - name: Show tool versions
+        run: |
+          moon version
+          clang --version
+          pkg-config --modversion cairo
+
+      - name: Configure native link flags
+        run: scripts/configure-link-flags.sh
+
+      - name: Run ASan reliability gate
+        env:
+          MOON_CC: clang
+          MOON_AR: llvm-ar
+          ASAN_OPTIONS: detect_leaks=0:fast_unwind_on_malloc=0
+        run: ./scripts/verify.sh

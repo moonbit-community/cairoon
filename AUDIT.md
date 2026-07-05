@@ -2203,8 +2203,8 @@ Implemented in this workspace:
   `./scripts/verify.sh` passes on the target platform, but they are not enough
   for a full pycairo migration claim. Full-product reliability still requires
   every `Partial` row in `API_INVENTORY.md` to gain explicit evidence or become
-  a documented `Decision`, plus CI coverage for the native/oracle/sanitizer
-  gates on each supported release platform.
+  a documented `Decision`, plus passing CI coverage for the
+  native/oracle/sanitizer gates on each supported release platform.
 - Broader normalized PDF/SVG/PS output comparison is still missing for
   tag/metadata/multi-page combinations beyond the current seventeen-scene
   cross-backend direct C fixtures, three PDF rectangle tag oracle scenes, three

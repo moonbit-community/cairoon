@@ -65,7 +65,13 @@ portion. Set `MOON_CC` and `MOON_AR` to force a specific compiler pair.
 
 ## CI Guidance
 
-CI should install Cairo and `pkg-config`, then run:
+The repository ships `.github/workflows/ci.yml`. It runs:
+
+- Native verification on `ubuntu-latest` and `macos-latest` with ASan disabled.
+- A dedicated Ubuntu ASan job with `clang` and leak detection disabled, matching
+  the local targeted sanitizer gate.
+
+Custom CI should install Cairo and `pkg-config`, then run:
 
 ```sh
 scripts/configure-link-flags.sh
