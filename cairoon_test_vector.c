@@ -73,6 +73,10 @@ cairo_status_t cairoon_test_render_vector_scene_oracle(
   moonbit_bytes_t filename) {
   const char *name = (const char *)filename;
   cairo_surface_t *surface = NULL;
+  if (scene == CAIROON_TEST_VECTOR_BACKEND_STREAM_COMBO) {
+    return cairoon_test_render_backend_stream_combo_features(kind, name);
+  }
+
   switch (kind) {
     case CAIROON_TEST_VECTOR_PDF:
 #if CAIRO_HAS_PDF_SURFACE

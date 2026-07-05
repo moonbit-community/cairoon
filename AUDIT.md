@@ -632,12 +632,13 @@ Implemented in this workspace:
   scenes for PDF metadata/custom metadata/page labels/outlines/tags, PS DSC,
   and SVG document units, plus PDF text document-feature, PDF page-operation
   document-feature, PDF JPEG MIME, and PDF thumbnail output.
-- `moon -C cairoon test surface_stream_combo_wbtest.mbt --target native -v`: 1
-  white-box stream equivalence test passed, comparing PDF/PS/SVG file output
-  with stream output after normalized comparison for a three-page scene that
-  combines PDF metadata/page labels/outlines, PS DSC, SVG version/unit, URI and
-  named-destination tags, document-structure tags, surface patterns, text, and
-  `show_text_glyphs`.
+- `moon -C cairoon test surface_stream_combo_wbtest.mbt --target native -v`: 3
+  white-box backend feature/tag combo tests passed, comparing PDF/PS/SVG file
+  output with stream output after normalized comparison, comparing file output
+  with a direct C Cairo oracle, and checking stable PDF/PS/SVG output markers
+  for a three-page scene that combines PDF metadata/page labels/outlines, PS
+  DSC, SVG version/unit, URI and named-destination tags, document-structure
+  tags, surface patterns, text, and `show_text_glyphs`.
 - `moon -C cairoon test surface_stream_tag_wbtest.mbt --target native -v`: 7
   white-box stream equivalence tests passed, comparing PDF/PS/SVG file output
   with stream output after normalized comparison for single-page URI-link,
@@ -681,9 +682,10 @@ Implemented in this workspace:
   stream-vs-file paths.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
-  surface_stream_combo_wbtest.mbt --target native -v`: 1 ASan-compiled
-  white-box stream equivalence test passed with leak detection disabled,
-  covering the backend-feature/tag/multi-page stream-vs-file path.
+  surface_stream_combo_wbtest.mbt --target native -v`: 3 ASan-compiled
+  white-box backend feature/tag combo tests passed with leak detection
+  disabled, covering the stream-vs-file, direct C oracle, and stable marker
+  paths for the backend-feature/tag/multi-page scene.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
   surface_stream_tag_wbtest.mbt --target native -v`: 7 ASan-compiled white-box
@@ -2125,8 +2127,10 @@ Implemented in this workspace:
   equality test for one three-page scene combining backend document features
   (PDF metadata/page labels/outlines, PS DSC, SVG version/unit), URI and named
   destination tags, document-structure tags, surface patterns, toy text, and
-  `show_text_glyphs`. This raises the expected full native suite to 425 tests
-  and the combined split stream-equivalence targets to 20 tests.
+  `show_text_glyphs`. A follow-up upgraded that file with a scene 35 direct C
+  Cairo oracle and stable PDF/PS/SVG marker checks for the same combo scene.
+  This raises the expected full native suite to 427 tests and the combined
+  split backend/stream output targets to 22 tests.
 
 ## Known Gaps
 
@@ -2140,7 +2144,8 @@ Implemented in this workspace:
   scene, one cross-backend wide three-page URI/destination/document-structure
   tag/vector oracle scene, one cross-backend tagged `show_text_glyphs` oracle
   scene, one cross-backend grouped glyph/tag multi-page oracle scene, one
-  cross-backend copy_page retained two-page oracle scene, and three
+  cross-backend copy_page retained two-page oracle scene, one cross-backend
+  backend-feature/tag stream-combo oracle scene, and three
   PDF document-feature/page-operation oracle scenes. PDF/PS/SVG now
   have multi-page marker checks and three two-page direct C oracle scenes,
   PDF/PS/SVG have a single-page toy-font `show_text` oracle scene, and PDF has

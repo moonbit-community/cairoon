@@ -156,3 +156,63 @@ test "backend feature tag multipage stream output matches file output after norm
     )
   }
 }
+
+///|
+test "backend feature tag multipage file output matches direct cairo C oracle" {
+  for kind in 0..<3 {
+    let ext = stream_equivalence_extension(kind)
+    let path = "/tmp/cairoon_stream_combo_file_oracle_\{kind}.\{ext}"
+    let oracle_path = "/tmp/cairoon_stream_combo_direct_oracle_\{kind}.\{ext}"
+    let surface = make_stream_combo_file_surface(kind, path)
+    render_stream_combo_scene(kind, surface)
+    check_status(
+      test_render_vector_scene_oracle_ffi(
+        kind,
+        35,
+        checked_path_bytes(oracle_path),
+      ),
+    )
+    inspect(
+      test_vector_files_equal_ffi(
+        kind,
+        checked_path_bytes(path),
+        checked_path_bytes(oracle_path),
+      ),
+      content="true",
+    )
+  }
+}
+
+///|
+test "backend feature tag multipage output contains stable markers" {
+  for kind in 0..<3 {
+    let ext = stream_equivalence_extension(kind)
+    let path = "/tmp/cairoon_stream_combo_markers_\{kind}.\{ext}"
+    let surface = make_stream_combo_file_surface(kind, path)
+    render_stream_combo_scene(kind, surface)
+    match kind {
+      0 =>
+        expect_vector_output(path, [
+          "%PDF-1.4", "/Title (Cairoon Stream Combo)", "/Creator (cairoon stream combo)",
+          "/CreationDate (20260102030405+00'00')", "/ModDate (20260102030405+00'00')",
+          "/Combo (tag-metadata-multipage)", "/Count 3", "/PageLabels", "(combo-cover)",
+          "(combo-dest)", "(combo-structure)", "/Outlines", "/Title (combo cover)",
+          "/Title (combo dest)", "/F 2", "/F 1", "/Annots [", "/Subtype /Link", "/S /URI",
+          "/URI (https://example.com/combo)", "/Dest", "/Names", "/Dests", "(combo-destination)",
+          "/StructTreeRoot", "/S /Document", "/S /Sect", "/S /P", "%%EOF",
+        ])
+      1 =>
+        expect_vector_output(path, [
+          "%!PS-Adobe-3.0", "%%LanguageLevel: 3", "%%Title: Cairoon Stream Combo",
+          "%%IncludeFeature: *MediaColor White", "%%IncludeFeature: *PageSize Letter",
+          "%%Pages: 3", "%%Page: 1 1", "%%Page: 2 2", "%%Page: 3 3", "%%EOF",
+        ])
+      2 =>
+        expect_vector_output(path, [
+          "<?xml version=\"1.0\"", "<svg", "width=\"100px\" height=\"100px\"", "<pageSet>",
+          "<page>", "</pageSet>", "</svg>",
+        ])
+      _ => ()
+    }
+  }
+}
