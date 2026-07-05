@@ -134,6 +134,29 @@ test "context drawing state enum setters cover all cairo values" {
 }
 
 ///|
+test "context raw operator mirrors pycairo c int passthrough" {
+  let ctx = Context::new(context_state_surface())
+  ctx.set_operator(OperatorOver)
+  inspect(ctx.get_operator_raw(), content="2")
+
+  let min_c_int = -2147483647 - 1
+  let values = [-1, 0, 2147483647, min_c_int]
+  for value in values {
+    ctx.set_operator_raw(value)
+    inspect(ctx.get_operator_raw(), content="\{value}")
+  }
+
+  let typed_unknown = run_cairo(() => ctx.get_operator())
+  match typed_unknown {
+    Err(CairoInvalidArgument(InvalidStatus, _)) => ()
+    _ => @test.fail("expected typed getter to reject unknown raw operator")
+  }
+
+  ctx.set_operator_raw(0)
+  debug_inspect(ctx.get_operator(), content="OperatorClear")
+}
+
+///|
 test "context save restore preserves drawing state" {
   let ctx = Context::new(context_state_surface())
   ctx.set_line_width(3.0)

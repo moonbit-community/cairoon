@@ -167,6 +167,7 @@ pub fn Context::get_line_width(Self) -> Double raise CairoError
 pub fn Context::get_matrix(Self) -> Matrix raise CairoError
 pub fn Context::get_miter_limit(Self) -> Double raise CairoError
 pub fn Context::get_operator(Self) -> Operator raise CairoError
+pub fn Context::get_operator_raw(Self) -> Int raise CairoError
 pub fn Context::get_scaled_font(Self) -> ScaledFont raise CairoError
 pub fn Context::get_source(Self) -> Pattern raise CairoError
 pub fn Context::get_target(Self) -> Surface raise CairoError
@@ -218,6 +219,7 @@ pub fn Context::set_line_width(Self, Double) -> Unit raise CairoError
 pub fn Context::set_matrix(Self, Matrix) -> Unit raise CairoError
 pub fn Context::set_miter_limit(Self, Double) -> Unit raise CairoError
 pub fn Context::set_operator(Self, Operator) -> Unit raise CairoError
+pub fn Context::set_operator_raw(Self, Int) -> Unit raise CairoError
 pub fn Context::set_scaled_font(Self, ScaledFont) -> Unit raise CairoError
 pub fn Context::set_source(Self, Pattern) -> Unit raise CairoError
 pub fn Context::set_source_rgb(Self, Double, Double, Double) -> Unit raise CairoError

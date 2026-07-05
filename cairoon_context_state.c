@@ -101,11 +101,21 @@ cairo_status_t cairoon_context_set_operator(CairoonContext *ctx, cairo_operator_
 }
 
 MOONBIT_FFI_EXPORT
-cairo_operator_t cairoon_context_get_operator(CairoonContext *ctx) {
+cairo_status_t cairoon_context_set_operator_raw(CairoonContext *ctx, int32_t operator_) {
+  cairo_status_t status = cairoon_context_status(ctx);
+  if (status != CAIRO_STATUS_SUCCESS) {
+    return status;
+  }
+  cairo_set_operator(ctx->ptr, (cairo_operator_t)operator_);
+  return cairo_status(ctx->ptr);
+}
+
+MOONBIT_FFI_EXPORT
+int32_t cairoon_context_get_operator_raw(CairoonContext *ctx) {
   if (cairoon_context_status(ctx) != CAIRO_STATUS_SUCCESS) {
     return CAIRO_OPERATOR_OVER;
   }
-  return cairo_get_operator(ctx->ptr);
+  return (int32_t)cairo_get_operator(ctx->ptr);
 }
 
 MOONBIT_FFI_EXPORT

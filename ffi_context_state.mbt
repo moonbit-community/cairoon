@@ -59,7 +59,14 @@ extern "C" fn context_set_operator_ffi(
 
 ///|
 #borrow(ctx)
-extern "C" fn context_get_operator_ffi(ctx : Context) -> Operator = "cairoon_context_get_operator"
+extern "C" fn context_set_operator_raw_ffi(
+  ctx : Context,
+  operator : Int,
+) -> Status = "cairoon_context_set_operator_raw"
+
+///|
+#borrow(ctx)
+extern "C" fn context_get_operator_raw_ffi(ctx : Context) -> Int = "cairoon_context_get_operator_raw"
 
 ///|
 #borrow(ctx)

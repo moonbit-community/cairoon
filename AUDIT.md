@@ -495,12 +495,13 @@ Implemented in this workspace:
   `ffi_pattern.mbt`, `ffi_pattern_mesh.mbt`, and
   `ffi_pattern_raster_source.mbt`.
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native`: 456 tests passed. The current run
+- `moon -C cairoon test --target native`: 457 tests passed. The current run
   includes the backend tag-matrix differential slice,
   the resized backend page-sequence combo slice,
   the backend nested tag/page sequence slice,
   the backend surface-page feature/tag combo slice,
   the Context drawing-state all-enum round-trip slice,
+  the pycairo raw C-int operator passthrough slice,
   the pycairo context font-extents parity slice,
   the pycairo group-target stack-restoration slice,
   the pycairo rectangle path-extents slice,
@@ -600,10 +601,11 @@ Implemented in this workspace:
   `get_group_target`, `get_source`, and PDF/PS stream target wrappers that
   remain usable after their creating helper scopes exit.
 - `moon -C cairoon test context_state_test.mbt context_matrix_test.mbt
-  context_extents_test.mbt --target native -v`: 15 black-box context
+  context_extents_test.mbt --target native -v`: 17 black-box context
   state/matrix/extents tests passed, including save/restore, sticky error
-  status, dash validation, CTM conversion, invalid-matrix propagation,
-  pycairo polygon fill-extents coverage, stroke extents, and hit-testing.
+  status, dash validation, raw C-int operator passthrough parity, CTM
+  conversion, invalid-matrix propagation, pycairo polygon fill-extents
+  coverage, stroke extents, and hit-testing.
 - `moon -C cairoon test surface_mapped_test.mbt --target native -v`: 6
   black-box mapped-image tests passed, covering whole-surface and extent
   uploads, wrong-base and double-unmap failures, mapped-wrapper unmap,
@@ -835,7 +837,7 @@ Implemented in this workspace:
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
   context_state_test.mbt context_matrix_test.mbt context_extents_test.mbt
-  --target native -v`: 15 ASan-compiled black-box context state/matrix/extents
+  --target native -v`: 17 ASan-compiled black-box context state/matrix/extents
   tests passed with leak detection disabled.
 - `moon -C cairoon test image_oracle_wbtest.mbt --target native -v`: 2
   white-box image rendering oracle tests passed. Ordinary image surfaces and
@@ -2369,6 +2371,12 @@ Implemented in this workspace:
   clip-extents fixture and zero-radius `arc`/`arc_negative` non-empty path
   behavior. It is included in the targeted normal and ASan verification gates
   and raises the expected full native suite to 456 tests.
+  A later Context raw-operator parity slice added
+  `Context::set_operator_raw`/`Context::get_operator_raw`, covering pycairo's
+  C-int operator passthrough for `-1`, `0`, `INT_MAX`, and `INT_MIN` without
+  forcing unknown values through the typed `Operator` API. It raises the
+  expected full native suite to 457 tests and raises `context_state_test.mbt`
+  to 8 tests.
 
 ## Known Gaps
 

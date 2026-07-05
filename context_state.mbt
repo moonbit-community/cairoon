@@ -77,9 +77,62 @@ pub fn Context::set_operator(
 }
 
 ///|
+fn operator_from_raw(raw : Int) -> Operator raise CairoError {
+  match raw {
+    0 => OperatorClear
+    1 => OperatorSource
+    2 => OperatorOver
+    3 => OperatorIn
+    4 => OperatorOut
+    5 => OperatorAtop
+    6 => OperatorDest
+    7 => OperatorDestOver
+    8 => OperatorDestIn
+    9 => OperatorDestOut
+    10 => OperatorDestAtop
+    11 => OperatorXor
+    12 => OperatorAdd
+    13 => OperatorSaturate
+    14 => OperatorMultiply
+    15 => OperatorScreen
+    16 => OperatorOverlay
+    17 => OperatorDarken
+    18 => OperatorLighten
+    19 => OperatorColorDodge
+    20 => OperatorColorBurn
+    21 => OperatorHardLight
+    22 => OperatorSoftLight
+    23 => OperatorDifference
+    24 => OperatorExclusion
+    25 => OperatorHslHue
+    26 => OperatorHslSaturation
+    27 => OperatorHslColor
+    28 => OperatorHslLuminosity
+    _ =>
+      raise CairoInvalidArgument(
+        InvalidStatus,
+        "unknown cairo operator: \{raw}",
+      )
+  }
+}
+
+///|
 pub fn Context::get_operator(self : Context) -> Operator raise CairoError {
+  operator_from_raw(self.get_operator_raw())
+}
+
+///|
+pub fn Context::set_operator_raw(
+  self : Context,
+  operator : Int,
+) -> Unit raise CairoError {
+  check_status(context_set_operator_raw_ffi(self, operator))
+}
+
+///|
+pub fn Context::get_operator_raw(self : Context) -> Int raise CairoError {
   check_status(context_status_ffi(self))
-  context_get_operator_ffi(self)
+  context_get_operator_raw_ffi(self)
 }
 
 ///|
