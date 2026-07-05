@@ -500,8 +500,9 @@ Implemented in this workspace:
   `ffi_pattern.mbt`, `ffi_pattern_mesh.mbt`, and
   `ffi_pattern_raster_source.mbt`.
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native`: 457 tests passed. The current run
-  includes the backend tag-matrix differential slice,
+- `moon -C cairoon test --target native`: 461 tests passed. The current run
+  includes the backend lifecycle-matrix differential slice,
+  the backend tag-matrix differential slice,
   the resized backend page-sequence combo slice,
   the backend nested tag/page sequence slice,
   the backend surface-page feature/tag combo slice,
@@ -734,6 +735,16 @@ Implemented in this workspace:
   `show_text_glyphs`, PDF metadata/custom-metadata overwrite/removal, page
   labels, outline parent/child mixtures, PDF/PS page-size changes, PS DSC, and
   SVG document units.
+- `moon -C cairoon test surface_stream_lifecycle_wbtest.mbt --target native
+  -v`: 4 white-box backend lifecycle-matrix tests passed, comparing PDF/PS/SVG
+  file output with stream output after normalized comparison, comparing file
+  output with a direct C Cairo oracle, checking stable PDF/PS/SVG output
+  markers, and checking PS/SVG file and stream negative tag-metadata markers
+  for a five-page scene with consecutive retained copies, cleared/fresh pages,
+  PDF/PS page-size changes, PDF metadata/custom-metadata overwrite/removal,
+  page labels, outline parent/child/grandchild mixtures, deeper list/table
+  document-structure tags, `show_text_glyphs`, PS Level 2 DSC markers, and SVG
+  millimeter document units.
 - `moon -C cairoon test surface_stream_tag_wbtest.mbt --target native -v`: 7
   white-box stream equivalence tests passed, comparing PDF/PS/SVG file output
   with stream output after normalized comparison for single-page URI-link,
@@ -813,6 +824,13 @@ Implemented in this workspace:
   covering stream-vs-file, direct C oracle, stable marker, and PS/SVG
   file/stream negative tag-metadata marker paths for the deep-tag,
   resized-page, metadata/outline/page-label matrix scene.
+- `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
+  ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
+  surface_stream_lifecycle_wbtest.mbt --target native -v`: 4 ASan-compiled
+  white-box backend lifecycle-matrix tests passed with leak detection disabled,
+  covering stream-vs-file, direct C oracle, stable marker, and PS/SVG
+  file/stream negative tag-metadata marker paths for the five-page lifecycle
+  matrix scene.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
   surface_stream_tag_wbtest.mbt --target native -v`: 7 ASan-compiled white-box
@@ -2419,6 +2437,17 @@ Implemented in this workspace:
   oracle output, stable backend markers, and PS/SVG negative PDF-metadata
   checks. This raises the expected full native suite to 454 tests and raises
   the combined split backend/stream output targets to 41 tests.
+  A later backend lifecycle-matrix differential slice added scene 40 plus
+  `surface_stream_lifecycle_wbtest.mbt`, extending the cross-backend direct-C
+  fixtures to a five-page sequence with consecutive retained `Surface::copy_page`
+  output, later cleared/fresh pages, PDF/PS page-size changes, PDF metadata
+  and custom-metadata overwrite/removal, page labels, outline parent/child/
+  grandchild mixtures, URI/destination links, deeper list/table/document
+  structure tags, `show_text_glyphs`, PS Level 2 DSC markers, and SVG
+  millimeter document units across file-vs-stream output, direct C Cairo oracle
+  output, stable backend markers, and PS/SVG negative PDF-metadata checks. This
+  raises the expected full native suite to 461 tests and raises the combined
+  split backend/stream output targets to 45 tests.
   A later Context pycairo parity slice added
   `context_pycairo_parity_test.mbt`, covering pycairo's 42x42 default
   clip-extents fixture and zero-radius `arc`/`arc_negative` non-empty path
@@ -2456,7 +2485,9 @@ Implemented in this workspace:
   sequence oracle scene with PS/SVG negative tag-metadata marker checks, one
   cross-backend resized page-sequence oracle scene with PS/SVG negative
   tag-metadata marker checks, one cross-backend backend tag-matrix oracle scene
-  with PS/SVG negative tag-metadata marker checks, and three PDF
+  with PS/SVG negative tag-metadata marker checks, one cross-backend backend
+  lifecycle matrix oracle scene with PS/SVG negative tag-metadata marker checks,
+  and three PDF
   document-feature/page-operation oracle scenes. PDF/PS/SVG now
   have multi-page marker checks and three two-page direct C oracle scenes,
   PDF/PS/SVG have a single-page toy-font `show_text` oracle scene, and PDF has
@@ -2466,7 +2497,7 @@ Implemented in this workspace:
   three two-page metadata/custom-metadata/page-label/outline/tag combinations,
   including one text/tag-aware scene, plus cross-backend stream-vs-file
   backend-feature/tag/multi-page combo, resized page-sequence combo, and
-  tag-matrix combo scenes,
+  tag-matrix/lifecycle combo scenes,
   plus explicit PDF text-tag,
   PDF direct document-feature marker, tagged multi-page text, tagged
   `show_text_glyphs`, grouped glyph/tag
@@ -2485,8 +2516,8 @@ Implemented in this workspace:
   glyph/tag multi-page, copy_page retained two-page, mixed
   vector/tag/text, layered three-page, and wide three-page PDF marker tests,
   PS/SVG tag-metadata absence checks including URI-link text tags,
-  backend-combo stream output, resized page-sequence output, and tag-matrix
-  output, and PS/SVG
+  backend-combo stream output, resized page-sequence output, tag-matrix output,
+  and lifecycle-matrix output, and PS/SVG
   Link/destination/document-structure rectangle/text plus tagged multi-page, tagged
   `show_text_glyphs`, grouped glyph/tag, mixed vector/tag/text, layered
   three-page, and wide three-page direct-oracle coverage.
@@ -2501,7 +2532,8 @@ Implemented in this workspace:
   copy_page retained two-page, mixed vector/tag/text, layered three-page
   clip/dash/surface-pattern/mask/tag/text, wide three-page tag/vector, PDF text
   document-feature, backend-feature/tag/multi-page combo, backend tag-matrix
-  combo, PS/SVG stream negative tag-metadata checks for those combos, PDF JPEG
+  combo, backend lifecycle-matrix combo, PS/SVG stream negative tag-metadata
+  checks for those combos, PDF JPEG
   MIME and PDF thumbnail output,
   and backend document-feature stream-vs-file normalized
   equality plus stream marker coverage, plus

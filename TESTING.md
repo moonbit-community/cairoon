@@ -441,8 +441,9 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, and 2026-07-05:
   text vector stream equivalence slice, and the single-page tag stream
   equivalence slice.
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native`: 457 tests passed. The current run
-  includes the backend tag-matrix differential slice,
+- `moon -C cairoon test --target native`: 461 tests passed. The current run
+  includes the backend lifecycle-matrix differential slice,
+  the backend tag-matrix differential slice,
   the resized backend page-sequence combo slice,
   the backend nested tag/page sequence slice,
   the backend surface-page feature/tag combo slice,
@@ -669,6 +670,16 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, and 2026-07-05:
   `show_text_glyphs`, PDF metadata/custom-metadata overwrite/removal, page
   labels, outline parent/child mixtures, PDF/PS page-size changes, PS DSC, and
   SVG document units.
+- `moon -C cairoon test surface_stream_lifecycle_wbtest.mbt --target native
+  -v`: 4 white-box backend lifecycle-matrix tests passed, comparing PDF/PS/SVG
+  file output with stream output after normalized comparison, comparing file
+  output with a direct C Cairo oracle, checking stable PDF/PS/SVG output
+  markers, and checking PS/SVG file and stream negative tag-metadata markers
+  for a five-page scene with consecutive retained copies, cleared/fresh pages,
+  PDF/PS page-size changes, PDF metadata/custom-metadata overwrite/removal,
+  page labels, outline parent/child/grandchild mixtures, deeper list/table
+  document-structure tags, `show_text_glyphs`, PS Level 2 DSC markers, and SVG
+  millimeter document units.
 - `moon -C cairoon test surface_stream_tag_wbtest.mbt --target native -v`: 7
   white-box stream equivalence tests passed, comparing PDF/PS/SVG file output
   with stream output after normalized comparison for single-page URI-link,
@@ -748,6 +759,13 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, and 2026-07-05:
   covering stream-vs-file, direct C oracle, stable marker, and PS/SVG
   file/stream negative tag-metadata marker paths for the deep-tag,
   resized-page, metadata/outline/page-label matrix scene.
+- `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
+  ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
+  surface_stream_lifecycle_wbtest.mbt --target native -v`: 4 ASan-compiled
+  white-box backend lifecycle-matrix tests passed with leak detection disabled,
+  covering stream-vs-file, direct C oracle, stable marker, and PS/SVG
+  file/stream negative tag-metadata marker paths for the five-page lifecycle
+  matrix scene.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
   surface_stream_tag_wbtest.mbt --target native -v`: 7 ASan-compiled white-box
@@ -2438,6 +2456,17 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, and 2026-07-05:
   oracle output, stable backend markers, and PS/SVG negative PDF-metadata
   checks. This raises the expected full native suite to 454 tests and raises
   the combined split backend/stream output targets to 41 tests.
+  A later backend lifecycle-matrix differential slice added scene 40 plus
+  `surface_stream_lifecycle_wbtest.mbt`, extending the cross-backend direct-C
+  fixtures to a five-page sequence with consecutive retained `Surface::copy_page`
+  output, later cleared/fresh pages, PDF/PS page-size changes, PDF metadata
+  and custom-metadata overwrite/removal, page labels, outline parent/child/
+  grandchild mixtures, URI/destination links, deeper list/table/document
+  structure tags, `show_text_glyphs`, PS Level 2 DSC markers, and SVG
+  millimeter document units across file-vs-stream output, direct C Cairo oracle
+  output, stable backend markers, and PS/SVG negative PDF-metadata checks. This
+  raises the expected full native suite to 461 tests and raises the combined
+  split backend/stream output targets to 45 tests.
   A later Context pycairo parity slice added
   `context_pycairo_parity_test.mbt`, covering pycairo's 42x42 default
   clip-extents fixture and zero-radius `arc`/`arc_negative` non-empty path
@@ -2455,9 +2484,9 @@ not as an unstructured checklist:
 
 - Broaden normalized PDF/PS/SVG differential coverage for combinations not yet
   represented by the current direct-C fixtures: additional deep tag nests beyond
-  scenes 37 and 39, more metadata/page-label/outline mixtures beyond scenes 38
-  and 39, and additional multi-page sequences beyond the current
-  retained/resized/tag-matrix page fixtures.
+  scenes 37, 39, and 40, more metadata/page-label/outline mixtures beyond
+  scenes 38 through 40, and additional multi-page sequences beyond the current
+  retained/resized/tag-matrix/lifecycle page fixtures.
 - Add broader platform coverage and finalizer fuzz beyond the
   deterministic raster-source owner-count, state-machine, manual
   get-callback, callback allocation, retained-owner, stream retention, and
