@@ -261,3 +261,15 @@ fn expect_stream_output_markers(
     inspect(output.contains(marker), content="true")
   }
 }
+
+///|
+fn expect_stream_output_absent(
+  chunks : Array[Bytes],
+  markers : Array[String],
+) -> Unit raise {
+  inspect(chunks.length() > 0, content="true")
+  let output = @utf8.decode_lossy(stream_equivalence_chunks_to_bytes(chunks))
+  for marker in markers {
+    inspect(output.contains(marker), content="false")
+  }
+}

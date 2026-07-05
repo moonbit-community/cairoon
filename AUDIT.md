@@ -460,8 +460,9 @@ Implemented in this workspace:
   direct C oracle slice, the PDF thumbnail stream equivalence slice, the PDF
   JPEG MIME stream equivalence slice, the PDF text document-feature stream
   equivalence slice, the PDF page-operation document-feature stream
-  equivalence slice, the backend feature/tag stream combo slice, the non-text
-  primitive vector stream equivalence slice,
+  equivalence slice, the backend feature/tag stream combo slice, the PS/SVG
+  backend-combo stream inertness slice, the non-text primitive vector stream
+  equivalence slice,
   the standalone text vector stream equivalence slice,
   the single-page tag stream equivalence slice, and the prior C
   stub split that moved private test oracles out of `cairoon_misc.c` into
@@ -471,7 +472,7 @@ Implemented in this workspace:
   `ffi_pattern.mbt`, `ffi_pattern_mesh.mbt`, and
   `ffi_pattern_raster_source.mbt`.
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native`: 425 tests passed. The current run
+- `moon -C cairoon test --target native`: 434 tests passed. The current run
   includes the pycairo context font-extents parity slice,
   the pycairo group-target stack-restoration slice,
   the pycairo rectangle path-extents slice,
@@ -528,7 +529,8 @@ Implemented in this workspace:
   slice, the PDF text document-feature stream equivalence slice, the PDF
   page-operation document-feature stream equivalence slice, the non-text
   primitive vector stream equivalence slice, the backend feature/tag stream
-  combo slice, the standalone text vector stream
+  combo slice, the PS/SVG backend-combo stream inertness slice, the standalone
+  text vector stream
   equivalence slice, the single-page tag stream
   equivalence slice, and
   the earlier context `get_source`
@@ -641,14 +643,14 @@ Implemented in this workspace:
   metadata/custom metadata/page labels/outlines/tags, PS DSC/page markers, and
   SVG document-unit/page markers, plus PDF text document-feature, PDF
   page-operation document-feature, PDF JPEG MIME, and PDF thumbnail output.
-- `moon -C cairoon test surface_stream_combo_wbtest.mbt --target native -v`: 4
+- `moon -C cairoon test surface_stream_combo_wbtest.mbt --target native -v`: 5
   white-box backend feature/tag combo tests passed, comparing PDF/PS/SVG file
   output with stream output after normalized comparison, comparing file output
   with a direct C Cairo oracle, checking stable PDF/PS/SVG output markers, and
-  checking PS/SVG negative tag-metadata markers for a three-page scene that
-  combines PDF metadata/page labels/outlines, PS DSC, SVG version/unit, URI and
-  named-destination tags, document-structure tags, surface patterns, text, and
-  `show_text_glyphs`.
+  checking PS/SVG file and stream negative tag-metadata markers for a
+  three-page scene that combines PDF metadata/page labels/outlines, PS DSC, SVG
+  version/unit, URI and named-destination tags, document-structure tags, surface
+  patterns, text, and `show_text_glyphs`.
 - `moon -C cairoon test surface_stream_tag_wbtest.mbt --target native -v`: 7
   white-box stream equivalence tests passed, comparing PDF/PS/SVG file output
   with stream output after normalized comparison for single-page URI-link,
@@ -695,10 +697,10 @@ Implemented in this workspace:
   MIME, and PDF thumbnail stream-vs-file paths.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
-  surface_stream_combo_wbtest.mbt --target native -v`: 4 ASan-compiled
+  surface_stream_combo_wbtest.mbt --target native -v`: 5 ASan-compiled
   white-box backend feature/tag combo tests passed with leak detection
   disabled, covering the stream-vs-file, direct C oracle, stable marker, and
-  PS/SVG negative tag-metadata marker paths for the backend-feature/tag/
+  PS/SVG file and stream negative tag-metadata marker paths for the backend-feature/tag/
   multi-page scene.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
@@ -2174,8 +2176,11 @@ Implemented in this workspace:
   document-feature stream marker slice added stable checks for PDF/PS/SVG
   document-feature stream output, covering PDF metadata/custom metadata/page
   labels/outlines/tags, PS DSC/page markers, and SVG document-unit/page
-  markers. This raises the expected full native suite to 433 tests and leaves
-  the combined split backend/stream output targets at 24 tests.
+  markers. A later backend-combo stream inertness slice added PS/SVG stream
+  checks proving that the three-page backend feature/tag scene does not emit
+  PDF annotation, destination, URI, or structure-tree metadata on those stream
+  backends. This raises the expected full native suite to 434 tests and leaves
+  the combined split backend/stream output targets at 25 tests.
 
 ## Known Gaps
 
@@ -2210,13 +2215,16 @@ Implemented in this workspace:
   rectangle/text and tagged multi-page text tags also have direct C oracle
   coverage, and PS/SVG URI-link text tags, destination/document-structure
   rectangle/text tags, mixed vector/tag/text tags, layered three-page tags, and
-  wide three-page tags now have negative PDF-metadata marker checks.
+  wide three-page tags now have negative PDF-metadata marker checks, and the
+  backend-combo stream output has matching PS/SVG negative PDF-metadata marker
+  checks.
   Broader cross-backend tag/metadata combinations, broader multi-page
   combinations, and richer tag-output assertions are still absent beyond those
   PDF scenes, the tagged multi-page, tagged `show_text_glyphs`, grouped
   glyph/tag multi-page, copy_page retained two-page, mixed
   vector/tag/text, layered three-page, and wide three-page PDF marker tests,
-  PS/SVG tag-metadata absence checks including URI-link text tags, and PS/SVG
+  PS/SVG tag-metadata absence checks including URI-link text tags and
+  backend-combo stream output, and PS/SVG
   Link/destination/document-structure rectangle/text plus tagged multi-page, tagged
   `show_text_glyphs`, grouped glyph/tag, mixed vector/tag/text, layered
   three-page, and wide three-page direct-oracle coverage.
@@ -2229,8 +2237,9 @@ Implemented in this workspace:
   grouped glyph/tag multi-page,
   copy_page retained two-page, mixed vector/tag/text, layered three-page
   clip/dash/surface-pattern/mask/tag/text, wide three-page tag/vector, PDF text
-  document-feature, backend-feature/tag/multi-page combo, PDF JPEG MIME and
-  PDF thumbnail output, and backend document-feature stream-vs-file normalized
+  document-feature, backend-feature/tag/multi-page combo, PS/SVG stream negative
+  tag-metadata checks for that combo, PDF JPEG MIME and PDF thumbnail output,
+  and backend document-feature stream-vs-file normalized
   equality plus stream marker coverage, plus
   PDF/PS/SVG, PNG-writer, and script-writer `WriteError`
   and invalid-status fallback mapping; script stream devices and PNG

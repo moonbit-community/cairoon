@@ -231,3 +231,17 @@ test "ps svg backend feature tag multipage output omits pdf tag metadata" {
     expect_vector_output_absent(path, forbidden)
   }
 }
+
+///|
+test "ps svg backend feature tag multipage stream output omits pdf tag metadata" {
+  let forbidden = [
+    "/Annots", "/Subtype /Link", "/URI", "/Dest", "/Dests", "/StructTreeRoot", "/S /Document",
+    "/S /Sect", "/S /P", "https://example.com/combo", "combo-destination", "<a ",
+  ]
+  for kind in 1..<3 {
+    let chunks : Array[Bytes] = []
+    let surface = make_stream_combo_stream_surface(kind, chunks)
+    render_stream_combo_scene(kind, surface)
+    expect_stream_output_absent(chunks, forbidden)
+  }
+}

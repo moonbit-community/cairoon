@@ -391,11 +391,11 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, and 2026-07-05:
   the PDF text document-feature stream equivalence slice, the PDF
   page-operation document-feature stream equivalence slice, the non-text
   primitive vector stream equivalence slice, the backend feature/tag stream
-  combo slice, the standalone text vector stream
-  equivalence slice, and the single-page tag stream
+  combo slice, the PS/SVG backend-combo stream inertness slice, the standalone
+  text vector stream equivalence slice, and the single-page tag stream
   equivalence slice.
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native`: 425 tests passed. The current run
+- `moon -C cairoon test --target native`: 434 tests passed. The current run
   includes the pycairo context font-extents parity slice,
   the pycairo group-target stack-restoration slice,
   the pycairo rectangle path-extents slice,
@@ -456,8 +456,8 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, and 2026-07-05:
   slice, the PDF text document-feature stream equivalence slice, the PDF
   page-operation document-feature stream equivalence slice, the non-text
   primitive vector stream equivalence slice, the backend feature/tag stream
-  combo slice, the standalone text vector stream
-  equivalence slice, the single-page tag stream
+  combo slice, the PS/SVG backend-combo stream inertness slice, the standalone
+  text vector stream equivalence slice, the single-page tag stream
   equivalence slice, and
   the earlier context `get_source`
   surface-pattern lifetime coverage for the path where both the original source
@@ -560,14 +560,14 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, and 2026-07-05:
   metadata/custom metadata/page labels/outlines/tags, PS DSC/page markers, and
   SVG document-unit/page markers, plus PDF text document-feature, PDF
   page-operation document-feature, PDF JPEG MIME, and PDF thumbnail output.
-- `moon -C cairoon test surface_stream_combo_wbtest.mbt --target native -v`: 4
+- `moon -C cairoon test surface_stream_combo_wbtest.mbt --target native -v`: 5
   white-box backend feature/tag combo tests passed, comparing PDF/PS/SVG file
   output with stream output after normalized comparison, comparing file output
   with a direct C Cairo oracle, checking stable PDF/PS/SVG output markers, and
-  checking PS/SVG negative tag-metadata markers for a three-page scene that
-  combines PDF metadata/page labels/outlines, PS DSC, SVG version/unit, URI and
-  named-destination tags, document-structure tags, surface patterns, text, and
-  `show_text_glyphs`.
+  checking PS/SVG file and stream negative tag-metadata markers for a
+  three-page scene that combines PDF metadata/page labels/outlines, PS DSC, SVG
+  version/unit, URI and named-destination tags, document-structure tags, surface
+  patterns, text, and `show_text_glyphs`.
 - `moon -C cairoon test surface_stream_tag_wbtest.mbt --target native -v`: 7
   white-box stream equivalence tests passed, comparing PDF/PS/SVG file output
   with stream output after normalized comparison for single-page URI-link,
@@ -614,10 +614,10 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, and 2026-07-05:
   MIME, and PDF thumbnail stream-vs-file paths.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
-  surface_stream_combo_wbtest.mbt --target native -v`: 4 ASan-compiled
+  surface_stream_combo_wbtest.mbt --target native -v`: 5 ASan-compiled
   white-box backend feature/tag combo tests passed with leak detection
   disabled, covering the stream-vs-file, direct C oracle, stable marker, and
-  PS/SVG negative tag-metadata marker paths for the backend-feature/tag/
+  PS/SVG file and stream negative tag-metadata marker paths for the backend-feature/tag/
   multi-page scene.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
@@ -2176,8 +2176,11 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, and 2026-07-05:
   document-feature stream marker slice added stable checks for PDF/PS/SVG
   document-feature stream output, covering PDF metadata/custom metadata/page
   labels/outlines/tags, PS DSC/page markers, and SVG document-unit/page
-  markers. This raises the expected full native suite to 433 tests and leaves
-  the combined split backend/stream output targets at 24 tests.
+  markers. A later backend-combo stream inertness slice added PS/SVG stream
+  checks proving that the three-page backend feature/tag scene does not emit
+  PDF annotation, destination, URI, or structure-tree metadata on those stream
+  backends. This raises the expected full native suite to 434 tests and leaves
+  the combined split backend/stream output targets at 25 tests.
 
 The missing reliability pieces are substantial: broader automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering
@@ -2201,7 +2204,8 @@ oracle scene, PDF text-tag, PDF direct document-feature marker tests, tagged
 multi-page text, tagged `show_text_glyphs`,
 grouped glyph/tag multi-page, copy_page retained two-page, mixed
 vector/tag/text, layered three-page, and wide three-page marker tests, PS/SVG
-tag metadata absence checks including URI-link text and tagged multi-page text,
+tag metadata absence checks including URI-link text, tagged multi-page text,
+and backend-combo stream output,
 three PDF document-feature/page-operation oracle scenes, one PS DSC/multi-page oracle scene, one SVG
 version/unit/multi-page oracle scene, and the current PDF/PS/SVG
 stream-vs-file non-text primitive vector scenes, standalone toy-font
@@ -2211,8 +2215,9 @@ copy_page retained two-page, tagged three-page,
 tagged `show_text_glyphs`, grouped glyph/tag multi-page, mixed vector/tag/text,
 layered three-page
 clip/dash/surface-pattern/mask/tag/text, wide three-page tag/vector, PDF text
-document-feature, backend-feature/tag/multi-page combo, PDF JPEG MIME and PDF
-thumbnail output, and backend document-feature equality and stream marker
+document-feature, backend-feature/tag/multi-page combo, PS/SVG stream negative
+tag-metadata checks for that combo, PDF JPEG MIME and PDF thumbnail output, and
+backend document-feature equality and stream marker
 checks, plus PDF/PS/SVG, PNG-writer, and
 script-writer `WriteError` and
 invalid-status fallback checks, including the current two-page direct
@@ -2221,7 +2226,8 @@ broader tag-output assertions
 beyond the current URI link, named-destination, document-structure, PDF
 document-feature, PDF tagged multi-page text, tagged `show_text_glyphs`, and mixed vector/tag/text marker
 tests, grouped glyph/tag multi-page marker tests, layered three-page and wide
-three-page marker tests, PS/SVG tag metadata absence checks including tagged multi-page text, and
+three-page marker tests, PS/SVG tag metadata absence checks including tagged
+multi-page text and backend-combo stream output, and
 PS/SVG Link/destination/document-structure/tagged multi-page, tagged
 `show_text_glyphs`, grouped glyph/tag, mixed vector/tag/text, layered three-page, and wide
 three-page direct-oracle coverage, and the remaining API families from
