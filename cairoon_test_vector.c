@@ -76,6 +76,9 @@ cairo_status_t cairoon_test_render_vector_scene_oracle(
   if (scene == CAIROON_TEST_VECTOR_BACKEND_STREAM_COMBO) {
     return cairoon_test_render_backend_stream_combo_features(kind, name);
   }
+  if (scene == CAIROON_TEST_VECTOR_BACKEND_PAGE_COMBO) {
+    return cairoon_test_render_backend_page_combo_features(kind, name);
+  }
 
   switch (kind) {
     case CAIROON_TEST_VECTOR_PDF:

@@ -490,8 +490,9 @@ Implemented in this workspace:
   `ffi_pattern.mbt`, `ffi_pattern_mesh.mbt`, and
   `ffi_pattern_raster_source.mbt`.
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native`: 436 tests passed. The current run
-  includes the Context drawing-state all-enum round-trip slice,
+- `moon -C cairoon test --target native`: 440 tests passed. The current run
+  includes the backend surface-page feature/tag combo slice,
+  the Context drawing-state all-enum round-trip slice,
   the pycairo context font-extents parity slice,
   the pycairo group-target stack-restoration slice,
   the pycairo rectangle path-extents slice,
@@ -672,6 +673,15 @@ Implemented in this workspace:
   three-page scene that combines PDF metadata/page labels/outlines, PS DSC, SVG
   version/unit, URI and named-destination tags, document-structure tags, surface
   patterns, text, and `show_text_glyphs`.
+- `moon -C cairoon test surface_stream_page_combo_wbtest.mbt --target native
+  -v`: 4 white-box backend surface-page feature/tag combo tests passed,
+  comparing PDF/PS/SVG file output with stream output after normalized
+  comparison, comparing file output with a direct C Cairo oracle, checking
+  stable PDF/PS/SVG output markers, and checking PS/SVG file and stream
+  negative tag-metadata markers for a three-page scene that combines
+  `Surface::copy_page`, `Surface::show_page`, PDF metadata/page labels/outlines,
+  PS DSC, SVG document units, URI and named-destination tags,
+  document-structure tags, and `show_text_glyphs`.
 - `moon -C cairoon test surface_stream_tag_wbtest.mbt --target native -v`: 7
   white-box stream equivalence tests passed, comparing PDF/PS/SVG file output
   with stream output after normalized comparison for single-page URI-link,
@@ -723,6 +733,13 @@ Implemented in this workspace:
   disabled, covering the stream-vs-file, direct C oracle, stable marker, and
   PS/SVG file and stream negative tag-metadata marker paths for the backend-feature/tag/
   multi-page scene.
+- `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
+  ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
+  surface_stream_page_combo_wbtest.mbt --target native -v`: 4 ASan-compiled
+  white-box backend surface-page combo tests passed with leak detection
+  disabled, covering stream-vs-file, direct C oracle, stable marker, and PS/SVG
+  file/stream negative tag-metadata marker paths for the
+  `Surface::copy_page`/`Surface::show_page` feature/tag scene.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
   surface_stream_tag_wbtest.mbt --target native -v`: 7 ASan-compiled white-box
@@ -2221,6 +2238,12 @@ Implemented in this workspace:
   round-trips every typed Antialias, FillRule, LineCap, LineJoin, and Operator
   value through the public Context setters/getters. This raises the expected
   full native suite to 436 tests and raises `context_state_test.mbt` to 7 tests.
+  A later backend surface-page feature/tag combo slice added scene 36 plus
+  `surface_stream_page_combo_wbtest.mbt`, covering `Surface::copy_page` and
+  `Surface::show_page` across PDF/PS/SVG file-vs-stream output, direct C Cairo
+  oracle output, stable backend markers, and PS/SVG negative PDF-metadata
+  checks. This raises the expected full native suite to 440 tests and raises
+  the combined split backend/stream output targets to 29 tests.
 
 ## Known Gaps
 

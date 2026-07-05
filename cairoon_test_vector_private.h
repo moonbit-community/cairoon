@@ -55,7 +55,8 @@ enum {
   CAIROON_TEST_VECTOR_GLYPH_PATH = 32,
   CAIROON_TEST_VECTOR_SHOW_GLYPHS = 33,
   CAIROON_TEST_VECTOR_PDF_PAGE_OPERATION_DOCUMENT_FEATURES = 34,
-  CAIROON_TEST_VECTOR_BACKEND_STREAM_COMBO = 35
+  CAIROON_TEST_VECTOR_BACKEND_STREAM_COMBO = 35,
+  CAIROON_TEST_VECTOR_BACKEND_PAGE_COMBO = 36
 };
 
 cairo_status_t cairoon_test_draw_vector_scene(
@@ -80,6 +81,9 @@ cairo_status_t cairoon_test_render_pdf_text_document_features(const char *name);
 cairo_status_t cairoon_test_render_pdf_page_operation_document_features(
   const char *name);
 cairo_status_t cairoon_test_render_backend_stream_combo_features(
+  int32_t kind,
+  const char *name);
+cairo_status_t cairoon_test_render_backend_page_combo_features(
   int32_t kind,
   const char *name);
 cairo_status_t cairoon_test_render_ps_dsc_features(const char *name);
