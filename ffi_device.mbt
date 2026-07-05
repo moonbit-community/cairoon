@@ -7,7 +7,7 @@ extern "C" fn script_device_create_ffi(
 
 ///|
 #owned(writer)
-#borrow(status)
+#borrow(call_writer, status)
 extern "C" fn script_device_create_for_stream_ffi(
   call_writer : FuncRef[(Bytes, (Bytes) -> Status) -> Status],
   writer : (Bytes) -> Status,

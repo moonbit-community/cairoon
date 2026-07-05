@@ -9,7 +9,7 @@ extern "C" fn pdf_surface_create_ffi(
 ) -> Surface = "cairoon_pdf_surface_create"
 
 ///|
-#borrow(status)
+#borrow(call_writer, status)
 #owned(writer)
 extern "C" fn pdf_surface_create_for_stream_ffi(
   call_writer : FuncRef[(Bytes, (Bytes) -> Status) -> Status],

@@ -8,6 +8,10 @@ Implemented in this workspace:
 - System Cairo 1.18.4 linkage through `pkg-config`-derived flags, with
   `scripts/configure-link-flags.sh` to refresh `moon.pkg` and
   `scripts/configure-link-flags.sh --check` in the local reliability gate.
+- Static raw FFI ownership linting through
+  `scripts/check-ffi-ownership.py`, wired into `scripts/verify.sh`, so every
+  non-primitive `ffi*.mbt` parameter must be annotated with `#borrow` or
+  `#owned`.
 - C FFI glue split by Cairo object family, following pycairo's
   `private.h` plus per-family C file architecture. GC-managed external objects
   currently cover `Surface`, `MappedImageSurface`, `ImageData`, `Context`,
@@ -393,8 +397,9 @@ Implemented in this workspace:
 2026-07-02, 2026-07-03, 2026-07-04, and 2026-07-05:
 
 - `./scripts/verify.sh`: passed. The local reliability gate ran
-  `moon fmt --check`, `scripts/configure-link-flags.sh --check`, native
-  `moon check`, targeted image, ScaledFont oracle,
+  `moon fmt --check`, `scripts/configure-link-flags.sh --check`,
+  `scripts/check-ffi-ownership.py`, native `moon check`, targeted image,
+  ScaledFont oracle,
   font-options/font-face/scaled-font, vector including PDF combined text
   document-feature plus PS DSC/SVG unit backend-feature oracle checks,
   surface base/ImageData tests,

@@ -38,6 +38,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 
 | Slice | Status | Notes |
 |---|---|---|
+| FFI ownership annotation lint | Done | Adds `scripts/check-ffi-ownership.py` and wires it into `scripts/verify.sh`, so every non-primitive raw C FFI parameter in `ffi*.mbt` must be covered by `#borrow` or `#owned`; fixes the existing stream and raster-source callback trampoline annotations caught by the lint |
 | Backend combo deep structure tags | Done | Broadens the existing backend feature/tag stream-combo scene with a third PDF outline and nested Document/Sect/H1/P/Span structure tags, keeping file-vs-stream equality, direct C oracle comparison, PDF marker checks, and PS/SVG inertness checks on the same scene |
 | CI reliability workflow | Done | Adds `.github/workflows/ci.yml` with Ubuntu/macOS native `./scripts/verify.sh` jobs and a dedicated Ubuntu ASan verify job, using the official MoonBit CLI installer plus Cairo development packages |
 | PDF rectangle tag markers | Done | Adds stable PDF marker checks for the three direct-C rectangle tag scenes, covering URI-link annotations, named destinations, and Document/Sect/H1/P structure-tree output |
@@ -248,6 +249,8 @@ Detailed execution rules live in `TESTING.md`.
   involved, deterministic pixel or vector-output assertions.
 - Rendering APIs must gain differential tests against pycairo or Cairo C
   golden output before being called complete.
+- Raw `ffi*.mbt` declarations must pass `scripts/check-ffi-ownership.py`; every
+  non-primitive C FFI parameter must be covered by `#borrow` or `#owned`.
 - Every C-owned object must have an ASan/LSan run that exercises construction,
   normal use, error paths, and finalization.
 - Public API changes must regenerate and review `pkg.generated.mbti`.

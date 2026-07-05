@@ -71,6 +71,7 @@ Evaluate each slice with this scorecard:
 | Dimension | Required Evidence | Current State |
 |---|---|---|
 | API surface | Public entries appear in `pkg.generated.mbti`; Python-only pycairo APIs are recorded as `Decision` | Strong for current portable APIs; remaining platform/product choices stay out of scope until decided |
+| FFI boundary safety | Raw `ffi*.mbt` declarations mark every non-primitive C FFI parameter with `#borrow` or `#owned`, and `scripts/check-ffi-ownership.py` passes | Strong for current raw externs; the lint runs in the local and CI verify gate |
 | Behavioral parity | pycairo-derived black-box cases or direct C Cairo primitive oracles cover normal and invalid inputs | Strong for image, context, path, font, pattern, region, surface/device, and backend helpers already listed in the inventory |
 | Rendering parity | Deterministic image pixels or normalized PDF/PS/SVG bytes match direct C Cairo output | Strong for the enumerated image and vector fixtures; still partial for broader tag/metadata/multi-page combinations |
 | Lifetime safety | External-object ownership, borrowed returns, callback retention, and error exits run under ASan/LSan or stress tests | Strong for targeted local gates; macOS LSan remains intentionally disabled for known toy-font/glyph leak reports |
@@ -92,6 +93,8 @@ Run these tiers in order while developing a slice.
 ### Tier 0: Interface And Build Checks
 
 ```sh
+cairoon/scripts/configure-link-flags.sh --check
+python3 cairoon/scripts/check-ffi-ownership.py
 moon -C cairoon check --target native
 moon -C cairoon info --target native
 ```
@@ -99,8 +102,9 @@ moon -C cairoon info --target native
 Review `pkg.generated.mbti` after `moon info`. Public additions, `raise`
 annotations, and enum constructors must match the intended API.
 Run `scripts/configure-link-flags.sh --check` before native checks when the
-system Cairo installation may have changed; the full local gate includes this
-check.
+system Cairo installation may have changed. Run
+`scripts/check-ffi-ownership.py` whenever raw extern declarations change. The
+full local gate includes both checks.
 
 ### Tier 1: MoonBit Unit And Black-Box Tests
 
@@ -192,8 +196,9 @@ The current local gate is executable as:
 ./scripts/verify.sh
 ```
 
-It runs `moon fmt --check`, `scripts/configure-link-flags.sh --check`, native
-`moon check`, targeted white-box image, ScaledFont, vector-output,
+It runs `moon fmt --check`, `scripts/configure-link-flags.sh --check`,
+`scripts/check-ffi-ownership.py`, native `moon check`, targeted white-box image,
+ScaledFont, vector-output,
 surface base/ImageData/stream/mapped/subsurface/recording/MIME/PDF/PS/SVG/Tee,
 script-device, object-trait, context-lifetime/state/matrix/path/group/text/glyph/
 extents/clip/painting, gradient/mesh pattern, and raster-pattern tests, the full

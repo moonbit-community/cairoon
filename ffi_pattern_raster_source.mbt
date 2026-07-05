@@ -7,7 +7,7 @@ extern "C" fn pattern_create_raster_source_ffi(
 
 ///|
 #owned(acquire)
-#borrow(pattern)
+#borrow(pattern, call_acquire)
 extern "C" fn raster_source_pattern_set_acquire_ffi(
   pattern : Pattern,
   call_acquire : FuncRef[
@@ -18,7 +18,7 @@ extern "C" fn raster_source_pattern_set_acquire_ffi(
 
 ///|
 #owned(acquire, release)
-#borrow(pattern)
+#borrow(pattern, call_acquire, call_release)
 extern "C" fn raster_source_pattern_set_acquire_with_release_ffi(
   pattern : Pattern,
   call_acquire : FuncRef[
@@ -31,7 +31,7 @@ extern "C" fn raster_source_pattern_set_acquire_with_release_ffi(
 
 ///|
 #owned(release)
-#borrow(pattern)
+#borrow(pattern, call_release)
 extern "C" fn raster_source_pattern_set_release_ffi(
   pattern : Pattern,
   call_release : FuncRef[(Surface, (Surface) -> Unit) -> Unit],
