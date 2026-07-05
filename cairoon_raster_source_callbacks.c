@@ -149,6 +149,10 @@ static cairo_surface_t *cairoon_raster_source_acquire(
   }
 
   CairoonSurface *target_wrapper = cairoon_surface_wrap_borrowed(target);
+  moonbit_incref(target_wrapper);
+  if (state->acquire_arg != NULL) {
+    moonbit_incref(state->acquire_arg);
+  }
   CairoonSurface *source_wrapper = state->acquire(
     target_wrapper,
     extents->x,
@@ -202,6 +206,10 @@ static void cairoon_raster_source_release(
       &cairoon_raster_surface_owner_key);
   if (state != NULL && state->release != NULL && owner != NULL &&
       owner->surface != NULL) {
+    moonbit_incref(owner->surface);
+    if (state->release_arg != NULL) {
+      moonbit_incref(state->release_arg);
+    }
     state->release(owner->surface, state->release_arg);
   }
   cairoon_raster_surface_owner_release(surface);
