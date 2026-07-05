@@ -6,16 +6,18 @@ only reachable through the context.
 
 Most mutating operations can observe Cairo status and therefore raise
 `CairoError`. Query methods also check the current context status before
-returning state.
+returning state. Raw C-int enum methods are compatibility APIs for pycairo's C
+glue; prefer typed methods unless porting code that intentionally passes or
+observes raw Cairo enum values.
 
 ## Construction And Drawing State
 
 `Context::new` maps pycairo's `Context(surface)` constructor. Drawing state can
-be queried, changed, saved, and restored. `set_operator`/`get_operator` keep the
-normal MoonBit API typed as `Operator`; `set_operator_raw`/`get_operator_raw`
-exist only for pycairo compatibility with raw C `int` operator values. If the
-raw value is not a known Cairo operator, `get_operator_raw` can still report it
-but `get_operator` raises `CairoInvalidArgument(InvalidStatus, _)`.
+be queried, changed, saved, and restored. The normal MoonBit API keeps
+antialias, fill-rule, line-cap, line-join, and operator state typed. Matching
+`*_raw` methods exist only for pycairo compatibility with raw C `int` enum
+values. If a raw value is not a known Cairo enum value, the raw getter can still
+report it but the typed getter raises `CairoInvalidArgument(InvalidStatus, _)`.
 
 ```mbt check
 ///|
@@ -30,6 +32,13 @@ test "context docs: construction state save restore and dash" {
   ctx.set_operator(OperatorSource)
   ctx.set_operator_raw(1)
   inspect(ctx.get_operator_raw(), content="1")
+  ctx.set_line_cap_raw(42)
+  inspect(ctx.get_line_cap_raw(), content="42")
+  match run_cairo(() => ctx.get_line_cap()) {
+    Err(CairoInvalidArgument(InvalidStatus, _)) => ()
+    _ => @test.fail("expected unknown raw line cap to stay outside typed API")
+  }
+  ctx.set_line_cap_raw(1)
   ctx.set_line_width(4.0)
   ctx.set_line_cap(LineCapRound)
   ctx.set_dash([2.0, 1.0], offset=0.5)

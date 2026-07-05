@@ -27,6 +27,20 @@ pub fn Context::get_hairline(self : Context) -> Bool raise CairoError {
 }
 
 ///|
+fn line_cap_from_raw(raw : Int) -> LineCap raise CairoError {
+  match raw {
+    0 => LineCapButt
+    1 => LineCapRound
+    2 => LineCapSquare
+    _ =>
+      raise CairoInvalidArgument(
+        InvalidStatus,
+        "unknown cairo line cap: \{raw}",
+      )
+  }
+}
+
+///|
 pub fn Context::set_line_cap(
   self : Context,
   cap : LineCap,
@@ -36,8 +50,35 @@ pub fn Context::set_line_cap(
 
 ///|
 pub fn Context::get_line_cap(self : Context) -> LineCap raise CairoError {
+  line_cap_from_raw(self.get_line_cap_raw())
+}
+
+///|
+pub fn Context::set_line_cap_raw(
+  self : Context,
+  cap : Int,
+) -> Unit raise CairoError {
+  check_status(context_set_line_cap_raw_ffi(self, cap))
+}
+
+///|
+pub fn Context::get_line_cap_raw(self : Context) -> Int raise CairoError {
   check_status(context_status_ffi(self))
-  context_get_line_cap_ffi(self)
+  context_get_line_cap_raw_ffi(self)
+}
+
+///|
+fn line_join_from_raw(raw : Int) -> LineJoin raise CairoError {
+  match raw {
+    0 => LineJoinMiter
+    1 => LineJoinRound
+    2 => LineJoinBevel
+    _ =>
+      raise CairoInvalidArgument(
+        InvalidStatus,
+        "unknown cairo line join: \{raw}",
+      )
+  }
 }
 
 ///|
@@ -50,8 +91,34 @@ pub fn Context::set_line_join(
 
 ///|
 pub fn Context::get_line_join(self : Context) -> LineJoin raise CairoError {
+  line_join_from_raw(self.get_line_join_raw())
+}
+
+///|
+pub fn Context::set_line_join_raw(
+  self : Context,
+  join : Int,
+) -> Unit raise CairoError {
+  check_status(context_set_line_join_raw_ffi(self, join))
+}
+
+///|
+pub fn Context::get_line_join_raw(self : Context) -> Int raise CairoError {
   check_status(context_status_ffi(self))
-  context_get_line_join_ffi(self)
+  context_get_line_join_raw_ffi(self)
+}
+
+///|
+fn fill_rule_from_raw(raw : Int) -> FillRule raise CairoError {
+  match raw {
+    0 => FillWinding
+    1 => FillEvenOdd
+    _ =>
+      raise CairoInvalidArgument(
+        InvalidStatus,
+        "unknown cairo fill rule: \{raw}",
+      )
+  }
 }
 
 ///|
@@ -64,8 +131,21 @@ pub fn Context::set_fill_rule(
 
 ///|
 pub fn Context::get_fill_rule(self : Context) -> FillRule raise CairoError {
+  fill_rule_from_raw(self.get_fill_rule_raw())
+}
+
+///|
+pub fn Context::set_fill_rule_raw(
+  self : Context,
+  fill_rule : Int,
+) -> Unit raise CairoError {
+  check_status(context_set_fill_rule_raw_ffi(self, fill_rule))
+}
+
+///|
+pub fn Context::get_fill_rule_raw(self : Context) -> Int raise CairoError {
   check_status(context_status_ffi(self))
-  context_get_fill_rule_ffi(self)
+  context_get_fill_rule_raw_ffi(self)
 }
 
 ///|
@@ -144,9 +224,40 @@ pub fn Context::set_antialias(
 }
 
 ///|
+fn antialias_from_raw(raw : Int) -> Antialias raise CairoError {
+  match raw {
+    0 => AntialiasDefault
+    1 => AntialiasNone
+    2 => AntialiasGray
+    3 => AntialiasSubpixel
+    4 => AntialiasFast
+    5 => AntialiasGood
+    6 => AntialiasBest
+    _ =>
+      raise CairoInvalidArgument(
+        InvalidStatus,
+        "unknown cairo antialias: \{raw}",
+      )
+  }
+}
+
+///|
 pub fn Context::get_antialias(self : Context) -> Antialias raise CairoError {
+  antialias_from_raw(self.get_antialias_raw())
+}
+
+///|
+pub fn Context::set_antialias_raw(
+  self : Context,
+  antialias : Int,
+) -> Unit raise CairoError {
+  check_status(context_set_antialias_raw_ffi(self, antialias))
+}
+
+///|
+pub fn Context::get_antialias_raw(self : Context) -> Int raise CairoError {
   check_status(context_status_ffi(self))
-  context_get_antialias_ffi(self)
+  context_get_antialias_raw_ffi(self)
 }
 
 ///|

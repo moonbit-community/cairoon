@@ -47,11 +47,29 @@ cairo_status_t cairoon_context_set_line_cap(CairoonContext *ctx, cairo_line_cap_
 }
 
 MOONBIT_FFI_EXPORT
+cairo_status_t cairoon_context_set_line_cap_raw(CairoonContext *ctx, int32_t cap) {
+  cairo_status_t status = cairoon_context_status(ctx);
+  if (status != CAIRO_STATUS_SUCCESS) {
+    return status;
+  }
+  cairo_set_line_cap(ctx->ptr, (cairo_line_cap_t)cap);
+  return cairo_status(ctx->ptr);
+}
+
+MOONBIT_FFI_EXPORT
 cairo_line_cap_t cairoon_context_get_line_cap(CairoonContext *ctx) {
   if (cairoon_context_status(ctx) != CAIRO_STATUS_SUCCESS) {
     return CAIRO_LINE_CAP_BUTT;
   }
   return cairo_get_line_cap(ctx->ptr);
+}
+
+MOONBIT_FFI_EXPORT
+int32_t cairoon_context_get_line_cap_raw(CairoonContext *ctx) {
+  if (cairoon_context_status(ctx) != CAIRO_STATUS_SUCCESS) {
+    return CAIRO_LINE_CAP_BUTT;
+  }
+  return (int32_t)cairo_get_line_cap(ctx->ptr);
 }
 
 MOONBIT_FFI_EXPORT
@@ -65,11 +83,29 @@ cairo_status_t cairoon_context_set_line_join(CairoonContext *ctx, cairo_line_joi
 }
 
 MOONBIT_FFI_EXPORT
+cairo_status_t cairoon_context_set_line_join_raw(CairoonContext *ctx, int32_t join) {
+  cairo_status_t status = cairoon_context_status(ctx);
+  if (status != CAIRO_STATUS_SUCCESS) {
+    return status;
+  }
+  cairo_set_line_join(ctx->ptr, (cairo_line_join_t)join);
+  return cairo_status(ctx->ptr);
+}
+
+MOONBIT_FFI_EXPORT
 cairo_line_join_t cairoon_context_get_line_join(CairoonContext *ctx) {
   if (cairoon_context_status(ctx) != CAIRO_STATUS_SUCCESS) {
     return CAIRO_LINE_JOIN_MITER;
   }
   return cairo_get_line_join(ctx->ptr);
+}
+
+MOONBIT_FFI_EXPORT
+int32_t cairoon_context_get_line_join_raw(CairoonContext *ctx) {
+  if (cairoon_context_status(ctx) != CAIRO_STATUS_SUCCESS) {
+    return CAIRO_LINE_JOIN_MITER;
+  }
+  return (int32_t)cairo_get_line_join(ctx->ptr);
 }
 
 MOONBIT_FFI_EXPORT
@@ -83,11 +119,29 @@ cairo_status_t cairoon_context_set_fill_rule(CairoonContext *ctx, cairo_fill_rul
 }
 
 MOONBIT_FFI_EXPORT
+cairo_status_t cairoon_context_set_fill_rule_raw(CairoonContext *ctx, int32_t fill_rule) {
+  cairo_status_t status = cairoon_context_status(ctx);
+  if (status != CAIRO_STATUS_SUCCESS) {
+    return status;
+  }
+  cairo_set_fill_rule(ctx->ptr, (cairo_fill_rule_t)fill_rule);
+  return cairo_status(ctx->ptr);
+}
+
+MOONBIT_FFI_EXPORT
 cairo_fill_rule_t cairoon_context_get_fill_rule(CairoonContext *ctx) {
   if (cairoon_context_status(ctx) != CAIRO_STATUS_SUCCESS) {
     return CAIRO_FILL_RULE_WINDING;
   }
   return cairo_get_fill_rule(ctx->ptr);
+}
+
+MOONBIT_FFI_EXPORT
+int32_t cairoon_context_get_fill_rule_raw(CairoonContext *ctx) {
+  if (cairoon_context_status(ctx) != CAIRO_STATUS_SUCCESS) {
+    return CAIRO_FILL_RULE_WINDING;
+  }
+  return (int32_t)cairo_get_fill_rule(ctx->ptr);
 }
 
 MOONBIT_FFI_EXPORT
@@ -129,11 +183,29 @@ cairo_status_t cairoon_context_set_antialias(CairoonContext *ctx, cairo_antialia
 }
 
 MOONBIT_FFI_EXPORT
+cairo_status_t cairoon_context_set_antialias_raw(CairoonContext *ctx, int32_t antialias) {
+  cairo_status_t status = cairoon_context_status(ctx);
+  if (status != CAIRO_STATUS_SUCCESS) {
+    return status;
+  }
+  cairo_set_antialias(ctx->ptr, (cairo_antialias_t)antialias);
+  return cairo_status(ctx->ptr);
+}
+
+MOONBIT_FFI_EXPORT
 cairo_antialias_t cairoon_context_get_antialias(CairoonContext *ctx) {
   if (cairoon_context_status(ctx) != CAIRO_STATUS_SUCCESS) {
     return CAIRO_ANTIALIAS_DEFAULT;
   }
   return cairo_get_antialias(ctx->ptr);
+}
+
+MOONBIT_FFI_EXPORT
+int32_t cairoon_context_get_antialias_raw(CairoonContext *ctx) {
+  if (cairoon_context_status(ctx) != CAIRO_STATUS_SUCCESS) {
+    return CAIRO_ANTIALIAS_DEFAULT;
+  }
+  return (int32_t)cairo_get_antialias(ctx->ptr);
 }
 
 MOONBIT_FFI_EXPORT

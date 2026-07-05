@@ -157,6 +157,57 @@ test "context raw operator mirrors pycairo c int passthrough" {
 }
 
 ///|
+test "context raw drawing state enums mirror pycairo c int passthrough" {
+  let antialias_ctx = Context::new(context_state_surface())
+  antialias_ctx.set_antialias(AntialiasGood)
+  inspect(antialias_ctx.get_antialias_raw(), content="5")
+  antialias_ctx.set_antialias_raw(42)
+  inspect(antialias_ctx.get_antialias_raw(), content="42")
+  match run_cairo(() => antialias_ctx.get_antialias()) {
+    Err(CairoInvalidArgument(InvalidStatus, _)) => ()
+    _ => @test.fail("expected typed getter to reject unknown raw antialias")
+  }
+  antialias_ctx.set_antialias_raw(0)
+  debug_inspect(antialias_ctx.get_antialias(), content="AntialiasDefault")
+
+  let fill_rule_ctx = Context::new(context_state_surface())
+  fill_rule_ctx.set_fill_rule(FillEvenOdd)
+  inspect(fill_rule_ctx.get_fill_rule_raw(), content="1")
+  fill_rule_ctx.set_fill_rule_raw(42)
+  inspect(fill_rule_ctx.get_fill_rule_raw(), content="42")
+  match run_cairo(() => fill_rule_ctx.get_fill_rule()) {
+    Err(CairoInvalidArgument(InvalidStatus, _)) => ()
+    _ => @test.fail("expected typed getter to reject unknown raw fill rule")
+  }
+  fill_rule_ctx.set_fill_rule_raw(0)
+  debug_inspect(fill_rule_ctx.get_fill_rule(), content="FillWinding")
+
+  let line_cap_ctx = Context::new(context_state_surface())
+  line_cap_ctx.set_line_cap(LineCapRound)
+  inspect(line_cap_ctx.get_line_cap_raw(), content="1")
+  line_cap_ctx.set_line_cap_raw(42)
+  inspect(line_cap_ctx.get_line_cap_raw(), content="42")
+  match run_cairo(() => line_cap_ctx.get_line_cap()) {
+    Err(CairoInvalidArgument(InvalidStatus, _)) => ()
+    _ => @test.fail("expected typed getter to reject unknown raw line cap")
+  }
+  line_cap_ctx.set_line_cap_raw(2)
+  debug_inspect(line_cap_ctx.get_line_cap(), content="LineCapSquare")
+
+  let line_join_ctx = Context::new(context_state_surface())
+  line_join_ctx.set_line_join(LineJoinBevel)
+  inspect(line_join_ctx.get_line_join_raw(), content="2")
+  line_join_ctx.set_line_join_raw(42)
+  inspect(line_join_ctx.get_line_join_raw(), content="42")
+  match run_cairo(() => line_join_ctx.get_line_join()) {
+    Err(CairoInvalidArgument(InvalidStatus, _)) => ()
+    _ => @test.fail("expected typed getter to reject unknown raw line join")
+  }
+  line_join_ctx.set_line_join_raw(1)
+  debug_inspect(line_join_ctx.get_line_join(), content="LineJoinRound")
+}
+
+///|
 test "context save restore preserves drawing state" {
   let ctx = Context::new(context_state_surface())
   ctx.set_line_width(3.0)

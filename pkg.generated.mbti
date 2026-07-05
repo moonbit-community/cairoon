@@ -152,17 +152,21 @@ pub fn Context::fill_extents(Self) -> (Double, Double, Double, Double) raise Cai
 pub fn Context::fill_preserve(Self) -> Unit raise CairoError
 pub fn Context::font_extents(Self) -> FontExtents raise CairoError
 pub fn Context::get_antialias(Self) -> Antialias raise CairoError
+pub fn Context::get_antialias_raw(Self) -> Int raise CairoError
 pub fn Context::get_current_point(Self) -> (Double, Double) raise CairoError
 pub fn Context::get_dash(Self) -> (Array[Double], Double) raise CairoError
 pub fn Context::get_dash_count(Self) -> Int raise CairoError
 pub fn Context::get_fill_rule(Self) -> FillRule raise CairoError
+pub fn Context::get_fill_rule_raw(Self) -> Int raise CairoError
 pub fn Context::get_font_face(Self) -> FontFace raise CairoError
 pub fn Context::get_font_matrix(Self) -> Matrix raise CairoError
 pub fn Context::get_font_options(Self) -> FontOptions raise CairoError
 pub fn Context::get_group_target(Self) -> Surface raise CairoError
 pub fn Context::get_hairline(Self) -> Bool raise CairoError
 pub fn Context::get_line_cap(Self) -> LineCap raise CairoError
+pub fn Context::get_line_cap_raw(Self) -> Int raise CairoError
 pub fn Context::get_line_join(Self) -> LineJoin raise CairoError
+pub fn Context::get_line_join_raw(Self) -> Int raise CairoError
 pub fn Context::get_line_width(Self) -> Double raise CairoError
 pub fn Context::get_matrix(Self) -> Matrix raise CairoError
 pub fn Context::get_miter_limit(Self) -> Double raise CairoError
@@ -206,15 +210,19 @@ pub fn Context::save(Self) -> Unit raise CairoError
 pub fn Context::scale(Self, Double, Double) -> Unit raise CairoError
 pub fn Context::select_font_face(Self, String, slant? : FontSlant, weight? : FontWeight) -> Unit raise CairoError
 pub fn Context::set_antialias(Self, Antialias) -> Unit raise CairoError
+pub fn Context::set_antialias_raw(Self, Int) -> Unit raise CairoError
 pub fn Context::set_dash(Self, ArrayView[Double], offset? : Double) -> Unit raise CairoError
 pub fn Context::set_fill_rule(Self, FillRule) -> Unit raise CairoError
+pub fn Context::set_fill_rule_raw(Self, Int) -> Unit raise CairoError
 pub fn Context::set_font_face(Self, FontFace?) -> Unit raise CairoError
 pub fn Context::set_font_matrix(Self, Matrix) -> Unit raise CairoError
 pub fn Context::set_font_options(Self, FontOptions) -> Unit raise CairoError
 pub fn Context::set_font_size(Self, Double) -> Unit raise CairoError
 pub fn Context::set_hairline(Self, Bool) -> Unit raise CairoError
 pub fn Context::set_line_cap(Self, LineCap) -> Unit raise CairoError
+pub fn Context::set_line_cap_raw(Self, Int) -> Unit raise CairoError
 pub fn Context::set_line_join(Self, LineJoin) -> Unit raise CairoError
+pub fn Context::set_line_join_raw(Self, Int) -> Unit raise CairoError
 pub fn Context::set_line_width(Self, Double) -> Unit raise CairoError
 pub fn Context::set_matrix(Self, Matrix) -> Unit raise CairoError
 pub fn Context::set_miter_limit(Self, Double) -> Unit raise CairoError

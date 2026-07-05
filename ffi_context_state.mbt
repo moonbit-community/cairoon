@@ -26,7 +26,11 @@ extern "C" fn context_set_line_cap_ffi(ctx : Context, cap : LineCap) -> Status =
 
 ///|
 #borrow(ctx)
-extern "C" fn context_get_line_cap_ffi(ctx : Context) -> LineCap = "cairoon_context_get_line_cap"
+extern "C" fn context_set_line_cap_raw_ffi(ctx : Context, cap : Int) -> Status = "cairoon_context_set_line_cap_raw"
+
+///|
+#borrow(ctx)
+extern "C" fn context_get_line_cap_raw_ffi(ctx : Context) -> Int = "cairoon_context_get_line_cap_raw"
 
 ///|
 #borrow(ctx)
@@ -37,7 +41,14 @@ extern "C" fn context_set_line_join_ffi(
 
 ///|
 #borrow(ctx)
-extern "C" fn context_get_line_join_ffi(ctx : Context) -> LineJoin = "cairoon_context_get_line_join"
+extern "C" fn context_set_line_join_raw_ffi(
+  ctx : Context,
+  join : Int,
+) -> Status = "cairoon_context_set_line_join_raw"
+
+///|
+#borrow(ctx)
+extern "C" fn context_get_line_join_raw_ffi(ctx : Context) -> Int = "cairoon_context_get_line_join_raw"
 
 ///|
 #borrow(ctx)
@@ -48,7 +59,14 @@ extern "C" fn context_set_fill_rule_ffi(
 
 ///|
 #borrow(ctx)
-extern "C" fn context_get_fill_rule_ffi(ctx : Context) -> FillRule = "cairoon_context_get_fill_rule"
+extern "C" fn context_set_fill_rule_raw_ffi(
+  ctx : Context,
+  fill_rule : Int,
+) -> Status = "cairoon_context_set_fill_rule_raw"
+
+///|
+#borrow(ctx)
+extern "C" fn context_get_fill_rule_raw_ffi(ctx : Context) -> Int = "cairoon_context_get_fill_rule_raw"
 
 ///|
 #borrow(ctx)
@@ -77,7 +95,14 @@ extern "C" fn context_set_antialias_ffi(
 
 ///|
 #borrow(ctx)
-extern "C" fn context_get_antialias_ffi(ctx : Context) -> Antialias = "cairoon_context_get_antialias"
+extern "C" fn context_set_antialias_raw_ffi(
+  ctx : Context,
+  antialias : Int,
+) -> Status = "cairoon_context_set_antialias_raw"
+
+///|
+#borrow(ctx)
+extern "C" fn context_get_antialias_raw_ffi(ctx : Context) -> Int = "cairoon_context_get_antialias_raw"
 
 ///|
 #borrow(ctx)

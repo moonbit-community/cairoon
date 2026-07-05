@@ -500,7 +500,7 @@ Implemented in this workspace:
   `ffi_pattern.mbt`, `ffi_pattern_mesh.mbt`, and
   `ffi_pattern_raster_source.mbt`.
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native`: 470 tests passed. The current run
+- `moon -C cairoon test --target native`: 471 tests passed. The current run
   includes the backend lifecycle-matrix differential slice,
   the backend tag-matrix differential slice,
   the resized backend page-sequence combo slice,
@@ -508,6 +508,7 @@ Implemented in this workspace:
   the backend surface-page feature/tag combo slice,
   the Context drawing-state all-enum round-trip slice,
   the pycairo raw C-int operator passthrough slice,
+  the pycairo raw C-int context drawing-state enum passthrough slice,
   the pycairo context font-extents parity slice,
   the pycairo group-target stack-restoration slice,
   the pycairo rectangle path-extents slice,
@@ -546,6 +547,7 @@ Implemented in this workspace:
   the pycairo raw C-int pattern extend passthrough slice,
   the pycairo raw C-int pattern filter/dither passthrough slice,
   the Pattern raw enum documentation slice,
+  the pycairo raw C-int context drawing-state enum passthrough slice,
   the Pattern raw FFI family split slice, the raster-source stale-release
   replacement slice, the raster-source acquire-only owner fuzz slice,
   the raster-source failed-acquire owner-count fuzz slice, the raster-source
@@ -615,10 +617,10 @@ Implemented in this workspace:
   `get_group_target`, `get_source`, and PDF/PS stream target wrappers that
   remain usable after their creating helper scopes exit.
 - `moon -C cairoon test context_state_test.mbt context_matrix_test.mbt
-  context_extents_test.mbt --target native -v`: 17 black-box context
+  context_extents_test.mbt --target native -v`: 18 black-box context
   state/matrix/extents tests passed, including save/restore, sticky error
-  status, dash validation, raw C-int operator passthrough parity, CTM
-  conversion, invalid-matrix propagation, pycairo polygon fill-extents
+  status, dash validation, raw C-int operator and drawing-state enum
+  passthrough parity, CTM conversion, invalid-matrix propagation, pycairo polygon fill-extents
   coverage, stroke extents, and hit-testing.
 - `moon -C cairoon test surface_mapped_test.mbt --target native -v`: 6
   black-box mapped-image tests passed, covering whole-surface and extent
@@ -2499,6 +2501,16 @@ Implemented in this workspace:
   through raw getters and are rejected by typed getters. It raises
   `pattern.mbt.md` to 7 executable examples and the expected full native suite
   to 470 tests.
+  A later Context raw drawing-state enum parity slice added
+  `Context::set_antialias_raw`/`Context::get_antialias_raw`,
+  `Context::set_fill_rule_raw`/`Context::get_fill_rule_raw`,
+  `Context::set_line_cap_raw`/`Context::get_line_cap_raw`, and
+  `Context::set_line_join_raw`/`Context::get_line_join_raw`, covering pycairo
+  `context.c` C-int parsing for antialias, fill-rule, line-cap, and line-join
+  while keeping typed getters checked with
+  `CairoInvalidArgument(InvalidStatus, _)` for unknown raw values. It raises
+  `context_state_test.mbt` to 9 tests and the expected full native suite to
+  471 tests.
 
 ## Known Gaps
 
