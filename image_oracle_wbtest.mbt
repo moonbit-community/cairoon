@@ -254,6 +254,23 @@ fn draw_image_oracle_scene(ctx : Context, scene : Int) -> Unit raise CairoError 
       ctx.set_source_rgba(0.0, 0.85, 0.25, 0.9)
       ctx.fill()
     }
+    25 => {
+      let pattern = Pattern::radial(4.0, 4.0, 1.0, 11.0, 11.0, 6.5)
+      pattern.add_color_stop_rgba(0.0, 1.0, 0.0, 0.0, 1.0)
+      pattern.add_color_stop_rgba(0.4, 0.0, 1.0, 0.0, 0.65)
+      pattern.add_color_stop_rgba(1.0, 0.0, 0.0, 1.0, 0.9)
+      pattern.set_extend(Reflect)
+      pattern.set_filter(Nearest)
+      pattern.set_dither(DitherGood)
+      pattern.set_matrix(
+        Matrix::new(xx=0.8, yx=-0.15, xy=0.25, yy=0.7, x0=-1.5, y0=1.25),
+      )
+      ctx.set_source_rgb(0.125, 0.125, 0.125)
+      ctx.paint()
+      ctx.rectangle(1.0, 1.0, 14.0, 14.0)
+      ctx.set_source(pattern)
+      ctx.fill()
+    }
     _ => raise CairoInvalidArgument(InvalidStatus, InvalidStatus.message())
   }
 }
@@ -283,7 +300,7 @@ fn render_buffered_image_oracle_scene(
 
 ///|
 test "image rendering scenes match direct cairo C oracle" {
-  for scene in 0..<25 {
+  for scene in 0..<26 {
     let actual = render_image_oracle_scene(scene)
     let expected = test_argb32_scene_oracle_ffi(scene, 16, 16)
     inspect(expected.length(), content="1024")
@@ -293,7 +310,7 @@ test "image rendering scenes match direct cairo C oracle" {
 
 ///|
 test "buffer backed image rendering scenes match direct cairo C oracle" {
-  for scene in 0..<25 {
+  for scene in 0..<26 {
     let (actual, copied) = render_buffered_image_oracle_scene(scene)
     let expected = test_argb32_scene_oracle_ffi(scene, 16, 16)
     inspect(expected.length(), content="1024")
