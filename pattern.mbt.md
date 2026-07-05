@@ -36,6 +36,43 @@ test "pattern docs: solid rgba and shared pattern state" {
 }
 ```
 
+pycairo accepts C `int` values for pattern enum setters. cairoon keeps the
+ordinary MoonBit API typed, and exposes explicit `*_raw` methods when porting
+code needs that integer round trip. Typed getters reject unknown raw values
+instead of manufacturing an enum constructor.
+
+```mbt check
+///|
+test "pattern docs: raw enum compatibility is explicit" {
+  let pattern = Pattern::solid_rgb(1.0, 0.0, 0.0)
+
+  pattern.set_extend_raw(42)
+  inspect(pattern.get_extend_raw(), content="42")
+  match run_cairo(() => pattern.get_extend()) {
+    Err(CairoInvalidArgument(InvalidStatus, _)) => ()
+    _ => @test.fail("expected unknown raw extend to stay outside typed API")
+  }
+
+  pattern.set_filter_raw(3)
+  debug_inspect(pattern.get_filter(), content="Nearest")
+  pattern.set_filter_raw(42)
+  inspect(pattern.get_filter_raw(), content="42")
+  match run_cairo(() => pattern.get_filter()) {
+    Err(CairoInvalidArgument(InvalidStatus, _)) => ()
+    _ => @test.fail("expected unknown raw filter to stay outside typed API")
+  }
+
+  pattern.set_dither_raw(4)
+  debug_inspect(pattern.get_dither(), content="DitherBest")
+  pattern.set_dither_raw(42)
+  inspect(pattern.get_dither_raw(), content="42")
+  match run_cairo(() => pattern.get_dither()) {
+    Err(CairoInvalidArgument(InvalidStatus, _)) => ()
+    _ => @test.fail("expected unknown raw dither to stay outside typed API")
+  }
+}
+```
+
 ## Surface Patterns
 
 `Pattern::for_surface` maps pycairo's `SurfacePattern` constructor. The pattern
