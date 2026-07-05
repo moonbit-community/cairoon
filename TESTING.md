@@ -58,6 +58,33 @@ applicable gates below pass.
 For the full-product claim, there must be no `Todo` or `Partial` rows left in
 `API_INVENTORY.md`; unresolved scope must be recorded as `Decision`.
 
+## Current Sufficiency Verdict
+
+The current test set is sufficient to protect the migrated slices that are
+listed as `Done` in `API_INVENTORY.md`, provided `./scripts/verify.sh` passes
+on the target platform. It is not sufficient to claim a complete pycairo
+migration because several rows are intentionally still `Partial`, and because
+some reliability evidence is local/manual rather than continuous CI evidence.
+
+Evaluate each slice with this scorecard:
+
+| Dimension | Required Evidence | Current State |
+|---|---|---|
+| API surface | Public entries appear in `pkg.generated.mbti`; Python-only pycairo APIs are recorded as `Decision` | Strong for current portable APIs; remaining platform/product choices stay out of scope until decided |
+| Behavioral parity | pycairo-derived black-box cases or direct C Cairo primitive oracles cover normal and invalid inputs | Strong for image, context, path, font, pattern, region, surface/device, and backend helpers already listed in the inventory |
+| Rendering parity | Deterministic image pixels or normalized PDF/PS/SVG bytes match direct C Cairo output | Strong for the enumerated image and vector fixtures; still partial for broader tag/metadata/multi-page combinations |
+| Lifetime safety | External-object ownership, borrowed returns, callback retention, and error exits run under ASan/LSan or stress tests | Strong for targeted local gates; macOS LSan remains intentionally disabled for known toy-font/glyph leak reports |
+| Callback safety | C-held MoonBit callbacks and callback arguments are retained across the callback invocation and released deterministically | Strong for stream writers/readers and raster-source callbacks covered by current stress/fuzz tests |
+| Portability | Required backends pass on each supported platform, or unsupported APIs have explicit `Decision` rows | Partial until CI runs the native, oracle, and sanitizer gates across the release platform matrix |
+| Documentation | Public behavior has executable reference examples where practical | Strong for current migrated families; keep this synchronized with public API additions |
+
+The practical release rule is simple: a feature can be trusted when its
+inventory row is `Done`, its reference docs are executable where practical,
+and the verify gate passes locally and in CI for every supported platform.
+Until the remaining `Partial` rows are closed or downgraded to explicit
+`Decision` rows, the project is a reliable partial binding rather than a
+complete pycairo migration.
+
 ## Test Tiers
 
 Run these tiers in order while developing a slice.
@@ -2197,56 +2224,24 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, and 2026-07-05:
   backends. This raises the expected full native suite to 435 tests and leaves
   the combined split backend/stream output targets at 25 tests.
 
-The missing reliability pieces are substantial: broader automated differential tests,
-the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering
-LSan failure, broader platform and randomized callback/finalizer fuzz beyond the
-current deterministic raster-source owner-count, state-machine, manual
-get-callback, callback allocation, and retained-owner stress tests, additional
-failure-injection paths, CI wiring, vector-output normalization for broader
-multi-page/tag/metadata combinations beyond the current seventeen-scene
-cross-backend direct C fixture set, three PDF rectangle tag oracle scenes, three
-PDF text-tag oracle scenes with stable PDF marker checks, PS/SVG Link tag
-inertness oracle scenes, PS/SVG destination and document-structure
-rectangle/text tag oracle scenes, one cross-backend tagged multi-page text
-oracle scene, one cross-backend tagged `show_text_glyphs` oracle scene, one
-cross-backend grouped glyph/tag multi-page oracle scene, one cross-backend
-copy_page retained two-page oracle scene, one cross-backend backend-feature/tag
-stream-combo oracle scene with PS/SVG negative tag-metadata marker checks, one
-cross-backend mixed vector/tag/text oracle scene, one cross-backend layered
-three-page clip/dash/surface-pattern/mask/tag/text oracle scene, one
-cross-backend wide three-page URI/destination/document-structure tag/vector
-oracle scene, PDF text-tag, PDF direct document-feature marker tests, tagged
-multi-page text, tagged `show_text_glyphs`,
-grouped glyph/tag multi-page, copy_page retained two-page, mixed
-vector/tag/text, layered three-page, and wide three-page marker tests, PS/SVG
-tag metadata absence checks including URI-link text, tagged multi-page text,
-and backend-combo stream output,
-three PDF document-feature/page-operation oracle scenes, one PS DSC/multi-page oracle scene, one SVG
-version/unit/multi-page oracle scene, and the current PDF/PS/SVG
-stream-vs-file non-text primitive vector scenes, standalone toy-font
-`text_path`/`show_text` vector scenes, single-page URI-link/
-named-destination/document-structure rectangle/text tag scenes, two-page,
-copy_page retained two-page, tagged three-page,
-tagged `show_text_glyphs`, grouped glyph/tag multi-page, mixed vector/tag/text,
-layered three-page
-clip/dash/surface-pattern/mask/tag/text, wide three-page tag/vector, PDF text
-document-feature, backend-feature/tag/multi-page combo, PS/SVG stream negative
-tag-metadata checks for that combo, PDF JPEG MIME and PDF thumbnail output, and
-backend document-feature equality and stream marker
-checks, plus PDF/PS/SVG, PNG-writer, and
-script-writer `WriteError` and
-invalid-status fallback checks, including the current two-page direct
-C oracle scenes and the current single-page toy-font `show_text` oracle scene,
-broader tag-output assertions
-beyond the current URI link, named-destination, document-structure, PDF
-document-feature, PDF tagged multi-page text, tagged `show_text_glyphs`, and mixed vector/tag/text marker
-tests, grouped glyph/tag multi-page marker tests, layered three-page and wide
-three-page marker tests, PS/SVG tag metadata absence checks including tagged
-multi-page text and backend-combo stream output, and
-PS/SVG Link/destination/document-structure/tagged multi-page, tagged
-`show_text_glyphs`, grouped glyph/tag, mixed vector/tag/text, layered three-page, and wide
-three-page direct-oracle coverage, and the remaining API families from
-`API_INVENTORY.md`.
+Remaining reliability work is now narrower and should be tracked as evidence,
+not as an unstructured checklist:
+
+- Broaden normalized PDF/PS/SVG differential coverage for combinations not yet
+  represented by the current direct-C fixtures: deeper tag nesting, richer
+  metadata/page-label/outline mixtures, and more varied multi-page sequences.
+- Add randomized/platform fuzz for callback and finalizer behavior beyond the
+  deterministic raster-source owner-count, state-machine, manual
+  get-callback, callback allocation, retained-owner, and stream retention tests.
+- Wire CI so native checks, full tests, generated-interface review,
+  differential oracles, and sanitizer gates run on every supported release
+  platform instead of relying on local verification logs.
+- Resolve the known macOS LSan reports for toy-font, scaled-font, toy-text,
+  glyph rendering/path, and `show_text_glyphs`, or document a Cairo/upstream
+  suppression with version bounds.
+- Close each remaining `Partial` row in `API_INVENTORY.md` by adding the
+  missing evidence or converting out-of-scope API families to explicit
+  `Decision` rows.
 
 ## Porting pycairo Tests
 
