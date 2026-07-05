@@ -24,6 +24,41 @@ test "document feature stream output matches file output after normalization" {
 }
 
 ///|
+test "document feature stream output contains backend markers" {
+  for kind in 0..<3 {
+    let chunks : Array[Bytes] = []
+    let stream_surface = make_stream_document_feature_stream_surface(
+      kind, chunks,
+    )
+    render_stream_document_feature_scene(kind, stream_surface)
+    match kind {
+      0 =>
+        expect_stream_output_markers(chunks, [
+          "%PDF-1.4", "/Title (Cairoon Combined Oracle)", "/Creator (cairoon-combined-oracle)",
+          "/CreationDate (20260102030405+00'00')", "/ModDate (20260102030405+00'00')",
+          "/ISBN (978-0123456789)", "/Count 2", "/PageLabels", "(intro)", "(details)",
+          "/Outlines", "/Title (intro page)", "/Title (details page)", "/Annots [",
+          "/Subtype /Link", "/S /URI", "/URI (https://example.com/combined)", "/Dest (combined-direct-dest)",
+          "/StructTreeRoot", "/S /Document", "/S /Sect", "/S /P", "%%EOF",
+        ])
+      1 =>
+        expect_stream_output_markers(chunks, [
+          "%!PS-Adobe-3.0", "%%LanguageLevel: 2", "%%Title: Cairoon PS Combined",
+          "%%IncludeFeature: *MediaColor White", "%%IncludeFeature: *PageSize A4",
+          "%%IncludeFeature: *MediaType Plain", "%%Pages: 2", "%%Page: 1 1", "%%Page: 2 2",
+          "%%EOF",
+        ])
+      2 =>
+        expect_stream_output_markers(chunks, [
+          "<?xml version=\"1.0\"", "<svg", "width=\"12px\" height=\"12px\"", "<pageSet>",
+          "<page>", "</pageSet>", "</svg>",
+        ])
+      _ => ()
+    }
+  }
+}
+
+///|
 test "pdf text document feature stream output matches file output after normalization" {
   let path = "/tmp/cairoon_stream_pdf_text_document_feature_equivalence.pdf"
   let file_surface = Surface::pdf(100.0, 100.0, path=Some(path))

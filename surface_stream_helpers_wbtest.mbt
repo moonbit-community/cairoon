@@ -249,3 +249,15 @@ fn stream_equivalence_chunks_to_bytes(chunks : Array[Bytes]) -> Bytes {
   }
   bytes
 }
+
+///|
+fn expect_stream_output_markers(
+  chunks : Array[Bytes],
+  markers : Array[String],
+) -> Unit raise {
+  inspect(chunks.length() > 0, content="true")
+  let output = @utf8.decode_lossy(stream_equivalence_chunks_to_bytes(chunks))
+  for marker in markers {
+    inspect(output.contains(marker), content="true")
+  }
+}

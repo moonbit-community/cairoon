@@ -511,6 +511,7 @@ Implemented in this workspace:
   inertness slice, the PDF rectangle tag marker slice,
   the PDF text tag marker slice,
   the PDF direct document-feature marker slice,
+  the backend document-feature stream marker slice,
   the cross-backend tagged multi-page text direct C oracle slice, the
   PS/SVG tag and text-tag direct C oracle slice, the PDF text-tag direct C
   oracle slice, the raster-source deterministic callback fuzz slice, the
@@ -635,10 +636,11 @@ Implemented in this workspace:
   paint/stroke/fill/path/transform/gradient/multi-page/clip/dash/
   surface-pattern/mask/mesh scenes.
 - `moon -C cairoon test surface_stream_backend_wbtest.mbt --target native -v`:
-  5 white-box stream equivalence tests passed, covering backend document-feature
-  scenes for PDF metadata/custom metadata/page labels/outlines/tags, PS DSC,
-  and SVG document units, plus PDF text document-feature, PDF page-operation
-  document-feature, PDF JPEG MIME, and PDF thumbnail output.
+  6 white-box stream/backend marker tests passed, covering backend
+  document-feature stream-vs-file equality plus stream marker checks for PDF
+  metadata/custom metadata/page labels/outlines/tags, PS DSC/page markers, and
+  SVG document-unit/page markers, plus PDF text document-feature, PDF
+  page-operation document-feature, PDF JPEG MIME, and PDF thumbnail output.
 - `moon -C cairoon test surface_stream_combo_wbtest.mbt --target native -v`: 4
   white-box backend feature/tag combo tests passed, comparing PDF/PS/SVG file
   output with stream output after normalized comparison, comparing file output
@@ -686,11 +688,11 @@ Implemented in this workspace:
   glyph_path/show_glyphs, and non-text primitive vector stream-vs-file paths.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
-  surface_stream_backend_wbtest.mbt --target native -v`: 5 ASan-compiled
-  white-box stream equivalence tests passed with leak detection disabled,
-  covering backend document-feature, PDF text document-feature, PDF
-  page-operation document-feature, PDF JPEG MIME, and PDF thumbnail
-  stream-vs-file paths.
+  surface_stream_backend_wbtest.mbt --target native -v`: 6 ASan-compiled
+  white-box stream/backend marker tests passed with leak detection disabled,
+  covering backend document-feature stream-vs-file and stream marker paths,
+  PDF text document-feature, PDF page-operation document-feature, PDF JPEG
+  MIME, and PDF thumbnail stream-vs-file paths.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
   surface_stream_combo_wbtest.mbt --target native -v`: 4 ASan-compiled
@@ -2168,9 +2170,12 @@ Implemented in this workspace:
   named-destination, and Document/Sect/H1/P text scenes, and extended PS/SVG
   negative metadata checks to the URI-link text scene. A later PDF direct
   document-feature marker slice added stable checks for the direct-C combined
-  metadata/page-label/outline/URI/destination/structure scene. This raises the
-  expected full native suite to 432 tests and leaves the combined split
-  backend/stream output targets at 23 tests.
+  metadata/page-label/outline/URI/destination/structure scene. A later backend
+  document-feature stream marker slice added stable checks for PDF/PS/SVG
+  document-feature stream output, covering PDF metadata/custom metadata/page
+  labels/outlines/tags, PS DSC/page markers, and SVG document-unit/page
+  markers. This raises the expected full native suite to 433 tests and leaves
+  the combined split backend/stream output targets at 24 tests.
 
 ## Known Gaps
 
@@ -2226,7 +2231,7 @@ Implemented in this workspace:
   clip/dash/surface-pattern/mask/tag/text, wide three-page tag/vector, PDF text
   document-feature, backend-feature/tag/multi-page combo, PDF JPEG MIME and
   PDF thumbnail output, and backend document-feature stream-vs-file normalized
-  equality coverage plus
+  equality plus stream marker coverage, plus
   PDF/PS/SVG, PNG-writer, and script-writer `WriteError`
   and invalid-status fallback mapping; script stream devices and PNG
   stream read/write now have copied-byte callback tests and read/write error
