@@ -436,8 +436,9 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, and 2026-07-05:
   text vector stream equivalence slice, and the single-page tag stream
   equivalence slice.
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native`: 435 tests passed. The current run
-  includes the pycairo context font-extents parity slice,
+- `moon -C cairoon test --target native`: 436 tests passed. The current run
+  includes the Context drawing-state all-enum round-trip slice,
+  the pycairo context font-extents parity slice,
   the pycairo group-target stack-restoration slice,
   the pycairo rectangle path-extents slice,
   the pycairo source RGBA round-trip slice,
@@ -2238,7 +2239,11 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, and 2026-07-05:
   PDF outline and nested Document/Sect/H1/P/Span tags while preserving the
   direct C oracle, file-vs-stream equality, marker checks, and PS/SVG inertness
   checks. This raises the expected full native suite to 435 tests and leaves
-  the combined split backend/stream output targets at 25 tests.
+  the combined split backend/stream output targets at 25 tests. A later
+  Context drawing-state enum slice added a pycairo-derived black-box test that
+  round-trips every typed Antialias, FillRule, LineCap, LineJoin, and Operator
+  value through the public Context setters/getters. This raises the expected
+  full native suite to 436 tests and raises `context_state_test.mbt` to 7 tests.
 
 Remaining reliability work is now narrower and should be tracked as evidence,
 not as an unstructured checklist:

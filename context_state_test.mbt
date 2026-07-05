@@ -51,6 +51,89 @@ test "context drawing state setters round trip" {
 }
 
 ///|
+test "context drawing state enum setters cover all cairo values" {
+  let ctx = Context::new(context_state_surface())
+
+  let antialiases : Array[Antialias] = [
+    AntialiasDefault,
+    AntialiasNone,
+    AntialiasGray,
+    AntialiasSubpixel,
+    AntialiasFast,
+    AntialiasGood,
+    AntialiasBest,
+  ]
+  for antialias in antialiases {
+    ctx.set_antialias(antialias)
+    guard ctx.get_antialias() == antialias else {
+      @test.fail("antialias did not round trip")
+    }
+  }
+
+  let fill_rules : Array[FillRule] = [FillWinding, FillEvenOdd]
+  for fill_rule in fill_rules {
+    ctx.set_fill_rule(fill_rule)
+    guard ctx.get_fill_rule() == fill_rule else {
+      @test.fail("fill rule did not round trip")
+    }
+  }
+
+  let caps : Array[LineCap] = [LineCapButt, LineCapRound, LineCapSquare]
+  for cap in caps {
+    ctx.set_line_cap(cap)
+    guard ctx.get_line_cap() == cap else {
+      @test.fail("line cap did not round trip")
+    }
+  }
+
+  let joins : Array[LineJoin] = [LineJoinMiter, LineJoinRound, LineJoinBevel]
+  for join in joins {
+    ctx.set_line_join(join)
+    guard ctx.get_line_join() == join else {
+      @test.fail("line join did not round trip")
+    }
+  }
+
+  let operators : Array[Operator] = [
+    OperatorClear,
+    OperatorSource,
+    OperatorOver,
+    OperatorIn,
+    OperatorOut,
+    OperatorAtop,
+    OperatorDest,
+    OperatorDestOver,
+    OperatorDestIn,
+    OperatorDestOut,
+    OperatorDestAtop,
+    OperatorXor,
+    OperatorAdd,
+    OperatorSaturate,
+    OperatorMultiply,
+    OperatorScreen,
+    OperatorOverlay,
+    OperatorDarken,
+    OperatorLighten,
+    OperatorColorDodge,
+    OperatorColorBurn,
+    OperatorHardLight,
+    OperatorSoftLight,
+    OperatorDifference,
+    OperatorExclusion,
+    OperatorHslHue,
+    OperatorHslSaturation,
+    OperatorHslColor,
+    OperatorHslLuminosity,
+  ]
+  for operator in operators {
+    ctx.set_operator(operator)
+    guard ctx.get_operator() == operator else {
+      @test.fail("operator did not round trip")
+    }
+  }
+}
+
+///|
 test "context save restore preserves drawing state" {
   let ctx = Context::new(context_state_surface())
   ctx.set_line_width(3.0)
