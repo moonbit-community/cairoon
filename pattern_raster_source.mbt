@@ -10,6 +10,21 @@ pub fn Pattern::raster_source(
 }
 
 ///|
+pub fn Pattern::raster_source_raw(
+  content : Int,
+  width : Int,
+  height : Int,
+) -> Pattern raise CairoError {
+  let pattern = pattern_create_raster_source_raw_ffi(
+    checked_content_raw(content),
+    width,
+    height,
+  )
+  check_status(pattern_status_ffi(pattern))
+  pattern
+}
+
+///|
 pub fn Pattern::raster_set_acquire(
   self : Pattern,
   acquire : (Surface, RectangleInt) -> Surface,

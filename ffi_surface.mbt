@@ -10,6 +10,16 @@ extern "C" fn surface_create_similar_ffi(
 
 ///|
 #borrow(surface, status)
+extern "C" fn surface_create_similar_raw_ffi(
+  surface : Surface,
+  content : Int,
+  width : Int,
+  height : Int,
+  status : Ref[Status],
+) -> Surface = "cairoon_surface_create_similar"
+
+///|
+#borrow(surface, status)
 extern "C" fn surface_create_similar_image_ffi(
   surface : Surface,
   format : Format,
@@ -43,7 +53,7 @@ extern "C" fn surface_hash_ffi(surface : Surface) -> UInt64 = "cairoon_surface_h
 
 ///|
 #borrow(surface)
-extern "C" fn surface_get_content_ffi(surface : Surface) -> Content = "cairoon_surface_get_content"
+extern "C" fn surface_get_content_raw_ffi(surface : Surface) -> Int = "cairoon_surface_get_content"
 
 ///|
 #borrow(surface)

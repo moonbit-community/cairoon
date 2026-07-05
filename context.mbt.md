@@ -176,7 +176,8 @@ test "context docs: clip extents rectangle lists and reset" {
 
 Groups render into an intermediate surface. `pop_group` returns a paintable
 surface pattern; `pop_group_to_source` installs that pattern as the current
-source.
+source. `push_group_with_content_raw` mirrors pycairo's C-int `Content`
+argument for ported code.
 
 ```mbt check
 ///|
@@ -191,6 +192,9 @@ test "context docs: group output becomes a reusable source pattern" {
 
   ctx.set_source(pattern)
   ctx.paint()
+  ctx.push_group_with_content_raw(0x1000)
+  inspect(ctx.get_group_target().get_content_raw(), content="4096")
+  let _ = ctx.pop_group()
   let data = target.copy_data()
   inspect(data[0].to_int(), content="0")
   inspect(data[1].to_int(), content="255")

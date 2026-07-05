@@ -25,6 +25,26 @@ pub fn Surface::create_similar(
 }
 
 ///|
+pub fn Surface::create_similar_raw(
+  self : Surface,
+  content : Int,
+  width : Int,
+  height : Int,
+) -> Surface raise CairoError {
+  let status = Ref(Success)
+  let surface = surface_create_similar_raw_ffi(
+    self,
+    checked_content_raw(content),
+    width,
+    height,
+    status,
+  )
+  check_status(status.val)
+  check_status(surface_status_ffi(surface))
+  surface
+}
+
+///|
 pub fn Surface::create_similar_image(
   self : Surface,
   format : Format,
@@ -73,9 +93,33 @@ pub fn Surface::hash(self : Surface) -> UInt64 {
 }
 
 ///|
+fn content_from_raw(raw : Int) -> Content raise CairoError {
+  match raw {
+    0x1000 => ContentColor
+    0x2000 => ContentAlpha
+    0x3000 => ContentColorAlpha
+    _ =>
+      raise CairoInvalidArgument(InvalidStatus, "unknown cairo content: \{raw}")
+  }
+}
+
+///|
+fn checked_content_raw(raw : Int) -> Int raise CairoError {
+  match raw {
+    0x1000 | 0x2000 | 0x3000 => raw
+    _ => raise CairoInvalidArgument(InvalidContent, InvalidContent.message())
+  }
+}
+
+///|
 pub fn Surface::get_content(self : Surface) -> Content raise CairoError {
+  content_from_raw(self.get_content_raw())
+}
+
+///|
+pub fn Surface::get_content_raw(self : Surface) -> Int raise CairoError {
   check_status(surface_status_ffi(self))
-  surface_get_content_ffi(self)
+  surface_get_content_raw_ffi(self)
 }
 
 ///|

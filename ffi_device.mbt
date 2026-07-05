@@ -88,6 +88,16 @@ extern "C" fn script_surface_create_ffi(
 ) -> Surface = "cairoon_script_surface_create"
 
 ///|
+#borrow(device, status)
+extern "C" fn script_surface_create_raw_ffi(
+  device : Device,
+  content : Int,
+  width : Double,
+  height : Double,
+  status : Ref[Status],
+) -> Surface = "cairoon_script_surface_create"
+
+///|
 #borrow(device, target, status)
 extern "C" fn script_surface_create_for_target_ffi(
   device : Device,

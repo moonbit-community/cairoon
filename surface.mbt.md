@@ -86,7 +86,8 @@ test "surface docs: buffer backed image data shares storage" {
 ## Similar And Subsurfaces
 
 `create_similar` and `create_similar_image` follow Cairo's compatible-surface
-constructors. `create_for_rectangle` creates a child surface that clips and
+constructors. `create_similar_raw` mirrors pycairo's C-int `Content` parsing for
+ported code. `create_for_rectangle` creates a child surface that clips and
 translates drawing into its parent; cairoon retains the parent wrapper while
 the child can reference it.
 
@@ -97,6 +98,10 @@ test "surface docs: similar images and rectangular child surfaces" {
 
   let similar = parent.create_similar(ContentColor, 2, 2)
   debug_inspect(similar.get_content(), content="ContentColor")
+
+  let raw_similar = parent.create_similar_raw(0x1000, 1, 1)
+  inspect(raw_similar.get_content_raw(), content="4096")
+  debug_inspect(raw_similar.get_content(), content="ContentColor")
 
   let image = parent.create_similar_image(Rgb24, 2, 3)
   debug_inspect(image.get_type(), content="SurfaceTypeImage")

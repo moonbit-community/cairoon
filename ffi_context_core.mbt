@@ -74,6 +74,13 @@ extern "C" fn context_push_group_with_content_ffi(
 ) -> Status = "cairoon_context_push_group_with_content"
 
 ///|
+#borrow(ctx)
+extern "C" fn context_push_group_with_content_raw_ffi(
+  ctx : Context,
+  content : Int,
+) -> Status = "cairoon_context_push_group_with_content"
+
+///|
 #borrow(ctx, status)
 extern "C" fn context_pop_group_ffi(
   ctx : Context,

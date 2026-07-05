@@ -102,6 +102,16 @@ pub fn Context::push_group_with_content(
 }
 
 ///|
+pub fn Context::push_group_with_content_raw(
+  self : Context,
+  content : Int,
+) -> Unit raise CairoError {
+  check_status(
+    context_push_group_with_content_raw_ffi(self, checked_content_raw(content)),
+  )
+}
+
+///|
 pub fn Context::pop_group(self : Context) -> Pattern raise CairoError {
   let status = Ref(Success)
   let pattern = context_pop_group_ffi(self, status)

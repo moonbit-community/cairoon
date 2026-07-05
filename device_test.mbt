@@ -30,6 +30,17 @@ fn expect_device_surface_type_mismatch(
 }
 
 ///|
+fn[T] expect_script_surface_invalid_content(
+  result : Result[T, CairoError],
+) -> Unit raise {
+  inspect(result is Err(_), content="true")
+  match result {
+    Err(CairoInvalidArgument(InvalidContent, _)) => ()
+    _ => @test.fail("expected InvalidContent")
+  }
+}
+
+///|
 fn script_chunks_to_string(chunks : Array[Bytes]) -> String {
   let builder = StringBuilder()
   for chunk in chunks {
@@ -201,6 +212,22 @@ test "script surface create_for_target wraps and paints target" {
   inspect(data[1].to_int(), content="255")
   inspect(data[2].to_int(), content="0")
   inspect(data[3].to_int(), content="255")
+}
+
+///|
+test "script surface accepts pycairo raw content ints" {
+  let device = Device::script("/tmp/cairoon_script_surface_raw_content.cs")
+  let surface = Surface::script_raw(device, 0x1000, 2.0, 2.0)
+  debug_inspect(surface.get_type(), content="SurfaceTypeScript")
+  inspect(surface.get_content_raw(), content="4096")
+  debug_inspect(surface.get_content(), content="ContentColor")
+
+  expect_script_surface_invalid_content(
+    run_cairo(() => {
+      let failing = Device::script("/tmp/cairoon_script_surface_bad_content.cs")
+      Surface::script_raw(failing, 0, 2.0, 2.0)
+    }),
+  )
 }
 
 ///|

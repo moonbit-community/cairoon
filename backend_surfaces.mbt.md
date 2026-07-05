@@ -176,7 +176,8 @@ test "backend docs: PS level EPS DSC and SVG document units" {
 
 ## Recording And Tee Surfaces
 
-Recording surfaces store drawing operations for replay. Tee surfaces fan out
+Recording surfaces store drawing operations for replay. `Surface::recording_raw`
+mirrors pycairo's C-int `Content` constructor argument. Tee surfaces fan out
 drawing to a primary surface and any added targets while retaining the MoonBit
 wrappers needed by the underlying Cairo surface graph.
 
@@ -194,11 +195,12 @@ fn backend_docs_expect_pixel(
 
 ///|
 test "backend docs: recording replay and tee fanout" {
-  let recording = Surface::recording(
-    ContentColorAlpha,
+  let recording = Surface::recording_raw(
+    0x3000,
     extents=Some(Rectangle::new(0.0, 0.0, 1.0, 1.0)),
   )
   debug_inspect(recording.get_type(), content="SurfaceTypeRecording")
+  inspect(recording.get_content_raw(), content="12288")
   match recording.recording_get_extents() {
     Some(rect) => debug_inspect(rect.components(), content="(0, 0, 1, 1)")
     None => @test.fail("expected recording extents")
@@ -237,6 +239,7 @@ test "backend docs: recording replay and tee fanout" {
 
 Script devices are `Device` objects. They can be file-backed or stream-backed.
 `Device::with_finished` mirrors pycairo's `with device:` cleanup behavior, and
+`Surface::script_raw` mirrors pycairo's C-int `Content` constructor argument.
 `Surface::script_for_target` proxies drawing onto an existing target.
 
 ```mbt check
@@ -254,8 +257,9 @@ test "backend docs: script devices retain surfaces and write chunks" {
   device.script_set_mode(ScriptModeAscii)
   device.script_write_comment("cairoon backend docs")
 
-  let surface = Surface::script(device, ContentColorAlpha, 4.0, 4.0)
+  let surface = Surface::script_raw(device, 0x3000, 4.0, 4.0)
   debug_inspect(surface.get_type(), content="SurfaceTypeScript")
+  inspect(surface.get_content_raw(), content="12288")
   match surface.get_device() {
     Some(other) => inspect(device.equal(other), content="true")
     None => @test.fail("expected script surface device")

@@ -10,6 +10,17 @@ fn expect_recording_surface_type_mismatch(
 }
 
 ///|
+fn[T] expect_recording_invalid_content(
+  result : Result[T, CairoError],
+) -> Unit raise {
+  inspect(result is Err(_), content="true")
+  match result {
+    Err(CairoInvalidArgument(InvalidContent, _)) => ()
+    _ => @test.fail("expected InvalidContent")
+  }
+}
+
+///|
 test "recording surface exposes bounded and unbounded extents" {
   let unbounded = Surface::recording(ContentColorAlpha)
   debug_inspect(unbounded.get_type(), content="SurfaceTypeRecording")
@@ -26,6 +37,21 @@ test "recording surface exposes bounded and unbounded extents" {
     None => @test.fail("expected recording surface extents")
   }
   debug_inspect(bounded.get_content(), content="ContentColor")
+}
+
+///|
+test "recording surface accepts pycairo raw content ints" {
+  let bounds = Rectangle::new(0.0, 0.0, 2.0, 3.0)
+  let recording = Surface::recording_raw(0x3000, extents=Some(bounds))
+  debug_inspect(recording.get_type(), content="SurfaceTypeRecording")
+  inspect(recording.get_content_raw(), content="12288")
+  debug_inspect(recording.get_content(), content="ContentColorAlpha")
+  match recording.recording_get_extents() {
+    Some(rect) => debug_inspect(rect.components(), content="(0, 0, 2, 3)")
+    None => @test.fail("expected recording surface extents")
+  }
+
+  expect_recording_invalid_content(run_cairo(() => Surface::recording_raw(0)))
 }
 
 ///|

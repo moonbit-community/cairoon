@@ -24,6 +24,34 @@ pub fn Surface::recording(
 }
 
 ///|
+pub fn Surface::recording_raw(
+  content : Int,
+  extents? : Rectangle? = None,
+) -> Surface raise CairoError {
+  let status = Ref(Success)
+  let checked_content = checked_content_raw(content)
+  let surface = match extents {
+    None =>
+      recording_surface_create_raw_ffi(
+        checked_content, false, 0.0, 0.0, 0.0, 0.0, status,
+      )
+    Some(rect) =>
+      recording_surface_create_raw_ffi(
+        checked_content,
+        true,
+        rect.x,
+        rect.y,
+        rect.width,
+        rect.height,
+        status,
+      )
+  }
+  check_status(status.val)
+  check_status(surface_status_ffi(surface))
+  surface
+}
+
+///|
 pub fn Surface::recording_ink_extents(
   self : Surface,
 ) -> Rectangle raise CairoError {

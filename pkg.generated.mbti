@@ -199,6 +199,7 @@ pub fn Context::pop_group(Self) -> Pattern raise CairoError
 pub fn Context::pop_group_to_source(Self) -> Unit raise CairoError
 pub fn Context::push_group(Self) -> Unit raise CairoError
 pub fn Context::push_group_with_content(Self, Content) -> Unit raise CairoError
+pub fn Context::push_group_with_content_raw(Self, Int) -> Unit raise CairoError
 pub fn Context::rectangle(Self, Double, Double, Double, Double) -> Unit raise CairoError
 pub fn Context::rel_curve_to(Self, Double, Double, Double, Double, Double, Double) -> Unit raise CairoError
 pub fn Context::rel_line_to(Self, Double, Double) -> Unit raise CairoError
@@ -620,6 +621,7 @@ pub fn Pattern::raster_get_callbacks(Self) -> (((Surface, RectangleInt) -> Surfa
 pub fn Pattern::raster_set_acquire(Self, (Surface, RectangleInt) -> Surface, release? : ((Surface) -> Unit)?) -> Unit raise CairoError
 pub fn Pattern::raster_set_callbacks(Self, acquire? : ((Surface, RectangleInt) -> Surface)?, release? : ((Surface) -> Unit)?) -> Unit raise CairoError
 pub fn Pattern::raster_source(Content, Int, Int) -> Self raise CairoError
+pub fn Pattern::raster_source_raw(Int, Int, Int) -> Self raise CairoError
 pub fn Pattern::set_dither(Self, Dither) -> Unit raise CairoError
 pub fn Pattern::set_dither_raw(Self, Int) -> Unit raise CairoError
 pub fn Pattern::set_extend(Self, Extend) -> Unit raise CairoError
@@ -792,10 +794,12 @@ pub fn Surface::copy_page(Self) -> Unit raise CairoError
 pub fn Surface::create_for_rectangle(Self, Double, Double, Double, Double) -> Self raise CairoError
 pub fn Surface::create_similar(Self, Content, Int, Int) -> Self raise CairoError
 pub fn Surface::create_similar_image(Self, Format, Int, Int) -> Self raise CairoError
+pub fn Surface::create_similar_raw(Self, Int, Int, Int) -> Self raise CairoError
 pub fn Surface::equal(Self, Self) -> Bool
 pub fn Surface::finish(Self) -> Unit raise CairoError
 pub fn Surface::flush(Self) -> Unit raise CairoError
 pub fn Surface::get_content(Self) -> Content raise CairoError
+pub fn Surface::get_content_raw(Self) -> Int raise CairoError
 pub fn Surface::get_data(Self) -> ImageData raise CairoError
 pub fn Surface::get_device(Self) -> Device? raise CairoError
 pub fn Surface::get_device_offset(Self) -> (Double, Double) raise CairoError
@@ -843,8 +847,10 @@ pub fn Surface::ps_stream(Double, Double, (Bytes) -> Status) -> Self raise Cairo
 pub fn Surface::recording(Content, extents? : Rectangle?) -> Self raise CairoError
 pub fn Surface::recording_get_extents(Self) -> Rectangle? raise CairoError
 pub fn Surface::recording_ink_extents(Self) -> Rectangle raise CairoError
+pub fn Surface::recording_raw(Int, extents? : Rectangle?) -> Self raise CairoError
 pub fn Surface::script(Device, Content, Double, Double) -> Self raise CairoError
 pub fn Surface::script_for_target(Device, Self) -> Self raise CairoError
+pub fn Surface::script_raw(Device, Int, Double, Double) -> Self raise CairoError
 pub fn Surface::set_device_offset(Self, Double, Double) -> Unit raise CairoError
 pub fn Surface::set_device_scale(Self, Double, Double) -> Unit raise CairoError
 pub fn Surface::set_fallback_resolution(Self, Double, Double) -> Unit raise CairoError

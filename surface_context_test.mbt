@@ -36,15 +36,43 @@ fn[T] expect_surface_type_mismatch(
 }
 
 ///|
+fn[T] expect_surface_invalid_content(
+  result : Result[T, CairoError],
+) -> Unit raise {
+  inspect(result is Err(_), content="true")
+  match result {
+    Err(CairoInvalidArgument(InvalidContent, _)) => ()
+    _ => @test.fail("expected InvalidContent")
+  }
+}
+
+///|
 test "image surface properties" {
   let surface = Surface::image(Argb32, 2, 1)
   debug_inspect(surface.get_type(), content="SurfaceTypeImage")
   debug_inspect(surface.get_content(), content="ContentColorAlpha")
+  inspect(surface.get_content_raw(), content="12288")
   debug_inspect(surface.get_format(), content="Argb32")
   inspect(surface.get_width(), content="2")
   inspect(surface.get_height(), content="1")
   inspect(surface.get_stride(), content="8")
   inspect(surface.copy_data().length(), content="8")
+}
+
+///|
+test "surface create_similar accepts pycairo raw content ints" {
+  let parent = Surface::image(Argb32, 2, 2)
+  let color = parent.create_similar_raw(0x1000, 1, 1)
+  debug_inspect(color.get_content(), content="ContentColor")
+  inspect(color.get_content_raw(), content="4096")
+
+  let alpha = parent.create_similar_raw(0x2000, 1, 1)
+  debug_inspect(alpha.get_content(), content="ContentAlpha")
+  inspect(alpha.get_content_raw(), content="8192")
+
+  expect_surface_invalid_content(
+    run_cairo(() => parent.create_similar_raw(0, 1, 1)),
+  )
 }
 
 ///|

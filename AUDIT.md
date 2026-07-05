@@ -500,7 +500,7 @@ Implemented in this workspace:
   `ffi_pattern.mbt`, `ffi_pattern_mesh.mbt`, and
   `ffi_pattern_raster_source.mbt`.
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native`: 474 tests passed. The current run
+- `moon -C cairoon test --target native`: 482 tests passed. The current run
   includes the backend lifecycle-matrix differential slice,
   the backend tag-matrix differential slice,
   the resized backend page-sequence combo slice,
@@ -2538,6 +2538,18 @@ Implemented in this workspace:
   getters and invalid raw values map to Cairo's `InvalidSlant`/`InvalidWeight`
   status. It raises `font_face_test.mbt` to 10 tests and the expected full
   native suite to 474 tests.
+  A later Content raw constructor parity slice added
+  `Surface::create_similar_raw`, `Surface::get_content_raw`,
+  `Context::push_group_with_content_raw`, `Surface::recording_raw`,
+  `Surface::script_raw`, and `Pattern::raster_source_raw`, covering pycairo
+  `surface.c`, `context.c`, and `pattern.c` C-int parsing for
+  `cairo_content_t`. Known raw values round trip through raw content getters,
+  and unknown raw content maps to `CairoInvalidArgument(InvalidContent, _)`
+  before entering Cairo's assertion-prone content paths. It raises
+  `surface_context_test.mbt` to 20 tests, `context_group_test.mbt` to 5 tests,
+  `surface_recording_test.mbt` to 4 tests, `device_test.mbt` to 10 tests,
+  `pattern_raster_source_test.mbt` to 7 tests, and the current full native
+  suite to 482 tests.
 
 ## Known Gaps
 

@@ -1,4 +1,25 @@
 ///|
+fn[T] expect_raster_source_invalid_content(
+  result : Result[T, CairoError],
+) -> Unit raise {
+  inspect(result is Err(_), content="true")
+  match result {
+    Err(CairoInvalidArgument(InvalidContent, _)) => ()
+    _ => @test.fail("expected InvalidContent")
+  }
+}
+
+///|
+test "raster source pattern accepts pycairo raw content ints" {
+  let pattern = Pattern::raster_source_raw(0x3000, 1, 1)
+  debug_inspect(pattern.status(), content="Success")
+
+  expect_raster_source_invalid_content(
+    run_cairo(() => Pattern::raster_source_raw(0, 1, 1)),
+  )
+}
+
+///|
 test "raster source pattern paints from acquire callback" {
   let source = Surface::image(Argb32, 1, 1)
   let source_ctx = Context::new(source)

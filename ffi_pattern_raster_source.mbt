@@ -6,6 +6,13 @@ extern "C" fn pattern_create_raster_source_ffi(
 ) -> Pattern = "cairoon_pattern_create_raster_source"
 
 ///|
+extern "C" fn pattern_create_raster_source_raw_ffi(
+  content : Int,
+  width : Int,
+  height : Int,
+) -> Pattern = "cairoon_pattern_create_raster_source"
+
+///|
 #owned(acquire)
 #borrow(pattern, call_acquire)
 extern "C" fn raster_source_pattern_set_acquire_ffi(

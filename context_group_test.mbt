@@ -16,6 +16,17 @@ fn expect_invalid_pop_group(result : Result[Unit, CairoError]) -> Unit raise {
 }
 
 ///|
+fn expect_group_invalid_content(
+  result : Result[Unit, CairoError],
+) -> Unit raise {
+  inspect(result is Err(_), content="true")
+  match result {
+    Err(CairoInvalidArgument(InvalidContent, _)) => ()
+    _ => @test.fail("expected InvalidContent")
+  }
+}
+
+///|
 test "context pop_group returns a paintable surface pattern" {
   let target = Surface::image(Argb32, 1, 1)
   let ctx = Context::new(target)
@@ -47,6 +58,23 @@ test "context pop_group_to_source installs the group pattern" {
   ctx.pop_group_to_source()
   ctx.paint()
   inspect_argb32_pixel(target.copy_data(), [0, 255, 0, 255])
+}
+
+///|
+test "context group content accepts pycairo raw ints" {
+  let target = Surface::image(Argb32, 1, 1)
+  let ctx = Context::new(target)
+  ctx.push_group_with_content_raw(0x2000)
+  inspect(ctx.get_group_target().get_content_raw(), content="8192")
+  debug_inspect(ctx.get_group_target().get_content(), content="ContentAlpha")
+  ctx.pop_group_to_source()
+
+  expect_group_invalid_content(
+    run_cairo(() => {
+      let failing = Context::new(Surface::image(Argb32, 1, 1))
+      failing.push_group_with_content_raw(0)
+    }),
+  )
 }
 
 ///|

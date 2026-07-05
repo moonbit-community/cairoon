@@ -153,6 +153,26 @@ pub fn Surface::script(
 }
 
 ///|
+pub fn Surface::script_raw(
+  device : Device,
+  content : Int,
+  width : Double,
+  height : Double,
+) -> Surface raise CairoError {
+  let status = Ref(Success)
+  let surface = script_surface_create_raw_ffi(
+    device,
+    checked_content_raw(content),
+    width,
+    height,
+    status,
+  )
+  check_status(status.val)
+  check_status(surface_status_ffi(surface))
+  surface
+}
+
+///|
 pub fn Surface::script_for_target(
   device : Device,
   target : Surface,

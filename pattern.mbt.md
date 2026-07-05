@@ -166,7 +166,8 @@ test "pattern docs: mesh patch exposes path and corner colors" {
 
 Raster-source acquire callbacks receive the target surface and requested
 extents. If a release callback is supplied, Cairo calls it with the acquired
-surface after the paint operation.
+surface after the paint operation. `Pattern::raster_source_raw` mirrors
+pycairo's C-int `Content` constructor argument.
 
 ```mbt check
 ///|
@@ -182,6 +183,8 @@ test "pattern docs: raster source callback paints and releases" {
   let target_width = Ref(0)
   let released_height = Ref(0)
   let pattern = Pattern::raster_source(ContentColorAlpha, 1, 1)
+  let raw_pattern = Pattern::raster_source_raw(0x3000, 1, 1)
+  debug_inspect(raw_pattern.status(), content="Success")
   pattern.raster_set_acquire(
     fn(target, extents) {
       acquire_calls.val += 1
