@@ -15,6 +15,7 @@ run moon fmt --check
 run ./scripts/configure-link-flags.sh --check
 run python3 ./scripts/check-ffi-ownership.py
 run python3 ./scripts/check-api-inventory.py
+run python3 ./scripts/check-reliability-ledger.py
 run moon check --target native
 
 targeted_tests=(
