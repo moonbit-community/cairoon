@@ -82,6 +82,9 @@ cairo_status_t cairoon_test_render_vector_scene_oracle(
       if (scene == CAIROON_TEST_VECTOR_PDF_TEXT_DOCUMENT_FEATURES) {
         return cairoon_test_render_pdf_text_document_features(name);
       }
+      if (scene == CAIROON_TEST_VECTOR_PDF_PAGE_OPERATION_DOCUMENT_FEATURES) {
+        return cairoon_test_render_pdf_page_operation_document_features(name);
+      }
       surface = cairo_pdf_surface_create(name, 10.0, 10.0);
       cairo_pdf_surface_restrict_to_version(surface, CAIRO_PDF_VERSION_1_4);
       cairo_pdf_surface_set_metadata(

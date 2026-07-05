@@ -2075,6 +2075,14 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, and 2026-07-05:
   `surface_stream_tag_wbtest.mbt` (7 tag-heavy tests), with shared helpers in
   `surface_stream_helpers_wbtest.mbt`. This preserved the full native suite at
   419 tests and changed no public API.
+  The later PDF page-operation document-feature differential slice added
+  scene 34: a PDF-only direct C oracle, stable marker test, and file-vs-stream
+  normalized equality for a `Context::copy_page` retained-page document that
+  combines metadata, custom metadata, page labels, outlines, URI links, named
+  destinations, document-structure tags, and retained text drawing. This
+  raises the expected full native suite to 422 tests, the vector white-box
+  target to 54 tests, the backend stream target to 5 tests, and the combined
+  split stream-equivalence targets to 18 tests.
 
 The missing reliability pieces are substantial: broader automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering

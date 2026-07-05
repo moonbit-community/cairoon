@@ -137,6 +137,25 @@ test "pdf output preserves metadata outlines labels and tags across pages" {
 }
 
 ///|
+test "pdf page operation document feature output contains retained markers" {
+  let path = "/tmp/cairoon_vector_pdf_page_operation_document.pdf"
+  let (intro_id, details_id) = render_pdf_page_operation_document_feature_scene(
+    path,
+  )
+  inspect(intro_id > PDF_OUTLINE_ROOT, content="true")
+  inspect(details_id > intro_id, content="true")
+  expect_vector_output(path, [
+    "%PDF-1.4", "/Title (Cairoon Page Ops)", "/Creator (cairoon page ops test)",
+    "/CreationDate (20260102030405+00'00')", "/ModDate (20260102030405+00'00')",
+    "/Case (copy-show)", "/Count 2", "/PageLabels", "(copy-intro)", "(copy-details)",
+    "/Outlines", "/Title (copy intro)", "/Title (copy details)", "/Annots [", "/Subtype /Link",
+    "/S /URI", "/URI (https://example.com/page-op)", "/Dest (page-op-dest)", "/Names",
+    "/Dests", "(page-op-dest)", "/StructTreeRoot", "/S /Document", "/S /Sect", "/S /P",
+    "%%EOF",
+  ])
+}
+
+///|
 test "pdf link tag output contains annotation markers" {
   let path = "/tmp/cairoon_vector_tag_output.pdf"
   let surface = Surface::pdf(100.0, 100.0, path=Some(path))

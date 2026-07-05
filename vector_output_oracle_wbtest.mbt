@@ -319,6 +319,18 @@ test "pdf document feature scene matches direct cairo C oracle" {
 }
 
 ///|
+test "pdf page operation document feature scene matches direct cairo C oracle" {
+  let cairoon_path = "/tmp/cairoon_vector_pdf_page_operation_document.pdf"
+  let oracle_path = "/tmp/cairoon_vector_pdf_page_operation_document_oracle.pdf"
+  let (intro_id, details_id) = render_pdf_page_operation_document_feature_scene(
+    cairoon_path,
+  )
+  inspect(intro_id > PDF_OUTLINE_ROOT, content="true")
+  inspect(details_id > intro_id, content="true")
+  expect_vector_oracle_match(0, 34, cairoon_path, oracle_path)
+}
+
+///|
 test "pdf jpeg mime output matches direct cairo C oracle" {
   let cairoon_path = "/tmp/cairoon_vector_pdf_jpeg_mime_oracle.pdf"
   let oracle_path = "/tmp/cairoon_vector_pdf_jpeg_mime_direct_oracle.pdf"
