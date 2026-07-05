@@ -338,15 +338,15 @@ Implemented in this workspace:
   region, and error behavior.
 - Gate 3 differential rendering: partial. Deterministic raw-pixel rendering
   tests exist for direct colors and explicit patterns, a direct C image oracle
-  covers twenty-two deterministic ARGB32 scenes including stroke, rectangle,
+  covers twenty-three deterministic ARGB32 scenes including stroke, rectangle,
   Bezier, transform, RGBA, linear/radial gradient, toy-font `text_path`,
   toy-font `show_text`, `glyph_path`, `show_glyphs`, `show_text_glyphs`,
   source-surface offset sampling, mask-surface offset compositing, and
   raster-source pattern repeat rendering, dashed round-cap stroke, clipped
-  paint/fill cases, `OperatorClear` compositing output, and a surface-pattern
-  `Reflect`/`Nearest`/`DitherBest`/matrix combination plus transformed
-  repeated linear-gradient `Repeat`/`Nearest`/`DitherFast`/matrix output and
-  mesh-pattern fill output,
+  paint/fill cases, `OperatorClear` compositing output, group compositing
+  output, and a surface-pattern `Reflect`/`Nearest`/`DitherBest`/matrix
+  combination plus transformed repeated linear-gradient
+  `Repeat`/`Nearest`/`DitherFast`/matrix output and mesh-pattern fill output,
   ScaledFont font/text/glyph extents and empty, single/multi/spaced ASCII,
   precomposed/decomposed Latin, CJK, Arabic RTL, and emoji UTF-8
   text-to-glyph coordinate cases are compared against direct C Cairo primitive
@@ -844,11 +844,12 @@ Implemented in this workspace:
 - `moon -C cairoon test image_oracle_wbtest.mbt --target native -v`: 2
   white-box image rendering oracle tests passed. Ordinary image surfaces and
   buffer-backed `Surface::image_for_data` surfaces both match the direct C
-  ARGB32 fixture across twenty-two scenes with `glyph_path`, `show_glyphs`,
+  ARGB32 fixture across twenty-three scenes with `glyph_path`, `show_glyphs`,
   `show_text_glyphs`, source-surface offsets, mask-surface offsets, and
   raster-source pattern repeat rendering, dashed round-cap strokes, and
-  clipped paint/fill output, `OperatorClear` compositing output, and a
-  surface-pattern `Reflect`/`Nearest`/`DitherBest`/matrix combination plus
+  clipped paint/fill output, `OperatorClear` compositing output, group
+  compositing output, and a surface-pattern
+  `Reflect`/`Nearest`/`DitherBest`/matrix combination plus
   transformed repeated linear-gradient
   `Repeat`/`Nearest`/`DitherFast`/matrix output and mesh-pattern fill output.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
@@ -856,8 +857,8 @@ Implemented in this workspace:
   image_oracle_wbtest.mbt --target native -v`: 2 ASan-compiled white-box image
   oracle tests passed with leak detection disabled, directly exercising the
   source/mask offset, raster-source repeat, dashed-stroke, clipped-output,
-  operator-output, surface-pattern-combo, transformed-gradient-pattern, and
-  mesh-pattern C oracle helper paths.
+  operator-output, surface-pattern-combo, transformed-gradient-pattern,
+  mesh-pattern, and group-compositing C oracle helper paths.
 - `moon -C cairoon test scaled_font_oracle_wbtest.mbt --target native -v`: 2
   white-box ScaledFont oracle tests passed, comparing font extents, text
   extents, glyph extents, and empty, single/multi/spaced ASCII,
@@ -1721,6 +1722,13 @@ Implemented in this workspace:
   direct C vector-oracle mesh helper. The targeted `image_oracle_wbtest.mbt`
   run passed 2 tests, the targeted ASan build passed 2 tests with leak
   detection disabled, and the full native suite remained at 457 tests.
+  The later group-compositing image oracle slice expanded the ordinary and
+  buffer-backed direct C ARGB32 image oracle from twenty-two to twenty-three
+  scenes, adding `push_group_with_content`/`pop_group_to_source`/
+  `paint_with_alpha` output coverage without changing the public API or adding
+  a new test case. The targeted `image_oracle_wbtest.mbt` run passed 2 tests,
+  the targeted ASan build passed 2 tests with leak detection disabled, and the
+  full native suite remained at 457 tests.
   The later raster-source acquire-replacement recovery slice added one
   black-box test proving that a finished-surface acquire failure maps to
   `NoMemory` for that paint, does not permanently poison the raster-source

@@ -182,6 +182,10 @@ cairo_status_t cairoon_test_apply_linear_pattern_combo(
   cairo_t *cr,
   double width,
   double height);
+cairo_status_t cairoon_test_apply_group_compositing(
+  cairo_t *cr,
+  double width,
+  double height);
 cairo_status_t cairoon_test_apply_raster_source_pattern(
   cairo_t *cr,
   double width,

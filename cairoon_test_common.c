@@ -180,6 +180,38 @@ cairo_status_t cairoon_test_apply_linear_pattern_combo(
   return status;
 }
 
+cairo_status_t cairoon_test_apply_group_compositing(
+  cairo_t *cr,
+  double width,
+  double height) {
+  cairo_set_source_rgb(cr, 0.0, 0.0, 0.25);
+  cairo_paint(cr);
+  cairo_status_t status = cairo_status(cr);
+
+  if (status == CAIRO_STATUS_SUCCESS) {
+    cairo_push_group_with_content(cr, CAIRO_CONTENT_COLOR_ALPHA);
+    status = cairo_status(cr);
+  }
+  if (status == CAIRO_STATUS_SUCCESS) {
+    cairo_set_source_rgba(cr, 1.0, 0.0, 0.0, 0.8);
+    cairo_rectangle(cr, 2.0, 2.0, width - 5.0, height - 6.0);
+    cairo_fill(cr);
+    cairo_set_source_rgba(cr, 0.0, 1.0, 0.0, 0.55);
+    cairo_rectangle(cr, 5.0, 5.0, width - 7.0, height - 7.0);
+    cairo_fill(cr);
+    status = cairo_status(cr);
+  }
+  if (status == CAIRO_STATUS_SUCCESS) {
+    cairo_pop_group_to_source(cr);
+    status = cairo_status(cr);
+  }
+  if (status == CAIRO_STATUS_SUCCESS) {
+    cairo_paint_with_alpha(cr, 0.6);
+    status = cairo_status(cr);
+  }
+  return status;
+}
+
 static cairo_surface_t *cairoon_test_raster_source_acquire(
   cairo_pattern_t *pattern,
   void *callback_data,

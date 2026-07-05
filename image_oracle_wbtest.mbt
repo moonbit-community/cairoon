@@ -220,6 +220,19 @@ fn draw_image_oracle_scene(ctx : Context, scene : Int) -> Unit raise CairoError 
       ctx.set_source(pattern)
       ctx.fill()
     }
+    22 => {
+      ctx.set_source_rgb(0.0, 0.0, 0.25)
+      ctx.paint()
+      ctx.push_group_with_content(ContentColorAlpha)
+      ctx.set_source_rgba(1.0, 0.0, 0.0, 0.8)
+      ctx.rectangle(2.0, 2.0, 11.0, 10.0)
+      ctx.fill()
+      ctx.set_source_rgba(0.0, 1.0, 0.0, 0.55)
+      ctx.rectangle(5.0, 5.0, 9.0, 9.0)
+      ctx.fill()
+      ctx.pop_group_to_source()
+      ctx.paint_with_alpha(0.6)
+    }
     _ => raise CairoInvalidArgument(InvalidStatus, InvalidStatus.message())
   }
 }
@@ -249,7 +262,7 @@ fn render_buffered_image_oracle_scene(
 
 ///|
 test "image rendering scenes match direct cairo C oracle" {
-  for scene in 0..<22 {
+  for scene in 0..<23 {
     let actual = render_image_oracle_scene(scene)
     let expected = test_argb32_scene_oracle_ffi(scene, 16, 16)
     inspect(expected.length(), content="1024")
@@ -259,7 +272,7 @@ test "image rendering scenes match direct cairo C oracle" {
 
 ///|
 test "buffer backed image rendering scenes match direct cairo C oracle" {
-  for scene in 0..<22 {
+  for scene in 0..<23 {
     let (actual, copied) = render_buffered_image_oracle_scene(scene)
     let expected = test_argb32_scene_oracle_ffi(scene, 16, 16)
     inspect(expected.length(), content="1024")
