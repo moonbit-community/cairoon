@@ -520,6 +520,7 @@ pub fn PDFOutlineFlagSet::add(Self, PDFOutlineFlags) -> Self
 pub fn PDFOutlineFlagSet::bits(Self) -> Int
 pub fn PDFOutlineFlagSet::combine(ArrayView[PDFOutlineFlags]) -> Self
 pub fn PDFOutlineFlagSet::contains(Self, PDFOutlineFlags) -> Bool
+pub fn PDFOutlineFlagSet::from_bits(Int) -> Self
 pub fn PDFOutlineFlagSet::none() -> Self
 pub fn PDFOutlineFlagSet::of(PDFOutlineFlags) -> Self
 
@@ -538,6 +539,7 @@ pub(all) enum PDFVersion {
 } derive(Eq, @debug.Debug)
 pub fn PDFVersion::supported() -> Array[Self] raise CairoError
 pub fn PDFVersion::to_string(Self) -> String raise CairoError
+pub fn PDFVersion::to_string_raw(Int) -> String raise CairoError
 
 pub(all) enum PSLevel {
   PsLevel2
@@ -545,6 +547,7 @@ pub(all) enum PSLevel {
 } derive(Eq, @debug.Debug)
 pub fn PSLevel::supported() -> Array[Self] raise CairoError
 pub fn PSLevel::to_string(Self) -> String raise CairoError
+pub fn PSLevel::to_string_raw(Int) -> String raise CairoError
 
 type Path
 pub fn Path::equal(Self, Self) -> Bool
@@ -699,6 +702,7 @@ pub(all) enum SVGVersion {
 } derive(Eq, @debug.Debug)
 pub fn SVGVersion::supported() -> Array[Self] raise CairoError
 pub fn SVGVersion::to_string(Self) -> String raise CairoError
+pub fn SVGVersion::to_string_raw(Int) -> String raise CairoError
 
 type ScaledFont
 pub fn ScaledFont::equal(Self, Self) -> Bool
@@ -815,10 +819,13 @@ pub fn Surface::mark_dirty(Self) -> Unit raise CairoError
 pub fn Surface::mark_dirty_rectangle(Self, Int, Int, Int, Int) -> Unit raise CairoError
 pub fn Surface::pdf(Double, Double, path? : String?) -> Self raise CairoError
 pub fn Surface::pdf_add_outline(Self, Int, String, String, PDFOutlineFlags) -> Int raise CairoError
+pub fn Surface::pdf_add_outline_raw(Self, Int, String, String, Int) -> Int raise CairoError
 pub fn Surface::pdf_add_outline_with_flags(Self, Int, String, String, PDFOutlineFlagSet) -> Int raise CairoError
 pub fn Surface::pdf_restrict_to_version(Self, PDFVersion) -> Unit raise CairoError
+pub fn Surface::pdf_restrict_to_version_raw(Self, Int) -> Unit raise CairoError
 pub fn Surface::pdf_set_custom_metadata(Self, String, String?) -> Unit raise CairoError
 pub fn Surface::pdf_set_metadata(Self, PDFMetadata, String) -> Unit raise CairoError
+pub fn Surface::pdf_set_metadata_raw(Self, Int, String) -> Unit raise CairoError
 pub fn Surface::pdf_set_page_label(Self, String) -> Unit raise CairoError
 pub fn Surface::pdf_set_size(Self, Double, Double) -> Unit raise CairoError
 pub fn Surface::pdf_set_thumbnail_size(Self, Int, Int) -> Unit raise CairoError
@@ -829,6 +836,7 @@ pub fn Surface::ps_dsc_begin_setup(Self) -> Unit raise CairoError
 pub fn Surface::ps_dsc_comment(Self, String) -> Unit raise CairoError
 pub fn Surface::ps_get_eps(Self) -> Bool raise CairoError
 pub fn Surface::ps_restrict_to_level(Self, PSLevel) -> Unit raise CairoError
+pub fn Surface::ps_restrict_to_level_raw(Self, Int) -> Unit raise CairoError
 pub fn Surface::ps_set_eps(Self, Bool) -> Unit raise CairoError
 pub fn Surface::ps_set_size(Self, Double, Double) -> Unit raise CairoError
 pub fn Surface::ps_stream(Double, Double, (Bytes) -> Status) -> Self raise CairoError
@@ -846,8 +854,11 @@ pub fn Surface::status(Self) -> Status
 pub fn Surface::supports_mime_type(Self, String) -> Bool raise CairoError
 pub fn Surface::svg(Double, Double, path? : String?) -> Self raise CairoError
 pub fn Surface::svg_get_document_unit(Self) -> SVGUnit raise CairoError
+pub fn Surface::svg_get_document_unit_raw(Self) -> Int raise CairoError
 pub fn Surface::svg_restrict_to_version(Self, SVGVersion) -> Unit raise CairoError
+pub fn Surface::svg_restrict_to_version_raw(Self, Int) -> Unit raise CairoError
 pub fn Surface::svg_set_document_unit(Self, SVGUnit) -> Unit raise CairoError
+pub fn Surface::svg_set_document_unit_raw(Self, Int) -> Unit raise CairoError
 pub fn Surface::svg_stream(Double, Double, (Bytes) -> Status) -> Self raise CairoError
 pub fn Surface::tee(Self) -> Self raise CairoError
 pub fn Surface::tee_add(Self, Self) -> Unit raise CairoError

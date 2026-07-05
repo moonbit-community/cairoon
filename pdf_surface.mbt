@@ -59,6 +59,14 @@ pub fn PDFVersion::to_string(self : PDFVersion) -> String raise CairoError {
 }
 
 ///|
+pub fn PDFVersion::to_string_raw(version : Int) -> String raise CairoError {
+  let status = Ref(Success)
+  let bytes = pdf_version_to_string_raw_ffi(version, status)
+  check_status(status.val)
+  @utf8.decode_lossy(bytes)
+}
+
+///|
 pub struct PDFOutlineFlagSet {
   bits : Int
 } derive(Eq, @debug.Debug)
@@ -80,6 +88,11 @@ pub fn PDFOutlineFlagSet::none() -> PDFOutlineFlagSet {
 ///|
 pub fn PDFOutlineFlagSet::of(flag : PDFOutlineFlags) -> PDFOutlineFlagSet {
   { bits: flag.bits() }
+}
+
+///|
+pub fn PDFOutlineFlagSet::from_bits(bits : Int) -> PDFOutlineFlagSet {
+  { bits, }
 }
 
 ///|
@@ -123,6 +136,14 @@ pub fn Surface::pdf_restrict_to_version(
 }
 
 ///|
+pub fn Surface::pdf_restrict_to_version_raw(
+  self : Surface,
+  version : Int,
+) -> Unit raise CairoError {
+  check_status(pdf_surface_restrict_to_version_raw_ffi(self, version))
+}
+
+///|
 pub fn Surface::pdf_set_size(
   self : Surface,
   width_in_points : Double,
@@ -141,6 +162,21 @@ pub fn Surface::pdf_set_metadata(
 ) -> Unit raise CairoError {
   check_status(
     pdf_surface_set_metadata_ffi(self, metadata, checked_c_string_bytes(value)),
+  )
+}
+
+///|
+pub fn Surface::pdf_set_metadata_raw(
+  self : Surface,
+  metadata : Int,
+  value : String,
+) -> Unit raise CairoError {
+  check_status(
+    pdf_surface_set_metadata_raw_ffi(
+      self,
+      metadata,
+      checked_c_string_bytes(value),
+    ),
   )
 }
 
@@ -214,6 +250,27 @@ pub fn Surface::pdf_add_outline_with_flags(
     checked_c_string_bytes(title),
     checked_c_string_bytes(link_attributes),
     flags.bits(),
+    status,
+  )
+  check_status(status.val)
+  id
+}
+
+///|
+pub fn Surface::pdf_add_outline_raw(
+  self : Surface,
+  parent_id : Int,
+  title : String,
+  link_attributes : String,
+  flags : Int,
+) -> Int raise CairoError {
+  let status = Ref(Success)
+  let id = pdf_surface_add_outline_bits_ffi(
+    self,
+    parent_id,
+    checked_c_string_bytes(title),
+    checked_c_string_bytes(link_attributes),
+    flags,
     status,
   )
   check_status(status.val)

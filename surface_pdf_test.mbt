@@ -25,6 +25,34 @@ test "pdf version helpers expose cairo-supported versions" {
   inspect(versions.length() > 0, content="true")
   inspect(versions.any(item => item == version), content="true")
   inspect(version.to_string().contains("PDF"), content="true")
+  inspect(PDFVersion::to_string_raw(0).contains("PDF"), content="true")
+  match run_cairo(() => PDFVersion::to_string_raw(-1)) {
+    Err(CairoError(InvalidStatus, _)) => ()
+    _ => @test.fail("expected InvalidStatus for invalid raw PDF version")
+  }
+}
+
+///|
+test "pdf surface exposes pycairo-compatible raw C-int backend enums" {
+  let surface = Surface::pdf(10.0, 10.0)
+  surface.pdf_restrict_to_version_raw(0)
+  surface.pdf_set_metadata_raw(4, "cairoon raw creator")
+  let flags = PDFOutlineFlagSet::from_bits(0x03)
+  inspect(flags.bits(), content="3")
+  inspect(flags.contains(PdfOutlineOpen), content="true")
+  inspect(flags.contains(PdfOutlineBold), content="true")
+  inspect(flags.contains(PdfOutlineItalic), content="false")
+  let outline_id = surface.pdf_add_outline_raw(
+    PDF_OUTLINE_ROOT,
+    "raw chapter",
+    "page=1 pos=[3 3]",
+    0x03,
+  )
+  inspect(outline_id > PDF_OUTLINE_ROOT, content="true")
+  surface.finish()
+  expect_pdf_surface_finished(
+    run_cairo(() => surface.pdf_restrict_to_version_raw(0)),
+  )
 }
 
 ///|
@@ -157,7 +185,13 @@ test "pdf surface methods reject other surface types" {
     run_cairo(() => image.pdf_restrict_to_version(PdfVersion1_4)),
   )
   expect_pdf_surface_type_mismatch(
+    run_cairo(() => image.pdf_restrict_to_version_raw(0)),
+  )
+  expect_pdf_surface_type_mismatch(
     run_cairo(() => image.pdf_set_metadata(PdfMetadataTitle, "nope")),
+  )
+  expect_pdf_surface_type_mismatch(
+    run_cairo(() => image.pdf_set_metadata_raw(0, "nope")),
   )
   expect_pdf_surface_type_mismatch(
     run_cairo(() => image.pdf_set_page_label("nope")),
@@ -169,6 +203,17 @@ test "pdf surface methods reject other surface types" {
         "nope",
         "page=1",
         PDFOutlineFlagSet::of(PdfOutlineOpen),
+      )
+      ()
+    }),
+  )
+  expect_pdf_surface_type_mismatch(
+    run_cairo(() => {
+      let _ = image.pdf_add_outline_raw(
+        PDF_OUTLINE_ROOT,
+        "nope",
+        "page=1",
+        0x01,
       )
       ()
     }),

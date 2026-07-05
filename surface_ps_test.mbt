@@ -25,6 +25,21 @@ test "ps level helpers expose cairo-supported levels" {
   inspect(levels.length() > 0, content="true")
   inspect(levels.any(item => item == level), content="true")
   inspect(level.to_string().contains("PS"), content="true")
+  inspect(PSLevel::to_string_raw(0).contains("PS"), content="true")
+  match run_cairo(() => PSLevel::to_string_raw(99)) {
+    Err(CairoError(InvalidStatus, _)) => ()
+    _ => @test.fail("expected InvalidStatus for invalid raw PS level")
+  }
+}
+
+///|
+test "ps surface exposes pycairo-compatible raw C-int backend enums" {
+  let surface = Surface::ps(10.0, 10.0)
+  surface.ps_restrict_to_level_raw(0)
+  surface.finish()
+  expect_ps_surface_finished(
+    run_cairo(() => surface.ps_restrict_to_level_raw(1)),
+  )
 }
 
 ///|
@@ -91,6 +106,9 @@ test "ps surface methods reject other surface types" {
   expect_ps_surface_type_mismatch(run_cairo(() => image.ps_set_eps(true)))
   expect_ps_surface_type_mismatch(
     run_cairo(() => image.ps_restrict_to_level(PsLevel2)),
+  )
+  expect_ps_surface_type_mismatch(
+    run_cairo(() => image.ps_restrict_to_level_raw(0)),
   )
   expect_ps_surface_type_mismatch(
     run_cairo(() => image.ps_dsc_comment("%%Title: nope")),

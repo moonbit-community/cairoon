@@ -59,11 +59,27 @@ pub fn PSLevel::to_string(self : PSLevel) -> String raise CairoError {
 }
 
 ///|
+pub fn PSLevel::to_string_raw(level : Int) -> String raise CairoError {
+  let status = Ref(Success)
+  let bytes = ps_level_to_string_raw_ffi(level, status)
+  check_status(status.val)
+  @utf8.decode_lossy(bytes)
+}
+
+///|
 pub fn Surface::ps_restrict_to_level(
   self : Surface,
   level : PSLevel,
 ) -> Unit raise CairoError {
   check_status(ps_surface_restrict_to_level_ffi(self, level))
+}
+
+///|
+pub fn Surface::ps_restrict_to_level_raw(
+  self : Surface,
+  level : Int,
+) -> Unit raise CairoError {
+  check_status(ps_surface_restrict_to_level_raw_ffi(self, level))
 }
 
 ///|

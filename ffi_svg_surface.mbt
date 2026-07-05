@@ -38,6 +38,13 @@ extern "C" fn svg_version_to_string_ffi(
 ) -> Bytes = "cairoon_svg_version_to_string"
 
 ///|
+#borrow(status)
+extern "C" fn svg_version_to_string_raw_ffi(
+  version : Int,
+  status : Ref[Status],
+) -> Bytes = "cairoon_svg_version_to_string"
+
+///|
 #borrow(surface)
 extern "C" fn svg_surface_restrict_to_version_ffi(
   surface : Surface,
@@ -45,15 +52,29 @@ extern "C" fn svg_surface_restrict_to_version_ffi(
 ) -> Status = "cairoon_svg_surface_restrict_to_version"
 
 ///|
+#borrow(surface)
+extern "C" fn svg_surface_restrict_to_version_raw_ffi(
+  surface : Surface,
+  version : Int,
+) -> Status = "cairoon_svg_surface_restrict_to_version"
+
+///|
 #borrow(surface, status)
-extern "C" fn svg_surface_get_document_unit_ffi(
+extern "C" fn svg_surface_get_document_unit_raw_ffi(
   surface : Surface,
   status : Ref[Status],
-) -> SVGUnit = "cairoon_svg_surface_get_document_unit"
+) -> Int = "cairoon_svg_surface_get_document_unit"
 
 ///|
 #borrow(surface)
 extern "C" fn svg_surface_set_document_unit_ffi(
   surface : Surface,
   unit : SVGUnit,
+) -> Status = "cairoon_svg_surface_set_document_unit"
+
+///|
+#borrow(surface)
+extern "C" fn svg_surface_set_document_unit_raw_ffi(
+  surface : Surface,
+  unit : Int,
 ) -> Status = "cairoon_svg_surface_set_document_unit"

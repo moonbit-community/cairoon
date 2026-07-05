@@ -35,10 +35,24 @@ extern "C" fn ps_level_to_string_ffi(
 ) -> Bytes = "cairoon_ps_level_to_string"
 
 ///|
+#borrow(status)
+extern "C" fn ps_level_to_string_raw_ffi(
+  level : Int,
+  status : Ref[Status],
+) -> Bytes = "cairoon_ps_level_to_string"
+
+///|
 #borrow(surface)
 extern "C" fn ps_surface_restrict_to_level_ffi(
   surface : Surface,
   level : PSLevel,
+) -> Status = "cairoon_ps_surface_restrict_to_level"
+
+///|
+#borrow(surface)
+extern "C" fn ps_surface_restrict_to_level_raw_ffi(
+  surface : Surface,
+  level : Int,
 ) -> Status = "cairoon_ps_surface_restrict_to_level"
 
 ///|

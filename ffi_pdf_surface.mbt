@@ -38,10 +38,24 @@ extern "C" fn pdf_version_to_string_ffi(
 ) -> Bytes = "cairoon_pdf_version_to_string"
 
 ///|
+#borrow(status)
+extern "C" fn pdf_version_to_string_raw_ffi(
+  version : Int,
+  status : Ref[Status],
+) -> Bytes = "cairoon_pdf_version_to_string"
+
+///|
 #borrow(surface)
 extern "C" fn pdf_surface_restrict_to_version_ffi(
   surface : Surface,
   version : PDFVersion,
+) -> Status = "cairoon_pdf_surface_restrict_to_version"
+
+///|
+#borrow(surface)
+extern "C" fn pdf_surface_restrict_to_version_raw_ffi(
+  surface : Surface,
+  version : Int,
 ) -> Status = "cairoon_pdf_surface_restrict_to_version"
 
 ///|
@@ -57,6 +71,14 @@ extern "C" fn pdf_surface_set_size_ffi(
 extern "C" fn pdf_surface_set_metadata_ffi(
   surface : Surface,
   metadata : PDFMetadata,
+  value : Bytes,
+) -> Status = "cairoon_pdf_surface_set_metadata"
+
+///|
+#borrow(surface, value)
+extern "C" fn pdf_surface_set_metadata_raw_ffi(
+  surface : Surface,
+  metadata : Int,
   value : Bytes,
 ) -> Status = "cairoon_pdf_surface_set_metadata"
 

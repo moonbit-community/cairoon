@@ -59,6 +59,35 @@ pub fn SVGVersion::to_string(self : SVGVersion) -> String raise CairoError {
 }
 
 ///|
+pub fn SVGVersion::to_string_raw(version : Int) -> String raise CairoError {
+  let status = Ref(Success)
+  let bytes = svg_version_to_string_raw_ffi(version, status)
+  check_status(status.val)
+  @utf8.decode_lossy(bytes)
+}
+
+///|
+fn svg_unit_from_raw(raw : Int) -> SVGUnit raise CairoError {
+  match raw {
+    0 => SvgUnitUser
+    1 => SvgUnitEm
+    2 => SvgUnitEx
+    3 => SvgUnitPx
+    4 => SvgUnitIn
+    5 => SvgUnitCm
+    6 => SvgUnitMm
+    7 => SvgUnitPt
+    8 => SvgUnitPc
+    9 => SvgUnitPercent
+    _ =>
+      raise CairoInvalidArgument(
+        InvalidStatus,
+        "unknown cairo svg unit: \{raw}",
+      )
+  }
+}
+
+///|
 pub fn Surface::svg_restrict_to_version(
   self : Surface,
   version : SVGVersion,
@@ -67,11 +96,26 @@ pub fn Surface::svg_restrict_to_version(
 }
 
 ///|
+pub fn Surface::svg_restrict_to_version_raw(
+  self : Surface,
+  version : Int,
+) -> Unit raise CairoError {
+  check_status(svg_surface_restrict_to_version_raw_ffi(self, version))
+}
+
+///|
 pub fn Surface::svg_get_document_unit(
   self : Surface,
 ) -> SVGUnit raise CairoError {
+  svg_unit_from_raw(self.svg_get_document_unit_raw())
+}
+
+///|
+pub fn Surface::svg_get_document_unit_raw(
+  self : Surface,
+) -> Int raise CairoError {
   let status = Ref(Success)
-  let unit = svg_surface_get_document_unit_ffi(self, status)
+  let unit = svg_surface_get_document_unit_raw_ffi(self, status)
   check_status(status.val)
   unit
 }
@@ -82,4 +126,12 @@ pub fn Surface::svg_set_document_unit(
   unit : SVGUnit,
 ) -> Unit raise CairoError {
   check_status(svg_surface_set_document_unit_ffi(self, unit))
+}
+
+///|
+pub fn Surface::svg_set_document_unit_raw(
+  self : Surface,
+  unit : Int,
+) -> Unit raise CairoError {
+  check_status(svg_surface_set_document_unit_raw_ffi(self, unit))
 }

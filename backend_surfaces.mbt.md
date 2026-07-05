@@ -81,8 +81,10 @@ test "backend docs: stream writer errors raise CairoIOError" {
 ## PDF Documents
 
 PDF-specific methods include version restriction, metadata, custom metadata,
-page labels, thumbnails, and outlines. The outline flags are carried by the
-typed `PDFOutlineFlagSet` helper rather than raw integers.
+page labels, thumbnails, and outlines. Prefer typed `PDFVersion`,
+`PDFMetadata`, and `PDFOutlineFlagSet` values in new MoonBit code; explicit
+`*_raw` helpers mirror pycairo's C-int parsing for ported code that already
+stores backend enum or flag values as integers.
 
 ```mbt check
 ///|
@@ -90,20 +92,25 @@ test "backend docs: PDF metadata page labels and outlines" {
   let version : PDFVersion = PdfVersion1_4
   inspect(PDFVersion::supported().any(item => item == version), content="true")
   inspect(version.to_string().contains("PDF"), content="true")
+  inspect(PDFVersion::to_string_raw(0).contains("PDF"), content="true")
 
   let surface = Surface::pdf(24.0, 24.0)
   debug_inspect(surface.get_type(), content="SurfaceTypePdf")
   surface.pdf_restrict_to_version(version)
+  surface.pdf_restrict_to_version_raw(0)
   surface.pdf_set_size(30.0, 30.0)
   surface.pdf_set_metadata(PdfMetadataTitle, "cairoon backend docs")
+  surface.pdf_set_metadata_raw(4, "cairoon backend docs raw creator")
   surface.pdf_set_custom_metadata("cairoon-key", Some("cairoon-value"))
   surface.pdf_set_custom_metadata("cairoon-key", None)
   surface.pdf_set_page_label("page one")
   surface.pdf_set_thumbnail_size(2, 2)
 
   let flags = PDFOutlineFlagSet::none().add(PdfOutlineOpen).add(PdfOutlineBold)
+  let raw_flags = PDFOutlineFlagSet::from_bits(0x03)
   inspect(flags.contains(PdfOutlineOpen), content="true")
   inspect(flags.contains(PdfOutlineItalic), content="false")
+  inspect(raw_flags.bits(), content="3")
 
   let outline_id = surface.pdf_add_outline_with_flags(
     PDF_OUTLINE_ROOT,
@@ -112,6 +119,13 @@ test "backend docs: PDF metadata page labels and outlines" {
     flags,
   )
   inspect(outline_id > PDF_OUTLINE_ROOT, content="true")
+  let raw_outline_id = surface.pdf_add_outline_raw(
+    outline_id,
+    "raw appendix",
+    "page=1 pos=[2 2]",
+    raw_flags.bits(),
+  )
+  inspect(raw_outline_id > outline_id, content="true")
   backend_docs_paint_blue_and_finish(surface)
 }
 ```
@@ -119,7 +133,8 @@ test "backend docs: PDF metadata page labels and outlines" {
 ## PostScript And SVG Settings
 
 PS exposes level restriction, EPS mode, page sizing, and DSC comments. SVG
-exposes version restriction and document units.
+exposes version restriction and document units. As with PDF, raw helpers are
+reserved for pycairo-compatible integer enum migration paths.
 
 ```mbt check
 ///|
@@ -127,10 +142,12 @@ test "backend docs: PS level EPS DSC and SVG document units" {
   let level : PSLevel = PsLevel3
   inspect(PSLevel::supported().any(item => item == level), content="true")
   inspect(level.to_string().contains("PS"), content="true")
+  inspect(PSLevel::to_string_raw(0).contains("PS"), content="true")
 
   let ps = Surface::ps(24.0, 24.0)
   debug_inspect(ps.get_type(), content="SurfaceTypePs")
   ps.ps_restrict_to_level(PsLevel2)
+  ps.ps_restrict_to_level_raw(0)
   ps.ps_set_eps(true)
   inspect(ps.ps_get_eps(), content="true")
   ps.ps_set_size(30.0, 30.0)
@@ -143,11 +160,15 @@ test "backend docs: PS level EPS DSC and SVG document units" {
   let version : SVGVersion = SvgVersion1_2
   inspect(SVGVersion::supported().any(item => item == version), content="true")
   inspect(version.to_string().contains("SVG"), content="true")
+  inspect(SVGVersion::to_string_raw(0).contains("SVG"), content="true")
 
   let svg = Surface::svg(24.0, 24.0)
   debug_inspect(svg.get_type(), content="SurfaceTypeSvg")
   svg.svg_restrict_to_version(version)
+  svg.svg_restrict_to_version_raw(1)
   svg.svg_set_document_unit(SvgUnitPx)
+  svg.svg_set_document_unit_raw(3)
+  inspect(svg.svg_get_document_unit_raw(), content="3")
   debug_inspect(svg.svg_get_document_unit(), content="SvgUnitPx")
   backend_docs_paint_blue_and_finish(svg)
 }
