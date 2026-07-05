@@ -52,6 +52,7 @@ targeted_tests=(
   context_state_test.mbt
   context_matrix_test.mbt
   context_path_test.mbt
+  context_pycairo_parity_test.mbt
   path_test.mbt
   context_group_test.mbt
   context_text_test.mbt

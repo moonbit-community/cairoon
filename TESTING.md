@@ -437,7 +437,7 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, and 2026-07-05:
   text vector stream equivalence slice, and the single-page tag stream
   equivalence slice.
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native`: 454 tests passed. The current run
+- `moon -C cairoon test --target native`: 456 tests passed. The current run
   includes the backend tag-matrix differential slice,
   the resized backend page-sequence combo slice,
   the backend nested tag/page sequence slice,
@@ -446,6 +446,7 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, and 2026-07-05:
   the pycairo context font-extents parity slice,
   the pycairo group-target stack-restoration slice,
   the pycairo rectangle path-extents slice,
+  the pycairo 42x42 clip-extents and zero-radius arc parity slice,
   the pycairo source RGBA round-trip slice,
   the pycairo empty-path clip `in_clip` slice,
   the pycairo mesh curve-first patch slice,
@@ -526,6 +527,9 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, and 2026-07-05:
   path copy/append independence, pycairo-style append string
   equivalence after clearing the source context, flattened append behavior, and
   path error propagation.
+- `moon -C cairoon test context_pycairo_parity_test.mbt --target native -v`: 2
+  black-box Context pycairo parity tests passed, covering the 42x42 default
+  clip-extents fixture and zero-radius `arc`/`arc_negative` non-empty paths.
 - `moon -C cairoon test context_group_test.mbt --target native -v`: 4
   black-box Context group tests passed, covering `push_group`, `pop_group`,
   `pop_group_to_source`, `push_group_with_content`, group-target stack
@@ -2380,6 +2384,11 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, and 2026-07-05:
   oracle output, stable backend markers, and PS/SVG negative PDF-metadata
   checks. This raises the expected full native suite to 454 tests and raises
   the combined split backend/stream output targets to 41 tests.
+  A later Context pycairo parity slice added
+  `context_pycairo_parity_test.mbt`, covering pycairo's 42x42 default
+  clip-extents fixture and zero-radius `arc`/`arc_negative` non-empty path
+  behavior. It is included in the targeted normal and ASan verification gates
+  and raises the expected full native suite to 456 tests.
 
 Remaining reliability work is now narrower and should be tracked as evidence,
 not as an unstructured checklist:

@@ -495,7 +495,7 @@ Implemented in this workspace:
   `ffi_pattern.mbt`, `ffi_pattern_mesh.mbt`, and
   `ffi_pattern_raster_source.mbt`.
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native`: 454 tests passed. The current run
+- `moon -C cairoon test --target native`: 456 tests passed. The current run
   includes the backend tag-matrix differential slice,
   the resized backend page-sequence combo slice,
   the backend nested tag/page sequence slice,
@@ -504,6 +504,7 @@ Implemented in this workspace:
   the pycairo context font-extents parity slice,
   the pycairo group-target stack-restoration slice,
   the pycairo rectangle path-extents slice,
+  the pycairo 42x42 clip-extents and zero-radius arc parity slice,
   the pycairo source RGBA round-trip slice,
   the pycairo empty-path clip `in_clip` slice,
   the pycairo mesh curve-first patch slice,
@@ -581,6 +582,9 @@ Implemented in this workspace:
   path copy/append independence, pycairo-style append string
   equivalence after clearing the source context, flattened append behavior, and
   path error propagation.
+- `moon -C cairoon test context_pycairo_parity_test.mbt --target native -v`: 2
+  black-box Context pycairo parity tests passed, covering the 42x42 default
+  clip-extents fixture and zero-radius `arc`/`arc_negative` non-empty paths.
 - `moon -C cairoon test context_group_test.mbt --target native -v`: 4
   black-box Context group tests passed, covering `push_group`, `pop_group`,
   `pop_group_to_source`, `push_group_with_content`, group-target stack
@@ -2360,6 +2364,11 @@ Implemented in this workspace:
   oracle output, stable backend markers, and PS/SVG negative PDF-metadata
   checks. This raises the expected full native suite to 454 tests and raises
   the combined split backend/stream output targets to 41 tests.
+  A later Context pycairo parity slice added
+  `context_pycairo_parity_test.mbt`, covering pycairo's 42x42 default
+  clip-extents fixture and zero-radius `arc`/`arc_negative` non-empty path
+  behavior. It is included in the targeted normal and ASan verification gates
+  and raises the expected full native suite to 456 tests.
 
 ## Known Gaps
 
