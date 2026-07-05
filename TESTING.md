@@ -437,6 +437,7 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, and 2026-07-05:
   C oracle slice, the PS/SVG tag metadata absence slice, the PDF tagged
   multi-page text marker slice, the PS/SVG tagged multi-page text inertness
   slice, the PDF rectangle tag marker slice,
+  the PDF text tag marker slice,
   the cross-backend tagged multi-page text direct C oracle slice, the
   PS/SVG tag and text-tag direct C oracle slice, the PDF text-tag direct C
   oracle slice, the raster-source deterministic callback fuzz slice, the
@@ -511,13 +512,13 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, and 2026-07-05:
   backend docs, retained owner graph stress, external value-wrapper stress,
   image-data view stress, and backend stream callback allocation stress.
 - `moon -C cairoon test vector_output_wbtest.mbt
-  vector_output_oracle_wbtest.mbt --target native -v`: 56 white-box vector
+  vector_output_oracle_wbtest.mbt --target native -v`: 57 white-box vector
   tests passed after splitting marker/output checks from direct C oracle and
   cross-backend tag checks. The split set still covers layered and wide
   multi-page direct C oracle and marker checks, mixed vector/tag/text marker
-  checks, PDF rectangle tag marker checks, the mixed vector/tag/text direct C
-  oracle scene, PS/SVG destination
-  and document-structure tag metadata absence checks, PDF tagged multi-page
+  checks, PDF rectangle and text tag marker checks, the mixed vector/tag/text
+  direct C oracle scene, PS/SVG destination, document-structure, and URI text
+  tag metadata absence checks, PDF tagged multi-page
   text structure markers, PS/SVG tagged multi-page text tag-metadata absence
   checks, tagged `show_text_glyphs` PDF Link/structure
   markers, cross-backend tagged multi-page text, tagged `show_text_glyphs`,
@@ -575,9 +576,9 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, and 2026-07-05:
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
   vector_output_wbtest.mbt vector_output_oracle_wbtest.mbt --target native -v`:
-  56 ASan-compiled white-box vector tests passed with leak detection disabled
+  57 ASan-compiled white-box vector tests passed with leak detection disabled
   after the split, directly exercising the layered and wide multi-page
-  marker/C-oracle paths, the PDF rectangle tag marker paths, the mixed
+  marker/C-oracle paths, the PDF rectangle/text tag marker paths, the mixed
   vector/tag/text marker and C oracle paths,
   the tagged multi-page text C-oracle/PS-SVG inert paths, the tagged
   `show_text_glyphs` marker/C-oracle/PS-SVG inert paths, the grouped
@@ -1645,6 +1646,10 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, and 2026-07-05:
   the direct-C URI-link, named-destination, and Document/Sect/H1/P rectangle
   tag scenes, covering annotations, destination names, and structure-tree
   output from the compact geometry fixtures.
+  The later PDF text tag marker slice tightened the direct-C text-tag fixtures
+  to compact in-page text geometry, added stable marker assertions for
+  URI-link, named-destination, and Document/Sect/H1/P text tag output, and
+  extended PS/SVG negative marker checks to the URI-link text tag scene.
   The later PS/SVG tag metadata absence slice added negative marker checks for
   destination and document-structure rectangle/text tag scenes, proving those
   backends do not emit PDF-only annotations, destinations, structure-tree
@@ -2152,9 +2157,12 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, and 2026-07-05:
   checks proving the two-page Link/Dest/Document/Sect/P text scene stays inert
   on those backends. A later PDF rectangle tag marker slice added marker
   checks for the direct-C rectangle URI-link, named-destination, and
-  Document/Sect/H1/P scenes. This raises the expected full native suite to
-  430 tests and leaves the combined split backend/stream output targets at
-  23 tests.
+  Document/Sect/H1/P scenes. A later PDF text tag marker slice tightened the
+  direct-C text-tag fixtures, added marker checks for the URI-link,
+  named-destination, and Document/Sect/H1/P text scenes, and extended PS/SVG
+  negative metadata checks to the URI-link text scene. This raises the expected
+  full native suite to 431 tests and leaves the combined split backend/stream
+  output targets at 23 tests.
 
 The missing reliability pieces are substantial: broader automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering
@@ -2164,24 +2172,21 @@ get-callback, callback allocation, and retained-owner stress tests, additional
 failure-injection paths, CI wiring, vector-output normalization for broader
 multi-page/tag/metadata combinations beyond the current seventeen-scene
 cross-backend direct C fixture set, three PDF rectangle tag oracle scenes, three
-PDF text-tag oracle scenes, PS/SVG Link tag inertness oracle scenes, PS/SVG
-destination and document-structure rectangle/text tag oracle scenes, one
-cross-backend tagged multi-page text oracle scene, one cross-backend tagged
-  `show_text_glyphs` oracle scene, one cross-backend grouped glyph/tag
-  multi-page oracle scene, one cross-backend copy_page retained two-page oracle
-  scene, one cross-backend backend-feature/tag stream-combo oracle scene with
-  PS/SVG negative tag-metadata marker checks, one
-  cross-backend mixed
-vector/tag/text oracle scene, one cross-backend layered three-page
-clip/dash/surface-pattern/mask/tag/text oracle scene, one cross-backend wide
-  three-page URI/destination/document-structure tag/vector oracle scene, PDF
-  tagged multi-page
-text, tagged `show_text_glyphs`, grouped glyph/tag multi-page, copy_page
-retained two-page,
-mixed vector/tag/text, layered three-page, and wide three-page marker tests,
-PS/SVG tag metadata absence checks including tagged multi-page text,
-three PDF document-feature/page-operation
-oracle scenes, one PS DSC/multi-page oracle scene, one SVG
+PDF text-tag oracle scenes with stable PDF marker checks, PS/SVG Link tag
+inertness oracle scenes, PS/SVG destination and document-structure
+rectangle/text tag oracle scenes, one cross-backend tagged multi-page text
+oracle scene, one cross-backend tagged `show_text_glyphs` oracle scene, one
+cross-backend grouped glyph/tag multi-page oracle scene, one cross-backend
+copy_page retained two-page oracle scene, one cross-backend backend-feature/tag
+stream-combo oracle scene with PS/SVG negative tag-metadata marker checks, one
+cross-backend mixed vector/tag/text oracle scene, one cross-backend layered
+three-page clip/dash/surface-pattern/mask/tag/text oracle scene, one
+cross-backend wide three-page URI/destination/document-structure tag/vector
+oracle scene, PDF text-tag, tagged multi-page text, tagged `show_text_glyphs`,
+grouped glyph/tag multi-page, copy_page retained two-page, mixed
+vector/tag/text, layered three-page, and wide three-page marker tests, PS/SVG
+tag metadata absence checks including URI-link text and tagged multi-page text,
+three PDF document-feature/page-operation oracle scenes, one PS DSC/multi-page oracle scene, one SVG
 version/unit/multi-page oracle scene, and the current PDF/PS/SVG
 stream-vs-file non-text primitive vector scenes, standalone toy-font
 `text_path`/`show_text` vector scenes, single-page URI-link/

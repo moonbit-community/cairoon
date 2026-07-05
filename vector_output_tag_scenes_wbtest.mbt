@@ -44,40 +44,40 @@ fn draw_pdf_struct_tag_scene(ctx : Context) -> Unit raise CairoError {
 ///|
 fn draw_pdf_uri_text_tag_scene(ctx : Context) -> Unit raise CairoError {
   ctx.select_font_face("serif")
-  ctx.set_font_size(12.0)
+  ctx.set_font_size(4.0)
   ctx.tag_begin(TAG_LINK, "uri='https://example.com/'")
-  ctx.move_to(10.0, 20.0)
-  ctx.show_text("example link")
+  ctx.move_to(1.0, 4.0)
+  ctx.show_text("link")
   ctx.tag_end(TAG_LINK)
 }
 
 ///|
 fn draw_pdf_dest_text_tag_scene(ctx : Context) -> Unit raise CairoError {
   ctx.select_font_face("serif")
-  ctx.set_font_size(12.0)
+  ctx.set_font_size(4.0)
   ctx.tag_begin(TAG_LINK, "dest='cairoon-dest'")
-  ctx.move_to(10.0, 20.0)
-  ctx.show_text("jump to destination")
+  ctx.move_to(1.0, 4.0)
+  ctx.show_text("jump")
   ctx.tag_end(TAG_LINK)
-  ctx.tag_begin(TAG_DEST, "name='cairoon-dest' x=10 y=60")
-  ctx.move_to(10.0, 60.0)
-  ctx.show_text("destination")
+  ctx.tag_begin(TAG_DEST, "name='cairoon-dest' x=1 y=7")
+  ctx.move_to(1.0, 7.0)
+  ctx.show_text("dst")
   ctx.tag_end(TAG_DEST)
 }
 
 ///|
 fn draw_pdf_struct_text_tag_scene(ctx : Context) -> Unit raise CairoError {
   ctx.select_font_face("serif")
-  ctx.set_font_size(12.0)
+  ctx.set_font_size(4.0)
   ctx.tag_begin("Document", "")
   ctx.tag_begin("Sect", "")
   ctx.tag_begin("H1", "")
-  ctx.move_to(10.0, 20.0)
-  ctx.show_text("Heading")
+  ctx.move_to(1.0, 4.0)
+  ctx.show_text("Head")
   ctx.tag_end("H1")
   ctx.tag_begin("P", "")
-  ctx.move_to(10.0, 40.0)
-  ctx.show_text("Paragraph")
+  ctx.move_to(1.0, 8.0)
+  ctx.show_text("Para")
   ctx.tag_end("P")
   ctx.tag_end("Sect")
   ctx.tag_end("Document")

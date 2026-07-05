@@ -54,7 +54,7 @@ static void cairoon_test_select_pdf_tag_font(cairo_t *cr) {
     "serif",
     CAIRO_FONT_SLANT_NORMAL,
     CAIRO_FONT_WEIGHT_NORMAL);
-  cairo_set_font_size(cr, 12.0);
+  cairo_set_font_size(cr, 4.0);
 }
 
 static cairo_status_t cairoon_test_show_text_glyphs(
@@ -101,8 +101,8 @@ static cairo_status_t cairoon_test_show_text_glyphs(
 cairo_status_t cairoon_test_draw_pdf_uri_text_tag(cairo_t *cr) {
   cairoon_test_select_pdf_tag_font(cr);
   cairo_tag_begin(cr, CAIRO_TAG_LINK, "uri='https://example.com/'");
-  cairo_move_to(cr, 10.0, 20.0);
-  cairo_show_text(cr, "example link");
+  cairo_move_to(cr, 1.0, 4.0);
+  cairo_show_text(cr, "link");
   cairo_tag_end(cr, CAIRO_TAG_LINK);
   return cairo_status(cr);
 }
@@ -110,12 +110,12 @@ cairo_status_t cairoon_test_draw_pdf_uri_text_tag(cairo_t *cr) {
 cairo_status_t cairoon_test_draw_pdf_dest_text_tag(cairo_t *cr) {
   cairoon_test_select_pdf_tag_font(cr);
   cairo_tag_begin(cr, CAIRO_TAG_LINK, "dest='cairoon-dest'");
-  cairo_move_to(cr, 10.0, 20.0);
-  cairo_show_text(cr, "jump to destination");
+  cairo_move_to(cr, 1.0, 4.0);
+  cairo_show_text(cr, "jump");
   cairo_tag_end(cr, CAIRO_TAG_LINK);
-  cairo_tag_begin(cr, CAIRO_TAG_DEST, "name='cairoon-dest' x=10 y=60");
-  cairo_move_to(cr, 10.0, 60.0);
-  cairo_show_text(cr, "destination");
+  cairo_tag_begin(cr, CAIRO_TAG_DEST, "name='cairoon-dest' x=1 y=7");
+  cairo_move_to(cr, 1.0, 7.0);
+  cairo_show_text(cr, "dst");
   cairo_tag_end(cr, CAIRO_TAG_DEST);
   return cairo_status(cr);
 }
@@ -125,12 +125,12 @@ cairo_status_t cairoon_test_draw_pdf_struct_text_tag(cairo_t *cr) {
   cairo_tag_begin(cr, "Document", "");
   cairo_tag_begin(cr, "Sect", "");
   cairo_tag_begin(cr, "H1", "");
-  cairo_move_to(cr, 10.0, 20.0);
-  cairo_show_text(cr, "Heading");
+  cairo_move_to(cr, 1.0, 4.0);
+  cairo_show_text(cr, "Head");
   cairo_tag_end(cr, "H1");
   cairo_tag_begin(cr, "P", "");
-  cairo_move_to(cr, 10.0, 40.0);
-  cairo_show_text(cr, "Paragraph");
+  cairo_move_to(cr, 1.0, 8.0);
+  cairo_show_text(cr, "Para");
   cairo_tag_end(cr, "P");
   cairo_tag_end(cr, "Sect");
   cairo_tag_end(cr, "Document");

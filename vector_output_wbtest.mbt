@@ -249,6 +249,30 @@ test "pdf rectangle tag oracle scenes contain tag markers" {
 }
 
 ///|
+test "pdf text tag oracle scenes contain tag markers" {
+  let uri_path = "/tmp/cairoon_vector_pdf_text_uri_tag_markers.pdf"
+  render_vector_oracle_scene(0, 22, uri_path)
+  expect_vector_output(uri_path, [
+    "%PDF-1.4", "/Annots [", "/Subtype /Link", "/S /URI", "/URI (https://example.com/)",
+    "/S /Link", "/StructTreeRoot", "%%EOF",
+  ])
+
+  let dest_path = "/tmp/cairoon_vector_pdf_text_dest_tag_markers.pdf"
+  render_vector_oracle_scene(0, 23, dest_path)
+  expect_vector_output(dest_path, [
+    "%PDF-1.4", "/Annots [", "/Subtype /Link", "/Dest", "/Names", "/Dests", "(cairoon-dest)",
+    "/StructTreeRoot", "%%EOF",
+  ])
+
+  let structure_path = "/tmp/cairoon_vector_pdf_text_structure_tag_markers.pdf"
+  render_vector_oracle_scene(0, 24, structure_path)
+  expect_vector_output(structure_path, [
+    "%PDF-1.4", "/StructTreeRoot", "/MarkInfo << /Marked true >>", "/Type /StructElem",
+    "/S /Document", "/S /Sect", "/S /H1", "/S /P", "/StructParents 0", "%%EOF",
+  ])
+}
+
+///|
 test "pdf tagged multi-page text output contains structure markers" {
   let path = "/tmp/cairoon_vector_pdf_tagged_multipage_text_markers.pdf"
   render_vector_oracle_scene(0, 25, path)
