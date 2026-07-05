@@ -38,7 +38,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 
 | Slice | Status | Notes |
 |---|---|---|
-| Top-level pycairo API inventory parity | Done | Adds `scripts/check-api-inventory.py` and wires it into `scripts/verify.sh`; the script parses parent `cairo/__init__.pyi` and requires every public top-level pycairo class/function to have an implementation or explicit product-decision anchor in this inventory |
+| Top-level and portable method inventory parity | Done | Extends `scripts/check-api-inventory.py` in `scripts/verify.sh`; the script parses parent `cairo/__init__.pyi`, requires every public top-level pycairo class/function to have an implementation or explicit product-decision anchor in this inventory, and requires every portable pycairo class method in the first-product scope to have a public MoonBit API anchor in `pkg.generated.mbti` |
 | FFI ownership annotation lint | Done | Adds `scripts/check-ffi-ownership.py` and wires it into `scripts/verify.sh`, so every non-primitive raw C FFI parameter in `ffi*.mbt` must be covered by `#borrow` or `#owned`; fixes the existing stream and raster-source callback trampoline annotations caught by the lint |
 | Reliability ledger lint | Done | Adds `scripts/check-reliability-ledger.py` and wires it into `scripts/verify.sh`, so migration status rows use only the accepted statuses, `Partial` rows state their remaining gaps explicitly, the TESTING scorecard keeps all required reliability dimensions, and CI continues to run the native/ASan verify gates |
 | Backend combo deep structure tags | Done | Broadens the existing backend feature/tag stream-combo scene with a third PDF outline and nested Document/Sect/H1/P/Span structure tags, keeping file-vs-stream equality, direct C oracle comparison, PDF marker checks, and PS/SVG inertness checks on the same scene |
@@ -249,7 +249,8 @@ Detailed execution rules live in `TESTING.md`.
   full-product claim.
 - `scripts/check-api-inventory.py` must pass; every public top-level entry in
   parent `cairo/__init__.pyi` must have an implementation or product-decision
-  anchor in this file.
+  anchor in this file, and every portable pycairo class method must have a
+  public MoonBit API anchor in `pkg.generated.mbti`.
 - Each Done row must have black-box MoonBit tests and, where rendering is
   involved, deterministic pixel or vector-output assertions.
 - Rendering APIs must gain differential tests against pycairo or Cairo C

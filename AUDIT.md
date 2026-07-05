@@ -12,10 +12,12 @@ Implemented in this workspace:
   `scripts/check-ffi-ownership.py`, wired into `scripts/verify.sh`, so every
   non-primitive `ffi*.mbt` parameter must be annotated with `#borrow` or
   `#owned`.
-- Static top-level pycairo API inventory linting through
+- Static top-level and portable method pycairo API inventory linting through
   `scripts/check-api-inventory.py`, wired into `scripts/verify.sh`, so every
   public class/function in parent `cairo/__init__.pyi` must have an
-  implementation or explicit product-decision anchor in `API_INVENTORY.md`.
+  implementation or explicit product-decision anchor in `API_INVENTORY.md`, and
+  every portable pycairo class method in the first-product scope must have a
+  public MoonBit API anchor in `pkg.generated.mbti`.
 - Static reliability-ledger linting through
   `scripts/check-reliability-ledger.py`, wired into `scripts/verify.sh`, so
   migration status rows use accepted statuses, `Partial` rows state remaining
