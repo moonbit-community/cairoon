@@ -64,6 +64,37 @@ test "pattern raw extend mirrors pycairo c int passthrough" {
 }
 
 ///|
+test "pattern raw filter and dither mirror pycairo c int passthrough" {
+  let pattern = Pattern::solid_rgb(1.0, 0.0, 0.0)
+  inspect(pattern.get_filter_raw(), content="1")
+  inspect(pattern.get_dither_raw(), content="1")
+
+  pattern.set_filter_raw(42)
+  inspect(pattern.get_filter_raw(), content="42")
+  let typed_filter_unknown = run_cairo(() => pattern.get_filter())
+  match typed_filter_unknown {
+    Err(CairoInvalidArgument(InvalidStatus, _)) => ()
+    _ => @test.fail("expected typed getter to reject unknown raw filter")
+  }
+
+  pattern.set_filter_raw(3)
+  inspect(pattern.get_filter_raw(), content="3")
+  debug_inspect(pattern.get_filter(), content="Nearest")
+
+  pattern.set_dither_raw(42)
+  inspect(pattern.get_dither_raw(), content="42")
+  let typed_dither_unknown = run_cairo(() => pattern.get_dither())
+  match typed_dither_unknown {
+    Err(CairoInvalidArgument(InvalidStatus, _)) => ()
+    _ => @test.fail("expected typed getter to reject unknown raw dither")
+  }
+
+  pattern.set_dither_raw(0)
+  inspect(pattern.get_dither_raw(), content="0")
+  debug_inspect(pattern.get_dither(), content="DitherNone")
+}
+
+///|
 test "context can paint from explicit solid pattern" {
   let surface = Surface::image(Argb32, 1, 1)
   let ctx = Context::new(surface)

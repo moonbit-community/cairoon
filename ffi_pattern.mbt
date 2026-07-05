@@ -74,7 +74,7 @@ extern "C" fn pattern_set_extend_raw_ffi(
 
 ///|
 #borrow(pattern)
-extern "C" fn pattern_get_filter_ffi(pattern : Pattern) -> Filter = "cairoon_pattern_get_filter"
+extern "C" fn pattern_get_filter_raw_ffi(pattern : Pattern) -> Int = "cairoon_pattern_get_filter_raw"
 
 ///|
 #borrow(pattern)
@@ -85,7 +85,14 @@ extern "C" fn pattern_set_filter_ffi(
 
 ///|
 #borrow(pattern)
-extern "C" fn pattern_get_dither_ffi(pattern : Pattern) -> Dither = "cairoon_pattern_get_dither"
+extern "C" fn pattern_set_filter_raw_ffi(
+  pattern : Pattern,
+  filter : Int,
+) -> Status = "cairoon_pattern_set_filter_raw"
+
+///|
+#borrow(pattern)
+extern "C" fn pattern_get_dither_raw_ffi(pattern : Pattern) -> Int = "cairoon_pattern_get_dither_raw"
 
 ///|
 #borrow(pattern)
@@ -93,6 +100,13 @@ extern "C" fn pattern_set_dither_ffi(
   pattern : Pattern,
   dither : Dither,
 ) -> Status = "cairoon_pattern_set_dither"
+
+///|
+#borrow(pattern)
+extern "C" fn pattern_set_dither_raw_ffi(
+  pattern : Pattern,
+  dither : Int,
+) -> Status = "cairoon_pattern_set_dither_raw"
 
 ///|
 #borrow(pattern, xx, yx, xy, yy, x0, y0)

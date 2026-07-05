@@ -64,6 +64,33 @@ fn extend_from_raw(raw : Int) -> Extend raise CairoError {
 }
 
 ///|
+fn filter_from_raw(raw : Int) -> Filter raise CairoError {
+  match raw {
+    0 => Fast
+    1 => Good
+    2 => Best
+    3 => Nearest
+    4 => Bilinear
+    5 => Gaussian
+    _ =>
+      raise CairoInvalidArgument(InvalidStatus, "unknown cairo filter: \{raw}")
+  }
+}
+
+///|
+fn dither_from_raw(raw : Int) -> Dither raise CairoError {
+  match raw {
+    0 => DitherNone
+    1 => DitherDefault
+    2 => DitherFast
+    3 => DitherGood
+    4 => DitherBest
+    _ =>
+      raise CairoInvalidArgument(InvalidStatus, "unknown cairo dither: \{raw}")
+  }
+}
+
+///|
 pub fn Pattern::get_extend(self : Pattern) -> Extend raise CairoError {
   extend_from_raw(self.get_extend_raw())
 }
@@ -92,8 +119,7 @@ pub fn Pattern::set_extend_raw(
 
 ///|
 pub fn Pattern::get_filter(self : Pattern) -> Filter raise CairoError {
-  check_status(pattern_status_ffi(self))
-  pattern_get_filter_ffi(self)
+  filter_from_raw(self.get_filter_raw())
 }
 
 ///|
@@ -105,9 +131,22 @@ pub fn Pattern::set_filter(
 }
 
 ///|
-pub fn Pattern::get_dither(self : Pattern) -> Dither raise CairoError {
+pub fn Pattern::get_filter_raw(self : Pattern) -> Int raise CairoError {
   check_status(pattern_status_ffi(self))
-  pattern_get_dither_ffi(self)
+  pattern_get_filter_raw_ffi(self)
+}
+
+///|
+pub fn Pattern::set_filter_raw(
+  self : Pattern,
+  filter : Int,
+) -> Unit raise CairoError {
+  check_status(pattern_set_filter_raw_ffi(self, filter))
+}
+
+///|
+pub fn Pattern::get_dither(self : Pattern) -> Dither raise CairoError {
+  dither_from_raw(self.get_dither_raw())
 }
 
 ///|
@@ -116,6 +155,20 @@ pub fn Pattern::set_dither(
   dither : Dither,
 ) -> Unit raise CairoError {
   check_status(pattern_set_dither_ffi(self, dither))
+}
+
+///|
+pub fn Pattern::get_dither_raw(self : Pattern) -> Int raise CairoError {
+  check_status(pattern_status_ffi(self))
+  pattern_get_dither_raw_ffi(self)
+}
+
+///|
+pub fn Pattern::set_dither_raw(
+  self : Pattern,
+  dither : Int,
+) -> Unit raise CairoError {
+  check_status(pattern_set_dither_raw_ffi(self, dither))
 }
 
 ///|

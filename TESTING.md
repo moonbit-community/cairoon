@@ -441,7 +441,7 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, and 2026-07-05:
   text vector stream equivalence slice, and the single-page tag stream
   equivalence slice.
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native`: 468 tests passed. The current run
+- `moon -C cairoon test --target native`: 469 tests passed. The current run
   includes the backend lifecycle-matrix differential slice,
   the backend tag-matrix differential slice,
   the resized backend page-sequence combo slice,
@@ -485,6 +485,7 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, and 2026-07-05:
   the Pattern black-box test split slice,
   the raster-source black-box test split slice,
   the pycairo raw C-int pattern extend passthrough slice,
+  the pycairo raw C-int pattern filter/dither passthrough slice,
   the Pattern raw FFI family split slice, the Font C glue split slice,
   the Pattern C glue split slice, the raster-source callback C glue split
   slice, the Surface C glue split slice,
@@ -2502,6 +2503,13 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, and 2026-07-05:
   checked with `CairoInvalidArgument(InvalidStatus, _)` for unknown raw values.
   It raises `pattern_test.mbt` to 11 tests and the expected full native suite
   to 468 tests.
+  A later Pattern raw filter/dither parity slice added
+  `Pattern::set_filter_raw`/`Pattern::get_filter_raw` and
+  `Pattern::set_dither_raw`/`Pattern::get_dither_raw`, covering pycairo
+  `pattern.c` C-int parsing for filter and dither while keeping typed getters
+  checked with `CairoInvalidArgument(InvalidStatus, _)` for unknown raw values.
+  It raises `pattern_test.mbt` to 12 tests and the expected full native suite
+  to 469 tests.
 
 Remaining reliability work is now narrower and should be tracked as evidence,
 not as an unstructured checklist:
