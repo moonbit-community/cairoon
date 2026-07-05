@@ -79,7 +79,8 @@ cairo_status_t cairoon_test_apply_surface_pattern(
   cairo_t *cr,
   double width,
   double height) {
-  cairo_surface_t *surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, 2, 2);
+  cairo_surface_t *surface =
+    cairo_image_surface_create(CAIRO_FORMAT_ARGB32, 2, 2);
   cairo_status_t status = cairo_surface_status(surface);
   if (status == CAIRO_STATUS_SUCCESS) {
     status = cairoon_test_paint_quad_surface(surface);
@@ -94,6 +95,46 @@ cairo_status_t cairoon_test_apply_surface_pattern(
     cairo_pattern_set_extend(pattern, CAIRO_EXTEND_REPEAT);
     cairo_pattern_set_filter(pattern, CAIRO_FILTER_NEAREST);
     cairo_rectangle(cr, 0.0, 0.0, width, height);
+    cairo_set_source(cr, pattern);
+    cairo_fill(cr);
+    status = cairo_status(cr);
+  }
+
+  if (pattern != NULL) {
+    cairo_pattern_destroy(pattern);
+  }
+  cairo_surface_destroy(surface);
+  return status;
+}
+
+cairo_status_t cairoon_test_apply_surface_pattern_combo(
+  cairo_t *cr,
+  double width,
+  double height) {
+  cairo_surface_t *surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, 2, 2);
+  cairo_status_t status = cairo_surface_status(surface);
+  if (status == CAIRO_STATUS_SUCCESS) {
+    status = cairoon_test_paint_quad_surface(surface);
+  }
+
+  cairo_pattern_t *pattern = NULL;
+  if (status == CAIRO_STATUS_SUCCESS) {
+    pattern = cairo_pattern_create_for_surface(surface);
+    status = cairo_pattern_status(pattern);
+  }
+  if (status == CAIRO_STATUS_SUCCESS) {
+    cairo_matrix_t matrix;
+    cairo_matrix_init(&matrix, 0.75, 0.2, -0.25, 0.8, -1.0, 0.5);
+    cairo_pattern_set_extend(pattern, CAIRO_EXTEND_REFLECT);
+    cairo_pattern_set_filter(pattern, CAIRO_FILTER_NEAREST);
+    cairo_pattern_set_dither(pattern, CAIRO_DITHER_BEST);
+    cairo_pattern_set_matrix(pattern, &matrix);
+    status = cairo_pattern_status(pattern);
+  }
+  if (status == CAIRO_STATUS_SUCCESS) {
+    cairo_set_source_rgb(cr, 0.125, 0.125, 0.125);
+    cairo_paint(cr);
+    cairo_rectangle(cr, 1.0, 1.0, width - 2.0, height - 2.0);
     cairo_set_source(cr, pattern);
     cairo_fill(cr);
     status = cairo_status(cr);

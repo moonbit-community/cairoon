@@ -215,12 +215,13 @@ Implemented in this workspace:
   Cairo-reference lifetime behavior, PNG filename round trips and invalid path
   validation, Surface similar/subsurface invalid-size error mapping,
   deterministic pixel rendering, direct C Cairo oracle comparisons
-  for nineteen ARGB32 scenes covering paint, stroke, fill/stroke rectangles,
+  for twenty ARGB32 scenes covering paint, stroke, fill/stroke rectangles,
   Bezier paths, transforms, RGBA compositing, linear/radial gradients,
   toy-font `text_path`, toy-font `show_text`, `glyph_path`, `show_glyphs`,
   `show_text_glyphs`, source-surface offset sampling, and mask-surface offset
   compositing, raster-source pattern repeat rendering, dashed round-cap
-  strokes, clipped paint/fill output, and `OperatorClear` compositing output,
+  strokes, clipped paint/fill output, `OperatorClear` compositing output, and a
+  surface-pattern `Reflect`/`Nearest`/`DitherBest`/matrix combination,
   direct C Cairo oracle comparisons for seventeen deterministic PDF/PS/SVG
   vector scenes covering paint, stroke, fill/stroke rectangles, Bezier paths,
   transforms, linear/radial gradients, toy-font text paths, toy-font
@@ -337,12 +338,13 @@ Implemented in this workspace:
   region, and error behavior.
 - Gate 3 differential rendering: partial. Deterministic raw-pixel rendering
   tests exist for direct colors and explicit patterns, a direct C image oracle
-  covers nineteen deterministic ARGB32 scenes including stroke, rectangle,
+  covers twenty deterministic ARGB32 scenes including stroke, rectangle,
   Bezier, transform, RGBA, linear/radial gradient, toy-font `text_path`,
   toy-font `show_text`, `glyph_path`, `show_glyphs`, `show_text_glyphs`,
   source-surface offset sampling, mask-surface offset compositing, and
-  raster-source pattern repeat rendering, dashed round-cap stroke, and clipped
-  paint/fill cases, and `OperatorClear` compositing output,
+  raster-source pattern repeat rendering, dashed round-cap stroke, clipped
+  paint/fill cases, `OperatorClear` compositing output, and a surface-pattern
+  `Reflect`/`Nearest`/`DitherBest`/matrix combination,
   ScaledFont font/text/glyph extents and empty, single/multi/spaced ASCII,
   precomposed/decomposed Latin, CJK, Arabic RTL, and emoji UTF-8
   text-to-glyph coordinate cases are compared against direct C Cairo primitive
@@ -834,16 +836,17 @@ Implemented in this workspace:
 - `moon -C cairoon test image_oracle_wbtest.mbt --target native -v`: 2
   white-box image rendering oracle tests passed. Ordinary image surfaces and
   buffer-backed `Surface::image_for_data` surfaces both match the direct C
-  ARGB32 fixture across nineteen scenes with `glyph_path`, `show_glyphs`,
+  ARGB32 fixture across twenty scenes with `glyph_path`, `show_glyphs`,
   `show_text_glyphs`, source-surface offsets, mask-surface offsets, and
   raster-source pattern repeat rendering, dashed round-cap strokes, and
-  clipped paint/fill output, and `OperatorClear` compositing output.
+  clipped paint/fill output, `OperatorClear` compositing output, and a
+  surface-pattern `Reflect`/`Nearest`/`DitherBest`/matrix combination.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
   image_oracle_wbtest.mbt --target native -v`: 2 ASan-compiled white-box image
   oracle tests passed with leak detection disabled, directly exercising the
-  source/mask offset, raster-source repeat, dashed-stroke, clipped-output, and
-  operator-output C oracle helper paths.
+  source/mask offset, raster-source repeat, dashed-stroke, clipped-output,
+  operator-output, and surface-pattern-combo C oracle helper paths.
 - `moon -C cairoon test scaled_font_oracle_wbtest.mbt --target native -v`: 2
   white-box ScaledFont oracle tests passed, comparing font extents, text
   extents, glyph extents, and empty, single/multi/spaced ASCII,
@@ -1510,6 +1513,9 @@ Implemented in this workspace:
   it to eighteen scenes by comparing clipped paint/fill output against direct C
   Cairo. The later operator-output image oracle slice expanded it to nineteen
   scenes by comparing `OperatorClear` compositing output against direct C Cairo.
+  The later surface-pattern-combo image oracle slice expanded it to twenty
+  scenes by comparing surface-pattern `Reflect`/`Nearest`/`DitherBest`/matrix
+  combination output against direct C Cairo.
   The later Surface documentation slice added `surface.mbt.md` with six
   executable examples covering image properties, buffer-backed data,
   similar/subsurface constructors, mapped images, PNG/MIME helpers, and checked
@@ -1685,6 +1691,12 @@ Implemented in this workspace:
   public API or adding a new test case. The targeted `image_oracle_wbtest.mbt`
   run passed 2 tests, the targeted ASan build passed 2 tests with leak
   detection disabled, and the full native suite remained at 340 tests.
+  The later surface-pattern-combo image oracle slice expanded the ordinary and
+  buffer-backed direct C ARGB32 image oracle from nineteen to twenty scenes,
+  adding `Reflect`/`Nearest`/`DitherBest`/matrix surface-pattern coverage
+  without changing the public API or adding a new test case. The targeted
+  `image_oracle_wbtest.mbt` run passed 2 tests, and the targeted ASan build
+  passed 2 tests with leak detection disabled.
   The later raster-source acquire-replacement recovery slice added one
   black-box test proving that a finished-surface acquire failure maps to
   `NoMemory` for that paint, does not permanently poison the raster-source

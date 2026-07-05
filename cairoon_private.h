@@ -174,6 +174,10 @@ cairo_status_t cairoon_test_apply_surface_pattern(
   cairo_t *cr,
   double width,
   double height);
+cairo_status_t cairoon_test_apply_surface_pattern_combo(
+  cairo_t *cr,
+  double width,
+  double height);
 cairo_status_t cairoon_test_apply_raster_source_pattern(
   cairo_t *cr,
   double width,
