@@ -402,14 +402,14 @@ Implemented in this workspace:
   MIME, PDF/PS/SVG helper, TeeSurface, script-device, and object-trait tests,
   context lifetime/state/matrix/path/group/text/glyph/extents/clip/painting tests,
   Path tests,
-  pattern/gradient/mesh tests, raster-owner white-box tests, and
+  pattern/gradient/mesh tests, raster manual/owner/state white-box tests, and
   Region/lifetime-stress tests,
   the full native suite, `moon info --target native`, and targeted ASan
   image-oracle, font-options/font-face/scaled-font, vector-output, stream,
   surface base/ImageData, mapped-image, subsurface, recording, MIME,
   PDF/PS/SVG helpers, TeeSurface, script-device, object-trait,
   context-lifetime/state/matrix/path/group/text/glyph/extents/clip/painting, Path,
-  pattern/gradient/mesh, and raster-owner/Region/lifetime-stress tests with
+  pattern/gradient/mesh, raster manual/owner/state, and Region/lifetime-stress tests with
   leak detection disabled. The current run includes
   the pycairo context font-extents parity slice,
   the pycairo group-target stack-restoration slice,
@@ -452,6 +452,7 @@ Implemented in this workspace:
   the raster-source stale-release replacement slice,
   the raster-source acquire-only owner fuzz slice,
   the raster-source failed-acquire owner-count fuzz slice,
+  the raster-source manual callback fuzz slice,
   the wide multi-page vector/tag oracle slice,
   the packaging/pycairo-porting documentation slice, the mixed
   vector/tag/text marker slice, the direct C oracle slice, the PDF thumbnail
@@ -468,7 +469,7 @@ Implemented in this workspace:
   `ffi_pattern.mbt`, `ffi_pattern_mesh.mbt`, and
   `ffi_pattern_raster_source.mbt`.
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native`: 423 tests passed. The current run
+- `moon -C cairoon test --target native`: 424 tests passed. The current run
   includes the pycairo context font-extents parity slice,
   the pycairo group-target stack-restoration slice,
   the pycairo rectangle path-extents slice,
@@ -501,7 +502,8 @@ Implemented in this workspace:
   the Pattern raw FFI family split slice, the raster-source stale-release
   replacement slice, the raster-source acquire-only owner fuzz slice,
   the raster-source failed-acquire owner-count fuzz slice, the raster-source
-  callback state-machine fuzz slice, the mixed vector/tag/text marker slice,
+  callback state-machine fuzz slice, the raster-source manual callback fuzz
+  slice, the mixed vector/tag/text marker slice,
   the direct C oracle slice, the PS/SVG tag metadata absence slice, the PDF
   tagged multi-page text marker slice,
   the cross-backend tagged multi-page text direct C oracle slice, the
@@ -746,14 +748,16 @@ Implemented in this workspace:
   color-stop count/tuple retrieval, duplicate-offset insertion order, copied
   color-stop snapshot stability after later pattern mutation, pattern-type
   mismatch mapping, and invalid-index mapping.
-- `moon -C cairoon test pattern_raster_owner_wbtest.mbt
-  pattern_raster_state_wbtest.mbt --target native -v`: 5 white-box
-  raster-source owner/state tests passed, asserting acquire-only repeated
-  same-surface paints, a 64-step acquire-only replacement fuzz, release-only to
-  acquire-only replacement without stale release callbacks, failed acquire
-  replacement owner-count recovery, and a 72-step callback state-machine fuzz
-  covering clear, release-only, acquire-only, acquire+release, failed acquire,
-  dynamic compatible-source, callback-introspection, and owner-count balance
+- `moon -C cairoon test pattern_raster_manual_wbtest.mbt
+  pattern_raster_owner_wbtest.mbt pattern_raster_state_wbtest.mbt --target
+  native -v`: 6 white-box raster-source manual/owner/state tests passed,
+  asserting manual `raster_get_callbacks()` acquire/release calls across three
+  deterministic seeds, acquire-only repeated same-surface paints, a 64-step
+  acquire-only replacement fuzz, release-only to acquire-only replacement
+  without stale release callbacks, failed acquire replacement owner-count
+  recovery, and a 72-step callback state-machine fuzz covering clear,
+  release-only, acquire-only, acquire+release, failed acquire, dynamic
+  compatible-source, callback-introspection, and owner-count balance
   transitions.
 - `moon -C cairoon test surface_context_test.mbt surface_mapped_test.mbt
   surface.mbt.md --target native -v`: 32 scoped Surface/mapped-image tests and
@@ -785,12 +789,13 @@ Implemented in this workspace:
   callback replacement/failure fuzz with dynamic compatible source surfaces.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
-  pattern_raster_owner_wbtest.mbt pattern_raster_state_wbtest.mbt --target
-  native -v`: 5 ASan-compiled white-box raster-source owner/state tests passed
-  with leak detection disabled, covering acquire-only repeated same-surface
-  paints, the 64-step acquire-only replacement fuzz, stale
-  release-to-acquire-only replacement, failed acquire replacement owner-count
-  recovery, and the 72-step callback state-machine fuzz.
+  pattern_raster_manual_wbtest.mbt pattern_raster_owner_wbtest.mbt
+  pattern_raster_state_wbtest.mbt --target native -v`: 6 ASan-compiled
+  white-box raster-source manual/owner/state tests passed with leak detection
+  disabled, covering manual get-callback acquire/release calls, acquire-only
+  repeated same-surface paints, the 64-step acquire-only replacement fuzz,
+  stale release-to-acquire-only replacement, failed acquire replacement
+  owner-count recovery, and the 72-step callback state-machine fuzz.
 - `run-asan.py --repo-root /Users/caimeo/code/pycairo/cairoon --pkg moon.pkg`:
   rerun for the raster-source owner-count test-probe slice. The full runner
   still failed during the known macOS FontRegistry/CoreText/ColorSync
@@ -1991,6 +1996,14 @@ Implemented in this workspace:
   acquire, dynamic compatible-source, callback-introspection, and owner-count
   balance paths. This raised the full native suite to 393 tests and added the
   file to the targeted normal and ASan verification gate.
+  The later raster-source manual callback fuzz slice added
+  `pattern_raster_manual_wbtest.mbt` with three deterministic seeds over 144
+  total callback transitions. It covers `raster_get_callbacks()` manual
+  acquire/release calls, release-only callbacks, acquire-only callbacks,
+  acquire+release callbacks, failed finished-surface acquire returns, dynamic
+  compatible-source acquire returns, pixel readback, and owner-count balance
+  after every transition. This raises the expected full native suite to 424
+  tests and adds the file to the targeted normal and ASan verification gate.
   The later tagged `show_text_glyphs` vector-output slice added a
   cross-backend scene rendered by MoonBit from `ScaledFont::text_to_glyphs`
   output and by direct C Cairo through `cairo_scaled_font_text_to_glyphs` and
@@ -2132,8 +2145,8 @@ Implemented in this workspace:
   `show_text_glyphs`, grouped glyph/tag, mixed vector/tag/text, layered
   three-page, and wide three-page direct-oracle coverage.
   Broader platform and randomized callback/finalizer fuzz remains absent beyond
-  the current deterministic raster-source owner-count, state-machine, callback
-  allocation, and retained-owner stress tests.
+  the current deterministic raster-source owner-count, state-machine, manual
+  get-callback, callback allocation, and retained-owner stress tests.
   PDF/PS/SVG stream-writer constructors now also have non-text primitive vector
   scenes, standalone toy-font `text_path`/`show_text` vector scenes,
   deterministic two-page, tagged three-page, tagged `show_text_glyphs`,

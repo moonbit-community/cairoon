@@ -55,6 +55,7 @@ targeted_tests=(
   pattern_raster_source_test.mbt
   pattern_gradient_test.mbt
   pattern_mesh_test.mbt
+  pattern_raster_manual_wbtest.mbt
   pattern_raster_owner_wbtest.mbt
   pattern_raster_state_wbtest.mbt
   region_test.mbt
