@@ -441,7 +441,7 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, and 2026-07-05:
   text vector stream equivalence slice, and the single-page tag stream
   equivalence slice.
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native`: 464 tests passed. The current run
+- `moon -C cairoon test --target native`: 467 tests passed. The current run
   includes the backend lifecycle-matrix differential slice,
   the backend tag-matrix differential slice,
   the resized backend page-sequence combo slice,
@@ -453,7 +453,8 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, and 2026-07-05:
   the pycairo group-target stack-restoration slice,
   the pycairo rectangle path-extents slice,
   the pycairo 42x42 clip-extents, zero-radius arc, polygon path-extents,
-  line in-stroke, and empty stroke-extents parity slice,
+  line in-stroke, empty stroke-extents, default coordinate-conversion, empty
+  font-family selection, and font-size matrix parity slice,
   the pycairo source RGBA round-trip slice,
   the pycairo empty-path clip `in_clip` slice,
   the pycairo mesh curve-first patch slice,
@@ -534,11 +535,12 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, and 2026-07-05:
   path copy/append independence, pycairo-style append string
   equivalence after clearing the source context, flattened append behavior, and
   path error propagation.
-- `moon -C cairoon test context_pycairo_parity_test.mbt --target native -v`: 5
+- `moon -C cairoon test context_pycairo_parity_test.mbt --target native -v`: 8
   black-box Context pycairo parity tests passed, covering the 42x42 default
   clip-extents fixture, zero-radius `arc`/`arc_negative` non-empty paths,
-  polygon `path_extents`, line `in_stroke`, and empty `stroke_extents`
-  fixtures.
+  polygon `path_extents`, line `in_stroke`, empty `stroke_extents`, default
+  user/device coordinate conversions, empty `select_font_face("")`, and
+  `set_font_size(42)` font-matrix fixtures.
 - `moon -C cairoon test context_group_test.mbt --target native -v`: 4
   black-box Context group tests passed, covering `push_group`, `pop_group`,
   `pop_group_to_source`, `push_group_with_content`, group-target stack
@@ -2487,6 +2489,12 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, and 2026-07-05:
   included in the targeted normal and ASan verification gates, raises that
   parity file to 5 tests, and raises the expected full native suite to 464
   tests.
+  A later Context pycairo method-fixture slice extended
+  `context_pycairo_parity_test.mbt`, covering pycairo's default user/device
+  coordinate conversions, empty `select_font_face("")`, and
+  `set_font_size(42)` font matrix. It is included in the targeted normal and
+  ASan verification gates, raises that parity file to 8 tests, and raises the
+  expected full native suite to 467 tests.
 
 Remaining reliability work is now narrower and should be tracked as evidence,
 not as an unstructured checklist:
