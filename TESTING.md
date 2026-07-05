@@ -441,8 +441,9 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, and 2026-07-05:
   text vector stream equivalence slice, and the single-page tag stream
   equivalence slice.
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native`: 483 tests passed. The current run
-  includes the backend lifecycle-matrix differential slice,
+- `moon -C cairoon test --target native`: 484 tests passed. The current run
+  includes the backend stream-to-direct-oracle differential slice,
+  the backend lifecycle-matrix differential slice,
   the backend tag-matrix differential slice,
   the resized backend page-sequence combo slice,
   the backend nested tag/page sequence slice,
@@ -2582,14 +2583,22 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, and 2026-07-05:
   `CairoInvalidArgument(InvalidFormat, _)` for constructor paths. It raises
   `surface_context_test.mbt` to 21 tests and the current full native suite to
   483 tests.
+  A later backend stream-to-direct-oracle differential slice added
+  `surface_stream_oracle_wbtest.mbt`, comparing PDF/PS/SVG stream callback
+  output for scenes 35 through 40 directly against normalized direct C Cairo
+  oracle files. This covers the backend stream-combo, surface-page combo,
+  nested-tag, resized page-sequence, tag-matrix, and lifecycle-matrix fixtures
+  through the callback path, adds the file to the targeted normal/ASan verify
+  gate, and raises the current full native suite to 484 tests.
 
 Remaining reliability work is now narrower and should be tracked as evidence,
 not as an unstructured checklist:
 
 - Broaden normalized PDF/PS/SVG differential coverage for combinations not yet
-  represented by the current direct-C fixtures: additional deep tag nests beyond
-  scenes 37, 39, and 40, more metadata/page-label/outline mixtures beyond
-  scenes 38 through 40, and additional multi-page sequences beyond the current
+  represented by the current direct-C and direct stream-oracle fixtures:
+  additional deep tag nests beyond scenes 37, 39, and 40, more
+  metadata/page-label/outline mixtures beyond scenes 38 through 40, and
+  additional multi-page sequences beyond the current
   retained/resized/tag-matrix/lifecycle page fixtures.
 - Add broader platform coverage and finalizer fuzz beyond the
   deterministic raster-source owner-count, state-machine, manual

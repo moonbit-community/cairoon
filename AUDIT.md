@@ -500,8 +500,9 @@ Implemented in this workspace:
   `ffi_pattern.mbt`, `ffi_pattern_mesh.mbt`, and
   `ffi_pattern_raster_source.mbt`.
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native`: 483 tests passed. The current run
-  includes the backend lifecycle-matrix differential slice,
+- `moon -C cairoon test --target native`: 484 tests passed. The current run
+  includes the backend stream-to-direct-oracle differential slice,
+  the backend lifecycle-matrix differential slice,
   the backend tag-matrix differential slice,
   the resized backend page-sequence combo slice,
   the backend nested tag/page sequence slice,
@@ -2561,6 +2562,13 @@ Implemented in this workspace:
   `CairoInvalidArgument(InvalidFormat, _)` for constructor paths. It raises
   `surface_context_test.mbt` to 21 tests and the current full native suite to
   483 tests.
+  A later backend stream-to-direct-oracle differential slice added
+  `surface_stream_oracle_wbtest.mbt`, comparing PDF/PS/SVG stream callback
+  output for scenes 35 through 40 directly against normalized direct C Cairo
+  oracle files. This covers the backend stream-combo, surface-page combo,
+  nested-tag, resized page-sequence, tag-matrix, and lifecycle-matrix fixtures
+  through the callback path, adds the file to the targeted normal/ASan verify
+  gate, and raises the current full native suite to 484 tests.
 
 ## Known Gaps
 

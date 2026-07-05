@@ -37,6 +37,7 @@ targeted_tests=(
   surface_stream_page_sequence_wbtest.mbt
   surface_stream_tag_matrix_wbtest.mbt
   surface_stream_lifecycle_wbtest.mbt
+  surface_stream_oracle_wbtest.mbt
   surface_stream_tag_wbtest.mbt
   surface_mapped_test.mbt
   surface_subsurface_test.mbt
