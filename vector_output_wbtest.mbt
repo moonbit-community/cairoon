@@ -137,6 +137,21 @@ test "pdf output preserves metadata outlines labels and tags across pages" {
 }
 
 ///|
+test "pdf direct document feature output contains combined markers" {
+  let path = "/tmp/cairoon_vector_pdf_direct_document_markers.pdf"
+  render_pdf_document_feature_scene(path)
+  expect_vector_output(path, [
+    "%PDF-1.4", "/Title (Cairoon Combined Oracle)", "/Creator (cairoon-combined-oracle)",
+    "/CreationDate (20260102030405+00'00')", "/ModDate (20260102030405+00'00')",
+    "/ISBN (978-0123456789)", "/Count 2", "/Type /Page % 1", "/Type /Page % 2", "/PageLabels",
+    "(intro)", "(details)", "/Outlines", "/Title (intro page)", "/Title (details page)",
+    "/F 2", "/F 1", "/Annots [", "/Subtype /Link", "/S /URI", "/URI (https://example.com/combined)",
+    "/Dest (combined-direct-dest)", "/Names", "/Dests", "(combined-direct-dest)",
+    "/StructTreeRoot", "/S /Link", "/S /Document", "/S /Sect", "/S /P", "%%EOF",
+  ])
+}
+
+///|
 test "pdf page operation document feature output contains retained markers" {
   let path = "/tmp/cairoon_vector_pdf_page_operation_document.pdf"
   let (intro_id, details_id) = render_pdf_page_operation_document_feature_scene(

@@ -438,6 +438,7 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, and 2026-07-05:
   multi-page text marker slice, the PS/SVG tagged multi-page text inertness
   slice, the PDF rectangle tag marker slice,
   the PDF text tag marker slice,
+  the PDF direct document-feature marker slice,
   the cross-backend tagged multi-page text direct C oracle slice, the
   PS/SVG tag and text-tag direct C oracle slice, the PDF text-tag direct C
   oracle slice, the raster-source deterministic callback fuzz slice, the
@@ -512,11 +513,12 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, and 2026-07-05:
   backend docs, retained owner graph stress, external value-wrapper stress,
   image-data view stress, and backend stream callback allocation stress.
 - `moon -C cairoon test vector_output_wbtest.mbt
-  vector_output_oracle_wbtest.mbt --target native -v`: 57 white-box vector
+  vector_output_oracle_wbtest.mbt --target native -v`: 58 white-box vector
   tests passed after splitting marker/output checks from direct C oracle and
   cross-backend tag checks. The split set still covers layered and wide
   multi-page direct C oracle and marker checks, mixed vector/tag/text marker
-  checks, PDF rectangle and text tag marker checks, the mixed vector/tag/text
+  checks, PDF rectangle and text tag marker checks, PDF direct
+  document-feature marker checks, the mixed vector/tag/text
   direct C oracle scene, PS/SVG destination, document-structure, and URI text
   tag metadata absence checks, PDF tagged multi-page
   text structure markers, PS/SVG tagged multi-page text tag-metadata absence
@@ -533,7 +535,8 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, and 2026-07-05:
   tag inertness matched against direct C Cairo output, and the combined PDF
   metadata/custom-metadata/page-label/outline/URI/named-destination/
   document-structure test matched against a direct C Cairo output oracle that
-  also draws tagged text, the PDF page-operation document-feature direct C
+  also draws tagged text, the PDF direct document-feature marker path, the PDF
+  page-operation document-feature direct C
   oracle path, plus PDF JPEG MIME data passthrough and PDF thumbnail output
   matched against direct C Cairo output oracles.
 - `moon -C cairoon test surface_stream_test.mbt --target native -v`: 10
@@ -576,9 +579,10 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, and 2026-07-05:
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
   vector_output_wbtest.mbt vector_output_oracle_wbtest.mbt --target native -v`:
-  57 ASan-compiled white-box vector tests passed with leak detection disabled
+  58 ASan-compiled white-box vector tests passed with leak detection disabled
   after the split, directly exercising the layered and wide multi-page
-  marker/C-oracle paths, the PDF rectangle/text tag marker paths, the mixed
+  marker/C-oracle paths, the PDF rectangle/text tag and direct
+  document-feature marker paths, the mixed
   vector/tag/text marker and C oracle paths,
   the tagged multi-page text C-oracle/PS-SVG inert paths, the tagged
   `show_text_glyphs` marker/C-oracle/PS-SVG inert paths, the grouped
@@ -1650,6 +1654,10 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, and 2026-07-05:
   to compact in-page text geometry, added stable marker assertions for
   URI-link, named-destination, and Document/Sect/H1/P text tag output, and
   extended PS/SVG negative marker checks to the URI-link text tag scene.
+  The later PDF direct document-feature marker slice added stable marker
+  assertions for the direct-C document-feature scene, covering metadata, custom
+  metadata, page labels, outlines, URI/destination links, and Document/Sect/P
+  structure output.
   The later PS/SVG tag metadata absence slice added negative marker checks for
   destination and document-structure rectangle/text tag scenes, proving those
   backends do not emit PDF-only annotations, destinations, structure-tree
@@ -2160,9 +2168,11 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, and 2026-07-05:
   Document/Sect/H1/P scenes. A later PDF text tag marker slice tightened the
   direct-C text-tag fixtures, added marker checks for the URI-link,
   named-destination, and Document/Sect/H1/P text scenes, and extended PS/SVG
-  negative metadata checks to the URI-link text scene. This raises the expected
-  full native suite to 431 tests and leaves the combined split backend/stream
-  output targets at 23 tests.
+  negative metadata checks to the URI-link text scene. A later PDF direct
+  document-feature marker slice added stable checks for the direct-C combined
+  metadata/page-label/outline/URI/destination/structure scene. This raises the
+  expected full native suite to 432 tests and leaves the combined split
+  backend/stream output targets at 23 tests.
 
 The missing reliability pieces are substantial: broader automated differential tests,
 the open macOS toy-font/scaled-font/toy-text/glyph/show-text-glyphs rendering
@@ -2182,7 +2192,8 @@ stream-combo oracle scene with PS/SVG negative tag-metadata marker checks, one
 cross-backend mixed vector/tag/text oracle scene, one cross-backend layered
 three-page clip/dash/surface-pattern/mask/tag/text oracle scene, one
 cross-backend wide three-page URI/destination/document-structure tag/vector
-oracle scene, PDF text-tag, tagged multi-page text, tagged `show_text_glyphs`,
+oracle scene, PDF text-tag, PDF direct document-feature marker tests, tagged
+multi-page text, tagged `show_text_glyphs`,
 grouped glyph/tag multi-page, copy_page retained two-page, mixed
 vector/tag/text, layered three-page, and wide three-page marker tests, PS/SVG
 tag metadata absence checks including URI-link text and tagged multi-page text,
