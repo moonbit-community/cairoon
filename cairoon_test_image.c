@@ -23,7 +23,8 @@ enum {
   CAIROON_TEST_IMAGE_CLIP = 17,
   CAIROON_TEST_IMAGE_OPERATOR_CLEAR = 18,
   CAIROON_TEST_IMAGE_SURFACE_PATTERN_COMBO = 19,
-  CAIROON_TEST_IMAGE_LINEAR_PATTERN_COMBO = 20
+  CAIROON_TEST_IMAGE_LINEAR_PATTERN_COMBO = 20,
+  CAIROON_TEST_IMAGE_MESH_PATTERN = 21
 };
 
 static cairo_status_t cairoon_test_draw_argb32_scene(
@@ -257,6 +258,8 @@ static cairo_status_t cairoon_test_draw_argb32_scene(
       return cairoon_test_apply_surface_pattern_combo(cr, width, height);
     case CAIROON_TEST_IMAGE_LINEAR_PATTERN_COMBO:
       return cairoon_test_apply_linear_pattern_combo(cr, width, height);
+    case CAIROON_TEST_IMAGE_MESH_PATTERN:
+      return cairoon_test_apply_mesh_pattern(cr);
     default:
       return CAIRO_STATUS_INVALID_STATUS;
   }
