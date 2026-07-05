@@ -28,7 +28,11 @@ enum {
   CAIROON_TEST_IMAGE_GROUP_COMPOSITING = 22,
   CAIROON_TEST_IMAGE_MASK_PATTERN = 23,
   CAIROON_TEST_IMAGE_EVEN_ODD_FILL = 24,
-  CAIROON_TEST_IMAGE_RADIAL_PATTERN_COMBO = 25
+  CAIROON_TEST_IMAGE_RADIAL_PATTERN_COMBO = 25,
+  CAIROON_TEST_IMAGE_SURFACE_PATTERN_PAD_BILINEAR = 26,
+  CAIROON_TEST_IMAGE_SURFACE_PATTERN_NONE_MATRIX = 27,
+  CAIROON_TEST_IMAGE_LINEAR_PATTERN_PAD_BILINEAR = 28,
+  CAIROON_TEST_IMAGE_RADIAL_PATTERN_REPEAT_BILINEAR = 29
 };
 
 static cairo_status_t cairoon_test_draw_argb32_scene(
@@ -272,6 +276,17 @@ static cairo_status_t cairoon_test_draw_argb32_scene(
       return cairoon_test_apply_even_odd_fill(cr, width, height);
     case CAIROON_TEST_IMAGE_RADIAL_PATTERN_COMBO:
       return cairoon_test_apply_radial_pattern_combo(cr, width, height);
+    case CAIROON_TEST_IMAGE_SURFACE_PATTERN_PAD_BILINEAR:
+      return cairoon_test_apply_surface_pattern_pad_bilinear(cr, width, height);
+    case CAIROON_TEST_IMAGE_SURFACE_PATTERN_NONE_MATRIX:
+      return cairoon_test_apply_surface_pattern_none_matrix(cr, width, height);
+    case CAIROON_TEST_IMAGE_LINEAR_PATTERN_PAD_BILINEAR:
+      return cairoon_test_apply_linear_pattern_pad_bilinear(cr, width, height);
+    case CAIROON_TEST_IMAGE_RADIAL_PATTERN_REPEAT_BILINEAR:
+      return cairoon_test_apply_radial_pattern_repeat_bilinear(
+        cr,
+        width,
+        height);
     default:
       return CAIRO_STATUS_INVALID_STATUS;
   }

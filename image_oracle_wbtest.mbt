@@ -271,6 +271,74 @@ fn draw_image_oracle_scene(ctx : Context, scene : Int) -> Unit raise CairoError 
       ctx.set_source(pattern)
       ctx.fill()
     }
+    26 => {
+      let source = Surface::image(Argb32, 2, 2)
+      paint_image_oracle_quad_surface(source)
+      let pattern = Pattern::for_surface(source)
+      pattern.set_extend(Pad)
+      pattern.set_filter(Bilinear)
+      pattern.set_dither(DitherDefault)
+      pattern.set_matrix(
+        Matrix::new(xx=0.55, yx=0.10, xy=0.20, yy=0.65, x0=-1.25, y0=-0.75),
+      )
+      ctx.set_source_rgb(0.125, 0.125, 0.125)
+      ctx.paint()
+      ctx.rectangle(0.0, 0.0, 16.0, 16.0)
+      ctx.set_source(pattern)
+      ctx.fill()
+    }
+    27 => {
+      let source = Surface::image(Argb32, 2, 2)
+      paint_image_oracle_quad_surface(source)
+      let pattern = Pattern::for_surface(source)
+      pattern.set_extend(ExtendNone)
+      pattern.set_filter(Nearest)
+      pattern.set_dither(DitherNone)
+      pattern.set_matrix(
+        Matrix::new(xx=0.45, yx=-0.05, xy=0.12, yy=0.50, x0=-3.0, y0=-2.0),
+      )
+      ctx.set_source_rgba(0.08, 0.09, 0.10, 1.0)
+      ctx.paint()
+      ctx.rectangle(0.0, 0.0, 16.0, 16.0)
+      ctx.set_source(pattern)
+      ctx.fill()
+    }
+    28 => {
+      let pattern = Pattern::linear(2.0, 0.0, 12.0, 16.0)
+      pattern.add_color_stop_rgba(0.0, 0.95, 0.20, 0.05, 1.0)
+      pattern.add_color_stop_rgba(0.30, 0.20, 0.85, 0.25, 0.80)
+      pattern.add_color_stop_rgba(0.75, 0.10, 0.20, 0.95, 0.65)
+      pattern.add_color_stop_rgba(1.0, 0.98, 0.92, 0.25, 1.0)
+      pattern.set_extend(Pad)
+      pattern.set_filter(Bilinear)
+      pattern.set_dither(DitherBest)
+      pattern.set_matrix(
+        Matrix::new(xx=0.70, yx=-0.10, xy=0.15, yy=0.85, x0=-1.0, y0=2.0),
+      )
+      ctx.set_source_rgb(0.125, 0.125, 0.125)
+      ctx.paint()
+      ctx.rectangle(1.0, 1.0, 14.0, 14.0)
+      ctx.set_source(pattern)
+      ctx.fill()
+    }
+    29 => {
+      let pattern = Pattern::radial(3.0, 3.0, 1.0, 9.0, 10.0, 5.0)
+      pattern.add_color_stop_rgba(0.0, 0.95, 0.10, 0.10, 0.95)
+      pattern.add_color_stop_rgba(0.35, 0.15, 0.85, 0.25, 0.70)
+      pattern.add_color_stop_rgba(0.70, 0.10, 0.25, 0.95, 0.65)
+      pattern.add_color_stop_rgba(1.0, 0.95, 0.95, 0.95, 0.90)
+      pattern.set_extend(Repeat)
+      pattern.set_filter(Bilinear)
+      pattern.set_dither(DitherFast)
+      pattern.set_matrix(
+        Matrix::new(xx=0.65, yx=0.18, xy=-0.12, yy=0.75, x0=-2.25, y0=0.40),
+      )
+      ctx.set_source_rgb(0.125, 0.125, 0.125)
+      ctx.paint()
+      ctx.rectangle(0.0, 0.0, 16.0, 16.0)
+      ctx.set_source(pattern)
+      ctx.fill()
+    }
     _ => raise CairoInvalidArgument(InvalidStatus, InvalidStatus.message())
   }
 }
@@ -300,7 +368,7 @@ fn render_buffered_image_oracle_scene(
 
 ///|
 test "image rendering scenes match direct cairo C oracle" {
-  for scene in 0..<26 {
+  for scene in 0..<30 {
     let actual = render_image_oracle_scene(scene)
     let expected = test_argb32_scene_oracle_ffi(scene, 16, 16)
     inspect(expected.length(), content="1024")
@@ -310,7 +378,7 @@ test "image rendering scenes match direct cairo C oracle" {
 
 ///|
 test "buffer backed image rendering scenes match direct cairo C oracle" {
-  for scene in 0..<26 {
+  for scene in 0..<30 {
     let (actual, copied) = render_buffered_image_oracle_scene(scene)
     let expected = test_argb32_scene_oracle_ffi(scene, 16, 16)
     inspect(expected.length(), content="1024")
