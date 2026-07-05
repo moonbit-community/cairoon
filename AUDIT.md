@@ -490,8 +490,9 @@ Implemented in this workspace:
   `ffi_pattern.mbt`, `ffi_pattern_mesh.mbt`, and
   `ffi_pattern_raster_source.mbt`.
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native`: 440 tests passed. The current run
-  includes the backend surface-page feature/tag combo slice,
+- `moon -C cairoon test --target native`: 444 tests passed. The current run
+  includes the backend nested tag/page sequence slice,
+  the backend surface-page feature/tag combo slice,
   the Context drawing-state all-enum round-trip slice,
   the pycairo context font-extents parity slice,
   the pycairo group-target stack-restoration slice,
@@ -682,6 +683,15 @@ Implemented in this workspace:
   `Surface::copy_page`, `Surface::show_page`, PDF metadata/page labels/outlines,
   PS DSC, SVG document units, URI and named-destination tags,
   document-structure tags, and `show_text_glyphs`.
+- `moon -C cairoon test surface_stream_nested_tag_wbtest.mbt --target native
+  -v`: 4 white-box backend nested tag/page sequence tests passed, comparing
+  PDF/PS/SVG file output with stream output after normalized comparison,
+  comparing file output with a direct C Cairo oracle, checking stable PDF/PS/SVG
+  output markers, and checking PS/SVG file and stream negative tag-metadata
+  markers for a four-page scene with deeper document-structure tags, URI and
+  destination links, retained-page `Surface::copy_page`, `Surface::show_page`,
+  nested PDF outlines, richer metadata/custom metadata, page labels, PS DSC,
+  SVG document units, and `show_text_glyphs`.
 - `moon -C cairoon test surface_stream_tag_wbtest.mbt --target native -v`: 7
   white-box stream equivalence tests passed, comparing PDF/PS/SVG file output
   with stream output after normalized comparison for single-page URI-link,
@@ -740,6 +750,13 @@ Implemented in this workspace:
   disabled, covering stream-vs-file, direct C oracle, stable marker, and PS/SVG
   file/stream negative tag-metadata marker paths for the
   `Surface::copy_page`/`Surface::show_page` feature/tag scene.
+- `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
+  ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
+  surface_stream_nested_tag_wbtest.mbt --target native -v`: 4 ASan-compiled
+  white-box backend nested tag/page sequence tests passed with leak detection
+  disabled, covering stream-vs-file, direct C oracle, stable marker, and PS/SVG
+  file/stream negative tag-metadata marker paths for the deeper
+  tag/metadata/page-label/outline scene.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
   surface_stream_tag_wbtest.mbt --target native -v`: 7 ASan-compiled white-box
@@ -2244,6 +2261,15 @@ Implemented in this workspace:
   oracle output, stable backend markers, and PS/SVG negative PDF-metadata
   checks. This raises the expected full native suite to 440 tests and raises
   the combined split backend/stream output targets to 29 tests.
+  A later backend nested tag/page sequence slice added scene 37 plus
+  `surface_stream_nested_tag_wbtest.mbt`, covering deeper document-structure
+  nesting, URI/destination links, retained-page `Surface::copy_page`,
+  `Surface::show_page`, nested PDF outlines, richer metadata/custom metadata,
+  page labels, PS DSC, and SVG document units across PDF/PS/SVG
+  file-vs-stream output, direct C Cairo oracle output, stable backend markers,
+  and PS/SVG negative PDF-metadata checks. This raises the expected full native
+  suite to 444 tests and raises the combined split backend/stream output targets
+  to 33 tests.
 
 ## Known Gaps
 
@@ -2266,8 +2292,9 @@ Implemented in this workspace:
   scene, one cross-backend grouped glyph/tag multi-page oracle scene, one
   cross-backend copy_page retained two-page oracle scene, one cross-backend
   backend-feature/tag stream-combo oracle scene with PS/SVG negative
-  tag-metadata marker checks, and three
-  PDF document-feature/page-operation oracle scenes. PDF/PS/SVG now
+  tag-metadata marker checks, one cross-backend backend nested tag/page
+  sequence oracle scene with PS/SVG negative tag-metadata marker checks, and
+  three PDF document-feature/page-operation oracle scenes. PDF/PS/SVG now
   have multi-page marker checks and three two-page direct C oracle scenes,
   PDF/PS/SVG have a single-page toy-font `show_text` oracle scene, and PDF has
   direct C coverage for URI links, named destinations, Document/Sect/H1/P
