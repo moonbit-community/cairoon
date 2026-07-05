@@ -490,7 +490,7 @@ Implemented in this workspace:
   `ffi_pattern.mbt`, `ffi_pattern_mesh.mbt`, and
   `ffi_pattern_raster_source.mbt`.
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native`: 448 tests passed. The current run
+- `moon -C cairoon test --target native`: 449 tests passed. The current run
   includes the resized backend page-sequence combo slice,
   the backend nested tag/page sequence slice,
   the backend surface-page feature/tag combo slice,
@@ -514,6 +514,7 @@ Implemented in this workspace:
   slice, the backend feature/tag stream combo slice, the vector
   stream invalid-status fallback slice, the PNG/script stream invalid-status
   fallback slice, the callback invocation reference-balance slice,
+  the backend stream callback multi-seed fuzz slice,
   the matrix property-test slice, the lifetime stress test
   split slice, the vector output white-box split slice, the vector output
   scene helper split slice, the test-vector C glue split slice, the
@@ -613,12 +614,13 @@ Implemented in this workspace:
 - `moon -C cairoon test device_test.mbt backend_surfaces.mbt.md
   lifetime_stress_test.mbt lifetime_value_stress_test.mbt
   lifetime_image_data_stress_test.mbt lifetime_stream_stress_test.mbt
-  --target native -v`: 24 black-box and executable backend/lifetime tests
+  --target native -v`: 25 black-box and executable backend/lifetime tests
   passed, covering script file/stream devices, script-surface target proxying,
   script writer `WriteError` and invalid-status fallback mapping, scoped
   script-device finish, retained script surface/device wrappers, executable
   backend docs, retained owner graph stress, external value-wrapper stress,
-  image-data view stress, and backend stream callback allocation stress.
+  image-data view stress, backend stream callback allocation stress, and
+  backend stream callback multi-seed fuzz.
 - `moon -C cairoon test vector_output_wbtest.mbt
   vector_output_oracle_wbtest.mbt --target native -v`: 58 white-box vector
   tests passed after splitting marker/output checks from direct C oracle and
@@ -831,9 +833,10 @@ Implemented in this workspace:
   covering the expanded UTF-8 text-extents and text-to-glyph input set.
 - `moon -C cairoon test lifetime_stress_test.mbt
   lifetime_value_stress_test.mbt lifetime_image_data_stress_test.mbt
-  lifetime_stream_stress_test.mbt --target native -v`: 6 black-box lifetime
+  lifetime_stream_stress_test.mbt --target native -v`: 7 black-box lifetime
   tests passed after splitting owner graph, external value-wrapper, image-data
-  view, and backend stream callback stress into separate files.
+  view, backend stream callback stress, and backend stream callback
+  multi-seed fuzz into separate files.
 - `moon -C cairoon test raster_lifetime_stress_test.mbt --target native -v`: 1
   black-box raster-source callback lifetime test passed after adding the
   1000-iteration set/get/manual acquire/release/replace/clear stress case.
@@ -2123,6 +2126,12 @@ Implemented in this workspace:
   `lifetime_stream_stress_test.mbt`, leaving `lifetime_stress_test.mbt`
   focused on mapped-image lifetime and retained owner graph stress. This did
   not change public API or test count.
+  The later backend stream callback multi-seed fuzz slice added a second
+  `lifetime_stream_stress_test.mbt` test with four seeds and 96 deterministic
+  transitions covering PDF/PS/SVG writers, PNG writer, script writer, PNG
+  reader exact and short reads, `WriteError`, invalid-status fallback, and
+  reader-error paths. This raises the expected full native suite to 449 tests
+  and keeps the file in the targeted normal/ASan verify gate.
   The later raster-source callback state-machine fuzz slice added
   `pattern_raster_state_wbtest.mbt` with a 72-step deterministic transition
   test covering clear, release-only, acquire-only, acquire+release, failed
@@ -2354,9 +2363,10 @@ Implemented in this workspace:
   Link/destination/document-structure rectangle/text plus tagged multi-page, tagged
   `show_text_glyphs`, grouped glyph/tag, mixed vector/tag/text, layered
   three-page, and wide three-page direct-oracle coverage.
-  Broader platform and randomized callback/finalizer fuzz remains absent beyond
+  Broader platform coverage and finalizer fuzz remain absent beyond
   the current deterministic raster-source owner-count, state-machine, manual
-  get-callback, callback allocation, and retained-owner stress tests.
+  get-callback, callback allocation, retained-owner, stream retention, and
+  backend stream multi-seed callback fuzz tests.
   PDF/PS/SVG stream-writer constructors now also have non-text primitive vector
   scenes, standalone toy-font `text_path`/`show_text` vector scenes,
   deterministic two-page, tagged three-page, tagged `show_text_glyphs`,
