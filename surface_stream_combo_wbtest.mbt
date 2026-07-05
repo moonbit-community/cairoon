@@ -120,13 +120,25 @@ fn render_stream_combo_scene(
 
   if kind == 0 {
     surface.pdf_set_page_label("combo-structure")
+    let _ = surface.pdf_add_outline_with_flags(
+      PDF_OUTLINE_ROOT,
+      "combo structure",
+      "page=3 pos=[12 42]",
+      PDFOutlineFlagSet::combine([PdfOutlineOpen, PdfOutlineItalic]),
+    )
   }
   ctx.set_source_rgb(0.0, 0.0, 0.0)
   ctx.tag_begin("Document", "")
   ctx.tag_begin("Sect", "")
+  ctx.tag_begin("H1", "")
+  ctx.move_to(12.0, 24.0)
+  ctx.show_text("combo heading")
+  ctx.tag_end("H1")
   ctx.tag_begin("P", "")
+  ctx.tag_begin("Span", "")
   let run = ctx.get_scaled_font().text_to_glyphs(12.0, 42.0, "glyph doc")
   ctx.show_text_glyphs("glyph doc", run.glyphs, run.clusters, flags=run.flags)
+  ctx.tag_end("Span")
   ctx.tag_end("P")
   ctx.tag_end("Sect")
   ctx.tag_end("Document")
@@ -197,9 +209,10 @@ test "backend feature tag multipage output contains stable markers" {
           "/CreationDate (20260102030405+00'00')", "/ModDate (20260102030405+00'00')",
           "/Combo (tag-metadata-multipage)", "/Count 3", "/PageLabels", "(combo-cover)",
           "(combo-dest)", "(combo-structure)", "/Outlines", "/Title (combo cover)",
-          "/Title (combo dest)", "/F 2", "/F 1", "/Annots [", "/Subtype /Link", "/S /URI",
-          "/URI (https://example.com/combo)", "/Dest", "/Names", "/Dests", "(combo-destination)",
-          "/StructTreeRoot", "/S /Document", "/S /Sect", "/S /P", "%%EOF",
+          "/Title (combo dest)", "/Title (combo structure)", "/F 2", "/F 1", "/Annots [",
+          "/Subtype /Link", "/S /URI", "/URI (https://example.com/combo)", "/Dest",
+          "/Names", "/Dests", "(combo-destination)", "/StructTreeRoot", "/S /Document",
+          "/S /Sect", "/S /H1", "/S /P", "/S /Span", "%%EOF",
         ])
       1 =>
         expect_vector_output(path, [
@@ -221,7 +234,8 @@ test "backend feature tag multipage output contains stable markers" {
 test "ps svg backend feature tag multipage output omits pdf tag metadata" {
   let forbidden = [
     "/Annots", "/Subtype /Link", "/URI", "/Dest", "/Dests", "/StructTreeRoot", "/S /Document",
-    "/S /Sect", "/S /P", "https://example.com/combo", "combo-destination", "<a ",
+    "/S /Sect", "/S /H1", "/S /P", "/S /Span", "https://example.com/combo", "combo-destination",
+    "<a ",
   ]
   for kind in 1..<3 {
     let ext = stream_equivalence_extension(kind)
@@ -236,7 +250,8 @@ test "ps svg backend feature tag multipage output omits pdf tag metadata" {
 test "ps svg backend feature tag multipage stream output omits pdf tag metadata" {
   let forbidden = [
     "/Annots", "/Subtype /Link", "/URI", "/Dest", "/Dests", "/StructTreeRoot", "/S /Document",
-    "/S /Sect", "/S /P", "https://example.com/combo", "combo-destination", "<a ",
+    "/S /Sect", "/S /H1", "/S /P", "/S /Span", "https://example.com/combo", "combo-destination",
+    "<a ",
   ]
   for kind in 1..<3 {
     let chunks : Array[Bytes] = []

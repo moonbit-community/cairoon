@@ -172,6 +172,12 @@ static cairo_status_t cairoon_test_draw_backend_combo(
   if (status == CAIRO_STATUS_SUCCESS && kind == CAIROON_TEST_VECTOR_PDF) {
 #if CAIRO_HAS_PDF_SURFACE && CAIRO_VERSION >= CAIRO_VERSION_ENCODE(1, 17, 6)
     cairo_pdf_surface_set_page_label(surface, "combo-structure");
+    cairo_pdf_surface_add_outline(
+      surface,
+      CAIRO_PDF_OUTLINE_ROOT,
+      "combo structure",
+      "page=3 pos=[12 42]",
+      CAIRO_PDF_OUTLINE_FLAG_OPEN | CAIRO_PDF_OUTLINE_FLAG_ITALIC);
     status = cairo_surface_status(surface);
 #else
     status = CAIRO_STATUS_INVALID_STATUS;
@@ -182,12 +188,18 @@ static cairo_status_t cairoon_test_draw_backend_combo(
     cairo_set_source_rgb(cr, 0.0, 0.0, 0.0);
     cairo_tag_begin(cr, "Document", "");
     cairo_tag_begin(cr, "Sect", "");
+    cairo_tag_begin(cr, "H1", "");
+    cairo_move_to(cr, 12.0, 24.0);
+    cairo_show_text(cr, "combo heading");
+    cairo_tag_end(cr, "H1");
     cairo_tag_begin(cr, "P", "");
+    cairo_tag_begin(cr, "Span", "");
     status = cairoon_test_combo_show_text_glyphs(
       cr,
       12.0,
       42.0,
       "glyph doc");
+    cairo_tag_end(cr, "Span");
     cairo_tag_end(cr, "P");
     cairo_tag_end(cr, "Sect");
     cairo_tag_end(cr, "Document");

@@ -2221,7 +2221,10 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, and 2026-07-05:
   markers. A later backend-combo stream inertness slice added PS/SVG stream
   checks proving that the three-page backend feature/tag scene does not emit
   PDF annotation, destination, URI, or structure-tree metadata on those stream
-  backends. This raises the expected full native suite to 435 tests and leaves
+  backends. A later deep-structure slice broadened the same scene with a third
+  PDF outline and nested Document/Sect/H1/P/Span tags while preserving the
+  direct C oracle, file-vs-stream equality, marker checks, and PS/SVG inertness
+  checks. This raises the expected full native suite to 435 tests and leaves
   the combined split backend/stream output targets at 25 tests.
 
 Remaining reliability work is now narrower and should be tracked as evidence,

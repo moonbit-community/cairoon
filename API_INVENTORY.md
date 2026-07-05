@@ -38,6 +38,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 
 | Slice | Status | Notes |
 |---|---|---|
+| Backend combo deep structure tags | Done | Broadens the existing backend feature/tag stream-combo scene with a third PDF outline and nested Document/Sect/H1/P/Span structure tags, keeping file-vs-stream equality, direct C oracle comparison, PDF marker checks, and PS/SVG inertness checks on the same scene |
 | CI reliability workflow | Done | Adds `.github/workflows/ci.yml` with Ubuntu/macOS native `./scripts/verify.sh` jobs and a dedicated Ubuntu ASan verify job, using the official MoonBit CLI installer plus Cairo development packages |
 | PDF rectangle tag markers | Done | Adds stable PDF marker checks for the three direct-C rectangle tag scenes, covering URI-link annotations, named destinations, and Document/Sect/H1/P structure-tree output |
 | PDF text tag markers | Done | Tightens direct-C text-tag fixtures to in-page compact geometry, adds stable PDF marker checks for URI-link, named-destination, and Document/Sect/H1/P text tags, and extends PS/SVG negative tag-metadata checks to the URI-link text scene |
