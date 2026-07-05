@@ -38,6 +38,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 
 | Slice | Status | Notes |
 |---|---|---|
+| Backend feature/tag stream combo | Done | Adds PDF/PS/SVG file-vs-stream normalized equality for one three-page scene that combines backend-specific document features (PDF metadata/page labels/outlines, PS DSC, SVG version/unit), URI/destination/document-structure tags, surface patterns, text, and `show_text_glyphs` |
 | Raster-source manual callback fuzz | Done | Adds a three-seed white-box state-machine test for `raster_get_callbacks()` manual acquire/release calls across release-only, acquire-only, acquire+release, failed-source, and dynamic compatible-source paths, with pixel readback and owner-count balance after every transition |
 | Standalone text stream equivalence | Done | Adds PDF/PS/SVG file-vs-stream normalized equality for the standalone toy-font `text_path` and `show_text` vector scenes that previously had direct C output oracles but no stream constructor equality check |
 | PDF page-operation document-feature output | Done | Scene 34 adds a PDF-only direct C oracle, marker test, and file-vs-stream normalized equality for `Context::copy_page` retaining a two-page document that also exercises PDF metadata, custom metadata, page labels, outlines, URI links, named destinations, document-structure tags, and retained text drawing |

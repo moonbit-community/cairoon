@@ -28,6 +28,7 @@ targeted_tests=(
   surface_stream_test.mbt
   surface_stream_wbtest.mbt
   surface_stream_backend_wbtest.mbt
+  surface_stream_combo_wbtest.mbt
   surface_stream_tag_wbtest.mbt
   surface_mapped_test.mbt
   surface_subsurface_test.mbt

@@ -427,6 +427,7 @@ Implemented in this workspace:
   the tagged multi-page stream equivalence slice,
   the mixed/layered stream equivalence slice,
   the document-feature stream equivalence slice,
+  the backend feature/tag stream combo slice,
   the wide multi-page stream equivalence slice,
   the vector stream invalid-status fallback slice,
   the PNG/script stream invalid-status fallback slice,
@@ -459,7 +460,8 @@ Implemented in this workspace:
   direct C oracle slice, the PDF thumbnail stream equivalence slice, the PDF
   JPEG MIME stream equivalence slice, the PDF text document-feature stream
   equivalence slice, the PDF page-operation document-feature stream
-  equivalence slice, the non-text primitive vector stream equivalence slice,
+  equivalence slice, the backend feature/tag stream combo slice, the non-text
+  primitive vector stream equivalence slice,
   the standalone text vector stream equivalence slice,
   the single-page tag stream equivalence slice, and the prior C
   stub split that moved private test oracles out of `cairoon_misc.c` into
@@ -469,7 +471,7 @@ Implemented in this workspace:
   `ffi_pattern.mbt`, `ffi_pattern_mesh.mbt`, and
   `ffi_pattern_raster_source.mbt`.
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native`: 424 tests passed. The current run
+- `moon -C cairoon test --target native`: 425 tests passed. The current run
   includes the pycairo context font-extents parity slice,
   the pycairo group-target stack-restoration slice,
   the pycairo rectangle path-extents slice,
@@ -486,7 +488,7 @@ Implemented in this workspace:
   the single-page tag stream equivalence slice, the tagged multi-page stream
   equivalence slice, the mixed/layered stream equivalence slice, the wide
   multi-page stream equivalence slice, the document-feature stream equivalence
-  slice, the vector
+  slice, the backend feature/tag stream combo slice, the vector
   stream invalid-status fallback slice, the PNG/script stream invalid-status
   fallback slice, the matrix property-test slice, the lifetime stress test
   split slice, the vector output white-box split slice, the vector output
@@ -521,7 +523,8 @@ Implemented in this workspace:
   thumbnail stream equivalence slice, the PDF JPEG MIME stream equivalence
   slice, the PDF text document-feature stream equivalence slice, the PDF
   page-operation document-feature stream equivalence slice, the non-text
-  primitive vector stream equivalence slice, the standalone text vector stream
+  primitive vector stream equivalence slice, the backend feature/tag stream
+  combo slice, the standalone text vector stream
   equivalence slice, the single-page tag stream
   equivalence slice, and
   the earlier context `get_source`
@@ -629,6 +632,12 @@ Implemented in this workspace:
   scenes for PDF metadata/custom metadata/page labels/outlines/tags, PS DSC,
   and SVG document units, plus PDF text document-feature, PDF page-operation
   document-feature, PDF JPEG MIME, and PDF thumbnail output.
+- `moon -C cairoon test surface_stream_combo_wbtest.mbt --target native -v`: 1
+  white-box stream equivalence test passed, comparing PDF/PS/SVG file output
+  with stream output after normalized comparison for a three-page scene that
+  combines PDF metadata/page labels/outlines, PS DSC, SVG version/unit, URI and
+  named-destination tags, document-structure tags, surface patterns, text, and
+  `show_text_glyphs`.
 - `moon -C cairoon test surface_stream_tag_wbtest.mbt --target native -v`: 7
   white-box stream equivalence tests passed, comparing PDF/PS/SVG file output
   with stream output after normalized comparison for single-page URI-link,
@@ -670,6 +679,11 @@ Implemented in this workspace:
   covering backend document-feature, PDF text document-feature, PDF
   page-operation document-feature, PDF JPEG MIME, and PDF thumbnail
   stream-vs-file paths.
+- `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
+  ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
+  surface_stream_combo_wbtest.mbt --target native -v`: 1 ASan-compiled
+  white-box stream equivalence test passed with leak detection disabled,
+  covering the backend-feature/tag/multi-page stream-vs-file path.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
   surface_stream_tag_wbtest.mbt --target native -v`: 7 ASan-compiled white-box
@@ -2106,6 +2120,13 @@ Implemented in this workspace:
   `show_text` vector scenes. This raises the expected full native suite to 423
   tests, the base stream white-box target to 7 tests, and the combined split
   stream-equivalence targets to 19 tests.
+  The later backend feature/tag stream-combo slice added
+  `surface_stream_combo_wbtest.mbt`, a cross-backend file-vs-stream normalized
+  equality test for one three-page scene combining backend document features
+  (PDF metadata/page labels/outlines, PS DSC, SVG version/unit), URI and named
+  destination tags, document-structure tags, surface patterns, toy text, and
+  `show_text_glyphs`. This raises the expected full native suite to 425 tests
+  and the combined split stream-equivalence targets to 20 tests.
 
 ## Known Gaps
 
@@ -2127,7 +2148,9 @@ Implemented in this workspace:
   structure tags in both rectangle and text cases, PDF/PS/SVG stream-vs-file
   equality for the corresponding single-page rectangle/text tag scenes, plus
   three two-page metadata/custom-metadata/page-label/outline/tag combinations,
-  including one text/tag-aware scene, plus explicit PDF tagged multi-page text, tagged
+  including one text/tag-aware scene, plus one cross-backend stream-vs-file
+  backend-feature/tag/multi-page combo scene, plus explicit PDF tagged
+  multi-page text, tagged
   `show_text_glyphs`, grouped glyph/tag multi-page, copy_page retained
   two-page, mixed
   vector/tag/text, layered three-page, and wide three-page structure/tag markers. PS/SVG Link tag inertness plus
@@ -2153,8 +2176,9 @@ Implemented in this workspace:
   grouped glyph/tag multi-page,
   copy_page retained two-page, mixed vector/tag/text, layered three-page
   clip/dash/surface-pattern/mask/tag/text, wide three-page tag/vector, PDF text
-  document-feature, PDF JPEG MIME and PDF thumbnail output, and backend
-  document-feature stream-vs-file normalized equality coverage plus
+  document-feature, backend-feature/tag/multi-page combo, PDF JPEG MIME and
+  PDF thumbnail output, and backend document-feature stream-vs-file normalized
+  equality coverage plus
   PDF/PS/SVG, PNG-writer, and script-writer `WriteError`
   and invalid-status fallback mapping; script stream devices and PNG
   stream read/write now have copied-byte callback tests and read/write error
