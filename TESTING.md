@@ -436,8 +436,9 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, and 2026-07-05:
   text vector stream equivalence slice, and the single-page tag stream
   equivalence slice.
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native`: 450 tests passed. The current run
-  includes the resized backend page-sequence combo slice,
+- `moon -C cairoon test --target native`: 454 tests passed. The current run
+  includes the backend tag-matrix differential slice,
+  the resized backend page-sequence combo slice,
   the backend nested tag/page sequence slice,
   the backend surface-page feature/tag combo slice,
   the Context drawing-state all-enum round-trip slice,
@@ -648,6 +649,15 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, and 2026-07-05:
   PDF metadata/custom-metadata overwrite/removal, page labels, outline
   parent/child mixtures, URI/destination links, document-structure tags, PS
   DSC, and SVG document units.
+- `moon -C cairoon test surface_stream_tag_matrix_wbtest.mbt --target native
+  -v`: 4 white-box backend tag-matrix tests passed, comparing PDF/PS/SVG file
+  output with stream output after normalized comparison, comparing file output
+  with a direct C Cairo oracle, checking stable PDF/PS/SVG output markers, and
+  checking PS/SVG file and stream negative tag-metadata markers for a four-page
+  scene that combines deeper document-structure nesting, URI/destination links,
+  `show_text_glyphs`, PDF metadata/custom-metadata overwrite/removal, page
+  labels, outline parent/child mixtures, PDF/PS page-size changes, PS DSC, and
+  SVG document units.
 - `moon -C cairoon test surface_stream_tag_wbtest.mbt --target native -v`: 7
   white-box stream equivalence tests passed, comparing PDF/PS/SVG file output
   with stream output after normalized comparison for single-page URI-link,
@@ -720,6 +730,13 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, and 2026-07-05:
   detection disabled, covering stream-vs-file, direct C oracle, stable marker,
   and PS/SVG file/stream negative tag-metadata marker paths for the
   retained/resized page-sequence scene.
+- `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
+  ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
+  surface_stream_tag_matrix_wbtest.mbt --target native -v`: 4 ASan-compiled
+  white-box backend tag-matrix tests passed with leak detection disabled,
+  covering stream-vs-file, direct C oracle, stable marker, and PS/SVG
+  file/stream negative tag-metadata marker paths for the deep-tag,
+  resized-page, metadata/outline/page-label matrix scene.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
   surface_stream_tag_wbtest.mbt --target native -v`: 7 ASan-compiled white-box
@@ -2340,15 +2357,26 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, and 2026-07-05:
   C Cairo oracle output, stable backend markers, and PS/SVG negative
   PDF-metadata checks. This raises the expected full native suite to 448 tests
   and raises the combined split backend/stream output targets to 37 tests.
+  A later backend tag-matrix differential slice added scene 39 plus
+  `surface_stream_tag_matrix_wbtest.mbt`, crossing the deep tag-nesting
+  coverage from scene 37 with the resized page-sequence and metadata
+  overwrite/removal coverage from scene 38. It covers four PDF/PS/SVG pages,
+  retained and cleared page operations, nested document-structure tags,
+  URI/destination links, `show_text_glyphs`, PDF metadata/custom metadata,
+  page labels, outline parent/child mixtures, PDF/PS page-size changes, PS
+  DSC, and SVG document units across file-vs-stream output, direct C Cairo
+  oracle output, stable backend markers, and PS/SVG negative PDF-metadata
+  checks. This raises the expected full native suite to 454 tests and raises
+  the combined split backend/stream output targets to 41 tests.
 
 Remaining reliability work is now narrower and should be tracked as evidence,
 not as an unstructured checklist:
 
 - Broaden normalized PDF/PS/SVG differential coverage for combinations not yet
   represented by the current direct-C fixtures: additional deep tag nests beyond
-  scene 37, more metadata/page-label/outline mixtures beyond scene 38, and
-  additional multi-page sequences beyond the current retained/resized page
-  fixtures.
+  scenes 37 and 39, more metadata/page-label/outline mixtures beyond scenes 38
+  and 39, and additional multi-page sequences beyond the current
+  retained/resized/tag-matrix page fixtures.
 - Add broader platform coverage and finalizer fuzz beyond the
   deterministic raster-source owner-count, state-machine, manual
   get-callback, callback allocation, retained-owner, stream retention, and
