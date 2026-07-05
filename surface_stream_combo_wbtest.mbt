@@ -216,3 +216,18 @@ test "backend feature tag multipage output contains stable markers" {
     }
   }
 }
+
+///|
+test "ps svg backend feature tag multipage output omits pdf tag metadata" {
+  let forbidden = [
+    "/Annots", "/Subtype /Link", "/URI", "/Dest", "/Dests", "/StructTreeRoot", "/S /Document",
+    "/S /Sect", "/S /P", "https://example.com/combo", "combo-destination", "<a ",
+  ]
+  for kind in 1..<3 {
+    let ext = stream_equivalence_extension(kind)
+    let path = "/tmp/cairoon_stream_combo_tag_absent_\{kind}.\{ext}"
+    let surface = make_stream_combo_file_surface(kind, path)
+    render_stream_combo_scene(kind, surface)
+    expect_vector_output_absent(path, forbidden)
+  }
+}
