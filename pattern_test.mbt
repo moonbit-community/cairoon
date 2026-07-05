@@ -46,6 +46,24 @@ test "pattern extend filter and matrix mirror cairo state" {
 }
 
 ///|
+test "pattern raw extend mirrors pycairo c int passthrough" {
+  let pattern = Pattern::solid_rgb(1.0, 0.0, 0.0)
+  inspect(pattern.get_extend_raw(), content="3")
+
+  pattern.set_extend_raw(42)
+  inspect(pattern.get_extend_raw(), content="42")
+  let typed_unknown = run_cairo(() => pattern.get_extend())
+  match typed_unknown {
+    Err(CairoInvalidArgument(InvalidStatus, _)) => ()
+    _ => @test.fail("expected typed getter to reject unknown raw extend")
+  }
+
+  pattern.set_extend_raw(0)
+  inspect(pattern.get_extend_raw(), content="0")
+  debug_inspect(pattern.get_extend(), content="ExtendNone")
+}
+
+///|
 test "context can paint from explicit solid pattern" {
   let surface = Surface::image(Argb32, 1, 1)
   let ctx = Context::new(surface)

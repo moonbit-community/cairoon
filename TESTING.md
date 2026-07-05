@@ -441,7 +441,7 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, and 2026-07-05:
   text vector stream equivalence slice, and the single-page tag stream
   equivalence slice.
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native`: 467 tests passed. The current run
+- `moon -C cairoon test --target native`: 468 tests passed. The current run
   includes the backend lifecycle-matrix differential slice,
   the backend tag-matrix differential slice,
   the resized backend page-sequence combo slice,
@@ -484,6 +484,7 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, and 2026-07-05:
   split slice, the Pattern wrapper split slice,
   the Pattern black-box test split slice,
   the raster-source black-box test split slice,
+  the pycairo raw C-int pattern extend passthrough slice,
   the Pattern raw FFI family split slice, the Font C glue split slice,
   the Pattern C glue split slice, the raster-source callback C glue split
   slice, the Surface C glue split slice,
@@ -2495,6 +2496,12 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, and 2026-07-05:
   `set_font_size(42)` font matrix. It is included in the targeted normal and
   ASan verification gates, raises that parity file to 8 tests, and raises the
   expected full native suite to 467 tests.
+  A later Pattern raw-extend parity slice added
+  `Pattern::set_extend_raw`/`Pattern::get_extend_raw`, covering pycairo's
+  C-int extend passthrough for `42` while keeping typed `Pattern::get_extend`
+  checked with `CairoInvalidArgument(InvalidStatus, _)` for unknown raw values.
+  It raises `pattern_test.mbt` to 11 tests and the expected full native suite
+  to 468 tests.
 
 Remaining reliability work is now narrower and should be tracked as evidence,
 not as an unstructured checklist:

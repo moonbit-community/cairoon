@@ -92,8 +92,11 @@ CairoonSurface *cairoon_pattern_get_surface(
 }
 
 MOONBIT_FFI_EXPORT
-cairo_extend_t cairoon_pattern_get_extend(CairoonPattern *pattern) {
-  return cairo_pattern_get_extend(pattern->ptr);
+int32_t cairoon_pattern_get_extend_raw(CairoonPattern *pattern) {
+  if (cairoon_pattern_status(pattern) != CAIRO_STATUS_SUCCESS) {
+    return CAIRO_EXTEND_PAD;
+  }
+  return (int32_t)cairo_pattern_get_extend(pattern->ptr);
 }
 
 MOONBIT_FFI_EXPORT
@@ -103,6 +106,16 @@ cairo_status_t cairoon_pattern_set_extend(CairoonPattern *pattern, cairo_extend_
     return status;
   }
   cairo_pattern_set_extend(pattern->ptr, extend);
+  return cairo_pattern_status(pattern->ptr);
+}
+
+MOONBIT_FFI_EXPORT
+cairo_status_t cairoon_pattern_set_extend_raw(CairoonPattern *pattern, int32_t extend) {
+  cairo_status_t status = cairoon_pattern_status(pattern);
+  if (status != CAIRO_STATUS_SUCCESS) {
+    return status;
+  }
+  cairo_pattern_set_extend(pattern->ptr, (cairo_extend_t)extend);
   return cairo_pattern_status(pattern->ptr);
 }
 

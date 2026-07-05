@@ -563,6 +563,7 @@ pub fn Pattern::get_color_stop_rgba(Self, Int) -> (Double, Double, Double, Doubl
 pub fn Pattern::get_color_stops_rgba(Self) -> Array[(Double, Double, Double, Double, Double)] raise CairoError
 pub fn Pattern::get_dither(Self) -> Dither raise CairoError
 pub fn Pattern::get_extend(Self) -> Extend raise CairoError
+pub fn Pattern::get_extend_raw(Self) -> Int raise CairoError
 pub fn Pattern::get_filter(Self) -> Filter raise CairoError
 pub fn Pattern::get_linear_points(Self) -> (Double, Double, Double, Double) raise CairoError
 pub fn Pattern::get_matrix(Self) -> Matrix raise CairoError
@@ -594,6 +595,7 @@ pub fn Pattern::raster_set_callbacks(Self, acquire? : ((Surface, RectangleInt) -
 pub fn Pattern::raster_source(Content, Int, Int) -> Self raise CairoError
 pub fn Pattern::set_dither(Self, Dither) -> Unit raise CairoError
 pub fn Pattern::set_extend(Self, Extend) -> Unit raise CairoError
+pub fn Pattern::set_extend_raw(Self, Int) -> Unit raise CairoError
 pub fn Pattern::set_filter(Self, Filter) -> Unit raise CairoError
 pub fn Pattern::set_matrix(Self, Matrix) -> Unit raise CairoError
 pub fn Pattern::solid_rgb(Double, Double, Double) -> Self raise CairoError

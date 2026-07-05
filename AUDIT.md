@@ -500,7 +500,7 @@ Implemented in this workspace:
   `ffi_pattern.mbt`, `ffi_pattern_mesh.mbt`, and
   `ffi_pattern_raster_source.mbt`.
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native`: 467 tests passed. The current run
+- `moon -C cairoon test --target native`: 468 tests passed. The current run
   includes the backend lifecycle-matrix differential slice,
   the backend tag-matrix differential slice,
   the resized backend page-sequence combo slice,
@@ -543,6 +543,7 @@ Implemented in this workspace:
   split slice, the Pattern wrapper split slice,
   the Pattern black-box test split slice, the raster-source black-box test
   split slice, the raster-source callback C glue split slice,
+  the pycairo raw C-int pattern extend passthrough slice,
   the Pattern raw FFI family split slice, the raster-source stale-release
   replacement slice, the raster-source acquire-only owner fuzz slice,
   the raster-source failed-acquire owner-count fuzz slice, the raster-source
@@ -2476,6 +2477,12 @@ Implemented in this workspace:
   `set_font_size(42)` font matrix. It is included in the targeted normal and
   ASan verification gates, raises that parity file to 8 tests, and raises the
   expected full native suite to 467 tests.
+  A later Pattern raw-extend parity slice added
+  `Pattern::set_extend_raw`/`Pattern::get_extend_raw`, covering pycairo's
+  C-int extend passthrough for `42` while keeping typed `Pattern::get_extend`
+  checked with `CairoInvalidArgument(InvalidStatus, _)` for unknown raw values.
+  It raises `pattern_test.mbt` to 11 tests and the expected full native suite
+  to 468 tests.
 
 ## Known Gaps
 

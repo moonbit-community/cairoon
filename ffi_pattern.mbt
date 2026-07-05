@@ -56,7 +56,7 @@ extern "C" fn pattern_get_surface_ffi(
 
 ///|
 #borrow(pattern)
-extern "C" fn pattern_get_extend_ffi(pattern : Pattern) -> Extend = "cairoon_pattern_get_extend"
+extern "C" fn pattern_get_extend_raw_ffi(pattern : Pattern) -> Int = "cairoon_pattern_get_extend_raw"
 
 ///|
 #borrow(pattern)
@@ -64,6 +64,13 @@ extern "C" fn pattern_set_extend_ffi(
   pattern : Pattern,
   extend : Extend,
 ) -> Status = "cairoon_pattern_set_extend"
+
+///|
+#borrow(pattern)
+extern "C" fn pattern_set_extend_raw_ffi(
+  pattern : Pattern,
+  extend : Int,
+) -> Status = "cairoon_pattern_set_extend_raw"
 
 ///|
 #borrow(pattern)

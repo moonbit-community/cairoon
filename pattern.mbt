@@ -52,9 +52,20 @@ pub fn Pattern::hash(self : Pattern) -> UInt64 {
 }
 
 ///|
+fn extend_from_raw(raw : Int) -> Extend raise CairoError {
+  match raw {
+    0 => ExtendNone
+    1 => Repeat
+    2 => Reflect
+    3 => Pad
+    _ =>
+      raise CairoInvalidArgument(InvalidStatus, "unknown cairo extend: \{raw}")
+  }
+}
+
+///|
 pub fn Pattern::get_extend(self : Pattern) -> Extend raise CairoError {
-  check_status(pattern_status_ffi(self))
-  pattern_get_extend_ffi(self)
+  extend_from_raw(self.get_extend_raw())
 }
 
 ///|
@@ -63,6 +74,20 @@ pub fn Pattern::set_extend(
   extend : Extend,
 ) -> Unit raise CairoError {
   check_status(pattern_set_extend_ffi(self, extend))
+}
+
+///|
+pub fn Pattern::get_extend_raw(self : Pattern) -> Int raise CairoError {
+  check_status(pattern_status_ffi(self))
+  pattern_get_extend_raw_ffi(self)
+}
+
+///|
+pub fn Pattern::set_extend_raw(
+  self : Pattern,
+  extend : Int,
+) -> Unit raise CairoError {
+  check_status(pattern_set_extend_raw_ffi(self, extend))
 }
 
 ///|
