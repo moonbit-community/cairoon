@@ -52,3 +52,32 @@ test "zero radius arcs leave non-empty paths like pycairo" {
   ctx.arc_negative(0.0, 0.0, 0.0, 0.0, 0.0)
   inspect(ctx.copy_path().length() > 0, content="true")
 }
+
+///|
+test "context polygon path_extents mirror pycairo fixture" {
+  let ctx = Context::new(pycairo_context_surface(42, 42))
+  ctx.line_to(1.0, 1.0)
+  ctx.line_to(1.0, 0.0)
+  ctx.line_to(0.0, 0.0)
+  ctx.line_to(0.0, 1.0)
+  ctx.line_to(1.0, 1.0)
+  assert_pycairo_context_extents_close(ctx.path_extents(), (0.0, 0.0, 1.0, 1.0))
+}
+
+///|
+test "context line in_stroke mirrors pycairo fixture" {
+  let ctx = Context::new(pycairo_context_surface(42, 42))
+  ctx.line_to(0.0, 0.0)
+  ctx.line_to(1.0, 1.0)
+  inspect(ctx.in_stroke(0.0, 0.0), content="true")
+  inspect(ctx.in_stroke(0.0, 2.0), content="false")
+}
+
+///|
+test "context empty stroke_extents mirror pycairo fixture" {
+  let ctx = Context::new(pycairo_context_surface(42, 42))
+  assert_pycairo_context_extents_close(
+    ctx.stroke_extents(),
+    (0.0, 0.0, 0.0, 0.0),
+  )
+}

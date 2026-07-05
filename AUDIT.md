@@ -500,7 +500,7 @@ Implemented in this workspace:
   `ffi_pattern.mbt`, `ffi_pattern_mesh.mbt`, and
   `ffi_pattern_raster_source.mbt`.
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native`: 461 tests passed. The current run
+- `moon -C cairoon test --target native`: 464 tests passed. The current run
   includes the backend lifecycle-matrix differential slice,
   the backend tag-matrix differential slice,
   the resized backend page-sequence combo slice,
@@ -511,7 +511,8 @@ Implemented in this workspace:
   the pycairo context font-extents parity slice,
   the pycairo group-target stack-restoration slice,
   the pycairo rectangle path-extents slice,
-  the pycairo 42x42 clip-extents and zero-radius arc parity slice,
+  the pycairo 42x42 clip-extents, zero-radius arc, polygon path-extents,
+  line in-stroke, and empty stroke-extents parity slice,
   the pycairo source RGBA round-trip slice,
   the pycairo empty-path clip `in_clip` slice,
   the pycairo mesh curve-first patch slice,
@@ -589,9 +590,11 @@ Implemented in this workspace:
   path copy/append independence, pycairo-style append string
   equivalence after clearing the source context, flattened append behavior, and
   path error propagation.
-- `moon -C cairoon test context_pycairo_parity_test.mbt --target native -v`: 2
+- `moon -C cairoon test context_pycairo_parity_test.mbt --target native -v`: 5
   black-box Context pycairo parity tests passed, covering the 42x42 default
-  clip-extents fixture and zero-radius `arc`/`arc_negative` non-empty paths.
+  clip-extents fixture, zero-radius `arc`/`arc_negative` non-empty paths,
+  polygon `path_extents`, line `in_stroke`, and empty `stroke_extents`
+  fixtures.
 - `moon -C cairoon test context_group_test.mbt --target native -v`: 4
   black-box Context group tests passed, covering `push_group`, `pop_group`,
   `pop_group_to_source`, `push_group_with_content`, group-target stack
@@ -2459,6 +2462,12 @@ Implemented in this workspace:
   forcing unknown values through the typed `Operator` API. It raises the
   expected full native suite to 457 tests and raises `context_state_test.mbt`
   to 8 tests.
+  A later Context pycairo parity broadening slice extended
+  `context_pycairo_parity_test.mbt`, covering pycairo's polygon
+  `path_extents`, line `in_stroke`, and empty `stroke_extents` fixtures. It is
+  included in the targeted normal and ASan verification gates, raises that
+  parity file to 5 tests, and raises the expected full native suite to 464
+  tests.
 
 ## Known Gaps
 
