@@ -40,8 +40,15 @@ pub fn FontOptions::hash(self : FontOptions) -> UInt64 {
 pub fn FontOptions::get_antialias(
   self : FontOptions,
 ) -> Antialias raise CairoError {
+  antialias_from_raw(self.get_antialias_raw())
+}
+
+///|
+pub fn FontOptions::get_antialias_raw(
+  self : FontOptions,
+) -> Int raise CairoError {
   check_status(font_options_status_ffi(self))
-  font_options_get_antialias_ffi(self)
+  font_options_get_antialias_raw_ffi(self)
 }
 
 ///|
@@ -53,11 +60,42 @@ pub fn FontOptions::set_antialias(
 }
 
 ///|
+pub fn FontOptions::set_antialias_raw(
+  self : FontOptions,
+  antialias : Int,
+) -> Unit raise CairoError {
+  check_status(font_options_set_antialias_raw_ffi(self, antialias))
+}
+
+///|
+fn subpixel_order_from_raw(raw : Int) -> SubpixelOrder raise CairoError {
+  match raw {
+    0 => SubpixelDefault
+    1 => SubpixelRgb
+    2 => SubpixelBgr
+    3 => SubpixelVrgb
+    4 => SubpixelVbgr
+    _ =>
+      raise CairoInvalidArgument(
+        InvalidStatus,
+        "unknown cairo subpixel order: \{raw}",
+      )
+  }
+}
+
+///|
 pub fn FontOptions::get_subpixel_order(
   self : FontOptions,
 ) -> SubpixelOrder raise CairoError {
+  subpixel_order_from_raw(self.get_subpixel_order_raw())
+}
+
+///|
+pub fn FontOptions::get_subpixel_order_raw(
+  self : FontOptions,
+) -> Int raise CairoError {
   check_status(font_options_status_ffi(self))
-  font_options_get_subpixel_order_ffi(self)
+  font_options_get_subpixel_order_raw_ffi(self)
 }
 
 ///|
@@ -69,11 +107,42 @@ pub fn FontOptions::set_subpixel_order(
 }
 
 ///|
+pub fn FontOptions::set_subpixel_order_raw(
+  self : FontOptions,
+  subpixel_order : Int,
+) -> Unit raise CairoError {
+  check_status(font_options_set_subpixel_order_raw_ffi(self, subpixel_order))
+}
+
+///|
+fn hint_style_from_raw(raw : Int) -> HintStyle raise CairoError {
+  match raw {
+    0 => HintStyleDefault
+    1 => HintStyleNone
+    2 => HintStyleSlight
+    3 => HintStyleMedium
+    4 => HintStyleFull
+    _ =>
+      raise CairoInvalidArgument(
+        InvalidStatus,
+        "unknown cairo hint style: \{raw}",
+      )
+  }
+}
+
+///|
 pub fn FontOptions::get_hint_style(
   self : FontOptions,
 ) -> HintStyle raise CairoError {
+  hint_style_from_raw(self.get_hint_style_raw())
+}
+
+///|
+pub fn FontOptions::get_hint_style_raw(
+  self : FontOptions,
+) -> Int raise CairoError {
   check_status(font_options_status_ffi(self))
-  font_options_get_hint_style_ffi(self)
+  font_options_get_hint_style_raw_ffi(self)
 }
 
 ///|
@@ -85,11 +154,40 @@ pub fn FontOptions::set_hint_style(
 }
 
 ///|
+pub fn FontOptions::set_hint_style_raw(
+  self : FontOptions,
+  hint_style : Int,
+) -> Unit raise CairoError {
+  check_status(font_options_set_hint_style_raw_ffi(self, hint_style))
+}
+
+///|
+fn hint_metrics_from_raw(raw : Int) -> HintMetrics raise CairoError {
+  match raw {
+    0 => HintMetricsDefault
+    1 => HintMetricsOff
+    2 => HintMetricsOn
+    _ =>
+      raise CairoInvalidArgument(
+        InvalidStatus,
+        "unknown cairo hint metrics: \{raw}",
+      )
+  }
+}
+
+///|
 pub fn FontOptions::get_hint_metrics(
   self : FontOptions,
 ) -> HintMetrics raise CairoError {
+  hint_metrics_from_raw(self.get_hint_metrics_raw())
+}
+
+///|
+pub fn FontOptions::get_hint_metrics_raw(
+  self : FontOptions,
+) -> Int raise CairoError {
   check_status(font_options_status_ffi(self))
-  font_options_get_hint_metrics_ffi(self)
+  font_options_get_hint_metrics_raw_ffi(self)
 }
 
 ///|
@@ -98,6 +196,14 @@ pub fn FontOptions::set_hint_metrics(
   hint_metrics : HintMetrics,
 ) -> Unit raise CairoError {
   check_status(font_options_set_hint_metrics_ffi(self, hint_metrics))
+}
+
+///|
+pub fn FontOptions::set_hint_metrics_raw(
+  self : FontOptions,
+  hint_metrics : Int,
+) -> Unit raise CairoError {
+  check_status(font_options_set_hint_metrics_raw_ffi(self, hint_metrics))
 }
 
 ///|
@@ -151,8 +257,29 @@ pub fn FontOptions::set_variations(
 pub fn FontOptions::get_color_mode(
   self : FontOptions,
 ) -> ColorMode raise CairoError {
+  color_mode_from_raw(self.get_color_mode_raw())
+}
+
+///|
+fn color_mode_from_raw(raw : Int) -> ColorMode raise CairoError {
+  match raw {
+    0 => ColorModeDefault
+    1 => ColorModeNoColor
+    2 => ColorModeColor
+    _ =>
+      raise CairoInvalidArgument(
+        InvalidStatus,
+        "unknown cairo color mode: \{raw}",
+      )
+  }
+}
+
+///|
+pub fn FontOptions::get_color_mode_raw(
+  self : FontOptions,
+) -> Int raise CairoError {
   check_status(font_options_status_ffi(self))
-  font_options_get_color_mode_ffi(self)
+  font_options_get_color_mode_raw_ffi(self)
 }
 
 ///|
@@ -161,6 +288,14 @@ pub fn FontOptions::set_color_mode(
   color_mode : ColorMode,
 ) -> Unit raise CairoError {
   check_status(font_options_set_color_mode_ffi(self, color_mode))
+}
+
+///|
+pub fn FontOptions::set_color_mode_raw(
+  self : FontOptions,
+  color_mode : Int,
+) -> Unit raise CairoError {
+  check_status(font_options_set_color_mode_raw_ffi(self, color_mode))
 }
 
 ///|

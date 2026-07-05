@@ -36,6 +36,76 @@ test "font options setters round trip state" {
 }
 
 ///|
+test "font options raw enums mirror pycairo c int passthrough" {
+  let antialias_options = FontOptions::new()
+  antialias_options.set_antialias(AntialiasGood)
+  inspect(antialias_options.get_antialias_raw(), content="5")
+  antialias_options.set_antialias_raw(42)
+  inspect(antialias_options.get_antialias_raw(), content="42")
+  match run_cairo(() => antialias_options.get_antialias()) {
+    Err(CairoInvalidArgument(InvalidStatus, _)) => ()
+    _ => @test.fail("expected typed getter to reject unknown raw antialias")
+  }
+  antialias_options.set_antialias_raw(0)
+  debug_inspect(antialias_options.get_antialias(), content="AntialiasDefault")
+
+  let subpixel_options = FontOptions::new()
+  subpixel_options.set_subpixel_order(SubpixelVbgr)
+  inspect(subpixel_options.get_subpixel_order_raw(), content="4")
+  subpixel_options.set_subpixel_order_raw(42)
+  inspect(subpixel_options.get_subpixel_order_raw(), content="42")
+  match run_cairo(() => subpixel_options.get_subpixel_order()) {
+    Err(CairoInvalidArgument(InvalidStatus, _)) => ()
+    _ =>
+      @test.fail("expected typed getter to reject unknown raw subpixel order")
+  }
+  subpixel_options.set_subpixel_order_raw(0)
+  debug_inspect(
+    subpixel_options.get_subpixel_order(),
+    content="SubpixelDefault",
+  )
+
+  let hint_style_options = FontOptions::new()
+  hint_style_options.set_hint_style(HintStyleFull)
+  inspect(hint_style_options.get_hint_style_raw(), content="4")
+  hint_style_options.set_hint_style_raw(42)
+  inspect(hint_style_options.get_hint_style_raw(), content="42")
+  match run_cairo(() => hint_style_options.get_hint_style()) {
+    Err(CairoInvalidArgument(InvalidStatus, _)) => ()
+    _ => @test.fail("expected typed getter to reject unknown raw hint style")
+  }
+  hint_style_options.set_hint_style_raw(0)
+  debug_inspect(hint_style_options.get_hint_style(), content="HintStyleDefault")
+
+  let hint_metrics_options = FontOptions::new()
+  hint_metrics_options.set_hint_metrics(HintMetricsOn)
+  inspect(hint_metrics_options.get_hint_metrics_raw(), content="2")
+  hint_metrics_options.set_hint_metrics_raw(42)
+  inspect(hint_metrics_options.get_hint_metrics_raw(), content="42")
+  match run_cairo(() => hint_metrics_options.get_hint_metrics()) {
+    Err(CairoInvalidArgument(InvalidStatus, _)) => ()
+    _ => @test.fail("expected typed getter to reject unknown raw hint metrics")
+  }
+  hint_metrics_options.set_hint_metrics_raw(0)
+  debug_inspect(
+    hint_metrics_options.get_hint_metrics(),
+    content="HintMetricsDefault",
+  )
+
+  let color_mode_options = FontOptions::new()
+  color_mode_options.set_color_mode(ColorModeColor)
+  inspect(color_mode_options.get_color_mode_raw(), content="2")
+  color_mode_options.set_color_mode_raw(42)
+  inspect(color_mode_options.get_color_mode_raw(), content="42")
+  match run_cairo(() => color_mode_options.get_color_mode()) {
+    Err(CairoInvalidArgument(InvalidStatus, _)) => ()
+    _ => @test.fail("expected typed getter to reject unknown raw color mode")
+  }
+  color_mode_options.set_color_mode_raw(0)
+  debug_inspect(color_mode_options.get_color_mode(), content="ColorModeDefault")
+}
+
+///|
 test "font options custom palette colors map invalid index" {
   let options = FontOptions::new()
   let missing = run_cairo(() => {

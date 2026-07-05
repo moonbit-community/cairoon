@@ -500,7 +500,7 @@ Implemented in this workspace:
   `ffi_pattern.mbt`, `ffi_pattern_mesh.mbt`, and
   `ffi_pattern_raster_source.mbt`.
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native`: 471 tests passed. The current run
+- `moon -C cairoon test --target native`: 472 tests passed. The current run
   includes the backend lifecycle-matrix differential slice,
   the backend tag-matrix differential slice,
   the resized backend page-sequence combo slice,
@@ -509,6 +509,7 @@ Implemented in this workspace:
   the Context drawing-state all-enum round-trip slice,
   the pycairo raw C-int operator passthrough slice,
   the pycairo raw C-int context drawing-state enum passthrough slice,
+  the pycairo raw C-int FontOptions enum passthrough slice,
   the pycairo context font-extents parity slice,
   the pycairo group-target stack-restoration slice,
   the pycairo rectangle path-extents slice,
@@ -548,6 +549,7 @@ Implemented in this workspace:
   the pycairo raw C-int pattern filter/dither passthrough slice,
   the Pattern raw enum documentation slice,
   the pycairo raw C-int context drawing-state enum passthrough slice,
+  the pycairo raw C-int FontOptions enum passthrough slice,
   the Pattern raw FFI family split slice, the raster-source stale-release
   replacement slice, the raster-source acquire-only owner fuzz slice,
   the raster-source failed-acquire owner-count fuzz slice, the raster-source
@@ -2511,6 +2513,16 @@ Implemented in this workspace:
   `CairoInvalidArgument(InvalidStatus, _)` for unknown raw values. It raises
   `context_state_test.mbt` to 9 tests and the expected full native suite to
   471 tests.
+  A later FontOptions raw enum parity slice added
+  `FontOptions::set_antialias_raw`/`FontOptions::get_antialias_raw`,
+  `FontOptions::set_subpixel_order_raw`/`FontOptions::get_subpixel_order_raw`,
+  `FontOptions::set_hint_style_raw`/`FontOptions::get_hint_style_raw`,
+  `FontOptions::set_hint_metrics_raw`/`FontOptions::get_hint_metrics_raw`,
+  and `FontOptions::set_color_mode_raw`/`FontOptions::get_color_mode_raw`,
+  covering pycairo `font.c` C-int parsing for font options while keeping typed
+  getters checked with `CairoInvalidArgument(InvalidStatus, _)` for unknown raw
+  values. It raises `font_options_test.mbt` to 8 tests and the expected full
+  native suite to 472 tests.
 
 ## Known Gaps
 

@@ -339,23 +339,33 @@ type FontOptions
 pub fn FontOptions::copy(Self) -> Self raise CairoError
 pub fn FontOptions::equal(Self, Self) -> Bool
 pub fn FontOptions::get_antialias(Self) -> Antialias raise CairoError
+pub fn FontOptions::get_antialias_raw(Self) -> Int raise CairoError
 pub fn FontOptions::get_color_mode(Self) -> ColorMode raise CairoError
+pub fn FontOptions::get_color_mode_raw(Self) -> Int raise CairoError
 pub fn FontOptions::get_color_palette(Self) -> UInt raise CairoError
 pub fn FontOptions::get_custom_palette_color(Self, UInt) -> (Double, Double, Double, Double) raise CairoError
 pub fn FontOptions::get_hint_metrics(Self) -> HintMetrics raise CairoError
+pub fn FontOptions::get_hint_metrics_raw(Self) -> Int raise CairoError
 pub fn FontOptions::get_hint_style(Self) -> HintStyle raise CairoError
+pub fn FontOptions::get_hint_style_raw(Self) -> Int raise CairoError
 pub fn FontOptions::get_subpixel_order(Self) -> SubpixelOrder raise CairoError
+pub fn FontOptions::get_subpixel_order_raw(Self) -> Int raise CairoError
 pub fn FontOptions::get_variations(Self) -> String? raise CairoError
 pub fn FontOptions::hash(Self) -> UInt64
 pub fn FontOptions::merge(Self, Self) -> Unit raise CairoError
 pub fn FontOptions::new() -> Self raise CairoError
 pub fn FontOptions::set_antialias(Self, Antialias) -> Unit raise CairoError
+pub fn FontOptions::set_antialias_raw(Self, Int) -> Unit raise CairoError
 pub fn FontOptions::set_color_mode(Self, ColorMode) -> Unit raise CairoError
+pub fn FontOptions::set_color_mode_raw(Self, Int) -> Unit raise CairoError
 pub fn FontOptions::set_color_palette(Self, UInt) -> Unit raise CairoError
 pub fn FontOptions::set_custom_palette_color(Self, UInt, Double, Double, Double, Double) -> Unit raise CairoError
 pub fn FontOptions::set_hint_metrics(Self, HintMetrics) -> Unit raise CairoError
+pub fn FontOptions::set_hint_metrics_raw(Self, Int) -> Unit raise CairoError
 pub fn FontOptions::set_hint_style(Self, HintStyle) -> Unit raise CairoError
+pub fn FontOptions::set_hint_style_raw(Self, Int) -> Unit raise CairoError
 pub fn FontOptions::set_subpixel_order(Self, SubpixelOrder) -> Unit raise CairoError
+pub fn FontOptions::set_subpixel_order_raw(Self, Int) -> Unit raise CairoError
 pub fn FontOptions::set_variations(Self, String?) -> Unit raise CairoError
 pub fn FontOptions::status(Self) -> Status
 pub impl Eq for FontOptions

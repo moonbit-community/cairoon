@@ -13,7 +13,9 @@ and reject embedded NUL bytes with `CairoInvalidArgument(InvalidString, _)`.
 
 `FontOptions` owns a `cairo_font_options_t *`. State setters mutate the option
 object, `copy` creates an independent Cairo object, and `merge` follows Cairo's
-field merge behavior.
+field merge behavior. Raw C-int enum methods are compatibility APIs for
+pycairo's C glue; prefer typed methods unless porting code that intentionally
+passes or observes raw Cairo enum values.
 
 ```mbt check
 ///|
@@ -42,6 +44,14 @@ test "font docs: font options state copy and merge" {
     Some(variations) => inspect(variations, content="wght=200,wdth=140.5")
     None => fail("expected variations")
   }
+
+  copied.set_hint_style_raw(42)
+  inspect(copied.get_hint_style_raw(), content="42")
+  match run_cairo(() => copied.get_hint_style()) {
+    Err(CairoInvalidArgument(InvalidStatus, _)) => ()
+    _ => @test.fail("expected unknown raw hint style to stay outside typed API")
+  }
+  copied.set_hint_style_raw(0)
 
   let target = FontOptions::new()
   target.merge(options)

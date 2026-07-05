@@ -32,9 +32,7 @@ extern "C" fn font_options_hash_ffi(options : FontOptions) -> UInt64 = "cairoon_
 
 ///|
 #borrow(options)
-extern "C" fn font_options_get_antialias_ffi(
-  options : FontOptions,
-) -> Antialias = "cairoon_font_options_get_antialias"
+extern "C" fn font_options_get_antialias_raw_ffi(options : FontOptions) -> Int = "cairoon_font_options_get_antialias_raw"
 
 ///|
 #borrow(options)
@@ -45,9 +43,16 @@ extern "C" fn font_options_set_antialias_ffi(
 
 ///|
 #borrow(options)
-extern "C" fn font_options_get_subpixel_order_ffi(
+extern "C" fn font_options_set_antialias_raw_ffi(
   options : FontOptions,
-) -> SubpixelOrder = "cairoon_font_options_get_subpixel_order"
+  antialias : Int,
+) -> Status = "cairoon_font_options_set_antialias_raw"
+
+///|
+#borrow(options)
+extern "C" fn font_options_get_subpixel_order_raw_ffi(
+  options : FontOptions,
+) -> Int = "cairoon_font_options_get_subpixel_order_raw"
 
 ///|
 #borrow(options)
@@ -58,9 +63,14 @@ extern "C" fn font_options_set_subpixel_order_ffi(
 
 ///|
 #borrow(options)
-extern "C" fn font_options_get_hint_style_ffi(
+extern "C" fn font_options_set_subpixel_order_raw_ffi(
   options : FontOptions,
-) -> HintStyle = "cairoon_font_options_get_hint_style"
+  subpixel_order : Int,
+) -> Status = "cairoon_font_options_set_subpixel_order_raw"
+
+///|
+#borrow(options)
+extern "C" fn font_options_get_hint_style_raw_ffi(options : FontOptions) -> Int = "cairoon_font_options_get_hint_style_raw"
 
 ///|
 #borrow(options)
@@ -71,9 +81,16 @@ extern "C" fn font_options_set_hint_style_ffi(
 
 ///|
 #borrow(options)
-extern "C" fn font_options_get_hint_metrics_ffi(
+extern "C" fn font_options_set_hint_style_raw_ffi(
   options : FontOptions,
-) -> HintMetrics = "cairoon_font_options_get_hint_metrics"
+  hint_style : Int,
+) -> Status = "cairoon_font_options_set_hint_style_raw"
+
+///|
+#borrow(options)
+extern "C" fn font_options_get_hint_metrics_raw_ffi(
+  options : FontOptions,
+) -> Int = "cairoon_font_options_get_hint_metrics_raw"
 
 ///|
 #borrow(options)
@@ -81,6 +98,13 @@ extern "C" fn font_options_set_hint_metrics_ffi(
   options : FontOptions,
   hint_metrics : HintMetrics,
 ) -> Status = "cairoon_font_options_set_hint_metrics"
+
+///|
+#borrow(options)
+extern "C" fn font_options_set_hint_metrics_raw_ffi(
+  options : FontOptions,
+  hint_metrics : Int,
+) -> Status = "cairoon_font_options_set_hint_metrics_raw"
 
 ///|
 #borrow(options, has_variations)
@@ -104,9 +128,7 @@ extern "C" fn font_options_clear_variations_ffi(
 
 ///|
 #borrow(options)
-extern "C" fn font_options_get_color_mode_ffi(
-  options : FontOptions,
-) -> ColorMode = "cairoon_font_options_get_color_mode"
+extern "C" fn font_options_get_color_mode_raw_ffi(options : FontOptions) -> Int = "cairoon_font_options_get_color_mode_raw"
 
 ///|
 #borrow(options)
@@ -114,6 +136,13 @@ extern "C" fn font_options_set_color_mode_ffi(
   options : FontOptions,
   color_mode : ColorMode,
 ) -> Status = "cairoon_font_options_set_color_mode"
+
+///|
+#borrow(options)
+extern "C" fn font_options_set_color_mode_raw_ffi(
+  options : FontOptions,
+  color_mode : Int,
+) -> Status = "cairoon_font_options_set_color_mode_raw"
 
 ///|
 #borrow(options)
