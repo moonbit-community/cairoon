@@ -23,6 +23,7 @@ options(
     "cairoon_test_vector_tag_scenes.c",
     "cairoon_test_backend_combo.c",
     "cairoon_test_backend_nested.c",
+    "cairoon_test_backend_sequence.c",
     "cairoon_test_pdf_vector.c",
     "cairoon_test_ps_vector.c",
     "cairoon_test_svg_vector.c",

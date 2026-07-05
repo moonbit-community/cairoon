@@ -103,6 +103,7 @@ cairoon/
   cairoon_test_vector_tag_scenes.c
   cairoon_test_backend_combo.c
   cairoon_test_backend_nested.c
+  cairoon_test_backend_sequence.c
   cairoon_test_pdf_vector.c
   cairoon_test_ps_vector.c
   cairoon_test_svg_vector.c
@@ -163,6 +164,7 @@ options(
     "cairoon_test_vector_tag_scenes.c",
     "cairoon_test_backend_combo.c",
     "cairoon_test_backend_nested.c",
+    "cairoon_test_backend_sequence.c",
     "cairoon_test_pdf_vector.c",
     "cairoon_test_ps_vector.c",
     "cairoon_test_svg_vector.c",
@@ -378,8 +380,9 @@ payload types and cross-file helpers declared in `cairoon_private.h`.
 - `cairoon_test_common.c`, `cairoon_test_file.c`,
   `cairoon_test_vector.c`, `cairoon_test_vector_scenes.c`,
   `cairoon_test_vector_tag_scenes.c`, `cairoon_test_backend_combo.c`,
-  `cairoon_test_backend_nested.c`, `cairoon_test_pdf_vector.c`,
-  `cairoon_test_ps_vector.c`, `cairoon_test_svg_vector.c`, and
+  `cairoon_test_backend_nested.c`, `cairoon_test_backend_sequence.c`,
+  `cairoon_test_pdf_vector.c`, `cairoon_test_ps_vector.c`,
+  `cairoon_test_svg_vector.c`, and
   `cairoon_test_image.c`: private white-box oracle helpers only. Keep public
   binding exports out of these files, and keep test oracles out of
   `cairoon_misc.c` except for truly tiny module-level probes. Keep
@@ -387,9 +390,9 @@ payload types and cross-file helpers declared in `cairoon_private.h`.
   prototypes belong in `cairoon_test_vector_private.h`; primitive/common
   drawing scenes belong in `cairoon_test_vector_scenes.c`; tag-heavy vector
   scenes belong in `cairoon_test_vector_tag_scenes.c`; cross-backend feature
-  combinations belong in focused files such as `cairoon_test_backend_combo.c`
-  and `cairoon_test_backend_nested.c`; single-backend feature renderers belong
-  in the PDF/PS/SVG vector files.
+  combinations belong in focused files such as `cairoon_test_backend_combo.c`,
+  `cairoon_test_backend_nested.c`, and `cairoon_test_backend_sequence.c`;
+  single-backend feature renderers belong in the PDF/PS/SVG vector files.
 
 When a new Cairo family is migrated, create a new C file named after that
 family instead of adding unrelated code to an existing file. Keep files small
