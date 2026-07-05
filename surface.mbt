@@ -61,6 +61,22 @@ pub fn Surface::create_similar_image(
 }
 
 ///|
+pub fn Surface::create_similar_image_raw(
+  self : Surface,
+  format : Int,
+  width : Int,
+  height : Int,
+) -> Surface raise CairoError {
+  let status = Ref(Success)
+  let surface = surface_create_similar_image_raw_ffi(
+    self, format, width, height, status,
+  )
+  check_status(status.val)
+  check_status(surface_status_ffi(surface))
+  surface
+}
+
+///|
 pub fn Surface::create_for_rectangle(
   self : Surface,
   x : Double,

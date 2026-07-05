@@ -10,6 +10,17 @@ pub fn Surface::image(
 }
 
 ///|
+pub fn Surface::image_raw(
+  format : Int,
+  width : Int,
+  height : Int,
+) -> Surface raise CairoError {
+  let surface = image_surface_create_raw_ffi(format, width, height)
+  check_status(surface_status_ffi(surface))
+  surface
+}
+
+///|
 pub fn Surface::image_for_data(
   data : FixedArray[Byte],
   format : Format,
@@ -20,6 +31,33 @@ pub fn Surface::image_for_data(
   let status = Ref(Success)
   let surface = image_surface_create_for_data_ffi(
     data, format, width, height, stride, status,
+  )
+  check_status(status.val)
+  check_status(surface_status_ffi(surface))
+  surface
+}
+
+///|
+pub fn Surface::image_for_data_raw(
+  data : FixedArray[Byte],
+  format : Int,
+  width : Int,
+  height : Int,
+  stride? : Int,
+) -> Surface raise CairoError {
+  let actual_stride = match stride {
+    Some(stride) => stride
+    None => {
+      let calculated = Format::stride_for_width_raw(format, width)
+      if calculated < 0 {
+        raise CairoInvalidArgument(InvalidFormat, InvalidFormat.message())
+      }
+      calculated
+    }
+  }
+  let status = Ref(Success)
+  let surface = image_surface_create_for_data_raw_ffi(
+    data, format, width, height, actual_stride, status,
   )
   check_status(status.val)
   check_status(surface_status_ffi(surface))
@@ -52,8 +90,13 @@ pub fn Surface::get_stride(self : Surface) -> Int raise CairoError {
 
 ///|
 pub fn Surface::get_format(self : Surface) -> Format raise CairoError {
+  format_from_raw(self.get_format_raw())
+}
+
+///|
+pub fn Surface::get_format_raw(self : Surface) -> Int raise CairoError {
   let status = Ref(Success)
-  let format = image_surface_get_format_ffi(self, status)
+  let format = image_surface_get_format_raw_ffi(self, status)
   check_status(status.val)
   format
 }

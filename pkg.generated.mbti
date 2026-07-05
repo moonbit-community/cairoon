@@ -398,6 +398,7 @@ pub(all) enum Format {
   Rgba128F
 } derive(Eq, @debug.Debug)
 pub fn Format::stride_for_width(Self, Int) -> Int
+pub fn Format::stride_for_width_raw(Int, Int) -> Int
 
 pub struct Glyph {
   index : UInt64
@@ -445,6 +446,7 @@ pub fn MappedImageSurface::copy_data(Self) -> Bytes raise CairoError
 pub fn MappedImageSurface::flush(Self) -> Unit raise CairoError
 pub fn MappedImageSurface::get_data(Self) -> ImageData raise CairoError
 pub fn MappedImageSurface::get_format(Self) -> Format raise CairoError
+pub fn MappedImageSurface::get_format_raw(Self) -> Int raise CairoError
 pub fn MappedImageSurface::get_height(Self) -> Int raise CairoError
 pub fn MappedImageSurface::get_stride(Self) -> Int raise CairoError
 pub fn MappedImageSurface::get_width(Self) -> Int raise CairoError
@@ -794,6 +796,7 @@ pub fn Surface::copy_page(Self) -> Unit raise CairoError
 pub fn Surface::create_for_rectangle(Self, Double, Double, Double, Double) -> Self raise CairoError
 pub fn Surface::create_similar(Self, Content, Int, Int) -> Self raise CairoError
 pub fn Surface::create_similar_image(Self, Format, Int, Int) -> Self raise CairoError
+pub fn Surface::create_similar_image_raw(Self, Int, Int, Int) -> Self raise CairoError
 pub fn Surface::create_similar_raw(Self, Int, Int, Int) -> Self raise CairoError
 pub fn Surface::equal(Self, Self) -> Bool
 pub fn Surface::finish(Self) -> Unit raise CairoError
@@ -807,6 +810,7 @@ pub fn Surface::get_device_scale(Self) -> (Double, Double) raise CairoError
 pub fn Surface::get_fallback_resolution(Self) -> (Double, Double) raise CairoError
 pub fn Surface::get_font_options(Self) -> FontOptions raise CairoError
 pub fn Surface::get_format(Self) -> Format raise CairoError
+pub fn Surface::get_format_raw(Self) -> Int raise CairoError
 pub fn Surface::get_height(Self) -> Int raise CairoError
 pub fn Surface::get_mime_data(Self, String) -> Bytes? raise CairoError
 pub fn Surface::get_stride(Self) -> Int raise CairoError
@@ -816,8 +820,10 @@ pub fn Surface::has_show_text_glyphs(Self) -> Bool raise CairoError
 pub fn Surface::hash(Self) -> UInt64
 pub fn Surface::image(Format, Int, Int) -> Self raise CairoError
 pub fn Surface::image_for_data(FixedArray[Byte], Format, Int, Int, stride? : Int) -> Self raise CairoError
+pub fn Surface::image_for_data_raw(FixedArray[Byte], Int, Int, Int, stride? : Int) -> Self raise CairoError
 pub fn Surface::image_from_png(String) -> Self raise CairoError
 pub fn Surface::image_from_png_stream((Int) -> Bytes) -> Self raise CairoError
+pub fn Surface::image_raw(Int, Int, Int) -> Self raise CairoError
 pub fn Surface::map_to_image(Self, extents? : RectangleInt?) -> MappedImageSurface raise CairoError
 pub fn Surface::mark_dirty(Self) -> Unit raise CairoError
 pub fn Surface::mark_dirty_rectangle(Self, Int, Int, Int, Int) -> Unit raise CairoError

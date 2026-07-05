@@ -25,6 +25,7 @@ test "mapped image paints whole surface and explicit unmap uploads" {
   let mapped = main.map_to_image()
   inspect(mapped.status().is_success(), content="true")
   debug_inspect(mapped.get_format(), content="Rgb24")
+  inspect(mapped.get_format_raw(), content="1")
   inspect(mapped.get_width(), content="2")
   inspect(mapped.get_height(), content="1")
   inspect(mapped.get_stride(), content="8")

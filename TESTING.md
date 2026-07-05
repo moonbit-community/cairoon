@@ -441,7 +441,7 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, and 2026-07-05:
   text vector stream equivalence slice, and the single-page tag stream
   equivalence slice.
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native`: 482 tests passed. The current run
+- `moon -C cairoon test --target native`: 483 tests passed. The current run
   includes the backend lifecycle-matrix differential slice,
   the backend tag-matrix differential slice,
   the resized backend page-sequence combo slice,
@@ -453,6 +453,7 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, and 2026-07-05:
   the pycairo raw C-int FontOptions enum passthrough slice,
   the pycairo raw C-int toy-font slant/weight parsing slice,
   the pycairo raw C-int content constructor slice,
+  the pycairo raw C-int format constructor/getter slice,
   the pycairo context font-extents parity slice,
   the pycairo group-target stack-restoration slice,
   the pycairo rectangle path-extents slice,
@@ -2570,6 +2571,17 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, and 2026-07-05:
   `surface_recording_test.mbt` to 4 tests, `device_test.mbt` to 10 tests,
   `pattern_raster_source_test.mbt` to 7 tests, and the current full native
   suite to 482 tests.
+  A later Format raw constructor/getter parity slice added
+  `Surface::image_raw`, `Surface::image_for_data_raw`,
+  `Surface::create_similar_image_raw`, `Surface::get_format_raw`,
+  `MappedImageSurface::get_format_raw`, and
+  `Format::stride_for_width_raw`, covering pycairo `surface.c` C-int parsing
+  for `cairo_format_t` constructors and stride helpers. Known raw values round
+  trip through raw format getters, typed getters decode only known Cairo
+  formats, and invalid raw formats map to
+  `CairoInvalidArgument(InvalidFormat, _)` for constructor paths. It raises
+  `surface_context_test.mbt` to 21 tests and the current full native suite to
+  483 tests.
 
 Remaining reliability work is now narrower and should be tracked as evidence,
 not as an unstructured checklist:

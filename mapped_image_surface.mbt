@@ -95,8 +95,15 @@ pub fn MappedImageSurface::get_stride(
 pub fn MappedImageSurface::get_format(
   self : MappedImageSurface,
 ) -> Format raise CairoError {
+  format_from_raw(self.get_format_raw())
+}
+
+///|
+pub fn MappedImageSurface::get_format_raw(
+  self : MappedImageSurface,
+) -> Int raise CairoError {
   check_status(mapped_image_surface_status_ffi(self))
-  mapped_image_surface_get_format_ffi(self)
+  mapped_image_surface_get_format_raw_ffi(self)
 }
 
 ///|

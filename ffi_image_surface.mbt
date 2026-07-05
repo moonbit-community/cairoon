@@ -6,6 +6,13 @@ extern "C" fn image_surface_create_ffi(
 ) -> Surface = "cairoon_image_surface_create"
 
 ///|
+extern "C" fn image_surface_create_raw_ffi(
+  format : Int,
+  width : Int,
+  height : Int,
+) -> Surface = "cairoon_image_surface_create"
+
+///|
 #owned(data)
 #borrow(status)
 extern "C" fn image_surface_create_for_data_ffi(
@@ -18,7 +25,22 @@ extern "C" fn image_surface_create_for_data_ffi(
 ) -> Surface = "cairoon_image_surface_create_for_data"
 
 ///|
+#owned(data)
+#borrow(status)
+extern "C" fn image_surface_create_for_data_raw_ffi(
+  data : FixedArray[Byte],
+  format : Int,
+  width : Int,
+  height : Int,
+  stride : Int,
+  status : Ref[Status],
+) -> Surface = "cairoon_image_surface_create_for_data"
+
+///|
 extern "C" fn format_stride_for_width_ffi(format : Format, width : Int) -> Int = "cairo_format_stride_for_width"
+
+///|
+extern "C" fn format_stride_for_width_raw_ffi(format : Int, width : Int) -> Int = "cairo_format_stride_for_width"
 
 ///|
 #borrow(surface, status)
@@ -43,10 +65,10 @@ extern "C" fn image_surface_get_stride_ffi(
 
 ///|
 #borrow(surface, status)
-extern "C" fn image_surface_get_format_ffi(
+extern "C" fn image_surface_get_format_raw_ffi(
   surface : Surface,
   status : Ref[Status],
-) -> Format = "cairoon_image_surface_get_format"
+) -> Int = "cairoon_image_surface_get_format"
 
 ///|
 #borrow(surface, status)

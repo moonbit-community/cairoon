@@ -30,6 +30,16 @@ extern "C" fn surface_create_similar_image_ffi(
 
 ///|
 #borrow(surface, status)
+extern "C" fn surface_create_similar_image_raw_ffi(
+  surface : Surface,
+  format : Int,
+  width : Int,
+  height : Int,
+  status : Ref[Status],
+) -> Surface = "cairoon_surface_create_similar_image"
+
+///|
+#borrow(surface, status)
 extern "C" fn surface_create_for_rectangle_ffi(
   surface : Surface,
   x : Double,

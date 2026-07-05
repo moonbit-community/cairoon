@@ -28,7 +28,9 @@ test "surface docs: scoped finish" {
 ## Image Surface Basics
 
 `Surface::image` creates an image surface. The byte order follows Cairo's native
-ARGB32 memory layout for the current platform.
+ARGB32 memory layout for the current platform. `Surface::image_raw`,
+`Surface::get_format_raw`, and `Format::stride_for_width_raw` mirror pycairo's
+C-int `Format` parsing for ported code.
 
 ```mbt check
 ///|
@@ -37,6 +39,10 @@ test "surface docs: image surface properties and copied bytes" {
   debug_inspect(surface.get_type(), content="SurfaceTypeImage")
   debug_inspect(surface.get_content(), content="ContentColorAlpha")
   debug_inspect(surface.get_format(), content="Argb32")
+  inspect(surface.get_format_raw(), content="0")
+  let raw = Surface::image_raw(1, 1, 1)
+  debug_inspect(raw.get_format(), content="Rgb24")
+  inspect(Format::stride_for_width_raw(1, 1), content="4")
   inspect(surface.get_width(), content="2")
   inspect(surface.get_height(), content="1")
   inspect(surface.get_stride(), content="8")
@@ -56,16 +62,18 @@ test "surface docs: image surface properties and copied bytes" {
 
 ## Caller-Owned Pixel Buffers
 
-`Surface::image_for_data` maps pycairo's `ImageSurface.create_for_data`. Cairo
-keeps a pointer to the mutable byte buffer, and cairoon retains that MoonBit
-buffer until the surface is finalized.
+`Surface::image_for_data` maps pycairo's `ImageSurface.create_for_data`.
+`Surface::image_for_data_raw` accepts the same raw C-int format value pycairo
+parses. Cairo keeps a pointer to the mutable byte buffer, and cairoon retains
+that MoonBit buffer until the surface is finalized.
 
 ```mbt check
 ///|
 test "surface docs: buffer backed image data shares storage" {
   let stride = Format::stride_for_width(Argb32, 1)
   let pixels : FixedArray[Byte] = FixedArray::make(stride, b'\x00')
-  let surface = Surface::image_for_data(pixels, Argb32, 1, 1, stride~)
+  let surface = Surface::image_for_data_raw(pixels, 0, 1, 1, stride~)
+  inspect(surface.get_format_raw(), content="0")
 
   let data = surface.get_data()
   data.set(0, b'\x00')
@@ -86,7 +94,8 @@ test "surface docs: buffer backed image data shares storage" {
 ## Similar And Subsurfaces
 
 `create_similar` and `create_similar_image` follow Cairo's compatible-surface
-constructors. `create_similar_raw` mirrors pycairo's C-int `Content` parsing for
+constructors. `create_similar_raw` mirrors pycairo's C-int `Content` parsing,
+and `create_similar_image_raw` mirrors pycairo's C-int `Format` parsing for
 ported code. `create_for_rectangle` creates a child surface that clips and
 translates drawing into its parent; cairoon retains the parent wrapper while
 the child can reference it.
@@ -107,6 +116,9 @@ test "surface docs: similar images and rectangular child surfaces" {
   debug_inspect(image.get_type(), content="SurfaceTypeImage")
   debug_inspect(image.get_format(), content="Rgb24")
   inspect(image.get_height(), content="3")
+
+  let raw_image = parent.create_similar_image_raw(5, 1, 1)
+  debug_inspect(raw_image.get_format(), content="Rgb30")
 
   let child = parent.create_for_rectangle(1.0, 1.0, 2.0, 2.0)
   let ctx = Context::new(child)

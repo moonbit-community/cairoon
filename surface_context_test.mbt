@@ -47,16 +47,50 @@ fn[T] expect_surface_invalid_content(
 }
 
 ///|
+fn[T] expect_surface_invalid_format(
+  result : Result[T, CairoError],
+) -> Unit raise {
+  inspect(result is Err(_), content="true")
+  match result {
+    Err(CairoInvalidArgument(InvalidFormat, _)) => ()
+    _ => @test.fail("expected InvalidFormat")
+  }
+}
+
+///|
 test "image surface properties" {
   let surface = Surface::image(Argb32, 2, 1)
   debug_inspect(surface.get_type(), content="SurfaceTypeImage")
   debug_inspect(surface.get_content(), content="ContentColorAlpha")
   inspect(surface.get_content_raw(), content="12288")
   debug_inspect(surface.get_format(), content="Argb32")
+  inspect(surface.get_format_raw(), content="0")
   inspect(surface.get_width(), content="2")
   inspect(surface.get_height(), content="1")
   inspect(surface.get_stride(), content="8")
   inspect(surface.copy_data().length(), content="8")
+}
+
+///|
+test "image surface accepts pycairo raw format ints" {
+  inspect(Format::stride_for_width_raw(0, 2), content="8")
+  inspect(Format::stride_for_width_raw(FORMAT_INVALID, 2), content="-1")
+
+  let surface = Surface::image_raw(1, 2, 1)
+  debug_inspect(surface.get_format(), content="Rgb24")
+  inspect(surface.get_format_raw(), content="1")
+  inspect(surface.get_stride(), content="8")
+
+  let data : FixedArray[Byte] = FixedArray::make(4, b'\x00')
+  let backed = Surface::image_for_data_raw(data, 0, 1, 1)
+  debug_inspect(backed.get_format(), content="Argb32")
+  inspect(backed.get_format_raw(), content="0")
+
+  expect_surface_invalid_format(run_cairo(() => Surface::image_raw(-1, 1, 1)))
+  let invalid_data : FixedArray[Byte] = FixedArray::make(4, b'\x00')
+  expect_surface_invalid_format(
+    run_cairo(() => Surface::image_for_data_raw(invalid_data, -1, 1, 1)),
+  )
 }
 
 ///|
@@ -198,8 +232,13 @@ test "surface similar constructors and state queries" {
   debug_inspect(image.get_type(), content="SurfaceTypeImage")
   debug_inspect(image.get_content(), content="ContentColor")
   debug_inspect(image.get_format(), content="Rgb24")
+  inspect(image.get_format_raw(), content="1")
   inspect(image.get_width(), content="3")
   inspect(image.get_height(), content="4")
+
+  let raw_image = source.create_similar_image_raw(5, 1, 1)
+  debug_inspect(raw_image.get_format(), content="Rgb30")
+  inspect(raw_image.get_format_raw(), content="5")
 }
 
 ///|
@@ -216,6 +255,9 @@ test "surface similar constructors validate invalid dimensions" {
   )
   expect_surface_invalid_size(
     run_cairo(() => source.create_similar_image(Argb32, 1, -1)),
+  )
+  expect_surface_invalid_format(
+    run_cairo(() => source.create_similar_image_raw(-1, 1, 1)),
   )
 }
 

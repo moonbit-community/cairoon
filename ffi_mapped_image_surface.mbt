@@ -55,9 +55,9 @@ extern "C" fn mapped_image_surface_get_stride_ffi(
 
 ///|
 #borrow(surface)
-extern "C" fn mapped_image_surface_get_format_ffi(
+extern "C" fn mapped_image_surface_get_format_raw_ffi(
   surface : MappedImageSurface,
-) -> Format = "cairoon_mapped_image_surface_get_format"
+) -> Int = "cairoon_mapped_image_surface_get_format"
 
 ///|
 #borrow(surface)
