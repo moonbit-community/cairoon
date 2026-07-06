@@ -68,6 +68,10 @@ Implemented in this workspace:
   device lifetime helpers, raw script content mapping, and stream error mapping
   through the published package seam; backend stream oracle tests remain
   white-box.
+- Object/path black-box tests now live in `src/tests/object`, importing only
+  the public `caimeo/cairoon` API. This validates Path formatting, iteration,
+  flattening, scope survival, path comparison behavior, and Eq/Hash semantics
+  across external object wrappers through the published package seam.
 - C FFI glue split by Cairo object family, following pycairo's
   `private.h` plus per-family C file architecture. GC-managed external objects
   currently cover `Surface`, `MappedImageSurface`, `ImageData`, `Context`,

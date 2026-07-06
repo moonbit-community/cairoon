@@ -1,10 +1,10 @@
 ///|
-fn path_test_context() -> Context raise CairoError {
-  Context::new(Surface::image(Argb32, 42, 42))
+fn path_test_context() -> @cairoon.Context raise @cairoon.CairoError {
+  @cairoon.Context::new(@cairoon.Surface::image(@cairoon.Argb32, 42, 42))
 }
 
 ///|
-fn copied_path_from_local_context() -> Path raise CairoError {
+fn copied_path_from_local_context() -> @cairoon.Path raise @cairoon.CairoError {
   let ctx = path_test_context()
   ctx.move_to(1.0, 2.0)
   ctx.line_to(3.0, 4.0)
@@ -88,11 +88,11 @@ test "path flattened copy exposes line segments instead of curves" {
   ctx.curve_to(2.0, 3.0, 4.0, 5.0, 6.0, 7.0)
   let flat = ctx.copy_path_flat()
   inspect(
-    flat.segments().any(segment => segment.data_type() == PathCurveTo),
+    flat.segments().any(segment => segment.data_type() == @cairoon.PathCurveTo),
     content="false",
   )
   inspect(
-    flat.segments().any(segment => segment.data_type() == PathLineTo),
+    flat.segments().any(segment => segment.data_type() == @cairoon.PathLineTo),
     content="true",
   )
 }

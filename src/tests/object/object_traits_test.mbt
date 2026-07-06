@@ -1,42 +1,45 @@
 ///|
 test "external object Eq and Hash traits follow existing cairoon equality" {
-  let surface = Surface::image(Argb32, 2, 2)
-  let ctx = Context::new(surface)
+  let surface = @cairoon.Surface::image(@cairoon.Argb32, 2, 2)
+  let ctx = @cairoon.Context::new(surface)
   let target = ctx.get_target()
   inspect(target == surface, content="true")
   inspect(Hash::hash(target) == Hash::hash(surface), content="true")
-  let surface_map : Map[Surface, Int] = {}
+  let surface_map : Map[@cairoon.Surface, Int] = {}
   surface_map[surface] = 42
   inspect(surface_map[target], content="42")
 
-  let other_surface = Surface::image(Argb32, 2, 2)
+  let other_surface = @cairoon.Surface::image(@cairoon.Argb32, 2, 2)
   inspect(surface == other_surface, content="false")
   inspect(ctx == ctx, content="true")
-  inspect(ctx == Context::new(surface), content="false")
+  inspect(ctx == @cairoon.Context::new(surface), content="false")
 
-  let solid = Pattern::solid_rgba(0.25, 0.5, 0.75, 1.0)
+  let solid = @cairoon.Pattern::solid_rgba(0.25, 0.5, 0.75, 1.0)
   inspect(solid == solid, content="true")
-  inspect(solid == Pattern::solid_rgba(0.25, 0.5, 0.75, 1.0), content="false")
+  inspect(
+    solid == @cairoon.Pattern::solid_rgba(0.25, 0.5, 0.75, 1.0),
+    content="false",
+  )
   inspect(Hash::hash(solid) == Hash::hash(solid), content="true")
 
-  let device = Device::script_stream(_bytes => Success)
+  let device = @cairoon.Device::script_stream(_bytes => @cairoon.Success)
   inspect(device == device, content="true")
   inspect(Hash::hash(device) == Hash::hash(device), content="true")
 }
 
 ///|
 test "font and region traits preserve cairo equality semantics" {
-  let options = FontOptions::new()
-  options.set_hint_metrics(HintMetricsDefault)
+  let options = @cairoon.FontOptions::new()
+  options.set_hint_metrics(@cairoon.HintMetricsDefault)
   let copied_options = options.copy()
   inspect(options == copied_options, content="true")
   inspect(Hash::hash(options) == Hash::hash(copied_options), content="true")
-  copied_options.set_hint_metrics(HintMetricsOn)
+  copied_options.set_hint_metrics(@cairoon.HintMetricsOn)
   inspect(options == copied_options, content="false")
 
-  let surface = Surface::image(Rgb24, 4, 4)
-  let ctx = Context::new(surface)
-  ctx.select_font_face("serif", slant=FontSlantItalic)
+  let surface = @cairoon.Surface::image(@cairoon.Rgb24, 4, 4)
+  let ctx = @cairoon.Context::new(surface)
+  ctx.select_font_face("serif", slant=@cairoon.FontSlantItalic)
   let first_face = ctx.get_font_face()
   let second_face = ctx.get_font_face()
   inspect(first_face == second_face, content="true")
@@ -48,16 +51,20 @@ test "font and region traits preserve cairo equality semantics" {
   inspect(first_scaled == second_scaled, content="true")
   inspect(Hash::hash(first_scaled) == Hash::hash(second_scaled), content="true")
 
-  let empty = Region::new()
-  let other_empty = Region::new()
-  let filled = Region::from_rectangle(RectangleInt::new(width=1, height=1))
+  let empty = @cairoon.Region::new()
+  let other_empty = @cairoon.Region::new()
+  let filled = @cairoon.Region::from_rectangle(
+    @cairoon.RectangleInt::new(width=1, height=1),
+  )
   inspect(empty == other_empty, content="true")
   inspect(empty == filled, content="false")
 }
 
 ///|
 test "path comparison traits mirror pycairo self comparison behavior" {
-  let ctx = Context::new(Surface::image(Argb32, 4, 4))
+  let ctx = @cairoon.Context::new(
+    @cairoon.Surface::image(@cairoon.Argb32, 4, 4),
+  )
   ctx.line_to(1.0, 2.0)
   let path = ctx.copy_path()
   inspect(path == path, content="true")

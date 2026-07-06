@@ -54,9 +54,7 @@ targeted_tests=(
   surface_stream_lifecycle_wbtest.mbt
   surface_stream_oracle_wbtest.mbt
   surface_stream_tag_wbtest.mbt
-  object_traits_test.mbt
   context_lifetime_test.mbt
-  path_test.mbt
   pattern_raster_manual_wbtest.mbt
   pattern_raster_owner_wbtest.mbt
   pattern_raster_state_wbtest.mbt
