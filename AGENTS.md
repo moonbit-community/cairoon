@@ -371,8 +371,10 @@ Test-only C oracle helpers live under `src/tests/oracle/native/`, not
 constants probes in `cairoon_test_constants.c`, scaled-font direct-C probes in
 `cairoon_scaled_font_oracle.c`, raster-source owner-count probes in
 `cairoon_test_raster_source.c`, ARGB32 image oracles in
-`cairoon_test_image.c`, common drawing helpers in `cairoon_test_common.c`,
-normalized file comparison helpers in `cairoon_test_file.c`, vector-output
+`cairoon_test_image.c`, pattern scene helpers in
+`cairoon_test_pattern_scenes.c`, common drawing helpers in
+`cairoon_test_common.c`, normalized file comparison helpers in
+`cairoon_test_file.c`, vector-output
 exports in `cairoon_test_vector.c`, shared vector scene ids and prototypes in
 `cairoon_test_vector_private.h`, primitive/common vector scenes in
 `cairoon_test_vector_scenes.c`, tag-heavy vector scenes in

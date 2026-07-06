@@ -7,6 +7,7 @@ options(
     "cairoon_test_constants.c",
     "cairoon_scaled_font_oracle.c",
     "cairoon_test_common.c",
+    "cairoon_test_pattern_scenes.c",
     "cairoon_test_image.c",
     "cairoon_test_raster_source.c",
     "cairoon_test_file.c",
