@@ -1,21 +1,25 @@
 ///|
 test "raster source acquire-only releases retained owner after paint" {
-  let source = Surface::image(Argb32, 1, 1)
-  let source_ctx = Context::new(source)
+  let source = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let source_ctx = @cairoon.Context::new(source)
   source_ctx.set_source_rgba(0.0, 0.0, 1.0, 1.0)
   source_ctx.paint()
   inspect(test_raster_surface_owner_count_ffi(source), content="0")
 
   let acquire_calls = Ref(0)
-  let pattern = Pattern::raster_source(ContentColorAlpha, 1, 1)
+  let pattern = @cairoon.Pattern::raster_source(
+    @cairoon.ContentColorAlpha,
+    1,
+    1,
+  )
   pattern.raster_set_acquire(fn(_, _) {
     acquire_calls.val += 1
     source
   })
 
   for _ in 0..<3 {
-    let target = Surface::image(Argb32, 1, 1)
-    let ctx = Context::new(target)
+    let target = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+    let ctx = @cairoon.Context::new(target)
     ctx.set_source(pattern)
     ctx.paint()
     target.flush()
@@ -31,9 +35,11 @@ test "raster source acquire-only releases retained owner after paint" {
 }
 
 ///|
-fn make_raster_owner_color_source(color : Int) -> Surface raise CairoError {
-  let surface = Surface::image(Argb32, 3, 3)
-  let ctx = Context::new(surface)
+fn make_raster_owner_color_source(
+  color : Int,
+) -> @cairoon.Surface raise @cairoon.CairoError {
+  let surface = @cairoon.Surface::image(@cairoon.Argb32, 3, 3)
+  let ctx = @cairoon.Context::new(surface)
   match color {
     0 => ctx.set_source_rgba(1.0, 0.0, 0.0, 1.0)
     1 => ctx.set_source_rgba(0.0, 1.0, 0.0, 1.0)
@@ -56,7 +62,9 @@ fn expect_raster_owner_first_pixel(bytes : Bytes, color : Int) -> Unit raise {
 }
 
 ///|
-fn expect_raster_owner_counts_zero(surfaces : Array[Surface]) -> Unit raise {
+fn expect_raster_owner_counts_zero(
+  surfaces : Array[@cairoon.Surface],
+) -> Unit raise {
   for surface in surfaces {
     inspect(test_raster_surface_owner_count_ffi(surface), content="0")
   }
@@ -72,7 +80,11 @@ test "raster source acquire-only owner count balances across replacement fuzz" {
   expect_raster_owner_counts_zero(sources)
 
   let acquire_calls = Ref(0)
-  let pattern = Pattern::raster_source(ContentColorAlpha, 3, 3)
+  let pattern = @cairoon.Pattern::raster_source(
+    @cairoon.ContentColorAlpha,
+    3,
+    3,
+  )
   for step in 0..<64 {
     if step % 11 == 0 {
       pattern.raster_clear_callbacks()
@@ -88,8 +100,12 @@ test "raster source acquire-only owner count balances across replacement fuzz" {
       source
     })
 
-    let target = Surface::image(Argb32, 1 + step % 4, 1 + step / 4 % 4)
-    let ctx = Context::new(target)
+    let target = @cairoon.Surface::image(
+      @cairoon.Argb32,
+      1 + step % 4,
+      1 + step / 4 % 4,
+    )
+    let ctx = @cairoon.Context::new(target)
     ctx.set_source(pattern)
     ctx.paint()
     target.flush()
@@ -109,7 +125,7 @@ test "raster source failed acquire replacement keeps owner counts balanced" {
     make_raster_owner_color_source(1),
     make_raster_owner_color_source(2),
   ]
-  let failed_source = Surface::image(Argb32, 1, 1)
+  let failed_source = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
   failed_source.finish()
   expect_raster_owner_counts_zero(sources)
   inspect(test_raster_surface_owner_count_ffi(failed_source), content="0")
@@ -119,7 +135,11 @@ test "raster source failed acquire replacement keeps owner counts balanced" {
   let failed_paints = Ref(0)
   let successful_paints = Ref(0)
   let last_release_width = Ref(0)
-  let pattern = Pattern::raster_source(ContentColorAlpha, 3, 3)
+  let pattern = @cairoon.Pattern::raster_source(
+    @cairoon.ContentColorAlpha,
+    3,
+    3,
+  )
   for step in 0..<36 {
     if step % 7 == 0 {
       pattern.raster_clear_callbacks()
@@ -147,19 +167,24 @@ test "raster source failed acquire replacement keeps owner counts balanced" {
       }),
     )
 
-    let target = Surface::image(Argb32, 2 + step % 2, 2 + step / 2 % 2)
-    let ctx = Context::new(target)
+    let target = @cairoon.Surface::image(
+      @cairoon.Argb32,
+      2 + step % 2,
+      2 + step / 2 % 2,
+    )
+    let ctx = @cairoon.Context::new(target)
     ctx.set_source(pattern)
-    let result = run_cairo(() => ctx.paint())
+    let result = @cairoon.run_cairo(() => ctx.paint())
     if should_fail {
       match result {
-        Err(CairoMemoryError(NoMemory, _)) => failed_paints.val += 1
-        _ => fail("expected NoMemory from finished acquire surface")
+        Err(@cairoon.CairoMemoryError(@cairoon.NoMemory, _)) =>
+          failed_paints.val += 1
+        _ => @test.fail("expected NoMemory from finished acquire surface")
       }
     } else {
       match result {
         Ok(_) => ()
-        _ => fail("expected paint to recover after failed acquire")
+        _ => @test.fail("expected paint to recover after failed acquire")
       }
       successful_paints.val += 1
       target.flush()
@@ -185,13 +210,17 @@ test "raster source acquire-only replacement drops stale release callback" {
   inspect(test_raster_surface_owner_count_ffi(source), content="0")
 
   let stale_release_calls = Ref(0)
-  let pattern = Pattern::raster_source(ContentColorAlpha, 3, 3)
+  let pattern = @cairoon.Pattern::raster_source(
+    @cairoon.ContentColorAlpha,
+    3,
+    3,
+  )
   pattern.raster_set_callbacks(
     release=Some(fn(_) { stale_release_calls.val += 1 }),
   )
   let (release_only_acquire, release_only_release) = pattern.raster_get_callbacks()
   guard release_only_acquire is None && release_only_release is Some(_) else {
-    fail("expected release-only raster callback state")
+    @test.fail("expected release-only raster callback state")
   }
 
   let acquire_calls = Ref(0)
@@ -203,12 +232,12 @@ test "raster source acquire-only replacement drops stale release callback" {
   })
   let (acquire_only_acquire, acquire_only_release) = pattern.raster_get_callbacks()
   guard acquire_only_acquire is Some(_) && acquire_only_release is None else {
-    fail("expected acquire-only replacement to drop stale release")
+    @test.fail("expected acquire-only replacement to drop stale release")
   }
 
   for _ in 0..<4 {
-    let target = Surface::image(Argb32, 2, 2)
-    let ctx = Context::new(target)
+    let target = @cairoon.Surface::image(@cairoon.Argb32, 2, 2)
+    let ctx = @cairoon.Context::new(target)
     ctx.set_source(pattern)
     ctx.paint()
     target.flush()

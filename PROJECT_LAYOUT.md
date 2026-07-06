@@ -13,9 +13,9 @@ is project management space and contains no grandfathered source-like files.
 The current public MoonBit package lives in `src/`; external black-box tests
 live in `src/tests/*`, and public-package C stubs live in `src/native/`.
 
-- 92 `.mbt` implementation/white-box files directly in `src/`.
-- 53 black-box `*_test.mbt` files in `src/tests/*`.
-- 21 white-box `*_wbtest.mbt` files in `src/`.
+- 89 `.mbt` implementation/white-box files directly in `src/`.
+- 57 black-box `*_test.mbt` files in `src/tests/*`.
+- 18 white-box `*_wbtest.mbt` files in `src/`.
 - 49 C implementation/oracle files in `src/native/`.
 - 2 C headers in `src/native/`.
 - 9 executable `.mbt.md` docs in `src/`.
@@ -119,11 +119,12 @@ Follow this order. Each step gets its own commit and must pass
    private oracle C helpers live under `src/native/`, and `src/moon.pkg`
    references them with `native/...` `native-stub` paths.
 5. **White-box oracle extraction**: started. Move direct-C oracle helpers and
-   `*_wbtest.mbt` tests into oracle packages. Constants, ScaledFont, and image
-   oracle tests already live under `src/tests/oracle/*`, proving external
-   oracle packages can locally declare test-only externs while importing
-   `caimeo/cairoon` for the public API. Oracle packages may later gain their
-   own `native-stub` lists, but public binding C files must not depend on them.
+   `*_wbtest.mbt` tests into oracle packages. Constants, ScaledFont, image,
+   and raster-source pattern oracle tests already live under
+   `src/tests/oracle/*`, proving external oracle packages can locally declare
+   test-only externs while importing `caimeo/cairoon` for the public API.
+   Oracle packages may later gain their own `native-stub` lists, but public
+   binding C files must not depend on them.
 6. **Family package probes**: for one low-risk family, prove whether MoonBit can
    preserve the public facade while moving implementation into a family package.
    The proof must include `moon info --target native` review.

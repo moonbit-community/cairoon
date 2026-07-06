@@ -96,6 +96,11 @@ Implemented in this workspace:
   extern locally. This proves pixel-differential rendering tests can leave the
   public package root while still exercising ordinary and buffer-backed image
   surfaces through the published API.
+- Raster-source pattern owner/state/manual lifecycle oracles now live in
+  `src/tests/oracle/pattern_raster`, importing the public `caimeo/cairoon`
+  package and declaring the owner-count extern inside a `*_test.mbt` helper.
+  This keeps the public package root free of raster-source test-only owner
+  accounting while preserving ASan-covered callback lifecycle fuzzing.
 - C FFI glue split by Cairo object family, following pycairo's
   `private.h` plus per-family C file architecture. GC-managed external objects
   currently cover `Surface`, `MappedImageSurface`, `ImageData`, `Context`,

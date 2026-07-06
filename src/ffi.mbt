@@ -105,10 +105,6 @@ extern "C" fn test_vector_file_equals_bytes_ffi(
 ) -> Bool = "cairoon_test_vector_file_equals_bytes"
 
 ///|
-#borrow(surface)
-extern "C" fn test_raster_surface_owner_count_ffi(surface : Surface) -> Int = "cairoon_test_raster_surface_owner_count"
-
-///|
 fn init {
   ignore(test_file_size_ffi)
   ignore(test_file_contains_ffi)
@@ -120,7 +116,6 @@ fn init {
   ignore(test_render_pdf_thumbnail_oracle_ffi)
   ignore(test_vector_files_equal_ffi)
   ignore(test_vector_file_equals_bytes_ffi)
-  ignore(test_raster_surface_owner_count_ffi)
 }
 
 ///|

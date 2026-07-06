@@ -52,9 +52,6 @@ targeted_tests=(
   surface_stream_lifecycle_wbtest.mbt
   surface_stream_oracle_wbtest.mbt
   surface_stream_tag_wbtest.mbt
-  pattern_raster_manual_wbtest.mbt
-  pattern_raster_owner_wbtest.mbt
-  pattern_raster_state_wbtest.mbt
 )
 
 for test_file in "${targeted_tests[@]}"; do

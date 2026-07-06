@@ -1,16 +1,18 @@
 ///|
-fn make_raster_manual_color_source(color : Int) -> Surface raise CairoError {
-  let surface = Surface::image(Argb32, 3, 3)
-  let ctx = Context::new(surface)
+fn make_raster_manual_color_source(
+  color : Int,
+) -> @cairoon.Surface raise @cairoon.CairoError {
+  let surface = @cairoon.Surface::image(@cairoon.Argb32, 3, 3)
+  let ctx = @cairoon.Context::new(surface)
   paint_raster_manual_color(ctx, color)
   surface
 }
 
 ///|
 fn paint_raster_manual_color(
-  ctx : Context,
+  ctx : @cairoon.Context,
   color : Int,
-) -> Unit raise CairoError {
+) -> Unit raise @cairoon.CairoError {
   match color {
     0 => ctx.set_source_rgba(1.0, 0.0, 0.0, 1.0)
     1 => ctx.set_source_rgba(0.0, 1.0, 0.0, 1.0)
@@ -33,8 +35,8 @@ fn expect_raster_manual_first_pixel(data : Bytes, color : Int) -> Unit raise {
 
 ///|
 fn expect_raster_manual_owner_counts_zero(
-  sources : Array[Surface],
-  failed_source : Surface,
+  sources : Array[@cairoon.Surface],
+  failed_source : @cairoon.Surface,
 ) -> Unit raise {
   for source in sources {
     inspect(test_raster_surface_owner_count_ffi(source), content="0")
@@ -55,7 +57,7 @@ test "raster source manual callback multi-seed fuzz keeps owners balanced" {
     make_raster_manual_color_source(1),
     make_raster_manual_color_source(2),
   ]
-  let failed_source = Surface::image(Argb32, 1, 1)
+  let failed_source = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
   failed_source.finish()
   expect_raster_manual_owner_counts_zero(sources, failed_source)
 
@@ -71,7 +73,11 @@ test "raster source manual callback multi-seed fuzz keeps owners balanced" {
 
   for seed_start in [11, 137, 523] {
     let seed = Ref(seed_start)
-    let pattern = Pattern::raster_source(ContentColorAlpha, 3, 3)
+    let pattern = @cairoon.Pattern::raster_source(
+      @cairoon.ContentColorAlpha,
+      3,
+      3,
+    )
 
     for step in 0..<48 {
       let value = next_raster_manual_seed(seed)
@@ -83,7 +89,7 @@ test "raster source manual callback multi-seed fuzz keeps owners balanced" {
         pattern.raster_clear_callbacks()
         let (acquire, release) = pattern.raster_get_callbacks()
         guard acquire is None && release is None else {
-          fail("expected clear to remove raster callbacks")
+          @test.fail("expected clear to remove raster callbacks")
         }
       } else if mode == 1 {
         pattern.raster_set_callbacks(
@@ -94,19 +100,19 @@ test "raster source manual callback multi-seed fuzz keeps owners balanced" {
         )
         let (acquire, release) = pattern.raster_get_callbacks()
         guard acquire is None && release is Some(_) else {
-          fail("expected release-only raster callback state")
+          @test.fail("expected release-only raster callback state")
         }
         match release {
           Some(release) => release(static_source)
-          None => fail("expected release callback")
+          None => @test.fail("expected release callback")
         }
       } else {
         let should_fail = mode == 2
         let use_dynamic_source = mode == 3 || mode == 6
         let use_user_release = mode != 4
-        let acquire : (Surface, RectangleInt) -> Surface = fn(
-          target : Surface,
-          extents : RectangleInt,
+        let acquire : (@cairoon.Surface, @cairoon.RectangleInt) -> @cairoon.Surface = fn(
+          target : @cairoon.Surface,
+          extents : @cairoon.RectangleInt,
         ) {
           acquire_calls.val += 1
           ignore(try! target.get_content())
@@ -116,7 +122,7 @@ test "raster source manual callback multi-seed fuzz keeps owners balanced" {
           } else if use_dynamic_source {
             dynamic_acquires.val += 1
             let source = try! target.create_similar_image(
-              Argb32,
+              @cairoon.Argb32,
               extents.width,
               extents.height,
             )
@@ -124,7 +130,10 @@ test "raster source manual callback multi-seed fuzz keeps owners balanced" {
               extents.x.to_double(),
               extents.y.to_double(),
             )
-            try! paint_raster_manual_color(try! Context::new(source), color)
+            try! paint_raster_manual_color(
+              try! @cairoon.Context::new(source),
+              color,
+            )
             source
           } else {
             static_source
@@ -145,19 +154,19 @@ test "raster source manual callback multi-seed fuzz keeps owners balanced" {
 
         let (current_acquire, current_release) = pattern.raster_get_callbacks()
         guard current_acquire is Some(_) else {
-          fail("expected acquire callback after set")
+          @test.fail("expected acquire callback after set")
         }
         inspect(current_release is Some(_), content="\{use_user_release}")
 
         if !should_fail && step % 3 == 0 {
           match current_acquire {
             Some(manual_acquire) => {
-              let manual_target = Surface::image(
-                Argb32,
+              let manual_target = @cairoon.Surface::image(
+                @cairoon.Argb32,
                 2 + value % 2,
                 2 + step % 2,
               )
-              let extents = RectangleInt::new(
+              let extents = @cairoon.RectangleInt::new(
                 x=step % 2,
                 y=value / 3 % 2,
                 width=1 + value % 2,
@@ -173,23 +182,31 @@ test "raster source manual callback multi-seed fuzz keeps owners balanced" {
                 None => acquire_only_manuals.val += 1
               }
             }
-            None => fail("expected manual acquire callback")
+            None => @test.fail("expected manual acquire callback")
           }
         }
 
-        let target = Surface::image(Argb32, 1 + value % 3, 1 + value / 3 % 3)
-        let ctx = Context::new(target)
+        let target = @cairoon.Surface::image(
+          @cairoon.Argb32,
+          1 + value % 3,
+          1 + value / 3 % 3,
+        )
+        let ctx = @cairoon.Context::new(target)
         ctx.set_source(pattern)
-        let result = run_cairo(() => ctx.paint())
+        let result = @cairoon.run_cairo(() => ctx.paint())
         if should_fail {
           match result {
-            Err(CairoMemoryError(NoMemory, _)) => paint_failures.val += 1
-            _ => fail("expected NoMemory from finished acquire surface")
+            Err(@cairoon.CairoMemoryError(@cairoon.NoMemory, _)) =>
+              paint_failures.val += 1
+            _ => @test.fail("expected NoMemory from finished acquire surface")
           }
         } else {
           match result {
             Ok(_) => ()
-            _ => fail("expected raster paint after manual callback transition")
+            _ =>
+              @test.fail(
+                "expected raster paint after manual callback transition",
+              )
           }
           paint_successes.val += 1
           target.flush()
