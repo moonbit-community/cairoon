@@ -252,7 +252,7 @@ opaque external-object wrappers for `Surface`,
 `UInt64` index width, many portable enums,
 including enum-only `SurfaceObserverMode` pycairo compatibility,
 expanded Context path, painting/page, target/source borrowed returns,
-source-surface convenience, Context pointer equality/hash, clip, matrix, drawing-state including hairline mode,
+source-surface convenience, Context pointer equality/hash, clip, matrix, drawing-state including pycairo hairline mode,
 compile-time Cairo
 constants, group APIs, tag APIs, toy
 text APIs, glyph array APIs, text-to-glyphs/show-text-glyphs APIs,
@@ -261,11 +261,11 @@ documented product decisions for `CAPI`, legacy uppercase enum alias
 constants, and non-implemented FreeType/user-font classes,
 hit-testing/extents APIs, typed Path segment iteration and stringification,
 PNG filename load/save plus stream read/write, direct C Cairo oracle
-comparisons for thirty-seven deterministic ARGB32 image scenes on ordinary and
+comparisons for thirty-eight deterministic ARGB32 image scenes on ordinary and
 buffer-backed image surfaces including toy-font `text_path`, toy-font
 `show_text`, `glyph_path`, `show_glyphs`, `show_text_glyphs`,
 source-surface offsets, mask-surface offsets, raster-source pattern repeat
-rendering, dashed round-cap strokes, clipped paint/fill output,
+rendering, dashed round-cap strokes, hairline strokes, clipped paint/fill output,
 `OperatorClear` compositing output, group compositing output, mask pattern
 compositing output, even-odd fill-rule output, and a surface-pattern
 `Reflect`/`Nearest`/`DitherBest`/matrix combination plus transformed repeated
@@ -481,7 +481,7 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, and 2026-07-06:
   text vector stream equivalence slice, and the single-page tag stream
   equivalence slice.
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native`: 554 tests passed. The current run
+- `moon -C cairoon test --target native`: 555 tests passed. The current run
   includes the expanded pattern-combo image oracle slice,
   the mesh-mask group-compositing image oracle slice,
   the tag-heavy stream-to-direct-oracle differential slice,
@@ -507,6 +507,7 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, and 2026-07-06:
   the pycairo 42x42 clip-extents, zero-radius arc, polygon path-extents,
   line in-stroke, empty stroke-extents, default coordinate-conversion, empty
   font-family selection, and font-size matrix parity slice,
+  the pycairo hairline getter/setter and direct C hairline stroke oracle slice,
   the pycairo source RGBA round-trip slice,
   the pycairo empty-path clip `in_clip` slice,
   the pycairo mesh curve-first patch slice,
@@ -593,7 +594,7 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, and 2026-07-06:
   path copy/append independence, pycairo-style append string
   equivalence after clearing the source context, flattened append behavior, and
   path error propagation.
-- `moon -C cairoon test context_pycairo_parity_test.mbt --target native -v`: 32
+- `moon -C cairoon test context_pycairo_parity_test.mbt --target native -v`: 33
   black-box Context pycairo parity tests passed, covering the 42x42 default
   clip-extents fixture, zero-radius `arc`/`arc_negative` non-empty paths,
   polygon `path_extents`, polygon `fill_extents`, empty `in_fill`, line
@@ -601,7 +602,8 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, and 2026-07-06:
   empty `stroke_extents`, default user/device coordinate conversions,
   matrix setter/translate/scale/transform/rotate fixtures, dash offset
   normalization, current-point state, drawing-state default getters and enum
-  setter round trips, raw operator C-int limit passthrough, save/restore
+  setter round trips, hairline getter/setter, raw operator C-int limit
+  passthrough, save/restore
   drawing-state restoration, scalar line-width/miter-limit/tolerance setters,
   source RGBA round trips, explicit source-pattern round trips,
   copied `append_path` strings, empty clip/reset `in_clip` behavior, group
@@ -903,9 +905,9 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, and 2026-07-06:
 - `moon -C cairoon test image_oracle_wbtest.mbt --target native -v`: 2
   white-box image rendering oracle tests passed. Ordinary image surfaces and
   buffer-backed `Surface::image_for_data` surfaces both match the direct C
-  ARGB32 fixture across thirty-seven scenes with `glyph_path`, `show_glyphs`,
+  ARGB32 fixture across thirty-eight scenes with `glyph_path`, `show_glyphs`,
   `show_text_glyphs`, source-surface offsets, mask-surface offsets, and
-  raster-source pattern repeat rendering, dashed round-cap strokes, and
+  raster-source pattern repeat rendering, dashed round-cap strokes, hairline strokes, and
   clipped paint/fill output, `OperatorClear` compositing output, group
   compositing output, mask pattern compositing output, even-odd fill-rule
   output, and a surface-pattern `Reflect`/`Nearest`/`DitherBest`/matrix
@@ -1959,6 +1961,10 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, and 2026-07-06:
   `set_source_surface`, repeated surface-pattern painting, `OperatorMultiply`,
   clipped groups, and a transformed radial mask. The targeted
   `src/tests/oracle/image` run passed 2 tests.
+  The later hairline image oracle slice expanded the ordinary and
+  buffer-backed direct C ARGB32 image oracle from thirty-seven to thirty-eight
+  scenes, adding `Context::set_hairline` stroke output parity against direct C
+  Cairo. The targeted `src/tests/oracle/image` run passed 2 tests.
   The later raster-source acquire-replacement recovery slice added one
   black-box test proving that a finished-surface acquire failure maps to
   `NoMemory` for that paint, does not permanently poison the raster-source
@@ -2705,6 +2711,10 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, and 2026-07-06:
   `show_page`, `stroke_preserve`, dash count, font matrix, group target,
   scalar getters, and final status. It is included in the targeted normal and
   ASan verification gates and raises that parity file to 32 tests.
+  A later Context pycairo hairline fixture slice extended
+  `context_pycairo_parity_test.mbt`, covering pycairo's `set_hairline` and
+  `get_hairline` fixture. It is included in the targeted normal and ASan
+  verification gates and raises that parity file to 33 tests.
   A later Pattern raw-extend parity slice added
   `Pattern::set_extend_raw`/`Pattern::get_extend_raw`, covering pycairo's
   C-int extend passthrough for `42` while keeping typed `Pattern::get_extend`

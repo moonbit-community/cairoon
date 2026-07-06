@@ -271,6 +271,14 @@ test "context drawing state setters mirror pycairo enum fixtures" {
 }
 
 ///|
+test "context hairline mirrors pycairo fixture" {
+  let ctx = @cairoon.Context::new(pycairo_context_surface(42, 42))
+  inspect(ctx.get_hairline(), content="false")
+  ctx.set_hairline(true)
+  inspect(ctx.get_hairline(), content="true")
+}
+
+///|
 test "context raw operator limits mirror pycairo c int fixture" {
   let ctx = @cairoon.Context::new(pycairo_context_surface(42, 42))
   let min_c_int = -2147483647 - 1
