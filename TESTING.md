@@ -2731,16 +2731,25 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, and 2026-07-06:
   file-vs-stream normalized equality, stream-vs-direct-C oracle equality, PDF
   marker assertions, and PS/SVG negative PDF-metadata checks, raising the
   vector-backend package to 118 tests.
+  A later backend text-state differential slice added scene 44 in the focused
+  `cairoon_test_backend_text_state.c` oracle file, covering PDF metadata,
+  custom-metadata deletion, page labels, outlines, retained copy/show
+  multi-page output, PS DSC setup, SVG document units, and transformed toy-font
+  `show_text`/`text_path` under URI, destination, and Document/Sect/H1/P tags.
+  The slice adds file-vs-stream equality, file-vs-direct-C equality,
+  stream-vs-direct-C equality through the backend oracle dispatcher, stable
+  PDF/PS/SVG marker checks, and PS/SVG file/stream negative PDF-metadata
+  checks, raising the vector-backend package to 122 tests.
 
 Remaining reliability work is now narrower and should be tracked as evidence,
 not as an unstructured checklist:
 
 - Broaden normalized PDF/PS/SVG differential coverage for combinations not yet
   represented by the current direct-C and direct stream-oracle fixtures:
-  additional deep tag nests beyond scenes 37, 39, and 40, more
-  metadata/page-label/outline mixtures beyond scenes 38 through 40, and
+  additional deep tag nests beyond scenes 37, 39, 40, and 44, more
+  metadata/page-label/outline mixtures beyond scenes 38 through 42 and 44, and
   additional multi-page sequences beyond the current
-  retained/resized/tag-matrix/lifecycle page fixtures.
+  retained/resized/tag-matrix/lifecycle/text-state page fixtures.
 - Add broader platform coverage and finalizer fuzz beyond the
   deterministic raster-source owner-count, state-machine, manual
   get-callback, callback allocation, retained-owner, stream retention, and

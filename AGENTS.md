@@ -386,7 +386,8 @@ exports in `cairoon_test_vector.c`, shared vector scene ids and prototypes in
 focused files such as `cairoon_test_backend_combo.c`,
 `cairoon_test_backend_nested.c`, `cairoon_test_backend_sequence.c`,
 `cairoon_test_backend_tag_matrix.c`, and
-`cairoon_test_backend_lifecycle.c`, and single-backend feature renderers in the
+`cairoon_test_backend_lifecycle.c`, text-state backend combinations in
+`cairoon_test_backend_text_state.c`, and single-backend feature renderers in the
 PDF/PS/SVG vector files. Public binding C exports must not be added to this
 oracle-native package.
 
