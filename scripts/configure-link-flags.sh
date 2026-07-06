@@ -80,7 +80,7 @@ relative_path() {
 
 needs_cairo_link() {
   local file="$1"
-  grep -q '"caimeo/cairoon"' "$file"
+  grep -Eq '"caimeo/cairoon"|"caimeo/cairoon/native"' "$file"
 }
 
 has_native_stub() {

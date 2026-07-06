@@ -395,10 +395,14 @@ family's public API can remain in the facade while raw externs or helper logic
 move out of the public package root. The first accepted probe is
 `src/internal/version`: it owns the raw Cairo version externs and UTF-8 decoding,
 while `src/version.mbt` keeps the published `@cairoon.cairo_version()` and
-`@cairoon.cairo_version_string()` functions as thin wrappers. Any internal
-package that imports `caimeo/cairoon/native` must carry Cairo `cc-link-flags`
-and package-local tests so `moon test src/internal/<family> --target native`
-links independently.
+`@cairoon.cairo_version_string()` functions as thin wrappers. The second
+accepted probe is `src/internal/format`: it owns the raw
+`cairo_format_stride_for_width` extern while `src/format.mbt` keeps the public
+`Format` enum, constructors, and methods. Keep enum constructors in the facade
+unless a compatibility proof shows that `@cairoon.<Constructor>` syntax
+survives. Any internal package that imports `caimeo/cairoon/native` must carry
+Cairo `cc-link-flags` and package-local tests so
+`moon test src/internal/<family> --target native` links independently.
 
 Do not move a type whose methods raise `CairoError` into a subpackage until the
 error/status family has its own proven non-cyclic package seam. A child package

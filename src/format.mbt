@@ -30,11 +30,25 @@ fn format_from_raw(raw : Int) -> Format raise CairoError {
 }
 
 ///|
+fn Format::to_raw(self : Format) -> Int {
+  match self {
+    Argb32 => 0
+    Rgb24 => 1
+    A8 => 2
+    A1 => 3
+    Rgb16_565 => 4
+    Rgb30 => 5
+    Rgb96F => 6
+    Rgba128F => 7
+  }
+}
+
+///|
 pub fn Format::stride_for_width(self : Format, width : Int) -> Int {
-  format_stride_for_width_ffi(self, width)
+  @format_impl.stride_for_width_raw(self.to_raw(), width)
 }
 
 ///|
 pub fn Format::stride_for_width_raw(format : Int, width : Int) -> Int {
-  format_stride_for_width_raw_ffi(format, width)
+  @format_impl.stride_for_width_raw(format, width)
 }

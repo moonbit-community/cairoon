@@ -24,6 +24,8 @@ same commit.
   `src/core/glyph/`.
 - 2 `.mbt` implementation files and 1 package-local `*_test.mbt` file in
   `src/internal/version/`.
+- 2 `.mbt` implementation files and 1 package-local `*_test.mbt` file in
+  `src/internal/format/`.
 - 1 native-package MoonBit anchor file in `src/native/`.
 - 76 black-box `*_test.mbt` files in `src/tests/*`.
 - 0 white-box `*_wbtest.mbt` files in `src/`.
@@ -65,6 +67,11 @@ cairoon/
         glyph.mbt
         glyph_test.mbt
     internal/
+      format/
+        moon.pkg
+        ffi.mbt
+        format.mbt
+        format_test.mbt
       version/
         moon.pkg
         ffi.mbt
@@ -127,7 +134,7 @@ MoonBit package shape without weakening the public interface.
 |---|---|---|
 | Public package | `src/` | Owns the stable `caimeo/cairoon` interface and public external object types until a facade proof proves otherwise. |
 | Pure support packages | `src/core/` | May hold pure values/helpers only after their public names can be preserved or intentionally re-exported. `src/core/glyph` is the first accepted seam: the public package exposes `pub type Glyph = @glyph.Glyph`, owns `@glyph.field_arrays` for glyph-array marshaling preparation, and tests prove `@cairoon.Glyph::new`, field access, dot-method syntax, and glyph-array FFI paths still work through the facade. |
-| Internal implementation packages | `src/internal/<family>/` | May hold native-gated extern declarations and implementation helpers for small public facade functions when the public `caimeo/cairoon` API remains unchanged. `src/internal/version` is the first accepted seam: it owns the raw version externs and UTF-8 decoding, while `src/version.mbt` remains a thin facade. Any package that imports `caimeo/cairoon/native` must carry Cairo `cc-link-flags` so package-local tests link independently. |
+| Internal implementation packages | `src/internal/<family>/` | May hold native-gated extern declarations and implementation helpers for small public facade functions when the public `caimeo/cairoon` API remains unchanged. `src/internal/version` owns the raw version externs and UTF-8 decoding while `src/version.mbt` remains a thin facade. `src/internal/format` owns the raw `cairo_format_stride_for_width` extern while `src/format.mbt` keeps the public `Format` enum, constructors, and methods. Any package that imports `caimeo/cairoon/native` must carry Cairo `cc-link-flags` so package-local tests link independently. |
 | Native stubs | `src/native/` | Owns public C glue compilation through `src/native/moon.pkg`. Every `.c` file beside that package file must be listed by bare filename in its `native-stub` list; `src/moon.pkg` imports `caimeo/cairoon/native` and must not own `native-stub` entries. Headers in `src/native/` are private to those stubs. |
 | Black-box tests | `src/tests/<family>/` | Import `caimeo/cairoon`; assert only public behavior. Any package that imports cairoon must carry Cairo `cc-link-flags`, because native link flags are not propagated to external test executables. |
 | White-box oracles | `src/tests/oracle/<family>/` plus shared C support in `src/tests/oracle/native/` | Import `caimeo/cairoon` for the public API and declare test-only direct-C oracle externs locally; public binding wrappers must never import oracle packages. Test-only C symbols are provided by the oracle-native support package, not `src/moon.pkg`. |
@@ -183,7 +190,10 @@ Follow this order. Each step gets its own commit and must pass
    `src/internal/version` is the first implementation-package seam: the raw
    version externs and UTF-8 decoding moved out of the public package, while
    `@cairoon.cairo_version()` and `@cairoon.cairo_version_string()` remain
-   facade functions with unchanged public signatures.
+   facade functions with unchanged public signatures. `src/internal/format`
+   proves a narrower enum-adjacent seam: the raw stride extern moved out, but
+   public `Format` and its constructors stay in the facade because constructor
+   syntax such as `@cairoon.Argb32` is part of the public API.
 7. **Family package migration**: move one Cairo family per commit. C files,
    raw externs, and wrappers move together only when the public package seam is
    proven.

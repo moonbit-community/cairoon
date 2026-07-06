@@ -37,12 +37,6 @@ extern "C" fn image_surface_create_for_data_raw_ffi(
 ) -> Surface = "cairoon_image_surface_create_for_data"
 
 ///|
-extern "C" fn format_stride_for_width_ffi(format : Format, width : Int) -> Int = "cairo_format_stride_for_width"
-
-///|
-extern "C" fn format_stride_for_width_raw_ffi(format : Int, width : Int) -> Int = "cairo_format_stride_for_width"
-
-///|
 #borrow(surface, status)
 extern "C" fn image_surface_get_width_ffi(
   surface : Surface,

@@ -126,6 +126,12 @@ Implemented in this workspace:
   `@cairoon.cairo_version_string()`. The package has a local native test and is
   discovered by `scripts/verify.sh` with Cairo link flags maintained by
   `scripts/configure-link-flags.sh`.
+- `src/internal/format` is the first enum-adjacent internal implementation
+  package seam. It owns the raw `cairo_format_stride_for_width` extern, while
+  public `src/format.mbt` keeps the `Format` enum constructors and typed/raw
+  stride methods. Package-local, API, and surface tests prove the facade
+  preserves typed enum construction, raw C-int passthrough, and float-format
+  stride behavior.
 - C FFI glue split by Cairo object family, following pycairo's
   `private.h` plus per-family C file architecture. GC-managed external objects
   currently cover `Surface`, `MappedImageSurface`, `ImageData`, `Context`,
