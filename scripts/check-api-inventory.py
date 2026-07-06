@@ -449,6 +449,69 @@ PUBLIC_METHOD_ANCHORS: dict[str, dict[str, tuple[str, ...]]] = {
 }
 
 
+PUBLIC_CONSTANT_EXACT_ANCHORS: dict[str, tuple[str, ...]] = {
+    "CairoError": ("Status and error mapping",),
+    "COLOR_PALETTE_DEFAULT": (
+        "`PDF_OUTLINE_ROOT`, `FORMAT_INVALID`, `COLOR_PALETTE_DEFAULT`",
+    ),
+    "FORMAT_INVALID": (
+        "`PDF_OUTLINE_ROOT`, `FORMAT_INVALID`, `COLOR_PALETTE_DEFAULT`",
+    ),
+    "PDF_OUTLINE_ROOT": (
+        "`PDF_OUTLINE_ROOT`, `FORMAT_INVALID`, `COLOR_PALETTE_DEFAULT`",
+    ),
+}
+
+
+CONSTANT_DECISION_ANCHORS: dict[str, tuple[str, ...]] = {
+    "CAPI": ("`CAPI`",),
+    "version": ("`version`, `version_info`",),
+    "version_info": ("`version`, `version_info`",),
+}
+
+
+LEGACY_ENUM_ALIAS_ANCHOR = ("Legacy uppercase enum alias constants",)
+
+
+PUBLIC_CONSTANT_API_ANCHORS: dict[str, tuple[str, ...]] = {
+    "CairoError": ("pub suberror CairoError",),
+}
+
+
+def public_constant_inventory_anchors(name: str) -> tuple[str, ...] | None:
+    if name in PUBLIC_CONSTANT_EXACT_ANCHORS:
+        return PUBLIC_CONSTANT_EXACT_ANCHORS[name]
+    if name == "CAIRO_VERSION" or name.startswith("CAIRO_VERSION_"):
+        return ("`CAIRO_VERSION*` constants",)
+    if name.startswith("HAS_"):
+        return ("`HAS_*` feature constants",)
+    if name.startswith("MIME_TYPE_"):
+        return ("`MIME_TYPE_*` constants",)
+    if name.startswith("TAG_"):
+        return ("`TAG_*` constants",)
+    return None
+
+
+def is_public_cairoon_constant(name: str) -> bool:
+    return public_constant_inventory_anchors(name) is not None
+
+
+def public_constant_api_anchors(name: str) -> tuple[str, ...]:
+    if name in PUBLIC_CONSTANT_API_ANCHORS:
+        return PUBLIC_CONSTANT_API_ANCHORS[name]
+    if is_public_cairoon_constant(name):
+        return (f"pub const {name} :",)
+    return ()
+
+
+def is_enum_alias(value: ast.AST) -> bool:
+    return (
+        isinstance(value, ast.Attribute)
+        and isinstance(value.value, ast.Name)
+        and value.value.id in EXPECTED_ANCHORS
+    )
+
+
 def public_top_level_names(stub_path: pathlib.Path) -> set[str]:
     module = ast.parse(stub_path.read_text(encoding="utf-8"))
     names = set()
@@ -475,7 +538,28 @@ def public_class_methods(stub_path: pathlib.Path) -> dict[str, set[str]]:
     return methods
 
 
-def pycairo_api_snapshot() -> tuple[set[str], dict[str, set[str]]]:
+def public_top_level_constants(stub_path: pathlib.Path) -> tuple[set[str], set[str]]:
+    module = ast.parse(stub_path.read_text(encoding="utf-8"))
+    constants: set[str] = set()
+    enum_aliases: set[str] = set()
+    for node in module.body:
+        if isinstance(node, ast.AnnAssign) and isinstance(node.target, ast.Name):
+            name = node.target.id
+            if not name.startswith("_"):
+                constants.add(name)
+        elif isinstance(node, ast.Assign):
+            public_names = [
+                target.id
+                for target in node.targets
+                if isinstance(target, ast.Name) and not target.id.startswith("_")
+            ]
+            constants.update(public_names)
+            if is_enum_alias(node.value):
+                enum_aliases.update(public_names)
+    return constants, enum_aliases
+
+
+def pycairo_api_snapshot() -> tuple[set[str], dict[str, set[str]], set[str], set[str]]:
     """Return the maintained pycairo API snapshot for standalone checkouts."""
 
     return (
@@ -484,17 +568,29 @@ def pycairo_api_snapshot() -> tuple[set[str], dict[str, set[str]]]:
             class_name: set(method_anchors)
             for class_name, method_anchors in PUBLIC_METHOD_ANCHORS.items()
         },
+        set(),
+        set(),
     )
 
 
-def load_pycairo_api(stub_path: pathlib.Path) -> tuple[set[str], dict[str, set[str]]]:
+def load_pycairo_api(
+    stub_path: pathlib.Path,
+) -> tuple[set[str], dict[str, set[str]], set[str], set[str]]:
     if stub_path.exists():
-        return public_top_level_names(stub_path), public_class_methods(stub_path)
+        constants, enum_aliases = public_top_level_constants(stub_path)
+        return (
+            public_top_level_names(stub_path),
+            public_class_methods(stub_path),
+            constants,
+            enum_aliases,
+        )
     return pycairo_api_snapshot()
 
 
 def main() -> int:
-    stub_names, stub_methods = load_pycairo_api(PYCAIRO_STUB)
+    stub_names, stub_methods, stub_constants, enum_alias_constants = load_pycairo_api(
+        PYCAIRO_STUB
+    )
     expected_names = set(EXPECTED_ANCHORS)
     inventory = INVENTORY.read_text(encoding="utf-8")
     public_api = GENERATED_MBTI.read_text(encoding="utf-8")
@@ -532,6 +628,27 @@ def main() -> int:
                         f"{GENERATED_MBTI}: public API anchor {anchor!r} for "
                         f"pycairo method '{class_name}.{method}' is missing"
                     )
+    for name in sorted(stub_constants):
+        anchors = public_constant_inventory_anchors(name)
+        if anchors is None:
+            anchors = CONSTANT_DECISION_ANCHORS.get(name)
+        if anchors is None and name in enum_alias_constants:
+            anchors = LEGACY_ENUM_ALIAS_ANCHOR
+        if anchors is None:
+            errors.append(f"{PYCAIRO_STUB}: public constant '{name}' has no inventory mapping")
+            continue
+        for anchor in anchors:
+            if anchor not in inventory:
+                errors.append(
+                    f"{INVENTORY}: anchor {anchor!r} for pycairo constant "
+                    f"'{name}' is missing"
+                )
+        for public_anchor in public_constant_api_anchors(name):
+            if public_anchor not in public_api:
+                errors.append(
+                    f"{GENERATED_MBTI}: public API anchor {public_anchor!r} "
+                    f"for pycairo constant or alias '{name}' is missing"
+                )
 
     if errors:
         for error in errors:
@@ -539,8 +656,9 @@ def main() -> int:
         return 1
     method_count = sum(len(stub_methods.get(name, set())) for name in PUBLIC_METHOD_ANCHORS)
     print(
-        f"API inventory covers {len(stub_names)} pycairo top-level entries "
-        f"and {method_count} portable class methods"
+        f"API inventory covers {len(stub_names)} pycairo top-level entries, "
+        f"{len(stub_constants)} top-level constants, and "
+        f"{method_count} portable class methods"
     )
     return 0
 

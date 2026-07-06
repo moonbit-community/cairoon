@@ -2826,6 +2826,17 @@ Prior full verifies passed on 2026-07-02, 2026-07-03, 2026-07-04,
   mixed-tag/text, layered, wide, `show_text_glyphs`, and grouped glyph/tag
   vector scenes. It raises `surface_stream_oracle_wbtest.mbt` to 2 tests and
   the current full native suite to 485 tests.
+  A later API inventory reliability slice extended
+  `scripts/check-api-inventory.py` beyond classes, functions, and methods so
+  it also audits pycairo top-level constants from `cairo/__init__.pyi`.
+  Public Cairo constants such as `CAIRO_VERSION*`, `HAS_*`, `MIME_TYPE_*`,
+  `TAG_*`, `PDF_OUTLINE_ROOT`, `FORMAT_INVALID`, and
+  `COLOR_PALETTE_DEFAULT` must now have both inventory anchors and public
+  `pkg.generated.mbti` anchors, while `version`/`version_info`, `CAPI`,
+  `CairoError = Error`, and legacy uppercase enum aliases must resolve to
+  explicit product decisions or public error mappings. The gate now reports 67
+  pycairo top-level entries, 224 top-level constants, and 255 portable class
+  methods covered by the migration ledger.
 
 ## Known Gaps
 
