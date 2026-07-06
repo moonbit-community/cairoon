@@ -696,6 +696,62 @@ fn draw_image_oracle_scene(
       ctx.mask(mask)
       ctx.restore()
     }
+    36 => {
+      let source = @cairoon.Surface::image(@cairoon.Argb32, 2, 2)
+      paint_image_oracle_quad_surface(source)
+
+      let repeat = @cairoon.Pattern::for_surface(source)
+      repeat.set_extend(@cairoon.Repeat)
+      repeat.set_filter(@cairoon.Nearest)
+      repeat.set_dither(@cairoon.DitherGood)
+      repeat.set_matrix(
+        @cairoon.Matrix::new(
+          xx=0.44,
+          yx=0.06,
+          xy=-0.08,
+          yy=0.56,
+          x0=-1.10,
+          y0=0.40,
+        ),
+      )
+
+      let mask = @cairoon.Pattern::radial(4.0, 12.0, 0.50, 11.52, 4.48, 9.00)
+      mask.add_color_stop_rgba(0.0, 1.0, 1.0, 1.0, 0.10)
+      mask.add_color_stop_rgba(0.45, 1.0, 1.0, 1.0, 0.72)
+      mask.add_color_stop_rgba(1.0, 1.0, 1.0, 1.0, 0.95)
+      mask.set_extend(@cairoon.Reflect)
+      mask.set_filter(@cairoon.Good)
+      mask.set_dither(@cairoon.DitherFast)
+      mask.set_matrix(
+        @cairoon.Matrix::new(
+          xx=0.88,
+          yx=-0.10,
+          xy=0.12,
+          yy=0.82,
+          x0=0.30,
+          y0=-0.60,
+        ),
+      )
+
+      ctx.set_source_rgb(0.025, 0.020, 0.045)
+      ctx.paint()
+      ctx.save()
+      ctx.rectangle(1.0, 2.0, 14.0, 12.0)
+      ctx.clip()
+      ctx.set_source_surface(source, x=-1.0, y=2.0)
+      ctx.paint_with_alpha(0.65)
+      ctx.push_group_with_content(@cairoon.ContentColorAlpha)
+      ctx.set_source(repeat)
+      ctx.paint()
+      ctx.set_operator(@cairoon.OperatorMultiply)
+      ctx.rectangle(0.0, 0.0, 16.0, 16.0)
+      ctx.set_source_rgba(0.90, 0.55, 0.10, 0.72)
+      ctx.fill()
+      ctx.set_operator(@cairoon.OperatorOver)
+      ctx.pop_group_to_source()
+      ctx.mask(mask)
+      ctx.restore()
+    }
     _ => @cairoon.check_status(@cairoon.InvalidStatus)
   }
 }
@@ -731,7 +787,7 @@ fn render_buffered_image_oracle_scene(
 
 ///|
 test "image rendering scenes match direct cairo C oracle" {
-  for scene in 0..<36 {
+  for scene in 0..<37 {
     let actual = render_image_oracle_scene(scene)
     let expected = test_argb32_scene_oracle_ffi(scene, 16, 16)
     inspect(expected.length(), content="1024")
@@ -741,7 +797,7 @@ test "image rendering scenes match direct cairo C oracle" {
 
 ///|
 test "buffer backed image rendering scenes match direct cairo C oracle" {
-  for scene in 0..<36 {
+  for scene in 0..<37 {
     let (actual, copied) = render_buffered_image_oracle_scene(scene)
     let expected = test_argb32_scene_oracle_ffi(scene, 16, 16)
     inspect(expected.length(), content="1024")

@@ -261,7 +261,7 @@ documented product decisions for `CAPI`, legacy uppercase enum alias
 constants, and non-implemented FreeType/user-font classes,
 hit-testing/extents APIs, typed Path segment iteration and stringification,
 PNG filename load/save plus stream read/write, direct C Cairo oracle
-comparisons for thirty-six deterministic ARGB32 image scenes on ordinary and
+comparisons for thirty-seven deterministic ARGB32 image scenes on ordinary and
 buffer-backed image surfaces including toy-font `text_path`, toy-font
 `show_text`, `glyph_path`, `show_glyphs`, `show_text_glyphs`,
 source-surface offsets, mask-surface offsets, raster-source pattern repeat
@@ -280,7 +280,9 @@ surface-pattern `Pad`/`Bilinear`/`DitherDefault`/matrix and
 transformed radial-gradient `Pad`/`Good`/`DitherDefault`/matrix output,
 curve/multi-patch mesh-pattern matrix output, and nested
 surface/linear/radial/mask pattern-stack clip/save/restore/OperatorAtop output,
-and mesh/linear surface-mask group-compositing output;
+mesh/linear surface-mask group-compositing output, and
+set_source_surface/repeated-surface-pattern/radial-mask group-compositing
+output;
 buffer-backed creation plus mutable `ImageData`
 views for image and
 mapped-image surfaces, pycairo-style scoped surface finish and mapped-image
@@ -867,7 +869,7 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, and 2026-07-06:
 - `moon -C cairoon test image_oracle_wbtest.mbt --target native -v`: 2
   white-box image rendering oracle tests passed. Ordinary image surfaces and
   buffer-backed `Surface::image_for_data` surfaces both match the direct C
-  ARGB32 fixture across thirty-six scenes with `glyph_path`, `show_glyphs`,
+  ARGB32 fixture across thirty-seven scenes with `glyph_path`, `show_glyphs`,
   `show_text_glyphs`, source-surface offsets, mask-surface offsets, and
   raster-source pattern repeat rendering, dashed round-cap strokes, and
   clipped paint/fill output, `OperatorClear` compositing output, group
@@ -887,7 +889,8 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, and 2026-07-06:
   `Pad`/`Good`/`DitherDefault`/matrix output, curve/multi-patch mesh-pattern
   matrix output, and nested surface/linear/radial/mask pattern-stack
   clip/save/restore/OperatorAtop output, and mesh/linear surface-mask
-  group-compositing output.
+  group-compositing output, plus set_source_surface/repeated-surface-pattern/
+  radial-mask group-compositing output.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
   image_oracle_wbtest.mbt --target native -v`: 2 ASan-compiled white-box image
@@ -1915,6 +1918,12 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, and 2026-07-06:
   linear pattern inside a clipped group, then applying a transformed
   surface-pattern mask. This broadens pattern-stack parity without changing
   the public API. The targeted `src/tests/oracle/image` run passed 2 tests.
+  The later surface-source/radial-mask group-compositing image oracle slice
+  expanded the ordinary and buffer-backed direct C ARGB32 image oracle from
+  thirty-six to thirty-seven scenes, combining non-zero
+  `set_source_surface`, repeated surface-pattern painting, `OperatorMultiply`,
+  clipped groups, and a transformed radial mask. The targeted
+  `src/tests/oracle/image` run passed 2 tests.
   The later raster-source acquire-replacement recovery slice added one
   black-box test proving that a finished-surface acquire failure maps to
   `NoMemory` for that paint, does not permanently poison the raster-source
