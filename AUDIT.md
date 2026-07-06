@@ -611,13 +611,16 @@ Implemented in this workspace:
   path copy/append independence, pycairo-style append string
   equivalence after clearing the source context, flattened append behavior, and
   path error propagation.
-- `moon -C cairoon test context_pycairo_parity_test.mbt --target native -v`: 12
+- `moon -C cairoon test context_pycairo_parity_test.mbt --target native -v`: 16
   black-box Context pycairo parity tests passed, covering the 42x42 default
   clip-extents fixture, zero-radius `arc`/`arc_negative` non-empty paths,
-  polygon `path_extents`, line `in_stroke`, empty `stroke_extents`, default
-  user/device coordinate conversions, dash offset normalization,
-  current-point state, scalar line-width/miter-limit/tolerance setters,
-  source RGBA round trips, empty `select_font_face("")`, and
+  polygon `path_extents`, polygon `fill_extents`, empty `in_fill`, line
+  `in_stroke`, rectangle `path_extents`, relative path current-point updates,
+  empty `stroke_extents`, default user/device coordinate conversions,
+  matrix setter/translate/scale/transform/rotate fixtures, dash offset
+  normalization, current-point state, scalar line-width/miter-limit/tolerance
+  setters, source RGBA round trips, explicit source-pattern round trips, empty
+  `select_font_face("")`, and
   `set_font_size(42)` font-matrix fixtures.
 - `moon -C cairoon test context_group_test.mbt --target native -v`: 4
   black-box Context group tests passed, covering `push_group`, `pop_group`,
@@ -2538,6 +2541,13 @@ Implemented in this workspace:
   and source RGBA round-trip fixtures. It is included in the targeted normal
   and ASan verification gates, raises that parity file to 12 tests, and raises
   the expected full native suite to 489 tests.
+  A later Context pycairo geometry/source fixture slice extended
+  `context_pycairo_parity_test.mbt`, covering pycairo's polygon
+  `fill_extents`, empty `in_fill`, rectangle `path_extents`, relative path
+  current-point updates, matrix setter/translate/scale/transform/rotate
+  fixtures, and explicit source-pattern round trips. It is included in the
+  targeted normal and ASan verification gates, raises that parity file to 16
+  tests, and raises the expected full native suite to 493 tests.
   A later Pattern raw-extend parity slice added
   `Pattern::set_extend_raw`/`Pattern::get_extend_raw`, covering pycairo's
   C-int extend passthrough for `42` while keeping typed `Pattern::get_extend`

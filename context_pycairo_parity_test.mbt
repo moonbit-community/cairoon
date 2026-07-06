@@ -89,6 +89,19 @@ test "context polygon path_extents mirror pycairo fixture" {
 }
 
 ///|
+test "context fill_extents and empty in_fill mirror pycairo fixtures" {
+  let ctx = Context::new(pycairo_context_surface(42, 42))
+  inspect(ctx.in_fill(0.1, 0.1), content="false")
+
+  ctx.line_to(1.0, 1.0)
+  ctx.line_to(1.0, 0.0)
+  ctx.line_to(0.0, 0.0)
+  ctx.line_to(0.0, 1.0)
+  ctx.line_to(1.0, 1.0)
+  assert_pycairo_context_extents_close(ctx.fill_extents(), (0.0, 0.0, 1.0, 1.0))
+}
+
+///|
 test "context line in_stroke mirrors pycairo fixture" {
   let ctx = Context::new(pycairo_context_surface(42, 42))
   ctx.line_to(0.0, 0.0)
@@ -106,6 +119,40 @@ test "context current point mirrors pycairo fixture" {
   ctx.move_to(10.0, 10.0)
   inspect(ctx.has_current_point(), content="true")
   assert_pycairo_context_point_close(ctx.get_current_point(), (10.0, 10.0))
+}
+
+///|
+test "context rectangle and relative path methods mirror pycairo fixtures" {
+  let rectangle_ctx = Context::new(pycairo_context_surface(42, 42))
+  rectangle_ctx.rectangle(1.0, 2.0, 4.0, 5.0)
+  assert_pycairo_context_extents_close(
+    rectangle_ctx.path_extents(),
+    (1.0, 2.0, 5.0, 7.0),
+  )
+
+  let rel_line_ctx = Context::new(pycairo_context_surface(42, 42))
+  rel_line_ctx.line_to(0.0, 0.0)
+  rel_line_ctx.rel_line_to(1.0, 1.0)
+  assert_pycairo_context_point_close(
+    rel_line_ctx.get_current_point(),
+    (1.0, 1.0),
+  )
+
+  let rel_move_ctx = Context::new(pycairo_context_surface(42, 42))
+  rel_move_ctx.line_to(0.0, 0.0)
+  rel_move_ctx.rel_move_to(1.0, 1.0)
+  assert_pycairo_context_point_close(
+    rel_move_ctx.get_current_point(),
+    (1.0, 1.0),
+  )
+
+  let rel_curve_ctx = Context::new(pycairo_context_surface(42, 42))
+  rel_curve_ctx.line_to(0.0, 0.0)
+  rel_curve_ctx.rel_curve_to(0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
+  assert_pycairo_context_point_close(
+    rel_curve_ctx.get_current_point(),
+    (0.0, 0.0),
+  )
 }
 
 ///|
@@ -129,6 +176,38 @@ test "context default coordinate conversions mirror pycairo zero fixture" {
   assert_pycairo_context_point_close(
     ctx.user_to_device_distance(0.0, 0.0),
     (0.0, 0.0),
+  )
+}
+
+///|
+test "context matrix mutators mirror pycairo method fixtures" {
+  let ctx = Context::new(pycairo_context_surface(42, 42))
+  let identity = Matrix::new()
+  ctx.set_matrix(identity)
+  assert_pycairo_context_matrix_close(ctx.get_matrix(), identity)
+
+  ctx.translate(0.5, 0.5)
+  assert_pycairo_context_matrix_close(
+    ctx.get_matrix(),
+    Matrix::new(x0=0.5, y0=0.5),
+  )
+
+  ctx.scale(2.0, 3.0)
+  assert_pycairo_context_matrix_close(
+    ctx.get_matrix(),
+    Matrix::new(xx=2.0, yy=3.0, x0=0.5, y0=0.5),
+  )
+
+  ctx.identity_matrix()
+  let transform = Matrix::new(xx=2.0, yy=3.0, x0=5.0, y0=7.0)
+  ctx.transform(transform)
+  assert_pycairo_context_matrix_close(ctx.get_matrix(), transform)
+
+  ctx.identity_matrix()
+  ctx.rotate(0.3)
+  assert_pycairo_context_matrix_close(
+    ctx.get_matrix(),
+    Matrix::init_rotate(0.3),
   )
 }
 
@@ -186,6 +265,14 @@ test "context source rgba mirrors pycairo fixture" {
     ctx.get_source().get_rgba(),
     (1.0, 1.0, 1.0, 0.5),
   )
+}
+
+///|
+test "context explicit source pattern mirrors pycairo fixture" {
+  let ctx = Context::new(pycairo_context_surface(42, 42))
+  let pattern = Pattern::solid_rgb(0.0, 0.0, 0.0)
+  ctx.set_source(pattern)
+  inspect(ctx.get_source().equal(pattern), content="true")
 }
 
 ///|
