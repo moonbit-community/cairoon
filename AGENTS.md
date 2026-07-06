@@ -404,12 +404,21 @@ accepted probe is `src/core/glyph`: the public package imports it and exposes
 `Glyph` with `pub type Glyph = @glyph.Glyph`. This keeps external construction,
 field access, and method syntax such as `@cairoon.Glyph::new(...)`,
 `glyph.index`, and `glyph.components()` valid while the implementation lives in
-a subpackage.
+a subpackage. The same package owns `field_arrays`, the MoonBit-side
+preparation step for `cairo_glyph_t` array marshaling; public context and
+scaled-font wrappers should call `@glyph.field_arrays` instead of re-expanding
+glyph fields in the facade package.
 
 Do not move a type whose methods raise `CairoError` into a subpackage until the
 error/status family has its own proven non-cyclic package seam. A child package
 must not import the public `caimeo/cairoon` facade just to reuse facade errors,
-because the facade imports child packages.
+because the facade imports child packages. Also do not move public enums or
+suberrors whose constructors are part of the facade syntax until a compatibility
+proof exists: MoonBit `pub type` aliases preserve the type and its methods, but
+they do not re-export enum variants or suberror constructors as
+`@cairoon.<Constructor>`. This currently blocks moving `Status`, `CairoError`,
+`PathDataType`, and similar facade-constructor enums directly into child
+packages.
 
 When a new Cairo family is migrated, create a new C file named after that
 family instead of adding unrelated code to an existing file. Keep files small

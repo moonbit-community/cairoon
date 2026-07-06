@@ -227,8 +227,8 @@ Set `CAIROON_VERIFY_ASAN=0` to skip the targeted ASan portion intentionally.
 The current cairoon slice is not a full migration. It has native package setup,
 pycairo-style C glue split into private shared declarations plus per-family
 stub files, a first pure support package seam for `Glyph` under
-`src/core/glyph` with package-local pure value tests, with private test-only
-oracle glue moved to the
+`src/core/glyph` with package-local pure value and glyph-array marshaling tests,
+with private test-only oracle glue moved to the
 `src/tests/oracle/native` support package and split into constants,
 ScaledFont, common drawing, file/normalized-output comparison, ARGB32 image,
 raster-owner, vector-output entry points, vector-output scene drawing, and

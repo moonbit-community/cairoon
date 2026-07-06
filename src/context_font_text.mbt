@@ -148,7 +148,7 @@ pub fn Context::glyph_extents(
   self : Context,
   glyphs : ArrayView[Glyph],
 ) -> TextExtents raise CairoError {
-  let (indices, xs, ys) = glyph_field_arrays(glyphs)
+  let (indices, xs, ys) = @glyph.field_arrays(glyphs)
   text_extents_from_output((
     x_bearing,
     y_bearing,
@@ -168,7 +168,7 @@ pub fn Context::glyph_path(
   self : Context,
   glyphs : ArrayView[Glyph],
 ) -> Unit raise CairoError {
-  let (indices, xs, ys) = glyph_field_arrays(glyphs)
+  let (indices, xs, ys) = @glyph.field_arrays(glyphs)
   check_status(context_glyph_path_ffi(self, indices, xs, ys))
 }
 
@@ -177,7 +177,7 @@ pub fn Context::show_glyphs(
   self : Context,
   glyphs : ArrayView[Glyph],
 ) -> Unit raise CairoError {
-  let (indices, xs, ys) = glyph_field_arrays(glyphs)
+  let (indices, xs, ys) = @glyph.field_arrays(glyphs)
   check_status(context_show_glyphs_ffi(self, indices, xs, ys))
 }
 
@@ -189,7 +189,7 @@ pub fn Context::show_text_glyphs(
   clusters : ArrayView[TextCluster],
   flags? : TextClusterFlags = TextClusterNone,
 ) -> Unit raise CairoError {
-  let (indices, xs, ys) = glyph_field_arrays(glyphs)
+  let (indices, xs, ys) = @glyph.field_arrays(glyphs)
   let (cluster_num_bytes, cluster_num_glyphs) = text_cluster_field_arrays(
     clusters,
   )

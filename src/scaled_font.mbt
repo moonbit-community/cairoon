@@ -195,7 +195,7 @@ pub fn ScaledFont::glyph_extents(
   self : ScaledFont,
   glyphs : ArrayView[Glyph],
 ) -> TextExtents raise CairoError {
-  let (indices, xs, ys) = glyph_field_arrays(glyphs)
+  let (indices, xs, ys) = @glyph.field_arrays(glyphs)
   text_extents_from_output((
     x_bearing,
     y_bearing,

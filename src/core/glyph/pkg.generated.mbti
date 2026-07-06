@@ -6,6 +6,7 @@ import {
 }
 
 // Values
+pub fn field_arrays(ArrayView[Glyph]) -> (FixedArray[UInt64], FixedArray[Double], FixedArray[Double])
 
 // Errors
 

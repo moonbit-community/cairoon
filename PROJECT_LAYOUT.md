@@ -108,7 +108,7 @@ MoonBit package shape without weakening the public interface.
 | Role | Intended location | Interface rule |
 |---|---|---|
 | Public package | `src/` | Owns the stable `caimeo/cairoon` interface and public external object types until a facade proof proves otherwise. |
-| Pure support packages | `src/core/` | May hold pure values/helpers only after their public names can be preserved or intentionally re-exported. `src/core/glyph` is the first accepted seam: the public package exposes `pub type Glyph = @glyph.Glyph`, and tests prove `@cairoon.Glyph::new`, field access, and dot-method syntax still work through the facade. |
+| Pure support packages | `src/core/` | May hold pure values/helpers only after their public names can be preserved or intentionally re-exported. `src/core/glyph` is the first accepted seam: the public package exposes `pub type Glyph = @glyph.Glyph`, owns `@glyph.field_arrays` for glyph-array marshaling preparation, and tests prove `@cairoon.Glyph::new`, field access, dot-method syntax, and glyph-array FFI paths still work through the facade. |
 | Native stubs | `src/native/` while owned by `src/moon.pkg`; later `src/native/<family>/` packages only after a facade proof | Every `.c` file under `src/native/` must be listed by `src/moon.pkg` `native-stub`; headers in `src/native/` are private to those stubs. |
 | Black-box tests | `src/tests/<family>/` | Import `caimeo/cairoon`; assert only public behavior. Any package that imports cairoon must carry Cairo `cc-link-flags`, because native link flags are not propagated to external test executables. |
 | White-box oracles | `src/tests/oracle/<family>/` plus shared C support in `src/tests/oracle/native/` | Import `caimeo/cairoon` for the public API and declare test-only direct-C oracle externs locally; public binding wrappers must never import oracle packages. Test-only C symbols are provided by the oracle-native support package, not `src/moon.pkg`. |
@@ -142,9 +142,14 @@ Follow this order. Each step gets its own commit and must pass
 6. **Family package probes**: started. `Glyph` now lives in
    `src/core/glyph`, while the public facade exposes it with a type alias. This
    proves a pure value type can move into a support package while preserving
-   external constructor, field, and method syntax. Types whose methods raise
-   `CairoError` still require an error/status seam proof before they move,
-   because child packages must not import the public facade.
+   external constructor, field, and method syntax; the glyph support package now
+   also owns the field-array preparation used by Context and ScaledFont FFI
+   wrappers. Types whose methods raise `CairoError` still require an
+   error/status seam proof before they move, because child packages must not
+   import the public facade. Direct `Status`/`CairoError` facade extraction is
+   currently blocked by MoonBit constructor re-export semantics: `pub type`
+   aliases do not expose enum variants or suberror constructors as
+   `@cairoon.<Constructor>`.
 7. **Family package migration**: move one Cairo family per commit. C files,
    raw externs, and wrappers move together only when the public package seam is
    proven.

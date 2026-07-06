@@ -78,18 +78,6 @@ pub fn RectangleInt::component(
 pub type Glyph = @glyph.Glyph
 
 ///|
-fn glyph_field_arrays(
-  glyphs : ArrayView[Glyph],
-) -> (FixedArray[UInt64], FixedArray[Double], FixedArray[Double]) {
-  let count = glyphs.length()
-  (
-    FixedArray::makei(count, index => glyphs[index].index),
-    FixedArray::makei(count, index => glyphs[index].x),
-    FixedArray::makei(count, index => glyphs[index].y),
-  )
-}
-
-///|
 pub struct TextCluster {
   num_bytes : Int
   num_glyphs : Int
