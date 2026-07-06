@@ -2,12 +2,12 @@
 fn make_stream_nested_tag_file_surface(
   kind : Int,
   path : String,
-) -> Surface raise CairoError {
+) -> @cairoon.Surface raise @cairoon.CairoError {
   let surface = match kind {
-    0 => Surface::pdf(120.0, 120.0, path=Some(path))
-    1 => Surface::ps(120.0, 120.0, path=Some(path))
-    2 => Surface::svg(120.0, 120.0, path=Some(path))
-    _ => raise CairoInvalidArgument(InvalidStatus, InvalidStatus.message())
+    0 => @cairoon.Surface::pdf(120.0, 120.0, path=Some(path))
+    1 => @cairoon.Surface::ps(120.0, 120.0, path=Some(path))
+    2 => @cairoon.Surface::svg(120.0, 120.0, path=Some(path))
+    _ => vector_backend_invalid_surface()
   }
   configure_stream_nested_tag_backend(kind, surface)
   surface
@@ -17,24 +17,24 @@ fn make_stream_nested_tag_file_surface(
 fn make_stream_nested_tag_stream_surface(
   kind : Int,
   chunks : Array[Bytes],
-) -> Surface raise CairoError {
+) -> @cairoon.Surface raise @cairoon.CairoError {
   let surface = match kind {
     0 =>
-      Surface::pdf_stream(120.0, 120.0, fn(chunk) {
+      @cairoon.Surface::pdf_stream(120.0, 120.0, fn(chunk) {
         chunks.push(chunk)
-        Success
+        @cairoon.Success
       })
     1 =>
-      Surface::ps_stream(120.0, 120.0, fn(chunk) {
+      @cairoon.Surface::ps_stream(120.0, 120.0, fn(chunk) {
         chunks.push(chunk)
-        Success
+        @cairoon.Success
       })
     2 =>
-      Surface::svg_stream(120.0, 120.0, fn(chunk) {
+      @cairoon.Surface::svg_stream(120.0, 120.0, fn(chunk) {
         chunks.push(chunk)
-        Success
+        @cairoon.Success
       })
-    _ => raise CairoInvalidArgument(InvalidStatus, InvalidStatus.message())
+    _ => vector_backend_invalid_surface()
   }
   configure_stream_nested_tag_backend(kind, surface)
   surface
@@ -43,25 +43,43 @@ fn make_stream_nested_tag_stream_surface(
 ///|
 fn configure_stream_nested_tag_backend(
   kind : Int,
-  surface : Surface,
-) -> Unit raise CairoError {
+  surface : @cairoon.Surface,
+) -> Unit raise @cairoon.CairoError {
   match kind {
     0 => {
-      surface.pdf_restrict_to_version(PdfVersion1_4)
-      surface.pdf_set_metadata(PdfMetadataTitle, "Cairoon Nested Tags")
-      surface.pdf_set_metadata(PdfMetadataAuthor, "cairoon nested author")
-      surface.pdf_set_metadata(PdfMetadataSubject, "nested tags and pages")
-      surface.pdf_set_metadata(PdfMetadataKeywords, "cairoon,nested,tags")
-      surface.pdf_set_metadata(PdfMetadataCreator, "cairoon nested tags")
-      surface.pdf_set_metadata(PdfMetadataCreateDate, fixed_pdf_metadata_date())
-      surface.pdf_set_metadata(PdfMetadataModDate, fixed_pdf_metadata_date())
+      surface.pdf_restrict_to_version(@cairoon.PdfVersion1_4)
+      surface.pdf_set_metadata(@cairoon.PdfMetadataTitle, "Cairoon Nested Tags")
+      surface.pdf_set_metadata(
+        @cairoon.PdfMetadataAuthor,
+        "cairoon nested author",
+      )
+      surface.pdf_set_metadata(
+        @cairoon.PdfMetadataSubject,
+        "nested tags and pages",
+      )
+      surface.pdf_set_metadata(
+        @cairoon.PdfMetadataKeywords,
+        "cairoon,nested,tags",
+      )
+      surface.pdf_set_metadata(
+        @cairoon.PdfMetadataCreator,
+        "cairoon nested tags",
+      )
+      surface.pdf_set_metadata(
+        @cairoon.PdfMetadataCreateDate,
+        fixed_pdf_metadata_date(),
+      )
+      surface.pdf_set_metadata(
+        @cairoon.PdfMetadataModDate,
+        fixed_pdf_metadata_date(),
+      )
       surface.pdf_set_custom_metadata("Trace", Some("nested-page-sequence"))
       surface.pdf_set_custom_metadata("Scenario", Some("deep-structure"))
       surface.pdf_set_custom_metadata("Transient", Some("drop-me"))
       surface.pdf_set_custom_metadata("Transient", None)
     }
     1 => {
-      surface.ps_restrict_to_level(PsLevel3)
+      surface.ps_restrict_to_level(@cairoon.PsLevel3)
       surface.ps_set_eps(false)
       surface.ps_dsc_begin_setup()
       surface.ps_dsc_comment("%%Title: Cairoon Nested Tags")
@@ -70,30 +88,33 @@ fn configure_stream_nested_tag_backend(
       surface.ps_dsc_comment("%%IncludeFeature: *PageSize A5")
     }
     2 => {
-      surface.svg_restrict_to_version(SvgVersion1_2)
-      surface.svg_set_document_unit(SvgUnitPt)
+      surface.svg_restrict_to_version(@cairoon.SvgVersion1_2)
+      surface.svg_set_document_unit(@cairoon.SvgUnitPt)
     }
-    _ => raise CairoInvalidArgument(InvalidStatus, InvalidStatus.message())
+    _ => @cairoon.check_status(@cairoon.InvalidStatus)
   }
 }
 
 ///|
 fn render_stream_nested_tag_scene(
   kind : Int,
-  surface : Surface,
-) -> Unit raise CairoError {
-  let ctx = Context::new(surface)
+  surface : @cairoon.Surface,
+) -> Unit raise @cairoon.CairoError {
+  let ctx = @cairoon.Context::new(surface)
   ctx.select_font_face("serif")
   ctx.set_font_size(12.0)
 
-  let mut root_id = PDF_OUTLINE_ROOT
+  let mut root_id = @cairoon.PDF_OUTLINE_ROOT
   if kind == 0 {
     surface.pdf_set_page_label("nested-front")
     root_id = surface.pdf_add_outline_with_flags(
-      PDF_OUTLINE_ROOT,
+      @cairoon.PDF_OUTLINE_ROOT,
       "nested front",
       "page=1 pos=[12 22]",
-      PDFOutlineFlagSet::combine([PdfOutlineOpen, PdfOutlineBold]),
+      @cairoon.PDFOutlineFlagSet::combine([
+        @cairoon.PdfOutlineOpen,
+        @cairoon.PdfOutlineBold,
+      ]),
     )
   }
   ctx.set_source_rgb(0.94, 0.97, 1.0)
@@ -102,10 +123,10 @@ fn render_stream_nested_tag_scene(
   ctx.tag_begin("Document", "")
   ctx.tag_begin("Sect", "")
   ctx.tag_begin("H1", "")
-  ctx.tag_begin(TAG_LINK, "uri='https://example.com/nested-tags'")
+  ctx.tag_begin(@cairoon.TAG_LINK, "uri='https://example.com/nested-tags'")
   ctx.move_to(12.0, 22.0)
   ctx.show_text("nested uri")
-  ctx.tag_end(TAG_LINK)
+  ctx.tag_end(@cairoon.TAG_LINK)
   ctx.tag_end("H1")
   ctx.tag_begin("Figure", "")
   ctx.set_source_rgb(0.15, 0.45, 0.8)
@@ -122,7 +143,7 @@ fn render_stream_nested_tag_scene(
       root_id,
       "nested body child",
       "page=2 pos=[12 34]",
-      PDFOutlineFlagSet::of(PdfOutlineItalic),
+      @cairoon.PDFOutlineFlagSet::of(@cairoon.PdfOutlineItalic),
     )
   }
   ctx.set_source_rgb(0.0, 0.0, 0.0)
@@ -131,10 +152,10 @@ fn render_stream_nested_tag_scene(
   ctx.tag_begin("L", "")
   ctx.tag_begin("LI", "")
   ctx.tag_begin("LBody", "")
-  ctx.tag_begin(TAG_LINK, "dest='nested-dest'")
+  ctx.tag_begin(@cairoon.TAG_LINK, "dest='nested-dest'")
   ctx.move_to(12.0, 34.0)
   ctx.show_text("nested destination link")
-  ctx.tag_end(TAG_LINK)
+  ctx.tag_end(@cairoon.TAG_LINK)
   ctx.tag_end("LBody")
   ctx.tag_end("LI")
   ctx.tag_end("L")
@@ -148,26 +169,29 @@ fn render_stream_nested_tag_scene(
       root_id,
       "nested retained overlay",
       "page=3 pos=[12 58]",
-      PDFOutlineFlagSet::combine([PdfOutlineOpen, PdfOutlineItalic]),
+      @cairoon.PDFOutlineFlagSet::combine([
+        @cairoon.PdfOutlineOpen,
+        @cairoon.PdfOutlineItalic,
+      ]),
     )
   }
   ctx.set_source_rgba(0.85, 0.1, 0.1, 0.68)
   ctx.rectangle(12.0, 50.0, 70.0, 22.0)
   ctx.fill()
-  ctx.tag_begin(TAG_DEST, "name='nested-dest' x=12 y=58")
+  ctx.tag_begin(@cairoon.TAG_DEST, "name='nested-dest' x=12 y=58")
   ctx.set_source_rgb(0.05, 0.05, 0.05)
   ctx.move_to(12.0, 58.0)
   ctx.show_text("retained destination")
-  ctx.tag_end(TAG_DEST)
+  ctx.tag_end(@cairoon.TAG_DEST)
   surface.show_page()
 
   if kind == 0 {
     surface.pdf_set_page_label("nested-final")
     let _ = surface.pdf_add_outline_with_flags(
-      PDF_OUTLINE_ROOT,
+      @cairoon.PDF_OUTLINE_ROOT,
       "nested final",
       "page=4 pos=[12 82]",
-      PDFOutlineFlagSet::of(PdfOutlineBold),
+      @cairoon.PDFOutlineFlagSet::of(@cairoon.PdfOutlineBold),
     )
   }
   ctx.tag_begin("Document", "")
@@ -217,7 +241,7 @@ test "backend nested tag file output matches direct cairo C oracle" {
     let oracle_path = "/tmp/cairoon_stream_nested_tag_direct_oracle_\{kind}.\{ext}"
     let surface = make_stream_nested_tag_file_surface(kind, path)
     render_stream_nested_tag_scene(kind, surface)
-    check_status(
+    @cairoon.check_status(
       test_render_vector_scene_oracle_ffi(
         kind,
         37,

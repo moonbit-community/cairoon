@@ -61,13 +61,13 @@ test "document feature stream output contains backend markers" {
 ///|
 test "pdf text document feature stream output matches file output after normalization" {
   let path = "/tmp/cairoon_stream_pdf_text_document_feature_equivalence.pdf"
-  let file_surface = Surface::pdf(100.0, 100.0, path=Some(path))
+  let file_surface = @cairoon.Surface::pdf(100.0, 100.0, path=Some(path))
   let _ = render_pdf_text_document_feature_surface(file_surface)
 
   let chunks : Array[Bytes] = []
-  let stream_surface = Surface::pdf_stream(100.0, 100.0, fn(chunk) {
+  let stream_surface = @cairoon.Surface::pdf_stream(100.0, 100.0, fn(chunk) {
     chunks.push(chunk)
-    Success
+    @cairoon.Success
   })
   let _ = render_pdf_text_document_feature_surface(stream_surface)
   inspect(chunks.length() > 0, content="true")
@@ -84,13 +84,13 @@ test "pdf text document feature stream output matches file output after normaliz
 ///|
 test "pdf page operation document feature stream output matches file output after normalization" {
   let path = "/tmp/cairoon_stream_pdf_page_operation_document_feature.pdf"
-  let file_surface = Surface::pdf(100.0, 100.0, path=Some(path))
+  let file_surface = @cairoon.Surface::pdf(100.0, 100.0, path=Some(path))
   let _ = render_pdf_page_operation_document_feature_surface(file_surface)
 
   let chunks : Array[Bytes] = []
-  let stream_surface = Surface::pdf_stream(100.0, 100.0, fn(chunk) {
+  let stream_surface = @cairoon.Surface::pdf_stream(100.0, 100.0, fn(chunk) {
     chunks.push(chunk)
-    Success
+    @cairoon.Success
   })
   let _ = render_pdf_page_operation_document_feature_surface(stream_surface)
   inspect(chunks.length() > 0, content="true")
@@ -111,9 +111,9 @@ test "pdf jpeg mime stream output matches file output" {
   render_pdf_jpeg_mime_scene(path, jpeg)
 
   let chunks : Array[Bytes] = []
-  let stream_surface = Surface::pdf_stream(3.0, 3.0, fn(chunk) {
+  let stream_surface = @cairoon.Surface::pdf_stream(3.0, 3.0, fn(chunk) {
     chunks.push(chunk)
-    Success
+    @cairoon.Success
   })
   render_pdf_jpeg_mime_surface(stream_surface, jpeg)
   inspect(chunks.length() > 0, content="true")
@@ -133,9 +133,9 @@ test "pdf thumbnail stream output matches file output" {
   render_pdf_thumbnail_scene(path)
 
   let chunks : Array[Bytes] = []
-  let stream_surface = Surface::pdf_stream(20.0, 20.0, fn(chunk) {
+  let stream_surface = @cairoon.Surface::pdf_stream(20.0, 20.0, fn(chunk) {
     chunks.push(chunk)
-    Success
+    @cairoon.Success
   })
   render_pdf_thumbnail_surface(stream_surface)
   inspect(chunks.length() > 0, content="true")

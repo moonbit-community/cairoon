@@ -101,6 +101,12 @@ Implemented in this workspace:
   package and declaring the owner-count extern inside a `*_test.mbt` helper.
   This keeps the public package root free of raster-source test-only owner
   accounting while preserving ASan-covered callback lifecycle fuzzing.
+- Vector-output and backend stream oracles now live in
+  `src/tests/oracle/vector_backend`, importing the public `caimeo/cairoon`
+  package and declaring file/vector/direct-C oracle externs inside a
+  `*_test.mbt` helper. This removes the last root `*_wbtest.mbt` files while
+  preserving 105 PDF/PS/SVG vector, stream-equivalence, tag, metadata, page,
+  and backend lifecycle oracle tests through the published API seam.
 - C FFI glue split by Cairo object family, following pycairo's
   `private.h` plus per-family C file architecture. GC-managed external objects
   currently cover `Surface`, `MappedImageSurface`, `ImageData`, `Context`,

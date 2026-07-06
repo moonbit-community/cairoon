@@ -1,8 +1,8 @@
 ///|
 fn draw_vector_oracle_scene(
-  ctx : Context,
+  ctx : @cairoon.Context,
   scene : Int,
-) -> Unit raise CairoError {
+) -> Unit raise @cairoon.CairoError {
   match scene {
     0 => {
       ctx.set_source_rgb(0.0, 0.0, 1.0)
@@ -39,7 +39,7 @@ fn draw_vector_oracle_scene(
       ctx.fill()
     }
     5 => {
-      let pattern = Pattern::linear(0.0, 0.0, 10.0, 0.0)
+      let pattern = @cairoon.Pattern::linear(0.0, 0.0, 10.0, 0.0)
       pattern.add_color_stop_rgba(0.0, 1.0, 0.0, 0.0, 1.0)
       pattern.add_color_stop_rgba(1.0, 0.0, 0.0, 1.0, 1.0)
       ctx.rectangle(0.0, 0.0, 10.0, 10.0)
@@ -47,7 +47,7 @@ fn draw_vector_oracle_scene(
       ctx.fill()
     }
     6 => {
-      let pattern = Pattern::radial(5.0, 5.0, 1.0, 5.0, 5.0, 5.0)
+      let pattern = @cairoon.Pattern::radial(5.0, 5.0, 1.0, 5.0, 5.0, 5.0)
       pattern.add_color_stop_rgba(0.0, 1.0, 1.0, 1.0, 1.0)
       pattern.add_color_stop_rgba(1.0, 0.0, 0.0, 0.0, 1.0)
       ctx.rectangle(0.0, 0.0, 10.0, 10.0)
@@ -72,7 +72,7 @@ fn draw_vector_oracle_scene(
     32 => {
       ctx.select_font_face("serif")
       ctx.set_font_size(8.0)
-      ctx.glyph_path([Glyph::new(0UL, 2.0, 8.0)])
+      ctx.glyph_path([@cairoon.Glyph::new(0UL, 2.0, 8.0)])
       ctx.set_source_rgb(0.0, 0.0, 1.0)
       ctx.fill()
     }
@@ -80,7 +80,7 @@ fn draw_vector_oracle_scene(
       ctx.select_font_face("serif")
       ctx.set_font_size(8.0)
       ctx.set_source_rgb(1.0, 0.0, 0.0)
-      ctx.show_glyphs([Glyph::new(0UL, 2.0, 8.0)])
+      ctx.show_glyphs([@cairoon.Glyph::new(0UL, 2.0, 8.0)])
     }
     9 => {
       paint_page(ctx, 0.0, 0.0, 1.0)
@@ -107,7 +107,7 @@ fn draw_vector_oracle_scene(
     11 => {
       ctx.set_source_rgb(0.0, 0.0, 0.0)
       ctx.set_line_width(1.0)
-      ctx.set_line_cap(LineCapRound)
+      ctx.set_line_cap(@cairoon.LineCapRound)
       ctx.set_dash([1.0, 1.5], offset=0.5)
       ctx.move_to(1.0, 5.0)
       ctx.line_to(9.0, 5.0)
@@ -128,7 +128,7 @@ fn draw_vector_oracle_scene(
     28 => draw_wide_multi_page_tag_vector_scene(ctx)
     29 => draw_tagged_show_text_glyphs_scene(ctx)
     30 => draw_grouped_glyph_tag_multi_page_scene(ctx)
-    _ => raise CairoInvalidArgument(InvalidStatus, InvalidStatus.message())
+    _ => @cairoon.check_status(@cairoon.InvalidStatus)
   }
 }
 
@@ -137,16 +137,18 @@ fn render_vector_oracle_scene(
   kind : Int,
   scene : Int,
   path : String,
-) -> Unit raise CairoError {
+) -> Unit raise @cairoon.CairoError {
   let surface = vector_oracle_surface(kind, path)
-  let ctx = Context::new(surface)
+  let ctx = @cairoon.Context::new(surface)
   draw_vector_oracle_scene(ctx, scene)
   surface.finish()
 }
 
 ///|
-fn draw_surface_page_retained_scene(surface : Surface) -> Unit raise CairoError {
-  let ctx = Context::new(surface)
+fn draw_surface_page_retained_scene(
+  surface : @cairoon.Surface,
+) -> Unit raise @cairoon.CairoError {
+  let ctx = @cairoon.Context::new(surface)
   ctx.set_source_rgb(0.0, 0.0, 1.0)
   ctx.rectangle(1.0, 1.0, 3.0, 8.0)
   ctx.fill()
@@ -161,7 +163,7 @@ fn draw_surface_page_retained_scene(surface : Surface) -> Unit raise CairoError 
 fn render_surface_page_retained_scene(
   kind : Int,
   path : String,
-) -> Unit raise CairoError {
+) -> Unit raise @cairoon.CairoError {
   let surface = vector_oracle_surface(kind, path)
   draw_surface_page_retained_scene(surface)
   surface.finish()
@@ -169,9 +171,9 @@ fn render_surface_page_retained_scene(
 
 ///|
 fn draw_surface_show_page_cleared_scene(
-  surface : Surface,
-) -> Unit raise CairoError {
-  let ctx = Context::new(surface)
+  surface : @cairoon.Surface,
+) -> Unit raise @cairoon.CairoError {
+  let ctx = @cairoon.Context::new(surface)
   ctx.set_source_rgb(0.0, 0.0, 1.0)
   ctx.rectangle(1.0, 1.0, 3.0, 8.0)
   ctx.fill()
@@ -186,7 +188,7 @@ fn draw_surface_show_page_cleared_scene(
 fn render_surface_show_page_cleared_scene(
   kind : Int,
   path : String,
-) -> Unit raise CairoError {
+) -> Unit raise @cairoon.CairoError {
   let surface = vector_oracle_surface(kind, path)
   draw_surface_show_page_cleared_scene(surface)
   surface.finish()
@@ -194,49 +196,60 @@ fn render_surface_show_page_cleared_scene(
 
 ///|
 fn render_pdf_document_feature_surface(
-  surface : Surface,
-) -> Unit raise CairoError {
-  surface.pdf_restrict_to_version(PdfVersion1_4)
-  surface.pdf_set_metadata(PdfMetadataTitle, "Cairoon Combined Oracle")
-  surface.pdf_set_metadata(PdfMetadataCreator, "cairoon-combined-oracle")
-  surface.pdf_set_metadata(PdfMetadataCreateDate, fixed_pdf_metadata_date())
-  surface.pdf_set_metadata(PdfMetadataModDate, fixed_pdf_metadata_date())
+  surface : @cairoon.Surface,
+) -> Unit raise @cairoon.CairoError {
+  surface.pdf_restrict_to_version(@cairoon.PdfVersion1_4)
+  surface.pdf_set_metadata(@cairoon.PdfMetadataTitle, "Cairoon Combined Oracle")
+  surface.pdf_set_metadata(
+    @cairoon.PdfMetadataCreator,
+    "cairoon-combined-oracle",
+  )
+  surface.pdf_set_metadata(
+    @cairoon.PdfMetadataCreateDate,
+    fixed_pdf_metadata_date(),
+  )
+  surface.pdf_set_metadata(
+    @cairoon.PdfMetadataModDate,
+    fixed_pdf_metadata_date(),
+  )
   surface.pdf_set_custom_metadata("ISBN", Some("978-0123456789"))
   surface.pdf_set_page_label("intro")
   let _ = surface.pdf_add_outline_with_flags(
-    PDF_OUTLINE_ROOT,
+    @cairoon.PDF_OUTLINE_ROOT,
     "intro page",
     "page=1 pos=[10 20]",
-    PDFOutlineFlagSet::combine([PdfOutlineOpen, PdfOutlineBold][:]),
+    @cairoon.PDFOutlineFlagSet::combine(
+      [@cairoon.PdfOutlineOpen, @cairoon.PdfOutlineBold][:],
+    ),
   )
 
-  let ctx = Context::new(surface)
+  let ctx = @cairoon.Context::new(surface)
   ctx.set_source_rgb(0.0, 0.0, 1.0)
-  ctx.tag_begin(TAG_LINK, "uri='https://example.com/combined'")
+  ctx.tag_begin(@cairoon.TAG_LINK, "uri='https://example.com/combined'")
   ctx.rectangle(10.0, 10.0, 80.0, 20.0)
   ctx.fill()
-  ctx.tag_end(TAG_LINK)
+  ctx.tag_end(@cairoon.TAG_LINK)
 
   ctx.set_source_rgb(0.0, 0.5, 0.0)
-  ctx.tag_begin(TAG_LINK, "dest='combined-direct-dest'")
+  ctx.tag_begin(@cairoon.TAG_LINK, "dest='combined-direct-dest'")
   ctx.rectangle(10.0, 40.0, 80.0, 20.0)
   ctx.fill()
-  ctx.tag_end(TAG_LINK)
+  ctx.tag_end(@cairoon.TAG_LINK)
 
   ctx.show_page()
   surface.pdf_set_page_label("details")
   let _ = surface.pdf_add_outline_with_flags(
-    PDF_OUTLINE_ROOT,
+    @cairoon.PDF_OUTLINE_ROOT,
     "details page",
     "page=2 pos=[10 60]",
-    PDFOutlineFlagSet::of(PdfOutlineItalic),
+    @cairoon.PDFOutlineFlagSet::of(@cairoon.PdfOutlineItalic),
   )
 
   ctx.set_source_rgb(1.0, 0.0, 0.0)
-  ctx.tag_begin(TAG_DEST, "name='combined-direct-dest' x=10 y=60")
+  ctx.tag_begin(@cairoon.TAG_DEST, "name='combined-direct-dest' x=10 y=60")
   ctx.rectangle(10.0, 10.0, 80.0, 20.0)
   ctx.fill()
-  ctx.tag_end(TAG_DEST)
+  ctx.tag_end(@cairoon.TAG_DEST)
 
   ctx.tag_begin("Document", "")
   ctx.tag_begin("Sect", "")
@@ -253,47 +266,57 @@ fn render_pdf_document_feature_surface(
 }
 
 ///|
-fn render_pdf_document_feature_scene(path : String) -> Unit raise CairoError {
-  let surface = Surface::pdf(100.0, 100.0, path=Some(path))
+fn render_pdf_document_feature_scene(
+  path : String,
+) -> Unit raise @cairoon.CairoError {
+  let surface = @cairoon.Surface::pdf(100.0, 100.0, path=Some(path))
   render_pdf_document_feature_surface(surface)
 }
 
 ///|
 fn render_pdf_text_document_feature_surface(
-  surface : Surface,
-) -> (Int, Int) raise CairoError {
-  surface.pdf_restrict_to_version(PdfVersion1_4)
-  surface.pdf_set_metadata(PdfMetadataTitle, "Cairoon Combined")
-  surface.pdf_set_metadata(PdfMetadataCreator, "cairoon combined test")
-  surface.pdf_set_metadata(PdfMetadataCreateDate, fixed_pdf_metadata_date())
-  surface.pdf_set_metadata(PdfMetadataModDate, fixed_pdf_metadata_date())
+  surface : @cairoon.Surface,
+) -> (Int, Int) raise @cairoon.CairoError {
+  surface.pdf_restrict_to_version(@cairoon.PdfVersion1_4)
+  surface.pdf_set_metadata(@cairoon.PdfMetadataTitle, "Cairoon Combined")
+  surface.pdf_set_metadata(@cairoon.PdfMetadataCreator, "cairoon combined test")
+  surface.pdf_set_metadata(
+    @cairoon.PdfMetadataCreateDate,
+    fixed_pdf_metadata_date(),
+  )
+  surface.pdf_set_metadata(
+    @cairoon.PdfMetadataModDate,
+    fixed_pdf_metadata_date(),
+  )
   surface.pdf_set_custom_metadata("ISBN", Some("978-0123456789"))
   surface.pdf_set_page_label("intro")
   let intro_id = surface.pdf_add_outline_with_flags(
-    PDF_OUTLINE_ROOT,
+    @cairoon.PDF_OUTLINE_ROOT,
     "intro page",
     "page=1 pos=[10 20]",
-    PDFOutlineFlagSet::combine([PdfOutlineOpen, PdfOutlineBold][:]),
+    @cairoon.PDFOutlineFlagSet::combine(
+      [@cairoon.PdfOutlineOpen, @cairoon.PdfOutlineBold][:],
+    ),
   )
-  let ctx = Context::new(surface)
+  let ctx = @cairoon.Context::new(surface)
   ctx.select_font_face("serif")
   ctx.set_font_size(12.0)
-  ctx.tag_begin(TAG_LINK, "uri='https://example.com/combined'")
+  ctx.tag_begin(@cairoon.TAG_LINK, "uri='https://example.com/combined'")
   ctx.move_to(10.0, 20.0)
   ctx.show_text("combined intro")
-  ctx.tag_end(TAG_LINK)
+  ctx.tag_end(@cairoon.TAG_LINK)
   ctx.show_page()
   surface.pdf_set_page_label("details")
   let details_id = surface.pdf_add_outline_with_flags(
-    PDF_OUTLINE_ROOT,
+    @cairoon.PDF_OUTLINE_ROOT,
     "details page",
     "page=2 pos=[10 60]",
-    PDFOutlineFlagSet::of(PdfOutlineItalic),
+    @cairoon.PDFOutlineFlagSet::of(@cairoon.PdfOutlineItalic),
   )
-  ctx.tag_begin(TAG_DEST, "name='combined-dest' x=10 y=60")
+  ctx.tag_begin(@cairoon.TAG_DEST, "name='combined-dest' x=10 y=60")
   ctx.move_to(10.0, 60.0)
   ctx.show_text("destination")
-  ctx.tag_end(TAG_DEST)
+  ctx.tag_end(@cairoon.TAG_DEST)
   ctx.tag_begin("Document", "")
   ctx.tag_begin("Sect", "")
   ctx.tag_begin("P", "")
@@ -310,20 +333,22 @@ fn render_pdf_text_document_feature_surface(
 ///|
 fn render_pdf_text_document_feature_scene(
   path : String,
-) -> (Int, Int) raise CairoError {
-  let surface = Surface::pdf(100.0, 100.0, path=Some(path))
+) -> (Int, Int) raise @cairoon.CairoError {
+  let surface = @cairoon.Surface::pdf(100.0, 100.0, path=Some(path))
   render_pdf_text_document_feature_surface(surface)
 }
 
 ///|
-fn render_ps_dsc_multipage_surface(surface : Surface) -> Unit raise CairoError {
-  surface.ps_restrict_to_level(PsLevel2)
+fn render_ps_dsc_multipage_surface(
+  surface : @cairoon.Surface,
+) -> Unit raise @cairoon.CairoError {
+  surface.ps_restrict_to_level(@cairoon.PsLevel2)
   surface.ps_dsc_begin_setup()
   surface.ps_dsc_comment("%%Title: Cairoon PS Combined")
   surface.ps_dsc_comment("%%IncludeFeature: *MediaColor White")
   surface.ps_dsc_begin_page_setup()
   surface.ps_dsc_comment("%%IncludeFeature: *PageSize A4")
-  let ctx = Context::new(surface)
+  let ctx = @cairoon.Context::new(surface)
   paint_page(ctx, 0.0, 0.0, 1.0)
   ctx.show_page()
   surface.ps_dsc_begin_page_setup()
@@ -335,11 +360,11 @@ fn render_ps_dsc_multipage_surface(surface : Surface) -> Unit raise CairoError {
 
 ///|
 fn render_svg_unit_multipage_surface(
-  surface : Surface,
-) -> Unit raise CairoError {
-  surface.svg_restrict_to_version(SvgVersion1_2)
-  surface.svg_set_document_unit(SvgUnitPx)
-  let ctx = Context::new(surface)
+  surface : @cairoon.Surface,
+) -> Unit raise @cairoon.CairoError {
+  surface.svg_restrict_to_version(@cairoon.SvgVersion1_2)
+  surface.svg_set_document_unit(@cairoon.SvgUnitPx)
+  let ctx = @cairoon.Context::new(surface)
   paint_page(ctx, 0.0, 0.0, 1.0)
   ctx.show_page()
   paint_page(ctx, 1.0, 0.0, 0.0)
@@ -349,11 +374,11 @@ fn render_svg_unit_multipage_surface(
 
 ///|
 fn paint_page(
-  ctx : Context,
+  ctx : @cairoon.Context,
   red : Double,
   green : Double,
   blue : Double,
-) -> Unit raise CairoError {
+) -> Unit raise @cairoon.CairoError {
   ctx.set_source_rgb(red, green, blue)
   ctx.paint()
 }

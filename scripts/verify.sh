@@ -39,25 +39,6 @@ run python3 ./scripts/check-reliability-ledger.py
 run moon check --target native
 run_external_test_packages
 
-targeted_tests=(
-  vector_output_wbtest.mbt
-  vector_output_oracle_wbtest.mbt
-  surface_stream_wbtest.mbt
-  surface_stream_backend_wbtest.mbt
-  surface_stream_combo_wbtest.mbt
-  surface_stream_page_combo_wbtest.mbt
-  surface_stream_nested_tag_wbtest.mbt
-  surface_stream_page_sequence_wbtest.mbt
-  surface_stream_tag_matrix_wbtest.mbt
-  surface_stream_lifecycle_wbtest.mbt
-  surface_stream_oracle_wbtest.mbt
-  surface_stream_tag_wbtest.mbt
-)
-
-for test_file in "${targeted_tests[@]}"; do
-  run moon test "$package_root/$test_file" --target native -v
-done
-
 run moon test --target native
 run moon info --target native
 
@@ -75,13 +56,6 @@ if [[ "$asan_mode" != "0" ]]; then
       "MOON_CC=$clang_path" \
       "MOON_AR=$moon_ar" \
       "ASAN_OPTIONS=$asan_options"
-    for test_file in "${targeted_tests[@]}"; do
-      run env \
-        "MOON_CC=$clang_path" \
-        "MOON_AR=$moon_ar" \
-        "ASAN_OPTIONS=$asan_options" \
-        moon test "$package_root/$test_file" --target native -v
-    done
   else
     printf '\nSkipping targeted ASan: set MOON_CC to an ASan-capable clang, or set CAIROON_VERIFY_ASAN=0 to silence this message.\n'
   fi

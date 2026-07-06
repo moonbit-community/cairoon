@@ -2,12 +2,12 @@
 fn make_stream_lifecycle_file_surface(
   kind : Int,
   path : String,
-) -> Surface raise CairoError {
+) -> @cairoon.Surface raise @cairoon.CairoError {
   let surface = match kind {
-    0 => Surface::pdf(150.0, 110.0, path=Some(path))
-    1 => Surface::ps(150.0, 110.0, path=Some(path))
-    2 => Surface::svg(150.0, 110.0, path=Some(path))
-    _ => raise CairoInvalidArgument(InvalidStatus, InvalidStatus.message())
+    0 => @cairoon.Surface::pdf(150.0, 110.0, path=Some(path))
+    1 => @cairoon.Surface::ps(150.0, 110.0, path=Some(path))
+    2 => @cairoon.Surface::svg(150.0, 110.0, path=Some(path))
+    _ => vector_backend_invalid_surface()
   }
   configure_stream_lifecycle_backend(kind, surface)
   surface
@@ -17,24 +17,24 @@ fn make_stream_lifecycle_file_surface(
 fn make_stream_lifecycle_stream_surface(
   kind : Int,
   chunks : Array[Bytes],
-) -> Surface raise CairoError {
+) -> @cairoon.Surface raise @cairoon.CairoError {
   let surface = match kind {
     0 =>
-      Surface::pdf_stream(150.0, 110.0, fn(chunk) {
+      @cairoon.Surface::pdf_stream(150.0, 110.0, fn(chunk) {
         chunks.push(chunk)
-        Success
+        @cairoon.Success
       })
     1 =>
-      Surface::ps_stream(150.0, 110.0, fn(chunk) {
+      @cairoon.Surface::ps_stream(150.0, 110.0, fn(chunk) {
         chunks.push(chunk)
-        Success
+        @cairoon.Success
       })
     2 =>
-      Surface::svg_stream(150.0, 110.0, fn(chunk) {
+      @cairoon.Surface::svg_stream(150.0, 110.0, fn(chunk) {
         chunks.push(chunk)
-        Success
+        @cairoon.Success
       })
-    _ => raise CairoInvalidArgument(InvalidStatus, InvalidStatus.message())
+    _ => vector_backend_invalid_surface()
   }
   configure_stream_lifecycle_backend(kind, surface)
   surface
@@ -43,18 +43,39 @@ fn make_stream_lifecycle_stream_surface(
 ///|
 fn configure_stream_lifecycle_backend(
   kind : Int,
-  surface : Surface,
-) -> Unit raise CairoError {
+  surface : @cairoon.Surface,
+) -> Unit raise @cairoon.CairoError {
   match kind {
     0 => {
-      surface.pdf_restrict_to_version(PdfVersion1_4)
-      surface.pdf_set_metadata(PdfMetadataTitle, "Cairoon Lifecycle Matrix")
-      surface.pdf_set_metadata(PdfMetadataAuthor, "cairoon lifecycle author")
-      surface.pdf_set_metadata(PdfMetadataSubject, "page lifecycle matrix")
-      surface.pdf_set_metadata(PdfMetadataKeywords, "lifecycle,copy,show,tags")
-      surface.pdf_set_metadata(PdfMetadataCreator, "cairoon lifecycle matrix")
-      surface.pdf_set_metadata(PdfMetadataCreateDate, fixed_pdf_metadata_date())
-      surface.pdf_set_metadata(PdfMetadataModDate, fixed_pdf_metadata_date())
+      surface.pdf_restrict_to_version(@cairoon.PdfVersion1_4)
+      surface.pdf_set_metadata(
+        @cairoon.PdfMetadataTitle,
+        "Cairoon Lifecycle Matrix",
+      )
+      surface.pdf_set_metadata(
+        @cairoon.PdfMetadataAuthor,
+        "cairoon lifecycle author",
+      )
+      surface.pdf_set_metadata(
+        @cairoon.PdfMetadataSubject,
+        "page lifecycle matrix",
+      )
+      surface.pdf_set_metadata(
+        @cairoon.PdfMetadataKeywords,
+        "lifecycle,copy,show,tags",
+      )
+      surface.pdf_set_metadata(
+        @cairoon.PdfMetadataCreator,
+        "cairoon lifecycle matrix",
+      )
+      surface.pdf_set_metadata(
+        @cairoon.PdfMetadataCreateDate,
+        fixed_pdf_metadata_date(),
+      )
+      surface.pdf_set_metadata(
+        @cairoon.PdfMetadataModDate,
+        fixed_pdf_metadata_date(),
+      )
       surface.pdf_set_custom_metadata("Lifecycle", Some("copy-copy-show-show"))
       surface.pdf_set_custom_metadata("Stage", Some("warmup"))
       surface.pdf_set_custom_metadata("Stage", Some("settled"))
@@ -62,7 +83,7 @@ fn configure_stream_lifecycle_backend(
       surface.pdf_set_custom_metadata("Scratch", None)
     }
     1 => {
-      surface.ps_restrict_to_level(PsLevel2)
+      surface.ps_restrict_to_level(@cairoon.PsLevel2)
       surface.ps_set_eps(false)
       surface.ps_dsc_begin_setup()
       surface.ps_dsc_comment("%%Title: Cairoon Lifecycle Matrix")
@@ -71,20 +92,20 @@ fn configure_stream_lifecycle_backend(
       surface.ps_dsc_comment("%%IncludeFeature: *PageSize Lifecycle")
     }
     2 => {
-      surface.svg_restrict_to_version(SvgVersion1_2)
-      surface.svg_set_document_unit(SvgUnitMm)
+      surface.svg_restrict_to_version(@cairoon.SvgVersion1_2)
+      surface.svg_set_document_unit(@cairoon.SvgUnitMm)
     }
-    _ => raise CairoInvalidArgument(InvalidStatus, InvalidStatus.message())
+    _ => @cairoon.check_status(@cairoon.InvalidStatus)
   }
 }
 
 ///|
 fn resize_stream_lifecycle_surface(
   kind : Int,
-  surface : Surface,
+  surface : @cairoon.Surface,
   width : Double,
   height : Double,
-) -> Unit raise CairoError {
+) -> Unit raise @cairoon.CairoError {
   match kind {
     0 => surface.pdf_set_size(width, height)
     1 => surface.ps_set_size(width, height)
@@ -95,23 +116,26 @@ fn resize_stream_lifecycle_surface(
 ///|
 fn render_stream_lifecycle_scene(
   kind : Int,
-  surface : Surface,
-) -> Unit raise CairoError {
-  let ctx = Context::new(surface)
+  surface : @cairoon.Surface,
+) -> Unit raise @cairoon.CairoError {
+  let ctx = @cairoon.Context::new(surface)
   ctx.select_font_face("serif")
   ctx.set_font_size(11.0)
 
-  let mut root_id = PDF_OUTLINE_ROOT
-  let mut retained_id = PDF_OUTLINE_ROOT
-  let mut fresh_id = PDF_OUTLINE_ROOT
+  let mut root_id = @cairoon.PDF_OUTLINE_ROOT
+  let mut retained_id = @cairoon.PDF_OUTLINE_ROOT
+  let mut fresh_id = @cairoon.PDF_OUTLINE_ROOT
   if kind == 0 {
     surface.pdf_set_size(150.0, 110.0)
     surface.pdf_set_page_label("life-cover")
     root_id = surface.pdf_add_outline_with_flags(
-      PDF_OUTLINE_ROOT,
+      @cairoon.PDF_OUTLINE_ROOT,
       "life cover",
       "page=1 pos=[16 24]",
-      PDFOutlineFlagSet::combine([PdfOutlineOpen, PdfOutlineBold]),
+      @cairoon.PDFOutlineFlagSet::combine([
+        @cairoon.PdfOutlineOpen,
+        @cairoon.PdfOutlineBold,
+      ]),
     )
   }
   ctx.set_source_rgb(0.91, 0.96, 0.98)
@@ -121,10 +145,10 @@ fn render_stream_lifecycle_scene(
   ctx.tag_begin("Part", "")
   ctx.tag_begin("Sect", "")
   ctx.tag_begin("H1", "")
-  ctx.tag_begin(TAG_LINK, "uri='https://example.com/lifecycle/cover'")
+  ctx.tag_begin(@cairoon.TAG_LINK, "uri='https://example.com/lifecycle/cover'")
   ctx.move_to(16.0, 24.0)
   ctx.show_text("lifecycle cover")
-  ctx.tag_end(TAG_LINK)
+  ctx.tag_end(@cairoon.TAG_LINK)
   ctx.tag_end("H1")
   ctx.tag_begin("Figure", "")
   ctx.set_source_rgb(0.12, 0.40, 0.72)
@@ -143,7 +167,7 @@ fn render_stream_lifecycle_scene(
       root_id,
       "life retained copy",
       "page=2 pos=[18 76]",
-      PDFOutlineFlagSet::of(PdfOutlineItalic),
+      @cairoon.PDFOutlineFlagSet::of(@cairoon.PdfOutlineItalic),
     )
   } else {
     resize_stream_lifecycle_surface(kind, surface, 150.0, 110.0)
@@ -152,10 +176,10 @@ fn render_stream_lifecycle_scene(
   ctx.rectangle(18.0, 58.0, 74.0, 24.0)
   ctx.fill()
   ctx.set_source_rgb(0.04, 0.04, 0.04)
-  ctx.tag_begin(TAG_LINK, "dest='life-dest-a'")
+  ctx.tag_begin(@cairoon.TAG_LINK, "dest='life-dest-a'")
   ctx.move_to(18.0, 88.0)
   ctx.show_text("retained copy link")
-  ctx.tag_end(TAG_LINK)
+  ctx.tag_end(@cairoon.TAG_LINK)
   surface.copy_page()
 
   if kind == 0 {
@@ -165,7 +189,10 @@ fn render_stream_lifecycle_scene(
       retained_id,
       "life retained second",
       "page=3 pos=[18 82]",
-      PDFOutlineFlagSet::combine([PdfOutlineOpen, PdfOutlineItalic]),
+      @cairoon.PDFOutlineFlagSet::combine([
+        @cairoon.PdfOutlineOpen,
+        @cairoon.PdfOutlineItalic,
+      ]),
     )
   } else {
     resize_stream_lifecycle_surface(kind, surface, 96.0, 150.0)
@@ -174,7 +201,7 @@ fn render_stream_lifecycle_scene(
   ctx.rectangle(20.0, 100.0, 52.0, 20.0)
   ctx.fill()
   ctx.set_source_rgb(0.0, 0.0, 0.0)
-  ctx.tag_begin(TAG_DEST, "name='life-dest-a' x=18 y=82")
+  ctx.tag_begin(@cairoon.TAG_DEST, "name='life-dest-a' x=18 y=82")
   ctx.tag_begin("Document", "")
   ctx.tag_begin("Sect", "")
   ctx.tag_begin("Art", "")
@@ -187,17 +214,17 @@ fn render_stream_lifecycle_scene(
   ctx.tag_end("Art")
   ctx.tag_end("Sect")
   ctx.tag_end("Document")
-  ctx.tag_end(TAG_DEST)
+  ctx.tag_end(@cairoon.TAG_DEST)
   surface.show_page()
 
   if kind == 0 {
     surface.pdf_set_size(120.0, 120.0)
     surface.pdf_set_page_label("life-fresh")
     fresh_id = surface.pdf_add_outline_with_flags(
-      PDF_OUTLINE_ROOT,
+      @cairoon.PDF_OUTLINE_ROOT,
       "life fresh root",
       "page=4 pos=[12 38]",
-      PDFOutlineFlagSet::of(PdfOutlineBold),
+      @cairoon.PDFOutlineFlagSet::of(@cairoon.PdfOutlineBold),
     )
   } else {
     resize_stream_lifecycle_surface(kind, surface, 120.0, 120.0)
@@ -237,7 +264,10 @@ fn render_stream_lifecycle_scene(
       fresh_id,
       "life final child",
       "page=5 pos=[10 44]",
-      PDFOutlineFlagSet::combine([PdfOutlineOpen, PdfOutlineBold]),
+      @cairoon.PDFOutlineFlagSet::combine([
+        @cairoon.PdfOutlineOpen,
+        @cairoon.PdfOutlineBold,
+      ]),
     )
   } else {
     resize_stream_lifecycle_surface(kind, surface, 80.0, 140.0)
@@ -251,14 +281,14 @@ fn render_stream_lifecycle_scene(
   ctx.tag_begin("Table", "")
   ctx.tag_begin("TR", "")
   ctx.tag_begin("TD", "")
-  ctx.tag_begin(TAG_LINK, "uri='https://example.com/lifecycle/final'")
+  ctx.tag_begin(@cairoon.TAG_LINK, "uri='https://example.com/lifecycle/final'")
   ctx.move_to(10.0, 44.0)
   ctx.show_text("final table cell")
-  ctx.tag_end(TAG_LINK)
-  ctx.tag_begin(TAG_DEST, "name='life-dest-final' x=10 y=66")
+  ctx.tag_end(@cairoon.TAG_LINK)
+  ctx.tag_begin(@cairoon.TAG_DEST, "name='life-dest-final' x=10 y=66")
   ctx.move_to(10.0, 66.0)
   ctx.show_text("final destination")
-  ctx.tag_end(TAG_DEST)
+  ctx.tag_end(@cairoon.TAG_DEST)
   ctx.tag_end("TD")
   ctx.tag_end("TR")
   ctx.tag_end("Table")
@@ -299,7 +329,7 @@ test "backend lifecycle matrix file output matches direct cairo C oracle" {
     let oracle_path = "/tmp/cairoon_stream_lifecycle_direct_oracle_\{kind}.\{ext}"
     let surface = make_stream_lifecycle_file_surface(kind, path)
     render_stream_lifecycle_scene(kind, surface)
-    check_status(
+    @cairoon.check_status(
       test_render_vector_scene_oracle_ffi(
         kind,
         40,

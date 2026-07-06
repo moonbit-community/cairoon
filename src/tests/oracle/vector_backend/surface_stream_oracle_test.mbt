@@ -2,30 +2,39 @@
 fn make_vector_oracle_stream_surface(
   kind : Int,
   chunks : Array[Bytes],
-) -> Surface raise CairoError {
+) -> @cairoon.Surface raise @cairoon.CairoError {
   match kind {
     0 => {
-      let surface = Surface::pdf_stream(10.0, 10.0, fn(chunk) {
+      let surface = @cairoon.Surface::pdf_stream(10.0, 10.0, fn(chunk) {
         chunks.push(chunk)
-        Success
+        @cairoon.Success
       })
-      surface.pdf_restrict_to_version(PdfVersion1_4)
-      surface.pdf_set_metadata(PdfMetadataCreator, "cairoon-vector-oracle")
-      surface.pdf_set_metadata(PdfMetadataCreateDate, fixed_pdf_metadata_date())
-      surface.pdf_set_metadata(PdfMetadataModDate, fixed_pdf_metadata_date())
+      surface.pdf_restrict_to_version(@cairoon.PdfVersion1_4)
+      surface.pdf_set_metadata(
+        @cairoon.PdfMetadataCreator,
+        "cairoon-vector-oracle",
+      )
+      surface.pdf_set_metadata(
+        @cairoon.PdfMetadataCreateDate,
+        fixed_pdf_metadata_date(),
+      )
+      surface.pdf_set_metadata(
+        @cairoon.PdfMetadataModDate,
+        fixed_pdf_metadata_date(),
+      )
       surface
     }
     1 =>
-      Surface::ps_stream(10.0, 10.0, fn(chunk) {
+      @cairoon.Surface::ps_stream(10.0, 10.0, fn(chunk) {
         chunks.push(chunk)
-        Success
+        @cairoon.Success
       })
     2 =>
-      Surface::svg_stream(10.0, 10.0, fn(chunk) {
+      @cairoon.Surface::svg_stream(10.0, 10.0, fn(chunk) {
         chunks.push(chunk)
-        Success
+        @cairoon.Success
       })
-    _ => raise CairoInvalidArgument(InvalidStatus, InvalidStatus.message())
+    _ => vector_backend_invalid_surface()
   }
 }
 
@@ -34,7 +43,7 @@ fn render_vector_oracle_stream_scene(
   scene : Int,
   kind : Int,
   chunks : Array[Bytes],
-) -> Unit raise CairoError {
+) -> Unit raise @cairoon.CairoError {
   let surface = make_vector_oracle_stream_surface(kind, chunks)
   render_stream_glyph_vector_scene(surface, scene)
 }
@@ -44,7 +53,7 @@ fn render_backend_oracle_stream_scene(
   scene : Int,
   kind : Int,
   chunks : Array[Bytes],
-) -> Unit raise CairoError {
+) -> Unit raise @cairoon.CairoError {
   match scene {
     35 => {
       let surface = make_stream_combo_stream_surface(kind, chunks)
@@ -70,7 +79,7 @@ fn render_backend_oracle_stream_scene(
       let surface = make_stream_lifecycle_stream_surface(kind, chunks)
       render_stream_lifecycle_scene(kind, surface)
     }
-    _ => raise CairoInvalidArgument(InvalidStatus, InvalidStatus.message())
+    _ => @cairoon.check_status(@cairoon.InvalidStatus)
   }
 }
 
@@ -85,7 +94,7 @@ test "tag-heavy vector streams match direct cairo C oracle after normalization" 
         inspect(chunks.length() > 0, content="true")
 
         let oracle_path = "/tmp/cairoon_stream_tag_oracle_\{kind}_\{scene}.\{ext}"
-        check_status(
+        @cairoon.check_status(
           test_render_vector_scene_oracle_ffi(
             kind,
             scene,
@@ -115,7 +124,7 @@ test "backend feature streams match direct cairo C oracle after normalization" {
       inspect(chunks.length() > 0, content="true")
 
       let oracle_path = "/tmp/cairoon_stream_direct_oracle_\{kind}_\{scene}.\{ext}"
-      check_status(
+      @cairoon.check_status(
         test_render_vector_scene_oracle_ffi(
           kind,
           scene,

@@ -109,7 +109,7 @@ fn expect_vector_oracle_match(
   cairoon_path : String,
   oracle_path : String,
 ) -> Unit raise {
-  check_status(
+  @cairoon.check_status(
     test_render_vector_scene_oracle_ffi(
       kind,
       scene,
@@ -127,19 +127,31 @@ fn expect_vector_oracle_match(
 }
 
 ///|
-fn vector_oracle_surface(kind : Int, path : String) -> Surface raise CairoError {
+fn vector_oracle_surface(
+  kind : Int,
+  path : String,
+) -> @cairoon.Surface raise @cairoon.CairoError {
   match kind {
     0 => {
-      let surface = Surface::pdf(10.0, 10.0, path=Some(path))
-      surface.pdf_restrict_to_version(PdfVersion1_4)
-      surface.pdf_set_metadata(PdfMetadataCreator, "cairoon-vector-oracle")
-      surface.pdf_set_metadata(PdfMetadataCreateDate, fixed_pdf_metadata_date())
-      surface.pdf_set_metadata(PdfMetadataModDate, fixed_pdf_metadata_date())
+      let surface = @cairoon.Surface::pdf(10.0, 10.0, path=Some(path))
+      surface.pdf_restrict_to_version(@cairoon.PdfVersion1_4)
+      surface.pdf_set_metadata(
+        @cairoon.PdfMetadataCreator,
+        "cairoon-vector-oracle",
+      )
+      surface.pdf_set_metadata(
+        @cairoon.PdfMetadataCreateDate,
+        fixed_pdf_metadata_date(),
+      )
+      surface.pdf_set_metadata(
+        @cairoon.PdfMetadataModDate,
+        fixed_pdf_metadata_date(),
+      )
       surface
     }
-    1 => Surface::ps(10.0, 10.0, path=Some(path))
-    2 => Surface::svg(10.0, 10.0, path=Some(path))
-    _ => raise CairoInvalidArgument(InvalidStatus, InvalidStatus.message())
+    1 => @cairoon.Surface::ps(10.0, 10.0, path=Some(path))
+    2 => @cairoon.Surface::svg(10.0, 10.0, path=Some(path))
+    _ => vector_backend_invalid_surface()
   }
 }
 
@@ -147,42 +159,56 @@ fn vector_oracle_surface(kind : Int, path : String) -> Surface raise CairoError 
 fn render_pdf_jpeg_mime_scene(
   path : String,
   jpeg : Bytes,
-) -> Unit raise CairoError {
-  let surface = Surface::pdf(3.0, 3.0, path=Some(path))
+) -> Unit raise @cairoon.CairoError {
+  let surface = @cairoon.Surface::pdf(3.0, 3.0, path=Some(path))
   render_pdf_jpeg_mime_surface(surface, jpeg)
 }
 
 ///|
 fn render_pdf_jpeg_mime_surface(
-  surface : Surface,
+  surface : @cairoon.Surface,
   jpeg : Bytes,
-) -> Unit raise CairoError {
-  surface.pdf_restrict_to_version(PdfVersion1_4)
-  surface.pdf_set_metadata(PdfMetadataCreator, "cairoon-vector-oracle")
-  surface.pdf_set_metadata(PdfMetadataCreateDate, fixed_pdf_metadata_date())
-  surface.pdf_set_metadata(PdfMetadataModDate, fixed_pdf_metadata_date())
-  let ctx = Context::new(surface)
-  let image = Surface::image(Rgb24, 1, 1)
-  image.set_mime_data(MIME_TYPE_JPEG, Some(jpeg))
+) -> Unit raise @cairoon.CairoError {
+  surface.pdf_restrict_to_version(@cairoon.PdfVersion1_4)
+  surface.pdf_set_metadata(@cairoon.PdfMetadataCreator, "cairoon-vector-oracle")
+  surface.pdf_set_metadata(
+    @cairoon.PdfMetadataCreateDate,
+    fixed_pdf_metadata_date(),
+  )
+  surface.pdf_set_metadata(
+    @cairoon.PdfMetadataModDate,
+    fixed_pdf_metadata_date(),
+  )
+  let ctx = @cairoon.Context::new(surface)
+  let image = @cairoon.Surface::image(@cairoon.Rgb24, 1, 1)
+  image.set_mime_data(@cairoon.MIME_TYPE_JPEG, Some(jpeg))
   ctx.set_source_surface(image)
   ctx.paint()
   surface.finish()
 }
 
 ///|
-fn render_pdf_thumbnail_scene(path : String) -> Unit raise CairoError {
-  let surface = Surface::pdf(20.0, 20.0, path=Some(path))
+fn render_pdf_thumbnail_scene(path : String) -> Unit raise @cairoon.CairoError {
+  let surface = @cairoon.Surface::pdf(20.0, 20.0, path=Some(path))
   render_pdf_thumbnail_surface(surface)
 }
 
 ///|
-fn render_pdf_thumbnail_surface(surface : Surface) -> Unit raise CairoError {
-  surface.pdf_restrict_to_version(PdfVersion1_4)
-  surface.pdf_set_metadata(PdfMetadataCreator, "cairoon-vector-oracle")
-  surface.pdf_set_metadata(PdfMetadataCreateDate, fixed_pdf_metadata_date())
-  surface.pdf_set_metadata(PdfMetadataModDate, fixed_pdf_metadata_date())
+fn render_pdf_thumbnail_surface(
+  surface : @cairoon.Surface,
+) -> Unit raise @cairoon.CairoError {
+  surface.pdf_restrict_to_version(@cairoon.PdfVersion1_4)
+  surface.pdf_set_metadata(@cairoon.PdfMetadataCreator, "cairoon-vector-oracle")
+  surface.pdf_set_metadata(
+    @cairoon.PdfMetadataCreateDate,
+    fixed_pdf_metadata_date(),
+  )
+  surface.pdf_set_metadata(
+    @cairoon.PdfMetadataModDate,
+    fixed_pdf_metadata_date(),
+  )
   surface.pdf_set_thumbnail_size(4, 4)
-  let ctx = Context::new(surface)
+  let ctx = @cairoon.Context::new(surface)
   ctx.set_source_rgb(0.0, 0.0, 1.0)
   ctx.paint()
   surface.finish()

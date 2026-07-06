@@ -2,12 +2,12 @@
 fn make_stream_page_combo_file_surface(
   kind : Int,
   path : String,
-) -> Surface raise CairoError {
+) -> @cairoon.Surface raise @cairoon.CairoError {
   let surface = match kind {
-    0 => Surface::pdf(100.0, 100.0, path=Some(path))
-    1 => Surface::ps(100.0, 100.0, path=Some(path))
-    2 => Surface::svg(100.0, 100.0, path=Some(path))
-    _ => raise CairoInvalidArgument(InvalidStatus, InvalidStatus.message())
+    0 => @cairoon.Surface::pdf(100.0, 100.0, path=Some(path))
+    1 => @cairoon.Surface::ps(100.0, 100.0, path=Some(path))
+    2 => @cairoon.Surface::svg(100.0, 100.0, path=Some(path))
+    _ => vector_backend_invalid_surface()
   }
   configure_stream_page_combo_backend(kind, surface)
   surface
@@ -17,24 +17,24 @@ fn make_stream_page_combo_file_surface(
 fn make_stream_page_combo_stream_surface(
   kind : Int,
   chunks : Array[Bytes],
-) -> Surface raise CairoError {
+) -> @cairoon.Surface raise @cairoon.CairoError {
   let surface = match kind {
     0 =>
-      Surface::pdf_stream(100.0, 100.0, fn(chunk) {
+      @cairoon.Surface::pdf_stream(100.0, 100.0, fn(chunk) {
         chunks.push(chunk)
-        Success
+        @cairoon.Success
       })
     1 =>
-      Surface::ps_stream(100.0, 100.0, fn(chunk) {
+      @cairoon.Surface::ps_stream(100.0, 100.0, fn(chunk) {
         chunks.push(chunk)
-        Success
+        @cairoon.Success
       })
     2 =>
-      Surface::svg_stream(100.0, 100.0, fn(chunk) {
+      @cairoon.Surface::svg_stream(100.0, 100.0, fn(chunk) {
         chunks.push(chunk)
-        Success
+        @cairoon.Success
       })
-    _ => raise CairoInvalidArgument(InvalidStatus, InvalidStatus.message())
+    _ => vector_backend_invalid_surface()
   }
   configure_stream_page_combo_backend(kind, surface)
   surface
@@ -43,26 +43,41 @@ fn make_stream_page_combo_stream_surface(
 ///|
 fn configure_stream_page_combo_backend(
   kind : Int,
-  surface : Surface,
-) -> Unit raise CairoError {
+  surface : @cairoon.Surface,
+) -> Unit raise @cairoon.CairoError {
   match kind {
     0 => {
-      surface.pdf_restrict_to_version(PdfVersion1_4)
-      surface.pdf_set_metadata(PdfMetadataTitle, "Cairoon Surface Page Combo")
-      surface.pdf_set_metadata(PdfMetadataCreator, "cairoon surface page combo")
-      surface.pdf_set_metadata(PdfMetadataCreateDate, fixed_pdf_metadata_date())
-      surface.pdf_set_metadata(PdfMetadataModDate, fixed_pdf_metadata_date())
+      surface.pdf_restrict_to_version(@cairoon.PdfVersion1_4)
+      surface.pdf_set_metadata(
+        @cairoon.PdfMetadataTitle,
+        "Cairoon Surface Page Combo",
+      )
+      surface.pdf_set_metadata(
+        @cairoon.PdfMetadataCreator,
+        "cairoon surface page combo",
+      )
+      surface.pdf_set_metadata(
+        @cairoon.PdfMetadataCreateDate,
+        fixed_pdf_metadata_date(),
+      )
+      surface.pdf_set_metadata(
+        @cairoon.PdfMetadataModDate,
+        fixed_pdf_metadata_date(),
+      )
       surface.pdf_set_custom_metadata("Combo", Some("surface-page-tags"))
       surface.pdf_set_page_label("page-copy-cover")
       let _ = surface.pdf_add_outline_with_flags(
-        PDF_OUTLINE_ROOT,
+        @cairoon.PDF_OUTLINE_ROOT,
         "page copy cover",
         "page=1 pos=[10 20]",
-        PDFOutlineFlagSet::combine([PdfOutlineOpen, PdfOutlineBold]),
+        @cairoon.PDFOutlineFlagSet::combine([
+          @cairoon.PdfOutlineOpen,
+          @cairoon.PdfOutlineBold,
+        ]),
       )
     }
     1 => {
-      surface.ps_restrict_to_level(PsLevel3)
+      surface.ps_restrict_to_level(@cairoon.PsLevel3)
       surface.ps_set_eps(false)
       surface.ps_dsc_begin_setup()
       surface.ps_dsc_comment("%%Title: Cairoon Surface Page Combo")
@@ -71,61 +86,64 @@ fn configure_stream_page_combo_backend(
       surface.ps_dsc_comment("%%IncludeFeature: *PageSize Legal")
     }
     2 => {
-      surface.svg_restrict_to_version(SvgVersion1_2)
-      surface.svg_set_document_unit(SvgUnitPx)
+      surface.svg_restrict_to_version(@cairoon.SvgVersion1_2)
+      surface.svg_set_document_unit(@cairoon.SvgUnitPx)
     }
-    _ => raise CairoInvalidArgument(InvalidStatus, InvalidStatus.message())
+    _ => @cairoon.check_status(@cairoon.InvalidStatus)
   }
 }
 
 ///|
 fn render_stream_page_combo_scene(
   kind : Int,
-  surface : Surface,
-) -> Unit raise CairoError {
-  let ctx = Context::new(surface)
+  surface : @cairoon.Surface,
+) -> Unit raise @cairoon.CairoError {
+  let ctx = @cairoon.Context::new(surface)
   ctx.select_font_face("serif")
   ctx.set_font_size(12.0)
 
   ctx.set_source_rgb(0.9, 0.93, 1.0)
   ctx.paint()
   ctx.set_source_rgb(0.0, 0.0, 0.0)
-  ctx.tag_begin(TAG_LINK, "uri='https://example.com/page-combo'")
+  ctx.tag_begin(@cairoon.TAG_LINK, "uri='https://example.com/page-combo'")
   ctx.move_to(10.0, 20.0)
   ctx.show_text("surface page combo")
-  ctx.tag_end(TAG_LINK)
+  ctx.tag_end(@cairoon.TAG_LINK)
   surface.copy_page()
 
   if kind == 0 {
     surface.pdf_set_page_label("page-copy-retained")
     let _ = surface.pdf_add_outline_with_flags(
-      PDF_OUTLINE_ROOT,
+      @cairoon.PDF_OUTLINE_ROOT,
       "page copy retained",
       "page=2 pos=[10 44]",
-      PDFOutlineFlagSet::of(PdfOutlineItalic),
+      @cairoon.PDFOutlineFlagSet::of(@cairoon.PdfOutlineItalic),
     )
   }
   ctx.set_source_rgba(0.85, 0.1, 0.1, 0.72)
-  ctx.tag_begin(TAG_LINK, "dest='page-combo-dest'")
+  ctx.tag_begin(@cairoon.TAG_LINK, "dest='page-combo-dest'")
   ctx.rectangle(10.0, 36.0, 44.0, 20.0)
   ctx.fill()
-  ctx.tag_end(TAG_LINK)
+  ctx.tag_end(@cairoon.TAG_LINK)
   surface.show_page()
 
   if kind == 0 {
     surface.pdf_set_page_label("page-copy-final")
     let _ = surface.pdf_add_outline_with_flags(
-      PDF_OUTLINE_ROOT,
+      @cairoon.PDF_OUTLINE_ROOT,
       "page copy final",
       "page=3 pos=[10 62]",
-      PDFOutlineFlagSet::combine([PdfOutlineOpen, PdfOutlineItalic]),
+      @cairoon.PDFOutlineFlagSet::combine([
+        @cairoon.PdfOutlineOpen,
+        @cairoon.PdfOutlineItalic,
+      ]),
     )
   }
   ctx.set_source_rgb(0.1, 0.1, 0.1)
-  ctx.tag_begin(TAG_DEST, "name='page-combo-dest' x=10 y=62")
+  ctx.tag_begin(@cairoon.TAG_DEST, "name='page-combo-dest' x=10 y=62")
   ctx.move_to(10.0, 62.0)
   ctx.show_text("destination")
-  ctx.tag_end(TAG_DEST)
+  ctx.tag_end(@cairoon.TAG_DEST)
   ctx.tag_begin("Document", "")
   ctx.tag_begin("Sect", "")
   ctx.tag_begin("P", "")
@@ -171,7 +189,7 @@ test "backend surface page combo file output matches direct cairo C oracle" {
     let oracle_path = "/tmp/cairoon_stream_page_combo_direct_oracle_\{kind}.\{ext}"
     let surface = make_stream_page_combo_file_surface(kind, path)
     render_stream_page_combo_scene(kind, surface)
-    check_status(
+    @cairoon.check_status(
       test_render_vector_scene_oracle_ffi(
         kind,
         36,

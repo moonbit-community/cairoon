@@ -178,7 +178,7 @@ test "surface copy_page retained vector scene matches direct cairo C oracle" {
     let cairoon_path = "/tmp/cairoon_vector_surface_copy_page_\{kind}.\{ext}"
     let oracle_path = "/tmp/cairoon_vector_surface_copy_page_\{kind}_oracle.\{ext}"
     render_surface_page_retained_scene(kind, cairoon_path)
-    check_status(
+    @cairoon.check_status(
       test_render_surface_page_oracle_ffi(kind, checked_path_bytes(oracle_path)),
     )
     inspect(
@@ -199,7 +199,7 @@ test "surface show_page cleared vector scene matches direct cairo C oracle" {
     let cairoon_path = "/tmp/cairoon_vector_surface_show_page_\{kind}.\{ext}"
     let oracle_path = "/tmp/cairoon_vector_surface_show_page_\{kind}_oracle.\{ext}"
     render_surface_show_page_cleared_scene(kind, cairoon_path)
-    check_status(
+    @cairoon.check_status(
       test_render_surface_show_page_oracle_ffi(
         kind,
         checked_path_bytes(oracle_path),
@@ -346,7 +346,7 @@ test "pdf page operation document feature scene matches direct cairo C oracle" {
   let (intro_id, details_id) = render_pdf_page_operation_document_feature_scene(
     cairoon_path,
   )
-  inspect(intro_id > PDF_OUTLINE_ROOT, content="true")
+  inspect(intro_id > @cairoon.PDF_OUTLINE_ROOT, content="true")
   inspect(details_id > intro_id, content="true")
   expect_vector_oracle_match(0, 34, cairoon_path, oracle_path)
 }
@@ -357,7 +357,7 @@ test "pdf jpeg mime output matches direct cairo C oracle" {
   let oracle_path = "/tmp/cairoon_vector_pdf_jpeg_mime_direct_oracle.pdf"
   let jpeg = tiny_jpeg_payload()
   render_pdf_jpeg_mime_scene(cairoon_path, jpeg)
-  check_status(
+  @cairoon.check_status(
     test_render_pdf_jpeg_mime_oracle_ffi(checked_path_bytes(oracle_path), jpeg),
   )
   inspect(
@@ -375,7 +375,7 @@ test "pdf thumbnail output matches direct cairo C oracle" {
   let cairoon_path = "/tmp/cairoon_vector_pdf_thumbnail_oracle.pdf"
   let oracle_path = "/tmp/cairoon_vector_pdf_thumbnail_direct_oracle.pdf"
   render_pdf_thumbnail_scene(cairoon_path)
-  check_status(
+  @cairoon.check_status(
     test_render_pdf_thumbnail_oracle_ffi(checked_path_bytes(oracle_path)),
   )
   inspect(
@@ -392,11 +392,11 @@ test "pdf thumbnail output matches direct cairo C oracle" {
 test "svg link tags are inert for svg output" {
   let plain_path = "/tmp/cairoon_vector_svg_plain_tag_scene.svg"
   let tagged_path = "/tmp/cairoon_vector_svg_tag_scene.svg"
-  let plain = Surface::svg(10.0, 10.0, path=Some(plain_path))
-  fill_link_rect(Context::new(plain), false)
+  let plain = @cairoon.Surface::svg(10.0, 10.0, path=Some(plain_path))
+  fill_link_rect(@cairoon.Context::new(plain), false)
   plain.finish()
-  let tagged = Surface::svg(10.0, 10.0, path=Some(tagged_path))
-  fill_link_rect(Context::new(tagged), true)
+  let tagged = @cairoon.Surface::svg(10.0, 10.0, path=Some(tagged_path))
+  fill_link_rect(@cairoon.Context::new(tagged), true)
   tagged.finish()
   expect_vector_outputs_equal(2, tagged_path, plain_path)
   expect_vector_output_absent(tagged_path, [

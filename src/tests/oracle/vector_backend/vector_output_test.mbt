@@ -2,12 +2,18 @@
 test "pdf output contains stable structural markers" {
   let path = "/tmp/cairoon_vector_output.pdf"
   let oracle_path = "/tmp/cairoon_vector_output_oracle.pdf"
-  let surface = Surface::pdf(10.0, 10.0, path=Some(path))
-  surface.pdf_restrict_to_version(PdfVersion1_4)
-  surface.pdf_set_metadata(PdfMetadataCreator, "cairoon-vector-oracle")
-  surface.pdf_set_metadata(PdfMetadataCreateDate, fixed_pdf_metadata_date())
-  surface.pdf_set_metadata(PdfMetadataModDate, fixed_pdf_metadata_date())
-  let ctx = Context::new(surface)
+  let surface = @cairoon.Surface::pdf(10.0, 10.0, path=Some(path))
+  surface.pdf_restrict_to_version(@cairoon.PdfVersion1_4)
+  surface.pdf_set_metadata(@cairoon.PdfMetadataCreator, "cairoon-vector-oracle")
+  surface.pdf_set_metadata(
+    @cairoon.PdfMetadataCreateDate,
+    fixed_pdf_metadata_date(),
+  )
+  surface.pdf_set_metadata(
+    @cairoon.PdfMetadataModDate,
+    fixed_pdf_metadata_date(),
+  )
+  let ctx = @cairoon.Context::new(surface)
   ctx.set_source_rgb(0.0, 0.0, 1.0)
   ctx.paint()
   surface.finish()
@@ -18,17 +24,23 @@ test "pdf output contains stable structural markers" {
 ///|
 test "pdf output contains metadata and custom metadata markers" {
   let path = "/tmp/cairoon_vector_pdf_metadata.pdf"
-  let surface = Surface::pdf(10.0, 10.0, path=Some(path))
-  surface.pdf_restrict_to_version(PdfVersion1_4)
-  surface.pdf_set_metadata(PdfMetadataTitle, "Cairoon Title")
-  surface.pdf_set_metadata(PdfMetadataAuthor, "Cairoon Author")
-  surface.pdf_set_metadata(PdfMetadataSubject, "Cairoon Subject")
-  surface.pdf_set_metadata(PdfMetadataKeywords, "moonbit cairo ffi")
-  surface.pdf_set_metadata(PdfMetadataCreator, "cairoon metadata test")
-  surface.pdf_set_metadata(PdfMetadataCreateDate, fixed_pdf_metadata_date())
-  surface.pdf_set_metadata(PdfMetadataModDate, fixed_pdf_metadata_date())
+  let surface = @cairoon.Surface::pdf(10.0, 10.0, path=Some(path))
+  surface.pdf_restrict_to_version(@cairoon.PdfVersion1_4)
+  surface.pdf_set_metadata(@cairoon.PdfMetadataTitle, "Cairoon Title")
+  surface.pdf_set_metadata(@cairoon.PdfMetadataAuthor, "Cairoon Author")
+  surface.pdf_set_metadata(@cairoon.PdfMetadataSubject, "Cairoon Subject")
+  surface.pdf_set_metadata(@cairoon.PdfMetadataKeywords, "moonbit cairo ffi")
+  surface.pdf_set_metadata(@cairoon.PdfMetadataCreator, "cairoon metadata test")
+  surface.pdf_set_metadata(
+    @cairoon.PdfMetadataCreateDate,
+    fixed_pdf_metadata_date(),
+  )
+  surface.pdf_set_metadata(
+    @cairoon.PdfMetadataModDate,
+    fixed_pdf_metadata_date(),
+  )
   surface.pdf_set_custom_metadata("ISBN", Some("978-0123456789"))
-  let ctx = Context::new(surface)
+  let ctx = @cairoon.Context::new(surface)
   ctx.set_source_rgb(0.0, 0.0, 1.0)
   ctx.paint()
   surface.finish()
@@ -42,17 +54,19 @@ test "pdf output contains metadata and custom metadata markers" {
 ///|
 test "pdf output contains page label and outline markers" {
   let path = "/tmp/cairoon_vector_pdf_outline.pdf"
-  let surface = Surface::pdf(20.0, 20.0, path=Some(path))
-  surface.pdf_restrict_to_version(PdfVersion1_4)
+  let surface = @cairoon.Surface::pdf(20.0, 20.0, path=Some(path))
+  surface.pdf_restrict_to_version(@cairoon.PdfVersion1_4)
   surface.pdf_set_page_label("intro")
   let outline_id = surface.pdf_add_outline_with_flags(
-    PDF_OUTLINE_ROOT,
+    @cairoon.PDF_OUTLINE_ROOT,
     "chapter one",
     "page=1 pos=[3 4]",
-    PDFOutlineFlagSet::combine([PdfOutlineOpen, PdfOutlineBold][:]),
+    @cairoon.PDFOutlineFlagSet::combine(
+      [@cairoon.PdfOutlineOpen, @cairoon.PdfOutlineBold][:],
+    ),
   )
-  inspect(outline_id > PDF_OUTLINE_ROOT, content="true")
-  let ctx = Context::new(surface)
+  inspect(outline_id > @cairoon.PDF_OUTLINE_ROOT, content="true")
+  let ctx = @cairoon.Context::new(surface)
   ctx.set_source_rgb(0.0, 0.0, 1.0)
   ctx.paint()
   surface.finish()
@@ -74,12 +88,21 @@ test "pdf output contains page thumbnail markers" {
 ///|
 test "pdf output contains multi-page markers" {
   let path = "/tmp/cairoon_vector_pdf_multipage.pdf"
-  let surface = Surface::pdf(12.0, 12.0, path=Some(path))
-  surface.pdf_restrict_to_version(PdfVersion1_4)
-  surface.pdf_set_metadata(PdfMetadataCreator, "cairoon multipage test")
-  surface.pdf_set_metadata(PdfMetadataCreateDate, fixed_pdf_metadata_date())
-  surface.pdf_set_metadata(PdfMetadataModDate, fixed_pdf_metadata_date())
-  let ctx = Context::new(surface)
+  let surface = @cairoon.Surface::pdf(12.0, 12.0, path=Some(path))
+  surface.pdf_restrict_to_version(@cairoon.PdfVersion1_4)
+  surface.pdf_set_metadata(
+    @cairoon.PdfMetadataCreator,
+    "cairoon multipage test",
+  )
+  surface.pdf_set_metadata(
+    @cairoon.PdfMetadataCreateDate,
+    fixed_pdf_metadata_date(),
+  )
+  surface.pdf_set_metadata(
+    @cairoon.PdfMetadataModDate,
+    fixed_pdf_metadata_date(),
+  )
+  let ctx = @cairoon.Context::new(surface)
   paint_page(ctx, 0.0, 0.0, 1.0)
   ctx.show_page()
   paint_page(ctx, 1.0, 0.0, 0.0)
@@ -122,7 +145,7 @@ test "pdf output preserves metadata outlines labels and tags across pages" {
   let path = "/tmp/cairoon_vector_pdf_combined_document.pdf"
   let oracle_path = "/tmp/cairoon_vector_pdf_combined_document_oracle.pdf"
   let (intro_id, details_id) = render_pdf_text_document_feature_scene(path)
-  inspect(intro_id > PDF_OUTLINE_ROOT, content="true")
+  inspect(intro_id > @cairoon.PDF_OUTLINE_ROOT, content="true")
   inspect(details_id > intro_id, content="true")
   expect_vector_output(path, [
     "%PDF-1.4", "/Title (Cairoon Combined)", "/Creator (cairoon combined test)",
@@ -157,7 +180,7 @@ test "pdf page operation document feature output contains retained markers" {
   let (intro_id, details_id) = render_pdf_page_operation_document_feature_scene(
     path,
   )
-  inspect(intro_id > PDF_OUTLINE_ROOT, content="true")
+  inspect(intro_id > @cairoon.PDF_OUTLINE_ROOT, content="true")
   inspect(details_id > intro_id, content="true")
   expect_vector_output(path, [
     "%PDF-1.4", "/Title (Cairoon Page Ops)", "/Creator (cairoon page ops test)",
@@ -173,15 +196,15 @@ test "pdf page operation document feature output contains retained markers" {
 ///|
 test "pdf link tag output contains annotation markers" {
   let path = "/tmp/cairoon_vector_tag_output.pdf"
-  let surface = Surface::pdf(100.0, 100.0, path=Some(path))
-  surface.pdf_restrict_to_version(PdfVersion1_4)
-  let ctx = Context::new(surface)
+  let surface = @cairoon.Surface::pdf(100.0, 100.0, path=Some(path))
+  surface.pdf_restrict_to_version(@cairoon.PdfVersion1_4)
+  let ctx = @cairoon.Context::new(surface)
   ctx.select_font_face("serif")
   ctx.set_font_size(12.0)
-  ctx.tag_begin(TAG_LINK, "uri='https://example.com/'")
+  ctx.tag_begin(@cairoon.TAG_LINK, "uri='https://example.com/'")
   ctx.move_to(10.0, 20.0)
   ctx.show_text("example link")
-  ctx.tag_end(TAG_LINK)
+  ctx.tag_end(@cairoon.TAG_LINK)
   surface.finish()
   expect_vector_output(path, [
     "%PDF-1.4", "/Annots [", "/Subtype /Link", "/S /URI", "/URI (https://example.com/)",
@@ -192,19 +215,19 @@ test "pdf link tag output contains annotation markers" {
 ///|
 test "pdf destination tag output contains named destination markers" {
   let path = "/tmp/cairoon_vector_dest_tag_output.pdf"
-  let surface = Surface::pdf(100.0, 100.0, path=Some(path))
-  surface.pdf_restrict_to_version(PdfVersion1_4)
-  let ctx = Context::new(surface)
+  let surface = @cairoon.Surface::pdf(100.0, 100.0, path=Some(path))
+  surface.pdf_restrict_to_version(@cairoon.PdfVersion1_4)
+  let ctx = @cairoon.Context::new(surface)
   ctx.select_font_face("serif")
   ctx.set_font_size(12.0)
-  ctx.tag_begin(TAG_LINK, "dest='cairoon-dest'")
+  ctx.tag_begin(@cairoon.TAG_LINK, "dest='cairoon-dest'")
   ctx.move_to(10.0, 20.0)
   ctx.show_text("jump to destination")
-  ctx.tag_end(TAG_LINK)
-  ctx.tag_begin(TAG_DEST, "name='cairoon-dest' x=10 y=60")
+  ctx.tag_end(@cairoon.TAG_LINK)
+  ctx.tag_begin(@cairoon.TAG_DEST, "name='cairoon-dest' x=10 y=60")
   ctx.move_to(10.0, 60.0)
   ctx.show_text("destination")
-  ctx.tag_end(TAG_DEST)
+  ctx.tag_end(@cairoon.TAG_DEST)
   surface.finish()
   expect_vector_output(path, [
     "%PDF-1.4", "/Annots [", "/Subtype /Link", "/Dest", "/Names", "/Dests", "(cairoon-dest)",
@@ -215,9 +238,9 @@ test "pdf destination tag output contains named destination markers" {
 ///|
 test "pdf document structure tags output structure tree markers" {
   let path = "/tmp/cairoon_vector_structure_tag_output.pdf"
-  let surface = Surface::pdf(100.0, 100.0, path=Some(path))
-  surface.pdf_restrict_to_version(PdfVersion1_4)
-  let ctx = Context::new(surface)
+  let surface = @cairoon.Surface::pdf(100.0, 100.0, path=Some(path))
+  surface.pdf_restrict_to_version(@cairoon.PdfVersion1_4)
+  let ctx = @cairoon.Context::new(surface)
   ctx.select_font_face("serif")
   ctx.set_font_size(12.0)
   ctx.tag_begin("Document", "")
@@ -351,8 +374,11 @@ test "ps svg mixed vector tag text output omits pdf tag metadata" {
 test "pdf output embeds jpeg mime data from image source" {
   let path = "/tmp/cairoon_vector_pdf_jpeg_mime.pdf"
   let jpeg = tiny_jpeg_payload()
-  let support_surface = Surface::pdf(3.0, 3.0)
-  inspect(support_surface.supports_mime_type(MIME_TYPE_JPEG), content="true")
+  let support_surface = @cairoon.Surface::pdf(3.0, 3.0)
+  inspect(
+    support_surface.supports_mime_type(@cairoon.MIME_TYPE_JPEG),
+    content="true",
+  )
   support_surface.finish()
   render_pdf_jpeg_mime_scene(path, jpeg)
   expect_vector_output_bytes(path, jpeg)
@@ -362,8 +388,8 @@ test "pdf output embeds jpeg mime data from image source" {
 test "ps output contains stable page and drawing markers" {
   let path = "/tmp/cairoon_vector_output.ps"
   let oracle_path = "/tmp/cairoon_vector_output_oracle.ps"
-  let surface = Surface::ps(10.0, 10.0, path=Some(path))
-  let ctx = Context::new(surface)
+  let surface = @cairoon.Surface::ps(10.0, 10.0, path=Some(path))
+  let ctx = @cairoon.Context::new(surface)
   ctx.set_source_rgb(0.0, 0.0, 1.0)
   ctx.paint()
   surface.finish()
@@ -376,8 +402,8 @@ test "ps output contains stable page and drawing markers" {
 ///|
 test "ps output contains multi-page markers" {
   let path = "/tmp/cairoon_vector_ps_multipage.ps"
-  let surface = Surface::ps(12.0, 12.0, path=Some(path))
-  let ctx = Context::new(surface)
+  let surface = @cairoon.Surface::ps(12.0, 12.0, path=Some(path))
+  let ctx = @cairoon.Context::new(surface)
   paint_page(ctx, 0.0, 0.0, 1.0)
   ctx.show_page()
   paint_page(ctx, 1.0, 0.0, 0.0)
@@ -393,7 +419,7 @@ test "ps output contains multi-page markers" {
 test "ps output preserves dsc comments across multiple pages" {
   let path = "/tmp/cairoon_vector_ps_dsc_multipage.ps"
   let oracle_path = "/tmp/cairoon_vector_ps_dsc_multipage_oracle.ps"
-  let surface = Surface::ps(12.0, 12.0, path=Some(path))
+  let surface = @cairoon.Surface::ps(12.0, 12.0, path=Some(path))
   render_ps_dsc_multipage_surface(surface)
   expect_vector_output(path, [
     "%!PS-Adobe-3.0", "%%LanguageLevel: 2", "%%Title: Cairoon PS Combined", "%%IncludeFeature: *MediaColor White",
@@ -407,11 +433,11 @@ test "ps output preserves dsc comments across multiple pages" {
 test "ps link tags are inert for postscript output" {
   let plain_path = "/tmp/cairoon_vector_ps_plain_tag_scene.ps"
   let tagged_path = "/tmp/cairoon_vector_ps_tag_scene.ps"
-  let plain = Surface::ps(10.0, 10.0, path=Some(plain_path))
-  fill_link_rect(Context::new(plain), false)
+  let plain = @cairoon.Surface::ps(10.0, 10.0, path=Some(plain_path))
+  fill_link_rect(@cairoon.Context::new(plain), false)
   plain.finish()
-  let tagged = Surface::ps(10.0, 10.0, path=Some(tagged_path))
-  fill_link_rect(Context::new(tagged), true)
+  let tagged = @cairoon.Surface::ps(10.0, 10.0, path=Some(tagged_path))
+  fill_link_rect(@cairoon.Context::new(tagged), true)
   tagged.finish()
   expect_vector_outputs_equal(1, tagged_path, plain_path)
   expect_vector_output_absent(tagged_path, [
@@ -423,8 +449,8 @@ test "ps link tags are inert for postscript output" {
 test "svg output contains stable geometry and color markers" {
   let path = "/tmp/cairoon_vector_output.svg"
   let oracle_path = "/tmp/cairoon_vector_output_oracle.svg"
-  let surface = Surface::svg(10.0, 10.0, path=Some(path))
-  let ctx = Context::new(surface)
+  let surface = @cairoon.Surface::svg(10.0, 10.0, path=Some(path))
+  let ctx = @cairoon.Context::new(surface)
   ctx.set_source_rgb(0.0, 0.0, 1.0)
   ctx.paint()
   surface.finish()
@@ -438,8 +464,8 @@ test "svg output contains stable geometry and color markers" {
 ///|
 test "svg output contains multi-page markers" {
   let path = "/tmp/cairoon_vector_svg_multipage.svg"
-  let surface = Surface::svg(12.0, 12.0, path=Some(path))
-  let ctx = Context::new(surface)
+  let surface = @cairoon.Surface::svg(12.0, 12.0, path=Some(path))
+  let ctx = @cairoon.Context::new(surface)
   paint_page(ctx, 0.0, 0.0, 1.0)
   ctx.show_page()
   paint_page(ctx, 1.0, 0.0, 0.0)
@@ -455,7 +481,7 @@ test "svg output contains multi-page markers" {
 test "svg output preserves version unit and page markers" {
   let path = "/tmp/cairoon_vector_svg_unit_multipage.svg"
   let oracle_path = "/tmp/cairoon_vector_svg_unit_multipage_oracle.svg"
-  let surface = Surface::svg(12.0, 12.0, path=Some(path))
+  let surface = @cairoon.Surface::svg(12.0, 12.0, path=Some(path))
   render_svg_unit_multipage_surface(surface)
   expect_vector_output(path, [
     "<?xml version=\"1.0\"", "<svg", "width=\"12px\" height=\"12px\"", "<pageSet>",

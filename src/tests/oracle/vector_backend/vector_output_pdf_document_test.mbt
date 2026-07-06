@@ -1,45 +1,51 @@
 ///|
 fn render_pdf_page_operation_document_feature_surface(
-  surface : Surface,
-) -> (Int, Int) raise CairoError {
-  surface.pdf_restrict_to_version(PdfVersion1_4)
-  surface.pdf_set_metadata(PdfMetadataTitle, "Cairoon Page Ops")
-  surface.pdf_set_metadata(PdfMetadataCreator, "cairoon page ops test")
-  surface.pdf_set_metadata(PdfMetadataCreateDate, fixed_pdf_metadata_date())
-  surface.pdf_set_metadata(PdfMetadataModDate, fixed_pdf_metadata_date())
+  surface : @cairoon.Surface,
+) -> (Int, Int) raise @cairoon.CairoError {
+  surface.pdf_restrict_to_version(@cairoon.PdfVersion1_4)
+  surface.pdf_set_metadata(@cairoon.PdfMetadataTitle, "Cairoon Page Ops")
+  surface.pdf_set_metadata(@cairoon.PdfMetadataCreator, "cairoon page ops test")
+  surface.pdf_set_metadata(
+    @cairoon.PdfMetadataCreateDate,
+    fixed_pdf_metadata_date(),
+  )
+  surface.pdf_set_metadata(
+    @cairoon.PdfMetadataModDate,
+    fixed_pdf_metadata_date(),
+  )
   surface.pdf_set_custom_metadata("Case", Some("copy-show"))
   surface.pdf_set_page_label("copy-intro")
   let intro_id = surface.pdf_add_outline_with_flags(
-    PDF_OUTLINE_ROOT,
+    @cairoon.PDF_OUTLINE_ROOT,
     "copy intro",
     "page=1 pos=[10 20]",
-    PDFOutlineFlagSet::of(PdfOutlineOpen),
+    @cairoon.PDFOutlineFlagSet::of(@cairoon.PdfOutlineOpen),
   )
-  let ctx = Context::new(surface)
+  let ctx = @cairoon.Context::new(surface)
   ctx.select_font_face("serif")
   ctx.set_font_size(12.0)
   ctx.set_source_rgb(0.0, 0.0, 0.0)
-  ctx.tag_begin(TAG_LINK, "uri='https://example.com/page-op'")
+  ctx.tag_begin(@cairoon.TAG_LINK, "uri='https://example.com/page-op'")
   ctx.move_to(10.0, 20.0)
   ctx.show_text("copy intro")
-  ctx.tag_end(TAG_LINK)
-  ctx.tag_begin(TAG_LINK, "dest='page-op-dest'")
+  ctx.tag_end(@cairoon.TAG_LINK)
+  ctx.tag_begin(@cairoon.TAG_LINK, "dest='page-op-dest'")
   ctx.move_to(10.0, 40.0)
   ctx.show_text("jump")
-  ctx.tag_end(TAG_LINK)
+  ctx.tag_end(@cairoon.TAG_LINK)
   ctx.copy_page()
   surface.pdf_set_page_label("copy-details")
   let details_id = surface.pdf_add_outline_with_flags(
-    PDF_OUTLINE_ROOT,
+    @cairoon.PDF_OUTLINE_ROOT,
     "copy details",
     "page=2 pos=[10 60]",
-    PDFOutlineFlagSet::of(PdfOutlineItalic),
+    @cairoon.PDFOutlineFlagSet::of(@cairoon.PdfOutlineItalic),
   )
   ctx.set_source_rgb(0.8, 0.0, 0.0)
-  ctx.tag_begin(TAG_DEST, "name='page-op-dest' x=10 y=60")
+  ctx.tag_begin(@cairoon.TAG_DEST, "name='page-op-dest' x=10 y=60")
   ctx.move_to(10.0, 60.0)
   ctx.show_text("destination")
-  ctx.tag_end(TAG_DEST)
+  ctx.tag_end(@cairoon.TAG_DEST)
   ctx.set_source_rgb(0.1, 0.1, 0.1)
   ctx.tag_begin("Document", "")
   ctx.tag_begin("Sect", "")
@@ -57,7 +63,7 @@ fn render_pdf_page_operation_document_feature_surface(
 ///|
 fn render_pdf_page_operation_document_feature_scene(
   path : String,
-) -> (Int, Int) raise CairoError {
-  let surface = Surface::pdf(100.0, 100.0, path=Some(path))
+) -> (Int, Int) raise @cairoon.CairoError {
+  let surface = @cairoon.Surface::pdf(100.0, 100.0, path=Some(path))
   render_pdf_page_operation_document_feature_surface(surface)
 }

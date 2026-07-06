@@ -2,12 +2,12 @@
 fn make_stream_tag_matrix_file_surface(
   kind : Int,
   path : String,
-) -> Surface raise CairoError {
+) -> @cairoon.Surface raise @cairoon.CairoError {
   let surface = match kind {
-    0 => Surface::pdf(144.0, 108.0, path=Some(path))
-    1 => Surface::ps(144.0, 108.0, path=Some(path))
-    2 => Surface::svg(144.0, 108.0, path=Some(path))
-    _ => raise CairoInvalidArgument(InvalidStatus, InvalidStatus.message())
+    0 => @cairoon.Surface::pdf(144.0, 108.0, path=Some(path))
+    1 => @cairoon.Surface::ps(144.0, 108.0, path=Some(path))
+    2 => @cairoon.Surface::svg(144.0, 108.0, path=Some(path))
+    _ => vector_backend_invalid_surface()
   }
   configure_stream_tag_matrix_backend(kind, surface)
   surface
@@ -17,24 +17,24 @@ fn make_stream_tag_matrix_file_surface(
 fn make_stream_tag_matrix_stream_surface(
   kind : Int,
   chunks : Array[Bytes],
-) -> Surface raise CairoError {
+) -> @cairoon.Surface raise @cairoon.CairoError {
   let surface = match kind {
     0 =>
-      Surface::pdf_stream(144.0, 108.0, fn(chunk) {
+      @cairoon.Surface::pdf_stream(144.0, 108.0, fn(chunk) {
         chunks.push(chunk)
-        Success
+        @cairoon.Success
       })
     1 =>
-      Surface::ps_stream(144.0, 108.0, fn(chunk) {
+      @cairoon.Surface::ps_stream(144.0, 108.0, fn(chunk) {
         chunks.push(chunk)
-        Success
+        @cairoon.Success
       })
     2 =>
-      Surface::svg_stream(144.0, 108.0, fn(chunk) {
+      @cairoon.Surface::svg_stream(144.0, 108.0, fn(chunk) {
         chunks.push(chunk)
-        Success
+        @cairoon.Success
       })
-    _ => raise CairoInvalidArgument(InvalidStatus, InvalidStatus.message())
+    _ => vector_backend_invalid_surface()
   }
   configure_stream_tag_matrix_backend(kind, surface)
   surface
@@ -43,21 +43,36 @@ fn make_stream_tag_matrix_stream_surface(
 ///|
 fn configure_stream_tag_matrix_backend(
   kind : Int,
-  surface : Surface,
-) -> Unit raise CairoError {
+  surface : @cairoon.Surface,
+) -> Unit raise @cairoon.CairoError {
   match kind {
     0 => {
-      surface.pdf_restrict_to_version(PdfVersion1_4)
-      surface.pdf_set_metadata(PdfMetadataTitle, "Cairoon Tag Matrix")
-      surface.pdf_set_metadata(PdfMetadataAuthor, "cairoon matrix author")
+      surface.pdf_restrict_to_version(@cairoon.PdfVersion1_4)
+      surface.pdf_set_metadata(@cairoon.PdfMetadataTitle, "Cairoon Tag Matrix")
       surface.pdf_set_metadata(
-        PdfMetadataSubject,
+        @cairoon.PdfMetadataAuthor,
+        "cairoon matrix author",
+      )
+      surface.pdf_set_metadata(
+        @cairoon.PdfMetadataSubject,
         "nested tags with resized pages",
       )
-      surface.pdf_set_metadata(PdfMetadataKeywords, "matrix,nested,sequence")
-      surface.pdf_set_metadata(PdfMetadataCreator, "cairoon tag matrix")
-      surface.pdf_set_metadata(PdfMetadataCreateDate, fixed_pdf_metadata_date())
-      surface.pdf_set_metadata(PdfMetadataModDate, fixed_pdf_metadata_date())
+      surface.pdf_set_metadata(
+        @cairoon.PdfMetadataKeywords,
+        "matrix,nested,sequence",
+      )
+      surface.pdf_set_metadata(
+        @cairoon.PdfMetadataCreator,
+        "cairoon tag matrix",
+      )
+      surface.pdf_set_metadata(
+        @cairoon.PdfMetadataCreateDate,
+        fixed_pdf_metadata_date(),
+      )
+      surface.pdf_set_metadata(
+        @cairoon.PdfMetadataModDate,
+        fixed_pdf_metadata_date(),
+      )
       surface.pdf_set_custom_metadata("Matrix", Some("nested-resized-tags"))
       surface.pdf_set_custom_metadata("Phase", Some("draft"))
       surface.pdf_set_custom_metadata("Phase", Some("published"))
@@ -65,7 +80,7 @@ fn configure_stream_tag_matrix_backend(
       surface.pdf_set_custom_metadata("Scratch", None)
     }
     1 => {
-      surface.ps_restrict_to_level(PsLevel3)
+      surface.ps_restrict_to_level(@cairoon.PsLevel3)
       surface.ps_set_eps(false)
       surface.ps_dsc_begin_setup()
       surface.ps_dsc_comment("%%Title: Cairoon Tag Matrix")
@@ -74,20 +89,20 @@ fn configure_stream_tag_matrix_backend(
       surface.ps_dsc_comment("%%IncludeFeature: *PageSize Matrix")
     }
     2 => {
-      surface.svg_restrict_to_version(SvgVersion1_2)
-      surface.svg_set_document_unit(SvgUnitPt)
+      surface.svg_restrict_to_version(@cairoon.SvgVersion1_2)
+      surface.svg_set_document_unit(@cairoon.SvgUnitPt)
     }
-    _ => raise CairoInvalidArgument(InvalidStatus, InvalidStatus.message())
+    _ => @cairoon.check_status(@cairoon.InvalidStatus)
   }
 }
 
 ///|
 fn resize_stream_tag_matrix_surface(
   kind : Int,
-  surface : Surface,
+  surface : @cairoon.Surface,
   width : Double,
   height : Double,
-) -> Unit raise CairoError {
+) -> Unit raise @cairoon.CairoError {
   match kind {
     0 => surface.pdf_set_size(width, height)
     1 => surface.ps_set_size(width, height)
@@ -98,21 +113,24 @@ fn resize_stream_tag_matrix_surface(
 ///|
 fn render_stream_tag_matrix_scene(
   kind : Int,
-  surface : Surface,
-) -> Unit raise CairoError {
-  let ctx = Context::new(surface)
+  surface : @cairoon.Surface,
+) -> Unit raise @cairoon.CairoError {
+  let ctx = @cairoon.Context::new(surface)
   ctx.select_font_face("serif")
   ctx.set_font_size(12.0)
 
-  let mut root_id = PDF_OUTLINE_ROOT
+  let mut root_id = @cairoon.PDF_OUTLINE_ROOT
   if kind == 0 {
     surface.pdf_set_size(144.0, 108.0)
     surface.pdf_set_page_label("matrix-cover")
     root_id = surface.pdf_add_outline_with_flags(
-      PDF_OUTLINE_ROOT,
+      @cairoon.PDF_OUTLINE_ROOT,
       "matrix cover",
       "page=1 pos=[14 24]",
-      PDFOutlineFlagSet::combine([PdfOutlineOpen, PdfOutlineBold]),
+      @cairoon.PDFOutlineFlagSet::combine([
+        @cairoon.PdfOutlineOpen,
+        @cairoon.PdfOutlineBold,
+      ]),
     )
   }
   ctx.set_source_rgb(0.90, 0.94, 1.0)
@@ -121,10 +139,10 @@ fn render_stream_tag_matrix_scene(
   ctx.tag_begin("Document", "")
   ctx.tag_begin("Sect", "")
   ctx.tag_begin("H1", "")
-  ctx.tag_begin(TAG_LINK, "uri='https://example.com/tag-matrix'")
+  ctx.tag_begin(@cairoon.TAG_LINK, "uri='https://example.com/tag-matrix'")
   ctx.move_to(14.0, 24.0)
   ctx.show_text("matrix cover")
-  ctx.tag_end(TAG_LINK)
+  ctx.tag_end(@cairoon.TAG_LINK)
   ctx.tag_end("H1")
   ctx.tag_begin("Figure", "")
   ctx.set_source_rgb(0.12, 0.42, 0.74)
@@ -142,7 +160,7 @@ fn render_stream_tag_matrix_scene(
       root_id,
       "matrix retained child",
       "page=2 pos=[14 58]",
-      PDFOutlineFlagSet::of(PdfOutlineItalic),
+      @cairoon.PDFOutlineFlagSet::of(@cairoon.PdfOutlineItalic),
     )
   } else {
     resize_stream_tag_matrix_surface(kind, surface, 108.0, 144.0)
@@ -151,10 +169,10 @@ fn render_stream_tag_matrix_scene(
   ctx.rectangle(14.0, 52.0, 70.0, 28.0)
   ctx.fill()
   ctx.set_source_rgb(0.05, 0.05, 0.05)
-  ctx.tag_begin(TAG_LINK, "dest='matrix-dest'")
+  ctx.tag_begin(@cairoon.TAG_LINK, "dest='matrix-dest'")
   ctx.move_to(14.0, 92.0)
   ctx.show_text("retained matrix link")
-  ctx.tag_end(TAG_LINK)
+  ctx.tag_end(@cairoon.TAG_LINK)
   surface.show_page()
 
   if kind == 0 {
@@ -164,7 +182,10 @@ fn render_stream_tag_matrix_scene(
       root_id,
       "matrix nested child",
       "page=3 pos=[16 32]",
-      PDFOutlineFlagSet::combine([PdfOutlineOpen, PdfOutlineItalic]),
+      @cairoon.PDFOutlineFlagSet::combine([
+        @cairoon.PdfOutlineOpen,
+        @cairoon.PdfOutlineItalic,
+      ]),
     )
   } else {
     resize_stream_tag_matrix_surface(kind, surface, 144.0, 108.0)
@@ -172,10 +193,10 @@ fn render_stream_tag_matrix_scene(
   ctx.set_source_rgb(0.94, 0.92, 0.86)
   ctx.paint()
   ctx.set_source_rgb(0.10, 0.45, 0.20)
-  ctx.tag_begin(TAG_DEST, "name='matrix-dest' x=16 y=32")
+  ctx.tag_begin(@cairoon.TAG_DEST, "name='matrix-dest' x=16 y=32")
   ctx.arc(28.0, 32.0, 14.0, 0.0, 6.283185307179586)
   ctx.fill()
-  ctx.tag_end(TAG_DEST)
+  ctx.tag_end(@cairoon.TAG_DEST)
   ctx.set_source_rgb(0.0, 0.0, 0.0)
   ctx.tag_begin("Document", "")
   ctx.tag_begin("Sect", "")
@@ -204,10 +225,10 @@ fn render_stream_tag_matrix_scene(
     surface.pdf_set_size(90.0, 132.0)
     surface.pdf_set_page_label("matrix-final")
     let _ = surface.pdf_add_outline_with_flags(
-      PDF_OUTLINE_ROOT,
+      @cairoon.PDF_OUTLINE_ROOT,
       "matrix final",
       "page=4 pos=[10 40]",
-      PDFOutlineFlagSet::of(PdfOutlineBold),
+      @cairoon.PDFOutlineFlagSet::of(@cairoon.PdfOutlineBold),
     )
   } else {
     resize_stream_tag_matrix_surface(kind, surface, 90.0, 132.0)
@@ -220,10 +241,10 @@ fn render_stream_tag_matrix_scene(
   ctx.tag_begin("Sect", "")
   ctx.tag_begin("Div", "")
   ctx.tag_begin("P", "")
-  ctx.tag_begin(TAG_LINK, "uri='https://example.com/tag-matrix/final'")
+  ctx.tag_begin(@cairoon.TAG_LINK, "uri='https://example.com/tag-matrix/final'")
   ctx.move_to(10.0, 40.0)
   ctx.show_text("matrix final")
-  ctx.tag_end(TAG_LINK)
+  ctx.tag_end(@cairoon.TAG_LINK)
   ctx.tag_end("P")
   ctx.tag_end("Div")
   ctx.tag_end("Sect")
@@ -263,7 +284,7 @@ test "backend tag matrix file output matches direct cairo C oracle" {
     let oracle_path = "/tmp/cairoon_stream_tag_matrix_direct_oracle_\{kind}.\{ext}"
     let surface = make_stream_tag_matrix_file_surface(kind, path)
     render_stream_tag_matrix_scene(kind, surface)
-    check_status(
+    @cairoon.check_status(
       test_render_vector_scene_oracle_ffi(
         kind,
         39,

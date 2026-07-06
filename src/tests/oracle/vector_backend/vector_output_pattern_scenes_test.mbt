@@ -1,6 +1,8 @@
 ///|
-fn paint_quad_source_surface(surface : Surface) -> Unit raise CairoError {
-  let source_ctx = Context::new(surface)
+fn paint_quad_source_surface(
+  surface : @cairoon.Surface,
+) -> Unit raise @cairoon.CairoError {
+  let source_ctx = @cairoon.Context::new(surface)
   source_ctx.set_source_rgb(1.0, 0.0, 0.0)
   source_ctx.rectangle(0.0, 0.0, 1.0, 1.0)
   source_ctx.fill()
@@ -16,21 +18,25 @@ fn paint_quad_source_surface(surface : Surface) -> Unit raise CairoError {
 }
 
 ///|
-fn apply_vector_surface_pattern(ctx : Context) -> Unit raise CairoError {
-  let source = Surface::image(Argb32, 2, 2)
+fn apply_vector_surface_pattern(
+  ctx : @cairoon.Context,
+) -> Unit raise @cairoon.CairoError {
+  let source = @cairoon.Surface::image(@cairoon.Argb32, 2, 2)
   paint_quad_source_surface(source)
-  let pattern = Pattern::for_surface(source)
-  pattern.set_extend(Repeat)
-  pattern.set_filter(Nearest)
+  let pattern = @cairoon.Pattern::for_surface(source)
+  pattern.set_extend(@cairoon.Repeat)
+  pattern.set_filter(@cairoon.Nearest)
   ctx.rectangle(0.0, 0.0, 10.0, 10.0)
   ctx.set_source(pattern)
   ctx.fill()
 }
 
 ///|
-fn apply_vector_mask_surface(ctx : Context) -> Unit raise CairoError {
-  let mask = Surface::image(Argb32, 2, 2)
-  let mask_ctx = Context::new(mask)
+fn apply_vector_mask_surface(
+  ctx : @cairoon.Context,
+) -> Unit raise @cairoon.CairoError {
+  let mask = @cairoon.Surface::image(@cairoon.Argb32, 2, 2)
+  let mask_ctx = @cairoon.Context::new(mask)
   mask_ctx.set_source_rgba(1.0, 1.0, 1.0, 1.0)
   mask_ctx.rectangle(0.0, 0.0, 1.0, 1.0)
   mask_ctx.fill()
@@ -45,8 +51,10 @@ fn apply_vector_mask_surface(ctx : Context) -> Unit raise CairoError {
 }
 
 ///|
-fn apply_vector_mesh_pattern(ctx : Context) -> Unit raise CairoError {
-  let pattern = Pattern::mesh()
+fn apply_vector_mesh_pattern(
+  ctx : @cairoon.Context,
+) -> Unit raise @cairoon.CairoError {
+  let pattern = @cairoon.Pattern::mesh()
   pattern.mesh_begin_patch()
   pattern.mesh_move_to(0.0, 0.0)
   pattern.mesh_line_to(10.0, 0.0)
