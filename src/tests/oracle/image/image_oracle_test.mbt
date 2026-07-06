@@ -508,6 +508,94 @@ fn draw_image_oracle_scene(
       ctx.set_source(pattern)
       ctx.fill()
     }
+    34 => {
+      let source = @cairoon.Surface::image(@cairoon.Argb32, 2, 2)
+      paint_image_oracle_quad_surface(source)
+      let surface_pattern = @cairoon.Pattern::for_surface(source)
+      surface_pattern.set_extend(@cairoon.Repeat)
+      surface_pattern.set_filter(@cairoon.Nearest)
+      surface_pattern.set_dither(@cairoon.DitherGood)
+      surface_pattern.set_matrix(
+        @cairoon.Matrix::new(
+          xx=0.50,
+          yx=0.18,
+          xy=-0.16,
+          yy=0.62,
+          x0=-1.40,
+          y0=0.90,
+        ),
+      )
+
+      let linear = @cairoon.Pattern::linear(0.0, 0.0, 16.0, 16.0)
+      linear.add_color_stop_rgba(0.0, 0.90, 0.12, 0.05, 0.95)
+      linear.add_color_stop_rgba(0.40, 0.10, 0.80, 0.35, 0.70)
+      linear.add_color_stop_rgba(1.0, 0.08, 0.18, 0.95, 0.85)
+      linear.set_extend(@cairoon.Reflect)
+      linear.set_filter(@cairoon.Bilinear)
+      linear.set_dither(@cairoon.DitherBest)
+      linear.set_matrix(
+        @cairoon.Matrix::new(
+          xx=0.82,
+          yx=-0.12,
+          xy=0.20,
+          yy=0.74,
+          x0=-0.60,
+          y0=1.40,
+        ),
+      )
+
+      let radial = @cairoon.Pattern::radial(4.0, 12.0, 0.75, 13.0, 3.0, 7.0)
+      radial.add_color_stop_rgba(0.0, 1.0, 0.95, 0.20, 1.0)
+      radial.add_color_stop_rgba(0.55, 0.90, 0.10, 0.60, 0.68)
+      radial.add_color_stop_rgba(1.0, 0.02, 0.04, 0.12, 1.0)
+      radial.set_extend(@cairoon.Pad)
+      radial.set_filter(@cairoon.Good)
+      radial.set_dither(@cairoon.DitherDefault)
+      radial.set_matrix(
+        @cairoon.Matrix::new(
+          xx=0.76,
+          yx=0.08,
+          xy=-0.18,
+          yy=0.88,
+          x0=1.25,
+          y0=-0.75,
+        ),
+      )
+
+      let mask = @cairoon.Pattern::linear(0.0, 16.0, 16.0, 0.0)
+      mask.add_color_stop_rgba(0.0, 1.0, 1.0, 1.0, 0.0)
+      mask.add_color_stop_rgba(0.45, 1.0, 1.0, 1.0, 0.45)
+      mask.add_color_stop_rgba(1.0, 1.0, 1.0, 1.0, 0.95)
+
+      ctx.set_source_rgb(0.02, 0.03, 0.06)
+      ctx.paint()
+
+      ctx.save()
+      ctx.rectangle(1.0, 1.0, 14.0, 14.0)
+      ctx.clip()
+      ctx.set_source(surface_pattern)
+      ctx.paint()
+      ctx.set_operator(@cairoon.OperatorAtop)
+      ctx.rectangle(0.0, 0.0, 16.0, 16.0)
+      ctx.set_source(linear)
+      ctx.fill()
+      ctx.set_operator(@cairoon.OperatorOver)
+      ctx.restore()
+
+      ctx.save()
+      ctx.rectangle(3.0, 2.0, 10.0, 12.0)
+      ctx.clip()
+      ctx.set_source(radial)
+      ctx.paint()
+      ctx.restore()
+
+      ctx.save()
+      ctx.rectangle(2.0, 3.0, 12.0, 10.0)
+      ctx.clip()
+      ctx.set_source_rgba(1.0, 0.65, 0.10, 0.85)
+      ctx.mask(mask)
+      ctx.restore()
+    }
     _ => @cairoon.check_status(@cairoon.InvalidStatus)
   }
 }
@@ -543,7 +631,7 @@ fn render_buffered_image_oracle_scene(
 
 ///|
 test "image rendering scenes match direct cairo C oracle" {
-  for scene in 0..<34 {
+  for scene in 0..<35 {
     let actual = render_image_oracle_scene(scene)
     let expected = test_argb32_scene_oracle_ffi(scene, 16, 16)
     inspect(expected.length(), content="1024")
@@ -553,7 +641,7 @@ test "image rendering scenes match direct cairo C oracle" {
 
 ///|
 test "buffer backed image rendering scenes match direct cairo C oracle" {
-  for scene in 0..<34 {
+  for scene in 0..<35 {
     let (actual, copied) = render_buffered_image_oracle_scene(scene)
     let expected = test_argb32_scene_oracle_ffi(scene, 16, 16)
     inspect(expected.length(), content="1024")
