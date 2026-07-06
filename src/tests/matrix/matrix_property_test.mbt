@@ -7,8 +7,8 @@ fn assert_property_close(actual : Double, expected : Double) -> Unit raise {
 
 ///|
 fn assert_property_matrix_close(
-  actual : Matrix,
-  expected : Matrix,
+  actual : @cairoon.Matrix,
+  expected : @cairoon.Matrix,
 ) -> Unit raise {
   assert_property_close(actual.xx, expected.xx)
   assert_property_close(actual.yx, expected.yx)
@@ -30,12 +30,12 @@ fn assert_property_point_close(
 }
 
 ///|
-fn property_matrices() -> Array[Matrix] {
+fn property_matrices() -> Array[@cairoon.Matrix] {
   [
-    Matrix::new(xx=1.0, yx=0.25, xy=-0.5, yy=2.0, x0=3.0, y0=-4.0),
-    Matrix::new(xx=-2.0, yx=1.5, xy=0.75, yy=1.25, x0=-1.0, y0=2.0),
-    Matrix::init_rotate(0.375).scale(1.5, -0.75).translate(2.0, -3.0),
-    Matrix::new(xx=0.5, yx=-1.25, xy=2.0, yy=0.75, x0=4.0, y0=5.0),
+    @cairoon.Matrix::new(xx=1.0, yx=0.25, xy=-0.5, yy=2.0, x0=3.0, y0=-4.0),
+    @cairoon.Matrix::new(xx=-2.0, yx=1.5, xy=0.75, yy=1.25, x0=-1.0, y0=2.0),
+    @cairoon.Matrix::init_rotate(0.375).scale(1.5, -0.75).translate(2.0, -3.0),
+    @cairoon.Matrix::new(xx=0.5, yx=-1.25, xy=2.0, yy=0.75, x0=4.0, y0=5.0),
   ]
 }
 
@@ -60,7 +60,7 @@ test "matrix property multiply is associative for deterministic cases" {
 
 ///|
 test "matrix property inverse composes to identity" {
-  let identity = Matrix::new()
+  let identity = @cairoon.Matrix::new()
   for matrix in property_matrices() {
     let inverse = matrix.invert()
     assert_property_matrix_close(matrix.multiply(inverse), identity)

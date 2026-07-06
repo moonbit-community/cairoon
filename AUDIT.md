@@ -29,6 +29,11 @@ Implemented in this workspace:
   External test packages that import cairoon carry Cairo `cc-link-flags`, and
   `scripts/configure-link-flags.sh --check` verifies those flags alongside
   `src/moon.pkg`.
+- Matrix black-box tests now live in `src/tests/matrix`, importing only the
+  public `caimeo/cairoon` API. This validates external-package access to public
+  types, methods, checked errors, and `CairoInvalidArgument` pattern matching;
+  `scripts/verify.sh` discovers all `src/tests/**/moon.pkg` packages for normal
+  and ASan targeted runs.
 - C FFI glue split by Cairo object family, following pycairo's
   `private.h` plus per-family C file architecture. GC-managed external objects
   currently cover `Surface`, `MappedImageSurface`, `ImageData`, `Context`,

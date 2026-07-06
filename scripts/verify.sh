@@ -4,12 +4,30 @@ set -euo pipefail
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$repo_root"
 package_root="src"
+external_test_packages=()
+
+if [[ -d "$package_root/tests" ]]; then
+  while IFS= read -r test_pkg_config; do
+    external_test_packages+=("$(dirname "$test_pkg_config")")
+  done < <(find "$package_root/tests" -name moon.pkg -type f -print | sort)
+fi
 
 run() {
   printf '\n+'
   printf ' %q' "$@"
   printf '\n'
   "$@"
+}
+
+run_external_test_packages() {
+  local test_pkg
+  for test_pkg in "${external_test_packages[@]}"; do
+    if [[ "$#" -gt 0 ]]; then
+      run "$@" moon test "$test_pkg" --target native -v
+    else
+      run moon test "$test_pkg" --target native -v
+    fi
+  done
 }
 
 run moon fmt --check
@@ -19,7 +37,7 @@ run python3 ./scripts/check-ffi-ownership.py
 run python3 ./scripts/check-api-inventory.py
 run python3 ./scripts/check-reliability-ledger.py
 run moon check --target native
-run moon test "$package_root/tests/api" --target native -v
+run_external_test_packages
 
 targeted_tests=(
   image_oracle_wbtest.mbt
@@ -52,7 +70,6 @@ targeted_tests=(
   surface_tee_test.mbt
   device_test.mbt
   object_traits_test.mbt
-  matrix_property_test.mbt
   context_lifetime_test.mbt
   context_state_test.mbt
   context_matrix_test.mbt
@@ -98,11 +115,10 @@ if [[ "$asan_mode" != "0" ]]; then
   if [[ -n "$clang_path" && -x "$clang_path" ]]; then
     asan_options="${ASAN_OPTIONS:-detect_leaks=0:fast_unwind_on_malloc=0}"
     moon_ar="${MOON_AR:-/usr/bin/ar}"
-    run env \
+    run_external_test_packages env \
       "MOON_CC=$clang_path" \
       "MOON_AR=$moon_ar" \
-      "ASAN_OPTIONS=$asan_options" \
-      moon test "$package_root/tests/api" --target native -v
+      "ASAN_OPTIONS=$asan_options"
     for test_file in "${targeted_tests[@]}"; do
       run env \
         "MOON_CC=$clang_path" \

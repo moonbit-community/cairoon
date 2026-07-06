@@ -208,15 +208,15 @@ It runs `moon fmt --check`, `scripts/check-project-layout.py`,
 `scripts/configure-link-flags.sh --check`, `scripts/check-ffi-ownership.py`,
 `scripts/check-api-inventory.py`, `scripts/check-reliability-ledger.py`,
 native `moon check`, the extracted external black-box API package under
-`src/tests/api`, targeted white-box
+`src/tests/api` and Matrix package under `src/tests/matrix`, targeted white-box
 image, ScaledFont, vector-output,
 surface base/ImageData/stream/mapped/subsurface/recording/MIME/PDF/PS/SVG/Tee,
 script-device, object-trait, context-lifetime/state/matrix/path/group/text/glyph/
 extents/clip/painting, core/pycairo-parity/gradient/mesh pattern, and
 raster-pattern tests, the full
 native test suite, `moon info --target native`, and targeted ASan builds for
-the external API package and the same target list when an ASan-capable `clang`
-is available.
+all external black-box packages and the same target list when an ASan-capable
+`clang` is available.
 Set `CAIROON_VERIFY_ASAN=0` to skip the targeted ASan portion intentionally.
 
 ## Current Status

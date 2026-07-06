@@ -59,6 +59,8 @@ cairoon/
     tests/
       api/
         moon.pkg
+      matrix/
+        moon.pkg
       surface/
         moon.pkg
       context/
