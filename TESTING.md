@@ -556,15 +556,17 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, and 2026-07-06:
   path copy/append independence, pycairo-style append string
   equivalence after clearing the source context, flattened append behavior, and
   path error propagation.
-- `moon -C cairoon test context_pycairo_parity_test.mbt --target native -v`: 24
+- `moon -C cairoon test context_pycairo_parity_test.mbt --target native -v`: 28
   black-box Context pycairo parity tests passed, covering the 42x42 default
   clip-extents fixture, zero-radius `arc`/`arc_negative` non-empty paths,
   polygon `path_extents`, polygon `fill_extents`, empty `in_fill`, line
   `in_stroke`, rectangle `path_extents`, relative path current-point updates,
   empty `stroke_extents`, default user/device coordinate conversions,
   matrix setter/translate/scale/transform/rotate fixtures, dash offset
-  normalization, current-point state, scalar line-width/miter-limit/tolerance
-  setters, source RGBA round trips, explicit source-pattern round trips,
+  normalization, current-point state, drawing-state default getters and enum
+  setter round trips, raw operator C-int limit passthrough, save/restore
+  drawing-state restoration, scalar line-width/miter-limit/tolerance setters,
+  source RGBA round trips, explicit source-pattern round trips,
   copied `append_path` strings, empty clip/reset `in_clip` behavior, group
   stack push/pop variants, mask/mask-surface/alpha-paint pixel fixtures,
   font-face default/reset/custom round trips, `set_font_matrix` identity,
@@ -2584,6 +2586,13 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, and 2026-07-06:
   mask-surface, and alpha-paint fixtures. It is included in the targeted
   normal and ASan verification gates, raises that parity file to 24 tests, and
   raises the expected full native suite to 501 tests.
+  A later Context pycairo drawing-state fixture slice extended
+  `context_pycairo_parity_test.mbt`, covering pycairo's default
+  antialias/fill-rule/line-cap/line-join/operator getters, typed enum setter
+  round trips, raw operator C-int limit passthrough, and save/restore
+  drawing-state restoration. It is included in the targeted normal and ASan
+  verification gates, raises that parity file to 28 tests, and raises the
+  expected full native suite to 505 tests.
   A later Pattern raw-extend parity slice added
   `Pattern::set_extend_raw`/`Pattern::get_extend_raw`, covering pycairo's
   C-int extend passthrough for `42` while keeping typed `Pattern::get_extend`

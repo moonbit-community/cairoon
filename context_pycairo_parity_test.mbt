@@ -235,6 +235,62 @@ test "context matrix mutators mirror pycairo method fixtures" {
 }
 
 ///|
+test "context default drawing state getters mirror pycairo fixtures" {
+  let ctx = Context::new(pycairo_context_surface(42, 42))
+  debug_inspect(ctx.get_antialias(), content="AntialiasDefault")
+  debug_inspect(ctx.get_fill_rule(), content="FillWinding")
+  debug_inspect(ctx.get_line_cap(), content="LineCapButt")
+  debug_inspect(ctx.get_line_join(), content="LineJoinMiter")
+  debug_inspect(ctx.get_operator(), content="OperatorOver")
+}
+
+///|
+test "context drawing state setters mirror pycairo enum fixtures" {
+  let ctx = Context::new(pycairo_context_surface(42, 42))
+  ctx.set_antialias(AntialiasSubpixel)
+  ctx.set_fill_rule(FillEvenOdd)
+  ctx.set_line_cap(LineCapSquare)
+  ctx.set_line_join(LineJoinBevel)
+  ctx.set_operator(OperatorSource)
+
+  debug_inspect(ctx.get_antialias(), content="AntialiasSubpixel")
+  debug_inspect(ctx.get_fill_rule(), content="FillEvenOdd")
+  debug_inspect(ctx.get_line_cap(), content="LineCapSquare")
+  debug_inspect(ctx.get_line_join(), content="LineJoinBevel")
+  debug_inspect(ctx.get_operator(), content="OperatorSource")
+}
+
+///|
+test "context raw operator limits mirror pycairo c int fixture" {
+  let ctx = Context::new(pycairo_context_surface(42, 42))
+  let min_c_int = -2147483647 - 1
+  let values = [-1, 0, 2147483647, min_c_int]
+  for value in values {
+    ctx.set_operator_raw(value)
+    inspect(ctx.get_operator_raw(), content="\{value}")
+  }
+
+  match run_cairo(() => ctx.get_operator()) {
+    Err(CairoInvalidArgument(InvalidStatus, _)) => ()
+    _ => @test.fail("expected typed getter to reject unknown raw operator")
+  }
+
+  ctx.set_operator_raw(0)
+  debug_inspect(ctx.get_operator(), content="OperatorClear")
+}
+
+///|
+test "context save restore preserves drawing state like pycairo fixture" {
+  let ctx = Context::new(pycairo_context_surface(42, 42))
+  ctx.set_line_width(3.0)
+  ctx.save()
+  ctx.set_line_width(7.0)
+  assert_pycairo_context_close(ctx.get_line_width(), 7.0)
+  ctx.restore()
+  assert_pycairo_context_close(ctx.get_line_width(), 3.0)
+}
+
+///|
 test "context dash state mirrors pycairo fixture" {
   let ctx = Context::new(pycairo_context_surface(42, 42))
   inspect(ctx.get_dash_count(), content="0")
