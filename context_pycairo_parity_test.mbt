@@ -66,6 +66,16 @@ fn assert_pycairo_context_argb32_pixel(
 }
 
 ///|
+fn pycairo_context_has_nonzero_byte(bytes : Bytes) -> Bool {
+  for index in 0..<bytes.length() {
+    if bytes[index].to_int() != 0 {
+      return true
+    }
+  }
+  false
+}
+
+///|
 fn expect_pycairo_context_invalid_pop_group(
   result : Result[Unit, CairoError],
 ) -> Unit raise {
@@ -493,4 +503,105 @@ test "context set_font_size mirrors pycairo font matrix fixture" {
     ctx.get_font_matrix(),
     Matrix::new(xx=42.0, yy=42.0),
   )
+}
+
+///|
+test "context text methods mirror pycairo fixtures" {
+  let ctx = Context::new(pycairo_context_surface(64, 32))
+  ctx.select_font_face("serif")
+  ctx.set_font_size(12.0)
+  let context_extents = ctx.font_extents()
+  let scaled_extents = ctx.get_scaled_font().extents()
+  inspect(context_extents == scaled_extents, content="true")
+  inspect(context_extents.height > 0.0, content="true")
+
+  let text_extents = ctx.text_extents("foo")
+  inspect(text_extents.x_advance > 0.0, content="true")
+  inspect(text_extents.height > 0.0, content="true")
+  let empty_extents = ctx.text_extents("")
+  inspect(empty_extents.width, content="0")
+  inspect(empty_extents.height, content="0")
+  inspect(empty_extents.x_advance, content="0")
+
+  ctx.move_to(2.0, 18.0)
+  ctx.show_text("foo")
+  assert_pycairo_context_point_close(
+    ctx.get_current_point(),
+    (2.0 + text_extents.x_advance, 18.0),
+  )
+
+  let path_surface = Surface::image(Argb32, 64, 32)
+  let path_ctx = Context::new(path_surface)
+  path_ctx.select_font_face("serif")
+  path_ctx.set_font_size(16.0)
+  path_ctx.move_to(2.0, 22.0)
+  path_ctx.text_path("foo")
+  let (x1, y1, x2, y2) = path_ctx.path_extents()
+  inspect(x2 > x1, content="true")
+  inspect(y2 > y1, content="true")
+  path_ctx.set_source_rgb(1.0, 0.0, 0.0)
+  path_ctx.fill()
+  inspect(
+    pycairo_context_has_nonzero_byte(path_surface.copy_data()),
+    content="true",
+  )
+}
+
+///|
+test "context glyph methods mirror pycairo fixtures" {
+  let ctx = Context::new(pycairo_context_surface(64, 32))
+  ctx.select_font_face("Sans")
+  ctx.set_font_size(16.0)
+  let glyphs = [Glyph::new(0UL, 2.0, 22.0)]
+  let context_extents = ctx.glyph_extents(glyphs)
+  let scaled_extents = ctx.get_scaled_font().glyph_extents(glyphs)
+  inspect(context_extents == scaled_extents, content="true")
+
+  let empty_extents = ctx.glyph_extents([])
+  inspect(empty_extents.width, content="0")
+  inspect(empty_extents.height, content="0")
+  inspect(empty_extents.x_advance, content="0")
+
+  let show_surface = Surface::image(Argb32, 64, 32)
+  let show_ctx = Context::new(show_surface)
+  show_ctx.select_font_face("Sans")
+  show_ctx.set_font_size(16.0)
+  show_ctx.set_source_rgb(1.0, 0.0, 0.0)
+  show_ctx.show_glyphs(glyphs)
+  inspect(
+    pycairo_context_has_nonzero_byte(show_surface.copy_data()),
+    content="true",
+  )
+  inspect(show_ctx.has_current_point(), content="false")
+  inspect(show_ctx.copy_path().length(), content="0")
+
+  let path_ctx = Context::new(pycairo_context_surface(64, 32))
+  path_ctx.select_font_face("Sans")
+  path_ctx.set_font_size(16.0)
+  path_ctx.glyph_path(glyphs)
+  let (x1, y1, x2, y2) = path_ctx.path_extents()
+  inspect(x2 > x1, content="true")
+  inspect(y2 > y1, content="true")
+}
+
+///|
+test "context show_text_glyphs mirrors pycairo pdf tuple fixture" {
+  let surface = Surface::pdf(300.0, 300.0)
+  let ctx = Context::new(surface)
+  ctx.scale(300.0, 300.0)
+  ctx.select_font_face("Sans")
+  ctx.set_font_size(0.08)
+  ctx.set_line_width(0.09)
+  let scaled_font = ctx.get_scaled_font()
+
+  let run = scaled_font.text_to_glyphs(0.5, 0.5, "foobar")
+  inspect(run.glyphs.length() > 0, content="true")
+  inspect(run.clusters.length() > 0, content="true")
+  ctx.show_text_glyphs("foobar", run.glyphs, run.clusters, flags=run.flags)
+
+  let empty = scaled_font.text_to_glyphs(0.5, 0.5, "")
+  inspect(empty.glyphs.length(), content="0")
+  inspect(empty.clusters.length(), content="0")
+  ctx.show_text_glyphs("", empty.glyphs, empty.clusters, flags=empty.flags)
+  inspect(ctx.status().is_success(), content="true")
 }
