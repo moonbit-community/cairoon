@@ -483,9 +483,9 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   primitive vector stream equivalence slice, the backend feature/tag stream
   combo slice, the PS/SVG backend-combo stream inertness slice, the standalone
   text vector stream equivalence slice, and the single-page tag stream
-  equivalence slice.
+  marker/equivalence stabilization slice.
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native`: 562 tests passed. The current run
+- `moon -C cairoon test --target native`: 569 tests passed. The current run
   includes the expanded pattern-combo image oracle slice,
   the surface-mask screen group image-oracle slice,
   the mesh-mask group-compositing image oracle slice,
@@ -526,10 +526,11 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   string equivalence slice, the pycairo close-path stringification slice, the
   gradient color-stop ordering/snapshot slice, the stream-vs-file vector output
   equivalence slice, the non-text primitive vector stream equivalence slice,
-  the single-page tag stream equivalence slice, the tagged multi-page stream
-  equivalence slice, the mixed/layered stream equivalence slice, the wide
-  multi-page stream equivalence slice, the document-feature stream equivalence
-  slice, the backend feature/tag stream combo slice, the vector
+  the single-page tag stream marker/equivalence stabilization slice, the tagged
+  multi-page stream marker/equivalence stabilization slice, the mixed/layered
+  stream marker/equivalence stabilization slice, the wide multi-page stream
+  marker/equivalence slice, the document-feature stream equivalence slice, the
+  backend feature/tag stream combo slice, the vector
   stream invalid-status fallback slice, the PNG/script stream invalid-status
   fallback slice, the callback invocation reference-balance slice,
   the backend stream callback multi-seed fuzz slice,
@@ -584,7 +585,7 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   primitive vector stream equivalence slice, the backend feature/tag stream
   combo slice, the PS/SVG backend-combo stream inertness slice, the standalone
   text vector stream equivalence slice, the single-page tag stream
-  equivalence slice, and
+  marker/equivalence stabilization slice, and
   the earlier context `get_source`
   surface-pattern lifetime coverage for the path where both the original source
   wrapper and context scope have exited, plus the Path/Region lifetime gate,
@@ -2897,6 +2898,16 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   stable PDF/PS/SVG marker checks, and PS/SVG file/stream negative
   PDF-metadata checks, raising the vector-backend package to 140 tests and the
   expected full native suite to 562 tests without changing public API.
+  A later stream-tag stabilization slice replaced the tag-heavy PDF
+  stream-vs-file equality assertions in `surface_stream_tag_test.mbt` with
+  stable stream marker checks for the single-page rectangle/text tag scenes,
+  mixed tag/vector/text, tagged `show_text_glyphs`, tagged font-matrix text,
+  grouped glyph tags, layered multi-page tags, and tagged multi-page text.
+  PS/SVG still use normalized file-vs-stream equality for the same scenes.
+  This avoids Cairo PDF stream/file object-layout nondeterminism while
+  preserving semantic tag coverage, raising the vector-backend package to 147
+  tests and the expected full native suite to 569 tests without changing
+  public API.
 
 Remaining reliability work is now narrower and should be tracked as evidence,
 not as an unstructured checklist:
