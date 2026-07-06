@@ -443,7 +443,7 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, and 2026-07-06:
   the mixed/layered stream equivalence slice,
   the document-feature stream equivalence slice,
   the backend feature/tag stream combo slice,
-  the wide multi-page stream equivalence slice,
+  the wide multi-page stream marker/equivalence slice,
   the vector stream invalid-status fallback slice,
   the PNG/script stream invalid-status fallback slice,
   the callback invocation reference-balance slice,
@@ -481,7 +481,7 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, and 2026-07-06:
   text vector stream equivalence slice, and the single-page tag stream
   equivalence slice.
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native`: 540 tests passed. The current run
+- `moon -C cairoon test --target native`: 541 tests passed. The current run
   includes the expanded pattern-combo image oracle slice,
   the mesh-mask group-compositing image oracle slice,
   the tag-heavy stream-to-direct-oracle differential slice,
@@ -762,7 +762,8 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, and 2026-07-06:
   named-destination, and document-structure rectangle/text tag scenes, tagged
   multi-page, mixed vector/tag/text, tagged `show_text_glyphs`, grouped
   glyph/tag multi-page, layered three-page clip/dash/surface-pattern/mask/tag/
-  text, and wide three-page tag/vector scenes.
+  text, PS/SVG wide three-page tag/vector scenes, plus PDF wide three-page
+  stream marker coverage for the same tag/vector scene.
 - `moon -C cairoon info --target native`: completed with no work to do; these
   stream equivalence slices change no public API or generated interface
   metadata.
@@ -2329,11 +2330,12 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, and 2026-07-06:
   surface-pattern vector drawing. It also added PDF combined marker assertions
   and PS/SVG negative PDF-metadata marker assertions for that scene. This raised
   `vector_output_wbtest.mbt` to 37 tests and the full native suite to 381 tests.
-  The later wide multi-page stream equivalence slice added one
-  `surface_stream_wbtest.mbt` case proving PDF/PS/SVG stream-writer output
-  matches file output after normalization for the wide three-page URI/
-  destination/Document/Sect/P tag/vector scene. This raised
-  `surface_stream_wbtest.mbt` to 3 tests and the full native suite to 382 tests.
+  The later wide multi-page stream marker/equivalence slice added
+  `surface_stream_wbtest.mbt` coverage proving the PDF stream-writer output
+  contains the stable three-page URI/destination/Document/Sect/P structure
+  markers, while PS/SVG stream-writer output still matches file output after
+  normalization for the same wide tag/vector scene. This raised
+  `surface_stream_wbtest.mbt` to 4 tests and the full native suite to 383 tests.
   The later vector stream invalid-status fallback slice expanded
   `surface_stream_test.mbt` to cover PDF/PS/SVG writer `WriteError` mapping and
   `LastStatus` callback-return normalization to `WriteError`. This raised

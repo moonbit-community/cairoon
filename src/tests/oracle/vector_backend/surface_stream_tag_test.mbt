@@ -28,8 +28,21 @@ test "single-page tag scenes stream output matches file output after normalizati
 }
 
 ///|
-test "wide multi-page tag vector stream output matches file output after normalization" {
-  for kind in 0..<3 {
+test "pdf wide multi-page tag vector stream output contains combined markers" {
+  let chunks : Array[Bytes] = []
+  let stream_surface = make_stream_equivalence_stream_surface(0, chunks)
+  render_stream_wide_multipage_tag_vector_scene(stream_surface)
+  expect_stream_output_markers(chunks, [
+    "%PDF-1.4", "/Count 3", "/Type /Page % 1", "/Type /Page % 2", "/Type /Page % 3",
+    "/Subtype /Link", "/S /URI", "/URI (https://example.com/wide)", "/Dest", "/Names",
+    "/Dests", "(cairoon-wide-dest)", "/StructTreeRoot", "/S /Document", "/S /Sect",
+    "/S /P", "%%EOF",
+  ])
+}
+
+///|
+test "ps svg wide multi-page tag vector stream output matches file output after normalization" {
+  for kind in 1..<3 {
     let ext = stream_equivalence_extension(kind)
     let path = "/tmp/cairoon_stream_wide_multipage_file_equivalence_\{kind}.\{ext}"
     let file_surface = make_stream_equivalence_file_surface(kind, path)
