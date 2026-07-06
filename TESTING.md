@@ -212,9 +212,9 @@ native `moon check`, extracted external test packages under
 `src/tests/matrix`, `src/tests/region`, `src/tests/surface`,
 `src/tests/context`, `src/tests/pattern`, `src/tests/font`, and
 `src/tests/stream`, `src/tests/object`, `src/tests/lifetime`, and
-`src/tests/oracle/constants` plus `src/tests/oracle/scaled_font`, targeted
-white-box image, vector-output, backend surface stream, and raster-pattern
-tests, the full
+`src/tests/oracle/constants`, `src/tests/oracle/scaled_font`, and
+`src/tests/oracle/image`, targeted white-box vector-output, backend surface
+stream, and raster-pattern tests, the full
 native test suite, `moon info --target native`, and targeted ASan builds for
 all external test packages and the same target list when an ASan-capable
 `clang` is available.

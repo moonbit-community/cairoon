@@ -105,19 +105,6 @@ extern "C" fn test_vector_file_equals_bytes_ffi(
 ) -> Bool = "cairoon_test_vector_file_equals_bytes"
 
 ///|
-extern "C" fn test_argb32_blue_paint_oracle_ffi(
-  width : Int,
-  height : Int,
-) -> Bytes = "cairoon_test_argb32_blue_paint_oracle"
-
-///|
-extern "C" fn test_argb32_scene_oracle_ffi(
-  scene : Int,
-  width : Int,
-  height : Int,
-) -> Bytes = "cairoon_test_argb32_scene_oracle"
-
-///|
 #borrow(surface)
 extern "C" fn test_raster_surface_owner_count_ffi(surface : Surface) -> Int = "cairoon_test_raster_surface_owner_count"
 
@@ -133,8 +120,6 @@ fn init {
   ignore(test_render_pdf_thumbnail_oracle_ffi)
   ignore(test_vector_files_equal_ffi)
   ignore(test_vector_file_equals_bytes_ffi)
-  ignore(test_argb32_blue_paint_oracle_ffi)
-  ignore(test_argb32_scene_oracle_ffi)
   ignore(test_raster_surface_owner_count_ffi)
 }
 

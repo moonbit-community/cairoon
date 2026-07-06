@@ -91,6 +91,11 @@ Implemented in this workspace:
   extents/text-to-glyphs oracle externs plus native result decoder locally.
   This keeps ScaledFont oracle assertions outside the public package root
   without exposing private `TextToGlyphsNative` helpers.
+- The ARGB32 image rendering oracle now lives in `src/tests/oracle/image`,
+  importing the public `caimeo/cairoon` package and declaring its scene oracle
+  extern locally. This proves pixel-differential rendering tests can leave the
+  public package root while still exercising ordinary and buffer-backed image
+  surfaces through the published API.
 - C FFI glue split by Cairo object family, following pycairo's
   `private.h` plus per-family C file architecture. GC-managed external objects
   currently cover `Surface`, `MappedImageSurface`, `ImageData`, `Context`,
