@@ -170,20 +170,6 @@ options(
     "native/cairoon_objects.c",
     "native/cairoon_stream.c",
     "native/cairoon_misc.c",
-    "native/cairoon_test_common.c",
-    "native/cairoon_test_file.c",
-    "native/cairoon_test_vector.c",
-    "native/cairoon_test_vector_scenes.c",
-    "native/cairoon_test_vector_tag_scenes.c",
-    "native/cairoon_test_backend_combo.c",
-    "native/cairoon_test_backend_nested.c",
-    "native/cairoon_test_backend_sequence.c",
-    "native/cairoon_test_backend_tag_matrix.c",
-    "native/cairoon_test_backend_lifecycle.c",
-    "native/cairoon_test_pdf_vector.c",
-    "native/cairoon_test_ps_vector.c",
-    "native/cairoon_test_svg_vector.c",
-    "native/cairoon_test_image.c",
     "native/cairoon_device.c",
     "native/cairoon_surface.c",
     "native/cairoon_surface_png.c",
@@ -214,7 +200,6 @@ options(
     "native/cairoon_font_options.c",
     "native/cairoon_font_face.c",
     "native/cairoon_scaled_font.c",
-    "native/cairoon_scaled_font_oracle.c",
     "native/cairoon_region.c",
   ],
   targets: {
@@ -387,30 +372,44 @@ file basenames in this section are relative to `src/native/`.
 - `cairoon_raster_source_pattern.c`: public raster-source constructor and
   callback accessor exports.
 - `cairoon_raster_source_callbacks.c`: retained raster-source callback state,
-  acquired-surface owner tracking, Cairo acquire/release trampolines, and the
-  owner-count test probe.
+  acquired-surface owner tracking, and Cairo acquire/release trampolines.
 - `cairoon_font_options.c`, `cairoon_font_face.c`,
-  `cairoon_scaled_font.c`, and `cairoon_scaled_font_oracle.c`: font-options,
-  toy-font-face, scaled-font, and scaled-font oracle exports.
+  and `cairoon_scaled_font.c`: font-options, toy-font-face, and scaled-font
+  exports.
 - `cairoon_region.c`: `Region` exports.
-- `cairoon_test_common.c`, `cairoon_test_file.c`,
-  `cairoon_test_vector.c`, `cairoon_test_vector_scenes.c`,
-  `cairoon_test_vector_tag_scenes.c`, `cairoon_test_backend_combo.c`,
-  `cairoon_test_backend_nested.c`, `cairoon_test_backend_sequence.c`,
-  `cairoon_test_pdf_vector.c`, `cairoon_test_ps_vector.c`,
-  `cairoon_test_svg_vector.c`, and
-  `cairoon_test_image.c`: private white-box oracle helpers only. Keep public
-  binding exports out of these files, and keep test oracles out of
-  `cairoon_misc.c` except for truly tiny module-level probes. Keep
-  vector-output exports in `cairoon_test_vector.c`; shared vector scene ids and
-  prototypes belong in `cairoon_test_vector_private.h`; primitive/common
-  drawing scenes belong in `cairoon_test_vector_scenes.c`; tag-heavy vector
-  scenes belong in `cairoon_test_vector_tag_scenes.c`; cross-backend feature
-  combinations belong in focused files such as `cairoon_test_backend_combo.c`,
-  `cairoon_test_backend_nested.c`, `cairoon_test_backend_sequence.c`,
-  `cairoon_test_backend_tag_matrix.c`, and
-  `cairoon_test_backend_lifecycle.c`;
-  single-backend feature renderers belong in the PDF/PS/SVG vector files.
+
+Test-only C oracle helpers live under `src/tests/oracle/native/`, not
+`src/native/`, and are compiled by that package's own `native-stub` list. Keep
+constants probes in `cairoon_test_constants.c`, scaled-font direct-C probes in
+`cairoon_scaled_font_oracle.c`, raster-source owner-count probes in
+`cairoon_test_raster_source.c`, ARGB32 image oracles in
+`cairoon_test_image.c`, common drawing helpers in `cairoon_test_common.c`,
+normalized file comparison helpers in `cairoon_test_file.c`, vector-output
+exports in `cairoon_test_vector.c`, shared vector scene ids and prototypes in
+`cairoon_test_vector_private.h`, primitive/common vector scenes in
+`cairoon_test_vector_scenes.c`, tag-heavy vector scenes in
+`cairoon_test_vector_tag_scenes.c`, cross-backend feature combinations in
+focused files such as `cairoon_test_backend_combo.c`,
+`cairoon_test_backend_nested.c`, `cairoon_test_backend_sequence.c`,
+`cairoon_test_backend_tag_matrix.c`, and
+`cairoon_test_backend_lifecycle.c`, and single-backend feature renderers in the
+PDF/PS/SVG vector files. Public binding C exports must not be added to this
+oracle-native package.
+
+## Package Seam Rules
+
+Pure support packages may live under `src/core/<family>/` after a focused seam
+probe proves external call sites still work through `caimeo/cairoon`. The first
+accepted probe is `src/core/glyph`: the public package imports it and exposes
+`Glyph` with `pub type Glyph = @glyph.Glyph`. This keeps external construction,
+field access, and method syntax such as `@cairoon.Glyph::new(...)`,
+`glyph.index`, and `glyph.components()` valid while the implementation lives in
+a subpackage.
+
+Do not move a type whose methods raise `CairoError` into a subpackage until the
+error/status family has its own proven non-cyclic package seam. A child package
+must not import the public `caimeo/cairoon` facade just to reuse facade errors,
+because the facade imports child packages.
 
 When a new Cairo family is migrated, create a new C file named after that
 family instead of adding unrelated code to an existing file. Keep files small

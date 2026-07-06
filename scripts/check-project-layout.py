@@ -69,7 +69,7 @@ def check_source_root() -> list[str]:
     return errors
 
 
-def check_test_packages() -> list[str]:
+def check_nested_packages() -> list[str]:
     errors: list[str] = []
     root_tests = REPO_ROOT / "tests"
     if root_tests.exists():
@@ -84,20 +84,21 @@ def check_test_packages() -> list[str]:
                 "src/tests: " + ", ".join(str(path) for path in sorted(forbidden))
             )
 
-    if TEST_PACKAGE_ROOT.exists():
-        for path in sorted(TEST_PACKAGE_ROOT.rglob("moon.pkg")):
-            text = path.read_text(encoding="utf-8")
-            generated_interface = path.parent / "pkg.generated.mbti"
-            if not generated_interface.exists():
-                errors.append(
-                    f"{path.parent.relative_to(REPO_ROOT)}: missing "
-                    "pkg.generated.mbti; run moon info --target native"
-                )
-            if '"caimeo/cairoon"' in text and '"cc-link-flags"' not in text:
-                errors.append(
-                    f"{path.relative_to(REPO_ROOT)}: external cairoon test "
-                    "packages must carry Cairo cc-link-flags"
-                )
+    for path in sorted(PACKAGE_ROOT.rglob("moon.pkg")):
+        if path.parent == PACKAGE_ROOT:
+            continue
+        text = path.read_text(encoding="utf-8")
+        generated_interface = path.parent / "pkg.generated.mbti"
+        if not generated_interface.exists():
+            errors.append(
+                f"{path.parent.relative_to(REPO_ROOT)}: missing "
+                "pkg.generated.mbti; run moon info --target native"
+            )
+        if '"caimeo/cairoon"' in text and '"cc-link-flags"' not in text:
+            errors.append(
+                f"{path.relative_to(REPO_ROOT)}: external cairoon packages "
+                "must carry Cairo cc-link-flags"
+            )
     return errors
 
 
@@ -181,7 +182,7 @@ def main() -> int:
 
     errors.extend(check_root_freeze(allowed))
     errors.extend(check_source_root())
-    errors.extend(check_test_packages())
+    errors.extend(check_nested_packages())
     errors.extend(check_nested_c_files())
     if errors:
         for error in errors:

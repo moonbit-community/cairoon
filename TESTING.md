@@ -209,7 +209,7 @@ It runs `moon fmt --check`, `scripts/check-project-layout.py`,
 `scripts/check-api-inventory.py`, `scripts/check-reliability-ledger.py`,
 native `moon check`, extracted external test packages under
 `src/tests/api` (version, enum, status, and pure value APIs),
-`src/tests/matrix`, `src/tests/region`, `src/tests/surface`,
+`src/core/glyph`, `src/tests/matrix`, `src/tests/region`, `src/tests/surface`,
 `src/tests/context`, `src/tests/pattern`, `src/tests/font`, and
 `src/tests/stream`, `src/tests/object`, `src/tests/lifetime`, and
 `src/tests/oracle/native`, `src/tests/oracle/constants`,
@@ -226,7 +226,9 @@ Set `CAIROON_VERIFY_ASAN=0` to skip the targeted ASan portion intentionally.
 
 The current cairoon slice is not a full migration. It has native package setup,
 pycairo-style C glue split into private shared declarations plus per-family
-stub files, with private test-only oracle glue moved to the
+stub files, a first pure support package seam for `Glyph` under
+`src/core/glyph` with package-local pure value tests, with private test-only
+oracle glue moved to the
 `src/tests/oracle/native` support package and split into constants,
 ScaledFont, common drawing, file/normalized-output comparison, ARGB32 image,
 raster-owner, vector-output entry points, vector-output scene drawing, and

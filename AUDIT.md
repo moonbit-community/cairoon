@@ -112,6 +112,12 @@ Implemented in this workspace:
   constants, ScaledFont, image, raster-owner, and PDF/PS/SVG vector oracle C
   symbols out of public `src/moon.pkg` while preserving a shared C oracle
   implementation for all external oracle tests.
+- `Glyph` is the first pure support package seam. The implementation lives in
+  `src/core/glyph`, while the public package re-exports it with a type alias.
+  Package-local tests cover the pure value invariants, while API, Context, and
+  ScaledFont oracle tests prove `@cairoon.Glyph::new`, field access,
+  `Glyph::components`, glyph-array marshaling, and text-to-glyphs output still
+  work through the public facade.
 - C FFI glue split by Cairo object family, following pycairo's
   `private.h` plus per-family C file architecture. GC-managed external objects
   currently cover `Surface`, `MappedImageSurface`, `ImageData`, `Context`,

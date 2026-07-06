@@ -2,6 +2,7 @@
 package "caimeo/cairoon"
 
 import {
+  "caimeo/cairoon/core/glyph",
   "moonbitlang/core/debug",
 }
 
@@ -176,8 +177,8 @@ pub fn Context::get_scaled_font(Self) -> ScaledFont raise CairoError
 pub fn Context::get_source(Self) -> Pattern raise CairoError
 pub fn Context::get_target(Self) -> Surface raise CairoError
 pub fn Context::get_tolerance(Self) -> Double raise CairoError
-pub fn Context::glyph_extents(Self, ArrayView[Glyph]) -> TextExtents raise CairoError
-pub fn Context::glyph_path(Self, ArrayView[Glyph]) -> Unit raise CairoError
+pub fn Context::glyph_extents(Self, ArrayView[@glyph.Glyph]) -> TextExtents raise CairoError
+pub fn Context::glyph_path(Self, ArrayView[@glyph.Glyph]) -> Unit raise CairoError
 pub fn Context::has_current_point(Self) -> Bool raise CairoError
 pub fn Context::hash(Self) -> UInt64
 pub fn Context::identity_matrix(Self) -> Unit raise CairoError
@@ -236,10 +237,10 @@ pub fn Context::set_source_rgb(Self, Double, Double, Double) -> Unit raise Cairo
 pub fn Context::set_source_rgba(Self, Double, Double, Double, Double) -> Unit raise CairoError
 pub fn Context::set_source_surface(Self, Surface, x? : Double, y? : Double) -> Unit raise CairoError
 pub fn Context::set_tolerance(Self, Double) -> Unit raise CairoError
-pub fn Context::show_glyphs(Self, ArrayView[Glyph]) -> Unit raise CairoError
+pub fn Context::show_glyphs(Self, ArrayView[@glyph.Glyph]) -> Unit raise CairoError
 pub fn Context::show_page(Self) -> Unit raise CairoError
 pub fn Context::show_text(Self, String) -> Unit raise CairoError
-pub fn Context::show_text_glyphs(Self, String, ArrayView[Glyph], ArrayView[TextCluster], flags? : TextClusterFlags) -> Unit raise CairoError
+pub fn Context::show_text_glyphs(Self, String, ArrayView[@glyph.Glyph], ArrayView[TextCluster], flags? : TextClusterFlags) -> Unit raise CairoError
 pub fn Context::status(Self) -> Status
 pub fn Context::stroke(Self) -> Unit raise CairoError
 pub fn Context::stroke_extents(Self) -> (Double, Double, Double, Double) raise CairoError
@@ -399,14 +400,6 @@ pub(all) enum Format {
 } derive(Eq, @debug.Debug)
 pub fn Format::stride_for_width(Self, Int) -> Int
 pub fn Format::stride_for_width_raw(Int, Int) -> Int
-
-pub struct Glyph {
-  index : UInt64
-  x : Double
-  y : Double
-} derive(Eq, @debug.Debug)
-pub fn Glyph::components(Self) -> (UInt64, Double, Double)
-pub fn Glyph::new(UInt64, Double, Double) -> Self
 
 pub(all) enum HintMetrics {
   HintMetricsDefault
@@ -716,13 +709,13 @@ pub fn ScaledFont::get_font_face(Self) -> FontFace raise CairoError
 pub fn ScaledFont::get_font_matrix(Self) -> Matrix raise CairoError
 pub fn ScaledFont::get_font_options(Self) -> FontOptions raise CairoError
 pub fn ScaledFont::get_scale_matrix(Self) -> Matrix raise CairoError
-pub fn ScaledFont::glyph_extents(Self, ArrayView[Glyph]) -> TextExtents raise CairoError
+pub fn ScaledFont::glyph_extents(Self, ArrayView[@glyph.Glyph]) -> TextExtents raise CairoError
 pub fn ScaledFont::hash(Self) -> UInt64
 pub fn ScaledFont::new(FontFace, Matrix, Matrix, FontOptions) -> Self raise CairoError
 pub fn ScaledFont::status(Self) -> Status
 pub fn ScaledFont::text_extents(Self, String) -> TextExtents raise CairoError
 pub fn ScaledFont::text_to_glyphs(Self, Double, Double, String) -> TextGlyphRun raise CairoError
-pub fn ScaledFont::text_to_glyphs_only(Self, Double, Double, String) -> Array[Glyph] raise CairoError
+pub fn ScaledFont::text_to_glyphs_only(Self, Double, Double, String) -> Array[@glyph.Glyph] raise CairoError
 pub impl Eq for ScaledFont
 pub impl Hash for ScaledFont
 
@@ -942,14 +935,15 @@ pub fn TextExtents::components(Self) -> (Double, Double, Double, Double, Double,
 pub fn TextExtents::new(Double, Double, Double, Double, Double, Double) -> Self
 
 pub struct TextGlyphRun {
-  glyphs : Array[Glyph]
+  glyphs : Array[@glyph.Glyph]
   clusters : Array[TextCluster]
   flags : TextClusterFlags
 } derive(Eq, @debug.Debug)
-pub fn TextGlyphRun::components(Self) -> (Array[Glyph], Array[TextCluster], TextClusterFlags)
-pub fn TextGlyphRun::new(Array[Glyph], Array[TextCluster], TextClusterFlags) -> Self
+pub fn TextGlyphRun::components(Self) -> (Array[@glyph.Glyph], Array[TextCluster], TextClusterFlags)
+pub fn TextGlyphRun::new(Array[@glyph.Glyph], Array[TextCluster], TextClusterFlags) -> Self
 
 // Type aliases
+pub using @glyph {type Glyph}
 
 // Traits
 

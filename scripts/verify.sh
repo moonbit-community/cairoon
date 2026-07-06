@@ -4,7 +4,14 @@ set -euo pipefail
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$repo_root"
 package_root="src"
+support_packages=()
 external_test_packages=()
+
+if [[ -d "$package_root/core" ]]; then
+  while IFS= read -r support_pkg_config; do
+    support_packages+=("$(dirname "$support_pkg_config")")
+  done < <(find "$package_root/core" -name moon.pkg -type f -print | sort)
+fi
 
 if [[ -d "$package_root/tests" ]]; then
   while IFS= read -r test_pkg_config; do
@@ -17,6 +24,13 @@ run() {
   printf ' %q' "$@"
   printf '\n'
   "$@"
+}
+
+run_support_packages() {
+  local support_pkg
+  for support_pkg in "${support_packages[@]}"; do
+    run moon test "$support_pkg" --target native -v
+  done
 }
 
 run_external_test_packages() {
@@ -37,6 +51,7 @@ run python3 ./scripts/check-ffi-ownership.py
 run python3 ./scripts/check-api-inventory.py
 run python3 ./scripts/check-reliability-ledger.py
 run moon check --target native
+run_support_packages
 run_external_test_packages
 
 run moon test --target native
