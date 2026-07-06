@@ -1,25 +1,25 @@
 ///|
 test "rectangle values expose fields and components" {
-  let rect = Rectangle::new(0.0, 0.5, 0.25, 0.75)
+  let rect = @cairoon.Rectangle::new(0.0, 0.5, 0.25, 0.75)
   inspect(rect.x, content="0")
   inspect(rect.y, content="0.5")
   inspect(rect.width, content="0.25")
   inspect(rect.height, content="0.75")
   debug_inspect(rect.components(), content="(0, 0.5, 0.25, 0.75)")
   inspect(rect.component(1), content="0.5")
-  let result = run_cairo(() => rect.component(4))
+  let result = @cairoon.run_cairo(() => rect.component(4))
   inspect(result is Err(_), content="true")
   match result {
-    Err(CairoInvalidArgument(InvalidIndex, _)) => ()
+    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidIndex, _)) => ()
     _ => @test.fail("expected InvalidIndex")
   }
 }
 
 ///|
 test "rectangle int defaults and components" {
-  let default_rect = RectangleInt::new()
+  let default_rect = @cairoon.RectangleInt::new()
   debug_inspect(default_rect.components(), content="(0, 0, 0, 0)")
-  let rect = RectangleInt::new(x=1, y=2, width=3, height=4)
+  let rect = @cairoon.RectangleInt::new(x=1, y=2, width=3, height=4)
   inspect(rect.x, content="1")
   inspect(rect.y, content="2")
   inspect(rect.width, content="3")
@@ -30,7 +30,7 @@ test "rectangle int defaults and components" {
 
 ///|
 test "glyph uses unsigned index and double offsets" {
-  let glyph = Glyph::new(42UL, 0.5, 0.25)
+  let glyph = @cairoon.Glyph::new(42UL, 0.5, 0.25)
   inspect(glyph.index.to_string(), content="42")
   inspect(glyph.x, content="0.5")
   inspect(glyph.y, content="0.25")
@@ -40,29 +40,29 @@ test "glyph uses unsigned index and double offsets" {
 ///|
 test "glyph index preserves uint64 range" {
   let max_index : UInt64 = 18446744073709551615
-  let glyph = Glyph::new(max_index, 1.0, -1.0)
+  let glyph = @cairoon.Glyph::new(max_index, 1.0, -1.0)
   inspect(glyph.index.to_string(), content="18446744073709551615")
   debug_inspect(glyph.components(), content="(18446744073709551615, 1, -1)")
 }
 
 ///|
 test "text cluster values expose tuple order" {
-  let cluster = TextCluster::new(2, 1)
+  let cluster = @cairoon.TextCluster::new(2, 1)
   inspect(cluster.num_bytes, content="2")
   inspect(cluster.num_glyphs, content="1")
   debug_inspect(cluster.components(), content="(2, 1)")
   inspect(cluster.component(0), content="2")
-  let result = run_cairo(() => cluster.component(2))
+  let result = @cairoon.run_cairo(() => cluster.component(2))
   inspect(result is Err(_), content="true")
   match result {
-    Err(CairoInvalidArgument(InvalidIndex, _)) => ()
+    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidIndex, _)) => ()
     _ => @test.fail("expected InvalidIndex")
   }
 }
 
 ///|
 test "text extents values expose pycairo field order" {
-  let extents = TextExtents::new(0.0, 0.5, 0.25, 0.75, 0.5, 0.125)
+  let extents = @cairoon.TextExtents::new(0.0, 0.5, 0.25, 0.75, 0.5, 0.125)
   inspect(extents.x_bearing, content="0")
   inspect(extents.y_bearing, content="0.5")
   inspect(extents.width, content="0.25")
@@ -78,7 +78,7 @@ test "text extents values expose pycairo field order" {
 
 ///|
 test "font extents values expose cairo field order" {
-  let extents = FontExtents::new(1.0, 2.0, 3.0, 4.0, 5.0)
+  let extents = @cairoon.FontExtents::new(1.0, 2.0, 3.0, 4.0, 5.0)
   inspect(extents.ascent, content="1")
   inspect(extents.descent, content="2")
   inspect(extents.height, content="3")
@@ -92,13 +92,15 @@ test "font extents values expose cairo field order" {
 test "pure value types preserve pycairo numeric limits" {
   let max_double = 1.7976931348623157e308
   let min_double = -max_double
-  let rect = Rectangle::new(max_double, min_double, max_double, min_double)
+  let rect = @cairoon.Rectangle::new(
+    max_double, min_double, max_double, min_double,
+  )
   inspect(rect.x == max_double, content="true")
   inspect(rect.y == min_double, content="true")
   inspect(rect.width == max_double, content="true")
   inspect(rect.height == min_double, content="true")
 
-  let extents = TextExtents::new(
+  let extents = @cairoon.TextExtents::new(
     max_double, min_double, max_double, min_double, max_double, min_double,
   )
   inspect(extents.x_bearing == max_double, content="true")
@@ -110,7 +112,7 @@ test "pure value types preserve pycairo numeric limits" {
 
   let max_int = 2147483647
   let min_int = -2147483647 - 1
-  let cluster = TextCluster::new(max_int, min_int)
+  let cluster = @cairoon.TextCluster::new(max_int, min_int)
   inspect(cluster.num_bytes, content="2147483647")
   inspect(cluster.num_glyphs, content="-2147483648")
 }

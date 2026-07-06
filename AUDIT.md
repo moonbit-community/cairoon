@@ -29,6 +29,10 @@ Implemented in this workspace:
   External test packages that import cairoon carry Cairo `cc-link-flags`, and
   `scripts/configure-link-flags.sh --check` verifies those flags alongside
   `src/moon.pkg`.
+- The external API black-box package now also covers portable enum
+  constructors, `Format::stride_for_width`, `FORMAT_INVALID`, `check_status`,
+  `run_cairo`, all `CairoError` suberror classes, and pure public value types
+  such as rectangles, glyphs, text clusters, and font/text extents.
 - Matrix black-box tests now live in `src/tests/matrix`, importing only the
   public `caimeo/cairoon` API. This validates external-package access to public
   types, methods, checked errors, and `CairoInvalidArgument` pattern matching;

@@ -208,7 +208,8 @@ It runs `moon fmt --check`, `scripts/check-project-layout.py`,
 `scripts/configure-link-flags.sh --check`, `scripts/check-ffi-ownership.py`,
 `scripts/check-api-inventory.py`, `scripts/check-reliability-ledger.py`,
 native `moon check`, the extracted external black-box API package under
-`src/tests/api` and Matrix package under `src/tests/matrix`, targeted white-box
+`src/tests/api` (version, enum, status, and pure value APIs) and Matrix package
+under `src/tests/matrix`, targeted white-box
 image, ScaledFont, vector-output,
 surface base/ImageData/stream/mapped/subsurface/recording/MIME/PDF/PS/SVG/Tee,
 script-device, object-trait, context-lifetime/state/matrix/path/group/text/glyph/
