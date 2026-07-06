@@ -5,7 +5,7 @@ repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$repo_root"
 public_package_config="$repo_root/src/moon.pkg"
 native_package_config="$repo_root/src/native/moon.pkg"
-test_packages_root="$repo_root/src/tests"
+package_root="$repo_root/src"
 
 usage() {
   cat <<'USAGE'
@@ -88,11 +88,14 @@ has_native_stub() {
   grep -q '"native-stub"' "$file"
 }
 
-collect_test_configs() {
-  if [[ ! -d "$test_packages_root" ]]; then
-    return
-  fi
-  find "$test_packages_root" -name moon.pkg -type f -print | sort
+collect_dependent_configs() {
+  find "$package_root" -name moon.pkg -type f -print | sort | while IFS= read -r config; do
+    if [[ "$config" == "$public_package_config" ||
+          "$config" == "$native_package_config" ]]; then
+      continue
+    fi
+    printf '%s\n' "$config"
+  done
 }
 
 if [[ "$mode" == "--check" ]]; then
@@ -177,7 +180,7 @@ EOF
       fi
     fi
     checked=$((checked + 1))
-  done < <(collect_test_configs)
+  done < <(collect_dependent_configs)
 
   printf 'Cairo link/stub flags match pkg-config in %s moon.pkg files.\n' "$checked"
   exit 0
@@ -225,7 +228,7 @@ update_native_config() {
   mv "$tmp" "$file"
 }
 
-update_test_config() {
+update_dependent_config() {
   local file="$1"
   local tmp
   tmp="$(mktemp "${TMPDIR:-/tmp}/cairoon-moon.pkg.XXXXXX")"
@@ -252,8 +255,8 @@ while IFS= read -r config; do
   if ! needs_cairo_link "$config"; then
     continue
   fi
-  update_test_config "$config"
+  update_dependent_config "$config"
   updated=$((updated + 1))
-done < <(collect_test_configs)
+done < <(collect_dependent_configs)
 
 printf 'Updated Cairo link/stub flags from pkg-config in %s moon.pkg files.\n' "$updated"

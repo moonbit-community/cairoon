@@ -120,6 +120,12 @@ Implemented in this workspace:
   preparation, while API, Context, and ScaledFont oracle tests prove
   `@cairoon.Glyph::new`, field access, `Glyph::components`, glyph-array FFI, and
   text-to-glyphs output still work through the public facade.
+- `src/internal/version` is the first internal implementation package seam. It
+  owns the raw Cairo version externs and UTF-8 decoding, while the public
+  `src/version.mbt` facade preserves `@cairoon.cairo_version()` and
+  `@cairoon.cairo_version_string()`. The package has a local native test and is
+  discovered by `scripts/verify.sh` with Cairo link flags maintained by
+  `scripts/configure-link-flags.sh`.
 - C FFI glue split by Cairo object family, following pycairo's
   `private.h` plus per-family C file architecture. GC-managed external objects
   currently cover `Surface`, `MappedImageSurface`, `ImageData`, `Context`,

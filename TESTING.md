@@ -215,9 +215,10 @@ It runs `moon fmt --check`, `scripts/check-project-layout.py`,
 native `moon check`, the `src/native` native-stub package, extracted external
 test packages under
 `src/tests/api` (version, enum, status, and pure value APIs),
-`src/core/glyph`, `src/tests/matrix`, `src/tests/region`, `src/tests/surface`,
-`src/tests/context`, `src/tests/pattern`, `src/tests/font`, and
-`src/tests/stream`, `src/tests/object`, `src/tests/lifetime`, and
+support packages under `src/core/glyph` and `src/internal/version`,
+`src/tests/matrix`, `src/tests/region`, `src/tests/surface`, `src/tests/context`,
+`src/tests/pattern`, `src/tests/font`, and `src/tests/stream`,
+`src/tests/object`, `src/tests/lifetime`, and
 `src/tests/oracle/native`, `src/tests/oracle/constants`,
 `src/tests/oracle/scaled_font`, and
 `src/tests/oracle/image`, `src/tests/oracle/pattern_raster`, and

@@ -17,6 +17,12 @@ if [[ -d "$package_root/core" ]]; then
   done < <(find "$package_root/core" -name moon.pkg -type f -print | sort)
 fi
 
+if [[ -d "$package_root/internal" ]]; then
+  while IFS= read -r support_pkg_config; do
+    support_packages+=("$(dirname "$support_pkg_config")")
+  done < <(find "$package_root/internal" -name moon.pkg -type f -print | sort)
+fi
+
 if [[ -d "$package_root/tests" ]]; then
   while IFS= read -r test_pkg_config; do
     external_test_packages+=("$(dirname "$test_pkg_config")")

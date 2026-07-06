@@ -19,6 +19,7 @@ SOURCE_SUFFIXES = (".mbt.md", ".mbti", ".mbt", ".c", ".h")
 PACKAGE_CONFIG_NAMES = {"moon.pkg"}
 NATIVE_PACKAGE_DIR = PACKAGE_ROOT / "native"
 NATIVE_PACKAGE_CONFIG = NATIVE_PACKAGE_DIR / "moon.pkg"
+CAIRO_LINK_IMPORTS = ('"caimeo/cairoon"', '"caimeo/cairoon/native"')
 
 
 def is_source_like(path: pathlib.Path) -> bool:
@@ -28,6 +29,10 @@ def is_source_like(path: pathlib.Path) -> bool:
 
 def is_public_root_file(path: pathlib.Path) -> bool:
     return is_source_like(path) or path.name in PACKAGE_CONFIG_NAMES
+
+
+def needs_cairo_link(text: str) -> bool:
+    return any(import_name in text for import_name in CAIRO_LINK_IMPORTS)
 
 
 def read_filename_allowlist(path: pathlib.Path, label: str) -> set[str]:
@@ -140,9 +145,9 @@ def check_nested_packages() -> list[str]:
                 f"{path.parent.relative_to(REPO_ROOT)}: missing "
                 "pkg.generated.mbti; run moon info --target native"
             )
-        if '"caimeo/cairoon"' in text and '"cc-link-flags"' not in text:
+        if needs_cairo_link(text) and '"cc-link-flags"' not in text:
             errors.append(
-                f"{path.relative_to(REPO_ROOT)}: external cairoon packages "
+                f"{path.relative_to(REPO_ROOT)}: cairoon-dependent packages "
                 "must carry Cairo cc-link-flags"
             )
     return errors

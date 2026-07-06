@@ -222,9 +222,9 @@ derive `stub-cc-flags` and `cc-link-flags`; record `stub-cc-flags` in
 `src/native/moon.pkg` and record `cc-link-flags` in every package that imports
 `caimeo/cairoon` or compiles Cairo stubs. Refresh those checked-in flags with
 `scripts/configure-link-flags.sh`, and keep `scripts/configure-link-flags.sh
---check` in the local verification gate so the public, native, and external
-test package configs cannot silently drift away from the target platform's
-`pkg-config` result.
+--check` in the local verification gate so the public, native, internal, and
+external test package configs cannot silently drift away from the target
+platform's `pkg-config` result.
 
 ## Raw FFI File Boundaries
 
@@ -389,6 +389,16 @@ a subpackage. The same package owns `field_arrays`, the MoonBit-side
 preparation step for `cairo_glyph_t` array marshaling; public context and
 scaled-font wrappers should call `@glyph.field_arrays` instead of re-expanding
 glyph fields in the facade package.
+
+Internal implementation packages may live under `src/internal/<family>/` when a
+family's public API can remain in the facade while raw externs or helper logic
+move out of the public package root. The first accepted probe is
+`src/internal/version`: it owns the raw Cairo version externs and UTF-8 decoding,
+while `src/version.mbt` keeps the published `@cairoon.cairo_version()` and
+`@cairoon.cairo_version_string()` functions as thin wrappers. Any internal
+package that imports `caimeo/cairoon/native` must carry Cairo `cc-link-flags`
+and package-local tests so `moon test src/internal/<family> --target native`
+links independently.
 
 Do not move a type whose methods raise `CairoError` into a subpackage until the
 error/status family has its own proven non-cyclic package seam. A child package

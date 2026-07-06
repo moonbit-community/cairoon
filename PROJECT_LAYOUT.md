@@ -22,6 +22,8 @@ same commit.
 - 71 `.mbt` implementation files directly in `src/`.
 - 1 `.mbt` implementation file and 1 package-local `*_test.mbt` file in
   `src/core/glyph/`.
+- 2 `.mbt` implementation files and 1 package-local `*_test.mbt` file in
+  `src/internal/version/`.
 - 1 native-package MoonBit anchor file in `src/native/`.
 - 76 black-box `*_test.mbt` files in `src/tests/*`.
 - 0 white-box `*_wbtest.mbt` files in `src/`.
@@ -62,6 +64,12 @@ cairoon/
         moon.pkg
         glyph.mbt
         glyph_test.mbt
+    internal/
+      version/
+        moon.pkg
+        ffi.mbt
+        version.mbt
+        version_test.mbt
     native/
       moon.pkg
       native_anchor.mbt
@@ -119,6 +127,7 @@ MoonBit package shape without weakening the public interface.
 |---|---|---|
 | Public package | `src/` | Owns the stable `caimeo/cairoon` interface and public external object types until a facade proof proves otherwise. |
 | Pure support packages | `src/core/` | May hold pure values/helpers only after their public names can be preserved or intentionally re-exported. `src/core/glyph` is the first accepted seam: the public package exposes `pub type Glyph = @glyph.Glyph`, owns `@glyph.field_arrays` for glyph-array marshaling preparation, and tests prove `@cairoon.Glyph::new`, field access, dot-method syntax, and glyph-array FFI paths still work through the facade. |
+| Internal implementation packages | `src/internal/<family>/` | May hold native-gated extern declarations and implementation helpers for small public facade functions when the public `caimeo/cairoon` API remains unchanged. `src/internal/version` is the first accepted seam: it owns the raw version externs and UTF-8 decoding, while `src/version.mbt` remains a thin facade. Any package that imports `caimeo/cairoon/native` must carry Cairo `cc-link-flags` so package-local tests link independently. |
 | Native stubs | `src/native/` | Owns public C glue compilation through `src/native/moon.pkg`. Every `.c` file beside that package file must be listed by bare filename in its `native-stub` list; `src/moon.pkg` imports `caimeo/cairoon/native` and must not own `native-stub` entries. Headers in `src/native/` are private to those stubs. |
 | Black-box tests | `src/tests/<family>/` | Import `caimeo/cairoon`; assert only public behavior. Any package that imports cairoon must carry Cairo `cc-link-flags`, because native link flags are not propagated to external test executables. |
 | White-box oracles | `src/tests/oracle/<family>/` plus shared C support in `src/tests/oracle/native/` | Import `caimeo/cairoon` for the public API and declare test-only direct-C oracle externs locally; public binding wrappers must never import oracle packages. Test-only C symbols are provided by the oracle-native support package, not `src/moon.pkg`. |
@@ -132,9 +141,10 @@ Do not add new source-like files directly under `src/`. The direct public
 package files listed in `scripts/public-package-root-allowlist.txt` are
 grandfathered only so the migration can proceed in reviewable slices. New
 MoonBit implementation belongs in `src/core/<family>/`,
-`src/<family-package>/`, or another explicit package role; new tests belong
-under `src/tests/<family>/`; new public C glue belongs under `src/native/`;
-new oracle C glue belongs under `src/tests/oracle/native/`.
+`src/internal/<family>/`, `src/<family-package>/`, or another explicit package
+role; new tests belong under `src/tests/<family>/`; new public C glue belongs
+under `src/native/`; new oracle C glue belongs under
+`src/tests/oracle/native/`.
 
 ## Migration Order
 
@@ -170,6 +180,10 @@ Follow this order. Each step gets its own commit and must pass
    `@cairoon.<Constructor>`. A facade alias also cannot grow extra facade-local
    methods for the child type, so a type should move only when its full public
    method set can move with it or when a wrapper/seam design has been proven.
+   `src/internal/version` is the first implementation-package seam: the raw
+   version externs and UTF-8 decoding moved out of the public package, while
+   `@cairoon.cairo_version()` and `@cairoon.cairo_version_string()` remain
+   facade functions with unchanged public signatures.
 7. **Family package migration**: move one Cairo family per commit. C files,
    raw externs, and wrappers move together only when the public package seam is
    proven.
@@ -210,8 +224,9 @@ before MoonBit compilation. The layout check proves:
   files, because it is outside the package search path;
 - every non-root `src/**/moon.pkg` has an adjacent `pkg.generated.mbti`, so
   package seams are reviewed through `moon info --target native`;
-- external black-box test packages that import `caimeo/cairoon` carry Cairo
-  `cc-link-flags`;
+- every child package that imports `caimeo/cairoon` or
+  `caimeo/cairoon/native` carries Cairo `cc-link-flags`, so both black-box
+  tests and internal native-gated implementation packages link independently;
 - `src/moon.pkg` imports `caimeo/cairoon/native` and owns no `native-stub`
   entries;
 - every `.c` file under `src/native/` is referenced by `src/native/moon.pkg`
@@ -228,5 +243,7 @@ that the root has become project-management space and that public C
 source/header files are isolated in the `src/native` native-stub package while
 oracle C source/header files are isolated in `src/tests/oracle/native`, both
 with explicit `native-stub` ownership. It also proves the public package root is
-not allowed to absorb new migration work. Completion is proved only when every
-package role above has a passing targeted verification entry in `AUDIT.md`.
+not allowed to absorb new migration work, and that internal implementation
+packages are first-class support packages in the verification gate. Completion
+is proved only when every package role above has a passing targeted
+verification entry in `AUDIT.md`.
