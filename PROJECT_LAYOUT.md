@@ -18,6 +18,10 @@ external black-box tests live in `src/tests/*`, public C stubs live in the
 are grandfathered migration debt, and new implementation or test files must go
 into a MoonBit subpackage unless the layout plan is deliberately revised in the
 same commit.
+The root and public-package-root allowlists are exact ledgers, not open-ended
+exemptions: when a file moves out of the repository root or direct `src/`, the
+same commit must remove its allowlist entry so an identically named file cannot
+silently return later.
 
 - 70 `.mbt` implementation files directly in `src/`.
 - 1 `.mbt` implementation file and 1 package-local `*_test.mbt` file in
@@ -280,6 +284,9 @@ binding implementation.
 - Any new direct `src/` `.mbt`, `.mbt.md`, `.mbti`, `.c`, `.h`, or `moon.pkg`
   file must fail the layout gate unless it is an intentional public package
   root exception documented by this layout plan.
+- The root and direct-`src/` allowlists must exactly match the files they
+  grandfather. Moving a file into a child package must remove its allowlist
+  entry in the same commit; stale allowlist names are layout regressions.
 
 ## Verification
 
@@ -289,6 +296,8 @@ before MoonBit compilation. The layout check proves:
 - no source-like files have appeared in the repository root;
 - no new source-like files have appeared directly under `src/`, so the public
   package root cannot grow while family packages are being extracted;
+- the root and public-package-root allowlists are exact ledgers with no stale
+  names left behind after a migration slice moves files into child packages;
 - `src/moon.pkg`, `src/pkg.generated.mbti`, and `moon.mod source = "src"`
   are present;
 - repository-root `tests/` does not contain MoonBit packages or source-like

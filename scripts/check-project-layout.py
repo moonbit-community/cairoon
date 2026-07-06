@@ -51,34 +51,47 @@ def read_filename_allowlist(path: pathlib.Path, label: str) -> set[str]:
 
 def check_root_freeze(allowed: set[str]) -> list[str]:
     errors: list[str] = []
-    root_source = sorted(
+    root_source = {
         path.name
         for path in REPO_ROOT.iterdir()
         if path.is_file() and is_source_like(path)
-    )
-    unexpected = [name for name in root_source if name not in allowed]
+    }
+    unexpected = sorted(root_source - allowed)
     if unexpected:
         errors.append(
             "new root source-like files are forbidden; move them into a package "
             "or update PROJECT_LAYOUT.md intentionally: " + ", ".join(unexpected)
+        )
+    stale = sorted(allowed - root_source)
+    if stale:
+        errors.append(
+            "root source allowlist entries must be removed when files move; "
+            "stale entries: " + ", ".join(stale)
         )
     return errors
 
 
 def check_public_package_root_freeze(allowed: set[str]) -> list[str]:
     errors: list[str] = []
-    direct_source = sorted(
+    direct_source = {
         path.name
         for path in PACKAGE_ROOT.iterdir()
         if path.is_file() and is_public_root_file(path)
-    )
-    unexpected = [name for name in direct_source if name not in allowed]
+    }
+    unexpected = sorted(direct_source - allowed)
     if unexpected:
         errors.append(
             "new source-like files directly under src/ are forbidden; place "
             "implementation, tests, docs, or generated interfaces in a "
             "subpackage, or update PROJECT_LAYOUT.md intentionally: "
             + ", ".join(unexpected)
+        )
+    stale = sorted(allowed - direct_source)
+    if stale:
+        errors.append(
+            "public package root allowlist entries must be removed in the same "
+            "commit that moves files out of src/; stale entries: "
+            + ", ".join(stale)
         )
     return errors
 

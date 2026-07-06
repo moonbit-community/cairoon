@@ -463,7 +463,11 @@ The public package root is frozen migration debt. Do not add new source-like
 files directly under `src/`; put new implementation in the package selected by
 the current migration step and update `PROJECT_LAYOUT.md` only when a deliberate
 new root exception is unavoidable. The layout gate checks
-`scripts/public-package-root-allowlist.txt` to make this enforceable.
+`scripts/public-package-root-allowlist.txt` to make this enforceable. Treat the
+root and public-package-root allowlists as exact ledgers: when a migration slice
+moves a grandfathered file into a child package, remove that filename from the
+matching allowlist in the same commit so the old location cannot reappear under
+the same name.
 
 When a new Cairo family is migrated, create a new C file named after that
 family instead of adding unrelated code to an existing file. Public C files
