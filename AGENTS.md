@@ -381,7 +381,8 @@ scenes in `cairoon_test_pattern_special_scenes.c`, common drawing helpers in
 exports in `cairoon_test_vector.c`, shared vector scene ids and prototypes in
 `cairoon_test_vector_private.h`, primitive/common vector scenes in
 `cairoon_test_vector_scenes.c`, tag-heavy vector scenes in
-`cairoon_test_vector_tag_scenes.c`, cross-backend feature combinations in
+`cairoon_test_vector_tag_scenes.c`, tagged vector text-state scenes in
+`cairoon_test_vector_text_state_scenes.c`, cross-backend feature combinations in
 focused files such as `cairoon_test_backend_combo.c`,
 `cairoon_test_backend_nested.c`, `cairoon_test_backend_sequence.c`,
 `cairoon_test_backend_tag_matrix.c`, and

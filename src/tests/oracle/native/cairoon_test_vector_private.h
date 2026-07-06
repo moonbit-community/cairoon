@@ -62,7 +62,8 @@ enum {
   CAIROON_TEST_VECTOR_BACKEND_TAG_MATRIX = 39,
   CAIROON_TEST_VECTOR_BACKEND_LIFECYCLE_MATRIX = 40,
   CAIROON_TEST_VECTOR_BACKEND_PAGE_TRANSITION = 41,
-  CAIROON_TEST_VECTOR_BACKEND_STATE_STACK = 42
+  CAIROON_TEST_VECTOR_BACKEND_STATE_STACK = 42,
+  CAIROON_TEST_VECTOR_TAGGED_FONT_MATRIX_TEXT = 43
 };
 
 cairo_status_t cairoon_test_draw_vector_scene(
@@ -82,6 +83,7 @@ cairo_status_t cairoon_test_draw_layered_multi_page(cairo_t *cr);
 cairo_status_t cairoon_test_draw_wide_multi_page_tag_vector(cairo_t *cr);
 cairo_status_t cairoon_test_draw_tagged_show_text_glyphs(cairo_t *cr);
 cairo_status_t cairoon_test_draw_grouped_glyph_tag_multi_page(cairo_t *cr);
+cairo_status_t cairoon_test_draw_tagged_font_matrix_text(cairo_t *cr);
 cairo_status_t cairoon_test_render_pdf_document_features(const char *name);
 cairo_status_t cairoon_test_render_pdf_text_document_features(const char *name);
 cairo_status_t cairoon_test_render_pdf_page_operation_document_features(

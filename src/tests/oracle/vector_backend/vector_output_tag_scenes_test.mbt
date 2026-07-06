@@ -109,6 +109,33 @@ fn draw_tagged_show_text_glyphs_scene(
 }
 
 ///|
+fn draw_tagged_font_matrix_text_scene(
+  ctx : @cairoon.Context,
+) -> Unit raise @cairoon.CairoError {
+  ctx.set_source_rgb(0.92, 0.95, 1.0)
+  ctx.paint()
+
+  ctx.select_font_face("serif")
+  ctx.set_font_matrix(@cairoon.Matrix::new(xx=3.0, yx=0.7, xy=-0.35, yy=3.8))
+  ctx.set_source_rgb(0.0, 0.0, 0.0)
+  ctx.tag_begin("Document", "")
+  ctx.tag_begin("Sect", "")
+  ctx.tag_begin(@cairoon.TAG_LINK, "uri='https://example.com/font-matrix'")
+  ctx.move_to(1.1, 4.2)
+  ctx.show_text("Mx")
+  ctx.tag_end(@cairoon.TAG_LINK)
+
+  ctx.tag_begin(@cairoon.TAG_DEST, "name='font-matrix-dest' x=1 y=8")
+  ctx.move_to(1.2, 8.4)
+  ctx.text_path("Tx")
+  ctx.set_source_rgba(0.1, 0.2, 0.8, 0.75)
+  ctx.fill()
+  ctx.tag_end(@cairoon.TAG_DEST)
+  ctx.tag_end("Sect")
+  ctx.tag_end("Document")
+}
+
+///|
 fn draw_tagged_multi_page_text_scene(
   ctx : @cairoon.Context,
 ) -> Unit raise @cairoon.CairoError {

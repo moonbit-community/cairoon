@@ -128,6 +128,7 @@ fn draw_vector_oracle_scene(
     28 => draw_wide_multi_page_tag_vector_scene(ctx)
     29 => draw_tagged_show_text_glyphs_scene(ctx)
     30 => draw_grouped_glyph_tag_multi_page_scene(ctx)
+    43 => draw_tagged_font_matrix_text_scene(ctx)
     _ => @cairoon.check_status(@cairoon.InvalidStatus)
   }
 }

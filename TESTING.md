@@ -2723,6 +2723,14 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, and 2026-07-06:
   mixed-tag/text, layered, wide, `show_text_glyphs`, and grouped glyph/tag
   vector scenes. It raises `surface_stream_oracle_wbtest.mbt` to 2 tests and
   the current full native suite to 485 tests.
+  A later tagged font-matrix text differential slice added scene 43 in the
+  focused `cairoon_test_vector_text_state_scenes.c` oracle file, covering
+  `Context::set_font_matrix`, transformed `show_text`, transformed
+  `text_path`, URI and destination tags, and Document/Sect structure tags
+  across PDF/PS/SVG. The slice adds direct-C file output equality,
+  file-vs-stream normalized equality, stream-vs-direct-C oracle equality, PDF
+  marker assertions, and PS/SVG negative PDF-metadata checks, raising the
+  vector-backend package to 118 tests.
 
 Remaining reliability work is now narrower and should be tracked as evidence,
 not as an unstructured checklist:

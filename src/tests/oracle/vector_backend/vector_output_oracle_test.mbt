@@ -161,6 +161,42 @@ test "grouped glyph tag multi-page scene matches direct cairo C oracle" {
 }
 
 ///|
+test "tagged font matrix text scene matches direct cairo C oracle" {
+  for kind in 0..<3 {
+    let ext = vector_output_extension(kind)
+    let cairoon_path = "/tmp/cairoon_vector_font_matrix_tag_\{kind}.\{ext}"
+    let oracle_path = "/tmp/cairoon_vector_font_matrix_tag_\{kind}_oracle.\{ext}"
+    render_vector_oracle_scene(kind, 43, cairoon_path)
+    expect_vector_oracle_match(kind, 43, cairoon_path, oracle_path)
+  }
+}
+
+///|
+test "pdf tagged font matrix text scene contains tag markers" {
+  let path = "/tmp/cairoon_vector_pdf_font_matrix_tag_markers.pdf"
+  render_vector_oracle_scene(0, 43, path)
+  expect_vector_output(path, [
+    "%PDF-1.4", "/Subtype /Link", "/S /URI", "/URI (https://example.com/font-matrix)",
+    "/Dest", "/Dests", "(font-matrix-dest)", "/StructTreeRoot", "/S /Document", "/S /Sect",
+    "%%EOF",
+  ])
+}
+
+///|
+test "ps svg tagged font matrix text tags stay inert" {
+  let forbidden = [
+    "/Annots", "/Subtype /Link", "/URI", "/Dest", "/Dests", "/StructTreeRoot", "/S /Document",
+    "/S /Sect", "https://example.com/font-matrix", "font-matrix-dest", "<a ",
+  ]
+  for kind in 1..<3 {
+    let ext = vector_output_extension(kind)
+    let path = "/tmp/cairoon_vector_backend_font_matrix_tag_absent_\{kind}.\{ext}"
+    render_vector_oracle_scene(kind, 43, path)
+    expect_vector_output_absent(path, forbidden)
+  }
+}
+
+///|
 test "copy_page retained vector scene matches direct cairo C oracle" {
   for kind in 0..<3 {
     let ext = vector_output_extension(kind)
