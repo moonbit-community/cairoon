@@ -3,7 +3,8 @@ set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$repo_root"
-package_config="$repo_root/src/moon.pkg"
+public_package_config="$repo_root/src/moon.pkg"
+native_package_config="$repo_root/src/native/moon.pkg"
 test_packages_root="$repo_root/src/tests"
 
 usage() {
@@ -95,23 +96,36 @@ collect_test_configs() {
 }
 
 if [[ "$mode" == "--check" ]]; then
-  actual_cc_flags="$(extract_field "$package_config" cc-flags)"
-  actual_stub_cc_flags="$(extract_field "$package_config" stub-cc-flags)"
-  actual_link_flags="$(extract_field "$package_config" cc-link-flags)"
+  actual_link_flags="$(extract_field "$public_package_config" cc-link-flags)"
 
-  if [[ "$actual_cc_flags" != "$cc_flags" ||
-        "$actual_stub_cc_flags" != "$cc_flags" ||
-        "$actual_link_flags" != "$link_flags" ]]; then
+  if [[ "$actual_link_flags" != "$link_flags" ]]; then
     cat >&2 <<EOF
 error: src/moon.pkg Cairo link flags are out of sync with pkg-config.
 
 Run:
   scripts/configure-link-flags.sh
 
-Expected cc-flags/stub-cc-flags:
+Expected cc-link-flags:
+  $link_flags
+Actual cc-link-flags:
+  $actual_link_flags
+EOF
+    exit 1
+  fi
+
+  actual_stub_cc_flags="$(extract_field "$native_package_config" stub-cc-flags)"
+  actual_link_flags="$(extract_field "$native_package_config" cc-link-flags)"
+
+  if [[ "$actual_stub_cc_flags" != "$cc_flags" ||
+        "$actual_link_flags" != "$link_flags" ]]; then
+    cat >&2 <<EOF
+error: src/native/moon.pkg Cairo native flags are out of sync with pkg-config.
+
+Run:
+  scripts/configure-link-flags.sh
+
+Expected stub-cc-flags:
   $cc_flags
-Actual cc-flags:
-  $actual_cc_flags
 Actual stub-cc-flags:
   $actual_stub_cc_flags
 
@@ -123,7 +137,7 @@ EOF
     exit 1
   fi
 
-  checked=1
+  checked=2
   while IFS= read -r config; do
     if ! needs_cairo_link "$config"; then
       continue
@@ -176,17 +190,28 @@ escape_moon_string() {
 escaped_cc_flags="$(escape_moon_string "$cc_flags")"
 escaped_link_flags="$(escape_moon_string "$link_flags")"
 
-update_full_config() {
+update_public_config() {
+  local file="$1"
+  local tmp
+  tmp="$(mktemp "${TMPDIR:-/tmp}/cairoon-moon.pkg.XXXXXX")"
+  awk \
+    -v link_flags="$escaped_link_flags" '
+      /^[[:space:]]*"cc-link-flags": / {
+        print "      \"cc-link-flags\": \"" link_flags "\","
+        next
+      }
+      { print }
+    ' "$file" > "$tmp"
+  mv "$tmp" "$file"
+}
+
+update_native_config() {
   local file="$1"
   local tmp
   tmp="$(mktemp "${TMPDIR:-/tmp}/cairoon-moon.pkg.XXXXXX")"
   awk \
     -v cc_flags="$escaped_cc_flags" \
     -v link_flags="$escaped_link_flags" '
-      /^[[:space:]]*"cc-flags": / {
-        print "      \"cc-flags\": \"" cc_flags "\","
-        next
-      }
       /^[[:space:]]*"stub-cc-flags": / {
         print "      \"stub-cc-flags\": \"" cc_flags "\","
         next
@@ -220,8 +245,9 @@ update_test_config() {
   mv "$tmp" "$file"
 }
 
-update_full_config "$package_config"
-updated=1
+update_public_config "$public_package_config"
+update_native_config "$native_package_config"
+updated=2
 while IFS= read -r config; do
   if ! needs_cairo_link "$config"; then
     continue

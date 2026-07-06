@@ -6,7 +6,8 @@ Implemented in this workspace:
 
 - MoonBit native package initialization with `moon.mod` and `src/moon.pkg`.
 - System Cairo 1.18.4 linkage through `pkg-config`-derived flags, with
-  `scripts/configure-link-flags.sh` to refresh `src/moon.pkg` and
+  `scripts/configure-link-flags.sh` to refresh `src/moon.pkg`,
+  `src/native/moon.pkg`, and external test package configs, plus
   `scripts/configure-link-flags.sh --check` in the local reliability gate.
 - Static raw FFI ownership linting through
   `scripts/check-ffi-ownership.py`, wired into `scripts/verify.sh`, so every
@@ -27,8 +28,8 @@ Implemented in this workspace:
   Root-level `tests/` packages are intentionally forbidden while
   `moon.mod source = "src"` keeps the public import path as `caimeo/cairoon`.
   External test packages that import cairoon carry Cairo `cc-link-flags`, and
-  `scripts/configure-link-flags.sh --check` verifies those flags alongside
-  `src/moon.pkg`.
+  `scripts/configure-link-flags.sh --check` verifies those flags alongside the
+  public and native package configs.
 - The external API black-box package now also covers portable enum
   constructors, `Format::stride_for_width`, `FORMAT_INVALID`, `check_status`,
   `run_cairo`, all `CairoError` suberror classes, and pure public value types
@@ -77,10 +78,11 @@ Implemented in this workspace:
   mapped image lifetimes, image data views, value wrapper stress, raster-source
   callback retention, stream callback stress/fuzz, finalizer fuzz paths, and
   context borrowed-return lifetimes through the published package seam.
-- Public-package C stubs and private C oracle helpers now live in
-  `src/native`, and `src/moon.pkg` references each compiled C file through a
-  `native/...` `native-stub` path. The layout gate now checks that every
-  `src/native/*.c` file is explicitly owned by `src/moon.pkg`.
+- Public C stubs now live in the `src/native` native-stub package, and
+  `src/native/moon.pkg` references each compiled C file by bare filename. The
+  public `src/moon.pkg` imports `caimeo/cairoon/native` for linking and owns no
+  `native-stub` entries. The layout gate checks that every `src/native/*.c`
+  file is explicitly owned by `src/native/moon.pkg`.
 - The compile-time constants oracle now lives in
   `src/tests/oracle/constants`, importing the public `caimeo/cairoon` package
   and declaring its test-only C oracle externs locally. This proves direct-C

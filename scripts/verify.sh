@@ -7,6 +7,10 @@ package_root="src"
 support_packages=()
 external_test_packages=()
 
+if [[ -f "$package_root/native/moon.pkg" ]]; then
+  support_packages+=("$package_root/native")
+fi
+
 if [[ -d "$package_root/core" ]]; then
   while IFS= read -r support_pkg_config; do
     support_packages+=("$(dirname "$support_pkg_config")")

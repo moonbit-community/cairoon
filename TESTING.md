@@ -153,6 +153,11 @@ python3 /Users/caimeo/.codex/skills/moonbit/moonbit-c-binding/scripts/run-asan.p
   --pkg src/moon.pkg
 ```
 
+For public C glue ownership changes, the local gate must also compile the
+native-stub package itself with `moon test src/native --target native -v`; the
+external black-box and oracle packages then prove those stubs link through the
+published `caimeo/cairoon` facade.
+
 Memory tests must cover:
 
 - Construction and finalization of every external object type.
@@ -207,7 +212,8 @@ The current local gate is executable as:
 It runs `moon fmt --check`, `scripts/check-project-layout.py`,
 `scripts/configure-link-flags.sh --check`, `scripts/check-ffi-ownership.py`,
 `scripts/check-api-inventory.py`, `scripts/check-reliability-ledger.py`,
-native `moon check`, extracted external test packages under
+native `moon check`, the `src/native` native-stub package, extracted external
+test packages under
 `src/tests/api` (version, enum, status, and pure value APIs),
 `src/core/glyph`, `src/tests/matrix`, `src/tests/region`, `src/tests/surface`,
 `src/tests/context`, `src/tests/pattern`, `src/tests/font`, and
@@ -225,8 +231,9 @@ Set `CAIROON_VERIFY_ASAN=0` to skip the targeted ASan portion intentionally.
 ## Current Status
 
 The current cairoon slice is not a full migration. It has native package setup,
-pycairo-style C glue split into private shared declarations plus per-family
-stub files, a first pure support package seam for `Glyph` under
+pycairo-style C glue split into a `src/native` native-stub package with private
+shared declarations plus per-family stub files, a first pure support package
+seam for `Glyph` under
 `src/core/glyph` with package-local pure value and glyph-array marshaling tests,
 with private test-only oracle glue moved to the
 `src/tests/oracle/native` support package and split into constants,

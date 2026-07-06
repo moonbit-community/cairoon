@@ -1,5 +1,6 @@
 import {
   "caimeo/cairoon/core/glyph",
+  "caimeo/cairoon/native",
   "moonbitlang/core/builtin",
   "moonbitlang/core/encoding/utf8",
   "moonbitlang/core/debug",
@@ -13,42 +14,6 @@ import {
 warnings = "+unnecessary_annotation"
 
 options(
-  "native-stub": [
-    "native/cairoon_objects.c",
-    "native/cairoon_stream.c",
-    "native/cairoon_misc.c",
-    "native/cairoon_device.c",
-    "native/cairoon_surface.c",
-    "native/cairoon_surface_png.c",
-    "native/cairoon_surface_mime.c",
-    "native/cairoon_surface_state.c",
-    "native/cairoon_surface_font_options.c",
-    "native/cairoon_image_surface.c",
-    "native/cairoon_mapped_image_surface.c",
-    "native/cairoon_recording_surface.c",
-    "native/cairoon_image_data.c",
-    "native/cairoon_pdf_surface.c",
-    "native/cairoon_ps_surface.c",
-    "native/cairoon_svg_surface.c",
-    "native/cairoon_tee_surface.c",
-    "native/cairoon_context.c",
-    "native/cairoon_context_font_text.c",
-    "native/cairoon_context_matrix.c",
-    "native/cairoon_context_state.c",
-    "native/cairoon_context_path.c",
-    "native/cairoon_context_clip_extents.c",
-    "native/cairoon_context_paint.c",
-    "native/cairoon_glyph.c",
-    "native/cairoon_path.c",
-    "native/cairoon_pattern.c",
-    "native/cairoon_raster_source_callbacks.c",
-    "native/cairoon_raster_source_pattern.c",
-    "native/cairoon_mesh_pattern.c",
-    "native/cairoon_font_options.c",
-    "native/cairoon_font_face.c",
-    "native/cairoon_scaled_font.c",
-    "native/cairoon_region.c",
-  ],
   targets: {
     "ffi.mbt": [ "native" ],
     "ffi_context_clip_extents.mbt": [ "native" ],
@@ -84,8 +49,6 @@ options(
   },
   link: {
     "native": {
-      "cc-flags": "-I/opt/homebrew/Cellar/cairo/1.18.4/include/cairo -I/opt/homebrew/Cellar/fontconfig/2.17.1/include -I/opt/homebrew/opt/freetype/include/freetype2 -I/opt/homebrew/opt/libpng/include/libpng16 -I/opt/homebrew/Cellar/libxext/1.3.7/include -I/opt/homebrew/Cellar/xorgproto/2025.1/include -I/opt/homebrew/Cellar/libxrender/0.9.12/include -I/opt/homebrew/Cellar/libx11/1.8.13/include -I/opt/homebrew/Cellar/libxcb/1.17.0/include -I/opt/homebrew/Cellar/libxau/1.0.12/include -I/opt/homebrew/Cellar/libxdmcp/1.1.5/include -I/opt/homebrew/Cellar/pixman/0.46.4/include/pixman-1",
-      "stub-cc-flags": "-I/opt/homebrew/Cellar/cairo/1.18.4/include/cairo -I/opt/homebrew/Cellar/fontconfig/2.17.1/include -I/opt/homebrew/opt/freetype/include/freetype2 -I/opt/homebrew/opt/libpng/include/libpng16 -I/opt/homebrew/Cellar/libxext/1.3.7/include -I/opt/homebrew/Cellar/xorgproto/2025.1/include -I/opt/homebrew/Cellar/libxrender/0.9.12/include -I/opt/homebrew/Cellar/libx11/1.8.13/include -I/opt/homebrew/Cellar/libxcb/1.17.0/include -I/opt/homebrew/Cellar/libxau/1.0.12/include -I/opt/homebrew/Cellar/libxdmcp/1.1.5/include -I/opt/homebrew/Cellar/pixman/0.46.4/include/pixman-1",
       "cc-link-flags": "-L/opt/homebrew/Cellar/cairo/1.18.4/lib -lcairo",
     },
   },
