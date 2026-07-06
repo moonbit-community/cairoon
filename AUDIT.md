@@ -38,6 +38,11 @@ Implemented in this workspace:
   types, methods, checked errors, and `CairoInvalidArgument` pattern matching;
   `scripts/verify.sh` discovers all `src/tests/**/moon.pkg` packages for normal
   and ASan targeted runs.
+- Region black-box tests now live in `src/tests/region`, importing only the
+  public `caimeo/cairoon` API. This validates Region lifetime/copy behavior,
+  rectangle construction, containment, overlap enums, mutating boolean
+  operations, chained pycairo-style mutators, and invalid-index error mapping
+  from an external package.
 - C FFI glue split by Cairo object family, following pycairo's
   `private.h` plus per-family C file architecture. GC-managed external objects
   currently cover `Surface`, `MappedImageSurface`, `ImageData`, `Context`,
