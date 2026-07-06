@@ -118,21 +118,6 @@ extern "C" fn test_argb32_scene_oracle_ffi(
 ) -> Bytes = "cairoon_test_argb32_scene_oracle"
 
 ///|
-#borrow(text)
-extern "C" fn test_scaled_font_extents_oracle_ffi(
-  kind : Int,
-  text : Bytes,
-) -> FixedArray[Double] = "cairoon_test_scaled_font_extents_oracle"
-
-///|
-#borrow(text)
-extern "C" fn test_scaled_font_text_to_glyphs_oracle_ffi(
-  x : Double,
-  y : Double,
-  text : Bytes,
-) -> TextToGlyphsNative = "cairoon_test_scaled_font_text_to_glyphs_oracle"
-
-///|
 #borrow(surface)
 extern "C" fn test_raster_surface_owner_count_ffi(surface : Surface) -> Int = "cairoon_test_raster_surface_owner_count"
 
@@ -150,8 +135,6 @@ fn init {
   ignore(test_vector_file_equals_bytes_ffi)
   ignore(test_argb32_blue_paint_oracle_ffi)
   ignore(test_argb32_scene_oracle_ffi)
-  ignore(test_scaled_font_extents_oracle_ffi)
-  ignore(test_scaled_font_text_to_glyphs_oracle_ffi)
   ignore(test_raster_surface_owner_count_ffi)
 }
 

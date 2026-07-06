@@ -1,12 +1,93 @@
 ///|
-fn scaled_font_oracle_make_font() -> ScaledFont raise CairoError {
-  let face = FontFace::toy("serif", weight=FontWeightBold)
-  let options = FontOptions::new()
-  options.set_antialias(AntialiasGray)
-  ScaledFont::new(
+type TextToGlyphsNative
+
+///|
+#borrow(result)
+extern "C" fn text_to_glyphs_status_ffi(
+  result : TextToGlyphsNative,
+) -> @cairoon.Status = "cairoon_text_to_glyphs_status"
+
+///|
+#borrow(result)
+extern "C" fn text_to_glyphs_indices_ffi(
+  result : TextToGlyphsNative,
+) -> FixedArray[UInt64] = "cairoon_text_to_glyphs_indices"
+
+///|
+#borrow(result)
+extern "C" fn text_to_glyphs_positions_ffi(
+  result : TextToGlyphsNative,
+) -> FixedArray[Double] = "cairoon_text_to_glyphs_positions"
+
+///|
+#borrow(result)
+extern "C" fn text_to_glyphs_clusters_ffi(
+  result : TextToGlyphsNative,
+) -> FixedArray[Int] = "cairoon_text_to_glyphs_clusters"
+
+///|
+#borrow(result)
+extern "C" fn text_to_glyphs_flags_ffi(
+  result : TextToGlyphsNative,
+) -> @cairoon.TextClusterFlags = "cairoon_text_to_glyphs_flags"
+
+///|
+#borrow(text)
+extern "C" fn test_scaled_font_extents_oracle_ffi(
+  kind : Int,
+  text : Bytes,
+) -> FixedArray[Double] = "cairoon_test_scaled_font_extents_oracle"
+
+///|
+#borrow(text)
+extern "C" fn test_scaled_font_text_to_glyphs_oracle_ffi(
+  x : Double,
+  y : Double,
+  text : Bytes,
+) -> TextToGlyphsNative = "cairoon_test_scaled_font_text_to_glyphs_oracle"
+
+///|
+fn text_glyph_run_from_native(
+  result : TextToGlyphsNative,
+) -> @cairoon.TextGlyphRun raise @cairoon.CairoError {
+  @cairoon.check_status(text_to_glyphs_status_ffi(result))
+  let indices = text_to_glyphs_indices_ffi(result)
+  let positions = text_to_glyphs_positions_ffi(result)
+  if positions.length() != indices.length() * 2 {
+    @cairoon.check_status(@cairoon.InvalidSize)
+  }
+  let glyphs = Array::makei(indices.length(), index => {
+    let offset = index * 2
+    @cairoon.Glyph::new(
+      indices[index],
+      positions[offset],
+      positions[offset + 1],
+    )
+  })
+
+  let cluster_values = text_to_glyphs_clusters_ffi(result)
+  if cluster_values.length() % 2 != 0 {
+    @cairoon.check_status(@cairoon.InvalidSize)
+  }
+  let clusters = Array::makei(cluster_values.length() / 2, index => {
+    let offset = index * 2
+    @cairoon.TextCluster::new(
+      cluster_values[offset],
+      cluster_values[offset + 1],
+    )
+  })
+  @cairoon.TextGlyphRun::new(glyphs, clusters, text_to_glyphs_flags_ffi(result))
+}
+
+///|
+fn scaled_font_oracle_make_font() -> @cairoon.ScaledFont raise @cairoon.CairoError {
+  let face = @cairoon.FontFace::toy("serif", weight=@cairoon.FontWeightBold)
+  let options = @cairoon.FontOptions::new()
+  options.set_antialias(@cairoon.AntialiasGray)
+  @cairoon.ScaledFont::new(
     face,
-    Matrix::new(xx=12.0, yy=12.0),
-    Matrix::new(xx=2.0, yy=3.0, x0=5.0, y0=7.0),
+    @cairoon.Matrix::new(xx=12.0, yy=12.0),
+    @cairoon.Matrix::new(xx=2.0, yy=3.0, x0=5.0, y0=7.0),
     options,
   )
 }
@@ -17,13 +98,13 @@ fn scaled_font_oracle_assert_close(
   expected : Double,
 ) -> Unit raise {
   if !actual.is_close(expected, absolute_tolerance=0.000001) {
-    fail("scaled-font oracle mismatch")
+    @test.fail("scaled-font oracle mismatch")
   }
 }
 
 ///|
 fn scaled_font_oracle_expect_font_extents(
-  actual : FontExtents,
+  actual : @cairoon.FontExtents,
   expected : FixedArray[Double],
 ) -> Unit raise {
   inspect(expected.length(), content="5")
@@ -37,7 +118,7 @@ fn scaled_font_oracle_expect_font_extents(
 
 ///|
 fn scaled_font_oracle_expect_text_extents(
-  actual : TextExtents,
+  actual : @cairoon.TextExtents,
   expected : FixedArray[Double],
 ) -> Unit raise {
   inspect(expected.length(), content="6")
@@ -52,13 +133,13 @@ fn scaled_font_oracle_expect_text_extents(
 
 ///|
 fn scaled_font_oracle_expect_glyph(
-  actual : Glyph,
-  expected : Glyph,
+  actual : @cairoon.Glyph,
+  expected : @cairoon.Glyph,
 ) -> Unit raise {
   let (actual_index, actual_x, actual_y) = actual.components()
   let (expected_index, expected_x, expected_y) = expected.components()
   if actual_index != expected_index {
-    fail("scaled-font oracle glyph index mismatch")
+    @test.fail("scaled-font oracle glyph index mismatch")
   }
   scaled_font_oracle_assert_close(actual_x, expected_x)
   scaled_font_oracle_assert_close(actual_y, expected_y)
@@ -66,25 +147,25 @@ fn scaled_font_oracle_expect_glyph(
 
 ///|
 fn scaled_font_oracle_expect_cluster(
-  actual : TextCluster,
-  expected : TextCluster,
+  actual : @cairoon.TextCluster,
+  expected : @cairoon.TextCluster,
 ) -> Unit raise {
   let (actual_bytes, actual_glyphs) = actual.components()
   let (expected_bytes, expected_glyphs) = expected.components()
   if actual_bytes != expected_bytes || actual_glyphs != expected_glyphs {
-    fail("scaled-font oracle text-cluster mismatch")
+    @test.fail("scaled-font oracle text-cluster mismatch")
   }
 }
 
 ///|
 fn scaled_font_oracle_expect_run(
-  actual : TextGlyphRun,
-  expected : TextGlyphRun,
+  actual : @cairoon.TextGlyphRun,
+  expected : @cairoon.TextGlyphRun,
 ) -> Unit raise {
   let (actual_glyphs, actual_clusters, actual_flags) = actual.components()
   let (expected_glyphs, expected_clusters, expected_flags) = expected.components()
   if actual_glyphs.length() != expected_glyphs.length() {
-    fail("scaled-font oracle glyph count mismatch")
+    @test.fail("scaled-font oracle glyph count mismatch")
   }
   for index in 0..<actual_glyphs.length() {
     scaled_font_oracle_expect_glyph(
@@ -93,7 +174,7 @@ fn scaled_font_oracle_expect_run(
     )
   }
   if actual_clusters.length() != expected_clusters.length() {
-    fail("scaled-font oracle text-cluster count mismatch")
+    @test.fail("scaled-font oracle text-cluster count mismatch")
   }
   for index in 0..<actual_clusters.length() {
     scaled_font_oracle_expect_cluster(
@@ -102,13 +183,13 @@ fn scaled_font_oracle_expect_run(
     )
   }
   if actual_flags != expected_flags {
-    fail("scaled-font oracle text-cluster flags mismatch")
+    @test.fail("scaled-font oracle text-cluster flags mismatch")
   }
 }
 
 ///|
 fn scaled_font_oracle_expect_text_to_glyphs(
-  scaled_font : ScaledFont,
+  scaled_font : @cairoon.ScaledFont,
   x : Double,
   y : Double,
   text : String,
@@ -145,8 +226,8 @@ test "scaled font extents match direct cairo C oracle" {
   )
   scaled_font_oracle_expect_text_extents(
     scaled_font.glyph_extents([
-      Glyph::new(0UL, 1.5, 2.5),
-      Glyph::new(1UL, 10.0, 2.5),
+      @cairoon.Glyph::new(0UL, 1.5, 2.5),
+      @cairoon.Glyph::new(1UL, 10.0, 2.5),
     ]),
     test_scaled_font_extents_oracle_ffi(2, b""),
   )

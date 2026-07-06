@@ -86,6 +86,11 @@ Implemented in this workspace:
   and declaring its test-only C oracle externs locally. This proves direct-C
   oracle tests can move out of the public package root while still linking
   against public-package native stubs.
+- The ScaledFont direct-C oracle now lives in `src/tests/oracle/scaled_font`,
+  importing the public `caimeo/cairoon` package and declaring its test-only
+  extents/text-to-glyphs oracle externs plus native result decoder locally.
+  This keeps ScaledFont oracle assertions outside the public package root
+  without exposing private `TextToGlyphsNative` helpers.
 - C FFI glue split by Cairo object family, following pycairo's
   `private.h` plus per-family C file architecture. GC-managed external objects
   currently cover `Surface`, `MappedImageSurface`, `ImageData`, `Context`,

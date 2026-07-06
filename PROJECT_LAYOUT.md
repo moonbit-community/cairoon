@@ -119,11 +119,11 @@ Follow this order. Each step gets its own commit and must pass
    private oracle C helpers live under `src/native/`, and `src/moon.pkg`
    references them with `native/...` `native-stub` paths.
 5. **White-box oracle extraction**: started. Move direct-C oracle helpers and
-   `*_wbtest.mbt` tests into oracle packages. Constants oracle tests already
-   live in `src/tests/oracle/constants`, proving external oracle packages can
-   locally declare test-only externs while importing `caimeo/cairoon` for the
-   public API. Oracle packages may later gain their own `native-stub` lists,
-   but public binding C files must not depend on them.
+   `*_wbtest.mbt` tests into oracle packages. Constants and ScaledFont oracle
+   tests already live under `src/tests/oracle/*`, proving external oracle
+   packages can locally declare test-only externs while importing
+   `caimeo/cairoon` for the public API. Oracle packages may later gain their
+   own `native-stub` lists, but public binding C files must not depend on them.
 6. **Family package probes**: for one low-risk family, prove whether MoonBit can
    preserve the public facade while moving implementation into a family package.
    The proof must include `moon info --target native` review.
