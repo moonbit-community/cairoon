@@ -338,7 +338,7 @@ Implemented in this workspace:
   region, and error behavior.
 - Gate 3 differential rendering: partial. Deterministic raw-pixel rendering
   tests exist for direct colors and explicit patterns, a direct C image oracle
-  covers thirty deterministic ARGB32 scenes including stroke, rectangle,
+  covers thirty-four deterministic ARGB32 scenes including stroke, rectangle,
   Bezier, transform, RGBA, linear/radial gradient, toy-font `text_path`,
   toy-font `show_text`, `glyph_path`, `show_glyphs`, `show_text_glyphs`,
   source-surface offset sampling, mask-surface offset compositing, and
@@ -352,8 +352,12 @@ Implemented in this workspace:
   surface-pattern `Pad`/`Bilinear`/`DitherDefault`/matrix and
   `ExtendNone`/`Nearest`/`DitherNone`/matrix output, transformed
   linear-gradient `Pad`/`Bilinear`/`DitherBest`/matrix output, transformed
-  radial-gradient `Repeat`/`Bilinear`/`DitherFast`/matrix output, and
-  mesh-pattern fill output,
+  radial-gradient `Repeat`/`Bilinear`/`DitherFast`/matrix output,
+  surface-pattern `Repeat`/`Bilinear`/`DitherGood`/matrix output, transformed
+  linear-gradient `ExtendNone`/`Good`/`DitherNone`/matrix output with
+  duplicate-offset stops, transformed radial-gradient
+  `Pad`/`Good`/`DitherDefault`/matrix output, and curve/multi-patch
+  mesh-pattern matrix output,
   ScaledFont font/text/glyph extents and empty, single/multi/spaced ASCII,
   precomposed/decomposed Latin, CJK, Arabic RTL, and emoji UTF-8
   text-to-glyph coordinate cases are compared against direct C Cairo primitive
@@ -886,7 +890,7 @@ Implemented in this workspace:
 - `moon -C cairoon test image_oracle_wbtest.mbt --target native -v`: 2
   white-box image rendering oracle tests passed. Ordinary image surfaces and
   buffer-backed `Surface::image_for_data` surfaces both match the direct C
-  ARGB32 fixture across thirty scenes with `glyph_path`, `show_glyphs`,
+  ARGB32 fixture across thirty-four scenes with `glyph_path`, `show_glyphs`,
   `show_text_glyphs`, source-surface offsets, mask-surface offsets, and
   raster-source pattern repeat rendering, dashed round-cap strokes, and
   clipped paint/fill output, `OperatorClear` compositing output, group
@@ -899,16 +903,21 @@ Implemented in this workspace:
   `Pad`/`Bilinear`/`DitherDefault`/matrix and
   `ExtendNone`/`Nearest`/`DitherNone`/matrix output, transformed
   linear-gradient `Pad`/`Bilinear`/`DitherBest`/matrix output, transformed
-  radial-gradient `Repeat`/`Bilinear`/`DitherFast`/matrix output, and
-  mesh-pattern fill output.
+  radial-gradient `Repeat`/`Bilinear`/`DitherFast`/matrix output,
+  surface-pattern `Repeat`/`Bilinear`/`DitherGood`/matrix output, transformed
+  linear-gradient `ExtendNone`/`Good`/`DitherNone`/matrix output with
+  duplicate-offset stops, transformed radial-gradient
+  `Pad`/`Good`/`DitherDefault`/matrix output, and curve/multi-patch
+  mesh-pattern matrix output.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
   image_oracle_wbtest.mbt --target native -v`: 2 ASan-compiled white-box image
   oracle tests passed with leak detection disabled, directly exercising the
   source/mask offset, raster-source repeat, dashed-stroke, clipped-output,
   operator-output, surface-pattern-combo, transformed-gradient-pattern,
-  radial-pattern-combo, surface-pattern pad/none, linear-pattern pad,
-  radial-pattern repeat, mesh-pattern, group-compositing, mask-pattern, and
+  radial-pattern-combo, surface-pattern pad/none/repeat-bilinear,
+  linear-pattern pad/none, radial-pattern repeat/pad, curve-mesh,
+  mesh-pattern, group-compositing, mask-pattern, and
   fill-rule C oracle helper paths.
 - `moon -C cairoon test scaled_font_oracle_wbtest.mbt --target native -v`: 2
   white-box ScaledFont oracle tests passed, comparing font extents, text
@@ -1816,6 +1825,14 @@ Implemented in this workspace:
   without changing the public API or adding a new test case. The targeted
   `image_oracle_wbtest.mbt` run passed 2 tests, and the current full native
   suite remains at 485 tests.
+  The later pattern-combo continuation slice expanded the ordinary and
+  buffer-backed direct C ARGB32 image oracle from thirty to thirty-four scenes,
+  adding surface-pattern `Repeat`/`Bilinear`/`DitherGood`/matrix, transformed
+  linear-gradient `ExtendNone`/`Good`/`DitherNone`/matrix with duplicate-offset
+  stops, transformed radial-gradient `Pad`/`Good`/`DitherDefault`/matrix, and
+  curve/multi-patch mesh-pattern matrix output coverage without changing the
+  public API or adding a new test case. The targeted `image_oracle_wbtest.mbt`
+  run passed 2 tests, and the current full native suite remains at 485 tests.
   The later raster-source acquire-replacement recovery slice added one
   black-box test proving that a finished-surface acquire failure maps to
   `NoMemory` for that paint, does not permanently poison the raster-source

@@ -202,6 +202,22 @@ cairo_status_t cairoon_test_apply_radial_pattern_repeat_bilinear(
   cairo_t *cr,
   double width,
   double height);
+cairo_status_t cairoon_test_apply_surface_pattern_repeat_bilinear(
+  cairo_t *cr,
+  double width,
+  double height);
+cairo_status_t cairoon_test_apply_linear_pattern_none_good(
+  cairo_t *cr,
+  double width,
+  double height);
+cairo_status_t cairoon_test_apply_radial_pattern_pad_good(
+  cairo_t *cr,
+  double width,
+  double height);
+cairo_status_t cairoon_test_apply_mesh_pattern_curve_combo(
+  cairo_t *cr,
+  double width,
+  double height);
 cairo_status_t cairoon_test_apply_group_compositing(
   cairo_t *cr,
   double width,
