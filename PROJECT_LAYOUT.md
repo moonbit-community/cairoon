@@ -60,6 +60,7 @@ private native glue, black-box tests, white-box oracle tests, and docs:
 
 ```text
 cairoon/
+  README.md
   AGENTS.md
   PROJECT_LAYOUT.md
   API_INVENTORY.md

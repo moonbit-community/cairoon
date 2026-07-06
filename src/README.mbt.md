@@ -1,9 +1,26 @@
 # cairoon
 
-MoonBit native bindings for the Cairo graphics library.
+cairoon is a native MoonBit binding for the
+[Cairo graphics library](https://cairographics.org/).
 
-This package is intentionally native-only while MoonBit's LLVM backend does not
-support FFI. See the repository `AGENTS.md` for the migration and audit rules.
+This project is temporarily unstable. It is useful for experiments and for
+light Cairo-dependent MoonBit projects, but the public API, package layout,
+native link configuration, and release process may still change before a stable
+release. Treat versions before `1.0` as beta releases and pin them deliberately.
+
+cairoon is inspired by pycairo: it tries to stay close to Cairo's C API, while
+using MoonBit-native value types, checked `CairoError` suberrors, explicit
+stream callbacks, and GC-managed external objects for Cairo handles.
+
+The package is intentionally native-only while the binding depends on Cairo C
+FFI. WebAssembly and JavaScript backends are not supported.
+
+## Requirements
+
+- MoonBit with native target support.
+- Cairo development headers and library.
+- `pkg-config` that can resolve `cairo`.
+- Python 3 for the repository verification scripts.
 
 ## Native Link Configuration
 
@@ -17,6 +34,60 @@ scripts/configure-link-flags.sh
 The local reliability gate runs `scripts/configure-link-flags.sh --check` so
 checked-in flags cannot silently drift away from `pkg-config --cflags --libs
 cairo`.
+
+## Example
+
+```mbt check
+///|
+test "README quick start draws a curve" {
+  let surface = Surface::image(Argb32, 200, 200)
+  let context = Context::new(surface)
+  context.scale(200.0, 200.0)
+  context.set_line_width(0.04)
+  context.move_to(0.1, 0.5)
+  context.curve_to(0.4, 0.9, 0.6, 0.1, 0.9, 0.5)
+  context.stroke()
+  context.set_source_rgba(1.0, 0.2, 0.2, 0.6)
+  context.set_line_width(0.02)
+  context.move_to(0.1, 0.5)
+  context.line_to(0.4, 0.9)
+  context.move_to(0.6, 0.1)
+  context.line_to(0.9, 0.5)
+  context.stroke()
+  inspect(surface.copy_data().length() > 0, content="true")
+}
+```
+
+## Features
+
+- Object-oriented MoonBit wrappers for Cairo surfaces, contexts, patterns,
+  paths, fonts, regions, and devices.
+- Checked status handling through `Status` and `CairoError` suberrors instead
+  of unchecked integer status returns.
+- Image surfaces, buffer-backed image surfaces, PNG file/stream I/O, MIME data,
+  mapped images, and mutable image-data views.
+- PDF, PS, SVG, recording, tee, and script backend helpers for portable Cairo
+  builds.
+- Solid, surface, gradient, mesh, and raster-source patterns.
+- Toy font faces, font options, scaled fonts, text extents, glyph extents,
+  `text_to_glyphs`, and `show_text_glyphs`.
+- Executable MoonBit reference examples in this file and in the family
+  `*.mbt.md` documents listed below.
+
+## Current Stability
+
+cairoon is reliable for the migrated slices that are marked `Done` in
+`API_INVENTORY.md` and pass `./scripts/verify.sh` on your target platform. It
+is not yet a full pycairo migration. The main remaining beta areas are broad
+PDF/PS/SVG tag and metadata combinations, broader method-by-method context and
+pattern parity, raster-source platform fuzzing, and release-platform coverage.
+
+Platform-specific Xlib, XCB, and Win32 surfaces are outside the first portable
+scope. Python-specific pycairo APIs such as `CAPI`, `get_include()`, Python
+file objects, pickle behavior, and legacy uppercase enum aliases are not part
+of the MoonBit API.
+
+## Documentation
 
 Additional executable reference notes are split by API family. Start with
 `matrix.mbt.md` for pure-value affine transforms, `surface.mbt.md` for image
@@ -32,6 +103,8 @@ mapping.
 
 Packaging, CI, and release rules live in the repository `PACKAGING.md`.
 pycairo migration notes live in `PORTING_FROM_PYCAIRO.md`.
+
+## Executable Smoke Tests
 
 ```mbt check
 ///|
