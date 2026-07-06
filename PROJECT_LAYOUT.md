@@ -13,7 +13,11 @@ repository root is project management space and contains no grandfathered
 source-like files. The current public MoonBit package lives in `src/`;
 external black-box tests live in `src/tests/*`, public C stubs live in the
 `src/native/` native-stub package, and test-only C oracles live in
-`src/tests/oracle/native/`.
+`src/tests/oracle/native/`. The public package root is now frozen by
+`scripts/public-package-root-allowlist.txt`: the existing direct `src/` files
+are grandfathered migration debt, and new implementation or test files must go
+into a MoonBit subpackage unless the layout plan is deliberately revised in the
+same commit.
 
 - 71 `.mbt` implementation files directly in `src/`.
 - 1 `.mbt` implementation file and 1 package-local `*_test.mbt` file in
@@ -124,6 +128,14 @@ Do not split a family across packages until the type names, method call syntax,
 generated `.mbti`, and `moon test --target native` behavior are proven in a
 small package-seam commit.
 
+Do not add new source-like files directly under `src/`. The direct public
+package files listed in `scripts/public-package-root-allowlist.txt` are
+grandfathered only so the migration can proceed in reviewable slices. New
+MoonBit implementation belongs in `src/core/<family>/`,
+`src/<family-package>/`, or another explicit package role; new tests belong
+under `src/tests/<family>/`; new public C glue belongs under `src/native/`;
+new oracle C glue belongs under `src/tests/oracle/native/`.
+
 ## Migration Order
 
 Follow this order. Each step gets its own commit and must pass
@@ -155,7 +167,9 @@ Follow this order. Each step gets its own commit and must pass
    import the public facade. Direct `Status`/`CairoError` facade extraction is
    currently blocked by MoonBit constructor re-export semantics: `pub type`
    aliases do not expose enum variants or suberror constructors as
-   `@cairoon.<Constructor>`.
+   `@cairoon.<Constructor>`. A facade alias also cannot grow extra facade-local
+   methods for the child type, so a type should move only when its full public
+   method set can move with it or when a wrapper/seam design has been proven.
 7. **Family package migration**: move one Cairo family per commit. C files,
    raw externs, and wrappers move together only when the public package seam is
    proven.
@@ -166,7 +180,8 @@ The repository root is now project-management space, not a place for new
 binding implementation.
 
 - New MoonBit implementation files go into the package directory selected by
-  the current migration step, not the repository root.
+  the current migration step, not the repository root or the direct `src/`
+  public package root.
 - New black-box tests go under `src/tests/<family>/` once the test extraction
   step starts. Until then, extend an existing `src/*_test.mbt` file instead of
   creating a new root test file.
@@ -177,6 +192,9 @@ binding implementation.
 - Any new root-level `.mbt`, `.mbt.md`, `.mbti`, `.c`, or `.h` file must fail
   the layout gate unless the project layout plan is intentionally revised in
   the same commit.
+- Any new direct `src/` `.mbt`, `.mbt.md`, `.mbti`, `.c`, `.h`, or `moon.pkg`
+  file must fail the layout gate unless it is an intentional public package
+  root exception documented by this layout plan.
 
 ## Verification
 
@@ -184,6 +202,8 @@ binding implementation.
 before MoonBit compilation. The layout check proves:
 
 - no source-like files have appeared in the repository root;
+- no new source-like files have appeared directly under `src/`, so the public
+  package root cannot grow while family packages are being extracted;
 - `src/moon.pkg`, `src/pkg.generated.mbti`, and `moon.mod source = "src"`
   are present;
 - repository-root `tests/` does not contain MoonBit packages or source-like
@@ -200,11 +220,13 @@ before MoonBit compilation. The layout check proves:
   C source/header files live beside `src/tests/oracle/native/moon.pkg`, and any
   future nested C source/header files live beside the `moon.pkg` that owns
   them;
-- `PROJECT_LAYOUT.md` and `scripts/root-layout-allowlist.txt` exist.
+- `PROJECT_LAYOUT.md`, `scripts/root-layout-allowlist.txt`, and
+  `scripts/public-package-root-allowlist.txt` exist.
 
 The layout gate does not prove the package split is complete. It proves only
 that the root has become project-management space and that public C
 source/header files are isolated in the `src/native` native-stub package while
 oracle C source/header files are isolated in `src/tests/oracle/native`, both
-with explicit `native-stub` ownership. Completion is proved only when every
+with explicit `native-stub` ownership. It also proves the public package root is
+not allowed to absorb new migration work. Completion is proved only when every
 package role above has a passing targeted verification entry in `AUDIT.md`.

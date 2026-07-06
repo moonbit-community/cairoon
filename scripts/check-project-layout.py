@@ -12,9 +12,11 @@ REPO_ROOT = pathlib.Path(__file__).resolve().parents[1]
 PACKAGE_ROOT = REPO_ROOT / "src"
 TEST_PACKAGE_ROOT = PACKAGE_ROOT / "tests"
 ALLOWLIST = REPO_ROOT / "scripts" / "root-layout-allowlist.txt"
+PUBLIC_ROOT_ALLOWLIST = REPO_ROOT / "scripts" / "public-package-root-allowlist.txt"
 LAYOUT_DOC = REPO_ROOT / "PROJECT_LAYOUT.md"
 MOON_MOD = REPO_ROOT / "moon.mod"
 SOURCE_SUFFIXES = (".mbt.md", ".mbti", ".mbt", ".c", ".h")
+PACKAGE_CONFIG_NAMES = {"moon.pkg"}
 NATIVE_PACKAGE_DIR = PACKAGE_ROOT / "native"
 NATIVE_PACKAGE_CONFIG = NATIVE_PACKAGE_DIR / "moon.pkg"
 
@@ -24,15 +26,19 @@ def is_source_like(path: pathlib.Path) -> bool:
     return any(name.endswith(suffix) for suffix in SOURCE_SUFFIXES)
 
 
-def read_allowlist() -> set[str]:
+def is_public_root_file(path: pathlib.Path) -> bool:
+    return is_source_like(path) or path.name in PACKAGE_CONFIG_NAMES
+
+
+def read_filename_allowlist(path: pathlib.Path, label: str) -> set[str]:
     allowed: set[str] = set()
-    for line_no, line in enumerate(ALLOWLIST.read_text(encoding="utf-8").splitlines(), 1):
+    for line_no, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
         stripped = line.strip()
         if not stripped or stripped.startswith("#"):
             continue
         if "/" in stripped or "\\" in stripped:
             raise ValueError(
-                f"{ALLOWLIST}:{line_no}: root allowlist entries must be filenames"
+                f"{path}:{line_no}: {label} allowlist entries must be filenames"
             )
         allowed.add(stripped)
     return allowed
@@ -50,6 +56,24 @@ def check_root_freeze(allowed: set[str]) -> list[str]:
         errors.append(
             "new root source-like files are forbidden; move them into a package "
             "or update PROJECT_LAYOUT.md intentionally: " + ", ".join(unexpected)
+        )
+    return errors
+
+
+def check_public_package_root_freeze(allowed: set[str]) -> list[str]:
+    errors: list[str] = []
+    direct_source = sorted(
+        path.name
+        for path in PACKAGE_ROOT.iterdir()
+        if path.is_file() and is_public_root_file(path)
+    )
+    unexpected = [name for name in direct_source if name not in allowed]
+    if unexpected:
+        errors.append(
+            "new source-like files directly under src/ are forbidden; place "
+            "implementation, tests, docs, or generated interfaces in a "
+            "subpackage, or update PROJECT_LAYOUT.md intentionally: "
+            + ", ".join(unexpected)
         )
     return errors
 
@@ -199,6 +223,8 @@ def main() -> int:
         errors.append(f"{LAYOUT_DOC}: missing package layout plan")
     if not ALLOWLIST.exists():
         errors.append(f"{ALLOWLIST}: missing root source allowlist")
+    if not PUBLIC_ROOT_ALLOWLIST.exists():
+        errors.append(f"{PUBLIC_ROOT_ALLOWLIST}: missing public package root allowlist")
     if not MOON_MOD.exists():
         errors.append(f"{MOON_MOD}: missing module config")
     if errors:
@@ -207,12 +233,16 @@ def main() -> int:
         return 1
 
     try:
-        allowed = read_allowlist()
+        root_allowed = read_filename_allowlist(ALLOWLIST, "root")
+        public_root_allowed = read_filename_allowlist(
+            PUBLIC_ROOT_ALLOWLIST, "public package root"
+        )
     except ValueError as exc:
         print(str(exc), file=sys.stderr)
         return 1
 
-    errors.extend(check_root_freeze(allowed))
+    errors.extend(check_root_freeze(root_allowed))
+    errors.extend(check_public_package_root_freeze(public_root_allowed))
     errors.extend(check_source_root())
     errors.extend(check_native_package())
     errors.extend(check_nested_packages())
@@ -225,11 +255,19 @@ def main() -> int:
     current = {
         path.name
         for path in REPO_ROOT.iterdir()
-        if path.is_file() and is_source_like(path) and path.name in allowed
+        if path.is_file() and is_source_like(path) and path.name in root_allowed
+    }
+    public_current = {
+        path.name
+        for path in PACKAGE_ROOT.iterdir()
+        if path.is_file()
+        and is_public_root_file(path)
+        and path.name in public_root_allowed
     }
     print(
         "Project layout ok; "
-        f"{len(current)} allowlisted root source files remain"
+        f"{len(current)} allowlisted root source files remain; "
+        f"{len(public_current)} grandfathered public package root files remain"
     )
     return 0
 

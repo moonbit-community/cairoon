@@ -399,7 +399,16 @@ proof exists: MoonBit `pub type` aliases preserve the type and its methods, but
 they do not re-export enum variants or suberror constructors as
 `@cairoon.<Constructor>`. This currently blocks moving `Status`, `CairoError`,
 `PathDataType`, and similar facade-constructor enums directly into child
-packages.
+packages. A facade alias also cannot define additional methods for the child
+type, so a moved value type must carry its complete public method set in the
+child package. Keep values such as text/font extents in the facade until their
+error dependencies can move with them or a wrapper design is proven.
+
+The public package root is frozen migration debt. Do not add new source-like
+files directly under `src/`; put new implementation in the package selected by
+the current migration step and update `PROJECT_LAYOUT.md` only when a deliberate
+new root exception is unavoidable. The layout gate checks
+`scripts/public-package-root-allowlist.txt` to make this enforceable.
 
 When a new Cairo family is migrated, create a new C file named after that
 family instead of adding unrelated code to an existing file. Public C files
