@@ -481,7 +481,7 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, and 2026-07-06:
   text vector stream equivalence slice, and the single-page tag stream
   equivalence slice.
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native`: 541 tests passed. The current run
+- `moon -C cairoon test --target native`: 546 tests passed. The current run
   includes the expanded pattern-combo image oracle slice,
   the mesh-mask group-compositing image oracle slice,
   the tag-heavy stream-to-direct-oracle differential slice,
@@ -489,6 +489,7 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, and 2026-07-06:
   the backend lifecycle-matrix differential slice,
   the backend tag-matrix differential slice,
   the resized backend page-sequence combo slice,
+  the backend deep tag tree differential slice,
   the backend nested tag/page sequence slice,
   the backend surface-page feature/tag combo slice,
   the Context drawing-state all-enum round-trip slice,
@@ -727,6 +728,13 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, and 2026-07-06:
   destination links, retained-page `Surface::copy_page`, `Surface::show_page`,
   nested PDF outlines, richer metadata/custom metadata, page labels, PS DSC,
   SVG document units, and `show_text_glyphs`.
+- `moon -C cairoon test src/tests/oracle/vector_backend/surface_stream_deep_tag_test.mbt
+  --target native -v`: 5 white-box backend deep tag tree tests passed, comparing PDF/PS/SVG
+  file output with a direct C Cairo oracle, checking stable PDF/PS/SVG markers,
+  checking PDF stream markers, comparing PS/SVG stream output with file output
+  after normalization, and checking PS/SVG file and stream negative
+  tag-metadata markers for a two-page scene with `Document`/`Part`/`Sect`/
+  `Div`/`P`/`Span`/`Figure`/`Table`/`TR`/`TH`/`TD` structure tags.
 - `moon -C cairoon test surface_stream_page_sequence_wbtest.mbt --target
   native -v`: 4 white-box backend resized page-sequence tests passed,
   comparing PDF/PS/SVG file output with stream output after normalized
@@ -2780,7 +2788,7 @@ not as an unstructured checklist:
 
 - Broaden normalized PDF/PS/SVG differential coverage for combinations not yet
   represented by the current direct-C and direct stream-oracle fixtures:
-  additional deep tag nests beyond scenes 37, 39, 40, and 44, more
+  additional deep tag nests beyond scenes 37, 39, 40, 44, and 45, more
   metadata/page-label/outline mixtures beyond scenes 38 through 42 and 44, and
   additional multi-page sequences beyond the current
   retained/resized/tag-matrix/lifecycle/text-state page fixtures.

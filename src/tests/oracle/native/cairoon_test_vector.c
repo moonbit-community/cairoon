@@ -100,6 +100,9 @@ cairo_status_t cairoon_test_render_vector_scene_oracle(
   if (scene == CAIROON_TEST_VECTOR_BACKEND_TEXT_STATE_SEQUENCE) {
     return cairoon_test_render_backend_text_state_sequence_features(kind, name);
   }
+  if (scene == CAIROON_TEST_VECTOR_BACKEND_DEEP_TAG_TREE) {
+    return cairoon_test_render_backend_deep_tag_tree_features(kind, name);
+  }
 
   switch (kind) {
     case CAIROON_TEST_VECTOR_PDF:
