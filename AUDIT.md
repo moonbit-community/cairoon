@@ -150,6 +150,12 @@ Implemented in this workspace:
   constructors, typed/raw level string methods, and all `Surface::ps*` object
   wrappers. Package-local and surface black-box tests prove PS level helpers
   still work through the facade.
+- `src/internal/svg` is the third backend-helper internal implementation
+  package seam. It owns raw SVG version count/version/string externs and UTF-8
+  decoding, while public `src/svg_surface.mbt` keeps `SVGVersion` constructors,
+  typed/raw version string methods, and all `Surface::svg*` object wrappers.
+  Package-local and surface black-box tests prove SVG version helpers still
+  work through the facade.
 - C FFI glue split by Cairo object family, following pycairo's
   `private.h` plus per-family C file architecture. GC-managed external objects
   currently cover `Surface`, `MappedImageSurface`, `ImageData`, `Context`,
@@ -215,7 +221,8 @@ Implemented in this workspace:
   surface, Tee surface, and `Region` extern declarations. Raw PDF version
   helper externs have moved out of `ffi_pdf_surface.mbt` into
   `src/internal/pdf`; raw PostScript level helper externs have moved out of
-  `ffi_ps_surface.mbt` into `src/internal/ps`.
+  `ffi_ps_surface.mbt` into `src/internal/ps`; raw SVG version helper externs
+  have moved out of `ffi_svg_surface.mbt` into `src/internal/svg`.
 - MoonBit `Context` public wrappers now follow the same family split as their
   raw FFI files: `context.mbt` keeps core construction/status/tag/group
   wrappers, while `context_font_text.mbt`, `context_matrix.mbt`,

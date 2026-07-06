@@ -38,13 +38,13 @@ pub fn Surface::svg_stream(
 
 ///|
 pub fn SVGVersion::supported() -> Array[SVGVersion] raise CairoError {
-  let status = Ref(Success)
-  let count = svg_get_version_count_ffi(status)
-  check_status(status.val)
+  let status = Ref(0)
+  let count = @svg_impl.get_version_count_raw(status)
+  check_status(status_from_raw(status.val))
   let versions : Array[SVGVersion] = Array::new(capacity=count)
   for index in 0..<count {
-    let version = svg_get_version_ffi(index, status)
-    check_status(status.val)
+    let version = svg_version_from_raw(@svg_impl.get_version_raw(index, status))
+    check_status(status_from_raw(status.val))
     versions.push(version)
   }
   versions
@@ -52,18 +52,39 @@ pub fn SVGVersion::supported() -> Array[SVGVersion] raise CairoError {
 
 ///|
 pub fn SVGVersion::to_string(self : SVGVersion) -> String raise CairoError {
-  let status = Ref(Success)
-  let bytes = svg_version_to_string_ffi(self, status)
-  check_status(status.val)
-  @utf8.decode_lossy(bytes)
+  let status = Ref(0)
+  let text = @svg_impl.version_to_string_raw(self.to_raw(), status)
+  check_status(status_from_raw(status.val))
+  text
 }
 
 ///|
 pub fn SVGVersion::to_string_raw(version : Int) -> String raise CairoError {
-  let status = Ref(Success)
-  let bytes = svg_version_to_string_raw_ffi(version, status)
-  check_status(status.val)
-  @utf8.decode_lossy(bytes)
+  let status = Ref(0)
+  let text = @svg_impl.version_to_string_raw(version, status)
+  check_status(status_from_raw(status.val))
+  text
+}
+
+///|
+fn SVGVersion::to_raw(self : SVGVersion) -> Int {
+  match self {
+    SvgVersion1_1 => 0
+    SvgVersion1_2 => 1
+  }
+}
+
+///|
+fn svg_version_from_raw(raw : Int) -> SVGVersion raise CairoError {
+  match raw {
+    0 => SvgVersion1_1
+    1 => SvgVersion1_2
+    _ =>
+      raise CairoInvalidArgument(
+        InvalidStatus,
+        "unknown cairo svg version: \{raw}",
+      )
+  }
 }
 
 ///|

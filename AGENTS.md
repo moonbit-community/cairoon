@@ -292,9 +292,11 @@ call `cairoon_recording_surface.c`; `ffi_mapped_image_surface.mbt` owns raw
 mapped-image-surface extern declarations that call
 `cairoon_mapped_image_surface.c`;
 `ffi_svg_surface.mbt` owns raw SVG surface extern declarations that call
-`cairoon_svg_surface.c`; `ffi_tee_surface.mbt` owns raw Tee surface extern
-declarations that call `cairoon_tee_surface.c`; and `ffi_region.mbt` owns raw
-`Region` extern declarations that call `cairoon_region.c`.
+`cairoon_svg_surface.c`; raw SVG version query/string helpers belong to
+`src/internal/svg` because their public facade can stay as `SVGVersion`
+methods. `ffi_tee_surface.mbt` owns raw Tee surface extern declarations that
+call `cairoon_tee_surface.c`; and `ffi_region.mbt` owns raw `Region` extern
+declarations that call `cairoon_region.c`.
 
 Do not add public wrappers to `ffi_*.mbt`; these files are private native FFI
 plumbing only. Public MoonBit APIs stay in focused wrapper files such as
@@ -411,8 +413,11 @@ version query/string helpers while `src/pdf_surface.mbt` keeps public
 `PDFVersion` constructors and object-surface wrappers. The fifth accepted probe
 is `src/internal/ps`: it owns raw PostScript level query/string helpers while
 `src/ps_surface.mbt` keeps public `PSLevel` constructors and object-surface
-wrappers. Keep enum constructors in the facade unless a compatibility proof
-shows that `@cairoon.<Constructor>` syntax survives. Any internal package that
+wrappers. The sixth accepted probe is `src/internal/svg`: it owns raw SVG
+version query/string helpers while `src/svg_surface.mbt` keeps public
+`SVGVersion` constructors and object-surface wrappers. Keep enum constructors
+in the facade unless a compatibility proof shows that `@cairoon.<Constructor>`
+syntax survives. Any internal package that
 imports `caimeo/cairoon/native` must carry Cairo `cc-link-flags` and
 package-local tests so
 `moon test src/internal/<family> --target native` links independently.
@@ -432,8 +437,8 @@ can move; it is only a non-cyclic raw-message helper because it accepts raw
 additional methods for the child type, so a moved value type must carry its
 complete public method set in the child package. Keep values such as text/font
 extents in the facade until their error dependencies can move with them or a
-wrapper design is proven. Backend helper packages such as `src/internal/pdf`
-and `src/internal/ps`
+wrapper design is proven. Backend helper packages such as `src/internal/pdf`,
+`src/internal/ps`, and `src/internal/svg`
 must not pull object wrapper types such as `Surface` into child packages until
 the corresponding object family seam is proven.
 

@@ -20,31 +20,6 @@ extern "C" fn svg_surface_create_for_stream_ffi(
 ) -> Surface = "cairoon_svg_surface_create_for_stream"
 
 ///|
-#borrow(status)
-extern "C" fn svg_get_version_count_ffi(status : Ref[Status]) -> Int = "cairoon_svg_get_version_count"
-
-///|
-#borrow(status)
-extern "C" fn svg_get_version_ffi(
-  index : Int,
-  status : Ref[Status],
-) -> SVGVersion = "cairoon_svg_get_version"
-
-///|
-#borrow(status)
-extern "C" fn svg_version_to_string_ffi(
-  version : SVGVersion,
-  status : Ref[Status],
-) -> Bytes = "cairoon_svg_version_to_string"
-
-///|
-#borrow(status)
-extern "C" fn svg_version_to_string_raw_ffi(
-  version : Int,
-  status : Ref[Status],
-) -> Bytes = "cairoon_svg_version_to_string"
-
-///|
 #borrow(surface)
 extern "C" fn svg_surface_restrict_to_version_ffi(
   surface : Surface,

@@ -1,0 +1,21 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "caimeo/cairoon/internal/svg"
+
+import {
+  "moonbitlang/core/ref",
+}
+
+// Values
+pub fn get_version_count_raw(@ref.Ref[Int]) -> Int
+
+pub fn get_version_raw(Int, @ref.Ref[Int]) -> Int
+
+pub fn version_to_string_raw(Int, @ref.Ref[Int]) -> String
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits
