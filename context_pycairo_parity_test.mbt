@@ -276,6 +276,61 @@ test "context explicit source pattern mirrors pycairo fixture" {
 }
 
 ///|
+test "context font face round trips mirror pycairo fixture" {
+  let ctx = Context::new(pycairo_context_surface(42, 42))
+  inspect(ctx.get_font_face().status().is_success(), content="true")
+
+  ctx.set_font_face(None)
+  inspect(ctx.get_font_face().status().is_success(), content="true")
+
+  let face = FontFace::toy(
+    "serif",
+    slant=FontSlantItalic,
+    weight=FontWeightBold,
+  )
+  ctx.set_font_face(Some(face))
+  let returned = ctx.get_font_face()
+  inspect(returned.equal(face), content="true")
+  inspect(returned.get_family(), content="serif")
+  debug_inspect(returned.get_slant(), content="FontSlantItalic")
+  debug_inspect(returned.get_weight(), content="FontWeightBold")
+}
+
+///|
+test "context set_font_matrix mirrors pycairo identity fixture" {
+  let ctx = Context::new(pycairo_context_surface(42, 42))
+  let matrix = Matrix::new()
+  ctx.set_font_matrix(matrix)
+  assert_pycairo_context_matrix_close(ctx.get_font_matrix(), matrix)
+}
+
+///|
+test "context font options round trip mirrors pycairo fixture" {
+  let ctx = Context::new(pycairo_context_surface(42, 42))
+  let options = ctx.get_font_options()
+  options.set_antialias(AntialiasGray)
+  options.set_hint_style(HintStyleSlight)
+
+  ctx.set_font_options(options)
+  let returned = ctx.get_font_options()
+  debug_inspect(returned.get_antialias(), content="AntialiasGray")
+  debug_inspect(returned.get_hint_style(), content="HintStyleSlight")
+}
+
+///|
+test "context scaled font round trip mirrors pycairo fixture" {
+  let ctx = Context::new(pycairo_context_surface(42, 42))
+  let scaled_font = ctx.get_scaled_font()
+  ctx.set_scaled_font(scaled_font)
+  let returned = ctx.get_scaled_font()
+  inspect(returned.equal(scaled_font), content="true")
+  assert_pycairo_context_matrix_close(
+    returned.get_font_matrix(),
+    scaled_font.get_font_matrix(),
+  )
+}
+
+///|
 test "context empty font family selection mirrors pycairo fixture" {
   let ctx = Context::new(pycairo_context_surface(42, 42))
   ctx.select_font_face("")
