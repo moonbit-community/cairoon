@@ -47,8 +47,6 @@ targeted_tests=(
   scaled_font_test.mbt
   vector_output_wbtest.mbt
   vector_output_oracle_wbtest.mbt
-  surface_context_test.mbt
-  image_data_test.mbt
   surface_stream_test.mbt
   surface_stream_wbtest.mbt
   surface_stream_backend_wbtest.mbt
@@ -60,14 +58,6 @@ targeted_tests=(
   surface_stream_lifecycle_wbtest.mbt
   surface_stream_oracle_wbtest.mbt
   surface_stream_tag_wbtest.mbt
-  surface_mapped_test.mbt
-  surface_subsurface_test.mbt
-  surface_recording_test.mbt
-  surface_mime_test.mbt
-  surface_pdf_test.mbt
-  surface_ps_test.mbt
-  surface_svg_test.mbt
-  surface_tee_test.mbt
   device_test.mbt
   object_traits_test.mbt
   context_lifetime_test.mbt

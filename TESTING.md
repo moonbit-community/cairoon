@@ -209,9 +209,9 @@ It runs `moon fmt --check`, `scripts/check-project-layout.py`,
 `scripts/check-api-inventory.py`, `scripts/check-reliability-ledger.py`,
 native `moon check`, extracted external black-box packages under
 `src/tests/api` (version, enum, status, and pure value APIs),
-`src/tests/matrix`, and `src/tests/region`, targeted white-box
-image, ScaledFont, vector-output,
-surface base/ImageData/stream/mapped/subsurface/recording/MIME/PDF/PS/SVG/Tee,
+`src/tests/matrix`, `src/tests/region`, and `src/tests/surface`, targeted
+white-box image, ScaledFont, vector-output,
+surface stream,
 script-device, object-trait, context-lifetime/state/matrix/path/group/text/glyph/
 extents/clip/painting, core/pycairo-parity/gradient/mesh pattern, and
 raster-pattern tests, the full

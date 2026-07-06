@@ -1,65 +1,67 @@
 ///|
-fn surface_with_local_pixel_buffer() -> Surface raise CairoError {
+fn surface_with_local_pixel_buffer() -> @cairoon.Surface raise @cairoon.CairoError {
   let data : FixedArray[Byte] = FixedArray::make(4, b'\x00')
-  Surface::image_for_data(data, Argb32, 1, 1)
+  @cairoon.Surface::image_for_data(data, @cairoon.Argb32, 1, 1)
 }
 
 ///|
 fn expect_surface_invalid_size(
-  result : Result[Surface, CairoError],
+  result : Result[@cairoon.Surface, @cairoon.CairoError],
 ) -> Unit raise {
   inspect(result is Err(_), content="true")
   match result {
-    Err(CairoInvalidArgument(InvalidSize, _)) => ()
+    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidSize, _)) => ()
     _ => @test.fail("expected InvalidSize")
   }
 }
 
 ///|
-fn[T] expect_surface_finished(result : Result[T, CairoError]) -> Unit raise {
+fn[T] expect_surface_finished(
+  result : Result[T, @cairoon.CairoError],
+) -> Unit raise {
   inspect(result is Err(_), content="true")
   match result {
-    Err(CairoError(SurfaceFinished, _)) => ()
+    Err(@cairoon.CairoError(@cairoon.SurfaceFinished, _)) => ()
     _ => @test.fail("expected SurfaceFinished")
   }
 }
 
 ///|
 fn[T] expect_surface_type_mismatch(
-  result : Result[T, CairoError],
+  result : Result[T, @cairoon.CairoError],
 ) -> Unit raise {
   inspect(result is Err(_), content="true")
   match result {
-    Err(CairoError(SurfaceTypeMismatch, _)) => ()
+    Err(@cairoon.CairoError(@cairoon.SurfaceTypeMismatch, _)) => ()
     _ => @test.fail("expected SurfaceTypeMismatch")
   }
 }
 
 ///|
 fn[T] expect_surface_invalid_content(
-  result : Result[T, CairoError],
+  result : Result[T, @cairoon.CairoError],
 ) -> Unit raise {
   inspect(result is Err(_), content="true")
   match result {
-    Err(CairoInvalidArgument(InvalidContent, _)) => ()
+    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidContent, _)) => ()
     _ => @test.fail("expected InvalidContent")
   }
 }
 
 ///|
 fn[T] expect_surface_invalid_format(
-  result : Result[T, CairoError],
+  result : Result[T, @cairoon.CairoError],
 ) -> Unit raise {
   inspect(result is Err(_), content="true")
   match result {
-    Err(CairoInvalidArgument(InvalidFormat, _)) => ()
+    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidFormat, _)) => ()
     _ => @test.fail("expected InvalidFormat")
   }
 }
 
 ///|
 test "image surface properties" {
-  let surface = Surface::image(Argb32, 2, 1)
+  let surface = @cairoon.Surface::image(@cairoon.Argb32, 2, 1)
   debug_inspect(surface.get_type(), content="SurfaceTypeImage")
   debug_inspect(surface.get_content(), content="ContentColorAlpha")
   inspect(surface.get_content_raw(), content="12288")
@@ -73,29 +75,36 @@ test "image surface properties" {
 
 ///|
 test "image surface accepts pycairo raw format ints" {
-  inspect(Format::stride_for_width_raw(0, 2), content="8")
-  inspect(Format::stride_for_width_raw(FORMAT_INVALID, 2), content="-1")
+  inspect(@cairoon.Format::stride_for_width_raw(0, 2), content="8")
+  inspect(
+    @cairoon.Format::stride_for_width_raw(@cairoon.FORMAT_INVALID, 2),
+    content="-1",
+  )
 
-  let surface = Surface::image_raw(1, 2, 1)
+  let surface = @cairoon.Surface::image_raw(1, 2, 1)
   debug_inspect(surface.get_format(), content="Rgb24")
   inspect(surface.get_format_raw(), content="1")
   inspect(surface.get_stride(), content="8")
 
   let data : FixedArray[Byte] = FixedArray::make(4, b'\x00')
-  let backed = Surface::image_for_data_raw(data, 0, 1, 1)
+  let backed = @cairoon.Surface::image_for_data_raw(data, 0, 1, 1)
   debug_inspect(backed.get_format(), content="Argb32")
   inspect(backed.get_format_raw(), content="0")
 
-  expect_surface_invalid_format(run_cairo(() => Surface::image_raw(-1, 1, 1)))
+  expect_surface_invalid_format(
+    @cairoon.run_cairo(() => @cairoon.Surface::image_raw(-1, 1, 1)),
+  )
   let invalid_data : FixedArray[Byte] = FixedArray::make(4, b'\x00')
   expect_surface_invalid_format(
-    run_cairo(() => Surface::image_for_data_raw(invalid_data, -1, 1, 1)),
+    @cairoon.run_cairo(() => {
+      @cairoon.Surface::image_for_data_raw(invalid_data, -1, 1, 1)
+    }),
   )
 }
 
 ///|
 test "surface create_similar accepts pycairo raw content ints" {
-  let parent = Surface::image(Argb32, 2, 2)
+  let parent = @cairoon.Surface::image(@cairoon.Argb32, 2, 2)
   let color = parent.create_similar_raw(0x1000, 1, 1)
   debug_inspect(color.get_content(), content="ContentColor")
   inspect(color.get_content_raw(), content="4096")
@@ -105,92 +114,98 @@ test "surface create_similar accepts pycairo raw content ints" {
   inspect(alpha.get_content_raw(), content="8192")
 
   expect_surface_invalid_content(
-    run_cairo(() => parent.create_similar_raw(0, 1, 1)),
+    @cairoon.run_cairo(() => parent.create_similar_raw(0, 1, 1)),
   )
 }
 
 ///|
 test "image surface properties map status and subtype errors" {
-  let finished = Surface::image(Argb32, 1, 1)
+  let finished = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
   finished.finish()
-  expect_surface_finished(run_cairo(() => finished.get_width()))
-  expect_surface_finished(run_cairo(() => finished.get_height()))
-  expect_surface_finished(run_cairo(() => finished.get_stride()))
-  expect_surface_finished(run_cairo(() => finished.get_format()))
-  expect_surface_finished(run_cairo(() => finished.copy_data()))
+  expect_surface_finished(@cairoon.run_cairo(() => finished.get_width()))
+  expect_surface_finished(@cairoon.run_cairo(() => finished.get_height()))
+  expect_surface_finished(@cairoon.run_cairo(() => finished.get_stride()))
+  expect_surface_finished(@cairoon.run_cairo(() => finished.get_format()))
+  expect_surface_finished(@cairoon.run_cairo(() => finished.copy_data()))
 
-  let pdf = Surface::pdf(10.0, 10.0)
-  expect_surface_type_mismatch(run_cairo(() => pdf.get_width()))
-  expect_surface_type_mismatch(run_cairo(() => pdf.get_height()))
-  expect_surface_type_mismatch(run_cairo(() => pdf.get_stride()))
-  expect_surface_type_mismatch(run_cairo(() => pdf.get_format()))
-  expect_surface_type_mismatch(run_cairo(() => pdf.copy_data()))
+  let pdf = @cairoon.Surface::pdf(10.0, 10.0)
+  expect_surface_type_mismatch(@cairoon.run_cairo(() => pdf.get_width()))
+  expect_surface_type_mismatch(@cairoon.run_cairo(() => pdf.get_height()))
+  expect_surface_type_mismatch(@cairoon.run_cairo(() => pdf.get_stride()))
+  expect_surface_type_mismatch(@cairoon.run_cairo(() => pdf.get_format()))
+  expect_surface_type_mismatch(@cairoon.run_cairo(() => pdf.copy_data()))
 }
 
 ///|
 test "image surface supports cairo float formats" {
-  let rgb = Surface::image(Rgb96F, 3, 2)
+  let rgb = @cairoon.Surface::image(@cairoon.Rgb96F, 3, 2)
   debug_inspect(rgb.get_type(), content="SurfaceTypeImage")
   debug_inspect(rgb.get_format(), content="Rgb96F")
   debug_inspect(rgb.get_content(), content="ContentColor")
   inspect(rgb.get_width(), content="3")
   inspect(rgb.get_height(), content="2")
-  inspect(rgb.get_stride(), content="\{Format::stride_for_width(Rgb96F, 3)}")
+  inspect(
+    rgb.get_stride(),
+    content="\{@cairoon.Format::stride_for_width(@cairoon.Rgb96F, 3)}",
+  )
   inspect(rgb.copy_data().length(), content="\{rgb.get_stride() * 2}")
 
-  let rgba = Surface::image(Rgba128F, 3, 2)
+  let rgba = @cairoon.Surface::image(@cairoon.Rgba128F, 3, 2)
   debug_inspect(rgba.get_type(), content="SurfaceTypeImage")
   debug_inspect(rgba.get_format(), content="Rgba128F")
   debug_inspect(rgba.get_content(), content="ContentColorAlpha")
-  inspect(rgba.get_stride(), content="\{Format::stride_for_width(Rgba128F, 3)}")
+  inspect(
+    rgba.get_stride(),
+    content="\{@cairoon.Format::stride_for_width(@cairoon.Rgba128F, 3)}",
+  )
   inspect(rgba.copy_data().length(), content="\{rgba.get_stride() * 2}")
 }
 
 ///|
 test "surface equality and hash use cairo pointer identity" {
-  let surface = Surface::image(Argb32, 1, 1)
-  let ctx = Context::new(surface)
+  let surface = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let ctx = @cairoon.Context::new(surface)
   let target = ctx.get_target()
   inspect(surface.equal(target), content="true")
   inspect(target.equal(surface), content="true")
   inspect(surface.hash() == target.hash(), content="true")
 
-  let other = Surface::image(Argb32, 1, 1)
+  let other = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
   inspect(surface.equal(other), content="false")
 }
 
 ///|
 test "surface finish records status for base methods" {
-  let surface = Surface::image(Argb32, 1, 1)
+  let surface = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
   debug_inspect(surface.status(), content="Success")
   surface.finish()
   debug_inspect(surface.status(), content="SurfaceFinished")
 
   // Cairo finish is intentionally idempotent; operations after finish fail.
   surface.finish()
-  expect_surface_finished(run_cairo(() => surface.flush()))
-  expect_surface_finished(run_cairo(() => surface.copy_page()))
-  expect_surface_finished(run_cairo(() => surface.show_page()))
+  expect_surface_finished(@cairoon.run_cairo(() => surface.flush()))
+  expect_surface_finished(@cairoon.run_cairo(() => surface.copy_page()))
+  expect_surface_finished(@cairoon.run_cairo(() => surface.show_page()))
 }
 
 ///|
 test "surface with_finished finishes after success and cairo errors" {
-  let surface = Surface::image(Argb32, 1, 1)
+  let surface = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
   let len = surface.with_finished(() => {
-    let ctx = Context::new(surface)
+    let ctx = @cairoon.Context::new(surface)
     ctx.set_source_rgba(1.0, 0.0, 0.0, 1.0)
     ctx.paint()
     surface.copy_data().length()
   })
   inspect(len, content="4")
   debug_inspect(surface.status(), content="SurfaceFinished")
-  expect_surface_finished(run_cairo(() => surface.flush()))
+  expect_surface_finished(@cairoon.run_cairo(() => surface.flush()))
 
-  let failed_surface = Surface::image(Argb32, 1, 1)
+  let failed_surface = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
   expect_surface_invalid_size(
-    run_cairo(() => {
+    @cairoon.run_cairo(() => {
       failed_surface.with_finished(() => {
-        failed_surface.create_similar(ContentColor, -1, 1)
+        failed_surface.create_similar(@cairoon.ContentColor, -1, 1)
       })
     }),
   )
@@ -199,35 +214,43 @@ test "surface with_finished finishes after success and cairo errors" {
 
 ///|
 test "surface finished status covers capability dirty and state methods" {
-  let surface = Surface::image(Argb32, 2, 2)
+  let surface = @cairoon.Surface::image(@cairoon.Argb32, 2, 2)
   inspect(
     surface.has_show_text_glyphs() || !surface.has_show_text_glyphs(),
     content="true",
   )
   surface.finish()
-  expect_surface_finished(run_cairo(() => surface.has_show_text_glyphs()))
-  expect_surface_finished(run_cairo(() => surface.mark_dirty()))
   expect_surface_finished(
-    run_cairo(() => surface.mark_dirty_rectangle(0, 0, 1, 1)),
+    @cairoon.run_cairo(() => surface.has_show_text_glyphs()),
   )
-  expect_surface_finished(run_cairo(() => surface.set_device_offset(1.0, 2.0)))
-  expect_surface_finished(run_cairo(() => surface.get_device_offset()))
-  expect_surface_finished(run_cairo(() => surface.set_device_scale(1.0, 2.0)))
-  expect_surface_finished(run_cairo(() => surface.get_device_scale()))
+  expect_surface_finished(@cairoon.run_cairo(() => surface.mark_dirty()))
   expect_surface_finished(
-    run_cairo(() => surface.set_fallback_resolution(72.0, 72.0)),
+    @cairoon.run_cairo(() => surface.mark_dirty_rectangle(0, 0, 1, 1)),
   )
-  expect_surface_finished(run_cairo(() => surface.get_fallback_resolution()))
+  expect_surface_finished(
+    @cairoon.run_cairo(() => surface.set_device_offset(1.0, 2.0)),
+  )
+  expect_surface_finished(@cairoon.run_cairo(() => surface.get_device_offset()))
+  expect_surface_finished(
+    @cairoon.run_cairo(() => surface.set_device_scale(1.0, 2.0)),
+  )
+  expect_surface_finished(@cairoon.run_cairo(() => surface.get_device_scale()))
+  expect_surface_finished(
+    @cairoon.run_cairo(() => surface.set_fallback_resolution(72.0, 72.0)),
+  )
+  expect_surface_finished(
+    @cairoon.run_cairo(() => surface.get_fallback_resolution()),
+  )
 }
 
 ///|
 test "surface similar constructors and state queries" {
-  let source = Surface::image(Argb32, 2, 2)
-  let similar = source.create_similar(ContentColor, 3, 4)
+  let source = @cairoon.Surface::image(@cairoon.Argb32, 2, 2)
+  let similar = source.create_similar(@cairoon.ContentColor, 3, 4)
   inspect(similar.status().is_success(), content="true")
   debug_inspect(similar.get_content(), content="ContentColor")
 
-  let image = source.create_similar_image(Rgb24, 3, 4)
+  let image = source.create_similar_image(@cairoon.Rgb24, 3, 4)
   inspect(image.status().is_success(), content="true")
   debug_inspect(image.get_type(), content="SurfaceTypeImage")
   debug_inspect(image.get_content(), content="ContentColor")
@@ -243,36 +266,36 @@ test "surface similar constructors and state queries" {
 
 ///|
 test "surface similar constructors validate invalid dimensions" {
-  let source = Surface::image(Argb32, 2, 2)
+  let source = @cairoon.Surface::image(@cairoon.Argb32, 2, 2)
   expect_surface_invalid_size(
-    run_cairo(() => source.create_similar(ContentColor, -1, 1)),
+    @cairoon.run_cairo(() => source.create_similar(@cairoon.ContentColor, -1, 1)),
   )
   expect_surface_invalid_size(
-    run_cairo(() => source.create_similar(ContentColor, 1, -1)),
+    @cairoon.run_cairo(() => source.create_similar(@cairoon.ContentColor, 1, -1)),
   )
   expect_surface_invalid_size(
-    run_cairo(() => source.create_similar_image(Argb32, -1, 1)),
+    @cairoon.run_cairo(() => source.create_similar_image(@cairoon.Argb32, -1, 1)),
   )
   expect_surface_invalid_size(
-    run_cairo(() => source.create_similar_image(Argb32, 1, -1)),
+    @cairoon.run_cairo(() => source.create_similar_image(@cairoon.Argb32, 1, -1)),
   )
   expect_surface_invalid_format(
-    run_cairo(() => source.create_similar_image_raw(-1, 1, 1)),
+    @cairoon.run_cairo(() => source.create_similar_image_raw(-1, 1, 1)),
   )
 }
 
 ///|
 test "surface device state and dirty markers round trip" {
-  let surface = Surface::image(Argb32, 3, 3)
+  let surface = @cairoon.Surface::image(@cairoon.Argb32, 3, 3)
   surface.set_device_offset(1.25, -2.5)
   debug_inspect(surface.get_device_offset(), content="(1.25, -2.5)")
 
   surface.set_device_scale(5.0, 3.0)
   debug_inspect(surface.get_device_scale(), content="(5, 3)")
 
-  let bad_scale = run_cairo(() => surface.set_device_scale(0.0, 1.0))
+  let bad_scale = @cairoon.run_cairo(() => surface.set_device_scale(0.0, 1.0))
   match bad_scale {
-    Err(CairoInvalidArgument(InvalidMatrix, _)) => ()
+    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidMatrix, _)) => ()
     _ => @test.fail("expected InvalidMatrix for zero device scale")
   }
 
@@ -291,7 +314,7 @@ test "surface state and subsurface constructors preserve pycairo numeric limits"
   let max_double = 1.7976931348623157e308
   let min_double = -max_double
   let min_positive = 2.2250738585072014e-308
-  let surface = Surface::image(Argb32, 100, 100)
+  let surface = @cairoon.Surface::image(@cairoon.Argb32, 100, 100)
 
   surface.set_device_offset(max_double, min_double)
   debug_inspect(
@@ -318,8 +341,8 @@ test "surface state and subsurface constructors preserve pycairo numeric limits"
 
 ///|
 test "context paints deterministic argb32 bytes" {
-  let surface = Surface::image(Argb32, 1, 1)
-  let ctx = Context::new(surface)
+  let surface = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let ctx = @cairoon.Context::new(surface)
   ctx.set_source_rgba(1.0, 0.0, 0.0, 1.0)
   ctx.paint()
   let data = surface.copy_data()
@@ -332,10 +355,16 @@ test "context paints deterministic argb32 bytes" {
 
 ///|
 test "image surface for data shares caller buffer" {
-  let stride = Format::stride_for_width(Argb32, 1)
+  let stride = @cairoon.Format::stride_for_width(@cairoon.Argb32, 1)
   let data : FixedArray[Byte] = FixedArray::make(stride, b'\x00')
-  let surface = Surface::image_for_data(data, Argb32, 1, 1, stride~)
-  let ctx = Context::new(surface)
+  let surface = @cairoon.Surface::image_for_data(
+    data,
+    @cairoon.Argb32,
+    1,
+    1,
+    stride~,
+  )
+  let ctx = @cairoon.Context::new(surface)
   ctx.set_source_rgba(0.0, 1.0, 0.0, 1.0)
   ctx.paint()
   surface.flush()
@@ -348,18 +377,24 @@ test "image surface for data shares caller buffer" {
 
 ///|
 test "image surface for data supports cairo float formats" {
-  let rgb_stride = Format::stride_for_width(Rgb96F, 2)
+  let rgb_stride = @cairoon.Format::stride_for_width(@cairoon.Rgb96F, 2)
   let rgb_data : FixedArray[Byte] = FixedArray::make(rgb_stride, b'\x00')
-  let rgb = Surface::image_for_data(rgb_data, Rgb96F, 2, 1, stride=rgb_stride)
+  let rgb = @cairoon.Surface::image_for_data(
+    rgb_data,
+    @cairoon.Rgb96F,
+    2,
+    1,
+    stride=rgb_stride,
+  )
   debug_inspect(rgb.get_format(), content="Rgb96F")
   inspect(rgb.get_stride(), content="\{rgb_stride}")
   inspect(rgb.copy_data() == Bytes::from_array(rgb_data), content="true")
 
-  let rgba_stride = Format::stride_for_width(Rgba128F, 2)
+  let rgba_stride = @cairoon.Format::stride_for_width(@cairoon.Rgba128F, 2)
   let rgba_data : FixedArray[Byte] = FixedArray::make(rgba_stride, b'\x00')
-  let rgba = Surface::image_for_data(
+  let rgba = @cairoon.Surface::image_for_data(
     rgba_data,
-    Rgba128F,
+    @cairoon.Rgba128F,
     2,
     1,
     stride=rgba_stride,
@@ -372,7 +407,7 @@ test "image surface for data supports cairo float formats" {
 ///|
 test "image surface for data retains local buffer" {
   let surface = surface_with_local_pixel_buffer()
-  let ctx = Context::new(surface)
+  let ctx = @cairoon.Context::new(surface)
   ctx.set_source_rgba(0.0, 0.0, 1.0, 1.0)
   ctx.paint()
   let data = surface.copy_data()
@@ -385,13 +420,23 @@ test "image surface for data retains local buffer" {
 ///|
 test "image surface for data allows empty zero dimension buffer" {
   let data : FixedArray[Byte] = FixedArray::make(0, b'\x00')
-  let zero_height = Surface::image_for_data(data, Argb32, 10, 0)
+  let zero_height = @cairoon.Surface::image_for_data(
+    data,
+    @cairoon.Argb32,
+    10,
+    0,
+  )
   inspect(zero_height.get_width(), content="10")
   inspect(zero_height.get_height(), content="0")
   inspect(zero_height.get_stride(), content="40")
   inspect(zero_height.copy_data().length(), content="0")
 
-  let zero_width = Surface::image_for_data(data, Argb32, 0, 10)
+  let zero_width = @cairoon.Surface::image_for_data(
+    data,
+    @cairoon.Argb32,
+    0,
+    10,
+  )
   inspect(zero_width.get_width(), content="0")
   inspect(zero_width.get_height(), content="10")
   inspect(zero_width.get_stride(), content="0")
@@ -400,31 +445,37 @@ test "image surface for data allows empty zero dimension buffer" {
 
 ///|
 test "image surface for data validates stride and buffer size" {
-  let stride = Format::stride_for_width(Argb32, 1)
+  let stride = @cairoon.Format::stride_for_width(@cairoon.Argb32, 1)
   let short : FixedArray[Byte] = FixedArray::make(stride - 1, b'\x00')
-  let short_result = run_cairo(() => {
-    Surface::image_for_data(short, Argb32, 1, 1, stride~)
+  let short_result = @cairoon.run_cairo(() => {
+    @cairoon.Surface::image_for_data(short, @cairoon.Argb32, 1, 1, stride~)
   })
   match short_result {
-    Err(CairoInvalidArgument(InvalidSize, _)) => ()
+    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidSize, _)) => ()
     _ => @test.fail("expected InvalidSize for short image buffer")
   }
 
   let bad_stride : FixedArray[Byte] = FixedArray::make(12, b'\x00')
-  let stride_result = run_cairo(() => {
-    Surface::image_for_data(bad_stride, Argb32, 3, 3, stride=3)
+  let stride_result = @cairoon.run_cairo(() => {
+    @cairoon.Surface::image_for_data(
+      bad_stride,
+      @cairoon.Argb32,
+      3,
+      3,
+      stride=3,
+    )
   })
   match stride_result {
-    Err(CairoInvalidArgument(InvalidStride, _)) => ()
+    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidStride, _)) => ()
     _ => @test.fail("expected InvalidStride for invalid image stride")
   }
 
   let negative : FixedArray[Byte] = FixedArray::make(0, b'\x00')
-  let negative_result = run_cairo(() => {
-    Surface::image_for_data(negative, Argb32, -1, 1)
+  let negative_result = @cairoon.run_cairo(() => {
+    @cairoon.Surface::image_for_data(negative, @cairoon.Argb32, -1, 1)
   })
   match negative_result {
-    Err(CairoInvalidArgument(InvalidSize, _)) => ()
+    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidSize, _)) => ()
     _ => @test.fail("expected InvalidSize for negative image dimension")
   }
 }
@@ -432,41 +483,43 @@ test "image surface for data validates stride and buffer size" {
 ///|
 test "image surface png file roundtrip and invalid paths" {
   let path = "/tmp/cairoon_surface_png_roundtrip.png"
-  let surface = Surface::image(Argb32, 2, 1)
-  let ctx = Context::new(surface)
+  let surface = @cairoon.Surface::image(@cairoon.Argb32, 2, 1)
+  let ctx = @cairoon.Context::new(surface)
   ctx.set_source_rgba(0.0, 0.0, 1.0, 0.5)
   ctx.paint()
   surface.write_to_png(path)
 
-  let loaded = Surface::image_from_png(path)
+  let loaded = @cairoon.Surface::image_from_png(path)
   inspect(loaded.get_width(), content="2")
   inspect(loaded.get_height(), content="1")
   debug_inspect(loaded.get_format(), content="Argb32")
   inspect(loaded.copy_data() == surface.copy_data(), content="true")
 
   let invalid_path = "/tmp/cairoon\u{0}bad.png"
-  let write_result = run_cairo(() => surface.write_to_png(invalid_path))
+  let write_result = @cairoon.run_cairo(() => surface.write_to_png(invalid_path))
   match write_result {
-    Err(CairoInvalidArgument(InvalidString, _)) => ()
+    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidString, _)) => ()
     _ => @test.fail("expected InvalidString for write_to_png")
   }
-  let read_result = run_cairo(() => Surface::image_from_png(invalid_path))
+  let read_result = @cairoon.run_cairo(() => {
+    @cairoon.Surface::image_from_png(invalid_path)
+  })
   match read_result {
-    Err(CairoInvalidArgument(InvalidString, _)) => ()
+    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidString, _)) => ()
     _ => @test.fail("expected InvalidString for image_from_png")
   }
 }
 
 ///|
 test "context invalid restore maps to cairo error" {
-  let surface = Surface::image(Argb32, 1, 1)
-  let ctx = Context::new(surface)
+  let surface = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let ctx = @cairoon.Context::new(surface)
   debug_inspect(ctx.status(), content="Success")
-  let result = run_cairo(() => ctx.restore())
+  let result = @cairoon.run_cairo(() => ctx.restore())
   inspect(result is Err(_), content="true")
   debug_inspect(ctx.status(), content="InvalidRestore")
   match result {
-    Err(CairoError(InvalidRestore, _)) => ()
+    Err(@cairoon.CairoError(@cairoon.InvalidRestore, _)) => ()
     _ => @test.fail("expected InvalidRestore")
   }
 }

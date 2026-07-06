@@ -1,44 +1,44 @@
 ///|
 fn expect_image_data_invalid_index(
-  result : Result[Unit, CairoError],
+  result : Result[Unit, @cairoon.CairoError],
 ) -> Unit raise {
   inspect(result is Err(_), content="true")
   match result {
-    Err(CairoInvalidArgument(InvalidIndex, _)) => ()
+    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidIndex, _)) => ()
     _ => @test.fail("expected InvalidIndex")
   }
 }
 
 ///|
 fn expect_image_data_cairo_status(
-  result : Result[Unit, CairoError],
-  expected : Status,
+  result : Result[Unit, @cairoon.CairoError],
+  expected : @cairoon.Status,
 ) -> Unit raise {
   inspect(result is Err(_), content="true")
   match result {
-    Err(CairoError(status, _)) if status == expected => ()
+    Err(@cairoon.CairoError(status, _)) if status == expected => ()
     _ => @test.fail("expected cairo status")
   }
 }
 
 ///|
 fn expect_image_data_surface_finished(
-  result : Result[Unit, CairoError],
+  result : Result[Unit, @cairoon.CairoError],
 ) -> Unit raise {
-  expect_image_data_cairo_status(result, SurfaceFinished)
+  expect_image_data_cairo_status(result, @cairoon.SurfaceFinished)
 }
 
 ///|
-fn image_data_from_local_surface() -> ImageData raise CairoError {
-  let surface = Surface::image(Argb32, 1, 1)
+fn image_data_from_local_surface() -> @cairoon.ImageData raise @cairoon.CairoError {
+  let surface = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
   let data = surface.get_data()
   data.set(3, b'\xff')
   data
 }
 
 ///|
-fn mapped_image_data_from_local_surface() -> ImageData raise CairoError {
-  let surface = Surface::image(Rgb24, 1, 1)
+fn mapped_image_data_from_local_surface() -> @cairoon.ImageData raise @cairoon.CairoError {
+  let surface = @cairoon.Surface::image(@cairoon.Rgb24, 1, 1)
   let mapped = surface.map_to_image()
   let data = mapped.get_data()
   data.set(0, b'\xaa')
@@ -47,7 +47,7 @@ fn mapped_image_data_from_local_surface() -> ImageData raise CairoError {
 
 ///|
 test "image data view reads writes and copies surface bytes" {
-  let surface = Surface::image(Argb32, 1, 1)
+  let surface = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
   let data = surface.get_data()
   inspect(data.status().is_success(), content="true")
   inspect(data.length(), content="4")
@@ -66,7 +66,7 @@ test "image data view reads writes and copies surface bytes" {
 ///|
 test "image data view shares buffer-backed image storage" {
   let buffer : FixedArray[Byte] = FixedArray::make(4, b'\x00')
-  let surface = Surface::image_for_data(buffer, Argb32, 1, 1)
+  let surface = @cairoon.Surface::image_for_data(buffer, @cairoon.Argb32, 1, 1)
   let data = surface.get_data()
   data.set(2, b'\xff')
   surface.flush()
@@ -85,32 +85,32 @@ test "image data view retains local surface wrapper" {
 
 ///|
 test "image surfaces reject get data after finish" {
-  let ordinary = Surface::image(Argb32, 1, 1)
+  let ordinary = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
   ordinary.finish()
   expect_image_data_surface_finished(
-    run_cairo(() => {
+    @cairoon.run_cairo(() => {
       let _ = ordinary.get_data()
       ()
     }),
   )
 
   let buffer : FixedArray[Byte] = FixedArray::make(4, b'\x00')
-  let backed = Surface::image_for_data(buffer, Argb32, 1, 1)
+  let backed = @cairoon.Surface::image_for_data(buffer, @cairoon.Argb32, 1, 1)
   backed.finish()
   expect_image_data_surface_finished(
-    run_cairo(() => {
+    @cairoon.run_cairo(() => {
       let _ = backed.get_data()
       ()
     }),
   )
 
   let path = "/tmp/cairoon_image_data_finished.png"
-  let source = Surface::image(Argb32, 1, 1)
+  let source = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
   source.write_to_png(path)
-  let loaded = Surface::image_from_png(path)
+  let loaded = @cairoon.Surface::image_from_png(path)
   loaded.finish()
   expect_image_data_surface_finished(
-    run_cairo(() => {
+    @cairoon.run_cairo(() => {
       let _ = loaded.get_data()
       ()
     }),
@@ -119,25 +119,27 @@ test "image surfaces reject get data after finish" {
 
 ///|
 test "image data view reports base surface finish" {
-  let surface = Surface::image(Argb32, 1, 1)
+  let surface = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
   let data = surface.get_data()
   surface.finish()
   debug_inspect(data.status(), content="SurfaceFinished")
   expect_image_data_surface_finished(
-    run_cairo(() => {
+    @cairoon.run_cairo(() => {
       let _ = data.length()
       ()
     }),
   )
   expect_image_data_surface_finished(
-    run_cairo(() => {
+    @cairoon.run_cairo(() => {
       let _ = data.get(0)
       ()
     }),
   )
-  expect_image_data_surface_finished(run_cairo(() => data.set(0, b'\x00')))
   expect_image_data_surface_finished(
-    run_cairo(() => {
+    @cairoon.run_cairo(() => data.set(0, b'\x00')),
+  )
+  expect_image_data_surface_finished(
+    @cairoon.run_cairo(() => {
       let _ = data.copy()
       ()
     }),
@@ -146,28 +148,30 @@ test "image data view reports base surface finish" {
 
 ///|
 test "image data view maps invalid surface and indexes" {
-  let pdf = Surface::pdf(10.0, 10.0)
+  let pdf = @cairoon.Surface::pdf(10.0, 10.0)
   expect_image_data_cairo_status(
-    run_cairo(() => {
+    @cairoon.run_cairo(() => {
       let _ = pdf.get_data()
       ()
     }),
-    SurfaceTypeMismatch,
+    @cairoon.SurfaceTypeMismatch,
   )
 
-  let data = Surface::image(Argb32, 1, 1).get_data()
+  let data = @cairoon.Surface::image(@cairoon.Argb32, 1, 1).get_data()
   expect_image_data_invalid_index(
-    run_cairo(() => {
+    @cairoon.run_cairo(() => {
       let _ = data.get(-1)
       ()
     }),
   )
-  expect_image_data_invalid_index(run_cairo(() => data.set(4, b'\x00')))
+  expect_image_data_invalid_index(
+    @cairoon.run_cairo(() => data.set(4, b'\x00')),
+  )
 }
 
 ///|
 test "mapped image data view writes and base unmap uploads" {
-  let main = Surface::image(Rgb24, 2, 1)
+  let main = @cairoon.Surface::image(@cairoon.Rgb24, 2, 1)
   let mapped = main.map_to_image()
   let data = mapped.get_data()
   inspect(data.length(), content="8")
@@ -179,11 +183,11 @@ test "mapped image data view writes and base unmap uploads" {
   main.flush()
   inspect_rgb24_bytes(main.copy_data(), [255, 255, 255, 255, 0, 0, 0, 0])
   expect_image_data_cairo_status(
-    run_cairo(() => {
+    @cairoon.run_cairo(() => {
       let _ = data.copy()
       ()
     }),
-    SurfaceFinished,
+    @cairoon.SurfaceFinished,
   )
 }
 
@@ -198,19 +202,19 @@ test "mapped image data view retains mapped wrapper" {
 
 ///|
 test "mapped image data view reports mapped unmap" {
-  let main = Surface::image(Rgb24, 1, 1)
+  let main = @cairoon.Surface::image(@cairoon.Rgb24, 1, 1)
   let mapped = main.map_to_image()
   let data = mapped.get_data()
   mapped.unmap()
   expect_image_data_cairo_status(
-    run_cairo(() => {
+    @cairoon.run_cairo(() => {
       let _ = data.get(0)
       ()
     }),
-    SurfaceFinished,
+    @cairoon.SurfaceFinished,
   )
   expect_image_data_cairo_status(
-    run_cairo(() => data.set(0, b'\x00')),
-    SurfaceFinished,
+    @cairoon.run_cairo(() => data.set(0, b'\x00')),
+    @cairoon.SurfaceFinished,
   )
 }

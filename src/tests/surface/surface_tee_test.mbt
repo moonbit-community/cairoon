@@ -8,32 +8,42 @@ fn inspect_tee_pixel(bytes : Bytes, expected : Array[Int]) -> Unit raise {
 
 ///|
 fn paint_tee(
-  surface : Surface,
+  surface : @cairoon.Surface,
   red : Double,
   green : Double,
   blue : Double,
-) -> Unit raise CairoError {
-  let ctx = Context::new(surface)
+) -> Unit raise @cairoon.CairoError {
+  let ctx = @cairoon.Context::new(surface)
   ctx.set_source_rgba(red, green, blue, 1.0)
   ctx.paint()
 }
 
 ///|
-fn tee_with_local_target() -> Surface raise CairoError {
+fn tee_with_local_target() -> @cairoon.Surface raise @cairoon.CairoError {
   let master_data : FixedArray[Byte] = FixedArray::make(4, b'\x00')
   let target_data : FixedArray[Byte] = FixedArray::make(4, b'\x00')
-  let master = Surface::image_for_data(master_data, Argb32, 1, 1)
-  let target = Surface::image_for_data(target_data, Argb32, 1, 1)
-  let tee = Surface::tee(master)
+  let master = @cairoon.Surface::image_for_data(
+    master_data,
+    @cairoon.Argb32,
+    1,
+    1,
+  )
+  let target = @cairoon.Surface::image_for_data(
+    target_data,
+    @cairoon.Argb32,
+    1,
+    1,
+  )
+  let tee = @cairoon.Surface::tee(master)
   tee.tee_add(target)
   tee
 }
 
 ///|
 test "tee surface mirrors drawing to primary and added target" {
-  let primary = Surface::image(Argb32, 1, 1)
-  let target = Surface::image(Argb32, 1, 1)
-  let tee = Surface::tee(primary)
+  let primary = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let target = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let tee = @cairoon.Surface::tee(primary)
   debug_inspect(tee.get_type(), content="SurfaceTypeTee")
 
   tee.tee_add(target)
@@ -64,56 +74,56 @@ test "tee surface retains primary and added target wrappers" {
 
 ///|
 test "tee index preserves cairo no-memory status for positive out of range" {
-  let primary = Surface::image(Argb32, 1, 1)
-  let tee = Surface::tee(primary)
-  let out_of_range = run_cairo(() => tee.tee_index(1))
+  let primary = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let tee = @cairoon.Surface::tee(primary)
+  let out_of_range = @cairoon.run_cairo(() => tee.tee_index(1))
   match out_of_range {
-    Err(CairoMemoryError(NoMemory, _)) => ()
+    Err(@cairoon.CairoMemoryError(@cairoon.NoMemory, _)) => ()
     _ => @test.fail("expected NoMemory for out-of-range tee index")
   }
 }
 
 ///|
 test "tee methods map subtype and index errors" {
-  let image = Surface::image(Argb32, 1, 1)
-  let other = Surface::image(Argb32, 1, 1)
+  let image = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let other = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
 
-  let add = run_cairo(() => image.tee_add(other))
+  let add = @cairoon.run_cairo(() => image.tee_add(other))
   match add {
-    Err(CairoError(SurfaceTypeMismatch, _)) => ()
+    Err(@cairoon.CairoError(@cairoon.SurfaceTypeMismatch, _)) => ()
     _ => @test.fail("expected SurfaceTypeMismatch for tee_add on image surface")
   }
 
-  let remove = run_cairo(() => image.tee_remove(other))
+  let remove = @cairoon.run_cairo(() => image.tee_remove(other))
   match remove {
-    Err(CairoError(SurfaceTypeMismatch, _)) => ()
+    Err(@cairoon.CairoError(@cairoon.SurfaceTypeMismatch, _)) => ()
     _ =>
       @test.fail("expected SurfaceTypeMismatch for tee_remove on image surface")
   }
 
-  let index = run_cairo(() => image.tee_index(0))
+  let index = @cairoon.run_cairo(() => image.tee_index(0))
   match index {
-    Err(CairoError(SurfaceTypeMismatch, _)) => ()
+    Err(@cairoon.CairoError(@cairoon.SurfaceTypeMismatch, _)) => ()
     _ =>
       @test.fail("expected SurfaceTypeMismatch for tee_index on image surface")
   }
 
-  let tee = Surface::tee(image)
-  let negative = run_cairo(() => tee.tee_index(-1))
+  let tee = @cairoon.Surface::tee(image)
+  let negative = @cairoon.run_cairo(() => tee.tee_index(-1))
   match negative {
-    Err(CairoInvalidArgument(InvalidIndex, _)) => ()
+    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidIndex, _)) => ()
     _ => @test.fail("expected InvalidIndex for negative tee index")
   }
 
-  let self_add = run_cairo(() => tee.tee_add(tee))
+  let self_add = @cairoon.run_cairo(() => tee.tee_add(tee))
   match self_add {
-    Err(CairoError(InvalidStatus, _)) => ()
+    Err(@cairoon.CairoError(@cairoon.InvalidStatus, _)) => ()
     _ => @test.fail("expected InvalidStatus for tee self-add")
   }
 
-  let self_remove = run_cairo(() => tee.tee_remove(tee))
+  let self_remove = @cairoon.run_cairo(() => tee.tee_remove(tee))
   match self_remove {
-    Err(CairoError(InvalidStatus, _)) => ()
+    Err(@cairoon.CairoError(@cairoon.InvalidStatus, _)) => ()
     _ => @test.fail("expected InvalidStatus for tee self-remove")
   }
 }

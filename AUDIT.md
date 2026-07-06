@@ -43,6 +43,10 @@ Implemented in this workspace:
   rectangle construction, containment, overlap enums, mutating boolean
   operations, chained pycairo-style mutators, and invalid-index error mapping
   from an external package.
+- Surface and ImageData black-box tests now live in `src/tests/surface`,
+  importing only the public `caimeo/cairoon` API. This validates image, mapped,
+  subsurface, recording, MIME, PDF, PS, SVG, Tee, PNG path, buffer-backed, and
+  mutable `ImageData` behavior through the published package seam.
 - C FFI glue split by Cairo object family, following pycairo's
   `private.h` plus per-family C file architecture. GC-managed external objects
   currently cover `Surface`, `MappedImageSurface`, `ImageData`, `Context`,
