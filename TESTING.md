@@ -207,13 +207,13 @@ The current local gate is executable as:
 It runs `moon fmt --check`, `scripts/check-project-layout.py`,
 `scripts/configure-link-flags.sh --check`, `scripts/check-ffi-ownership.py`,
 `scripts/check-api-inventory.py`, `scripts/check-reliability-ledger.py`,
-native `moon check`, extracted external black-box packages under
+native `moon check`, extracted external test packages under
 `src/tests/api` (version, enum, status, and pure value APIs),
 `src/tests/matrix`, `src/tests/region`, `src/tests/surface`,
 `src/tests/context`, `src/tests/pattern`, `src/tests/font`, and
-`src/tests/stream`, `src/tests/object`, and `src/tests/lifetime`, targeted
-white-box image, ScaledFont oracle, vector-output, backend surface stream, and
-raster-pattern tests, the full
+`src/tests/stream`, `src/tests/object`, `src/tests/lifetime`, and
+`src/tests/oracle/constants`, targeted white-box image, ScaledFont oracle,
+vector-output, backend surface stream, and raster-pattern tests, the full
 native test suite, `moon info --target native`, and targeted ASan builds for
 all external black-box packages and the same target list when an ASan-capable
 `clang` is available.

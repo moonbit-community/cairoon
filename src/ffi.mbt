@@ -41,15 +41,6 @@ extern "C" fn cairo_version_ffi() -> Int = "cairo_version"
 extern "C" fn cairo_version_string_ffi() -> Bytes = "cairoon_version_string"
 
 ///|
-extern "C" fn compile_feature_flag_ffi(feature : Int) -> Bool = "cairoon_compile_feature_flag"
-
-///|
-extern "C" fn compile_int_constant_ffi(constant : Int) -> Int = "cairoon_compile_int_constant"
-
-///|
-extern "C" fn compile_string_constant_ffi(constant : Int) -> Bytes = "cairoon_compile_string_constant"
-
-///|
 #borrow(filename)
 extern "C" fn test_file_size_ffi(filename : Bytes) -> Int = "cairoon_test_file_size"
 
@@ -147,9 +138,6 @@ extern "C" fn test_raster_surface_owner_count_ffi(surface : Surface) -> Int = "c
 
 ///|
 fn init {
-  ignore(compile_feature_flag_ffi)
-  ignore(compile_int_constant_ffi)
-  ignore(compile_string_constant_ffi)
   ignore(test_file_size_ffi)
   ignore(test_file_contains_ffi)
   ignore(test_render_vector_oracle_ffi)

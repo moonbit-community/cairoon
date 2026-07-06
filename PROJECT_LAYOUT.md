@@ -95,7 +95,7 @@ MoonBit package shape without weakening the public interface.
 | Pure support packages | `src/core/` | May hold pure values/helpers only after their public names can be preserved or intentionally re-exported. |
 | Native stubs | `src/native/` while owned by `src/moon.pkg`; later `src/native/<family>/` packages only after a facade proof | Every `.c` file under `src/native/` must be listed by `src/moon.pkg` `native-stub`; headers in `src/native/` are private to those stubs. |
 | Black-box tests | `src/tests/<family>/` | Import `caimeo/cairoon`; assert only public behavior. Any package that imports cairoon must carry Cairo `cc-link-flags`, because native link flags are not propagated to external test executables. |
-| White-box oracles | `src/oracle/` or `src/tests/oracle/` | May expose test-only direct-C oracle helpers; must never be imported by the public package. |
+| White-box oracles | `src/oracle/` or `src/tests/oracle/<family>/` | Import `caimeo/cairoon` for the public API and declare test-only direct-C oracle externs locally; public binding wrappers must never import oracle packages. |
 | Documentation | `docs/` and public package `.mbt.md` files | Narrative docs live outside source packages; executable reference docs stay with the package they test. |
 
 Do not split a family across packages until the type names, method call syntax,
@@ -118,9 +118,12 @@ Follow this order. Each step gets its own commit and must pass
 4. **Native-stub directory extraction**: completed. Public-package C stubs and
    private oracle C helpers live under `src/native/`, and `src/moon.pkg`
    references them with `native/...` `native-stub` paths.
-5. **White-box oracle extraction**: move direct-C oracle helpers and
-   `*_wbtest.mbt` tests into oracle packages. Oracle packages may have their
-   own `native-stub` lists, but public binding C files must not depend on them.
+5. **White-box oracle extraction**: started. Move direct-C oracle helpers and
+   `*_wbtest.mbt` tests into oracle packages. Constants oracle tests already
+   live in `src/tests/oracle/constants`, proving external oracle packages can
+   locally declare test-only externs while importing `caimeo/cairoon` for the
+   public API. Oracle packages may later gain their own `native-stub` lists,
+   but public binding C files must not depend on them.
 6. **Family package probes**: for one low-risk family, prove whether MoonBit can
    preserve the public facade while moving implementation into a family package.
    The proof must include `moon info --target native` review.

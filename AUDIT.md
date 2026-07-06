@@ -81,6 +81,11 @@ Implemented in this workspace:
   `src/native`, and `src/moon.pkg` references each compiled C file through a
   `native/...` `native-stub` path. The layout gate now checks that every
   `src/native/*.c` file is explicitly owned by `src/moon.pkg`.
+- The compile-time constants oracle now lives in
+  `src/tests/oracle/constants`, importing the public `caimeo/cairoon` package
+  and declaring its test-only C oracle externs locally. This proves direct-C
+  oracle tests can move out of the public package root while still linking
+  against public-package native stubs.
 - C FFI glue split by Cairo object family, following pycairo's
   `private.h` plus per-family C file architecture. GC-managed external objects
   currently cover `Surface`, `MappedImageSurface`, `ImageData`, `Context`,
