@@ -948,10 +948,10 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, and 2026-07-06:
   deterministic seeds, acquire-only repeated same-surface paints, a 64-step
   acquire-only replacement fuzz, release-only to acquire-only replacement
   without stale release callbacks, failed acquire replacement owner-count
-  recovery, and a 72-step callback state-machine fuzz covering clear,
-  release-only, acquire-only, acquire+release, failed acquire, dynamic
-  compatible-source, callback-introspection, and owner-count balance
-  transitions.
+  recovery, and a four-seed callback state-machine fuzz with 72 transitions per
+  seed covering clear, release-only, acquire-only, acquire+release, failed
+  acquire, dynamic compatible-source, callback-introspection, and owner-count
+  balance transitions.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
   pattern_test.mbt pattern_raster_source_test.mbt --target native -v`: 20
@@ -968,7 +968,8 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, and 2026-07-06:
   disabled, covering manual get-callback acquire/release calls, acquire-only
   repeated same-surface paints, the 64-step acquire-only replacement fuzz,
   stale release-to-acquire-only replacement, failed acquire replacement
-  owner-count recovery, and the 72-step callback state-machine fuzz.
+  owner-count recovery, and the four-seed 72-step-per-seed callback
+  state-machine fuzz.
 - `run-asan.py --repo-root /Users/caimeo/code/pycairo/cairoon --pkg moon.pkg`:
   rerun for the raster-source acquire-only release-trampoline slice. The full
   runner still failed during the known macOS FontRegistry/CoreText/ColorSync
@@ -2403,11 +2404,12 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, and 2026-07-06:
   pressure. This raises the expected full native suite to 450 tests and adds
   the file to the targeted normal/ASan verify gate.
   The later raster-source callback state-machine fuzz slice added
-  `pattern_raster_state_wbtest.mbt` with a 72-step deterministic transition
-  test covering clear, release-only, acquire-only, acquire+release, failed
-  acquire, dynamic compatible-source, callback-introspection, and owner-count
-  balance paths. This raised the full native suite to 393 tests and added the
-  file to the targeted normal and ASan verification gate.
+  `pattern_raster_state_wbtest.mbt` with a deterministic transition test,
+  now widened to four seeds with 72 transitions per seed, covering clear,
+  release-only, acquire-only, acquire+release, failed acquire, dynamic
+  compatible-source, callback-introspection, and owner-count balance paths.
+  This raised the full native suite to 393 tests and added the file to the
+  targeted normal and ASan verification gate.
   The later raster-source manual callback fuzz slice added
   `pattern_raster_manual_wbtest.mbt` with three deterministic seeds over 144
   total callback transitions. It covers `raster_get_callbacks()` manual
