@@ -1,6 +1,6 @@
 ///|
-fn context_extents_surface() -> Surface raise CairoError {
-  Surface::image(Argb32, 20, 20)
+fn context_extents_surface() -> @cairoon.Surface raise @cairoon.CairoError {
+  @cairoon.Surface::image(@cairoon.Argb32, 20, 20)
 }
 
 ///|
@@ -25,7 +25,7 @@ fn assert_context_extents_close(
 
 ///|
 test "context fill and path extents follow current path" {
-  let ctx = Context::new(context_extents_surface())
+  let ctx = @cairoon.Context::new(context_extents_surface())
   assert_context_extents_close(ctx.fill_extents(), (0.0, 0.0, 0.0, 0.0))
   assert_context_extents_close(ctx.path_extents(), (0.0, 0.0, 0.0, 0.0))
 
@@ -36,7 +36,7 @@ test "context fill and path extents follow current path" {
 
 ///|
 test "context fill extents match pycairo polygon path" {
-  let ctx = Context::new(context_extents_surface())
+  let ctx = @cairoon.Context::new(context_extents_surface())
   ctx.line_to(1.0, 1.0)
   ctx.line_to(1.0, 0.0)
   ctx.line_to(0.0, 0.0)
@@ -47,7 +47,7 @@ test "context fill extents match pycairo polygon path" {
 
 ///|
 test "context stroke extents include stroke width" {
-  let ctx = Context::new(context_extents_surface())
+  let ctx = @cairoon.Context::new(context_extents_surface())
   assert_context_extents_close(ctx.stroke_extents(), (0.0, 0.0, 0.0, 0.0))
 
   ctx.set_line_width(2.0)
@@ -57,7 +57,7 @@ test "context stroke extents include stroke width" {
 
 ///|
 test "context fill and stroke hit testing follows current path" {
-  let ctx = Context::new(context_extents_surface())
+  let ctx = @cairoon.Context::new(context_extents_surface())
   inspect(ctx.in_fill(3.0, 4.0), content="false")
   inspect(ctx.in_stroke(2.0, 3.0), content="false")
 
@@ -70,21 +70,23 @@ test "context fill and stroke hit testing follows current path" {
 
 ///|
 test "context hit testing and extents propagate cairo error" {
-  let ctx = Context::new(context_extents_surface())
-  let set_result = run_cairo(() => ctx.set_matrix(Matrix::new(xx=0.0, yy=0.0)))
+  let ctx = @cairoon.Context::new(context_extents_surface())
+  let set_result = @cairoon.run_cairo(() => {
+    ctx.set_matrix(@cairoon.Matrix::new(xx=0.0, yy=0.0))
+  })
   inspect(set_result is Err(_), content="true")
 
-  let fill_result = run_cairo(() => ctx.fill_extents())
+  let fill_result = @cairoon.run_cairo(() => ctx.fill_extents())
   inspect(fill_result is Err(_), content="true")
   match fill_result {
-    Err(CairoInvalidArgument(InvalidMatrix, _)) => ()
+    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidMatrix, _)) => ()
     _ => @test.fail("expected InvalidMatrix")
   }
 
-  let hit_result = run_cairo(() => ctx.in_fill(0.0, 0.0))
+  let hit_result = @cairoon.run_cairo(() => ctx.in_fill(0.0, 0.0))
   inspect(hit_result is Err(_), content="true")
   match hit_result {
-    Err(CairoInvalidArgument(InvalidMatrix, _)) => ()
+    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidMatrix, _)) => ()
     _ => @test.fail("expected InvalidMatrix")
   }
 }

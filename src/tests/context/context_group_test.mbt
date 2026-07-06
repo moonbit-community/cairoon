@@ -7,29 +7,31 @@ fn inspect_argb32_pixel(bytes : Bytes, expected : Array[Int]) -> Unit raise {
 }
 
 ///|
-fn expect_invalid_pop_group(result : Result[Unit, CairoError]) -> Unit raise {
+fn expect_invalid_pop_group(
+  result : Result[Unit, @cairoon.CairoError],
+) -> Unit raise {
   inspect(result is Err(_), content="true")
   match result {
-    Err(CairoError(InvalidPopGroup, _)) => ()
+    Err(@cairoon.CairoError(@cairoon.InvalidPopGroup, _)) => ()
     _ => @test.fail("expected InvalidPopGroup")
   }
 }
 
 ///|
 fn expect_group_invalid_content(
-  result : Result[Unit, CairoError],
+  result : Result[Unit, @cairoon.CairoError],
 ) -> Unit raise {
   inspect(result is Err(_), content="true")
   match result {
-    Err(CairoInvalidArgument(InvalidContent, _)) => ()
+    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidContent, _)) => ()
     _ => @test.fail("expected InvalidContent")
   }
 }
 
 ///|
 test "context pop_group returns a paintable surface pattern" {
-  let target = Surface::image(Argb32, 1, 1)
-  let ctx = Context::new(target)
+  let target = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let ctx = @cairoon.Context::new(target)
   inspect(ctx.get_group_target().get_width(), content="1")
 
   ctx.push_group()
@@ -49,9 +51,9 @@ test "context pop_group returns a paintable surface pattern" {
 
 ///|
 test "context pop_group_to_source installs the group pattern" {
-  let target = Surface::image(Argb32, 1, 1)
-  let ctx = Context::new(target)
-  ctx.push_group_with_content(ContentColor)
+  let target = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let ctx = @cairoon.Context::new(target)
+  ctx.push_group_with_content(@cairoon.ContentColor)
   debug_inspect(ctx.get_group_target().get_content(), content="ContentColor")
   ctx.set_source_rgb(0.0, 1.0, 0.0)
   ctx.paint()
@@ -62,16 +64,18 @@ test "context pop_group_to_source installs the group pattern" {
 
 ///|
 test "context group content accepts pycairo raw ints" {
-  let target = Surface::image(Argb32, 1, 1)
-  let ctx = Context::new(target)
+  let target = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let ctx = @cairoon.Context::new(target)
   ctx.push_group_with_content_raw(0x2000)
   inspect(ctx.get_group_target().get_content_raw(), content="8192")
   debug_inspect(ctx.get_group_target().get_content(), content="ContentAlpha")
   ctx.pop_group_to_source()
 
   expect_group_invalid_content(
-    run_cairo(() => {
-      let failing = Context::new(Surface::image(Argb32, 1, 1))
+    @cairoon.run_cairo(() => {
+      let failing = @cairoon.Context::new(
+        @cairoon.Surface::image(@cairoon.Argb32, 1, 1),
+      )
       failing.push_group_with_content_raw(0)
     }),
   )
@@ -79,8 +83,8 @@ test "context group content accepts pycairo raw ints" {
 
 ///|
 test "context group target stack restores original target" {
-  let target = Surface::image(Argb32, 1, 1)
-  let ctx = Context::new(target)
+  let target = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let ctx = @cairoon.Context::new(target)
   inspect(ctx.get_group_target() == target, content="true")
 
   ctx.push_group()
@@ -96,14 +100,16 @@ test "context group target stack restores original target" {
 
 ///|
 test "context group APIs report unmatched pop errors" {
-  let pop = run_cairo(() => {
-    let _ = Context::new(Surface::image(Argb32, 1, 1)).pop_group()
+  let pop = @cairoon.run_cairo(() => {
+    let _ = @cairoon.Context::new(
+      @cairoon.Surface::image(@cairoon.Argb32, 1, 1),
+    ).pop_group()
     ()
   })
   expect_invalid_pop_group(pop)
 
-  let pop_to_source = run_cairo(() => {
-    Context::new(Surface::image(Argb32, 1, 1)).pop_group_to_source()
+  let pop_to_source = @cairoon.run_cairo(() => {
+    @cairoon.Context::new(@cairoon.Surface::image(@cairoon.Argb32, 1, 1)).pop_group_to_source()
   })
   expect_invalid_pop_group(pop_to_source)
 }

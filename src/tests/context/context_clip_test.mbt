@@ -1,6 +1,6 @@
 ///|
-fn context_clip_surface() -> Surface raise CairoError {
-  Surface::image(Argb32, 20, 20)
+fn context_clip_surface() -> @cairoon.Surface raise @cairoon.CairoError {
+  @cairoon.Surface::image(@cairoon.Argb32, 20, 20)
 }
 
 ///|
@@ -25,7 +25,7 @@ fn assert_clip_extents_close(
 
 ///|
 test "context clip extents in_clip and reset_clip" {
-  let ctx = Context::new(context_clip_surface())
+  let ctx = @cairoon.Context::new(context_clip_surface())
   assert_clip_extents_close(ctx.clip_extents(), (0.0, 0.0, 20.0, 20.0))
   inspect(ctx.in_clip(10.0, 10.0), content="true")
 
@@ -42,7 +42,9 @@ test "context clip extents in_clip and reset_clip" {
 
 ///|
 test "context empty path clip matches pycairo in_clip behavior" {
-  let ctx = Context::new(Surface::image(Argb32, 100, 100))
+  let ctx = @cairoon.Context::new(
+    @cairoon.Surface::image(@cairoon.Argb32, 100, 100),
+  )
   inspect(ctx.in_clip(50.0, 50.0), content="true")
   ctx.clip()
   inspect(ctx.in_clip(50.0, 50.0), content="false")
@@ -52,8 +54,8 @@ test "context empty path clip matches pycairo in_clip behavior" {
 
 ///|
 test "context clip_preserve keeps current path drawable" {
-  let surface = Surface::image(Argb32, 4, 4)
-  let ctx = Context::new(surface)
+  let surface = @cairoon.Surface::image(@cairoon.Argb32, 4, 4)
+  let ctx = @cairoon.Context::new(surface)
   ctx.rectangle(1.0, 1.0, 2.0, 2.0)
   ctx.clip_preserve()
   ctx.set_source_rgba(1.0, 0.0, 0.0, 1.0)
@@ -74,7 +76,7 @@ test "context clip_preserve keeps current path drawable" {
 
 ///|
 test "context copy_clip_rectangle_list returns pure rectangles" {
-  let ctx = Context::new(context_clip_surface())
+  let ctx = @cairoon.Context::new(context_clip_surface())
   let default_rects = ctx.copy_clip_rectangle_list()
   inspect(default_rects.length(), content="1")
   debug_inspect(default_rects[0].components(), content="(0, 0, 20, 20)")
@@ -88,35 +90,37 @@ test "context copy_clip_rectangle_list returns pure rectangles" {
 
 ///|
 test "context copy_clip_rectangle_list maps non-rectangular clip status" {
-  let ctx = Context::new(context_clip_surface())
+  let ctx = @cairoon.Context::new(context_clip_surface())
   ctx.move_to(1.0, 1.0)
   ctx.curve_to(5.0, 1.0, 5.0, 9.0, 9.0, 9.0)
   ctx.line_to(1.0, 9.0)
   ctx.clip()
-  let result = run_cairo(() => ctx.copy_clip_rectangle_list())
+  let result = @cairoon.run_cairo(() => ctx.copy_clip_rectangle_list())
   inspect(result is Err(_), content="true")
   match result {
-    Err(CairoError(ClipNotRepresentable, _)) => ()
+    Err(@cairoon.CairoError(@cairoon.ClipNotRepresentable, _)) => ()
     _ => @test.fail("expected ClipNotRepresentable")
   }
 }
 
 ///|
 test "context clip getters propagate cairo error" {
-  let ctx = Context::new(context_clip_surface())
-  let set_result = run_cairo(() => ctx.set_matrix(Matrix::new(xx=0.0, yy=0.0)))
+  let ctx = @cairoon.Context::new(context_clip_surface())
+  let set_result = @cairoon.run_cairo(() => {
+    ctx.set_matrix(@cairoon.Matrix::new(xx=0.0, yy=0.0))
+  })
   inspect(set_result is Err(_), content="true")
-  let extents_result = run_cairo(() => ctx.clip_extents())
+  let extents_result = @cairoon.run_cairo(() => ctx.clip_extents())
   inspect(extents_result is Err(_), content="true")
   match extents_result {
-    Err(CairoInvalidArgument(InvalidMatrix, _)) => ()
+    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidMatrix, _)) => ()
     _ => @test.fail("expected InvalidMatrix")
   }
 
-  let in_clip_result = run_cairo(() => ctx.in_clip(0.0, 0.0))
+  let in_clip_result = @cairoon.run_cairo(() => ctx.in_clip(0.0, 0.0))
   inspect(in_clip_result is Err(_), content="true")
   match in_clip_result {
-    Err(CairoInvalidArgument(InvalidMatrix, _)) => ()
+    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidMatrix, _)) => ()
     _ => @test.fail("expected InvalidMatrix")
   }
 }

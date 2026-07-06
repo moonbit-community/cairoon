@@ -47,6 +47,11 @@ Implemented in this workspace:
   importing only the public `caimeo/cairoon` API. This validates image, mapped,
   subsurface, recording, MIME, PDF, PS, SVG, Tee, PNG path, buffer-backed, and
   mutable `ImageData` behavior through the published package seam.
+- Context black-box tests now live in `src/tests/context`, importing only the
+  public `caimeo/cairoon` API. This validates drawing state, transforms, paths,
+  pycairo parity fixtures, groups, text/glyph APIs, extents, clipping, painting,
+  tags, and ScaledFont text-to-glyph conversion through the published package
+  seam.
 - C FFI glue split by Cairo object family, following pycairo's
   `private.h` plus per-family C file architecture. GC-managed external objects
   currently cover `Surface`, `MappedImageSurface`, `ImageData`, `Context`,

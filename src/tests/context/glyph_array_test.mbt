@@ -1,8 +1,10 @@
 ///|
-fn expect_glyph_invalid_matrix(result : Result[Unit, CairoError]) -> Unit raise {
+fn expect_glyph_invalid_matrix(
+  result : Result[Unit, @cairoon.CairoError],
+) -> Unit raise {
   inspect(result is Err(_), content="true")
   match result {
-    Err(CairoInvalidArgument(InvalidMatrix, _)) => ()
+    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidMatrix, _)) => ()
     _ => @test.fail("expected InvalidMatrix")
   }
 }
@@ -19,10 +21,12 @@ fn has_nonzero_byte(bytes : Bytes) -> Bool {
 
 ///|
 test "context and scaled font glyph_extents match" {
-  let ctx = Context::new(Surface::image(Argb32, 32, 32))
+  let ctx = @cairoon.Context::new(
+    @cairoon.Surface::image(@cairoon.Argb32, 32, 32),
+  )
   ctx.select_font_face("serif")
   ctx.set_font_size(12.0)
-  let glyphs = [Glyph::new(0UL, 2.0, 12.0)]
+  let glyphs = [@cairoon.Glyph::new(0UL, 2.0, 12.0)]
   let context_extents = ctx.glyph_extents(glyphs)
   let scaled_extents = ctx.get_scaled_font().glyph_extents(glyphs)
   inspect(context_extents == scaled_extents, content="true")
@@ -37,11 +41,11 @@ test "context and scaled font glyph_extents match" {
 
 ///|
 test "context show_glyphs renders without changing the path" {
-  let surface = Surface::image(Argb32, 32, 32)
-  let ctx = Context::new(surface)
+  let surface = @cairoon.Surface::image(@cairoon.Argb32, 32, 32)
+  let ctx = @cairoon.Context::new(surface)
   ctx.select_font_face("serif")
   ctx.set_font_size(12.0)
-  let glyphs = [Glyph::new(0UL, 2.0, 12.0)]
+  let glyphs = [@cairoon.Glyph::new(0UL, 2.0, 12.0)]
   ctx.set_source_rgb(1.0, 0.0, 0.0)
   ctx.show_glyphs(glyphs)
   inspect(has_nonzero_byte(surface.copy_data()), content="true")
@@ -51,11 +55,11 @@ test "context show_glyphs renders without changing the path" {
 
 ///|
 test "context glyph_path creates fillable glyph path" {
-  let surface = Surface::image(Argb32, 48, 24)
-  let ctx = Context::new(surface)
+  let surface = @cairoon.Surface::image(@cairoon.Argb32, 48, 24)
+  let ctx = @cairoon.Context::new(surface)
   ctx.select_font_face("serif")
   ctx.set_font_size(16.0)
-  let glyphs = [Glyph::new(0UL, 2.0, 18.0)]
+  let glyphs = [@cairoon.Glyph::new(0UL, 2.0, 18.0)]
   ctx.glyph_path(glyphs)
   let (x1, y1, x2, y2) = ctx.path_extents()
   inspect(x2 > x1, content="true")
@@ -67,7 +71,9 @@ test "context glyph_path creates fillable glyph path" {
 
 ///|
 test "empty glyph arrays are accepted" {
-  let ctx = Context::new(Surface::image(Argb32, 8, 8))
+  let ctx = @cairoon.Context::new(
+    @cairoon.Surface::image(@cairoon.Argb32, 8, 8),
+  )
   ctx.show_glyphs([])
   ctx.glyph_path([])
   inspect(ctx.copy_path().length(), content="0")
@@ -78,18 +84,20 @@ test "empty glyph arrays are accepted" {
 
 ///|
 test "context glyph methods propagate existing context errors" {
-  let ctx = Context::new(Surface::image(Argb32, 8, 8))
-  let glyphs = [Glyph::new(0UL, 0.0, 0.0)]
-  let invalid_matrix = run_cairo(() => {
-    ctx.set_matrix(Matrix::new(xx=0.0, yy=0.0))
+  let ctx = @cairoon.Context::new(
+    @cairoon.Surface::image(@cairoon.Argb32, 8, 8),
+  )
+  let glyphs = [@cairoon.Glyph::new(0UL, 0.0, 0.0)]
+  let invalid_matrix = @cairoon.run_cairo(() => {
+    ctx.set_matrix(@cairoon.Matrix::new(xx=0.0, yy=0.0))
   })
   inspect(invalid_matrix is Err(_), content="true")
   expect_glyph_invalid_matrix(
-    run_cairo(() => {
+    @cairoon.run_cairo(() => {
       let _ = ctx.glyph_extents(glyphs)
       ()
     }),
   )
-  expect_glyph_invalid_matrix(run_cairo(() => ctx.glyph_path(glyphs)))
-  expect_glyph_invalid_matrix(run_cairo(() => ctx.show_glyphs(glyphs)))
+  expect_glyph_invalid_matrix(@cairoon.run_cairo(() => ctx.glyph_path(glyphs)))
+  expect_glyph_invalid_matrix(@cairoon.run_cairo(() => ctx.show_glyphs(glyphs)))
 }

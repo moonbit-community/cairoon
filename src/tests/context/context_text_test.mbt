@@ -19,26 +19,32 @@ fn assert_text_point_close(
 }
 
 ///|
-fn expect_text_invalid_string(result : Result[Unit, CairoError]) -> Unit raise {
+fn expect_text_invalid_string(
+  result : Result[Unit, @cairoon.CairoError],
+) -> Unit raise {
   inspect(result is Err(_), content="true")
   match result {
-    Err(CairoInvalidArgument(InvalidString, _)) => ()
+    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidString, _)) => ()
     _ => @test.fail("expected InvalidString")
   }
 }
 
 ///|
-fn expect_text_invalid_matrix(result : Result[Unit, CairoError]) -> Unit raise {
+fn expect_text_invalid_matrix(
+  result : Result[Unit, @cairoon.CairoError],
+) -> Unit raise {
   inspect(result is Err(_), content="true")
   match result {
-    Err(CairoInvalidArgument(InvalidMatrix, _)) => ()
+    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidMatrix, _)) => ()
     _ => @test.fail("expected InvalidMatrix")
   }
 }
 
 ///|
 test "context font_extents matches current scaled font" {
-  let ctx = Context::new(Surface::image(Argb32, 32, 32))
+  let ctx = @cairoon.Context::new(
+    @cairoon.Surface::image(@cairoon.Argb32, 32, 32),
+  )
   ctx.select_font_face("serif")
   ctx.set_font_size(12.0)
   let context_extents = ctx.font_extents()
@@ -50,7 +56,9 @@ test "context font_extents matches current scaled font" {
 
 ///|
 test "context text_extents matches current scaled font" {
-  let ctx = Context::new(Surface::image(Argb32, 32, 32))
+  let ctx = @cairoon.Context::new(
+    @cairoon.Surface::image(@cairoon.Argb32, 32, 32),
+  )
   ctx.select_font_face("serif")
   ctx.set_font_size(12.0)
   let context_extents = ctx.text_extents("foo")
@@ -67,7 +75,9 @@ test "context text_extents matches current scaled font" {
 
 ///|
 test "context show_text advances current point" {
-  let ctx = Context::new(Surface::image(Argb32, 32, 32))
+  let ctx = @cairoon.Context::new(
+    @cairoon.Surface::image(@cairoon.Argb32, 32, 32),
+  )
   ctx.select_font_face("serif")
   ctx.set_font_size(12.0)
   ctx.move_to(2.0, 7.0)
@@ -81,8 +91,8 @@ test "context show_text advances current point" {
 
 ///|
 test "context text_path creates fillable text path" {
-  let surface = Surface::image(Argb32, 48, 24)
-  let ctx = Context::new(surface)
+  let surface = @cairoon.Surface::image(@cairoon.Argb32, 48, 24)
+  let ctx = @cairoon.Context::new(surface)
   ctx.select_font_face("serif")
   ctx.set_font_size(16.0)
   ctx.move_to(2.0, 18.0)
@@ -97,30 +107,38 @@ test "context text_path creates fillable text path" {
 
 ///|
 test "context text methods validate embedded nul strings" {
-  let ctx = Context::new(Surface::image(Argb32, 8, 8))
-  expect_text_invalid_string(run_cairo(() => ctx.show_text("bad\u{0}text")))
+  let ctx = @cairoon.Context::new(
+    @cairoon.Surface::image(@cairoon.Argb32, 8, 8),
+  )
   expect_text_invalid_string(
-    run_cairo(() => {
+    @cairoon.run_cairo(() => ctx.show_text("bad\u{0}text")),
+  )
+  expect_text_invalid_string(
+    @cairoon.run_cairo(() => {
       let _ = ctx.text_extents("bad\u{0}text")
       ()
     }),
   )
-  expect_text_invalid_string(run_cairo(() => ctx.text_path("bad\u{0}text")))
+  expect_text_invalid_string(
+    @cairoon.run_cairo(() => ctx.text_path("bad\u{0}text")),
+  )
 }
 
 ///|
 test "context text methods propagate existing context errors" {
-  let ctx = Context::new(Surface::image(Argb32, 8, 8))
-  let invalid_matrix = run_cairo(() => {
-    ctx.set_matrix(Matrix::new(xx=0.0, yy=0.0))
+  let ctx = @cairoon.Context::new(
+    @cairoon.Surface::image(@cairoon.Argb32, 8, 8),
+  )
+  let invalid_matrix = @cairoon.run_cairo(() => {
+    ctx.set_matrix(@cairoon.Matrix::new(xx=0.0, yy=0.0))
   })
   inspect(invalid_matrix is Err(_), content="true")
-  expect_text_invalid_matrix(run_cairo(() => ctx.show_text("foo")))
+  expect_text_invalid_matrix(@cairoon.run_cairo(() => ctx.show_text("foo")))
   expect_text_invalid_matrix(
-    run_cairo(() => {
+    @cairoon.run_cairo(() => {
       let _ = ctx.text_extents("foo")
       ()
     }),
   )
-  expect_text_invalid_matrix(run_cairo(() => ctx.text_path("foo")))
+  expect_text_invalid_matrix(@cairoon.run_cairo(() => ctx.text_path("foo")))
 }

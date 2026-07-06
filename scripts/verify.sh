@@ -61,17 +61,7 @@ targeted_tests=(
   device_test.mbt
   object_traits_test.mbt
   context_lifetime_test.mbt
-  context_state_test.mbt
-  context_matrix_test.mbt
-  context_path_test.mbt
-  context_pycairo_parity_test.mbt
   path_test.mbt
-  context_group_test.mbt
-  context_text_test.mbt
-  glyph_array_test.mbt
-  context_extents_test.mbt
-  context_clip_test.mbt
-  context_painting_test.mbt
   pattern_test.mbt
   pattern_pycairo_parity_test.mbt
   pattern_raster_source_test.mbt

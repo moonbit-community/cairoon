@@ -1,6 +1,6 @@
 ///|
-fn context_path_surface() -> Surface raise CairoError {
-  Surface::image(Argb32, 20, 20)
+fn context_path_surface() -> @cairoon.Surface raise @cairoon.CairoError {
+  @cairoon.Surface::image(@cairoon.Argb32, 20, 20)
 }
 
 ///|
@@ -36,7 +36,7 @@ fn assert_path_extents_close(
 
 ///|
 test "context current point new_path and new_sub_path" {
-  let ctx = Context::new(context_path_surface())
+  let ctx = @cairoon.Context::new(context_path_surface())
   inspect(ctx.has_current_point(), content="false")
   assert_path_point_close(ctx.get_current_point(), (0.0, 0.0))
 
@@ -55,7 +55,7 @@ test "context current point new_path and new_sub_path" {
 
 ///|
 test "context relative path operations update current point" {
-  let ctx = Context::new(context_path_surface())
+  let ctx = @cairoon.Context::new(context_path_surface())
   ctx.move_to(1.0, 2.0)
   ctx.rel_move_to(3.0, 4.0)
   assert_path_point_close(ctx.get_current_point(), (4.0, 6.0))
@@ -70,14 +70,14 @@ test "context relative path operations update current point" {
 
 ///|
 test "context rectangle path extents match pycairo width and height" {
-  let ctx = Context::new(context_path_surface())
+  let ctx = @cairoon.Context::new(context_path_surface())
   ctx.rectangle(1.0, 2.0, 4.0, 5.0)
   assert_path_extents_close(ctx.path_extents(), (1.0, 2.0, 5.0, 7.0))
 }
 
 ///|
 test "context close_path resets current point to subpath start" {
-  let ctx = Context::new(context_path_surface())
+  let ctx = @cairoon.Context::new(context_path_surface())
   ctx.move_to(2.0, 3.0)
   ctx.line_to(7.0, 3.0)
   ctx.line_to(7.0, 9.0)
@@ -88,7 +88,7 @@ test "context close_path resets current point to subpath start" {
 
 ///|
 test "context arc operations create current point" {
-  let ctx = Context::new(context_path_surface())
+  let ctx = @cairoon.Context::new(context_path_surface())
   ctx.arc(5.0, 6.0, 2.0, 0.0, 0.0)
   inspect(ctx.has_current_point(), content="true")
   assert_path_point_close(ctx.get_current_point(), (7.0, 6.0))
@@ -101,25 +101,25 @@ test "context arc operations create current point" {
 
 ///|
 test "context copy_path appends an independent path" {
-  let source = Context::new(context_path_surface())
+  let source = @cairoon.Context::new(context_path_surface())
   source.rectangle(2.0, 3.0, 4.0, 5.0)
   let path = source.copy_path()
   source.new_path()
   assert_path_extents_close(source.path_extents(), (0.0, 0.0, 0.0, 0.0))
 
-  let target = Context::new(context_path_surface())
+  let target = @cairoon.Context::new(context_path_surface())
   target.append_path(path)
   assert_path_extents_close(target.path_extents(), (2.0, 3.0, 6.0, 8.0))
 }
 
 ///|
 test "context append_path preserves pycairo path string" {
-  let source = Context::new(context_path_surface())
+  let source = @cairoon.Context::new(context_path_surface())
   source.line_to(1.0, 2.0)
   let path = source.copy_path()
   source.new_path()
 
-  let target = Context::new(context_path_surface())
+  let target = @cairoon.Context::new(context_path_surface())
   target.append_path(path)
   let source_string = path.to_string()
   let target_string = target.copy_path().to_string()
@@ -130,84 +130,90 @@ test "context append_path preserves pycairo path string" {
 
 ///|
 test "context copy_path_flat appends a flattened path" {
-  let source = Context::new(context_path_surface())
+  let source = @cairoon.Context::new(context_path_surface())
   source.move_to(1.0, 1.0)
   source.line_to(7.0, 1.0)
   source.line_to(7.0, 6.0)
   source.close_path()
   let path = source.copy_path_flat()
 
-  let target = Context::new(context_path_surface())
+  let target = @cairoon.Context::new(context_path_surface())
   target.append_path(path)
   assert_path_extents_close(target.path_extents(), (1.0, 1.0, 7.0, 6.0))
 }
 
 ///|
 test "context path copy and append propagate cairo error" {
-  let path_source = Context::new(context_path_surface())
+  let path_source = @cairoon.Context::new(context_path_surface())
   path_source.rectangle(1.0, 1.0, 2.0, 2.0)
   let path = path_source.copy_path()
 
-  let ctx = Context::new(context_path_surface())
-  let set_result = run_cairo(() => ctx.set_matrix(Matrix::new(xx=0.0, yy=0.0)))
+  let ctx = @cairoon.Context::new(context_path_surface())
+  let set_result = @cairoon.run_cairo(() => {
+    ctx.set_matrix(@cairoon.Matrix::new(xx=0.0, yy=0.0))
+  })
   inspect(set_result is Err(_), content="true")
 
-  let copy_result = run_cairo(() => {
+  let copy_result = @cairoon.run_cairo(() => {
     let _ = ctx.copy_path()
     ()
   })
   inspect(copy_result is Err(_), content="true")
   match copy_result {
-    Err(CairoInvalidArgument(InvalidMatrix, _)) => ()
+    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidMatrix, _)) => ()
     _ => @test.fail("expected InvalidMatrix")
   }
 
-  let flat_result = run_cairo(() => {
+  let flat_result = @cairoon.run_cairo(() => {
     let _ = ctx.copy_path_flat()
     ()
   })
   inspect(flat_result is Err(_), content="true")
   match flat_result {
-    Err(CairoInvalidArgument(InvalidMatrix, _)) => ()
+    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidMatrix, _)) => ()
     _ => @test.fail("expected InvalidMatrix")
   }
 
-  let append_result = run_cairo(() => ctx.append_path(path))
+  let append_result = @cairoon.run_cairo(() => ctx.append_path(path))
   inspect(append_result is Err(_), content="true")
   match append_result {
-    Err(CairoInvalidArgument(InvalidMatrix, _)) => ()
+    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidMatrix, _)) => ()
     _ => @test.fail("expected InvalidMatrix")
   }
 }
 
 ///|
 test "context relative path without current point maps cairo error" {
-  let ctx = Context::new(context_path_surface())
-  let result = run_cairo(() => ctx.rel_line_to(1.0, 1.0))
+  let ctx = @cairoon.Context::new(context_path_surface())
+  let result = @cairoon.run_cairo(() => ctx.rel_line_to(1.0, 1.0))
   inspect(result is Err(_), content="true")
   match result {
-    Err(CairoError(NoCurrentPoint, _)) => ()
+    Err(@cairoon.CairoError(@cairoon.NoCurrentPoint, _)) => ()
     _ => @test.fail("expected NoCurrentPoint")
   }
 }
 
 ///|
 test "context path getters propagate cairo error" {
-  let ctx = Context::new(context_path_surface())
-  let set_result = run_cairo(() => ctx.set_matrix(Matrix::new(xx=0.0, yy=0.0)))
+  let ctx = @cairoon.Context::new(context_path_surface())
+  let set_result = @cairoon.run_cairo(() => {
+    ctx.set_matrix(@cairoon.Matrix::new(xx=0.0, yy=0.0))
+  })
   inspect(set_result is Err(_), content="true")
 
-  let current_point_result = run_cairo(() => ctx.get_current_point())
+  let current_point_result = @cairoon.run_cairo(() => ctx.get_current_point())
   inspect(current_point_result is Err(_), content="true")
   match current_point_result {
-    Err(CairoInvalidArgument(InvalidMatrix, _)) => ()
+    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidMatrix, _)) => ()
     _ => @test.fail("expected InvalidMatrix")
   }
 
-  let has_current_point_result = run_cairo(() => ctx.has_current_point())
+  let has_current_point_result = @cairoon.run_cairo(() => {
+    ctx.has_current_point()
+  })
   inspect(has_current_point_result is Err(_), content="true")
   match has_current_point_result {
-    Err(CairoInvalidArgument(InvalidMatrix, _)) => ()
+    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidMatrix, _)) => ()
     _ => @test.fail("expected InvalidMatrix")
   }
 }
