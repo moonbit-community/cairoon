@@ -95,6 +95,7 @@ Run these tiers in order while developing a slice.
 
 ```sh
 cairoon/scripts/configure-link-flags.sh --check
+python3 cairoon/scripts/check-project-layout.py
 python3 cairoon/scripts/check-api-inventory.py
 python3 cairoon/scripts/check-ffi-ownership.py
 python3 cairoon/scripts/check-reliability-ledger.py
@@ -108,8 +109,10 @@ Run `scripts/configure-link-flags.sh --check` before native checks when the
 system Cairo installation may have changed. Run `scripts/check-api-inventory.py`
 whenever the pycairo stub, public API, or inventory changes. Run
 `scripts/check-ffi-ownership.py` whenever raw extern declarations change. Run
+`scripts/check-project-layout.py` whenever package structure, root source files,
+or `PROJECT_LAYOUT.md` changes. Run
 `scripts/check-reliability-ledger.py` whenever migration status, scorecard, or
-CI/verify gate text changes. The full local gate includes all four checks.
+CI/verify gate text changes. The full local gate includes all of these checks.
 
 ### Tier 1: MoonBit Unit And Black-Box Tests
 
@@ -201,9 +204,10 @@ The current local gate is executable as:
 ./scripts/verify.sh
 ```
 
-It runs `moon fmt --check`, `scripts/configure-link-flags.sh --check`,
-`scripts/check-ffi-ownership.py`, `scripts/check-api-inventory.py`,
-`scripts/check-reliability-ledger.py`, native `moon check`, targeted white-box
+It runs `moon fmt --check`, `scripts/check-project-layout.py`,
+`scripts/configure-link-flags.sh --check`, `scripts/check-ffi-ownership.py`,
+`scripts/check-api-inventory.py`, `scripts/check-reliability-ledger.py`,
+native `moon check`, targeted white-box
 image, ScaledFont, vector-output,
 surface base/ImageData/stream/mapped/subsurface/recording/MIME/PDF/PS/SVG/Tee,
 script-device, object-trait, context-lifetime/state/matrix/path/group/text/glyph/

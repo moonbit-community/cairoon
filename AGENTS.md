@@ -38,7 +38,14 @@ Primary references used for this specification:
 
 ## Project Shape
 
-Use this layout unless there is a concrete reason to change it:
+`PROJECT_LAYOUT.md` is the active project-management contract for package
+structure. The current root-level package is a transition state, not the target
+architecture. Do not add new root-level `.mbt`, `.mbt.md`, `.mbti`, `.c`, or
+`.h` files; `scripts/check-project-layout.py` enforces the grandfathered root
+allowlist while the package tree is migrated.
+
+Use the historical flat layout below only as a map of existing files that still
+need to be moved:
 
 ```text
 cairoon/

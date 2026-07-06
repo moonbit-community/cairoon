@@ -39,6 +39,7 @@ SCORECARD_DIMENSIONS = (
 )
 VERIFY_COMMANDS = (
     "moon fmt --check",
+    "python3 ./scripts/check-project-layout.py",
     "./scripts/configure-link-flags.sh --check",
     "python3 ./scripts/check-ffi-ownership.py",
     "python3 ./scripts/check-api-inventory.py",

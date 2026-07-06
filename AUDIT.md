@@ -423,12 +423,14 @@ Implemented in this workspace:
 
 ## Last Verified
 
-2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, and 2026-07-06:
+Prior full verifies passed on 2026-07-02, 2026-07-03, 2026-07-04,
+2026-07-05, and earlier 2026-07-06 slices. The most recent 2026-07-06 run:
 
 - `./scripts/verify.sh`: passed. The local reliability gate ran
-  `moon fmt --check`, `scripts/configure-link-flags.sh --check`,
-  `scripts/check-ffi-ownership.py`, `scripts/check-api-inventory.py`,
-  `scripts/check-reliability-ledger.py`, native `moon check`, targeted image,
+  `moon fmt --check`, `scripts/check-project-layout.py`,
+  `scripts/configure-link-flags.sh --check`, `scripts/check-ffi-ownership.py`,
+  `scripts/check-api-inventory.py`, `scripts/check-reliability-ledger.py`,
+  native `moon check`, targeted image,
   ScaledFont oracle,
   font-options/font-face/scaled-font, vector including PDF combined text
   document-feature plus PS DSC/SVG unit backend-feature oracle checks,
@@ -2588,6 +2590,12 @@ Implemented in this workspace:
   path, and PDF no-output `show_text_glyphs` tuple flow. It is included in the
   targeted normal and ASan verification gates, raises that parity file to 31
   tests, and raises the expected full native suite to 508 tests.
+  A later package-layout management slice added `PROJECT_LAYOUT.md`,
+  `scripts/check-project-layout.py`, and the root source allowlist. It records
+  the current single-package root as migration debt, forbids new root-level
+  source/test/C/doc source files outside the grandfathered allowlist, documents
+  the `src/`/`tests/`/oracle migration order, and adds the layout check to the
+  local reliability gate before native compilation.
   A later Pattern pycairo default-state fixture slice added
   `pattern_pycairo_parity_test.mbt`, covering pycairo's solid-pattern default
   extend/filter/dither/matrix/clamped-RGBA getters and explicit matrix/extend/
