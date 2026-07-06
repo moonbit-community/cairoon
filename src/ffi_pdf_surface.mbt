@@ -20,31 +20,6 @@ extern "C" fn pdf_surface_create_for_stream_ffi(
 ) -> Surface = "cairoon_pdf_surface_create_for_stream"
 
 ///|
-#borrow(status)
-extern "C" fn pdf_get_version_count_ffi(status : Ref[Status]) -> Int = "cairoon_pdf_get_version_count"
-
-///|
-#borrow(status)
-extern "C" fn pdf_get_version_ffi(
-  index : Int,
-  status : Ref[Status],
-) -> PDFVersion = "cairoon_pdf_get_version"
-
-///|
-#borrow(status)
-extern "C" fn pdf_version_to_string_ffi(
-  version : PDFVersion,
-  status : Ref[Status],
-) -> Bytes = "cairoon_pdf_version_to_string"
-
-///|
-#borrow(status)
-extern "C" fn pdf_version_to_string_raw_ffi(
-  version : Int,
-  status : Ref[Status],
-) -> Bytes = "cairoon_pdf_version_to_string"
-
-///|
 #borrow(surface)
 extern "C" fn pdf_surface_restrict_to_version_ffi(
   surface : Surface,

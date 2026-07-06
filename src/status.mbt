@@ -101,6 +101,59 @@ fn Status::to_raw(self : Status) -> Int {
 }
 
 ///|
+fn status_from_raw(raw : Int) -> Status raise CairoError {
+  match raw {
+    0 => Success
+    1 => NoMemory
+    2 => InvalidRestore
+    3 => InvalidPopGroup
+    4 => NoCurrentPoint
+    5 => InvalidMatrix
+    6 => InvalidStatus
+    7 => NullPointer
+    8 => InvalidString
+    9 => InvalidPathData
+    10 => ReadError
+    11 => WriteError
+    12 => SurfaceFinished
+    13 => SurfaceTypeMismatch
+    14 => PatternTypeMismatch
+    15 => InvalidContent
+    16 => InvalidFormat
+    17 => InvalidVisual
+    18 => FileNotFound
+    19 => InvalidDash
+    20 => InvalidDscComment
+    21 => InvalidIndex
+    22 => ClipNotRepresentable
+    23 => TempFileError
+    24 => InvalidStride
+    25 => FontTypeMismatch
+    26 => UserFontImmutable
+    27 => UserFontError
+    28 => NegativeCount
+    29 => InvalidClusters
+    30 => InvalidSlant
+    31 => InvalidWeight
+    32 => InvalidSize
+    33 => UserFontNotImplemented
+    34 => DeviceTypeMismatch
+    35 => DeviceError
+    36 => InvalidMeshConstruction
+    37 => DeviceFinished
+    38 => Jbig2GlobalMissing
+    39 => PngError
+    40 => FreetypeError
+    41 => Win32GdiError
+    42 => TagError
+    43 => DwriteError
+    44 => SvgFontError
+    45 => LastStatus
+    _ => raise CairoError(InvalidStatus, "unknown cairo status: \{raw}")
+  }
+}
+
+///|
 pub fn Status::message(self : Status) -> String {
   @status_impl.status_message_raw(self.to_raw())
 }

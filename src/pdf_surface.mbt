@@ -38,13 +38,13 @@ pub fn Surface::pdf_stream(
 
 ///|
 pub fn PDFVersion::supported() -> Array[PDFVersion] raise CairoError {
-  let status = Ref(Success)
-  let count = pdf_get_version_count_ffi(status)
-  check_status(status.val)
+  let status = Ref(0)
+  let count = @pdf_impl.get_version_count_raw(status)
+  check_status(status_from_raw(status.val))
   let versions : Array[PDFVersion] = Array::new(capacity=count)
   for index in 0..<count {
-    let version = pdf_get_version_ffi(index, status)
-    check_status(status.val)
+    let version = pdf_version_from_raw(@pdf_impl.get_version_raw(index, status))
+    check_status(status_from_raw(status.val))
     versions.push(version)
   }
   versions
@@ -52,18 +52,43 @@ pub fn PDFVersion::supported() -> Array[PDFVersion] raise CairoError {
 
 ///|
 pub fn PDFVersion::to_string(self : PDFVersion) -> String raise CairoError {
-  let status = Ref(Success)
-  let bytes = pdf_version_to_string_ffi(self, status)
-  check_status(status.val)
-  @utf8.decode_lossy(bytes)
+  let status = Ref(0)
+  let text = @pdf_impl.version_to_string_raw(self.to_raw(), status)
+  check_status(status_from_raw(status.val))
+  text
 }
 
 ///|
 pub fn PDFVersion::to_string_raw(version : Int) -> String raise CairoError {
-  let status = Ref(Success)
-  let bytes = pdf_version_to_string_raw_ffi(version, status)
-  check_status(status.val)
-  @utf8.decode_lossy(bytes)
+  let status = Ref(0)
+  let text = @pdf_impl.version_to_string_raw(version, status)
+  check_status(status_from_raw(status.val))
+  text
+}
+
+///|
+fn PDFVersion::to_raw(self : PDFVersion) -> Int {
+  match self {
+    PdfVersion1_4 => 0
+    PdfVersion1_5 => 1
+    PdfVersion1_6 => 2
+    PdfVersion1_7 => 3
+  }
+}
+
+///|
+fn pdf_version_from_raw(raw : Int) -> PDFVersion raise CairoError {
+  match raw {
+    0 => PdfVersion1_4
+    1 => PdfVersion1_5
+    2 => PdfVersion1_6
+    3 => PdfVersion1_7
+    _ =>
+      raise CairoInvalidArgument(
+        InvalidStatus,
+        "unknown cairo pdf version: \{raw}",
+      )
+  }
 }
 
 ///|

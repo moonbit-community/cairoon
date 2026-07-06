@@ -138,6 +138,12 @@ Implemented in this workspace:
   `Status::message`, and `CairoError` integration. Package-local and API tests
   prove public status messages and exhaustive status/error classification still
   work through the facade.
+- `src/internal/pdf` is the first backend-helper internal implementation
+  package seam. It owns raw PDF version count/version/string externs and UTF-8
+  decoding, while public `src/pdf_surface.mbt` keeps `PDFVersion` constructors,
+  typed/raw version string methods, and all `Surface::pdf*` object wrappers.
+  Package-local and surface black-box tests prove PDF version helpers still
+  work through the facade.
 - C FFI glue split by Cairo object family, following pycairo's
   `private.h` plus per-family C file architecture. GC-managed external objects
   currently cover `Surface`, `MappedImageSurface`, `ImageData`, `Context`,
@@ -200,7 +206,9 @@ Implemented in this workspace:
   extern declarations; and `ffi_path.mbt`, `ffi_pdf_surface.mbt`,
   `ffi_ps_surface.mbt`, `ffi_svg_surface.mbt`, `ffi_tee_surface.mbt`, and
   `ffi_region.mbt` own raw `Path`, PDF surface, PostScript surface, SVG
-  surface, Tee surface, and `Region` extern declarations.
+  surface, Tee surface, and `Region` extern declarations. Raw PDF version
+  helper externs have moved out of `ffi_pdf_surface.mbt` into
+  `src/internal/pdf`.
 - MoonBit `Context` public wrappers now follow the same family split as their
   raw FFI files: `context.mbt` keeps core construction/status/tag/group
   wrappers, while `context_font_text.mbt`, `context_matrix.mbt`,

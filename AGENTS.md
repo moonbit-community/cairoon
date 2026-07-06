@@ -271,7 +271,9 @@ surface-get-device extern declarations that call `cairoon_device.c`;
 declarations that call `cairoon_image_data.c`;
 `ffi_path.mbt` owns raw `Path` extern declarations that call `cairoon_path.c`;
 `ffi_pdf_surface.mbt` owns raw PDF surface extern declarations that call
-`cairoon_pdf_surface.c`;
+`cairoon_pdf_surface.c`; raw PDF version query/string helpers belong to
+`src/internal/pdf` because their public facade can stay as `PDFVersion`
+methods.
 `ffi_ps_surface.mbt` owns raw PostScript surface extern declarations that call
 `cairoon_ps_surface.c`;
 `ffi_surface.mbt` owns raw base surface extern declarations that call
@@ -403,8 +405,11 @@ accepted probe is `src/internal/format`: it owns the raw
 `Format` enum, constructors, and methods. The third accepted probe is
 `src/internal/status`: it owns the raw status-message extern and UTF-8 decoding
 while `src/status.mbt` keeps the public `Status` enum, constructors, and
-methods. Keep enum constructors in the facade unless a compatibility proof
-shows that `@cairoon.<Constructor>` syntax survives. Any internal package that
+methods. The fourth accepted probe is `src/internal/pdf`: it owns raw PDF
+version query/string helpers while `src/pdf_surface.mbt` keeps public
+`PDFVersion` constructors and object-surface wrappers. Keep enum constructors
+in the facade unless a compatibility proof shows that `@cairoon.<Constructor>`
+syntax survives. Any internal package that
 imports `caimeo/cairoon/native` must carry Cairo `cc-link-flags` and
 package-local tests so
 `moon test src/internal/<family> --target native` links independently.
@@ -424,7 +429,9 @@ can move; it is only a non-cyclic raw-message helper because it accepts raw
 additional methods for the child type, so a moved value type must carry its
 complete public method set in the child package. Keep values such as text/font
 extents in the facade until their error dependencies can move with them or a
-wrapper design is proven.
+wrapper design is proven. Backend helper packages such as `src/internal/pdf`
+must not pull object wrapper types such as `Surface` into child packages until
+the corresponding object family seam is proven.
 
 The public package root is frozen migration debt. Do not add new source-like
 files directly under `src/`; put new implementation in the package selected by
