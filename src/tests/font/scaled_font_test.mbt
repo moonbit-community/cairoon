@@ -6,7 +6,10 @@ fn assert_scaled_close(actual : Double, expected : Double) -> Unit raise {
 }
 
 ///|
-fn assert_scaled_matrix_close(actual : Matrix, expected : Matrix) -> Unit raise {
+fn assert_scaled_matrix_close(
+  actual : @cairoon.Matrix,
+  expected : @cairoon.Matrix,
+) -> Unit raise {
   assert_scaled_close(actual.xx, expected.xx)
   assert_scaled_close(actual.yx, expected.yx)
   assert_scaled_close(actual.xy, expected.xy)
@@ -17,30 +20,33 @@ fn assert_scaled_matrix_close(actual : Matrix, expected : Matrix) -> Unit raise 
 
 ///|
 fn expect_scaled_font_invalid_string(
-  result : Result[Unit, CairoError],
+  result : Result[Unit, @cairoon.CairoError],
 ) -> Unit raise {
   inspect(result is Err(_), content="true")
   match result {
-    Err(CairoInvalidArgument(InvalidString, _)) => ()
+    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidString, _)) => ()
     _ => @test.fail("expected InvalidString")
   }
 }
 
 ///|
-fn make_scaled_font() -> ScaledFont raise CairoError {
-  let face = FontFace::toy("serif", weight=FontWeightBold)
-  let options = FontOptions::new()
-  options.set_antialias(AntialiasGray)
-  ScaledFont::new(
+fn make_scaled_font() -> @cairoon.ScaledFont raise @cairoon.CairoError {
+  let face = @cairoon.FontFace::toy("serif", weight=@cairoon.FontWeightBold)
+  let options = @cairoon.FontOptions::new()
+  options.set_antialias(@cairoon.AntialiasGray)
+  @cairoon.ScaledFont::new(
     face,
-    Matrix::new(xx=12.0, yy=12.0),
-    Matrix::new(xx=2.0, yy=3.0, x0=5.0, y0=7.0),
+    @cairoon.Matrix::new(xx=12.0, yy=12.0),
+    @cairoon.Matrix::new(xx=2.0, yy=3.0, x0=5.0, y0=7.0),
     options,
   )
 }
 
 ///|
-fn returned_scaled_font_parts_from_local_parent() -> (FontFace, FontOptions) raise CairoError {
+fn returned_scaled_font_parts_from_local_parent() -> (
+  @cairoon.FontFace,
+  @cairoon.FontOptions,
+) raise @cairoon.CairoError {
   let scaled_font = make_scaled_font()
   (scaled_font.get_font_face(), scaled_font.get_font_options())
 }
@@ -59,12 +65,15 @@ test "scaled font construction exposes font face options and matrices" {
 
   assert_scaled_matrix_close(
     scaled_font.get_font_matrix(),
-    Matrix::new(xx=12.0, yy=12.0),
+    @cairoon.Matrix::new(xx=12.0, yy=12.0),
   )
-  assert_scaled_matrix_close(scaled_font.get_ctm(), Matrix::new(xx=2.0, yy=3.0))
+  assert_scaled_matrix_close(
+    scaled_font.get_ctm(),
+    @cairoon.Matrix::new(xx=2.0, yy=3.0),
+  )
   assert_scaled_matrix_close(
     scaled_font.get_scale_matrix(),
-    Matrix::new(xx=24.0, yy=36.0),
+    @cairoon.Matrix::new(xx=24.0, yy=36.0),
   )
 }
 
@@ -80,17 +89,24 @@ test "scaled font returned face and options survive source scaled font scope" {
 
 ///|
 test "scaled font scale matrix combines sheared font and ctm matrices" {
-  let face = FontFace::toy("serif")
-  let options = FontOptions::new()
-  let font_matrix = Matrix::new(xx=10.0, yx=1.0, xy=2.0, yy=12.0)
-  let ctm = Matrix::new(xx=1.5, yx=0.25, xy=0.5, yy=2.0, x0=31.0, y0=-8.0)
-  let scaled_font = ScaledFont::new(face, font_matrix, ctm, options)
+  let face = @cairoon.FontFace::toy("serif")
+  let options = @cairoon.FontOptions::new()
+  let font_matrix = @cairoon.Matrix::new(xx=10.0, yx=1.0, xy=2.0, yy=12.0)
+  let ctm = @cairoon.Matrix::new(
+    xx=1.5,
+    yx=0.25,
+    xy=0.5,
+    yy=2.0,
+    x0=31.0,
+    y0=-8.0,
+  )
+  let scaled_font = @cairoon.ScaledFont::new(face, font_matrix, ctm, options)
   let returned_font_matrix = scaled_font.get_font_matrix()
   let returned_ctm = scaled_font.get_ctm()
   assert_scaled_matrix_close(returned_font_matrix, font_matrix)
   assert_scaled_matrix_close(
     returned_ctm,
-    Matrix::new(xx=1.5, yx=0.25, xy=0.5, yy=2.0),
+    @cairoon.Matrix::new(xx=1.5, yx=0.25, xy=0.5, yy=2.0),
   )
   assert_scaled_matrix_close(
     scaled_font.get_scale_matrix(),
@@ -118,7 +134,7 @@ test "scaled font metrics and text extents are checked values" {
 test "scaled font text_extents validates embedded nul strings" {
   let scaled_font = make_scaled_font()
   expect_scaled_font_invalid_string(
-    run_cairo(() => {
+    @cairoon.run_cairo(() => {
       let _ = scaled_font.text_extents("bad\u{0}text")
       ()
     }),
@@ -127,8 +143,8 @@ test "scaled font text_extents validates embedded nul strings" {
 
 ///|
 test "scaled font equality and hash follow cairo pointer identity" {
-  let surface = Surface::image(Rgb24, 4, 4)
-  let ctx = Context::new(surface)
+  let surface = @cairoon.Surface::image(@cairoon.Rgb24, 4, 4)
+  let ctx = @cairoon.Context::new(surface)
   ctx.set_font_size(14.0)
   let first = ctx.get_scaled_font()
   let second = ctx.get_scaled_font()
@@ -138,15 +154,22 @@ test "scaled font equality and hash follow cairo pointer identity" {
 
 ///|
 test "context font matrix size extents and scaled font round trip" {
-  let surface = Surface::image(Rgb24, 8, 8)
-  let ctx = Context::new(surface)
+  let surface = @cairoon.Surface::image(@cairoon.Rgb24, 8, 8)
+  let ctx = @cairoon.Context::new(surface)
   ctx.set_font_size(42.0)
   assert_scaled_matrix_close(
     ctx.get_font_matrix(),
-    Matrix::new(xx=42.0, yy=42.0),
+    @cairoon.Matrix::new(xx=42.0, yy=42.0),
   )
 
-  let font_matrix = Matrix::new(xx=9.0, yx=1.0, xy=2.0, yy=11.0, x0=3.0, y0=4.0)
+  let font_matrix = @cairoon.Matrix::new(
+    xx=9.0,
+    yx=1.0,
+    xy=2.0,
+    yy=11.0,
+    x0=3.0,
+    y0=4.0,
+  )
   ctx.set_font_matrix(font_matrix)
   assert_scaled_matrix_close(ctx.get_font_matrix(), font_matrix)
 
@@ -173,54 +196,58 @@ test "context font matrix size extents and scaled font round trip" {
 
 ///|
 test "context scaled font methods propagate cairo error" {
-  let ctx = Context::new(Surface::image(Argb32, 1, 1))
+  let ctx = @cairoon.Context::new(
+    @cairoon.Surface::image(@cairoon.Argb32, 1, 1),
+  )
   let scaled_font = make_scaled_font()
-  let set_matrix_result = run_cairo(() => {
-    ctx.set_matrix(Matrix::new(xx=0.0, yy=0.0))
+  let set_matrix_result = @cairoon.run_cairo(() => {
+    ctx.set_matrix(@cairoon.Matrix::new(xx=0.0, yy=0.0))
   })
   inspect(set_matrix_result is Err(_), content="true")
 
-  let get_matrix_result = run_cairo(() => {
+  let get_matrix_result = @cairoon.run_cairo(() => {
     let _ = ctx.get_font_matrix()
     ()
   })
   inspect(get_matrix_result is Err(_), content="true")
   match get_matrix_result {
-    Err(CairoInvalidArgument(InvalidMatrix, _)) => ()
+    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidMatrix, _)) => ()
     _ => @test.fail("expected InvalidMatrix")
   }
 
-  let set_size_result = run_cairo(() => ctx.set_font_size(12.0))
+  let set_size_result = @cairoon.run_cairo(() => ctx.set_font_size(12.0))
   inspect(set_size_result is Err(_), content="true")
   match set_size_result {
-    Err(CairoInvalidArgument(InvalidMatrix, _)) => ()
+    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidMatrix, _)) => ()
     _ => @test.fail("expected InvalidMatrix")
   }
 
-  let extents_result = run_cairo(() => {
+  let extents_result = @cairoon.run_cairo(() => {
     let _ = ctx.font_extents()
     ()
   })
   inspect(extents_result is Err(_), content="true")
   match extents_result {
-    Err(CairoInvalidArgument(InvalidMatrix, _)) => ()
+    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidMatrix, _)) => ()
     _ => @test.fail("expected InvalidMatrix")
   }
 
-  let get_scaled_result = run_cairo(() => {
+  let get_scaled_result = @cairoon.run_cairo(() => {
     let _ = ctx.get_scaled_font()
     ()
   })
   inspect(get_scaled_result is Err(_), content="true")
   match get_scaled_result {
-    Err(CairoInvalidArgument(InvalidMatrix, _)) => ()
+    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidMatrix, _)) => ()
     _ => @test.fail("expected InvalidMatrix")
   }
 
-  let set_scaled_result = run_cairo(() => ctx.set_scaled_font(scaled_font))
+  let set_scaled_result = @cairoon.run_cairo(() => {
+    ctx.set_scaled_font(scaled_font)
+  })
   inspect(set_scaled_result is Err(_), content="true")
   match set_scaled_result {
-    Err(CairoInvalidArgument(InvalidMatrix, _)) => ()
+    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidMatrix, _)) => ()
     _ => @test.fail("expected InvalidMatrix")
   }
 }

@@ -42,9 +42,6 @@ run_external_test_packages
 targeted_tests=(
   image_oracle_wbtest.mbt
   scaled_font_oracle_wbtest.mbt
-  font_options_test.mbt
-  font_face_test.mbt
-  scaled_font_test.mbt
   vector_output_wbtest.mbt
   vector_output_oracle_wbtest.mbt
   surface_stream_test.mbt

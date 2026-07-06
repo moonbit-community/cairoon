@@ -57,6 +57,11 @@ Implemented in this workspace:
   patterns, pycairo parity fixtures, gradient queries, mesh patch lifecycle,
   raster-source callbacks, and raster-source callback fuzz/state behavior
   through the published package seam.
+- Font black-box tests now live in `src/tests/font`, importing only the public
+  `caimeo/cairoon` API. This validates toy font faces, font options, context
+  font-option/font-face round trips, ScaledFont construction, matrix queries,
+  text extents, invalid-string handling, and context error propagation through
+  the published package seam; ScaledFont C-oracle tests remain white-box.
 - C FFI glue split by Cairo object family, following pycairo's
   `private.h` plus per-family C file architecture. GC-managed external objects
   currently cover `Surface`, `MappedImageSurface`, `ImageData`, `Context`,
