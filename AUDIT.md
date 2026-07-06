@@ -108,7 +108,7 @@ Implemented in this workspace:
   `src/tests/oracle/vector_backend`, importing the public `CAIMEOX/cairoon`
   package and declaring file/vector/direct-C oracle externs inside a
   `*_test.mbt` helper. This removes the last root `*_wbtest.mbt` files while
-  preserving 105 PDF/PS/SVG vector, stream-equivalence, tag, metadata, page,
+  preserving 109 PDF/PS/SVG vector, stream-equivalence, tag, metadata, page,
   and backend lifecycle oracle tests through the published API seam.
 - Test-only C oracle helpers now live in `src/tests/oracle/native` as a
   separate native-stub package imported by the oracle test packages. This keeps
@@ -2837,6 +2837,14 @@ Prior full verifies passed on 2026-07-02, 2026-07-03, 2026-07-04,
   explicit product decisions or public error mappings. The gate now reports 67
   pycairo top-level entries, 224 top-level constants, and 255 portable class
   methods covered by the migration ledger.
+  A later backend page-transition differential slice added scene 41 plus
+  `surface_stream_page_transition_test.mbt`, covering a show_page-cleared first
+  page, a copy_page-retained second page, and a retained-overlay final page
+  across PDF/PS/SVG file-vs-stream output, direct C Cairo oracle output, stable
+  backend markers, and PS/SVG negative PDF-metadata checks. The PDF path covers
+  metadata, custom-metadata deletion, page labels, outline parent/child
+  relationships, URI and destination links, and Document/Sect/P/Figure/Span
+  structure tags while the PS/SVG paths prove those tags remain backend-inert.
 
 ## Known Gaps
 
@@ -2865,6 +2873,8 @@ Prior full verifies passed on 2026-07-02, 2026-07-03, 2026-07-04,
   tag-metadata marker checks, one cross-backend backend tag-matrix oracle scene
   with PS/SVG negative tag-metadata marker checks, one cross-backend backend
   lifecycle matrix oracle scene with PS/SVG negative tag-metadata marker checks,
+  one cross-backend backend page-transition oracle scene with PS/SVG negative
+  tag-metadata marker checks,
   and three PDF
   document-feature/page-operation oracle scenes. PDF/PS/SVG now
   have multi-page marker checks and three two-page direct C oracle scenes,
@@ -2886,8 +2896,8 @@ Prior full verifies passed on 2026-07-02, 2026-07-03, 2026-07-04,
   coverage, and PS/SVG URI-link text tags, destination/document-structure
   rectangle/text tags, mixed vector/tag/text tags, layered three-page tags, and
   wide three-page tags now have negative PDF-metadata marker checks, and the
-  backend-combo stream output has matching PS/SVG negative PDF-metadata marker
-  checks.
+  backend-combo stream output and backend page-transition output have matching
+  PS/SVG negative PDF-metadata marker checks.
   Broader cross-backend tag/metadata combinations, broader multi-page
   combinations, and richer tag-output assertions are still absent beyond those
   PDF scenes, the tagged multi-page, tagged `show_text_glyphs`, grouped
@@ -2895,7 +2905,7 @@ Prior full verifies passed on 2026-07-02, 2026-07-03, 2026-07-04,
   vector/tag/text, layered three-page, and wide three-page PDF marker tests,
   PS/SVG tag-metadata absence checks including URI-link text tags,
   backend-combo stream output, resized page-sequence output, tag-matrix output,
-  and lifecycle-matrix output, and PS/SVG
+  lifecycle-matrix output, and page-transition output, and PS/SVG
   Link/destination/document-structure rectangle/text plus tagged multi-page, tagged
   `show_text_glyphs`, grouped glyph/tag, mixed vector/tag/text, layered
   three-page, and wide three-page direct-oracle coverage.

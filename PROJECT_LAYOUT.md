@@ -39,11 +39,11 @@ same commit.
 - 2 `.mbt` implementation files and 1 package-local `*_test.mbt` file in
   `src/internal/svg/`.
 - 1 native-package MoonBit anchor file in `src/native/`.
-- 76 black-box `*_test.mbt` files in `src/tests/*`.
+- 77 black-box `*_test.mbt` files in `src/tests/*`.
 - 0 white-box `*_wbtest.mbt` files in `src/`.
 - 34 public C implementation files owned by `src/native/moon.pkg`.
 - 1 public C header in `src/native/`.
-- 17 oracle C implementation files in `src/tests/oracle/native/`.
+- 18 oracle C implementation files in `src/tests/oracle/native/`.
 - 2 oracle C headers in `src/tests/oracle/native/`.
 - 9 executable `.mbt.md` docs in `src/`.
 
