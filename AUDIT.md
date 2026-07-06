@@ -144,6 +144,12 @@ Implemented in this workspace:
   typed/raw version string methods, and all `Surface::pdf*` object wrappers.
   Package-local and surface black-box tests prove PDF version helpers still
   work through the facade.
+- `src/internal/ps` is the second backend-helper internal implementation
+  package seam. It owns raw PostScript level count/level/string externs and
+  UTF-8 decoding, while public `src/ps_surface.mbt` keeps `PSLevel`
+  constructors, typed/raw level string methods, and all `Surface::ps*` object
+  wrappers. Package-local and surface black-box tests prove PS level helpers
+  still work through the facade.
 - C FFI glue split by Cairo object family, following pycairo's
   `private.h` plus per-family C file architecture. GC-managed external objects
   currently cover `Surface`, `MappedImageSurface`, `ImageData`, `Context`,
@@ -208,7 +214,8 @@ Implemented in this workspace:
   `ffi_region.mbt` own raw `Path`, PDF surface, PostScript surface, SVG
   surface, Tee surface, and `Region` extern declarations. Raw PDF version
   helper externs have moved out of `ffi_pdf_surface.mbt` into
-  `src/internal/pdf`.
+  `src/internal/pdf`; raw PostScript level helper externs have moved out of
+  `ffi_ps_surface.mbt` into `src/internal/ps`.
 - MoonBit `Context` public wrappers now follow the same family split as their
   raw FFI files: `context.mbt` keeps core construction/status/tag/group
   wrappers, while `context_font_text.mbt`, `context_matrix.mbt`,

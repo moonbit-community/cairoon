@@ -217,6 +217,7 @@ test packages under
 `src/tests/api` (version, enum, status, and pure value APIs),
 support packages under `src/core/glyph`, `src/internal/version`, and
 `src/internal/format`, `src/internal/status`, `src/internal/pdf`,
+`src/internal/ps`,
 `src/tests/matrix`,
 `src/tests/region`,
 `src/tests/surface`, `src/tests/context`, `src/tests/pattern`, `src/tests/font`,

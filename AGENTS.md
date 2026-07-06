@@ -275,7 +275,8 @@ declarations that call `cairoon_image_data.c`;
 `src/internal/pdf` because their public facade can stay as `PDFVersion`
 methods.
 `ffi_ps_surface.mbt` owns raw PostScript surface extern declarations that call
-`cairoon_ps_surface.c`;
+`cairoon_ps_surface.c`; raw PostScript level query/string helpers belong to
+`src/internal/ps` because their public facade can stay as `PSLevel` methods.
 `ffi_surface.mbt` owns raw base surface extern declarations that call
 `cairoon_surface.c`; `ffi_image_surface.mbt` owns raw image surface extern
 declarations that call `cairoon_image_surface.c`. The
@@ -407,9 +408,11 @@ accepted probe is `src/internal/format`: it owns the raw
 while `src/status.mbt` keeps the public `Status` enum, constructors, and
 methods. The fourth accepted probe is `src/internal/pdf`: it owns raw PDF
 version query/string helpers while `src/pdf_surface.mbt` keeps public
-`PDFVersion` constructors and object-surface wrappers. Keep enum constructors
-in the facade unless a compatibility proof shows that `@cairoon.<Constructor>`
-syntax survives. Any internal package that
+`PDFVersion` constructors and object-surface wrappers. The fifth accepted probe
+is `src/internal/ps`: it owns raw PostScript level query/string helpers while
+`src/ps_surface.mbt` keeps public `PSLevel` constructors and object-surface
+wrappers. Keep enum constructors in the facade unless a compatibility proof
+shows that `@cairoon.<Constructor>` syntax survives. Any internal package that
 imports `caimeo/cairoon/native` must carry Cairo `cc-link-flags` and
 package-local tests so
 `moon test src/internal/<family> --target native` links independently.
@@ -430,6 +433,7 @@ additional methods for the child type, so a moved value type must carry its
 complete public method set in the child package. Keep values such as text/font
 extents in the facade until their error dependencies can move with them or a
 wrapper design is proven. Backend helper packages such as `src/internal/pdf`
+and `src/internal/ps`
 must not pull object wrapper types such as `Surface` into child packages until
 the corresponding object family seam is proven.
 

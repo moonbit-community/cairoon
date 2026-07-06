@@ -20,28 +20,6 @@ extern "C" fn ps_surface_create_for_stream_ffi(
 ) -> Surface = "cairoon_ps_surface_create_for_stream"
 
 ///|
-#borrow(status)
-extern "C" fn ps_get_level_count_ffi(status : Ref[Status]) -> Int = "cairoon_ps_get_level_count"
-
-///|
-#borrow(status)
-extern "C" fn ps_get_level_ffi(index : Int, status : Ref[Status]) -> PSLevel = "cairoon_ps_get_level"
-
-///|
-#borrow(status)
-extern "C" fn ps_level_to_string_ffi(
-  level : PSLevel,
-  status : Ref[Status],
-) -> Bytes = "cairoon_ps_level_to_string"
-
-///|
-#borrow(status)
-extern "C" fn ps_level_to_string_raw_ffi(
-  level : Int,
-  status : Ref[Status],
-) -> Bytes = "cairoon_ps_level_to_string"
-
-///|
 #borrow(surface)
 extern "C" fn ps_surface_restrict_to_level_ffi(
   surface : Surface,

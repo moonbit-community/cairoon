@@ -38,13 +38,13 @@ pub fn Surface::ps_stream(
 
 ///|
 pub fn PSLevel::supported() -> Array[PSLevel] raise CairoError {
-  let status = Ref(Success)
-  let count = ps_get_level_count_ffi(status)
-  check_status(status.val)
+  let status = Ref(0)
+  let count = @ps_impl.get_level_count_raw(status)
+  check_status(status_from_raw(status.val))
   let levels : Array[PSLevel] = Array::new(capacity=count)
   for index in 0..<count {
-    let level = ps_get_level_ffi(index, status)
-    check_status(status.val)
+    let level = ps_level_from_raw(@ps_impl.get_level_raw(index, status))
+    check_status(status_from_raw(status.val))
     levels.push(level)
   }
   levels
@@ -52,18 +52,39 @@ pub fn PSLevel::supported() -> Array[PSLevel] raise CairoError {
 
 ///|
 pub fn PSLevel::to_string(self : PSLevel) -> String raise CairoError {
-  let status = Ref(Success)
-  let bytes = ps_level_to_string_ffi(self, status)
-  check_status(status.val)
-  @utf8.decode_lossy(bytes)
+  let status = Ref(0)
+  let text = @ps_impl.level_to_string_raw(self.to_raw(), status)
+  check_status(status_from_raw(status.val))
+  text
 }
 
 ///|
 pub fn PSLevel::to_string_raw(level : Int) -> String raise CairoError {
-  let status = Ref(Success)
-  let bytes = ps_level_to_string_raw_ffi(level, status)
-  check_status(status.val)
-  @utf8.decode_lossy(bytes)
+  let status = Ref(0)
+  let text = @ps_impl.level_to_string_raw(level, status)
+  check_status(status_from_raw(status.val))
+  text
+}
+
+///|
+fn PSLevel::to_raw(self : PSLevel) -> Int {
+  match self {
+    PsLevel2 => 0
+    PsLevel3 => 1
+  }
+}
+
+///|
+fn ps_level_from_raw(raw : Int) -> PSLevel raise CairoError {
+  match raw {
+    0 => PsLevel2
+    1 => PsLevel3
+    _ =>
+      raise CairoInvalidArgument(
+        InvalidStatus,
+        "unknown cairo ps level: \{raw}",
+      )
+  }
 }
 
 ///|

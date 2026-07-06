@@ -1,0 +1,21 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "caimeo/cairoon/internal/ps"
+
+import {
+  "moonbitlang/core/ref",
+}
+
+// Values
+pub fn get_level_count_raw(@ref.Ref[Int]) -> Int
+
+pub fn get_level_raw(Int, @ref.Ref[Int]) -> Int
+
+pub fn level_to_string_raw(Int, @ref.Ref[Int]) -> String
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits
