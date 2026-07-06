@@ -261,7 +261,7 @@ documented product decisions for `CAPI`, legacy uppercase enum alias
 constants, and non-implemented FreeType/user-font classes,
 hit-testing/extents APIs, typed Path segment iteration and stringification,
 PNG filename load/save plus stream read/write, direct C Cairo oracle
-comparisons for thirty-five deterministic ARGB32 image scenes on ordinary and
+comparisons for thirty-six deterministic ARGB32 image scenes on ordinary and
 buffer-backed image surfaces including toy-font `text_path`, toy-font
 `show_text`, `glyph_path`, `show_glyphs`, `show_text_glyphs`,
 source-surface offsets, mask-surface offsets, raster-source pattern repeat
@@ -279,7 +279,8 @@ surface-pattern `Pad`/`Bilinear`/`DitherDefault`/matrix and
 `ExtendNone`/`Good`/`DitherNone`/matrix output with duplicate-offset stops,
 transformed radial-gradient `Pad`/`Good`/`DitherDefault`/matrix output,
 curve/multi-patch mesh-pattern matrix output, and nested
-surface/linear/radial/mask pattern-stack clip/save/restore/OperatorAtop output;
+surface/linear/radial/mask pattern-stack clip/save/restore/OperatorAtop output,
+and mesh/linear surface-mask group-compositing output;
 buffer-backed creation plus mutable `ImageData`
 views for image and
 mapped-image surfaces, pycairo-style scoped surface finish and mapped-image
@@ -478,8 +479,9 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, and 2026-07-06:
   text vector stream equivalence slice, and the single-page tag stream
   equivalence slice.
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native`: 485 tests passed. The current run
+- `moon -C cairoon test --target native`: 540 tests passed. The current run
   includes the expanded pattern-combo image oracle slice,
+  the mesh-mask group-compositing image oracle slice,
   the tag-heavy stream-to-direct-oracle differential slice,
   the backend stream-to-direct-oracle differential slice,
   the backend lifecycle-matrix differential slice,
@@ -865,7 +867,7 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, and 2026-07-06:
 - `moon -C cairoon test image_oracle_wbtest.mbt --target native -v`: 2
   white-box image rendering oracle tests passed. Ordinary image surfaces and
   buffer-backed `Surface::image_for_data` surfaces both match the direct C
-  ARGB32 fixture across thirty-five scenes with `glyph_path`, `show_glyphs`,
+  ARGB32 fixture across thirty-six scenes with `glyph_path`, `show_glyphs`,
   `show_text_glyphs`, source-surface offsets, mask-surface offsets, and
   raster-source pattern repeat rendering, dashed round-cap strokes, and
   clipped paint/fill output, `OperatorClear` compositing output, group
@@ -884,7 +886,8 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, and 2026-07-06:
   duplicate-offset stops, transformed radial-gradient
   `Pad`/`Good`/`DitherDefault`/matrix output, curve/multi-patch mesh-pattern
   matrix output, and nested surface/linear/radial/mask pattern-stack
-  clip/save/restore/OperatorAtop output.
+  clip/save/restore/OperatorAtop output, and mesh/linear surface-mask
+  group-compositing output.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
   image_oracle_wbtest.mbt --target native -v`: 2 ASan-compiled white-box image
@@ -893,8 +896,8 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, and 2026-07-06:
   operator-output, surface-pattern-combo, transformed-gradient-pattern,
   radial-pattern-combo, surface-pattern pad/none/repeat-bilinear,
   linear-pattern pad/none, radial-pattern repeat/pad, curve-mesh,
-  mesh-pattern, pattern-stack, group-compositing, mask-pattern, and
-  fill-rule C oracle helper paths.
+  mesh-pattern, pattern-stack, mesh-mask group-compositing, group-compositing,
+  mask-pattern, and fill-rule C oracle helper paths.
 - `moon -C cairoon test scaled_font_oracle_wbtest.mbt --target native -v`: 2
   white-box ScaledFont oracle tests passed, comparing font extents, text
   extents, glyph extents, and empty, single/multi/spaced ASCII,
@@ -1899,12 +1902,19 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, and 2026-07-06:
   stops, transformed radial-gradient `Pad`/`Good`/`DitherDefault`/matrix, and
   curve/multi-patch mesh-pattern matrix output coverage without changing the
   public API or adding a new test case. The targeted `image_oracle_wbtest.mbt`
-  run passed 2 tests, and the current full native suite remains at 485 tests.
+  run passed 2 tests, and the then-current full native suite remained at 485
+  tests.
   The later pattern-stack image oracle slice expanded the ordinary and
   buffer-backed direct C ARGB32 image oracle from thirty-four to thirty-five
   scenes, adding nested surface/linear/radial/mask pattern-stack
   clip/save/restore/OperatorAtop output coverage without changing the public
   API. The targeted `src/tests/oracle/image` run passed 2 tests.
+  The later mesh-mask group-compositing image oracle slice expanded the
+  ordinary and buffer-backed direct C ARGB32 image oracle from thirty-five to
+  thirty-six scenes, adding mesh-pattern source rendering over a transformed
+  linear pattern inside a clipped group, then applying a transformed
+  surface-pattern mask. This broadens pattern-stack parity without changing
+  the public API. The targeted `src/tests/oracle/image` run passed 2 tests.
   The later raster-source acquire-replacement recovery slice added one
   black-box test proving that a finished-surface acquire failure maps to
   `NoMemory` for that paint, does not permanently poison the raster-source
