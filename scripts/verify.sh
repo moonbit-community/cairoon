@@ -54,15 +54,9 @@ targeted_tests=(
   surface_stream_lifecycle_wbtest.mbt
   surface_stream_oracle_wbtest.mbt
   surface_stream_tag_wbtest.mbt
-  context_lifetime_test.mbt
   pattern_raster_manual_wbtest.mbt
   pattern_raster_owner_wbtest.mbt
   pattern_raster_state_wbtest.mbt
-  lifetime_stress_test.mbt
-  lifetime_value_stress_test.mbt
-  lifetime_image_data_stress_test.mbt
-  lifetime_finalizer_fuzz_test.mbt
-  lifetime_stream_stress_test.mbt
 )
 
 for test_file in "${targeted_tests[@]}"; do

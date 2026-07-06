@@ -1,41 +1,45 @@
 ///|
-fn lifetime_child_from_local_parent() -> Surface raise CairoError {
-  let parent = Surface::image(Argb32, 4, 4)
+fn lifetime_child_from_local_parent() -> @cairoon.Surface raise @cairoon.CairoError {
+  let parent = @cairoon.Surface::image(@cairoon.Argb32, 4, 4)
   parent.create_for_rectangle(1.0, 1.0, 2.0, 2.0)
 }
 
 ///|
-fn lifetime_pattern_from_data_surface() -> Pattern raise CairoError {
+fn lifetime_pattern_from_data_surface() -> @cairoon.Pattern raise @cairoon.CairoError {
   let data : FixedArray[Byte] = FixedArray::make(4, b'\x00')
-  let source = Surface::image_for_data(data, Argb32, 1, 1)
-  let source_ctx = Context::new(source)
+  let source = @cairoon.Surface::image_for_data(data, @cairoon.Argb32, 1, 1)
+  let source_ctx = @cairoon.Context::new(source)
   source_ctx.set_source_rgba(0.0, 0.0, 1.0, 1.0)
   source_ctx.paint()
-  Pattern::for_surface(source)
+  @cairoon.Pattern::for_surface(source)
 }
 
 ///|
-fn lifetime_raster_pattern_from_data_surface() -> Pattern raise CairoError {
+fn lifetime_raster_pattern_from_data_surface() -> @cairoon.Pattern raise @cairoon.CairoError {
   let data : FixedArray[Byte] = FixedArray::make(4, b'\x00')
-  let source = Surface::image_for_data(data, Argb32, 1, 1)
-  let source_ctx = Context::new(source)
+  let source = @cairoon.Surface::image_for_data(data, @cairoon.Argb32, 1, 1)
+  let source_ctx = @cairoon.Context::new(source)
   source_ctx.set_source_rgba(0.0, 0.0, 1.0, 1.0)
   source_ctx.paint()
-  let pattern = Pattern::raster_source(ContentColorAlpha, 1, 1)
+  let pattern = @cairoon.Pattern::raster_source(
+    @cairoon.ContentColorAlpha,
+    1,
+    1,
+  )
   pattern.raster_set_acquire(fn(_, _) { source })
   pattern
 }
 
 ///|
-fn lifetime_mapped_from_local_base() -> MappedImageSurface raise CairoError {
-  let base = Surface::image(Rgb24, 1, 1)
+fn lifetime_mapped_from_local_base() -> @cairoon.MappedImageSurface raise @cairoon.CairoError {
+  let base = @cairoon.Surface::image(@cairoon.Rgb24, 1, 1)
   base.map_to_image()
 }
 
 ///|
-fn lifetime_context_from_local_mapping() -> Context raise CairoError {
+fn lifetime_context_from_local_mapping() -> @cairoon.Context raise @cairoon.CairoError {
   let mapped = lifetime_mapped_from_local_base()
-  Context::new_for_mapped_image(mapped)
+  @cairoon.Context::new_for_mapped_image(mapped)
 }
 
 ///|
@@ -58,11 +62,11 @@ fn expect_lifetime_rgb24_white(data : Bytes) -> Unit raise {
 
 ///|
 fn expect_lifetime_mapped_finished(
-  result : Result[Unit, CairoError],
+  result : Result[Unit, @cairoon.CairoError],
 ) -> Unit raise {
   inspect(result is Err(_), content="true")
   match result {
-    Err(CairoError(SurfaceFinished, _)) => ()
+    Err(@cairoon.CairoError(@cairoon.SurfaceFinished, _)) => ()
     _ => @test.fail("expected SurfaceFinished")
   }
 }
@@ -70,13 +74,13 @@ fn expect_lifetime_mapped_finished(
 ///|
 test "mapped image keeps base wrapper alive after local scope exits" {
   let mapped = lifetime_mapped_from_local_base()
-  let ctx = Context::new_for_mapped_image(mapped)
+  let ctx = @cairoon.Context::new_for_mapped_image(mapped)
   ctx.set_source_rgb(1.0, 1.0, 1.0)
   ctx.paint()
   expect_lifetime_rgb24_white(mapped.copy_data())
   mapped.unmap()
   expect_lifetime_mapped_finished(
-    run_cairo(() => {
+    @cairoon.run_cairo(() => {
       let _ = mapped.copy_data()
       ()
     }),
@@ -101,7 +105,7 @@ test "context remains usable after mapped image wrapper scope exits" {
 test "retained cairo owner graph allocation stress" {
   for index in 0..<1000 {
     let child = lifetime_child_from_local_parent()
-    let child_ctx = Context::new(child)
+    let child_ctx = @cairoon.Context::new(child)
     child_ctx.set_source_rgba(1.0, 0.0, 0.0, 1.0)
     child_ctx.paint()
     child.flush()
@@ -110,8 +114,8 @@ test "retained cairo owner graph allocation stress" {
     }
 
     let pattern = lifetime_pattern_from_data_surface()
-    let target = Surface::image(Argb32, 1, 1)
-    let target_ctx = Context::new(target)
+    let target = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+    let target_ctx = @cairoon.Context::new(target)
     target_ctx.set_source(pattern)
     target_ctx.paint()
     if index % 250 == 0 {
@@ -119,8 +123,8 @@ test "retained cairo owner graph allocation stress" {
     }
 
     let raster_pattern = lifetime_raster_pattern_from_data_surface()
-    let raster_target = Surface::image(Argb32, 1, 1)
-    let raster_ctx = Context::new(raster_target)
+    let raster_target = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+    let raster_ctx = @cairoon.Context::new(raster_target)
     raster_ctx.set_source(raster_pattern)
     raster_ctx.paint()
     if index % 250 == 0 {
@@ -128,7 +132,7 @@ test "retained cairo owner graph allocation stress" {
     }
 
     let mapped = lifetime_mapped_from_local_base()
-    let mapped_ctx = Context::new_for_mapped_image(mapped)
+    let mapped_ctx = @cairoon.Context::new_for_mapped_image(mapped)
     mapped_ctx.set_source_rgb(1.0, 1.0, 1.0)
     mapped_ctx.paint()
     if index % 250 == 0 {

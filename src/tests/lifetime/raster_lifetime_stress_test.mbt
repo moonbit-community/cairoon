@@ -3,10 +3,10 @@ fn raster_stress_paint_source(
   red : Double,
   green : Double,
   blue : Double,
-) -> Surface raise CairoError {
+) -> @cairoon.Surface raise @cairoon.CairoError {
   let backing : FixedArray[Byte] = FixedArray::make(4, b'\x00')
-  let surface = Surface::image_for_data(backing, Argb32, 1, 1)
-  let ctx = Context::new(surface)
+  let surface = @cairoon.Surface::image_for_data(backing, @cairoon.Argb32, 1, 1)
+  let ctx = @cairoon.Context::new(surface)
   ctx.set_source_rgba(red, green, blue, 1.0)
   ctx.paint()
   surface
@@ -38,9 +38,13 @@ fn raster_stress_expect_green(data : Bytes) -> Unit raise {
 fn raster_stress_pattern_from_local_source(
   acquire_calls : Ref[Int],
   release_calls : Ref[Int],
-) -> Pattern raise CairoError {
+) -> @cairoon.Pattern raise @cairoon.CairoError {
   let source = raster_stress_paint_source(0.0, 0.0, 1.0)
-  let pattern = Pattern::raster_source(ContentColorAlpha, 1, 1)
+  let pattern = @cairoon.Pattern::raster_source(
+    @cairoon.ContentColorAlpha,
+    1,
+    1,
+  )
   pattern.raster_set_acquire(
     fn(target, extents) {
       acquire_calls.val += 1
@@ -57,9 +61,11 @@ fn raster_stress_pattern_from_local_source(
 }
 
 ///|
-fn raster_stress_render(pattern : Pattern) -> Bytes raise CairoError {
-  let target = Surface::image(Argb32, 1, 1)
-  let ctx = Context::new(target)
+fn raster_stress_render(
+  pattern : @cairoon.Pattern,
+) -> Bytes raise @cairoon.CairoError {
+  let target = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let ctx = @cairoon.Context::new(target)
   ctx.set_source(pattern)
   ctx.paint()
   target.copy_data()
@@ -82,8 +88,11 @@ fn raster_stress_one_iteration(index : Int) -> Unit raise {
 
   match pattern.raster_get_acquire() {
     Some((acquire, Some(release))) => {
-      let target = Surface::image(Argb32, 1, 1)
-      let acquired = acquire(target, RectangleInt::new(width=1, height=1))
+      let target = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+      let acquired = acquire(
+        target,
+        @cairoon.RectangleInt::new(width=1, height=1),
+      )
       if acquired.get_width() != 1 {
         @test.fail("raster-source acquire callback returned invalid surface")
       }

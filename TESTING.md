@@ -211,8 +211,8 @@ native `moon check`, extracted external black-box packages under
 `src/tests/api` (version, enum, status, and pure value APIs),
 `src/tests/matrix`, `src/tests/region`, `src/tests/surface`,
 `src/tests/context`, `src/tests/pattern`, `src/tests/font`, and
-`src/tests/stream`, and `src/tests/object`, targeted white-box image,
-ScaledFont oracle, vector-output, backend surface stream, context-lifetime, and
+`src/tests/stream`, `src/tests/object`, and `src/tests/lifetime`, targeted
+white-box image, ScaledFont oracle, vector-output, backend surface stream, and
 raster-pattern tests, the full
 native test suite, `moon info --target native`, and targeted ASan builds for
 all external black-box packages and the same target list when an ASan-capable

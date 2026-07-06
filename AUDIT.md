@@ -72,6 +72,11 @@ Implemented in this workspace:
   the public `caimeo/cairoon` API. This validates Path formatting, iteration,
   flattening, scope survival, path comparison behavior, and Eq/Hash semantics
   across external object wrappers through the published package seam.
+- Lifetime/stress black-box tests now live in `src/tests/lifetime`, importing
+  only the public `caimeo/cairoon` API. This validates retained owner graphs,
+  mapped image lifetimes, image data views, value wrapper stress, raster-source
+  callback retention, stream callback stress/fuzz, finalizer fuzz paths, and
+  context borrowed-return lifetimes through the published package seam.
 - C FFI glue split by Cairo object family, following pycairo's
   `private.h` plus per-family C file architecture. GC-managed external objects
   currently cover `Surface`, `MappedImageSurface`, `ImageData`, `Context`,
