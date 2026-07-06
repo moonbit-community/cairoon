@@ -1,4 +1,9 @@
 ///|
+fn init {
+  ignore(@native.oracle_native_anchor())
+}
+
+///|
 type TextToGlyphsNative
 
 ///|

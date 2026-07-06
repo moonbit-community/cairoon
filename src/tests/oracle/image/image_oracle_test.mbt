@@ -1,4 +1,9 @@
 ///|
+fn init {
+  ignore(@native.oracle_native_anchor())
+}
+
+///|
 extern "C" fn test_argb32_scene_oracle_ffi(
   scene : Int,
   width : Int,

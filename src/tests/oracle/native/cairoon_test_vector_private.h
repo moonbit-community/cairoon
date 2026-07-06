@@ -1,7 +1,7 @@
 #ifndef CAIROON_TEST_VECTOR_PRIVATE_H
 #define CAIROON_TEST_VECTOR_PRIVATE_H
 
-#include "cairoon_private.h"
+#include "cairoon_test_private.h"
 
 #if CAIRO_HAS_PDF_SURFACE
 #include <cairo-pdf.h>

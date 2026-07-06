@@ -1,4 +1,4 @@
-#include "cairoon_private.h"
+#include "cairoon_test_private.h"
 
 typedef struct {
   cairo_surface_t *source;

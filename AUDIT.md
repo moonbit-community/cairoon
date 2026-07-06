@@ -107,16 +107,18 @@ Implemented in this workspace:
   `*_test.mbt` helper. This removes the last root `*_wbtest.mbt` files while
   preserving 105 PDF/PS/SVG vector, stream-equivalence, tag, metadata, page,
   and backend lifecycle oracle tests through the published API seam.
+- Test-only C oracle helpers now live in `src/tests/oracle/native` as a
+  separate native-stub package imported by the oracle test packages. This keeps
+  constants, ScaledFont, image, raster-owner, and PDF/PS/SVG vector oracle C
+  symbols out of public `src/moon.pkg` while preserving a shared C oracle
+  implementation for all external oracle tests.
 - C FFI glue split by Cairo object family, following pycairo's
   `private.h` plus per-family C file architecture. GC-managed external objects
   currently cover `Surface`, `MappedImageSurface`, `ImageData`, `Context`,
   `Path`, `Pattern`, `FontOptions`, `FontFace`, `ScaledFont`, `Region`, and
-  `Device`. Private test-only oracle glue is also split by responsibility:
-  common drawing helpers, file/normalized-output comparison, vector-output
-  entry points, vector-output scene drawing, PDF/PS/SVG vector feature
-  renderers, and ARGB32 image oracles. Context C glue follows the same family
-  split: `cairoon_context.c` keeps core construction/status/tag/target/source
-  and group glue, while `cairoon_context_font_text.c`,
+  `Device`. Context C glue follows the same family split:
+  `cairoon_context.c` keeps core construction/status/tag/target/source and
+  group glue, while `cairoon_context_font_text.c`,
   `cairoon_context_matrix.c`, `cairoon_context_state.c`,
   `cairoon_context_path.c`, `cairoon_context_clip_extents.c`, and
   `cairoon_context_paint.c` own the corresponding font/text, transform,

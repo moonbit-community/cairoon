@@ -1,4 +1,4 @@
-#include "cairoon_private.h"
+#include "cairoon_test_private.h"
 
 #include <string.h>
 

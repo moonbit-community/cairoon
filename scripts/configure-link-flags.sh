@@ -82,7 +82,12 @@ needs_cairo_link() {
   grep -q '"caimeo/cairoon"' "$file"
 }
 
-collect_link_only_configs() {
+has_native_stub() {
+  local file="$1"
+  grep -q '"native-stub"' "$file"
+}
+
+collect_test_configs() {
   if [[ ! -d "$test_packages_root" ]]; then
     return
   fi
@@ -139,10 +144,28 @@ Actual cc-link-flags:
 EOF
       exit 1
     fi
-    checked=$((checked + 1))
-  done < <(collect_link_only_configs)
+    if has_native_stub "$config"; then
+      actual_stub_cc_flags="$(extract_field "$config" stub-cc-flags)"
+      if [[ "$actual_stub_cc_flags" != "$cc_flags" ]]; then
+        rel="$(relative_path "$config")"
+        cat >&2 <<EOF
+error: $rel Cairo stub compile flags are out of sync with pkg-config.
 
-  printf 'Cairo link flags match pkg-config in %s moon.pkg files.\n' "$checked"
+Run:
+  scripts/configure-link-flags.sh
+
+Expected stub-cc-flags:
+  $cc_flags
+Actual stub-cc-flags:
+  $actual_stub_cc_flags
+EOF
+        exit 1
+      fi
+    fi
+    checked=$((checked + 1))
+  done < <(collect_test_configs)
+
+  printf 'Cairo link/stub flags match pkg-config in %s moon.pkg files.\n' "$checked"
   exit 0
 fi
 
@@ -177,12 +200,17 @@ update_full_config() {
   mv "$tmp" "$file"
 }
 
-update_link_only_config() {
+update_test_config() {
   local file="$1"
   local tmp
   tmp="$(mktemp "${TMPDIR:-/tmp}/cairoon-moon.pkg.XXXXXX")"
   awk \
+    -v cc_flags="$escaped_cc_flags" \
     -v link_flags="$escaped_link_flags" '
+      /^[[:space:]]*"stub-cc-flags": / {
+        print "      \"stub-cc-flags\": \"" cc_flags "\","
+        next
+      }
       /^[[:space:]]*"cc-link-flags": / {
         print "      \"cc-link-flags\": \"" link_flags "\","
         next
@@ -198,8 +226,8 @@ while IFS= read -r config; do
   if ! needs_cairo_link "$config"; then
     continue
   fi
-  update_link_only_config "$config"
+  update_test_config "$config"
   updated=$((updated + 1))
-done < <(collect_link_only_configs)
+done < <(collect_test_configs)
 
-printf 'Updated Cairo link flags from pkg-config in %s moon.pkg files.\n' "$updated"
+printf 'Updated Cairo link/stub flags from pkg-config in %s moon.pkg files.\n' "$updated"

@@ -8,16 +8,19 @@ the next layout slice can be committed.
 
 ## Current Layout
 
-As of the black-box test and native-stub extraction slices, the repository root
-is project management space and contains no grandfathered source-like files.
-The current public MoonBit package lives in `src/`; external black-box tests
-live in `src/tests/*`, and public-package C stubs live in `src/native/`.
+As of the black-box, oracle, and oracle-native extraction slices, the
+repository root is project management space and contains no grandfathered
+source-like files. The current public MoonBit package lives in `src/`;
+external black-box tests live in `src/tests/*`, public-package C stubs live in
+`src/native/`, and test-only C oracles live in `src/tests/oracle/native/`.
 
 - 71 `.mbt` implementation files directly in `src/`.
 - 76 black-box `*_test.mbt` files in `src/tests/*`.
 - 0 white-box `*_wbtest.mbt` files in `src/`.
-- 49 C implementation/oracle files in `src/native/`.
-- 2 C headers in `src/native/`.
+- 34 public-package C implementation files in `src/native/`.
+- 1 public-package C header in `src/native/`.
+- 17 oracle C implementation files in `src/tests/oracle/native/`.
+- 2 oracle C headers in `src/tests/oracle/native/`.
 - 9 executable `.mbt.md` docs in `src/`.
 
 This is still migration debt, but the repository root and the public package
@@ -75,6 +78,13 @@ cairoon/
         moon.pkg
       lifetime/
         moon.pkg
+      oracle/
+        native/
+          moon.pkg
+          cairoon_test_private.h
+          cairoon_test_common.c
+        vector_backend/
+          moon.pkg
   docs/
     reference/
 ```
@@ -96,7 +106,7 @@ MoonBit package shape without weakening the public interface.
 | Pure support packages | `src/core/` | May hold pure values/helpers only after their public names can be preserved or intentionally re-exported. |
 | Native stubs | `src/native/` while owned by `src/moon.pkg`; later `src/native/<family>/` packages only after a facade proof | Every `.c` file under `src/native/` must be listed by `src/moon.pkg` `native-stub`; headers in `src/native/` are private to those stubs. |
 | Black-box tests | `src/tests/<family>/` | Import `caimeo/cairoon`; assert only public behavior. Any package that imports cairoon must carry Cairo `cc-link-flags`, because native link flags are not propagated to external test executables. |
-| White-box oracles | `src/oracle/` or `src/tests/oracle/<family>/` | Import `caimeo/cairoon` for the public API and declare test-only direct-C oracle externs locally; public binding wrappers must never import oracle packages. |
+| White-box oracles | `src/tests/oracle/<family>/` plus shared C support in `src/tests/oracle/native/` | Import `caimeo/cairoon` for the public API and declare test-only direct-C oracle externs locally; public binding wrappers must never import oracle packages. Test-only C symbols are provided by the oracle-native support package, not `src/moon.pkg`. |
 | Documentation | `docs/` and public package `.mbt.md` files | Narrative docs live outside source packages; executable reference docs stay with the package they test. |
 
 Do not split a family across packages until the type names, method call syntax,
@@ -116,14 +126,14 @@ Follow this order. Each step gets its own commit and must pass
 3. **Black-box test extraction**: started. Move pure `*_test.mbt` files into
    `src/tests/<family>/` packages that import `caimeo/cairoon`; keep test names
    and behavioral assertions unchanged.
-4. **Native-stub directory extraction**: completed. Public-package C stubs and
-   private oracle C helpers live under `src/native/`, and `src/moon.pkg`
-   references them with `native/...` `native-stub` paths.
-5. **White-box oracle extraction**: completed for MoonBit test files. Direct-C
-   oracle tests now live under `src/tests/oracle/*`, proving external oracle
-   packages can locally declare test-only externs while importing
-   `caimeo/cairoon` for the public API. Oracle packages may later gain their
-   own `native-stub` lists, but public binding C files must not depend on them.
+4. **Native-stub directory extraction**: completed. Public-package C stubs live
+   under `src/native/`, and `src/moon.pkg` references them with `native/...`
+   `native-stub` paths.
+5. **White-box oracle extraction**: completed for MoonBit tests and C oracle
+   support. Direct-C oracle tests now live under `src/tests/oracle/*`, and
+   test-only C oracle helpers live under `src/tests/oracle/native` as a
+   separate native-stub package imported only by oracle tests. Public binding C
+   files must not depend on oracle packages.
 6. **Family package probes**: for one low-risk family, prove whether MoonBit can
    preserve the public facade while moving implementation into a family package.
    The proof must include `moon info --target native` review.
@@ -163,12 +173,15 @@ before MoonBit compilation. The layout check proves:
 - external black-box test packages that import `caimeo/cairoon` carry Cairo
   `cc-link-flags`;
 - every `.c` file under `src/native/` is referenced by `src/moon.pkg`
-  `native-stub`, headers stay with that native stub directory, and any future
-  nested C source/header files outside `src/native/` live beside a `moon.pkg`;
+  `native-stub`, headers stay with that native stub directory, oracle C
+  source/header files live beside `src/tests/oracle/native/moon.pkg`, and any
+  future nested C source/header files outside `src/native/` live beside a
+  `moon.pkg`;
 - `PROJECT_LAYOUT.md` and `scripts/root-layout-allowlist.txt` exist.
 
 The layout gate does not prove the package split is complete. It proves only
 that the root has become project-management space and that public-package C
-source/header files are isolated in `src/native/` with explicit `native-stub`
-ownership. Completion is proved only when every package role above has a
-passing targeted verification entry in `AUDIT.md`.
+source/header files are isolated in `src/native/` while oracle C source/header
+files are isolated in `src/tests/oracle/native`, both with explicit
+`native-stub` ownership. Completion is proved only when every package role
+above has a passing targeted verification entry in `AUDIT.md`.

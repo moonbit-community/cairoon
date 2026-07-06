@@ -1,4 +1,9 @@
 ///|
+fn init {
+  ignore(@native.oracle_native_anchor())
+}
+
+///|
 extern "C" fn compile_feature_flag_ffi(feature : Int) -> Bool = "cairoon_compile_feature_flag"
 
 ///|

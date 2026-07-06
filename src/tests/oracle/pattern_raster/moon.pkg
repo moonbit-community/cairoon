@@ -1,5 +1,6 @@
 import {
   "caimeo/cairoon",
+  "caimeo/cairoon/tests/oracle/native",
   "moonbitlang/core/test",
 } for "test"
 

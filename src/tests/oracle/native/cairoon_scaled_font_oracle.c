@@ -1,4 +1,4 @@
-#include "cairoon_private.h"
+#include "cairoon_test_private.h"
 
 static cairo_scaled_font_t *cairoon_test_create_scaled_font_oracle(void) {
   cairo_font_face_t *font_face = cairo_toy_font_face_create(

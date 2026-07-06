@@ -4,6 +4,11 @@ fn checked_path_bytes(path : String) -> Bytes {
 }
 
 ///|
+fn init {
+  ignore(@native.oracle_native_anchor())
+}
+
+///|
 fn vector_backend_invalid_surface() -> @cairoon.Surface raise @cairoon.CairoError {
   @cairoon.check_status(@cairoon.InvalidStatus)
   @cairoon.Surface::image(@cairoon.Argb32, 1, 1)

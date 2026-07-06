@@ -212,7 +212,8 @@ native `moon check`, extracted external test packages under
 `src/tests/matrix`, `src/tests/region`, `src/tests/surface`,
 `src/tests/context`, `src/tests/pattern`, `src/tests/font`, and
 `src/tests/stream`, `src/tests/object`, `src/tests/lifetime`, and
-`src/tests/oracle/constants`, `src/tests/oracle/scaled_font`, and
+`src/tests/oracle/native`, `src/tests/oracle/constants`,
+`src/tests/oracle/scaled_font`, and
 `src/tests/oracle/image`, `src/tests/oracle/pattern_raster`, and
 `src/tests/oracle/vector_backend`, the full native test suite,
 `moon info --target native`, and targeted ASan builds for all external test
@@ -225,9 +226,11 @@ Set `CAIROON_VERIFY_ASAN=0` to skip the targeted ASan portion intentionally.
 
 The current cairoon slice is not a full migration. It has native package setup,
 pycairo-style C glue split into private shared declarations plus per-family
-stub files, with private test-only oracle glue split into common drawing,
-file/normalized-output comparison, vector-output entry points, vector-output
-scene drawing, PDF/PS/SVG vector feature renderers, and ARGB32 image helpers,
+stub files, with private test-only oracle glue moved to the
+`src/tests/oracle/native` support package and split into constants,
+ScaledFont, common drawing, file/normalized-output comparison, ARGB32 image,
+raster-owner, vector-output entry points, vector-output scene drawing, and
+PDF/PS/SVG vector feature renderers,
 opaque external-object wrappers for `Surface`,
 `MappedImageSurface`, `Context`, `Path`, `Pattern`, `FontOptions`, `FontFace`,
 `ScaledFont`, `Region`, and `Device`, pure value types including `Glyph` with
