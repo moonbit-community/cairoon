@@ -74,7 +74,7 @@ Evaluate each slice with this scorecard:
 | Reliability ledger | `API_INVENTORY.md` statuses are `Done`, `Partial`, or `Decision`; every `Partial` row names its remaining gap; this scorecard and CI/verify gate are checked by `scripts/check-reliability-ledger.py` | Strong for current migrated slices; the lint runs in the local and CI verify gate, and any future full-product claim still requires zero `Todo`/`Partial` rows |
 | FFI boundary safety | Production raw `src/**/ffi*.mbt` declarations mark every non-primitive C FFI parameter with `#borrow` or `#owned`, and `scripts/check-ffi-ownership.py` passes | Strong for current raw externs, including internal helper packages; the lint runs in the local and CI verify gate |
 | Behavioral parity | pycairo-derived black-box cases or direct C Cairo primitive oracles cover normal and invalid inputs | Strong for image, context, path, font, pattern, region, surface/device, and backend helpers already listed in the inventory |
-| Rendering parity | Deterministic image pixels or normalized PDF/PS/SVG bytes match direct C Cairo output | Strong for the enumerated image and vector fixtures, including backend page-transition, state-stack, deep-tag, metadata-outline, and page-ops tag/metadata/page-operation output; still partial for broader tag/metadata/multi-page combinations |
+| Rendering parity | Deterministic image pixels or normalized PDF/PS/SVG bytes match direct C Cairo output | Strong for the enumerated image and vector fixtures, including backend page-transition, state-stack, deep-tag, metadata-outline, page-ops, and tag-metadata tag/metadata/page-operation output; still partial for broader tag/metadata/multi-page combinations |
 | Lifetime safety | External-object ownership, borrowed returns, callback retention, and error exits run under ASan/LSan or stress tests | Strong for targeted local gates; macOS LSan remains intentionally disabled for known toy-font/glyph leak reports |
 | Callback safety | C-held MoonBit callbacks and callback arguments are retained across the callback invocation and released deterministically | Strong for stream writers/readers and raster-source callbacks covered by current stress/fuzz tests |
 | Portability | Required backends pass on each supported platform, or unsupported APIs have explicit `Decision` rows | Partial until the shipped CI workflow has passing native, oracle, and sanitizer runs across the release platform matrix |
@@ -485,7 +485,7 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   text vector stream equivalence slice, and the single-page tag stream
   equivalence slice.
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native`: 558 tests passed. The current run
+- `moon -C cairoon test --target native`: 562 tests passed. The current run
   includes the expanded pattern-combo image oracle slice,
   the surface-mask screen group image-oracle slice,
   the mesh-mask group-compositing image oracle slice,
@@ -497,6 +497,7 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   the backend deep tag tree file/stream direct-oracle differential slice,
   the backend metadata-outline file/stream direct-oracle differential slice,
   the backend page-ops file/stream direct-oracle differential slice,
+  the backend tag-metadata file/stream direct-oracle differential slice,
   the backend nested tag/page sequence slice,
   the backend surface-page feature/tag combo slice,
   the Context drawing-state all-enum round-trip slice,
@@ -764,11 +765,21 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   operations, PDF metadata/custom metadata/page labels/outlines, URI and
   named-destination links, document-structure tags, PS DSC, SVG document units,
   and backend page-size changes.
+- `moon -C cairoon test src/tests/oracle/vector_backend/surface_stream_tag_metadata_test.mbt
+  --target native -v`: 4 white-box backend tag-metadata tests passed,
+  comparing PDF/PS/SVG stream output with file output after normalization,
+  comparing file output with a direct C Cairo oracle, checking stable PDF/PS/SVG
+  markers, and checking PS/SVG file and stream negative tag-metadata markers
+  for a three-page scene with PDF metadata/custom metadata/page labels/outlines,
+  URI and named-destination links, `Document`/`Sect`/`P`/`Figure`/`Span`
+  structure tags, retained `Surface::copy_page`, `Surface::show_page`,
+  `Context::show_page`, PS DSC, SVG document units, and backend page-size
+  changes.
 - `moon -C cairoon test src/tests/oracle/vector_backend/surface_stream_oracle_test.mbt
   --target native -v`: 3 white-box stream-to-direct-C oracle tests passed,
-  with the backend feature stream dispatcher now including scenes 45 through 47
-  so the deep tag tree, metadata-outline, and page-ops PDF/PS/SVG stream
-  callback output is compared with normalized direct C Cairo oracle files.
+  with the backend feature stream dispatcher now including scenes 45 through 48
+  so the deep tag tree, metadata-outline, page-ops, and tag-metadata PDF/PS/SVG
+  stream callback output is compared with normalized direct C Cairo oracle files.
 - `moon -C cairoon test surface_stream_page_sequence_wbtest.mbt --target
   native -v`: 4 white-box backend resized page-sequence tests passed,
   comparing PDF/PS/SVG file output with stream output after normalized
@@ -2875,6 +2886,17 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   the previous valid variation value intact. This raises
   `font_options_test.mbt` to 9 tests and the expected full native suite to 558
   tests without changing public API.
+  A later tag-metadata stream-to-direct-C oracle slice added scene 48 in the
+  focused `cairoon_test_backend_tag_metadata.c` oracle file, covering PDF
+  metadata/custom-metadata overwrite/removal, page labels, outline parent/child
+  links, URI links, named destinations, `Document`/`Sect`/`P`/`Figure`/`Span`
+  structure tags, retained `Surface::copy_page`, `Surface::show_page`,
+  `Context::show_page`, PDF/PS page resizing, PS Level 3 DSC markers, and SVG
+  point units. The slice adds file-vs-stream equality, file-vs-direct-C
+  equality, stream-vs-direct-C equality through the backend oracle dispatcher,
+  stable PDF/PS/SVG marker checks, and PS/SVG file/stream negative
+  PDF-metadata checks, raising the vector-backend package to 140 tests and the
+  expected full native suite to 562 tests without changing public API.
 
 Remaining reliability work is now narrower and should be tracked as evidence,
 not as an unstructured checklist:
@@ -2882,7 +2904,7 @@ not as an unstructured checklist:
 - Broaden normalized PDF/PS/SVG differential coverage for combinations not yet
   represented by the current direct-C and direct stream-oracle fixtures:
   additional deep tag nests beyond scenes 37, 39, 40, 44, and 45, more
-  metadata/page-label/outline mixtures beyond scenes 38 through 42, 44, 46, and 47, and
+  metadata/page-label/outline mixtures beyond scenes 38 through 42, 44, 46, 47, and 48, and
   additional multi-page sequences beyond the current
   retained/resized/tag-matrix/lifecycle/text-state/page-ops page fixtures.
 - Add broader platform coverage and finalizer fuzz beyond the
