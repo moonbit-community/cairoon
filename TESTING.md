@@ -74,7 +74,7 @@ Evaluate each slice with this scorecard:
 | Reliability ledger | `API_INVENTORY.md` statuses are `Done`, `Partial`, or `Decision`; every `Partial` row names its remaining gap; this scorecard and CI/verify gate are checked by `scripts/check-reliability-ledger.py` | Strong for current migrated slices; the lint runs in the local and CI verify gate, and any future full-product claim still requires zero `Todo`/`Partial` rows |
 | FFI boundary safety | Production raw `src/**/ffi*.mbt` declarations mark every non-primitive C FFI parameter with `#borrow` or `#owned`, and `scripts/check-ffi-ownership.py` passes | Strong for current raw externs, including internal helper packages; the lint runs in the local and CI verify gate |
 | Behavioral parity | pycairo-derived black-box cases or direct C Cairo primitive oracles cover normal and invalid inputs | Strong for image, context, path, font, pattern, region, surface/device, and backend helpers already listed in the inventory |
-| Rendering parity | Deterministic image pixels or normalized PDF/PS/SVG bytes match direct C Cairo output | Strong for the enumerated image and vector fixtures, including backend page-transition tag/metadata/page-operation output; still partial for broader tag/metadata/multi-page combinations |
+| Rendering parity | Deterministic image pixels or normalized PDF/PS/SVG bytes match direct C Cairo output | Strong for the enumerated image and vector fixtures, including backend page-transition and state-stack tag/metadata/page-operation output; still partial for broader tag/metadata/multi-page combinations |
 | Lifetime safety | External-object ownership, borrowed returns, callback retention, and error exits run under ASan/LSan or stress tests | Strong for targeted local gates; macOS LSan remains intentionally disabled for known toy-font/glyph leak reports |
 | Callback safety | C-held MoonBit callbacks and callback arguments are retained across the callback invocation and released deterministically | Strong for stream writers/readers and raster-source callbacks covered by current stress/fuzz tests |
 | Portability | Required backends pass on each supported platform, or unsupported APIs have explicit `Decision` rows | Partial until the shipped CI workflow has passing native, oracle, and sanitizer runs across the release platform matrix |
@@ -176,7 +176,8 @@ For surfaces and devices, add backend-specific smoke tests:
   propagation.
 - PDF/SVG/PS: create, finish, metadata, page behavior, stream writers, and
   normalized output, including direct-C comparisons for show/copy/show page
-  transitions with PDF tags and PS/SVG inertness checks.
+  transitions and clip/group/mask state-stack scenes with PDF tags and PS/SVG
+  inertness checks.
 - Recording/script/tee: only mark Done when the backend is available and tests
   run in CI.
 - Cairo native observer surface/device APIs: not a pycairo migration gate.

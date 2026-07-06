@@ -19,6 +19,7 @@ options(
     "cairoon_test_backend_tag_matrix.c",
     "cairoon_test_backend_lifecycle.c",
     "cairoon_test_backend_page_transition.c",
+    "cairoon_test_backend_state_stack.c",
     "cairoon_test_pdf_vector.c",
     "cairoon_test_ps_vector.c",
     "cairoon_test_svg_vector.c",
