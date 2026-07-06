@@ -36,15 +36,15 @@ fn bytes_slice(bytes : Bytes, offset : Int, length : Int) -> Bytes {
 }
 
 ///|
-fn make_png_bytes() -> Bytes raise CairoError {
+fn make_png_bytes() -> Bytes raise @cairoon.CairoError {
   let chunks : Array[Bytes] = []
-  let surface = Surface::image(Argb32, 2, 2)
-  let ctx = Context::new(surface)
+  let surface = @cairoon.Surface::image(@cairoon.Argb32, 2, 2)
+  let ctx = @cairoon.Context::new(surface)
   ctx.set_source_rgb(1.0, 0.0, 0.0)
   ctx.paint()
   surface.write_to_png_stream(fn(chunk) {
     chunks.push(chunk)
-    Success
+    @cairoon.Success
   })
   chunks_to_bytes(chunks)
 }
@@ -63,8 +63,10 @@ fn is_png_signature(bytes : Bytes) -> Bool {
 }
 
 ///|
-fn paint_stream_surface(surface : Surface) -> Unit raise CairoError {
-  let ctx = Context::new(surface)
+fn paint_stream_surface(
+  surface : @cairoon.Surface,
+) -> Unit raise @cairoon.CairoError {
+  let ctx = @cairoon.Context::new(surface)
   ctx.set_source_rgb(0.0, 0.0, 1.0)
   ctx.paint()
   surface.finish()
@@ -73,33 +75,38 @@ fn paint_stream_surface(surface : Surface) -> Unit raise CairoError {
 ///|
 fn make_vector_stream_surface_returning_status(
   kind : Int,
-  status : Status,
-) -> Surface raise CairoError {
+  status : @cairoon.Status,
+) -> @cairoon.Surface raise @cairoon.CairoError {
   match kind {
-    0 => Surface::pdf_stream(10.0, 10.0, fn(_) { status })
-    1 => Surface::ps_stream(10.0, 10.0, fn(_) { status })
-    _ => Surface::svg_stream(10.0, 10.0, fn(_) { status })
+    0 => @cairoon.Surface::pdf_stream(10.0, 10.0, fn(_) { status })
+    1 => @cairoon.Surface::ps_stream(10.0, 10.0, fn(_) { status })
+    _ => @cairoon.Surface::svg_stream(10.0, 10.0, fn(_) { status })
   }
 }
 
 ///|
-fn expect_vector_stream_write_error(kind : Int, status : Status) -> Unit raise {
-  let result = run_cairo(() => {
+fn expect_vector_stream_write_error(
+  kind : Int,
+  status : @cairoon.Status,
+) -> Unit raise {
+  let result = @cairoon.run_cairo(() => {
     let surface = make_vector_stream_surface_returning_status(kind, status)
     paint_stream_surface(surface)
   })
   match result {
-    Err(CairoIOError(WriteError, _)) => ()
+    Err(@cairoon.CairoIOError(@cairoon.WriteError, _)) => ()
     _ => @test.fail("expected WriteError from vector stream writer")
   }
 }
 
 ///|
-fn expect_png_stream_write_error(status : Status) -> Unit raise {
-  let surface = Surface::image(Argb32, 2, 2)
-  let result = run_cairo(() => surface.write_to_png_stream(fn(_) { status }))
+fn expect_png_stream_write_error(status : @cairoon.Status) -> Unit raise {
+  let surface = @cairoon.Surface::image(@cairoon.Argb32, 2, 2)
+  let result = @cairoon.run_cairo(() => {
+    surface.write_to_png_stream(fn(_) { status })
+  })
   match result {
-    Err(CairoIOError(WriteError, _)) => ()
+    Err(@cairoon.CairoIOError(@cairoon.WriteError, _)) => ()
     _ => @test.fail("expected WriteError from PNG stream writer")
   }
 }
@@ -107,9 +114,9 @@ fn expect_png_stream_write_error(status : Status) -> Unit raise {
 ///|
 test "pdf stream writer receives output chunks" {
   let chunks : Array[Bytes] = []
-  let surface = Surface::pdf_stream(10.0, 10.0, fn(chunk) {
+  let surface = @cairoon.Surface::pdf_stream(10.0, 10.0, fn(chunk) {
     chunks.push(chunk)
-    Success
+    @cairoon.Success
   })
   paint_stream_surface(surface)
   inspect(chunks.length() > 0, content="true")
@@ -120,9 +127,9 @@ test "pdf stream writer receives output chunks" {
 ///|
 test "ps stream writer receives output chunks" {
   let chunks : Array[Bytes] = []
-  let surface = Surface::ps_stream(10.0, 10.0, fn(chunk) {
+  let surface = @cairoon.Surface::ps_stream(10.0, 10.0, fn(chunk) {
     chunks.push(chunk)
-    Success
+    @cairoon.Success
   })
   paint_stream_surface(surface)
   inspect(chunks.length() > 0, content="true")
@@ -133,9 +140,9 @@ test "ps stream writer receives output chunks" {
 ///|
 test "svg stream writer receives output chunks" {
   let chunks : Array[Bytes] = []
-  let surface = Surface::svg_stream(10.0, 10.0, fn(chunk) {
+  let surface = @cairoon.Surface::svg_stream(10.0, 10.0, fn(chunk) {
     chunks.push(chunk)
-    Success
+    @cairoon.Success
   })
   paint_stream_surface(surface)
   inspect(chunks.length() > 0, content="true")
@@ -149,14 +156,14 @@ test "svg stream writer receives output chunks" {
 ///|
 test "stream writer status maps to cairo IO error" {
   for kind in 0..<3 {
-    expect_vector_stream_write_error(kind, WriteError)
+    expect_vector_stream_write_error(kind, @cairoon.WriteError)
   }
 }
 
 ///|
 test "stream writer invalid status maps to write error" {
   for kind in 0..<3 {
-    expect_vector_stream_write_error(kind, LastStatus)
+    expect_vector_stream_write_error(kind, @cairoon.LastStatus)
   }
 }
 
@@ -170,44 +177,49 @@ test "png stream writer receives image bytes" {
 ///|
 test "stream writer chunks remain usable after callback returns" {
   let pdf_chunks : Array[Bytes] = []
-  let pdf = Surface::pdf_stream(10.0, 10.0, fn(chunk) {
+  let pdf = @cairoon.Surface::pdf_stream(10.0, 10.0, fn(chunk) {
     pdf_chunks.push(chunk)
-    Success
+    @cairoon.Success
   })
   paint_stream_surface(pdf)
 
   let ps_chunks : Array[Bytes] = []
-  let ps = Surface::ps_stream(10.0, 10.0, fn(chunk) {
+  let ps = @cairoon.Surface::ps_stream(10.0, 10.0, fn(chunk) {
     ps_chunks.push(chunk)
-    Success
+    @cairoon.Success
   })
   paint_stream_surface(ps)
 
   let svg_chunks : Array[Bytes] = []
-  let svg = Surface::svg_stream(10.0, 10.0, fn(chunk) {
+  let svg = @cairoon.Surface::svg_stream(10.0, 10.0, fn(chunk) {
     svg_chunks.push(chunk)
-    Success
+    @cairoon.Success
   })
   paint_stream_surface(svg)
 
   let png_chunks : Array[Bytes] = []
-  let image = Surface::image(Argb32, 2, 2)
-  let image_ctx = Context::new(image)
+  let image = @cairoon.Surface::image(@cairoon.Argb32, 2, 2)
+  let image_ctx = @cairoon.Context::new(image)
   image_ctx.set_source_rgb(1.0, 0.0, 0.0)
   image_ctx.paint()
   image.write_to_png_stream(fn(chunk) {
     png_chunks.push(chunk)
-    Success
+    @cairoon.Success
   })
 
   let script_chunks : Array[Bytes] = []
-  let script = Device::script_stream(fn(chunk) {
+  let script = @cairoon.Device::script_stream(fn(chunk) {
     script_chunks.push(chunk)
-    Success
+    @cairoon.Success
   })
   script.script_write_comment("retained stream chunk")
-  let script_surface = Surface::script(script, ContentColorAlpha, 4.0, 4.0)
-  let script_ctx = Context::new(script_surface)
+  let script_surface = @cairoon.Surface::script(
+    script,
+    @cairoon.ContentColorAlpha,
+    4.0,
+    4.0,
+  )
+  let script_ctx = @cairoon.Context::new(script_surface)
   script_ctx.paint()
   script_surface.finish()
   script.finish()
@@ -231,19 +243,19 @@ test "stream writer chunks remain usable after callback returns" {
 
 ///|
 test "png stream writer status maps to cairo IO error" {
-  expect_png_stream_write_error(WriteError)
+  expect_png_stream_write_error(@cairoon.WriteError)
 }
 
 ///|
 test "png stream writer invalid status maps to write error" {
-  expect_png_stream_write_error(LastStatus)
+  expect_png_stream_write_error(@cairoon.LastStatus)
 }
 
 ///|
 test "png stream reader creates image surface" {
   let input = make_png_bytes()
   let offset = Ref(0)
-  let surface = Surface::image_from_png_stream(fn(length) {
+  let surface = @cairoon.Surface::image_from_png_stream(fn(length) {
     let chunk = bytes_slice(input, offset.val, length)
     offset.val += length
     chunk
@@ -251,7 +263,7 @@ test "png stream reader creates image surface" {
   inspect(surface.get_width(), content="2")
   inspect(surface.get_height(), content="2")
   let format = surface.get_format()
-  inspect(format == Argb32 || format == Rgb24, content="true")
+  inspect(format == @cairoon.Argb32 || format == @cairoon.Rgb24, content="true")
   inspect(offset.val == input.length(), content="true")
 }
 
@@ -259,8 +271,8 @@ test "png stream reader creates image surface" {
 test "png stream reader short read maps to cairo IO error" {
   let input = make_png_bytes()
   let offset = Ref(0)
-  let result = run_cairo(() => {
-    let _ = Surface::image_from_png_stream(fn(length) {
+  let result = @cairoon.run_cairo(() => {
+    let _ = @cairoon.Surface::image_from_png_stream(fn(length) {
       let available = input.length() - offset.val
       let actual = if available < length { available } else { length }
       let short = if actual > 0 { actual - 1 } else { 0 }
@@ -271,7 +283,8 @@ test "png stream reader short read maps to cairo IO error" {
     ()
   })
   match result {
-    Err(CairoIOError(ReadError, _)) | Err(CairoIOError(PngError, _)) => ()
+    Err(@cairoon.CairoIOError(@cairoon.ReadError, _))
+    | Err(@cairoon.CairoIOError(@cairoon.PngError, _)) => ()
     _ => @test.fail("expected read failure from PNG stream reader")
   }
 }

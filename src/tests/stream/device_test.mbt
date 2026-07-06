@@ -1,41 +1,43 @@
 ///|
-fn expect_device_finished(result : Result[Unit, CairoError]) -> Unit raise {
+fn expect_device_finished(
+  result : Result[Unit, @cairoon.CairoError],
+) -> Unit raise {
   inspect(result is Err(_), content="true")
   match result {
-    Err(CairoError(DeviceFinished, _)) => ()
+    Err(@cairoon.CairoError(@cairoon.DeviceFinished, _)) => ()
     _ => @test.fail("expected DeviceFinished")
   }
 }
 
 ///|
 fn expect_device_invalid_string(
-  result : Result[Unit, CairoError],
+  result : Result[Unit, @cairoon.CairoError],
 ) -> Unit raise {
   inspect(result is Err(_), content="true")
   match result {
-    Err(CairoInvalidArgument(InvalidString, _)) => ()
+    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidString, _)) => ()
     _ => @test.fail("expected InvalidString")
   }
 }
 
 ///|
 fn expect_device_surface_type_mismatch(
-  result : Result[Unit, CairoError],
+  result : Result[Unit, @cairoon.CairoError],
 ) -> Unit raise {
   inspect(result is Err(_), content="true")
   match result {
-    Err(CairoError(SurfaceTypeMismatch, _)) => ()
+    Err(@cairoon.CairoError(@cairoon.SurfaceTypeMismatch, _)) => ()
     _ => @test.fail("expected SurfaceTypeMismatch")
   }
 }
 
 ///|
 fn[T] expect_script_surface_invalid_content(
-  result : Result[T, CairoError],
+  result : Result[T, @cairoon.CairoError],
 ) -> Unit raise {
   inspect(result is Err(_), content="true")
   match result {
-    Err(CairoInvalidArgument(InvalidContent, _)) => ()
+    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidContent, _)) => ()
     _ => @test.fail("expected InvalidContent")
   }
 }
@@ -50,10 +52,17 @@ fn script_chunks_to_string(chunks : Array[Bytes]) -> String {
 }
 
 ///|
-fn write_script_stream_with_status(status : Status) -> Unit raise CairoError {
-  let device = Device::script_stream(fn(_) { status })
-  let surface = Surface::script(device, ContentColorAlpha, 4.0, 4.0)
-  let ctx = Context::new(surface)
+fn write_script_stream_with_status(
+  status : @cairoon.Status,
+) -> Unit raise @cairoon.CairoError {
+  let device = @cairoon.Device::script_stream(fn(_) { status })
+  let surface = @cairoon.Surface::script(
+    device,
+    @cairoon.ContentColorAlpha,
+    4.0,
+    4.0,
+  )
+  let ctx = @cairoon.Context::new(surface)
   ctx.set_source_rgb(1.0, 0.0, 0.0)
   ctx.paint()
   surface.finish()
@@ -61,23 +70,25 @@ fn write_script_stream_with_status(status : Status) -> Unit raise CairoError {
 }
 
 ///|
-fn expect_script_stream_write_error(status : Status) -> Unit raise {
-  let result = run_cairo(() => write_script_stream_with_status(status))
+fn expect_script_stream_write_error(status : @cairoon.Status) -> Unit raise {
+  let result = @cairoon.run_cairo(() => write_script_stream_with_status(status))
   match result {
-    Err(CairoIOError(WriteError, _)) => ()
+    Err(@cairoon.CairoIOError(@cairoon.WriteError, _)) => ()
     _ => @test.fail("expected WriteError from script stream writer")
   }
 }
 
 ///|
 test "image surfaces report no device" {
-  let surface = Surface::image(Argb32, 10, 10)
+  let surface = @cairoon.Surface::image(@cairoon.Argb32, 10, 10)
   inspect(surface.get_device() is None, content="true")
 }
 
 ///|
 test "script device lifecycle and surface device references" {
-  let device = Device::script("/tmp/cairoon_script_device_lifecycle.cs")
+  let device = @cairoon.Device::script(
+    "/tmp/cairoon_script_device_lifecycle.cs",
+  )
   debug_inspect(device.status(), content="Success")
   debug_inspect(device.get_type(), content="DeviceTypeScript")
 
@@ -87,14 +98,19 @@ test "script device lifecycle and surface device references" {
   debug_inspect(acquired_type, content="DeviceTypeScript")
 
   debug_inspect(device.script_get_mode(), content="ScriptModeAscii")
-  device.script_set_mode(ScriptModeBinary)
+  device.script_set_mode(@cairoon.ScriptModeBinary)
   debug_inspect(device.script_get_mode(), content="ScriptModeBinary")
-  device.script_set_mode(ScriptModeAscii)
+  device.script_set_mode(@cairoon.ScriptModeAscii)
   device.script_write_comment("cairoon script device")
 
-  let surface = Surface::script(device, ContentColorAlpha, 42.0, 10.0)
+  let surface = @cairoon.Surface::script(
+    device,
+    @cairoon.ContentColorAlpha,
+    42.0,
+    10.0,
+  )
   debug_inspect(surface.get_type(), content="SurfaceTypeScript")
-  let ctx = Context::new(surface)
+  let ctx = @cairoon.Context::new(surface)
   ctx.set_source_rgb(1.0, 0.0, 0.0)
   ctx.paint()
   surface.flush()
@@ -110,42 +126,49 @@ test "script device lifecycle and surface device references" {
 
   device.flush()
   device.finish()
-  expect_device_finished(run_cairo(() => device.acquire()))
+  expect_device_finished(@cairoon.run_cairo(() => device.acquire()))
 }
 
 ///|
 test "script device with_finished finishes after success and cairo errors" {
-  let device = Device::script("/tmp/cairoon_script_device_with_finished.cs")
+  let device = @cairoon.Device::script(
+    "/tmp/cairoon_script_device_with_finished.cs",
+  )
   let type_ = device.with_finished(() => {
     device.script_write_comment("cairoon scoped device")
     device.get_type()
   })
   debug_inspect(type_, content="DeviceTypeScript")
-  expect_device_finished(run_cairo(() => device.acquire()))
+  expect_device_finished(@cairoon.run_cairo(() => device.acquire()))
 
-  let failed = Device::script(
+  let failed = @cairoon.Device::script(
     "/tmp/cairoon_script_device_with_finished_error.cs",
   )
   expect_device_invalid_string(
-    run_cairo(() => {
+    @cairoon.run_cairo(() => {
       failed.with_finished(() => failed.script_write_comment("bad\u{0}comment"))
     }),
   )
-  expect_device_finished(run_cairo(() => failed.acquire()))
+  expect_device_finished(@cairoon.run_cairo(() => failed.acquire()))
 }
 
 ///|
 test "script stream device writes output chunks" {
   let chunks : Array[Bytes] = []
-  let device = Device::script_stream(fn(chunk) {
+  let device = @cairoon.Device::script_stream(fn(chunk) {
     chunks.push(chunk)
-    Success
+    @cairoon.Success
   })
   debug_inspect(device.get_type(), content="DeviceTypeScript")
   device.script_write_comment("cairoon script stream")
 
-  let surface = Surface::script(device, ContentColorAlpha, 4.0, 4.0)
-  let ctx = Context::new(surface)
+  let surface = @cairoon.Surface::script(
+    device,
+    @cairoon.ContentColorAlpha,
+    4.0,
+    4.0,
+  )
+  let ctx = @cairoon.Context::new(surface)
   ctx.set_source_rgb(1.0, 0.0, 0.0)
   ctx.paint()
   surface.finish()
@@ -160,48 +183,50 @@ test "script stream device writes output chunks" {
 
 ///|
 test "script stream writer status maps to cairo IO error" {
-  expect_script_stream_write_error(WriteError)
+  expect_script_stream_write_error(@cairoon.WriteError)
 }
 
 ///|
 test "script stream writer invalid status maps to write error" {
-  expect_script_stream_write_error(LastStatus)
+  expect_script_stream_write_error(@cairoon.LastStatus)
 }
 
 ///|
 test "script device validates strings and recording replay surface type" {
   expect_device_invalid_string(
-    run_cairo(() => {
-      let _ = Device::script("/tmp/cairoon\u{0}bad.cs")
+    @cairoon.run_cairo(() => {
+      let _ = @cairoon.Device::script("/tmp/cairoon\u{0}bad.cs")
       ()
     }),
   )
 
-  let device = Device::script("/tmp/cairoon_script_device_recording.cs")
+  let device = @cairoon.Device::script(
+    "/tmp/cairoon_script_device_recording.cs",
+  )
   expect_device_invalid_string(
-    run_cairo(() => device.script_write_comment("bad\u{0}comment")),
+    @cairoon.run_cairo(() => device.script_write_comment("bad\u{0}comment")),
   )
 
-  let recording = Surface::recording(ContentColorAlpha)
-  let recorder = Context::new(recording)
+  let recording = @cairoon.Surface::recording(@cairoon.ContentColorAlpha)
+  let recorder = @cairoon.Context::new(recording)
   recorder.set_source_rgb(0.0, 0.0, 1.0)
   recorder.paint()
   device.script_from_recording_surface(recording)
 
-  let image = Surface::image(Argb32, 1, 1)
+  let image = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
   expect_device_surface_type_mismatch(
-    run_cairo(() => device.script_from_recording_surface(image)),
+    @cairoon.run_cairo(() => device.script_from_recording_surface(image)),
   )
 }
 
 ///|
 test "script surface create_for_target wraps and paints target" {
-  let device = Device::script("/tmp/cairoon_script_surface_target.cs")
-  let target = Surface::image(Argb32, 1, 1)
-  let surface = Surface::script_for_target(device, target)
+  let device = @cairoon.Device::script("/tmp/cairoon_script_surface_target.cs")
+  let target = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let surface = @cairoon.Surface::script_for_target(device, target)
   debug_inspect(surface.get_type(), content="SurfaceTypeScript")
 
-  let ctx = Context::new(surface)
+  let ctx = @cairoon.Context::new(surface)
   ctx.set_source_rgba(0.0, 1.0, 0.0, 1.0)
   ctx.paint()
   surface.flush()
@@ -216,24 +241,30 @@ test "script surface create_for_target wraps and paints target" {
 
 ///|
 test "script surface accepts pycairo raw content ints" {
-  let device = Device::script("/tmp/cairoon_script_surface_raw_content.cs")
-  let surface = Surface::script_raw(device, 0x1000, 2.0, 2.0)
+  let device = @cairoon.Device::script(
+    "/tmp/cairoon_script_surface_raw_content.cs",
+  )
+  let surface = @cairoon.Surface::script_raw(device, 0x1000, 2.0, 2.0)
   debug_inspect(surface.get_type(), content="SurfaceTypeScript")
   inspect(surface.get_content_raw(), content="4096")
   debug_inspect(surface.get_content(), content="ContentColor")
 
   expect_script_surface_invalid_content(
-    run_cairo(() => {
-      let failing = Device::script("/tmp/cairoon_script_surface_bad_content.cs")
-      Surface::script_raw(failing, 0, 2.0, 2.0)
+    @cairoon.run_cairo(() => {
+      let failing = @cairoon.Device::script(
+        "/tmp/cairoon_script_surface_bad_content.cs",
+      )
+      @cairoon.Surface::script_raw(failing, 0, 2.0, 2.0)
     }),
   )
 }
 
 ///|
-fn script_surface_from_local_device() -> Surface raise CairoError {
-  let device = Device::script("/tmp/cairoon_script_surface_local_device.cs")
-  Surface::script(device, ContentColorAlpha, 2.0, 2.0)
+fn script_surface_from_local_device() -> @cairoon.Surface raise @cairoon.CairoError {
+  let device = @cairoon.Device::script(
+    "/tmp/cairoon_script_surface_local_device.cs",
+  )
+  @cairoon.Surface::script(device, @cairoon.ContentColorAlpha, 2.0, 2.0)
 }
 
 ///|

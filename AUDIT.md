@@ -62,6 +62,12 @@ Implemented in this workspace:
   font-option/font-face round trips, ScaledFont construction, matrix queries,
   text extents, invalid-string handling, and context error propagation through
   the published package seam; ScaledFont C-oracle tests remain white-box.
+- Stream/device black-box tests now live in `src/tests/stream`, importing only
+  the public `caimeo/cairoon` API. This validates PDF/PS/SVG/PNG stream
+  writers/readers, callback chunk retention, script devices, script surfaces,
+  device lifetime helpers, raw script content mapping, and stream error mapping
+  through the published package seam; backend stream oracle tests remain
+  white-box.
 - C FFI glue split by Cairo object family, following pycairo's
   `private.h` plus per-family C file architecture. GC-managed external objects
   currently cover `Surface`, `MappedImageSurface`, `ImageData`, `Context`,

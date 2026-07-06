@@ -44,7 +44,6 @@ targeted_tests=(
   scaled_font_oracle_wbtest.mbt
   vector_output_wbtest.mbt
   vector_output_oracle_wbtest.mbt
-  surface_stream_test.mbt
   surface_stream_wbtest.mbt
   surface_stream_backend_wbtest.mbt
   surface_stream_combo_wbtest.mbt
@@ -55,7 +54,6 @@ targeted_tests=(
   surface_stream_lifecycle_wbtest.mbt
   surface_stream_oracle_wbtest.mbt
   surface_stream_tag_wbtest.mbt
-  device_test.mbt
   object_traits_test.mbt
   context_lifetime_test.mbt
   path_test.mbt
