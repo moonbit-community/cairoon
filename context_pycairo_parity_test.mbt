@@ -98,6 +98,17 @@ test "context line in_stroke mirrors pycairo fixture" {
 }
 
 ///|
+test "context current point mirrors pycairo fixture" {
+  let ctx = Context::new(pycairo_context_surface(42, 42))
+  inspect(ctx.has_current_point(), content="false")
+  assert_pycairo_context_point_close(ctx.get_current_point(), (0.0, 0.0))
+
+  ctx.move_to(10.0, 10.0)
+  inspect(ctx.has_current_point(), content="true")
+  assert_pycairo_context_point_close(ctx.get_current_point(), (10.0, 10.0))
+}
+
+///|
 test "context empty stroke_extents mirror pycairo fixture" {
   let ctx = Context::new(pycairo_context_surface(42, 42))
   assert_pycairo_context_extents_close(
@@ -118,6 +129,62 @@ test "context default coordinate conversions mirror pycairo zero fixture" {
   assert_pycairo_context_point_close(
     ctx.user_to_device_distance(0.0, 0.0),
     (0.0, 0.0),
+  )
+}
+
+///|
+test "context dash state mirrors pycairo fixture" {
+  let ctx = Context::new(pycairo_context_surface(42, 42))
+  inspect(ctx.get_dash_count(), content="0")
+  let (empty_dashes, empty_offset) = ctx.get_dash()
+  inspect(empty_dashes.length(), content="0")
+  inspect(empty_offset, content="0")
+
+  ctx.set_dash([0.0, 1.0, 2.0, 3.0], offset=10.0)
+  inspect(ctx.get_dash_count(), content="4")
+  let (dashes, offset) = ctx.get_dash()
+  inspect(dashes.length(), content="4")
+  inspect(dashes[0], content="0")
+  inspect(dashes[1], content="1")
+  inspect(dashes[2], content="2")
+  inspect(dashes[3], content="3")
+  inspect(offset, content="4")
+
+  ctx.set_dash([1.0], offset=1.25)
+  let (single_dash, single_offset) = ctx.get_dash()
+  inspect(single_dash.length(), content="1")
+  inspect(single_dash[0], content="1")
+  inspect(single_offset, content="1.25")
+}
+
+///|
+test "context scalar setters mirror pycairo numeric fixtures" {
+  let ctx = Context::new(pycairo_context_surface(42, 42))
+
+  ctx.set_line_width(42.0)
+  assert_pycairo_context_close(ctx.get_line_width(), 42.0)
+
+  ctx.set_miter_limit(42.0)
+  assert_pycairo_context_close(ctx.get_miter_limit(), 42.0)
+
+  ctx.set_tolerance(42.0)
+  assert_pycairo_context_close(ctx.get_tolerance(), 42.0)
+}
+
+///|
+test "context source rgba mirrors pycairo fixture" {
+  let ctx = Context::new(pycairo_context_surface(42, 42))
+
+  ctx.set_source_rgba(1.0, 1.0, 1.0, 1.0)
+  assert_pycairo_context_extents_close(
+    ctx.get_source().get_rgba(),
+    (1.0, 1.0, 1.0, 1.0),
+  )
+
+  ctx.set_source_rgba(1.0, 1.0, 1.0, 0.5)
+  assert_pycairo_context_extents_close(
+    ctx.get_source().get_rgba(),
+    (1.0, 1.0, 1.0, 0.5),
   )
 }
 

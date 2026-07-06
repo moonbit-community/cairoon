@@ -423,7 +423,7 @@ Implemented in this workspace:
 
 ## Last Verified
 
-2026-07-02, 2026-07-03, 2026-07-04, and 2026-07-05:
+2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, and 2026-07-06:
 
 - `./scripts/verify.sh`: passed. The local reliability gate ran
   `moon fmt --check`, `scripts/configure-link-flags.sh --check`,
@@ -611,11 +611,13 @@ Implemented in this workspace:
   path copy/append independence, pycairo-style append string
   equivalence after clearing the source context, flattened append behavior, and
   path error propagation.
-- `moon -C cairoon test context_pycairo_parity_test.mbt --target native -v`: 8
+- `moon -C cairoon test context_pycairo_parity_test.mbt --target native -v`: 12
   black-box Context pycairo parity tests passed, covering the 42x42 default
   clip-extents fixture, zero-radius `arc`/`arc_negative` non-empty paths,
   polygon `path_extents`, line `in_stroke`, empty `stroke_extents`, default
-  user/device coordinate conversions, empty `select_font_face("")`, and
+  user/device coordinate conversions, dash offset normalization,
+  current-point state, scalar line-width/miter-limit/tolerance setters,
+  source RGBA round trips, empty `select_font_face("")`, and
   `set_font_size(42)` font-matrix fixtures.
 - `moon -C cairoon test context_group_test.mbt --target native -v`: 4
   black-box Context group tests passed, covering `push_group`, `pop_group`,
@@ -2530,6 +2532,12 @@ Implemented in this workspace:
   `set_font_size(42)` font matrix. It is included in the targeted normal and
   ASan verification gates, raises that parity file to 8 tests, and raises the
   expected full native suite to 467 tests.
+  A later Context pycairo state/source fixture slice extended
+  `context_pycairo_parity_test.mbt`, covering pycairo's current-point,
+  dash-offset normalization, scalar line-width/miter-limit/tolerance setter,
+  and source RGBA round-trip fixtures. It is included in the targeted normal
+  and ASan verification gates, raises that parity file to 12 tests, and raises
+  the expected full native suite to 489 tests.
   A later Pattern raw-extend parity slice added
   `Pattern::set_extend_raw`/`Pattern::get_extend_raw`, covering pycairo's
   C-int extend passthrough for `42` while keeping typed `Pattern::get_extend`
