@@ -489,7 +489,7 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, and 2026-07-06:
   the backend lifecycle-matrix differential slice,
   the backend tag-matrix differential slice,
   the resized backend page-sequence combo slice,
-  the backend deep tag tree differential slice,
+  the backend deep tag tree file/stream direct-oracle differential slice,
   the backend nested tag/page sequence slice,
   the backend surface-page feature/tag combo slice,
   the Context drawing-state all-enum round-trip slice,
@@ -735,6 +735,11 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, and 2026-07-06:
   after normalization, and checking PS/SVG file and stream negative
   tag-metadata markers for a two-page scene with `Document`/`Part`/`Sect`/
   `Div`/`P`/`Span`/`Figure`/`Table`/`TR`/`TH`/`TD` structure tags.
+- `moon -C cairoon test src/tests/oracle/vector_backend/surface_stream_oracle_test.mbt
+  --target native -v`: 3 white-box stream-to-direct-C oracle tests passed,
+  with the backend feature stream dispatcher now including scene 45 so the
+  deep tag tree PDF/PS/SVG stream callback output is compared with normalized
+  direct C Cairo oracle files.
 - `moon -C cairoon test surface_stream_page_sequence_wbtest.mbt --target
   native -v`: 4 white-box backend resized page-sequence tests passed,
   comparing PDF/PS/SVG file output with stream output after normalized
@@ -2751,19 +2756,19 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, and 2026-07-06:
   `surface_context_test.mbt` to 21 tests and the current full native suite to
   483 tests.
   A later backend stream-to-direct-oracle differential slice added
-  `surface_stream_oracle_wbtest.mbt`, comparing PDF/PS/SVG stream callback
+  `surface_stream_oracle_test.mbt`, comparing PDF/PS/SVG stream callback
   output for scenes 35 through 40 directly against normalized direct C Cairo
   oracle files. This covers the backend stream-combo, surface-page combo,
   nested-tag, resized page-sequence, tag-matrix, and lifecycle-matrix fixtures
   through the callback path, adds the file to the targeted normal/ASan verify
   gate, and raises the current full native suite to 484 tests.
   A later tag-heavy stream-to-direct-oracle differential slice extended
-  `surface_stream_oracle_wbtest.mbt` with matched 10x10 stream surfaces for
+  `surface_stream_oracle_test.mbt` with matched 10x10 stream surfaces for
   scenes 15 through 17 and 22 through 30, comparing PDF/PS/SVG stream callback
   output directly with normalized direct C Cairo oracle files for URI-link,
   destination-link, document-structure, text-tag, tagged multi-page,
   mixed-tag/text, layered, wide, `show_text_glyphs`, and grouped glyph/tag
-  vector scenes. It raises `surface_stream_oracle_wbtest.mbt` to 2 tests and
+  vector scenes. It raises `surface_stream_oracle_test.mbt` to 2 tests and
   the current full native suite to 485 tests.
   A later tagged font-matrix text differential slice added scene 43 in the
   focused `cairoon_test_vector_text_state_scenes.c` oracle file, covering
@@ -2782,6 +2787,13 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, and 2026-07-06:
   stream-vs-direct-C equality through the backend oracle dispatcher, stable
   PDF/PS/SVG marker checks, and PS/SVG file/stream negative PDF-metadata
   checks, raising the vector-backend package to 122 tests.
+  A later deep tag stream-to-direct-C oracle slice extended
+  `surface_stream_oracle_test.mbt` so backend scene 45 is rendered through
+  PDF/PS/SVG stream callbacks and compared against normalized direct C Cairo
+  oracle files. This strengthens the deep tag tree fixture from PDF stream
+  marker coverage plus PS/SVG stream-vs-file equality to full cross-backend
+  stream-to-direct-C differential coverage without changing the public API or
+  total test count.
 
 Remaining reliability work is now narrower and should be tracked as evidence,
 not as an unstructured checklist:
