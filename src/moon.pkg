@@ -4,6 +4,7 @@ import {
   "caimeo/cairoon/internal/pdf" @pdf_impl,
   "caimeo/cairoon/internal/ps" @ps_impl,
   "caimeo/cairoon/internal/status" @status_impl,
+  "caimeo/cairoon/internal/stream" @stream_impl,
   "caimeo/cairoon/internal/svg" @svg_impl,
   "caimeo/cairoon/internal/version" @version_impl,
   "caimeo/cairoon/native",

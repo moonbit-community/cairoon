@@ -13,7 +13,7 @@ pub fn Device::script_stream(
 ) -> Device raise CairoError {
   let status = Ref(Success)
   let device = script_device_create_for_stream_ffi(
-    fn(chunk, writer) { writer(copy_stream_chunk(chunk)) },
+    fn(chunk, writer) { writer(@stream_impl.copy_chunk(chunk)) },
     writer,
     status,
   )

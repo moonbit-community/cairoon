@@ -415,12 +415,14 @@ is `src/internal/ps`: it owns raw PostScript level query/string helpers while
 `src/ps_surface.mbt` keeps public `PSLevel` constructors and object-surface
 wrappers. The sixth accepted probe is `src/internal/svg`: it owns raw SVG
 version query/string helpers while `src/svg_surface.mbt` keeps public
-`SVGVersion` constructors and object-surface wrappers. Keep enum constructors
-in the facade unless a compatibility proof shows that `@cairoon.<Constructor>`
-syntax survives. Any internal package that
+`SVGVersion` constructors and object-surface wrappers. The seventh accepted
+probe is `src/internal/stream`: it owns pure stream callback chunk-copy helpers
+while public PDF, PS, SVG, PNG, and script-device stream wrappers stay in the
+facade. Keep enum constructors in the facade unless a compatibility proof shows
+that `@cairoon.<Constructor>` syntax survives. Any internal package that
 imports `caimeo/cairoon/native` must carry Cairo `cc-link-flags` and
-package-local tests so
-`moon test src/internal/<family> --target native` links independently.
+package-local tests so `moon test src/internal/<family> --target native` links
+independently.
 
 Do not move a type whose methods raise `CairoError` into a subpackage until the
 error/status family has its own proven non-cyclic package seam. A child package
@@ -440,7 +442,10 @@ extents in the facade until their error dependencies can move with them or a
 wrapper design is proven. Backend helper packages such as `src/internal/pdf`,
 `src/internal/ps`, and `src/internal/svg`
 must not pull object wrapper types such as `Surface` into child packages until
-the corresponding object family seam is proven.
+the corresponding object family seam is proven. Pure internal helper packages
+such as `src/internal/stream` may expose small public helper functions to the
+facade when they have no dependency on facade-owned types, enum constructors,
+or `CairoError` suberrors.
 
 The public package root is frozen migration debt. Do not add new source-like
 files directly under `src/`; put new implementation in the package selected by

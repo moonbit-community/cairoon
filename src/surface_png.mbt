@@ -41,7 +41,7 @@ pub fn Surface::write_to_png_stream(
   check_status(
     surface_write_to_png_stream_ffi(
       self,
-      fn(chunk, writer) { writer(copy_stream_chunk(chunk)) },
+      fn(chunk, writer) { writer(@stream_impl.copy_chunk(chunk)) },
       writer,
     ),
   )

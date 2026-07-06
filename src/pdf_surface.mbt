@@ -25,7 +25,7 @@ pub fn Surface::pdf_stream(
 ) -> Surface raise CairoError {
   let status = Ref(Success)
   let surface = pdf_surface_create_for_stream_ffi(
-    fn(chunk, writer) { writer(copy_stream_chunk(chunk)) },
+    fn(chunk, writer) { writer(@stream_impl.copy_chunk(chunk)) },
     writer,
     width_in_points,
     height_in_points,

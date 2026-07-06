@@ -71,7 +71,6 @@ region.mbt
 region.mbt.md
 scaled_font.mbt
 status.mbt
-stream_callback.mbt
 surface.mbt
 surface.mbt.md
 surface_font_options.mbt
