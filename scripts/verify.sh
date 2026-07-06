@@ -3,6 +3,7 @@ set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$repo_root"
+package_root="src"
 
 run() {
   printf '\n+'
@@ -80,7 +81,7 @@ targeted_tests=(
 )
 
 for test_file in "${targeted_tests[@]}"; do
-  run moon test "$test_file" --target native -v
+  run moon test "$package_root/$test_file" --target native -v
 done
 
 run moon test --target native
@@ -101,7 +102,7 @@ if [[ "$asan_mode" != "0" ]]; then
         "MOON_CC=$clang_path" \
         "MOON_AR=$moon_ar" \
         "ASAN_OPTIONS=$asan_options" \
-        moon test "$test_file" --target native -v
+        moon test "$package_root/$test_file" --target native -v
     done
   else
     printf '\nSkipping targeted ASan: set MOON_CC to an ASan-capable clang, or set CAIROON_VERIFY_ASAN=0 to silence this message.\n'

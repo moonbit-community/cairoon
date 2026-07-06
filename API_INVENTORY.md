@@ -6,7 +6,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 
 ## Legend
 
-- Done: implemented, tested, documented, and included in `pkg.generated.mbti`.
+- Done: implemented, tested, documented, and included in `src/pkg.generated.mbti`.
 - Partial: some API or behavior exists, but feature parity is not proven.
 - Todo: no MoonBit binding yet.
 - Decision: product scope or platform policy must be pinned before
@@ -16,7 +16,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 
 | Area | Status | Evidence |
 |---|---|---|
-| MoonBit package setup | Done | `moon.mod`, `moon.pkg`, native Cairo link flags refreshed from `pkg-config` by `scripts/configure-link-flags.sh`, pycairo-style split C stubs with `cairoon_misc.c` limited to module-level helpers, Surface C glue and raw FFI split by base/png/mime/state/font-options/image/mapped-image/recording/backend files, Pattern C glue and raw FFI split by base-gradient/mesh/raster-source-public/raster-source-callback-owner files, Font C glue and raw FFI split by font-options/font-face/scaled-font/text-to-glyphs/oracle files, Context C glue split by core/font-text/matrix/state/path/clip-extents/paint families, test-only oracle glue split into common/file/vector-entry/vector-scenes/vector-tag-scenes/backend-combo/backend-tag-matrix/PDF-vector/PS-vector/SVG-vector/image C files, Context MoonBit wrappers split by core/font-text/matrix/state/path/clip-paint families, Surface MoonBit wrappers split by core/image/png/mime/state/font-options/recording/tee families, Pattern MoonBit wrappers split by core/gradient/mesh/raster-source families, vector-output white-box MoonBit helpers/tests split into common/scene-dispatch/scene-pattern/scene-tag/marker/oracle files, and stream-equivalence white-box helpers/tests split into helper/base-vector/backend-feature/tag-heavy files |
+| MoonBit package setup | Done | `moon.mod` uses `source = "src"` with the public package in `src/moon.pkg`, native Cairo link flags refreshed from `pkg-config` by `scripts/configure-link-flags.sh`, pycairo-style split C stubs with `cairoon_misc.c` limited to module-level helpers, Surface C glue and raw FFI split by base/png/mime/state/font-options/image/mapped-image/recording/backend files, Pattern C glue and raw FFI split by base-gradient/mesh/raster-source-public/raster-source-callback-owner files, Font C glue and raw FFI split by font-options/font-face/scaled-font/text-to-glyphs/oracle files, Context C glue split by core/font-text/matrix/state/path/clip-extents/paint families, test-only oracle glue split into common/file/vector-entry/vector-scenes/vector-tag-scenes/backend-combo/backend-tag-matrix/PDF-vector/PS-vector/SVG-vector/image C files, Context MoonBit wrappers split by core/font-text/matrix/state/path/clip-paint families, Surface MoonBit wrappers split by core/image/png/mime/state/font-options/recording/tee families, Pattern MoonBit wrappers split by core/gradient/mesh/raster-source families, vector-output white-box MoonBit helpers/tests split into common/scene-dispatch/scene-pattern/scene-tag/marker/oracle files, and stream-equivalence white-box helpers/tests split into helper/base-vector/backend-feature/tag-heavy files |
 | Version helpers and module constants | Done | `cairo_version`, `cairo_version_string`, `CAIRO_VERSION*`, `HAS_*`, `MIME_TYPE_*`, tag constants, `PDF_OUTLINE_ROOT`, `FORMAT_INVALID`, and `COLOR_PALETTE_DEFAULT` |
 | Status and error mapping | Done | `Status`, `CairoError`, `run_cairo`, and exhaustive status-classification tests; MoonBit intentionally splits invalid-argument statuses into `CairoInvalidArgument` |
 | Matrix | Done | Pure value equivalent with field access, transform/translate/scale/rotate/multiply/invert/component tests, deterministic property tests for multiplication associativity, inverse identity, composed point/distance transforms, distance-vs-point-delta behavior, and executable reference docs |
@@ -38,7 +38,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 
 | Slice | Status | Notes |
 |---|---|---|
-| Top-level and portable method inventory parity | Done | Extends `scripts/check-api-inventory.py` in `scripts/verify.sh`; the script parses parent `cairo/__init__.pyi`, requires every public top-level pycairo class/function to have an implementation or explicit product-decision anchor in this inventory, and requires every portable pycairo class method in the first-product scope to have a public MoonBit API anchor in `pkg.generated.mbti` |
+| Top-level and portable method inventory parity | Done | Extends `scripts/check-api-inventory.py` in `scripts/verify.sh`; the script parses parent `cairo/__init__.pyi`, requires every public top-level pycairo class/function to have an implementation or explicit product-decision anchor in this inventory, and requires every portable pycairo class method in the first-product scope to have a public MoonBit API anchor in `src/pkg.generated.mbti` |
 | FFI ownership annotation lint | Done | Adds `scripts/check-ffi-ownership.py` and wires it into `scripts/verify.sh`, so every non-primitive raw C FFI parameter in `ffi*.mbt` must be covered by `#borrow` or `#owned`; fixes the existing stream and raster-source callback trampoline annotations caught by the lint |
 | Reliability ledger lint | Done | Adds `scripts/check-reliability-ledger.py` and wires it into `scripts/verify.sh`, so migration status rows use only the accepted statuses, `Partial` rows state their remaining gaps explicitly, the TESTING scorecard keeps all required reliability dimensions, and CI continues to run the native/ASan verify gates |
 | Backend combo deep structure tags | Done | Broadens the existing backend feature/tag stream-combo scene with a third PDF outline and nested Document/Sect/H1/P/Span structure tags, keeping file-vs-stream equality, direct C oracle comparison, PDF marker checks, and PS/SVG inertness checks on the same scene |
@@ -275,7 +275,7 @@ Detailed execution rules live in `TESTING.md`.
 - `scripts/check-api-inventory.py` must pass; every public top-level entry in
   parent `cairo/__init__.pyi` must have an implementation or product-decision
   anchor in this file, and every portable pycairo class method must have a
-  public MoonBit API anchor in `pkg.generated.mbti`.
+  public MoonBit API anchor in `src/pkg.generated.mbti`.
 - Each Done row must have black-box MoonBit tests and, where rendering is
   involved, deterministic pixel or vector-output assertions.
 - Rendering APIs must gain differential tests against pycairo or Cairo C
@@ -284,4 +284,4 @@ Detailed execution rules live in `TESTING.md`.
   non-primitive C FFI parameter must be covered by `#borrow` or `#owned`.
 - Every C-owned object must have an ASan/LSan run that exercises construction,
   normal use, error paths, and finalization.
-- Public API changes must regenerate and review `pkg.generated.mbti`.
+- Public API changes must regenerate and review `src/pkg.generated.mbti`.

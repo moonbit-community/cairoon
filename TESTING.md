@@ -39,7 +39,7 @@ Do not treat it as sufficient because:
 A cairoon API row may move to `Done` in `API_INVENTORY.md` only when all
 applicable gates below pass.
 
-1. API shape: the public API appears in `pkg.generated.mbti`, has no raw
+1. API shape: the public API appears in `src/pkg.generated.mbti`, has no raw
    pointer exposure, and follows the object/value mapping in `AGENTS.md`.
 2. Status and error behavior: every Cairo status reachable from the wrapper is
    mapped through `Status` and `CairoError` or is documented as unreachable.
@@ -70,7 +70,7 @@ Evaluate each slice with this scorecard:
 
 | Dimension | Required Evidence | Current State |
 |---|---|---|
-| API surface | Public entries appear in `pkg.generated.mbti`; Python-only pycairo APIs are recorded as `Decision`; `scripts/check-api-inventory.py` passes against parent `cairo/__init__.pyi` | Strong for current portable APIs; all pycairo public top-level entries have an inventory anchor, and 255 portable class methods are mapped to public MoonBit API anchors |
+| API surface | Public entries appear in `src/pkg.generated.mbti`; Python-only pycairo APIs are recorded as `Decision`; `scripts/check-api-inventory.py` passes against parent `cairo/__init__.pyi` | Strong for current portable APIs; all pycairo public top-level entries have an inventory anchor, and 255 portable class methods are mapped to public MoonBit API anchors |
 | Reliability ledger | `API_INVENTORY.md` statuses are `Done`, `Partial`, or `Decision`; every `Partial` row names its remaining gap; this scorecard and CI/verify gate are checked by `scripts/check-reliability-ledger.py` | Strong for current migrated slices; the lint runs in the local and CI verify gate, and any future full-product claim still requires zero `Todo`/`Partial` rows |
 | FFI boundary safety | Raw `ffi*.mbt` declarations mark every non-primitive C FFI parameter with `#borrow` or `#owned`, and `scripts/check-ffi-ownership.py` passes | Strong for current raw externs; the lint runs in the local and CI verify gate |
 | Behavioral parity | pycairo-derived black-box cases or direct C Cairo primitive oracles cover normal and invalid inputs | Strong for image, context, path, font, pattern, region, surface/device, and backend helpers already listed in the inventory |
@@ -103,7 +103,7 @@ moon -C cairoon check --target native
 moon -C cairoon info --target native
 ```
 
-Review `pkg.generated.mbti` after `moon info`. Public additions, `raise`
+Review `src/pkg.generated.mbti` after `moon info`. Public additions, `raise`
 annotations, and enum constructors must match the intended API.
 Run `scripts/configure-link-flags.sh --check` before native checks when the
 system Cairo installation may have changed. Run `scripts/check-api-inventory.py`
@@ -150,7 +150,7 @@ Run ASan/LSan after every C stub or finalizer change:
 ```sh
 python3 /Users/caimeo/.codex/skills/moonbit/moonbit-c-binding/scripts/run-asan.py \
   --repo-root /Users/caimeo/code/pycairo/cairoon \
-  --pkg moon.pkg
+  --pkg src/moon.pkg
 ```
 
 Memory tests must cover:
@@ -196,7 +196,7 @@ A release candidate must pass on all supported platforms:
 - ASan/LSan native test run
 - Differential pycairo/C oracle suite
 - API inventory audit
-- generated `pkg.generated.mbti` review
+- generated `src/pkg.generated.mbti` review
 
 The current local gate is executable as:
 

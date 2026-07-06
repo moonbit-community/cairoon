@@ -2,7 +2,7 @@ name = "caimeo/cairoon"
 
 version = "0.1.0"
 
-readme = "README.mbt.md"
+readme = "src/README.mbt.md"
 
 repository = ""
 
@@ -13,3 +13,5 @@ keywords = [ "cairo", "graphics", "ffi" ]
 description = "MoonBit native bindings for the Cairo graphics library."
 
 preferred_target = "native"
+
+source = "src"

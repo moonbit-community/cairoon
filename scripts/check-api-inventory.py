@@ -11,7 +11,7 @@ import sys
 REPO_ROOT = pathlib.Path(__file__).resolve().parents[1]
 PYCAIRO_STUB = REPO_ROOT.parent / "cairo" / "__init__.pyi"
 INVENTORY = REPO_ROOT / "API_INVENTORY.md"
-GENERATED_MBTI = REPO_ROOT / "pkg.generated.mbti"
+GENERATED_MBTI = REPO_ROOT / "src" / "pkg.generated.mbti"
 
 # Each public top-level pycairo class/function must have at least one inventory
 # anchor recording either its cairoon implementation or an explicit product

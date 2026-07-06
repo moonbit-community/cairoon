@@ -8,8 +8,10 @@ import sys
 
 
 REPO_ROOT = pathlib.Path(__file__).resolve().parents[1]
+PACKAGE_ROOT = REPO_ROOT / "src"
 ALLOWLIST = REPO_ROOT / "scripts" / "root-layout-allowlist.txt"
 LAYOUT_DOC = REPO_ROOT / "PROJECT_LAYOUT.md"
+MOON_MOD = REPO_ROOT / "moon.mod"
 SOURCE_SUFFIXES = (".mbt.md", ".mbti", ".mbt", ".c", ".h")
 
 
@@ -48,6 +50,22 @@ def check_root_freeze(allowed: set[str]) -> list[str]:
     return errors
 
 
+def check_source_root() -> list[str]:
+    errors: list[str] = []
+    if not (PACKAGE_ROOT / "moon.pkg").exists():
+        errors.append("src/moon.pkg: missing public package config")
+    if (REPO_ROOT / "moon.pkg").exists():
+        errors.append("moon.pkg: root package config is forbidden; use src/moon.pkg")
+    if not (PACKAGE_ROOT / "pkg.generated.mbti").exists():
+        errors.append("src/pkg.generated.mbti: missing generated public interface")
+    moon_mod = MOON_MOD.read_text(encoding="utf-8") if MOON_MOD.exists() else ""
+    if 'source = "src"' not in moon_mod:
+        errors.append('moon.mod: missing source = "src"')
+    if 'readme = "src/README.mbt.md"' not in moon_mod:
+        errors.append('moon.mod: readme must point at src/README.mbt.md')
+    return errors
+
+
 def check_nested_c_files() -> list[str]:
     errors: list[str] = []
     for path in sorted(REPO_ROOT.rglob("*")):
@@ -71,6 +89,8 @@ def main() -> int:
         errors.append(f"{LAYOUT_DOC}: missing package layout plan")
     if not ALLOWLIST.exists():
         errors.append(f"{ALLOWLIST}: missing root source allowlist")
+    if not MOON_MOD.exists():
+        errors.append(f"{MOON_MOD}: missing module config")
     if errors:
         for error in errors:
             print(error, file=sys.stderr)
@@ -83,6 +103,7 @@ def main() -> int:
         return 1
 
     errors.extend(check_root_freeze(allowed))
+    errors.extend(check_source_root())
     errors.extend(check_nested_c_files())
     if errors:
         for error in errors:
@@ -96,7 +117,7 @@ def main() -> int:
     }
     print(
         "Project layout ok; "
-        f"{len(current)} grandfathered root source files remain"
+        f"{len(current)} allowlisted root source files remain"
     )
     return 0
 

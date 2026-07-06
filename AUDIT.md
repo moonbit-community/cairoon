@@ -4,9 +4,9 @@
 
 Implemented in this workspace:
 
-- MoonBit native package initialization with `moon.mod` and `moon.pkg`.
+- MoonBit native package initialization with `moon.mod` and `src/moon.pkg`.
 - System Cairo 1.18.4 linkage through `pkg-config`-derived flags, with
-  `scripts/configure-link-flags.sh` to refresh `moon.pkg` and
+  `scripts/configure-link-flags.sh` to refresh `src/moon.pkg` and
   `scripts/configure-link-flags.sh --check` in the local reliability gate.
 - Static raw FFI ownership linting through
   `scripts/check-ffi-ownership.py`, wired into `scripts/verify.sh`, so every
@@ -17,7 +17,7 @@ Implemented in this workspace:
   public class/function in parent `cairo/__init__.pyi` must have an
   implementation or explicit product-decision anchor in `API_INVENTORY.md`, and
   every portable pycairo class method in the first-product scope must have a
-  public MoonBit API anchor in `pkg.generated.mbti`.
+  public MoonBit API anchor in `src/pkg.generated.mbti`.
 - Static reliability-ledger linting through
   `scripts/check-reliability-ledger.py`, wired into `scripts/verify.sh`, so
   migration status rows use accepted statuses, `Partial` rows state remaining
@@ -2592,10 +2592,13 @@ Prior full verifies passed on 2026-07-02, 2026-07-03, 2026-07-04,
   tests, and raises the expected full native suite to 508 tests.
   A later package-layout management slice added `PROJECT_LAYOUT.md`,
   `scripts/check-project-layout.py`, and the root source allowlist. It records
-  the current single-package root as migration debt, forbids new root-level
-  source/test/C/doc source files outside the grandfathered allowlist, documents
-  the `src/`/`tests/`/oracle migration order, and adds the layout check to the
-  local reliability gate before native compilation.
+  the then-current single-package root as migration debt, forbids new
+  root-level source/test/C/doc source files, documents the
+  `src/`/`tests/`/oracle migration order, and adds the layout check to the
+  local reliability gate before native compilation. The follow-up source-root
+  extraction moved the public package into `src/`, set `moon.mod`
+  `source = "src"`, emptied the root source allowlist, and updated scripts to
+  locate `src/moon.pkg` and `src/pkg.generated.mbti`.
   A later Pattern pycairo default-state fixture slice added
   `pattern_pycairo_parity_test.mbt`, covering pycairo's solid-pattern default
   extend/filter/dither/matrix/clamped-RGBA getters and explicit matrix/extend/

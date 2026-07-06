@@ -3,12 +3,13 @@ set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$repo_root"
+package_config="$repo_root/src/moon.pkg"
 
 usage() {
   cat <<'USAGE'
 Usage:
-  scripts/configure-link-flags.sh          # rewrite moon.pkg from pkg-config
-  scripts/configure-link-flags.sh --check  # verify moon.pkg matches pkg-config
+  scripts/configure-link-flags.sh          # rewrite src/moon.pkg from pkg-config
+  scripts/configure-link-flags.sh --check  # verify src/moon.pkg matches pkg-config
 
 Set PKG_CONFIG=/path/to/pkg-config to use a non-default pkg-config.
 USAGE
@@ -66,7 +67,7 @@ link_flags="${link_parts[*]}"
 
 extract_field() {
   local key="$1"
-  sed -nE "s/^[[:space:]]*\"${key}\": \"(.*)\"[,]?$/\1/p" moon.pkg | head -n 1
+  sed -nE "s/^[[:space:]]*\"${key}\": \"(.*)\"[,]?$/\1/p" "$package_config" | head -n 1
 }
 
 if [[ "$mode" == "--check" ]]; then
@@ -78,7 +79,7 @@ if [[ "$mode" == "--check" ]]; then
         "$actual_stub_cc_flags" != "$cc_flags" ||
         "$actual_link_flags" != "$link_flags" ]]; then
     cat >&2 <<EOF
-error: moon.pkg Cairo link flags are out of sync with pkg-config.
+error: src/moon.pkg Cairo link flags are out of sync with pkg-config.
 
 Run:
   scripts/configure-link-flags.sh
@@ -98,7 +99,7 @@ EOF
     exit 1
   fi
 
-  printf 'moon.pkg Cairo link flags match pkg-config.\n'
+  printf 'src/moon.pkg Cairo link flags match pkg-config.\n'
   exit 0
 fi
 
@@ -126,7 +127,7 @@ awk \
       next
     }
     { print }
-  ' moon.pkg > "$tmp"
+  ' "$package_config" > "$tmp"
 
-mv "$tmp" moon.pkg
-printf 'Updated moon.pkg Cairo link flags from pkg-config.\n'
+mv "$tmp" "$package_config"
+printf 'Updated src/moon.pkg Cairo link flags from pkg-config.\n'

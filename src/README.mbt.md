@@ -3,7 +3,7 @@
 MoonBit native bindings for the Cairo graphics library.
 
 This package is intentionally native-only while MoonBit's LLVM backend does not
-support FFI. See `AGENTS.md` for the migration and audit rules.
+support FFI. See the repository `AGENTS.md` for the migration and audit rules.
 
 ## Native Link Configuration
 
@@ -30,8 +30,8 @@ solid/surface/gradient/mesh and raster-source patterns, and `region.mbt.md` for
 Region construction, rectangle queries, boolean operations, and checked error
 mapping.
 
-Packaging, CI, and release rules live in `PACKAGING.md`. pycairo migration
-notes live in `PORTING_FROM_PYCAIRO.md`.
+Packaging, CI, and release rules live in the repository `PACKAGING.md`.
+pycairo migration notes live in `PORTING_FROM_PYCAIRO.md`.
 
 ```mbt check
 ///|

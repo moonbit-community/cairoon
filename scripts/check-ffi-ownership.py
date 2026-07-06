@@ -9,6 +9,7 @@ import sys
 
 
 REPO_ROOT = pathlib.Path(__file__).resolve().parents[1]
+PACKAGE_ROOT = REPO_ROOT / "src"
 OBJECT_TYPES = {
     "Context",
     "Device",
@@ -157,7 +158,7 @@ def check_file(path: pathlib.Path) -> list[str]:
 
 def main() -> int:
     errors: list[str] = []
-    for path in sorted(REPO_ROOT.glob("ffi*.mbt")):
+    for path in sorted(PACKAGE_ROOT.glob("ffi*.mbt")):
         errors.extend(check_file(path))
     if errors:
         for error in errors:
