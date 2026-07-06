@@ -611,7 +611,7 @@ Implemented in this workspace:
   path copy/append independence, pycairo-style append string
   equivalence after clearing the source context, flattened append behavior, and
   path error propagation.
-- `moon -C cairoon test context_pycairo_parity_test.mbt --target native -v`: 20
+- `moon -C cairoon test context_pycairo_parity_test.mbt --target native -v`: 24
   black-box Context pycairo parity tests passed, covering the 42x42 default
   clip-extents fixture, zero-radius `arc`/`arc_negative` non-empty paths,
   polygon `path_extents`, polygon `fill_extents`, empty `in_fill`, line
@@ -620,6 +620,8 @@ Implemented in this workspace:
   matrix setter/translate/scale/transform/rotate fixtures, dash offset
   normalization, current-point state, scalar line-width/miter-limit/tolerance
   setters, source RGBA round trips, explicit source-pattern round trips,
+  copied `append_path` strings, empty clip/reset `in_clip` behavior, group
+  stack push/pop variants, mask/mask-surface/alpha-paint pixel fixtures,
   font-face default/reset/custom round trips, `set_font_matrix` identity,
   font-options round trips, scaled-font round trips, empty
   `select_font_face("")`, and `set_font_size(42)` font-matrix fixtures.
@@ -2555,6 +2557,13 @@ Implemented in this workspace:
   font-options set/get, and scaled-font set/get fixtures. It is included in
   the targeted normal and ASan verification gates, raises that parity file to
   20 tests, and raises the expected full native suite to 497 tests.
+  A later Context pycairo clip/group/paint fixture slice extended
+  `context_pycairo_parity_test.mbt`, covering pycairo's copied `append_path`
+  string fixture, empty clip/reset `in_clip` behavior, group
+  push/pop/pop-to-source/content/unmatched-pop fixture, and mask,
+  mask-surface, and alpha-paint fixtures. It is included in the targeted
+  normal and ASan verification gates, raises that parity file to 24 tests, and
+  raises the expected full native suite to 501 tests.
   A later Pattern raw-extend parity slice added
   `Pattern::set_extend_raw`/`Pattern::get_extend_raw`, covering pycairo's
   C-int extend passthrough for `42` while keeping typed `Pattern::get_extend`

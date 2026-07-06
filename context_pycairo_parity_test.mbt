@@ -54,6 +54,29 @@ fn assert_pycairo_context_matrix_close(
 }
 
 ///|
+fn assert_pycairo_context_argb32_pixel(
+  surface : Surface,
+  expected : Array[Int],
+) -> Unit raise {
+  let data = surface.copy_data()
+  inspect(data.length(), content="4")
+  for index in 0..<expected.length() {
+    inspect(data[index].to_int(), content="\{expected[index]}")
+  }
+}
+
+///|
+fn expect_pycairo_context_invalid_pop_group(
+  result : Result[Unit, CairoError],
+) -> Unit raise {
+  inspect(result is Err(_), content="true")
+  match result {
+    Err(CairoError(InvalidPopGroup, _)) => ()
+    _ => @test.fail("expected InvalidPopGroup")
+  }
+}
+
+///|
 test "context default clip extents mirror pycairo fixture dimensions" {
   let ctx = Context::new(pycairo_context_surface(42, 42))
   assert_pycairo_context_extents_close(
@@ -273,6 +296,75 @@ test "context explicit source pattern mirrors pycairo fixture" {
   let pattern = Pattern::solid_rgb(0.0, 0.0, 0.0)
   ctx.set_source(pattern)
   inspect(ctx.get_source().equal(pattern), content="true")
+}
+
+///|
+test "context append_path mirrors pycairo copied path fixture" {
+  let source = Context::new(pycairo_context_surface(42, 42))
+  source.line_to(1.0, 2.0)
+  let path = source.copy_path()
+  let source_string = path.to_string()
+
+  let target = Context::new(pycairo_context_surface(42, 42))
+  target.append_path(path)
+  let target_string = target.copy_path().to_string()
+  inspect(target_string == source_string, content="true")
+}
+
+///|
+test "context empty clip reset mirrors pycairo in_clip fixture" {
+  let ctx = Context::new(Surface::image(Argb32, 100, 100))
+  inspect(ctx.in_clip(50.0, 50.0), content="true")
+  ctx.clip()
+  inspect(ctx.in_clip(50.0, 50.0), content="false")
+  ctx.reset_clip()
+  inspect(ctx.in_clip(50.0, 50.0), content="true")
+}
+
+///|
+test "context group stack mirrors pycairo fixture" {
+  let ctx = Context::new(pycairo_context_surface(42, 42))
+  ctx.push_group()
+  let _ = ctx.pop_group()
+
+  ctx.push_group()
+  ctx.pop_group_to_source()
+
+  ctx.push_group_with_content(ContentColor)
+  let _ = ctx.pop_group()
+
+  expect_pycairo_context_invalid_pop_group(
+    run_cairo(() => {
+      let _ = ctx.pop_group()
+      ()
+    }),
+  )
+}
+
+///|
+test "context mask and alpha paint mirror pycairo fixtures" {
+  let paint_surface = Surface::image(Argb32, 1, 1)
+  let paint_ctx = Context::new(paint_surface)
+  paint_ctx.set_source_rgba(1.0, 0.0, 0.0, 1.0)
+  paint_ctx.paint_with_alpha(1.0)
+  assert_pycairo_context_argb32_pixel(paint_surface, [0, 0, 255, 255])
+
+  let pattern_surface = Surface::image(Argb32, 1, 1)
+  let pattern_ctx = Context::new(pattern_surface)
+  pattern_ctx.set_source_rgba(0.0, 1.0, 0.0, 1.0)
+  pattern_ctx.mask(Pattern::solid_rgba(0.0, 0.0, 0.0, 1.0))
+  assert_pycairo_context_argb32_pixel(pattern_surface, [0, 255, 0, 255])
+
+  let mask_surface = Surface::image(Argb32, 1, 1)
+  let mask_ctx = Context::new(mask_surface)
+  mask_ctx.set_source_rgba(1.0, 1.0, 1.0, 1.0)
+  mask_ctx.paint()
+
+  let surface_mask_target = Surface::image(Argb32, 1, 1)
+  let surface_mask_ctx = Context::new(surface_mask_target)
+  surface_mask_ctx.set_source_rgba(0.0, 0.0, 1.0, 1.0)
+  surface_mask_ctx.mask_surface(mask_surface)
+  assert_pycairo_context_argb32_pixel(surface_mask_target, [255, 0, 0, 255])
 }
 
 ///|
