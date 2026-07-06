@@ -19,6 +19,7 @@ run python3 ./scripts/check-ffi-ownership.py
 run python3 ./scripts/check-api-inventory.py
 run python3 ./scripts/check-reliability-ledger.py
 run moon check --target native
+run moon test "$package_root/tests/api" --target native -v
 
 targeted_tests=(
   image_oracle_wbtest.mbt
@@ -97,6 +98,11 @@ if [[ "$asan_mode" != "0" ]]; then
   if [[ -n "$clang_path" && -x "$clang_path" ]]; then
     asan_options="${ASAN_OPTIONS:-detect_leaks=0:fast_unwind_on_malloc=0}"
     moon_ar="${MOON_AR:-/usr/bin/ar}"
+    run env \
+      "MOON_CC=$clang_path" \
+      "MOON_AR=$moon_ar" \
+      "ASAN_OPTIONS=$asan_options" \
+      moon test "$package_root/tests/api" --target native -v
     for test_file in "${targeted_tests[@]}"; do
       run env \
         "MOON_CC=$clang_path" \

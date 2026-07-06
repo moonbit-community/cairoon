@@ -23,6 +23,12 @@ Implemented in this workspace:
   migration status rows use accepted statuses, `Partial` rows state remaining
   gaps explicitly, the TESTING scorecard keeps its required dimensions, and CI
   continues to run native/ASan verify gates.
+- Initial external black-box test package extraction under `src/tests/api`.
+  Root-level `tests/` packages are intentionally forbidden while
+  `moon.mod source = "src"` keeps the public import path as `caimeo/cairoon`.
+  External test packages that import cairoon carry Cairo `cc-link-flags`, and
+  `scripts/configure-link-flags.sh --check` verifies those flags alongside
+  `src/moon.pkg`.
 - C FFI glue split by Cairo object family, following pycairo's
   `private.h` plus per-family C file architecture. GC-managed external objects
   currently cover `Surface`, `MappedImageSurface`, `ImageData`, `Context`,
@@ -2594,10 +2600,11 @@ Prior full verifies passed on 2026-07-02, 2026-07-03, 2026-07-04,
   `scripts/check-project-layout.py`, and the root source allowlist. It records
   the then-current single-package root as migration debt, forbids new
   root-level source/test/C/doc source files, documents the
-  `src/`/`tests/`/oracle migration order, and adds the layout check to the
+  `src/`/`src/tests/`/oracle migration order, and adds the layout check to the
   local reliability gate before native compilation. The follow-up source-root
   extraction moved the public package into `src/`, set `moon.mod`
-  `source = "src"`, emptied the root source allowlist, and updated scripts to
+  `source = "src"`, made executable black-box test packages live under
+  `src/tests/`, emptied the root source allowlist, and updated scripts to
   locate `src/moon.pkg` and `src/pkg.generated.mbti`.
   A later Pattern pycairo default-state fixture slice added
   `pattern_pycairo_parity_test.mbt`, covering pycairo's solid-pattern default

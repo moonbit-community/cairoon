@@ -4,12 +4,13 @@ set -euo pipefail
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$repo_root"
 package_config="$repo_root/src/moon.pkg"
+test_packages_root="$repo_root/src/tests"
 
 usage() {
   cat <<'USAGE'
 Usage:
-  scripts/configure-link-flags.sh          # rewrite src/moon.pkg from pkg-config
-  scripts/configure-link-flags.sh --check  # verify src/moon.pkg matches pkg-config
+  scripts/configure-link-flags.sh          # rewrite Cairo link flags from pkg-config
+  scripts/configure-link-flags.sh --check  # verify Cairo link flags match pkg-config
 
 Set PKG_CONFIG=/path/to/pkg-config to use a non-default pkg-config.
 USAGE
@@ -66,14 +67,32 @@ cc_flags="${cc_parts[*]}"
 link_flags="${link_parts[*]}"
 
 extract_field() {
-  local key="$1"
-  sed -nE "s/^[[:space:]]*\"${key}\": \"(.*)\"[,]?$/\1/p" "$package_config" | head -n 1
+  local file="$1"
+  local key="$2"
+  sed -nE "s/^[[:space:]]*\"${key}\": \"(.*)\"[,]?$/\1/p" "$file" | head -n 1
+}
+
+relative_path() {
+  local file="$1"
+  printf '%s' "${file#"$repo_root"/}"
+}
+
+needs_cairo_link() {
+  local file="$1"
+  grep -q '"caimeo/cairoon"' "$file"
+}
+
+collect_link_only_configs() {
+  if [[ ! -d "$test_packages_root" ]]; then
+    return
+  fi
+  find "$test_packages_root" -name moon.pkg -type f -print | sort
 }
 
 if [[ "$mode" == "--check" ]]; then
-  actual_cc_flags="$(extract_field cc-flags)"
-  actual_stub_cc_flags="$(extract_field stub-cc-flags)"
-  actual_link_flags="$(extract_field cc-link-flags)"
+  actual_cc_flags="$(extract_field "$package_config" cc-flags)"
+  actual_stub_cc_flags="$(extract_field "$package_config" stub-cc-flags)"
+  actual_link_flags="$(extract_field "$package_config" cc-link-flags)"
 
   if [[ "$actual_cc_flags" != "$cc_flags" ||
         "$actual_stub_cc_flags" != "$cc_flags" ||
@@ -99,7 +118,31 @@ EOF
     exit 1
   fi
 
-  printf 'src/moon.pkg Cairo link flags match pkg-config.\n'
+  checked=1
+  while IFS= read -r config; do
+    if ! needs_cairo_link "$config"; then
+      continue
+    fi
+    actual_link_flags="$(extract_field "$config" cc-link-flags)"
+    if [[ "$actual_link_flags" != "$link_flags" ]]; then
+      rel="$(relative_path "$config")"
+      cat >&2 <<EOF
+error: $rel Cairo link flags are out of sync with pkg-config.
+
+Run:
+  scripts/configure-link-flags.sh
+
+Expected cc-link-flags:
+  $link_flags
+Actual cc-link-flags:
+  $actual_link_flags
+EOF
+      exit 1
+    fi
+    checked=$((checked + 1))
+  done < <(collect_link_only_configs)
+
+  printf 'Cairo link flags match pkg-config in %s moon.pkg files.\n' "$checked"
   exit 0
 fi
 
@@ -109,25 +152,54 @@ escape_moon_string() {
 
 escaped_cc_flags="$(escape_moon_string "$cc_flags")"
 escaped_link_flags="$(escape_moon_string "$link_flags")"
-tmp="$(mktemp "${TMPDIR:-/tmp}/cairoon-moon.pkg.XXXXXX")"
 
-awk \
-  -v cc_flags="$escaped_cc_flags" \
-  -v link_flags="$escaped_link_flags" '
-    /^[[:space:]]*"cc-flags": / {
-      print "      \"cc-flags\": \"" cc_flags "\","
-      next
-    }
-    /^[[:space:]]*"stub-cc-flags": / {
-      print "      \"stub-cc-flags\": \"" cc_flags "\","
-      next
-    }
-    /^[[:space:]]*"cc-link-flags": / {
-      print "      \"cc-link-flags\": \"" link_flags "\","
-      next
-    }
-    { print }
-  ' "$package_config" > "$tmp"
+update_full_config() {
+  local file="$1"
+  local tmp
+  tmp="$(mktemp "${TMPDIR:-/tmp}/cairoon-moon.pkg.XXXXXX")"
+  awk \
+    -v cc_flags="$escaped_cc_flags" \
+    -v link_flags="$escaped_link_flags" '
+      /^[[:space:]]*"cc-flags": / {
+        print "      \"cc-flags\": \"" cc_flags "\","
+        next
+      }
+      /^[[:space:]]*"stub-cc-flags": / {
+        print "      \"stub-cc-flags\": \"" cc_flags "\","
+        next
+      }
+      /^[[:space:]]*"cc-link-flags": / {
+        print "      \"cc-link-flags\": \"" link_flags "\","
+        next
+      }
+      { print }
+    ' "$file" > "$tmp"
+  mv "$tmp" "$file"
+}
 
-mv "$tmp" "$package_config"
-printf 'Updated src/moon.pkg Cairo link flags from pkg-config.\n'
+update_link_only_config() {
+  local file="$1"
+  local tmp
+  tmp="$(mktemp "${TMPDIR:-/tmp}/cairoon-moon.pkg.XXXXXX")"
+  awk \
+    -v link_flags="$escaped_link_flags" '
+      /^[[:space:]]*"cc-link-flags": / {
+        print "      \"cc-link-flags\": \"" link_flags "\","
+        next
+      }
+      { print }
+    ' "$file" > "$tmp"
+  mv "$tmp" "$file"
+}
+
+update_full_config "$package_config"
+updated=1
+while IFS= read -r config; do
+  if ! needs_cairo_link "$config"; then
+    continue
+  fi
+  update_link_only_config "$config"
+  updated=$((updated + 1))
+done < <(collect_link_only_configs)
+
+printf 'Updated Cairo link flags from pkg-config in %s moon.pkg files.\n' "$updated"

@@ -43,7 +43,9 @@ structure. The current `src/` package is a transition state, not the target
 architecture, but the repository root is now project-management space. Do not
 add new root-level `.mbt`, `.mbt.md`, `.mbti`, `.c`, or `.h` files;
 `scripts/check-project-layout.py` enforces an empty root source allowlist while
-the package tree is migrated.
+the package tree is migrated. Because `moon.mod` sets `source = "src"`,
+executable MoonBit black-box test packages live under `src/tests/<family>/`;
+root-level `tests/` files are outside MoonBit's package search path.
 
 Use the historical flat layout below only to understand old audit references
 from before source-root extraction:

@@ -9,6 +9,7 @@ import sys
 
 REPO_ROOT = pathlib.Path(__file__).resolve().parents[1]
 PACKAGE_ROOT = REPO_ROOT / "src"
+TEST_PACKAGE_ROOT = PACKAGE_ROOT / "tests"
 ALLOWLIST = REPO_ROOT / "scripts" / "root-layout-allowlist.txt"
 LAYOUT_DOC = REPO_ROOT / "PROJECT_LAYOUT.md"
 MOON_MOD = REPO_ROOT / "moon.mod"
@@ -66,6 +67,38 @@ def check_source_root() -> list[str]:
     return errors
 
 
+def check_test_packages() -> list[str]:
+    errors: list[str] = []
+    root_tests = REPO_ROOT / "tests"
+    if root_tests.exists():
+        forbidden = [
+            path.relative_to(REPO_ROOT)
+            for path in root_tests.rglob("*")
+            if path.is_file() and (path.name == "moon.pkg" or is_source_like(path))
+        ]
+        if forbidden:
+            errors.append(
+                "root tests are outside moon.mod source = \"src\"; move them under "
+                "src/tests: " + ", ".join(str(path) for path in sorted(forbidden))
+            )
+
+    if TEST_PACKAGE_ROOT.exists():
+        for path in sorted(TEST_PACKAGE_ROOT.rglob("moon.pkg")):
+            text = path.read_text(encoding="utf-8")
+            generated_interface = path.parent / "pkg.generated.mbti"
+            if not generated_interface.exists():
+                errors.append(
+                    f"{path.parent.relative_to(REPO_ROOT)}: missing "
+                    "pkg.generated.mbti; run moon info --target native"
+                )
+            if '"caimeo/cairoon"' in text and '"cc-link-flags"' not in text:
+                errors.append(
+                    f"{path.relative_to(REPO_ROOT)}: external cairoon test "
+                    "packages must carry Cairo cc-link-flags"
+                )
+    return errors
+
+
 def check_nested_c_files() -> list[str]:
     errors: list[str] = []
     for path in sorted(REPO_ROOT.rglob("*")):
@@ -104,6 +137,7 @@ def main() -> int:
 
     errors.extend(check_root_freeze(allowed))
     errors.extend(check_source_root())
+    errors.extend(check_test_packages())
     errors.extend(check_nested_c_files())
     if errors:
         for error in errors:

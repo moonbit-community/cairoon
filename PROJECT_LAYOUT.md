@@ -56,25 +56,25 @@ cairoon/
         moon.pkg
     oracle/
       moon.pkg
-  tests/
-    api/
-      moon.pkg
-    surface/
-      moon.pkg
-    context/
-      moon.pkg
-    pattern/
-      moon.pkg
-    font/
-      moon.pkg
-    path/
-      moon.pkg
-    region/
-      moon.pkg
-    backend/
-      moon.pkg
-    lifetime/
-      moon.pkg
+    tests/
+      api/
+        moon.pkg
+      surface/
+        moon.pkg
+      context/
+        moon.pkg
+      pattern/
+        moon.pkg
+      font/
+        moon.pkg
+      path/
+        moon.pkg
+      region/
+        moon.pkg
+      backend/
+        moon.pkg
+      lifetime/
+        moon.pkg
   docs/
     reference/
 ```
@@ -82,6 +82,8 @@ cairoon/
 The `src/moon.pkg` package keeps the published import path
 `caimeo/cairoon`. The move from root to `src/` must be paired with
 `moon.mod source = "src"` so downstream imports do not change.
+Because `source = "src"` limits MoonBit's package search path, executable
+MoonBit test packages live under `src/tests/`, not repository-root `tests/`.
 
 ## Package Roles
 
@@ -93,8 +95,8 @@ MoonBit package shape without weakening the public interface.
 | Public package | `src/` | Owns the stable `caimeo/cairoon` interface and public external object types until a facade proof proves otherwise. |
 | Pure support packages | `src/core/` | May hold pure values/helpers only after their public names can be preserved or intentionally re-exported. |
 | Native FFI packages | `src/<family>/` or `src/native/<family>/` | Each package that lists `native-stub` must keep its C files in the same directory as its `moon.pkg`. |
-| Black-box tests | `tests/<family>/` | Import `caimeo/cairoon`; assert only public behavior. |
-| White-box oracles | `src/oracle/` or `tests/oracle/` | May expose test-only direct-C oracle helpers; must never be imported by the public package. |
+| Black-box tests | `src/tests/<family>/` | Import `caimeo/cairoon`; assert only public behavior. Any package that imports cairoon must carry Cairo `cc-link-flags`, because native link flags are not propagated to external test executables. |
+| White-box oracles | `src/oracle/` or `src/tests/oracle/` | May expose test-only direct-C oracle helpers; must never be imported by the public package. |
 | Documentation | `docs/` and public package `.mbt.md` files | Narrative docs live outside source packages; executable reference docs stay with the package they test. |
 
 Do not split a family across packages until the type names, method call syntax,
@@ -111,9 +113,9 @@ Follow this order. Each step gets its own commit and must pass
 2. **Source-root extraction**: completed. The current MoonBit package files
    live in `src/`, `moon.mod` sets `source = "src"`, scripts locate the
    package root explicitly, and `caimeo/cairoon` remains the public package.
-3. **Black-box test extraction**: move pure `*_test.mbt` files into
-   `tests/<family>/` packages that import `caimeo/cairoon`; keep test names and
-   behavioral assertions unchanged.
+3. **Black-box test extraction**: started. Move pure `*_test.mbt` files into
+   `src/tests/<family>/` packages that import `caimeo/cairoon`; keep test names
+   and behavioral assertions unchanged.
 4. **White-box oracle extraction**: move direct-C oracle helpers and
    `*_wbtest.mbt` tests into oracle packages. Oracle packages may have their
    own `native-stub` lists, but public binding C files must not depend on them.
@@ -131,8 +133,8 @@ binding implementation.
 
 - New MoonBit implementation files go into the package directory selected by
   the current migration step, not the repository root.
-- New black-box tests go under `tests/<family>/` once the test extraction step
-  starts. Until then, extend an existing `src/*_test.mbt` file instead of
+- New black-box tests go under `src/tests/<family>/` once the test extraction
+  step starts. Until then, extend an existing `src/*_test.mbt` file instead of
   creating a new root test file.
 - New C stubs go beside the `moon.pkg` that lists them in `native-stub`.
 - Any new root-level `.mbt`, `.mbt.md`, `.mbti`, `.c`, or `.h` file must fail
@@ -147,6 +149,12 @@ before MoonBit compilation. The layout check proves:
 - no source-like files have appeared in the repository root;
 - `src/moon.pkg`, `src/pkg.generated.mbti`, and `moon.mod source = "src"`
   are present;
+- repository-root `tests/` does not contain MoonBit packages or source-like
+  files, because it is outside the package search path;
+- every `src/tests/**/moon.pkg` has an adjacent `pkg.generated.mbti`, so
+  package seams are reviewed through `moon info --target native`;
+- external black-box test packages that import `caimeo/cairoon` carry Cairo
+  `cc-link-flags`;
 - nested C source/header files live beside a `moon.pkg`, matching MoonBit's
   `native-stub` constraint;
 - `PROJECT_LAYOUT.md` and `scripts/root-layout-allowlist.txt` exist.
