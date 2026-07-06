@@ -33,6 +33,3 @@ type Region
 
 ///|
 priv type TextToGlyphsNative
-
-///|
-extern "C" fn status_to_string_ffi(status : Status) -> Bytes = "cairoon_status_to_string"

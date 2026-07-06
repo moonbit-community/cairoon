@@ -216,7 +216,8 @@ native `moon check`, the `src/native` native-stub package, extracted external
 test packages under
 `src/tests/api` (version, enum, status, and pure value APIs),
 support packages under `src/core/glyph`, `src/internal/version`, and
-`src/internal/format`, `src/tests/matrix`, `src/tests/region`,
+`src/internal/format`, `src/internal/status`, `src/tests/matrix`,
+`src/tests/region`,
 `src/tests/surface`, `src/tests/context`, `src/tests/pattern`, `src/tests/font`,
 and `src/tests/stream`, `src/tests/object`, `src/tests/lifetime`, and
 `src/tests/oracle/native`, `src/tests/oracle/constants`,

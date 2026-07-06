@@ -132,6 +132,12 @@ Implemented in this workspace:
   stride methods. Package-local, API, and surface tests prove the facade
   preserves typed enum construction, raw C-int passthrough, and float-format
   stride behavior.
+- `src/internal/status` is the second enum-adjacent internal implementation
+  package seam. It owns the raw `cairo_status_to_string` helper and UTF-8
+  decoding, while public `src/status.mbt` keeps the `Status` enum constructors,
+  `Status::message`, and `CairoError` integration. Package-local and API tests
+  prove public status messages and exhaustive status/error classification still
+  work through the facade.
 - C FFI glue split by Cairo object family, following pycairo's
   `private.h` plus per-family C file architecture. GC-managed external objects
   currently cover `Surface`, `MappedImageSurface`, `ImageData`, `Context`,
@@ -161,7 +167,7 @@ Implemented in this workspace:
   `cairoon_font_face.c`, `cairoon_scaled_font.c`, and
   `cairoon_scaled_font_oracle.c`.
 - MoonBit raw FFI declarations are beginning to follow the same family split:
-  `ffi.mbt` keeps object type declarations and small module-level exports, while
+  `ffi.mbt` keeps object type declarations and private native helper types, while
   `ffi_context_clip_extents.mbt` owns raw `Context` clip/extents/hit-testing
   extern declarations, `ffi_context_core.mbt` owns raw `Context` construction,
   status, identity, save/restore, tag, target/source, and group extern

@@ -229,8 +229,9 @@ platform's `pkg-config` result.
 ## Raw FFI File Boundaries
 
 Raw `extern "C"` declarations may be split by Cairo concept family, mirroring
-the C glue split. Keep object type declarations and very small module-level
-exports in `ffi.mbt`; move larger families into files named
+the C glue split. Keep object type declarations and private native helper types
+in `ffi.mbt`; move module-level native helpers into `src/internal/<family>/`
+when the public facade can remain unchanged, and move larger families into files named
 `ffi_<family>.mbt`, and add every such file to `moon.pkg` `targets` with
 `["native"]`. For example, `ffi_font_options.mbt` owns raw `FontOptions`
 extern declarations that call `cairoon_font_options.c`;
@@ -274,9 +275,10 @@ declarations that call `cairoon_image_data.c`;
 `ffi_ps_surface.mbt` owns raw PostScript surface extern declarations that call
 `cairoon_ps_surface.c`;
 `ffi_surface.mbt` owns raw base surface extern declarations that call
-`cairoon_surface.c`; `ffi_image_surface.mbt` owns raw image surface and
-`cairo_format_stride_for_width` extern declarations that call
-`cairoon_image_surface.c` and Cairo; `ffi_surface_png.mbt` owns raw PNG extern
+`cairoon_surface.c`; `ffi_image_surface.mbt` owns raw image surface extern
+declarations that call `cairoon_image_surface.c`. The
+`cairo_format_stride_for_width` extern belongs to `src/internal/format`, not
+the public root FFI files. `ffi_surface_png.mbt` owns raw PNG extern
 declarations that call `cairoon_surface_png.c`; `ffi_surface_mime.mbt` owns raw
 MIME-data extern declarations that call `cairoon_surface_mime.c`;
 `ffi_surface_state.mbt` owns raw state/page extern declarations that call
@@ -398,10 +400,13 @@ while `src/version.mbt` keeps the published `@cairoon.cairo_version()` and
 `@cairoon.cairo_version_string()` functions as thin wrappers. The second
 accepted probe is `src/internal/format`: it owns the raw
 `cairo_format_stride_for_width` extern while `src/format.mbt` keeps the public
-`Format` enum, constructors, and methods. Keep enum constructors in the facade
-unless a compatibility proof shows that `@cairoon.<Constructor>` syntax
-survives. Any internal package that imports `caimeo/cairoon/native` must carry
-Cairo `cc-link-flags` and package-local tests so
+`Format` enum, constructors, and methods. The third accepted probe is
+`src/internal/status`: it owns the raw status-message extern and UTF-8 decoding
+while `src/status.mbt` keeps the public `Status` enum, constructors, and
+methods. Keep enum constructors in the facade unless a compatibility proof
+shows that `@cairoon.<Constructor>` syntax survives. Any internal package that
+imports `caimeo/cairoon/native` must carry Cairo `cc-link-flags` and
+package-local tests so
 `moon test src/internal/<family> --target native` links independently.
 
 Do not move a type whose methods raise `CairoError` into a subpackage until the
@@ -413,10 +418,13 @@ proof exists: MoonBit `pub type` aliases preserve the type and its methods, but
 they do not re-export enum variants or suberror constructors as
 `@cairoon.<Constructor>`. This currently blocks moving `Status`, `CairoError`,
 `PathDataType`, and similar facade-constructor enums directly into child
-packages. A facade alias also cannot define additional methods for the child
-type, so a moved value type must carry its complete public method set in the
-child package. Keep values such as text/font extents in the facade until their
-error dependencies can move with them or a wrapper design is proven.
+packages. `src/internal/status` is not a proof that `Status` or `CairoError`
+can move; it is only a non-cyclic raw-message helper because it accepts raw
+`Int` status values and returns `String`. A facade alias also cannot define
+additional methods for the child type, so a moved value type must carry its
+complete public method set in the child package. Keep values such as text/font
+extents in the facade until their error dependencies can move with them or a
+wrapper design is proven.
 
 The public package root is frozen migration debt. Do not add new source-like
 files directly under `src/`; put new implementation in the package selected by

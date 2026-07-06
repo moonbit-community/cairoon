@@ -1,6 +1,7 @@
 import {
   "caimeo/cairoon/core/glyph",
   "caimeo/cairoon/internal/format" @format_impl,
+  "caimeo/cairoon/internal/status" @status_impl,
   "caimeo/cairoon/internal/version" @version_impl,
   "caimeo/cairoon/native",
   "moonbitlang/core/builtin",
