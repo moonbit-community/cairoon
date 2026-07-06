@@ -207,7 +207,8 @@ It runs `moon fmt --check`, `scripts/configure-link-flags.sh --check`,
 image, ScaledFont, vector-output,
 surface base/ImageData/stream/mapped/subsurface/recording/MIME/PDF/PS/SVG/Tee,
 script-device, object-trait, context-lifetime/state/matrix/path/group/text/glyph/
-extents/clip/painting, gradient/mesh pattern, and raster-pattern tests, the full
+extents/clip/painting, core/pycairo-parity/gradient/mesh pattern, and
+raster-pattern tests, the full
 native test suite, `moon info --target native`, and targeted ASan builds for
 the same target list when an ASan-capable `clang` is available.
 Set `CAIROON_VERIFY_ASAN=0` to skip the targeted ASan portion intentionally.
@@ -276,6 +277,8 @@ helper, SVGSurface filename/no-output/stream constructor,
 version helpers, version
 restriction, and document-unit helpers,
 surface-pattern borrowed surface returns, Pattern pointer equality/hash,
+pycairo solid-pattern default extend/filter/dither/matrix/clamped-RGBA and
+setter round-trip fixtures,
 RasterSourcePattern
 constructor/acquire/get-acquire/release callback glue with retained closure and acquired
 surface owners, finished-surface acquire failure injection, MeshPattern patch lifecycle/query

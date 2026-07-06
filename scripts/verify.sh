@@ -63,6 +63,7 @@ targeted_tests=(
   context_clip_test.mbt
   context_painting_test.mbt
   pattern_test.mbt
+  pattern_pycairo_parity_test.mbt
   pattern_raster_source_test.mbt
   pattern_gradient_test.mbt
   pattern_mesh_test.mbt

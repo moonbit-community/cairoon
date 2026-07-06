@@ -437,14 +437,16 @@ Implemented in this workspace:
   MIME, PDF/PS/SVG helper, TeeSurface, script-device, and object-trait tests,
   context lifetime/state/matrix/path/group/text/glyph/extents/clip/painting tests,
   Path tests,
-  pattern/gradient/mesh tests, raster manual/owner/state white-box tests, and
+  pattern/pycairo-parity/gradient/mesh tests, raster manual/owner/state
+  white-box tests, and
   Region/lifetime-stress tests,
   the full native suite, `moon info --target native`, and targeted ASan
   image-oracle, font-options/font-face/scaled-font, vector-output, stream,
   surface base/ImageData, mapped-image, subsurface, recording, MIME,
   PDF/PS/SVG helpers, TeeSurface, script-device, object-trait,
   context-lifetime/state/matrix/path/group/text/glyph/extents/clip/painting, Path,
-  pattern/gradient/mesh, raster manual/owner/state, and Region/lifetime-stress tests with
+  pattern/pycairo-parity/gradient/mesh, raster manual/owner/state, and
+  Region/lifetime-stress tests with
   leak detection disabled. The current run includes
   the pycairo context font-extents parity slice,
   the pycairo group-target stack-restoration slice,
@@ -971,6 +973,10 @@ Implemented in this workspace:
   color-stop count/tuple retrieval, duplicate-offset insertion order, copied
   color-stop snapshot stability after later pattern mutation, pattern-type
   mismatch mapping, and invalid-index mapping.
+- `moon -C cairoon test pattern_pycairo_parity_test.mbt --target native -v`: 2
+  black-box pycairo Pattern parity tests passed, covering solid-pattern default
+  extend/filter/dither/matrix/clamped-RGBA getters and explicit matrix/extend/
+  filter/dither/RGBA setter round trips.
 - `moon -C cairoon test pattern_raster_manual_wbtest.mbt
   pattern_raster_owner_wbtest.mbt pattern_raster_state_wbtest.mbt --target
   native -v`: 6 white-box raster-source manual/owner/state tests passed,
@@ -2582,6 +2588,12 @@ Implemented in this workspace:
   path, and PDF no-output `show_text_glyphs` tuple flow. It is included in the
   targeted normal and ASan verification gates, raises that parity file to 31
   tests, and raises the expected full native suite to 508 tests.
+  A later Pattern pycairo default-state fixture slice added
+  `pattern_pycairo_parity_test.mbt`, covering pycairo's solid-pattern default
+  extend/filter/dither/matrix/clamped-RGBA getters and explicit matrix/extend/
+  filter/dither/RGBA setter round trips. It is included in the targeted normal
+  and ASan verification gates and raises the expected full native suite to 510
+  tests.
   A later Pattern raw-extend parity slice added
   `Pattern::set_extend_raw`/`Pattern::get_extend_raw`, covering pycairo's
   C-int extend passthrough for `42` while keeping typed `Pattern::get_extend`
