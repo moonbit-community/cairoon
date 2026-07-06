@@ -307,8 +307,9 @@ helper, SVGSurface filename/no-output/stream constructor,
 version helpers, version
 restriction, and document-unit helpers,
 surface-pattern borrowed surface returns, Pattern pointer equality/hash,
-pycairo solid-pattern default extend/filter/dither/matrix/clamped-RGBA and
-setter round-trip fixtures,
+pycairo solid-pattern default extend/filter/dither/matrix/clamped-RGBA,
+setter round-trip, gradient point/color-stop/radial-circle, and mesh example
+patch fixtures,
 RasterSourcePattern
 constructor/acquire/get-acquire/release callback glue with retained closure and acquired
 surface owners, finished-surface acquire failure injection, MeshPattern patch lifecycle/query
@@ -481,7 +482,7 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, and 2026-07-06:
   text vector stream equivalence slice, and the single-page tag stream
   equivalence slice.
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native`: 555 tests passed. The current run
+- `moon -C cairoon test --target native`: 557 tests passed. The current run
   includes the expanded pattern-combo image oracle slice,
   the mesh-mask group-compositing image oracle slice,
   the tag-heavy stream-to-direct-oracle differential slice,
@@ -511,6 +512,7 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, and 2026-07-06:
   the pycairo source RGBA round-trip slice,
   the pycairo empty-path clip `in_clip` slice,
   the pycairo mesh curve-first patch slice,
+  the pycairo pattern gradient and mesh example fixture slice,
   the pycairo polygon fill-extents slice,
   the mapped-image scoped-error upload slice,
   the TeeSurface positive out-of-range status slice,
@@ -977,6 +979,11 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, and 2026-07-06:
   color-stop count/tuple retrieval, duplicate-offset insertion order, copied
   color-stop snapshot stability after later pattern mutation, pattern-type
   mismatch mapping, and invalid-index mapping.
+- `moon -C cairoon test pattern_pycairo_parity_test.mbt --target native -v`: 4
+  black-box Pattern pycairo parity tests passed, covering solid-pattern default
+  state and setter round trips, linear-gradient point/color-stop list fixtures,
+  radial-gradient circle fixtures, and pycairo mesh example patch construction
+  with corner colors and path extraction.
 - `moon -C cairoon test pattern_raster_manual_wbtest.mbt
   pattern_raster_owner_wbtest.mbt pattern_raster_state_wbtest.mbt --target
   native -v`: 6 white-box raster-source manual/owner/state tests passed,
@@ -2735,6 +2742,12 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, and 2026-07-06:
   through raw getters and are rejected by typed getters. It raises
   `pattern.mbt.md` to 7 executable examples and the expected full native suite
   to 470 tests.
+  A later Pattern pycairo gradient/mesh fixture slice extended
+  `pattern_pycairo_parity_test.mbt`, covering pycairo's linear-gradient
+  point/color-stop list fixture, radial-gradient circle fixture, and mesh
+  example patch construction with corner colors and path extraction. It is
+  included in the targeted normal and ASan verification gates and raises that
+  parity file to 4 tests.
   A later Context raw drawing-state enum parity slice added
   `Context::set_antialias_raw`/`Context::get_antialias_raw`,
   `Context::set_fill_rule_raw`/`Context::get_fill_rule_raw`,
