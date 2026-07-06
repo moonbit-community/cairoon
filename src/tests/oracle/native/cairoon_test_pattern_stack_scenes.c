@@ -408,3 +408,97 @@ cairo_status_t cairoon_test_apply_surface_source_mask_group_combo(
   cairo_surface_destroy(surface);
   return status;
 }
+
+cairo_status_t cairoon_test_apply_surface_mask_screen_group_combo(
+  cairo_t *cr,
+  double width,
+  double height) {
+  cairo_surface_t *mask_surface =
+    cairo_image_surface_create(CAIRO_FORMAT_ARGB32, 2, 2);
+  cairo_status_t status = cairo_surface_status(mask_surface);
+  if (status == CAIRO_STATUS_SUCCESS) {
+    cairo_t *mask_cr = cairo_create(mask_surface);
+    cairo_set_source_rgba(mask_cr, 1.0, 1.0, 1.0, 0.15);
+    cairo_rectangle(mask_cr, 0.0, 0.0, 1.0, 1.0);
+    cairo_fill(mask_cr);
+    cairo_set_source_rgba(mask_cr, 1.0, 1.0, 1.0, 0.55);
+    cairo_rectangle(mask_cr, 1.0, 0.0, 1.0, 1.0);
+    cairo_fill(mask_cr);
+    cairo_set_source_rgba(mask_cr, 1.0, 1.0, 1.0, 0.75);
+    cairo_rectangle(mask_cr, 0.0, 1.0, 1.0, 1.0);
+    cairo_fill(mask_cr);
+    cairo_set_source_rgba(mask_cr, 1.0, 1.0, 1.0, 1.0);
+    cairo_rectangle(mask_cr, 1.0, 1.0, 1.0, 1.0);
+    cairo_fill(mask_cr);
+    status = cairo_status(mask_cr);
+    cairo_destroy(mask_cr);
+  }
+  if (status == CAIRO_STATUS_SUCCESS) {
+    cairo_surface_set_device_offset(mask_surface, 0.5, -0.25);
+    status = cairo_surface_status(mask_surface);
+  }
+
+  cairo_pattern_t *mask = NULL;
+  if (status == CAIRO_STATUS_SUCCESS) {
+    mask = cairo_pattern_create_for_surface(mask_surface);
+    status = cairo_pattern_status(mask);
+  }
+  if (status == CAIRO_STATUS_SUCCESS) {
+    cairo_matrix_t matrix;
+    cairo_matrix_init(&matrix, 0.52, 0.11, -0.09, 0.47, -1.35, 0.55);
+    cairo_pattern_set_extend(mask, CAIRO_EXTEND_REFLECT);
+    cairo_pattern_set_filter(mask, CAIRO_FILTER_NEAREST);
+    cairo_pattern_set_dither(mask, CAIRO_DITHER_NONE);
+    cairo_pattern_set_matrix(mask, &matrix);
+    status = cairo_pattern_status(mask);
+  }
+
+  cairo_pattern_t *linear = NULL;
+  if (status == CAIRO_STATUS_SUCCESS) {
+    linear = cairo_pattern_create_linear(0.0, 0.0, width, 0.0);
+    status = cairo_pattern_status(linear);
+  }
+  if (status == CAIRO_STATUS_SUCCESS) {
+    cairo_pattern_add_color_stop_rgba(linear, 0.0, 0.04, 0.08, 0.16, 0.85);
+    cairo_pattern_add_color_stop_rgba(linear, 0.35, 0.85, 0.25, 0.10, 0.65);
+    cairo_pattern_add_color_stop_rgba(linear, 0.70, 0.10, 0.80, 0.55, 0.75);
+    cairo_pattern_add_color_stop_rgba(linear, 1.0, 0.95, 0.95, 0.25, 0.90);
+    cairo_matrix_t matrix;
+    cairo_matrix_init(&matrix, 0.90, -0.07, 0.13, 0.82, -0.70, 1.20);
+    cairo_pattern_set_extend(linear, CAIRO_EXTEND_PAD);
+    cairo_pattern_set_filter(linear, CAIRO_FILTER_GOOD);
+    cairo_pattern_set_dither(linear, CAIRO_DITHER_FAST);
+    cairo_pattern_set_matrix(linear, &matrix);
+    status = cairo_pattern_status(linear);
+  }
+
+  if (status == CAIRO_STATUS_SUCCESS) {
+    cairo_set_source_rgb(cr, 0.02, 0.025, 0.055);
+    cairo_paint(cr);
+
+    cairo_save(cr);
+    cairo_rectangle(cr, 2.0, 1.0, width - 4.0, height - 2.0);
+    cairo_clip(cr);
+    cairo_push_group_with_content(cr, CAIRO_CONTENT_COLOR_ALPHA);
+    cairo_set_source(cr, linear);
+    cairo_paint(cr);
+    cairo_set_operator(cr, CAIRO_OPERATOR_SCREEN);
+    cairo_rectangle(cr, 3.0, 3.0, width - 6.0, height - 6.0);
+    cairo_set_source_rgba(cr, 0.15, 0.80, 0.95, 0.70);
+    cairo_fill(cr);
+    cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
+    cairo_pop_group_to_source(cr);
+    cairo_mask(cr, mask);
+    cairo_restore(cr);
+    status = cairo_status(cr);
+  }
+
+  if (linear != NULL) {
+    cairo_pattern_destroy(linear);
+  }
+  if (mask != NULL) {
+    cairo_pattern_destroy(mask);
+  }
+  cairo_surface_destroy(mask_surface);
+  return status;
+}

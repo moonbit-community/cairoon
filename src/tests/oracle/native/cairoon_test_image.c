@@ -40,7 +40,8 @@ enum {
   CAIROON_TEST_IMAGE_PATTERN_STACK_COMBO = 34,
   CAIROON_TEST_IMAGE_MESH_MASK_GROUP_COMBO = 35,
   CAIROON_TEST_IMAGE_SURFACE_SOURCE_MASK_GROUP_COMBO = 36,
-  CAIROON_TEST_IMAGE_HAIRLINE_STROKE = 37
+  CAIROON_TEST_IMAGE_HAIRLINE_STROKE = 37,
+  CAIROON_TEST_IMAGE_SURFACE_MASK_SCREEN_GROUP_COMBO = 38
 };
 
 static cairo_status_t cairoon_test_draw_argb32_scene(
@@ -323,6 +324,11 @@ static cairo_status_t cairoon_test_draw_argb32_scene(
       cairo_line_to(cr, width - 1.5, height / 2.0);
       cairo_stroke(cr);
       break;
+    case CAIROON_TEST_IMAGE_SURFACE_MASK_SCREEN_GROUP_COMBO:
+      return cairoon_test_apply_surface_mask_screen_group_combo(
+        cr,
+        width,
+        height);
     default:
       return CAIRO_STATUS_INVALID_STATUS;
   }
