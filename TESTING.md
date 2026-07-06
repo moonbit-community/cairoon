@@ -586,7 +586,7 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, and 2026-07-06:
   path copy/append independence, pycairo-style append string
   equivalence after clearing the source context, flattened append behavior, and
   path error propagation.
-- `moon -C cairoon test context_pycairo_parity_test.mbt --target native -v`: 31
+- `moon -C cairoon test context_pycairo_parity_test.mbt --target native -v`: 32
   black-box Context pycairo parity tests passed, covering the 42x42 default
   clip-extents fixture, zero-radius `arc`/`arc_negative` non-empty paths,
   polygon `path_extents`, polygon `fill_extents`, empty `in_fill`, line
@@ -603,7 +603,11 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, and 2026-07-06:
   font-options round trips, scaled-font round trips, empty
   `select_font_face("")`, `set_font_size(42)` font-matrix fixtures,
   text/font-extents/show-text/text-path fixtures, glyph-extents/show-glyphs/
-  glyph-path fixtures, and the PDF `show_text_glyphs` tuple fixture.
+  glyph-path fixtures, the PDF `show_text_glyphs` tuple fixture, and
+  pycairo's `test_simple` method-smoke flow across `clip_preserve`,
+  `copy_page`, `copy_path_flat`, `fill`, `fill_preserve`, `font_extents`,
+  `identity_matrix`, `new_sub_path`, `show_page`, `stroke_preserve`, dash
+  count, font matrix, group target, scalar getters, and final status.
 - `moon -C cairoon test context_group_test.mbt --target native -v`: 4
   black-box Context group tests passed, covering `push_group`, `pop_group`,
   `pop_group_to_source`, `push_group_with_content`, group-target stack
@@ -2638,6 +2642,13 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, and 2026-07-06:
   path, and PDF no-output `show_text_glyphs` tuple flow. It is included in the
   targeted normal and ASan verification gates, raises that parity file to 31
   tests, and raises the expected full native suite to 508 tests.
+  A later Context pycairo simple-smoke fixture slice extended
+  `context_pycairo_parity_test.mbt`, covering pycairo's `test_simple`
+  method-smoke flow across `clip_preserve`, `copy_page`, `copy_path_flat`,
+  `fill`, `fill_preserve`, `font_extents`, `identity_matrix`, `new_sub_path`,
+  `show_page`, `stroke_preserve`, dash count, font matrix, group target,
+  scalar getters, and final status. It is included in the targeted normal and
+  ASan verification gates and raises that parity file to 32 tests.
   A later Pattern raw-extend parity slice added
   `Pattern::set_extend_raw`/`Pattern::get_extend_raw`, covering pycairo's
   C-int extend passthrough for `42` while keeping typed `Pattern::get_extend`

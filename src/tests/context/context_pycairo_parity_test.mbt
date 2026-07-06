@@ -607,3 +607,34 @@ test "context show_text_glyphs mirrors pycairo pdf tuple fixture" {
   ctx.show_text_glyphs("", empty.glyphs, empty.clusters, flags=empty.flags)
   inspect(ctx.status().is_success(), content="true")
 }
+
+///|
+test "context simple smoke mirrors pycairo method fixture" {
+  let ctx = @cairoon.Context::new(pycairo_context_surface(42, 42))
+
+  ctx.clip_preserve()
+  ctx.copy_page()
+  let flat_path = ctx.copy_path_flat()
+  inspect(flat_path.status().is_success(), content="true")
+  ctx.fill()
+  ctx.fill_preserve()
+  let font_extents = ctx.font_extents()
+  inspect(font_extents.height > 0.0, content="true")
+  ctx.identity_matrix()
+  ctx.new_sub_path()
+  ctx.show_page()
+  ctx.stroke_preserve()
+
+  inspect(ctx.get_dash_count(), content="0")
+  let font_matrix = ctx.get_font_matrix()
+  inspect(font_matrix.xx > 0.0, content="true")
+  inspect(font_matrix.yy > 0.0, content="true")
+  inspect(ctx.get_group_target().status().is_success(), content="true")
+  inspect(ctx.get_line_width() > 0.0, content="true")
+  let tolerance : Double = ctx.get_tolerance()
+  let miter_limit : Double = ctx.get_miter_limit()
+  inspect(tolerance > 0.0, content="true")
+  inspect(miter_limit > 0.0, content="true")
+  assert_pycairo_context_matrix_close(ctx.get_matrix(), @cairoon.Matrix::new())
+  inspect(ctx.status().is_success(), content="true")
+}
