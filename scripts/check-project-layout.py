@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import pathlib
+import re
 import sys
 
 
@@ -14,6 +15,7 @@ ALLOWLIST = REPO_ROOT / "scripts" / "root-layout-allowlist.txt"
 LAYOUT_DOC = REPO_ROOT / "PROJECT_LAYOUT.md"
 MOON_MOD = REPO_ROOT / "moon.mod"
 SOURCE_SUFFIXES = (".mbt.md", ".mbti", ".mbt", ".c", ".h")
+PUBLIC_NATIVE_DIR = PACKAGE_ROOT / "native"
 
 
 def is_source_like(path: pathlib.Path) -> bool:
@@ -99,8 +101,40 @@ def check_test_packages() -> list[str]:
     return errors
 
 
+def read_public_native_stubs() -> set[str]:
+    text = (PACKAGE_ROOT / "moon.pkg").read_text(encoding="utf-8")
+    marker = '"native-stub"'
+    start = text.find(marker)
+    if start == -1:
+        return set()
+    open_bracket = text.find("[", start)
+    close_bracket = text.find("]", open_bracket)
+    if open_bracket == -1 or close_bracket == -1:
+        return set()
+    block = text[open_bracket:close_bracket]
+    return set(re.findall(r'"([^"]+\.c)"', block))
+
+
+def is_under(path: pathlib.Path, parent: pathlib.Path) -> bool:
+    try:
+        path.relative_to(parent)
+    except ValueError:
+        return False
+    return True
+
+
 def check_nested_c_files() -> list[str]:
     errors: list[str] = []
+    public_native_stubs = read_public_native_stubs()
+    for entry in sorted(public_native_stubs):
+        if not entry.startswith("native/"):
+            errors.append(
+                f"src/moon.pkg: native-stub entry {entry!r} must live under "
+                "src/native/"
+            )
+        elif not (PACKAGE_ROOT / entry).exists():
+            errors.append(f"src/moon.pkg: native-stub entry {entry!r} is missing")
+
     for path in sorted(REPO_ROOT.rglob("*")):
         if not path.is_file() or path.parent == REPO_ROOT:
             continue
@@ -108,10 +142,20 @@ def check_nested_c_files() -> list[str]:
             continue
         if ".git" in path.parts or "_build" in path.parts:
             continue
+        if is_under(path, PUBLIC_NATIVE_DIR):
+            if path.suffix == ".c":
+                entry = path.relative_to(PACKAGE_ROOT).as_posix()
+                if entry not in public_native_stubs:
+                    errors.append(
+                        f"{path.relative_to(REPO_ROOT)}: public native C files "
+                        "must be listed in src/moon.pkg native-stub"
+                    )
+            continue
         if not (path.parent / "moon.pkg").exists():
             errors.append(
                 f"{path.relative_to(REPO_ROOT)}: nested C files must live beside "
-                "the moon.pkg that owns their native-stub entry"
+                "the moon.pkg that owns their native-stub entry, or under "
+                "src/native when owned by src/moon.pkg"
             )
     return errors
 

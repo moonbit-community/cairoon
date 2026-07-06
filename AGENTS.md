@@ -46,6 +46,9 @@ add new root-level `.mbt`, `.mbt.md`, `.mbti`, `.c`, or `.h` files;
 the package tree is migrated. Because `moon.mod` sets `source = "src"`,
 executable MoonBit black-box test packages live under `src/tests/<family>/`;
 root-level `tests/` files are outside MoonBit's package search path.
+Native C source/header files owned by the public package live under
+`src/native/`; every `.c` file there must appear in `src/moon.pkg`
+`native-stub` with a `native/` prefix.
 
 Use the historical flat layout below only to understand old audit references
 from before source-root extraction:
@@ -164,53 +167,55 @@ The package config must gate raw FFI code to native and compile the stub:
 ```moonbit
 options(
   "native-stub": [
-    "cairoon_objects.c",
-    "cairoon_stream.c",
-    "cairoon_misc.c",
-    "cairoon_test_common.c",
-    "cairoon_test_file.c",
-    "cairoon_test_vector.c",
-    "cairoon_test_vector_scenes.c",
-    "cairoon_test_vector_tag_scenes.c",
-    "cairoon_test_backend_combo.c",
-    "cairoon_test_backend_nested.c",
-    "cairoon_test_backend_sequence.c",
-    "cairoon_test_pdf_vector.c",
-    "cairoon_test_ps_vector.c",
-    "cairoon_test_svg_vector.c",
-    "cairoon_test_image.c",
-    "cairoon_device.c",
-    "cairoon_surface.c",
-    "cairoon_surface_png.c",
-    "cairoon_surface_mime.c",
-    "cairoon_surface_state.c",
-    "cairoon_surface_font_options.c",
-    "cairoon_image_surface.c",
-    "cairoon_mapped_image_surface.c",
-    "cairoon_recording_surface.c",
-    "cairoon_image_data.c",
-    "cairoon_pdf_surface.c",
-    "cairoon_ps_surface.c",
-    "cairoon_svg_surface.c",
-    "cairoon_tee_surface.c",
-    "cairoon_context.c",
-    "cairoon_context_font_text.c",
-    "cairoon_context_matrix.c",
-    "cairoon_context_state.c",
-    "cairoon_context_path.c",
-    "cairoon_context_clip_extents.c",
-    "cairoon_context_paint.c",
-    "cairoon_glyph.c",
-    "cairoon_path.c",
-    "cairoon_pattern.c",
-    "cairoon_raster_source_callbacks.c",
-    "cairoon_raster_source_pattern.c",
-    "cairoon_mesh_pattern.c",
-    "cairoon_font_options.c",
-    "cairoon_font_face.c",
-    "cairoon_scaled_font.c",
-    "cairoon_scaled_font_oracle.c",
-    "cairoon_region.c",
+    "native/cairoon_objects.c",
+    "native/cairoon_stream.c",
+    "native/cairoon_misc.c",
+    "native/cairoon_test_common.c",
+    "native/cairoon_test_file.c",
+    "native/cairoon_test_vector.c",
+    "native/cairoon_test_vector_scenes.c",
+    "native/cairoon_test_vector_tag_scenes.c",
+    "native/cairoon_test_backend_combo.c",
+    "native/cairoon_test_backend_nested.c",
+    "native/cairoon_test_backend_sequence.c",
+    "native/cairoon_test_backend_tag_matrix.c",
+    "native/cairoon_test_backend_lifecycle.c",
+    "native/cairoon_test_pdf_vector.c",
+    "native/cairoon_test_ps_vector.c",
+    "native/cairoon_test_svg_vector.c",
+    "native/cairoon_test_image.c",
+    "native/cairoon_device.c",
+    "native/cairoon_surface.c",
+    "native/cairoon_surface_png.c",
+    "native/cairoon_surface_mime.c",
+    "native/cairoon_surface_state.c",
+    "native/cairoon_surface_font_options.c",
+    "native/cairoon_image_surface.c",
+    "native/cairoon_mapped_image_surface.c",
+    "native/cairoon_recording_surface.c",
+    "native/cairoon_image_data.c",
+    "native/cairoon_pdf_surface.c",
+    "native/cairoon_ps_surface.c",
+    "native/cairoon_svg_surface.c",
+    "native/cairoon_tee_surface.c",
+    "native/cairoon_context.c",
+    "native/cairoon_context_font_text.c",
+    "native/cairoon_context_matrix.c",
+    "native/cairoon_context_state.c",
+    "native/cairoon_context_path.c",
+    "native/cairoon_context_clip_extents.c",
+    "native/cairoon_context_paint.c",
+    "native/cairoon_glyph.c",
+    "native/cairoon_path.c",
+    "native/cairoon_pattern.c",
+    "native/cairoon_raster_source_callbacks.c",
+    "native/cairoon_raster_source_pattern.c",
+    "native/cairoon_mesh_pattern.c",
+    "native/cairoon_font_options.c",
+    "native/cairoon_font_face.c",
+    "native/cairoon_scaled_font.c",
+    "native/cairoon_scaled_font_oracle.c",
+    "native/cairoon_region.c",
   ],
   targets: {
     "ffi.mbt": ["native"],
@@ -341,7 +346,8 @@ raster-source callback accessors in `pattern_raster_source.mbt`.
 ## C Glue File Boundaries
 
 Follow pycairo's architecture: one C file per Cairo concept family, with shared
-payload types and cross-file helpers declared in `cairoon_private.h`.
+payload types and cross-file helpers declared in `cairoon_private.h`. All C
+file basenames in this section are relative to `src/native/`.
 
 - `cairoon_private.h`: external-object payload structs, wrapper constructors,
   copied-string helper, and cross-family status prototypes.
@@ -401,7 +407,9 @@ payload types and cross-file helpers declared in `cairoon_private.h`.
   drawing scenes belong in `cairoon_test_vector_scenes.c`; tag-heavy vector
   scenes belong in `cairoon_test_vector_tag_scenes.c`; cross-backend feature
   combinations belong in focused files such as `cairoon_test_backend_combo.c`,
-  `cairoon_test_backend_nested.c`, and `cairoon_test_backend_sequence.c`;
+  `cairoon_test_backend_nested.c`, `cairoon_test_backend_sequence.c`,
+  `cairoon_test_backend_tag_matrix.c`, and
+  `cairoon_test_backend_lifecycle.c`;
   single-backend feature renderers belong in the PDF/PS/SVG vector files.
 
 When a new Cairo family is migrated, create a new C file named after that

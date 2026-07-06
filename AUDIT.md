@@ -77,6 +77,10 @@ Implemented in this workspace:
   mapped image lifetimes, image data views, value wrapper stress, raster-source
   callback retention, stream callback stress/fuzz, finalizer fuzz paths, and
   context borrowed-return lifetimes through the published package seam.
+- Public-package C stubs and private C oracle helpers now live in
+  `src/native`, and `src/moon.pkg` references each compiled C file through a
+  `native/...` `native-stub` path. The layout gate now checks that every
+  `src/native/*.c` file is explicitly owned by `src/moon.pkg`.
 - C FFI glue split by Cairo object family, following pycairo's
   `private.h` plus per-family C file architecture. GC-managed external objects
   currently cover `Surface`, `MappedImageSurface`, `ImageData`, `Context`,
