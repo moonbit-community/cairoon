@@ -207,19 +207,8 @@ pub fn FontOptions::set_hint_metrics_raw(
 }
 
 ///|
-fn bytes_have_nul(bytes : Bytes) -> Bool {
-  let nul : Byte = 0
-  for index in 0..<bytes.length() {
-    if bytes[index] == nul {
-      return true
-    }
-  }
-  false
-}
-
-///|
 fn check_no_embedded_nul(bytes : Bytes) -> Unit raise CairoError {
-  if bytes_have_nul(bytes) {
+  if @cstring_impl.has_embedded_nul(bytes) {
     raise CairoInvalidArgument(InvalidString, InvalidString.message())
   }
 }

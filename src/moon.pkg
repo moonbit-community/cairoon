@@ -1,5 +1,6 @@
 import {
   "caimeo/cairoon/core/glyph",
+  "caimeo/cairoon/internal/cstring" @cstring_impl,
   "caimeo/cairoon/internal/format" @format_impl,
   "caimeo/cairoon/internal/pdf" @pdf_impl,
   "caimeo/cairoon/internal/ps" @ps_impl,

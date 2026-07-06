@@ -399,7 +399,9 @@ glyph fields in the facade package.
 
 Internal implementation packages may live under `src/internal/<family>/` when a
 family's public API can remain in the facade while raw externs or helper logic
-move out of the public package root. The first accepted probe is
+move out of the public package root. Pure helper packages under `src/internal/`
+must not import the facade or raise facade-owned errors; the facade keeps error
+mapping. The first accepted probe is
 `src/internal/version`: it owns the raw Cairo version externs and UTF-8 decoding,
 while `src/version.mbt` keeps the published `@cairoon.cairo_version()` and
 `@cairoon.cairo_version_string()` functions as thin wrappers. The second
@@ -418,10 +420,13 @@ version query/string helpers while `src/svg_surface.mbt` keeps public
 `SVGVersion` constructors and object-surface wrappers. The seventh accepted
 probe is `src/internal/stream`: it owns pure stream callback chunk-copy helpers
 while public PDF, PS, SVG, PNG, and script-device stream wrappers stay in the
-facade. Keep enum constructors in the facade unless a compatibility proof shows
-that `@cairoon.<Constructor>` syntax survives. Any internal package that
-imports `caimeo/cairoon/native` must carry Cairo `cc-link-flags` and
-package-local tests so `moon test src/internal/<family> --target native` links
+facade. The eighth accepted probe is `src/internal/cstring`: it owns pure
+embedded-NUL byte scanning, while `check_no_embedded_nul` and the
+`CairoInvalidArgument(InvalidString, _)` mapping stay in the facade. Keep enum
+constructors in the facade unless a compatibility proof shows that
+`@cairoon.<Constructor>` syntax survives. Any internal package that imports
+`caimeo/cairoon/native` must carry Cairo `cc-link-flags` and package-local
+tests so `moon test src/internal/<family> --target native` links
 independently.
 
 Do not move a type whose methods raise `CairoError` into a subpackage until the
@@ -443,9 +448,9 @@ wrapper design is proven. Backend helper packages such as `src/internal/pdf`,
 `src/internal/ps`, and `src/internal/svg`
 must not pull object wrapper types such as `Surface` into child packages until
 the corresponding object family seam is proven. Pure internal helper packages
-such as `src/internal/stream` may expose small public helper functions to the
-facade when they have no dependency on facade-owned types, enum constructors,
-or `CairoError` suberrors.
+such as `src/internal/stream` and `src/internal/cstring` may expose small
+public helper functions to the facade when they have no dependency on
+facade-owned types, enum constructors, or `CairoError` suberrors.
 
 The public package root is frozen migration debt. Do not add new source-like
 files directly under `src/`; put new implementation in the package selected by

@@ -1,0 +1,13 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "caimeo/cairoon/internal/cstring"
+
+// Values
+pub fn has_embedded_nul(Bytes) -> Bool
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits
