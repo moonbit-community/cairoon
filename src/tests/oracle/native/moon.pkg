@@ -27,6 +27,7 @@ options(
     "cairoon_test_backend_state_stack.c",
     "cairoon_test_backend_text_state.c",
     "cairoon_test_backend_deep_tag.c",
+    "cairoon_test_backend_metadata_outline.c",
     "cairoon_test_pdf_vector.c",
     "cairoon_test_ps_vector.c",
     "cairoon_test_svg_vector.c",
