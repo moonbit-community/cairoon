@@ -886,7 +886,8 @@ A migrated API is done only when:
 - Public MoonBit wrappers compile with `moon check --target native`.
 - Tests pass with `moon test --target native`.
 - ASan run is clean.
-- Every non-primitive FFI parameter has an explicit `#borrow` or `#owned`.
+- Every non-primitive parameter in production `src/**/ffi*.mbt` raw FFI files
+  has an explicit `#borrow` or `#owned`.
 - Every Cairo-owned pointer has exactly one MoonBit external-object owner.
 - Every borrowed Cairo return that escapes to MoonBit is referenced before
   wrapping.

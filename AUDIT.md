@@ -11,8 +11,9 @@ Implemented in this workspace:
   `scripts/configure-link-flags.sh --check` in the local reliability gate.
 - Static raw FFI ownership linting through
   `scripts/check-ffi-ownership.py`, wired into `scripts/verify.sh`, so every
-  non-primitive `ffi*.mbt` parameter must be annotated with `#borrow` or
-  `#owned`.
+  non-primitive production `src/**/ffi*.mbt` parameter must be annotated with
+  `#borrow` or `#owned`; test oracle `*_ffi_test.mbt` files are deliberately
+  outside this production-boundary lint.
 - Static top-level and portable method pycairo API inventory linting through
   `scripts/check-api-inventory.py`, wired into `scripts/verify.sh`, so every
   public class/function in parent `cairo/__init__.pyi` must have an

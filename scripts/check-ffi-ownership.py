@@ -10,6 +10,7 @@ import sys
 
 REPO_ROOT = pathlib.Path(__file__).resolve().parents[1]
 PACKAGE_ROOT = REPO_ROOT / "src"
+TEST_PACKAGE_ROOT = PACKAGE_ROOT / "tests"
 OBJECT_TYPES = {
     "Context",
     "Device",
@@ -156,15 +157,24 @@ def check_file(path: pathlib.Path) -> list[str]:
     return errors
 
 
+def iter_production_ffi_files() -> list[pathlib.Path]:
+    return [
+        path
+        for path in sorted(PACKAGE_ROOT.rglob("ffi*.mbt"))
+        if TEST_PACKAGE_ROOT not in path.parents
+    ]
+
+
 def main() -> int:
     errors: list[str] = []
-    for path in sorted(PACKAGE_ROOT.glob("ffi*.mbt")):
+    files = iter_production_ffi_files()
+    for path in files:
         errors.extend(check_file(path))
     if errors:
         for error in errors:
             print(error, file=sys.stderr)
         return 1
-    print("FFI ownership annotations ok")
+    print(f"FFI ownership annotations ok in {len(files)} production files")
     return 0
 
 

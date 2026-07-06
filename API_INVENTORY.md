@@ -64,7 +64,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 | PDF helper implementation package seam | Done | Moves raw PDF version count/version/string extern declarations and UTF-8 decoding into `src/internal/pdf`, keeps public `PDFVersion` constructors and `Surface::pdf*` wrappers in the facade, and verifies package-local plus surface black-box PDF version behavior through the published package seam |
 | PS helper implementation package seam | Done | Moves raw PostScript level count/level/string extern declarations and UTF-8 decoding into `src/internal/ps`, keeps public `PSLevel` constructors and `Surface::ps*` wrappers in the facade, and verifies package-local plus surface black-box PS level behavior through the published package seam |
 | SVG helper implementation package seam | Done | Moves raw SVG version count/version/string extern declarations and UTF-8 decoding into `src/internal/svg`, keeps public `SVGVersion` constructors and `Surface::svg*` wrappers in the facade, and verifies package-local plus surface black-box SVG version behavior through the published package seam |
-| FFI ownership annotation lint | Done | Adds `scripts/check-ffi-ownership.py` and wires it into `scripts/verify.sh`, so every non-primitive raw C FFI parameter in `ffi*.mbt` must be covered by `#borrow` or `#owned`; fixes the existing stream and raster-source callback trampoline annotations caught by the lint |
+| FFI ownership annotation lint | Done | Adds `scripts/check-ffi-ownership.py` and wires it into `scripts/verify.sh`, so every non-primitive raw C FFI parameter in production `src/**/ffi*.mbt` files, including internal helper packages, must be covered by `#borrow` or `#owned`; fixes the existing stream and raster-source callback trampoline annotations caught by the lint |
 | Reliability ledger lint | Done | Adds `scripts/check-reliability-ledger.py` and wires it into `scripts/verify.sh`, so migration status rows use only the accepted statuses, `Partial` rows state their remaining gaps explicitly, the TESTING scorecard keeps all required reliability dimensions, and CI continues to run the native/ASan verify gates |
 | Backend combo deep structure tags | Done | Broadens the existing backend feature/tag stream-combo scene with a third PDF outline and nested Document/Sect/H1/P/Span structure tags, keeping file-vs-stream equality, direct C oracle comparison, PDF marker checks, and PS/SVG inertness checks on the same scene |
 | CI reliability workflow | Done | Adds `.github/workflows/ci.yml` with Ubuntu/macOS native `./scripts/verify.sh` jobs and a dedicated Ubuntu ASan verify job, using the official MoonBit CLI installer plus Cairo development packages |
@@ -305,8 +305,9 @@ Detailed execution rules live in `TESTING.md`.
   involved, deterministic pixel or vector-output assertions.
 - Rendering APIs must gain differential tests against pycairo or Cairo C
   golden output before being called complete.
-- Raw `ffi*.mbt` declarations must pass `scripts/check-ffi-ownership.py`; every
-  non-primitive C FFI parameter must be covered by `#borrow` or `#owned`.
+- Production `src/**/ffi*.mbt` declarations must pass
+  `scripts/check-ffi-ownership.py`; every non-primitive C FFI parameter must be
+  covered by `#borrow` or `#owned`.
 - Every C-owned object must have an ASan/LSan run that exercises construction,
   normal use, error paths, and finalization.
 - Public API changes must regenerate and review `src/pkg.generated.mbti`.
