@@ -52,6 +52,11 @@ Implemented in this workspace:
   pycairo parity fixtures, groups, text/glyph APIs, extents, clipping, painting,
   tags, and ScaledFont text-to-glyph conversion through the published package
   seam.
+- Pattern black-box tests now live in `src/tests/pattern`, importing only the
+  public `caimeo/cairoon` API. This validates solid/surface/common-state
+  patterns, pycairo parity fixtures, gradient queries, mesh patch lifecycle,
+  raster-source callbacks, and raster-source callback fuzz/state behavior
+  through the published package seam.
 - C FFI glue split by Cairo object family, following pycairo's
   `private.h` plus per-family C file architecture. GC-managed external objects
   currently cover `Surface`, `MappedImageSurface`, `ImageData`, `Context`,

@@ -1,10 +1,10 @@
 ///|
 test "solid pattern exposes rgba" {
-  let rgb_pattern = Pattern::solid_rgb(0.125, 0.25, 0.5)
+  let rgb_pattern = @cairoon.Pattern::solid_rgb(0.125, 0.25, 0.5)
   let (_, _, _, opaque_alpha) = rgb_pattern.get_rgba()
   inspect(opaque_alpha, content="1")
 
-  let pattern = Pattern::solid_rgba(0.125, 0.25, 0.5, 0.75)
+  let pattern = @cairoon.Pattern::solid_rgba(0.125, 0.25, 0.5, 0.75)
   let (red, green, blue, alpha) = pattern.get_rgba()
   inspect(red, content="0.125")
   inspect(green, content="0.25")
@@ -14,27 +14,27 @@ test "solid pattern exposes rgba" {
 
 ///|
 test "pattern equality and hash use cairo pointer identity" {
-  let surface = Surface::image(Argb32, 1, 1)
-  let ctx = Context::new(surface)
+  let surface = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let ctx = @cairoon.Context::new(surface)
   let pattern = ctx.get_source()
   let same = ctx.get_source()
   inspect(pattern.equal(same), content="true")
   inspect(pattern.hash() == same.hash(), content="true")
 
-  let other = Pattern::solid_rgb(0.0, 0.0, 0.0)
+  let other = @cairoon.Pattern::solid_rgb(0.0, 0.0, 0.0)
   inspect(pattern.equal(other), content="false")
   inspect(other.hash() == 0UL, content="false")
 }
 
 ///|
 test "pattern extend filter and matrix mirror cairo state" {
-  let pattern = Pattern::solid_rgb(1.0, 0.0, 0.0)
+  let pattern = @cairoon.Pattern::solid_rgb(1.0, 0.0, 0.0)
   debug_inspect(pattern.get_extend(), content="Pad")
   debug_inspect(pattern.get_filter(), content="Good")
-  pattern.set_extend(Repeat)
-  pattern.set_filter(Nearest)
-  pattern.set_dither(DitherBest)
-  let matrix = Matrix::new(xx=0.5, yy=0.25, x0=3.0, y0=5.0)
+  pattern.set_extend(@cairoon.Repeat)
+  pattern.set_filter(@cairoon.Nearest)
+  pattern.set_dither(@cairoon.DitherBest)
+  let matrix = @cairoon.Matrix::new(xx=0.5, yy=0.25, x0=3.0, y0=5.0)
   pattern.set_matrix(matrix)
   debug_inspect(pattern.get_extend(), content="Repeat")
   debug_inspect(pattern.get_filter(), content="Nearest")
@@ -47,14 +47,14 @@ test "pattern extend filter and matrix mirror cairo state" {
 
 ///|
 test "pattern raw extend mirrors pycairo c int passthrough" {
-  let pattern = Pattern::solid_rgb(1.0, 0.0, 0.0)
+  let pattern = @cairoon.Pattern::solid_rgb(1.0, 0.0, 0.0)
   inspect(pattern.get_extend_raw(), content="3")
 
   pattern.set_extend_raw(42)
   inspect(pattern.get_extend_raw(), content="42")
-  let typed_unknown = run_cairo(() => pattern.get_extend())
+  let typed_unknown = @cairoon.run_cairo(() => pattern.get_extend())
   match typed_unknown {
-    Err(CairoInvalidArgument(InvalidStatus, _)) => ()
+    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidStatus, _)) => ()
     _ => @test.fail("expected typed getter to reject unknown raw extend")
   }
 
@@ -65,15 +65,15 @@ test "pattern raw extend mirrors pycairo c int passthrough" {
 
 ///|
 test "pattern raw filter and dither mirror pycairo c int passthrough" {
-  let pattern = Pattern::solid_rgb(1.0, 0.0, 0.0)
+  let pattern = @cairoon.Pattern::solid_rgb(1.0, 0.0, 0.0)
   inspect(pattern.get_filter_raw(), content="1")
   inspect(pattern.get_dither_raw(), content="1")
 
   pattern.set_filter_raw(42)
   inspect(pattern.get_filter_raw(), content="42")
-  let typed_filter_unknown = run_cairo(() => pattern.get_filter())
+  let typed_filter_unknown = @cairoon.run_cairo(() => pattern.get_filter())
   match typed_filter_unknown {
-    Err(CairoInvalidArgument(InvalidStatus, _)) => ()
+    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidStatus, _)) => ()
     _ => @test.fail("expected typed getter to reject unknown raw filter")
   }
 
@@ -83,9 +83,9 @@ test "pattern raw filter and dither mirror pycairo c int passthrough" {
 
   pattern.set_dither_raw(42)
   inspect(pattern.get_dither_raw(), content="42")
-  let typed_dither_unknown = run_cairo(() => pattern.get_dither())
+  let typed_dither_unknown = @cairoon.run_cairo(() => pattern.get_dither())
   match typed_dither_unknown {
-    Err(CairoInvalidArgument(InvalidStatus, _)) => ()
+    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidStatus, _)) => ()
     _ => @test.fail("expected typed getter to reject unknown raw dither")
   }
 
@@ -96,9 +96,9 @@ test "pattern raw filter and dither mirror pycairo c int passthrough" {
 
 ///|
 test "context can paint from explicit solid pattern" {
-  let surface = Surface::image(Argb32, 1, 1)
-  let ctx = Context::new(surface)
-  let pattern = Pattern::solid_rgba(0.0, 1.0, 0.0, 1.0)
+  let surface = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let ctx = @cairoon.Context::new(surface)
+  let pattern = @cairoon.Pattern::solid_rgba(0.0, 1.0, 0.0, 1.0)
   ctx.set_source(pattern)
   ctx.paint()
   let data = surface.copy_data()
@@ -109,19 +109,19 @@ test "context can paint from explicit solid pattern" {
 }
 
 ///|
-fn make_red_surface_pattern() -> Pattern raise CairoError {
-  let source = Surface::image(Argb32, 1, 1)
-  let source_ctx = Context::new(source)
+fn make_red_surface_pattern() -> @cairoon.Pattern raise @cairoon.CairoError {
+  let source = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let source_ctx = @cairoon.Context::new(source)
   source_ctx.set_source_rgba(1.0, 0.0, 0.0, 1.0)
   source_ctx.paint()
-  Pattern::for_surface(source)
+  @cairoon.Pattern::for_surface(source)
 }
 
 ///|
 test "surface pattern paints after source scope exits" {
   let pattern = make_red_surface_pattern()
-  let surface = Surface::image(Argb32, 1, 1)
-  let ctx = Context::new(surface)
+  let surface = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let ctx = @cairoon.Context::new(surface)
   ctx.set_source(pattern)
   ctx.paint()
   let data = surface.copy_data()
@@ -133,11 +133,11 @@ test "surface pattern paints after source scope exits" {
 
 ///|
 test "surface pattern get_surface returns referenced surface wrapper" {
-  let source = Surface::image(Argb32, 1, 1)
-  let source_ctx = Context::new(source)
+  let source = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let source_ctx = @cairoon.Context::new(source)
   source_ctx.set_source_rgba(0.0, 1.0, 0.0, 1.0)
   source_ctx.paint()
-  let pattern = Pattern::for_surface(source)
+  let pattern = @cairoon.Pattern::for_surface(source)
   let returned = pattern.get_surface()
   inspect(returned.get_width(), content="1")
   inspect(returned.get_height(), content="1")
@@ -149,23 +149,23 @@ test "surface pattern get_surface returns referenced surface wrapper" {
 }
 
 ///|
-fn make_returned_surface_from_pattern() -> Surface raise CairoError {
-  let source = Surface::image(Argb32, 1, 1)
-  let source_ctx = Context::new(source)
+fn make_returned_surface_from_pattern() -> @cairoon.Surface raise @cairoon.CairoError {
+  let source = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let source_ctx = @cairoon.Context::new(source)
   source_ctx.set_source_rgba(1.0, 0.0, 0.0, 1.0)
   source_ctx.paint()
-  let pattern = Pattern::for_surface(source)
+  let pattern = @cairoon.Pattern::for_surface(source)
   pattern.get_surface()
 }
 
 ///|
-fn make_returned_data_surface_from_pattern() -> Surface raise CairoError {
+fn make_returned_data_surface_from_pattern() -> @cairoon.Surface raise @cairoon.CairoError {
   let data : FixedArray[Byte] = FixedArray::make(4, b'\x00')
-  let source = Surface::image_for_data(data, Argb32, 1, 1)
-  let source_ctx = Context::new(source)
+  let source = @cairoon.Surface::image_for_data(data, @cairoon.Argb32, 1, 1)
+  let source_ctx = @cairoon.Context::new(source)
   source_ctx.set_source_rgba(0.0, 0.0, 1.0, 1.0)
   source_ctx.paint()
-  let pattern = Pattern::for_surface(source)
+  let pattern = @cairoon.Pattern::for_surface(source)
   pattern.get_surface()
 }
 
@@ -191,14 +191,14 @@ test "surface pattern get_surface keeps data-backed surface alive" {
 
 ///|
 test "non-surface pattern get_surface maps type mismatch status" {
-  let solid = Pattern::solid_rgba(0.0, 0.0, 1.0, 1.0)
-  let result = run_cairo(() => {
+  let solid = @cairoon.Pattern::solid_rgba(0.0, 0.0, 1.0, 1.0)
+  let result = @cairoon.run_cairo(() => {
     let _ = solid.get_surface()
     ()
   })
   inspect(result is Err(_), content="true")
   match result {
-    Err(CairoError(PatternTypeMismatch, _)) => ()
+    Err(@cairoon.CairoError(@cairoon.PatternTypeMismatch, _)) => ()
     _ => @test.fail("expected PatternTypeMismatch")
   }
 }
@@ -206,10 +206,10 @@ test "non-surface pattern get_surface maps type mismatch status" {
 ///|
 test "surface pattern get_rgba maps type mismatch status" {
   let pattern = make_red_surface_pattern()
-  let result = run_cairo(() => pattern.get_rgba())
+  let result = @cairoon.run_cairo(() => pattern.get_rgba())
   inspect(result is Err(_), content="true")
   match result {
-    Err(CairoError(PatternTypeMismatch, _)) => ()
+    Err(@cairoon.CairoError(@cairoon.PatternTypeMismatch, _)) => ()
     _ => @test.fail("expected PatternTypeMismatch")
   }
 }

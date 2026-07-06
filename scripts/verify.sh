@@ -62,11 +62,6 @@ targeted_tests=(
   object_traits_test.mbt
   context_lifetime_test.mbt
   path_test.mbt
-  pattern_test.mbt
-  pattern_pycairo_parity_test.mbt
-  pattern_raster_source_test.mbt
-  pattern_gradient_test.mbt
-  pattern_mesh_test.mbt
   pattern_raster_manual_wbtest.mbt
   pattern_raster_owner_wbtest.mbt
   pattern_raster_state_wbtest.mbt

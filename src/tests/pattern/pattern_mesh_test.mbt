@@ -1,24 +1,26 @@
 ///|
-fn expect_mesh_error(result : Result[Unit, CairoError]) -> Unit raise {
+fn expect_mesh_error(result : Result[Unit, @cairoon.CairoError]) -> Unit raise {
   inspect(result is Err(_), content="true")
   match result {
-    Err(CairoError(InvalidMeshConstruction, _)) => ()
+    Err(@cairoon.CairoError(@cairoon.InvalidMeshConstruction, _)) => ()
     _ => @test.fail("expected InvalidMeshConstruction")
   }
 }
 
 ///|
-fn expect_mesh_invalid_index(result : Result[Unit, CairoError]) -> Unit raise {
+fn expect_mesh_invalid_index(
+  result : Result[Unit, @cairoon.CairoError],
+) -> Unit raise {
   inspect(result is Err(_), content="true")
   match result {
-    Err(CairoInvalidArgument(InvalidIndex, _)) => ()
+    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidIndex, _)) => ()
     _ => @test.fail("expected InvalidIndex")
   }
 }
 
 ///|
 test "mesh pattern builds coons patch and exposes path color and points" {
-  let pattern = Pattern::mesh()
+  let pattern = @cairoon.Pattern::mesh()
   inspect(pattern.mesh_get_patch_count(), content="0")
 
   pattern.mesh_begin_patch()
@@ -51,7 +53,7 @@ test "mesh pattern builds coons patch and exposes path color and points" {
 
 ///|
 test "mesh pattern builds triangle patch and paints" {
-  let pattern = Pattern::mesh()
+  let pattern = @cairoon.Pattern::mesh()
   pattern.mesh_begin_patch()
   pattern.mesh_move_to(0.0, 0.0)
   pattern.mesh_line_to(2.0, 0.0)
@@ -61,8 +63,8 @@ test "mesh pattern builds triangle patch and paints" {
   pattern.mesh_set_corner_color_rgba(2, 1.0, 0.0, 0.0, 1.0)
   pattern.mesh_end_patch()
 
-  let surface = Surface::image(Argb32, 1, 1)
-  let ctx = Context::new(surface)
+  let surface = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let ctx = @cairoon.Context::new(surface)
   ctx.set_source(pattern)
   ctx.paint()
   let data = surface.copy_data()
@@ -72,7 +74,7 @@ test "mesh pattern builds triangle patch and paints" {
 
 ///|
 test "mesh pattern accepts curve command as first patch path segment" {
-  let pattern = Pattern::mesh()
+  let pattern = @cairoon.Pattern::mesh()
   pattern.mesh_begin_patch()
   pattern.mesh_curve_to(0.0, 1.0, 2.0, 3.0, 4.0, 5.0)
   pattern.mesh_set_corner_color_rgba(0, 0.125, 0.25, 0.5, 0.75)
@@ -90,7 +92,7 @@ test "mesh pattern accepts curve command as first patch path segment" {
     content="true",
   )
   expect_mesh_invalid_index(
-    run_cairo(() => {
+    @cairoon.run_cairo(() => {
       let _ = pattern.mesh_get_control_point(1, 0)
       ()
     }),
@@ -99,7 +101,7 @@ test "mesh pattern accepts curve command as first patch path segment" {
 
 ///|
 test "mesh pattern invalid patch and point indexes map to invalid argument" {
-  let pattern = Pattern::mesh()
+  let pattern = @cairoon.Pattern::mesh()
   pattern.mesh_begin_patch()
   pattern.mesh_move_to(0.0, 0.0)
   pattern.mesh_line_to(1.0, 0.0)
@@ -107,65 +109,75 @@ test "mesh pattern invalid patch and point indexes map to invalid argument" {
   pattern.mesh_end_patch()
 
   expect_mesh_invalid_index(
-    run_cairo(() => {
+    @cairoon.run_cairo(() => {
       let _ = pattern.mesh_get_corner_color_rgba(1, 0)
       ()
     }),
   )
   expect_mesh_invalid_index(
-    run_cairo(() => {
+    @cairoon.run_cairo(() => {
       let _ = pattern.mesh_get_corner_color_rgba(0, 9)
       ()
     }),
   )
   expect_mesh_invalid_index(
-    run_cairo(() => {
+    @cairoon.run_cairo(() => {
       let _ = pattern.mesh_get_control_point(0, 9)
       ()
     }),
   )
   expect_mesh_invalid_index(
-    run_cairo(() => {
+    @cairoon.run_cairo(() => {
       let _ = pattern.mesh_get_path(9)
       ()
     }),
   )
   expect_mesh_invalid_index(
-    run_cairo(() => pattern.mesh_set_control_point(-1, 0.0, 0.0)),
+    @cairoon.run_cairo(() => pattern.mesh_set_control_point(-1, 0.0, 0.0)),
   )
 }
 
 ///|
 test "mesh pattern lifecycle errors propagate cairo status" {
-  let pattern = Pattern::mesh()
+  let pattern = @cairoon.Pattern::mesh()
   pattern.mesh_begin_patch()
-  expect_mesh_error(run_cairo(() => pattern.mesh_begin_patch()))
+  expect_mesh_error(@cairoon.run_cairo(() => pattern.mesh_begin_patch()))
 
-  expect_mesh_error(run_cairo(() => Pattern::mesh().mesh_end_patch()))
   expect_mesh_error(
-    run_cairo(() => Pattern::mesh().mesh_curve_to(0.0, 1.0, 2.0, 3.0, 4.0, 5.0)),
+    @cairoon.run_cairo(() => @cairoon.Pattern::mesh().mesh_end_patch()),
   )
-  expect_mesh_error(run_cairo(() => Pattern::mesh().mesh_line_to(130.0, 130.0)))
-  expect_mesh_error(run_cairo(() => Pattern::mesh().mesh_move_to(0.0, 0.0)))
   expect_mesh_error(
-    run_cairo(() => {
-      Pattern::mesh().mesh_set_corner_color_rgba(0, 0.125, 0.25, 0.5, 0.75)
+    @cairoon.run_cairo(() => {
+      @cairoon.Pattern::mesh().mesh_curve_to(0.0, 1.0, 2.0, 3.0, 4.0, 5.0)
     }),
   )
   expect_mesh_error(
-    run_cairo(() => {
-      Pattern::mesh().mesh_set_corner_color_rgb(0, 0.125, 0.25, 0.5)
+    @cairoon.run_cairo(() => @cairoon.Pattern::mesh().mesh_line_to(130.0, 130.0)),
+  )
+  expect_mesh_error(
+    @cairoon.run_cairo(() => @cairoon.Pattern::mesh().mesh_move_to(0.0, 0.0)),
+  )
+  expect_mesh_error(
+    @cairoon.run_cairo(() => {
+      @cairoon.Pattern::mesh().mesh_set_corner_color_rgba(
+        0, 0.125, 0.25, 0.5, 0.75,
+      )
+    }),
+  )
+  expect_mesh_error(
+    @cairoon.run_cairo(() => {
+      @cairoon.Pattern::mesh().mesh_set_corner_color_rgb(0, 0.125, 0.25, 0.5)
     }),
   )
 }
 
 ///|
 test "mesh methods reject non-mesh patterns" {
-  let solid = Pattern::solid_rgb(0.0, 0.0, 0.0)
-  let result = run_cairo(() => solid.mesh_begin_patch())
+  let solid = @cairoon.Pattern::solid_rgb(0.0, 0.0, 0.0)
+  let result = @cairoon.run_cairo(() => solid.mesh_begin_patch())
   inspect(result is Err(_), content="true")
   match result {
-    Err(CairoError(PatternTypeMismatch, _)) => ()
+    Err(@cairoon.CairoError(@cairoon.PatternTypeMismatch, _)) => ()
     _ => @test.fail("expected PatternTypeMismatch")
   }
 }

@@ -209,12 +209,10 @@ It runs `moon fmt --check`, `scripts/check-project-layout.py`,
 `scripts/check-api-inventory.py`, `scripts/check-reliability-ledger.py`,
 native `moon check`, extracted external black-box packages under
 `src/tests/api` (version, enum, status, and pure value APIs),
-`src/tests/matrix`, `src/tests/region`, `src/tests/surface`, and
-`src/tests/context`, targeted white-box image, ScaledFont, vector-output,
-surface stream,
-script-device, object-trait, context-lifetime, path,
-core/pycairo-parity/gradient/mesh pattern, and
-raster-pattern tests, the full
+`src/tests/matrix`, `src/tests/region`, `src/tests/surface`,
+`src/tests/context`, and `src/tests/pattern`, targeted white-box image,
+ScaledFont, vector-output, surface stream, script-device, object-trait,
+context-lifetime, path, and raster-pattern tests, the full
 native test suite, `moon info --target native`, and targeted ASan builds for
 all external black-box packages and the same target list when an ASan-capable
 `clang` is available.
