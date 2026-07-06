@@ -404,7 +404,7 @@ executable reference examples for FontOptions state/copy/merge, color
 palettes, toy font faces, Surface/Context font options, ScaledFont
 matrices/metrics, text-to-glyphs, and checked font errors.
 
-Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, and 2026-07-06:
+Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026-07-07:
 
 - `./scripts/verify.sh`: passed. The local reliability gate ran
   `moon fmt --check`, `scripts/configure-link-flags.sh --check`,
@@ -427,6 +427,7 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, and 2026-07-06:
   context-lifetime/state/matrix/path/group/text/glyph/extents/clip/painting, Path,
   pattern/gradient/mesh, raster manual/owner/state, and Region/lifetime-stress tests with
   leak detection disabled. The current run includes
+  the FontOptions variation embedded-NUL slice,
   the pycairo context font-extents parity slice,
   the pycairo group-target stack-restoration slice,
   the pycairo rectangle path-extents slice,
@@ -482,7 +483,7 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, and 2026-07-06:
   text vector stream equivalence slice, and the single-page tag stream
   equivalence slice.
 - `moon -C cairoon check --target native`: passed.
-- `moon -C cairoon test --target native`: 557 tests passed. The current run
+- `moon -C cairoon test --target native`: 558 tests passed. The current run
   includes the expanded pattern-combo image oracle slice,
   the mesh-mask group-compositing image oracle slice,
   the tag-heavy stream-to-direct-oracle differential slice,
@@ -499,6 +500,7 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, and 2026-07-06:
   the pycairo raw C-int operator passthrough slice,
   the pycairo raw C-int context drawing-state enum passthrough slice,
   the pycairo raw C-int FontOptions enum passthrough slice,
+  the FontOptions variation embedded-NUL slice,
   the pycairo raw C-int toy-font slant/weight parsing slice,
   the pycairo raw C-int content constructor slice,
   the pycairo raw C-int format constructor/getter slice,
@@ -2856,6 +2858,12 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, and 2026-07-06:
   file-vs-direct-C equality, stream-vs-direct-C equality through the backend
   oracle dispatcher, stable PDF/PS/SVG marker checks, and PS/SVG file/stream
   negative PDF-metadata checks.
+  A later FontOptions variation string-boundary slice added one black-box test
+  proving `FontOptions::set_variations(Some(...))` rejects embedded NUL
+  strings with `CairoInvalidArgument(InvalidString, _)` before FFI and leaves
+  the previous valid variation value intact. This raises
+  `font_options_test.mbt` to 9 tests and the expected full native suite to 558
+  tests without changing public API.
 
 Remaining reliability work is now narrower and should be tracked as evidence,
 not as an unstructured checklist:

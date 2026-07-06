@@ -39,6 +39,24 @@ test "font options setters round trip state" {
 }
 
 ///|
+test "font options variations reject embedded nul strings" {
+  let options = @cairoon.FontOptions::new()
+  options.set_variations(Some("wght=300"))
+  let result = @cairoon.run_cairo(() => {
+    options.set_variations(Some("wght=300\u{0}wdth=80"))
+  })
+  inspect(result is Err(_), content="true")
+  match result {
+    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidString, _)) => ()
+    _ => @test.fail("expected InvalidString")
+  }
+  match options.get_variations() {
+    Some(variations) => inspect(variations, content="wght=300")
+    None => @test.fail("expected original variations to survive failed set")
+  }
+}
+
+///|
 test "font options raw enums mirror pycairo c int passthrough" {
   let antialias_options = @cairoon.FontOptions::new()
   antialias_options.set_antialias(@cairoon.AntialiasGood)
