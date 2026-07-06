@@ -169,8 +169,8 @@ test "pdf direct document feature output contains combined markers" {
     "/ISBN (978-0123456789)", "/Count 2", "/Type /Page % 1", "/Type /Page % 2", "/PageLabels",
     "(intro)", "(details)", "/Outlines", "/Title (intro page)", "/Title (details page)",
     "/F 2", "/F 1", "/Annots [", "/Subtype /Link", "/S /URI", "/URI (https://example.com/combined)",
-    "/Dest (combined-direct-dest)", "/Names", "/Dests", "(combined-direct-dest)",
-    "/StructTreeRoot", "/S /Link", "/S /Document", "/S /Sect", "/S /P", "%%EOF",
+    "/Dest", "/Names", "/Dests", "(combined-direct-dest)", "/StructTreeRoot", "/S /Link",
+    "/S /Document", "/S /Sect", "/S /P", "%%EOF",
   ])
 }
 
@@ -187,9 +187,8 @@ test "pdf page operation document feature output contains retained markers" {
     "/CreationDate (20260102030405+00'00')", "/ModDate (20260102030405+00'00')",
     "/Case (copy-show)", "/Count 2", "/PageLabels", "(copy-intro)", "(copy-details)",
     "/Outlines", "/Title (copy intro)", "/Title (copy details)", "/Annots [", "/Subtype /Link",
-    "/S /URI", "/URI (https://example.com/page-op)", "/Dest (page-op-dest)", "/Names",
-    "/Dests", "(page-op-dest)", "/StructTreeRoot", "/S /Document", "/S /Sect", "/S /P",
-    "%%EOF",
+    "/S /URI", "/URI (https://example.com/page-op)", "/Dest", "/Names", "/Dests",
+    "(page-op-dest)", "/StructTreeRoot", "/S /Document", "/S /Sect", "/S /P", "%%EOF",
   ])
 }
 
@@ -328,9 +327,8 @@ test "pdf mixed vector tag text output contains combined tag markers" {
   render_vector_oracle_scene(0, 26, path)
   expect_vector_output(path, [
     "%PDF-1.4", "/Type /Page % 1", "/Annots [", "/Subtype /Link", "/S /URI", "/URI (https://example.com/mixed)",
-    "/Dest (cairoon-mixed-dest)", "/Names", "/Dests", "(cairoon-mixed-dest)", "/StructTreeRoot",
-    "/Type /StructElem", "/S /Link", "/S /Document", "/S /Sect", "/S /P", "/StructParents 0",
-    "%%EOF",
+    "/Dest", "/Names", "/Dests", "(cairoon-mixed-dest)", "/StructTreeRoot", "/Type /StructElem",
+    "/S /Link", "/S /Document", "/S /Sect", "/S /P", "/StructParents 0", "%%EOF",
   ])
 }
 
@@ -350,9 +348,9 @@ test "pdf grouped glyph tag multi-page output contains combined markers" {
   render_vector_oracle_scene(0, 30, path)
   expect_vector_output(path, [
     "%PDF-1.4", "/Count 2", "/Type /Page % 1", "/Type /Page % 2", "/Annots [", "/Subtype /Link",
-    "/S /URI", "/URI (https://example.com/grouped-glyphs)", "/Dest (cairoon-grouped-dest)",
-    "/Names", "/Dests", "(cairoon-grouped-dest)", "/StructTreeRoot", "/Type /StructElem",
-    "/S /Link", "/S /Document", "/S /Sect", "/S /P", "%%EOF",
+    "/S /URI", "/URI (https://example.com/grouped-glyphs)", "/Dest", "/Names", "/Dests",
+    "(cairoon-grouped-dest)", "/StructTreeRoot", "/Type /StructElem", "/S /Link",
+    "/S /Document", "/S /Sect", "/S /P", "%%EOF",
   ])
 }
 

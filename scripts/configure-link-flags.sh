@@ -6,6 +6,28 @@ cd "$repo_root"
 public_package_config="$repo_root/src/moon.pkg"
 native_package_config="$repo_root/src/native/moon.pkg"
 package_root="$repo_root/src"
+constants_file="$repo_root/src/constants.mbt"
+feature_const_names=(
+  HAS_ATSUI_FONT
+  HAS_FT_FONT
+  HAS_GLITZ_SURFACE
+  HAS_IMAGE_SURFACE
+  HAS_MIME_SURFACE
+  HAS_PDF_SURFACE
+  HAS_PNG_FUNCTIONS
+  HAS_PS_SURFACE
+  HAS_QUARTZ_SURFACE
+  HAS_RECORDING_SURFACE
+  HAS_SCRIPT_SURFACE
+  HAS_SVG_SURFACE
+  HAS_TEE_SURFACE
+  HAS_USER_FONT
+  HAS_WIN32_FONT
+  HAS_WIN32_SURFACE
+  HAS_XCB_SURFACE
+  HAS_XLIB_SURFACE
+  HAS_DWRITE_FONT
+)
 
 usage() {
   cat <<'USAGE'
@@ -66,11 +88,182 @@ fi
 
 cc_flags="${cc_parts[*]}"
 link_flags="${link_parts[*]}"
+cairo_version_string="$("$pkg_config" --modversion cairo)"
+if [[ ! "$cairo_version_string" =~ ^([0-9]+)\.([0-9]+)\.([0-9]+) ]]; then
+  printf 'error: could not parse cairo version from pkg-config: %s\n' \
+    "$cairo_version_string" >&2
+  exit 1
+fi
+cairo_version_major="${BASH_REMATCH[1]}"
+cairo_version_minor="${BASH_REMATCH[2]}"
+cairo_version_micro="${BASH_REMATCH[3]}"
+cairo_version_number=$((10#$cairo_version_major * 10000 + 10#$cairo_version_minor * 100 + 10#$cairo_version_micro))
+
+detect_cairo_feature_flags() {
+  local cc_bin="${CC:-${MOON_CC:-cc}}"
+  local tmp_dir tmp_c tmp_exe
+  if ! command -v "$cc_bin" >/dev/null 2>&1; then
+    printf 'error: no C compiler found for Cairo feature probe; set CC or MOON_CC\n' >&2
+    exit 1
+  fi
+
+  tmp_dir="$(mktemp -d "${TMPDIR:-/tmp}/cairoon-feature-probe.XXXXXX")"
+  tmp_c="$tmp_dir/probe.c"
+  tmp_exe="$tmp_dir/probe"
+  cat > "$tmp_c" <<'C'
+#include <cairo.h>
+#include <stdio.h>
+
+int main(void) {
+#ifdef CAIRO_HAS_ATSUI_FONT
+  puts("HAS_ATSUI_FONT=true");
+#else
+  puts("HAS_ATSUI_FONT=false");
+#endif
+#ifdef CAIRO_HAS_FT_FONT
+  puts("HAS_FT_FONT=true");
+#else
+  puts("HAS_FT_FONT=false");
+#endif
+#ifdef CAIRO_HAS_GLITZ_SURFACE
+  puts("HAS_GLITZ_SURFACE=true");
+#else
+  puts("HAS_GLITZ_SURFACE=false");
+#endif
+#ifdef CAIRO_HAS_IMAGE_SURFACE
+  puts("HAS_IMAGE_SURFACE=true");
+#else
+  puts("HAS_IMAGE_SURFACE=false");
+#endif
+#ifdef CAIRO_HAS_MIME_SURFACE
+  puts("HAS_MIME_SURFACE=true");
+#else
+  puts("HAS_MIME_SURFACE=false");
+#endif
+#ifdef CAIRO_HAS_PDF_SURFACE
+  puts("HAS_PDF_SURFACE=true");
+#else
+  puts("HAS_PDF_SURFACE=false");
+#endif
+#ifdef CAIRO_HAS_PNG_FUNCTIONS
+  puts("HAS_PNG_FUNCTIONS=true");
+#else
+  puts("HAS_PNG_FUNCTIONS=false");
+#endif
+#ifdef CAIRO_HAS_PS_SURFACE
+  puts("HAS_PS_SURFACE=true");
+#else
+  puts("HAS_PS_SURFACE=false");
+#endif
+#ifdef CAIRO_HAS_QUARTZ_SURFACE
+  puts("HAS_QUARTZ_SURFACE=true");
+#else
+  puts("HAS_QUARTZ_SURFACE=false");
+#endif
+#ifdef CAIRO_HAS_RECORDING_SURFACE
+  puts("HAS_RECORDING_SURFACE=true");
+#else
+  puts("HAS_RECORDING_SURFACE=false");
+#endif
+#ifdef CAIRO_HAS_SCRIPT_SURFACE
+  puts("HAS_SCRIPT_SURFACE=true");
+#else
+  puts("HAS_SCRIPT_SURFACE=false");
+#endif
+#ifdef CAIRO_HAS_SVG_SURFACE
+  puts("HAS_SVG_SURFACE=true");
+#else
+  puts("HAS_SVG_SURFACE=false");
+#endif
+#ifdef CAIRO_HAS_TEE_SURFACE
+  puts("HAS_TEE_SURFACE=true");
+#else
+  puts("HAS_TEE_SURFACE=false");
+#endif
+#ifdef CAIRO_HAS_USER_FONT
+  puts("HAS_USER_FONT=true");
+#else
+  puts("HAS_USER_FONT=false");
+#endif
+#ifdef CAIRO_HAS_WIN32_FONT
+  puts("HAS_WIN32_FONT=true");
+#else
+  puts("HAS_WIN32_FONT=false");
+#endif
+#ifdef CAIRO_HAS_WIN32_SURFACE
+  puts("HAS_WIN32_SURFACE=true");
+#else
+  puts("HAS_WIN32_SURFACE=false");
+#endif
+#ifdef CAIRO_HAS_XCB_SURFACE
+  puts("HAS_XCB_SURFACE=true");
+#else
+  puts("HAS_XCB_SURFACE=false");
+#endif
+#ifdef CAIRO_HAS_XLIB_SURFACE
+  puts("HAS_XLIB_SURFACE=true");
+#else
+  puts("HAS_XLIB_SURFACE=false");
+#endif
+#ifdef CAIRO_HAS_DWRITE_FONT
+  puts("HAS_DWRITE_FONT=true");
+#else
+  puts("HAS_DWRITE_FONT=false");
+#endif
+  return 0;
+}
+C
+  "$cc_bin" "${cc_parts[@]}" "$tmp_c" "${link_parts[@]}" -o "$tmp_exe"
+  "$tmp_exe"
+  rm -rf "$tmp_dir"
+}
+
+cairo_feature_output="$(detect_cairo_feature_flags)"
+
+feature_value() {
+  local key="$1"
+  printf '%s\n' "$cairo_feature_output" |
+    sed -nE "s/^${key}=(.*)$/\1/p" |
+    head -n 1
+}
+
+escape_moon_string() {
+  sed 's/\\/\\\\/g; s/"/\\"/g' <<< "$1"
+}
+
+escaped_cairo_version_string="$(escape_moon_string "$cairo_version_string")"
 
 extract_field() {
   local file="$1"
   local key="$2"
-  sed -nE "s/^[[:space:]]*\"${key}\": \"(.*)\"[,]?$/\1/p" "$file" | head -n 1
+  sed -nE "s/.*\"${key}\": \"([^\"]*)\".*/\1/p" "$file" | head -n 1
+}
+
+extract_const_value() {
+  local file="$1"
+  local key="$2"
+  sed -nE "s/^pub const ${key} : [^=]+ = (.*)$/\1/p" "$file" | head -n 1
+}
+
+check_const_value() {
+  local key="$1"
+  local expected="$2"
+  local actual
+  actual="$(extract_const_value "$constants_file" "$key")"
+  if [[ "$actual" != "$expected" ]]; then
+    cat >&2 <<EOF
+error: src/constants.mbt generated Cairo constant $key is out of sync with pkg-config.
+
+Run:
+  scripts/configure-link-flags.sh
+
+Expected:
+  $expected
+Actual:
+  $actual
+EOF
+    exit 1
+  fi
 }
 
 relative_path() {
@@ -99,6 +292,15 @@ collect_dependent_configs() {
 }
 
 if [[ "$mode" == "--check" ]]; then
+  check_const_value CAIRO_VERSION "$cairo_version_number"
+  check_const_value CAIRO_VERSION_STRING "\"$escaped_cairo_version_string\""
+  check_const_value CAIRO_VERSION_MAJOR "$cairo_version_major"
+  check_const_value CAIRO_VERSION_MINOR "$cairo_version_minor"
+  check_const_value CAIRO_VERSION_MICRO "$cairo_version_micro"
+  for key in "${feature_const_names[@]}"; do
+    check_const_value "$key" "$(feature_value "$key")"
+  done
+
   actual_link_flags="$(extract_field "$public_package_config" cc-link-flags)"
 
   if [[ "$actual_link_flags" != "$link_flags" ]]; then
@@ -186,68 +388,55 @@ EOF
   exit 0
 fi
 
-escape_moon_string() {
-  sed 's/\\/\\\\/g; s/"/\\"/g' <<< "$1"
-}
-
 escaped_cc_flags="$(escape_moon_string "$cc_flags")"
 escaped_link_flags="$(escape_moon_string "$link_flags")"
 
+update_const_value() {
+  local key="$1"
+  local value="$2"
+  CAIROON_CONST_KEY="$key" \
+  CAIROON_CONST_VALUE="$value" \
+  perl -0pi -e \
+    'my $key = $ENV{CAIROON_CONST_KEY};
+     my $value = $ENV{CAIROON_CONST_VALUE};
+     s/^pub const \Q$key\E : ([^=]+) = .*$/pub const $key : $1 = $value/gm' \
+    "$constants_file"
+}
+
+update_constants() {
+  update_const_value CAIRO_VERSION "$cairo_version_number"
+  update_const_value CAIRO_VERSION_STRING "\"$escaped_cairo_version_string\""
+  update_const_value CAIRO_VERSION_MAJOR "$cairo_version_major"
+  update_const_value CAIRO_VERSION_MINOR "$cairo_version_minor"
+  update_const_value CAIRO_VERSION_MICRO "$cairo_version_micro"
+  for key in "${feature_const_names[@]}"; do
+    update_const_value "$key" "$(feature_value "$key")"
+  done
+}
+
 update_public_config() {
   local file="$1"
-  local tmp
-  tmp="$(mktemp "${TMPDIR:-/tmp}/cairoon-moon.pkg.XXXXXX")"
-  awk \
-    -v link_flags="$escaped_link_flags" '
-      /^[[:space:]]*"cc-link-flags": / {
-        print "      \"cc-link-flags\": \"" link_flags "\","
-        next
-      }
-      { print }
-    ' "$file" > "$tmp"
-  mv "$tmp" "$file"
+  CAIROON_LINK_FLAGS="$escaped_link_flags" perl -0pi -e \
+    's/"cc-link-flags": "[^"]*"/q("cc-link-flags": ") . $ENV{CAIROON_LINK_FLAGS} . q(")/ge' \
+    "$file"
 }
 
 update_native_config() {
   local file="$1"
-  local tmp
-  tmp="$(mktemp "${TMPDIR:-/tmp}/cairoon-moon.pkg.XXXXXX")"
-  awk \
-    -v cc_flags="$escaped_cc_flags" \
-    -v link_flags="$escaped_link_flags" '
-      /^[[:space:]]*"stub-cc-flags": / {
-        print "      \"stub-cc-flags\": \"" cc_flags "\","
-        next
-      }
-      /^[[:space:]]*"cc-link-flags": / {
-        print "      \"cc-link-flags\": \"" link_flags "\","
-        next
-      }
-      { print }
-    ' "$file" > "$tmp"
-  mv "$tmp" "$file"
+  CAIROON_CC_FLAGS="$escaped_cc_flags" \
+  CAIROON_LINK_FLAGS="$escaped_link_flags" \
+  perl -0pi -e \
+    's/"stub-cc-flags": "[^"]*"/q("stub-cc-flags": ") . $ENV{CAIROON_CC_FLAGS} . q(")/ge;
+     s/"cc-link-flags": "[^"]*"/q("cc-link-flags": ") . $ENV{CAIROON_LINK_FLAGS} . q(")/ge' \
+    "$file"
 }
 
 update_dependent_config() {
   local file="$1"
-  local tmp
-  tmp="$(mktemp "${TMPDIR:-/tmp}/cairoon-moon.pkg.XXXXXX")"
-  awk \
-    -v cc_flags="$escaped_cc_flags" \
-    -v link_flags="$escaped_link_flags" '
-      /^[[:space:]]*"stub-cc-flags": / {
-        print "      \"stub-cc-flags\": \"" cc_flags "\","
-        next
-      }
-      /^[[:space:]]*"cc-link-flags": / {
-        print "      \"cc-link-flags\": \"" link_flags "\","
-        next
-      }
-      { print }
-    ' "$file" > "$tmp"
-  mv "$tmp" "$file"
+  update_native_config "$file"
 }
 
+update_constants
 update_public_config "$public_package_config"
 update_native_config "$native_package_config"
 updated=2
@@ -258,5 +447,11 @@ while IFS= read -r config; do
   update_dependent_config "$config"
   updated=$((updated + 1))
 done < <(collect_dependent_configs)
+
+if command -v moon >/dev/null 2>&1; then
+  moon fmt
+else
+  printf 'moon not found; run moon fmt after installing MoonBit.\n'
+fi
 
 printf 'Updated Cairo link/stub flags from pkg-config in %s moon.pkg files.\n' "$updated"

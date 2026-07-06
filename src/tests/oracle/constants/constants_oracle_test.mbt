@@ -54,8 +54,9 @@ test "cairo version constants mirror compile-time cairo macros" {
   inspect(
     @cairoon.CAIRO_VERSION_MAJOR * 10000 +
     @cairoon.CAIRO_VERSION_MINOR * 100 +
-    @cairoon.CAIRO_VERSION_MICRO,
-    content="11804",
+    @cairoon.CAIRO_VERSION_MICRO ==
+    @cairoon.CAIRO_VERSION,
+    content="true",
   )
 }
 

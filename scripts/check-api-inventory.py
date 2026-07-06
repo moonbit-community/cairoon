@@ -475,9 +475,26 @@ def public_class_methods(stub_path: pathlib.Path) -> dict[str, set[str]]:
     return methods
 
 
+def pycairo_api_snapshot() -> tuple[set[str], dict[str, set[str]]]:
+    """Return the maintained pycairo API snapshot for standalone checkouts."""
+
+    return (
+        set(EXPECTED_ANCHORS),
+        {
+            class_name: set(method_anchors)
+            for class_name, method_anchors in PUBLIC_METHOD_ANCHORS.items()
+        },
+    )
+
+
+def load_pycairo_api(stub_path: pathlib.Path) -> tuple[set[str], dict[str, set[str]]]:
+    if stub_path.exists():
+        return public_top_level_names(stub_path), public_class_methods(stub_path)
+    return pycairo_api_snapshot()
+
+
 def main() -> int:
-    stub_names = public_top_level_names(PYCAIRO_STUB)
-    stub_methods = public_class_methods(PYCAIRO_STUB)
+    stub_names, stub_methods = load_pycairo_api(PYCAIRO_STUB)
     expected_names = set(EXPECTED_ANCHORS)
     inventory = INVENTORY.read_text(encoding="utf-8")
     public_api = GENERATED_MBTI.read_text(encoding="utf-8")

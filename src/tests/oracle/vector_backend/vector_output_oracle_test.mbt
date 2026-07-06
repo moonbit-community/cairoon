@@ -297,9 +297,9 @@ test "pdf wide multi-page tag vector output contains combined markers" {
   render_vector_oracle_scene(0, 28, path)
   expect_vector_output(path, [
     "%PDF-1.4", "/Count 3", "/Type /Page % 1", "/Type /Page % 2", "/Type /Page % 3",
-    "/Subtype /Link", "/S /URI", "/URI (https://example.com/wide)", "/Dest (cairoon-wide-dest)",
-    "/Names", "/Dests", "(cairoon-wide-dest)", "/StructTreeRoot", "/S /Document",
-    "/S /Sect", "/S /P", "%%EOF",
+    "/Subtype /Link", "/S /URI", "/URI (https://example.com/wide)", "/Dest", "/Names",
+    "/Dests", "(cairoon-wide-dest)", "/StructTreeRoot", "/S /Document", "/S /Sect",
+    "/S /P", "%%EOF",
   ])
 }
 

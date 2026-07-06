@@ -38,8 +38,9 @@ test "document feature stream output contains backend markers" {
           "/CreationDate (20260102030405+00'00')", "/ModDate (20260102030405+00'00')",
           "/ISBN (978-0123456789)", "/Count 2", "/PageLabels", "(intro)", "(details)",
           "/Outlines", "/Title (intro page)", "/Title (details page)", "/Annots [",
-          "/Subtype /Link", "/S /URI", "/URI (https://example.com/combined)", "/Dest (combined-direct-dest)",
-          "/StructTreeRoot", "/S /Document", "/S /Sect", "/S /P", "%%EOF",
+          "/Subtype /Link", "/S /URI", "/URI (https://example.com/combined)", "/Dest",
+          "/Names", "/Dests", "(combined-direct-dest)", "/StructTreeRoot", "/S /Document",
+          "/S /Sect", "/S /P", "%%EOF",
         ])
       1 =>
         expect_stream_output_markers(chunks, [

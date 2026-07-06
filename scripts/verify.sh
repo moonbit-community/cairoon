@@ -54,6 +54,17 @@ run_external_test_packages() {
   done
 }
 
+resolve_executable() {
+  local candidate="$1"
+  if [[ "$candidate" == */* ]]; then
+    if [[ -x "$candidate" ]]; then
+      printf '%s\n' "$candidate"
+    fi
+  else
+    command -v "$candidate" 2>/dev/null || true
+  fi
+}
+
 run moon fmt --check
 run python3 ./scripts/check-project-layout.py
 run ./scripts/configure-link-flags.sh --check
@@ -69,12 +80,15 @@ run moon info --target native
 
 asan_mode="${CAIROON_VERIFY_ASAN:-auto}"
 if [[ "$asan_mode" != "0" ]]; then
-  clang_path="${MOON_CC:-}"
+  clang_path=""
+  if [[ -n "${MOON_CC:-}" ]]; then
+    clang_path="$(resolve_executable "$MOON_CC")"
+  fi
   if [[ -z "$clang_path" && -x /opt/homebrew/opt/llvm/bin/clang ]]; then
     clang_path=/opt/homebrew/opt/llvm/bin/clang
   fi
 
-  if [[ -n "$clang_path" && -x "$clang_path" ]]; then
+  if [[ -n "$clang_path" ]]; then
     asan_options="${ASAN_OPTIONS:-detect_leaks=0:fast_unwind_on_malloc=0}"
     moon_ar="${MOON_AR:-/usr/bin/ar}"
     run_external_test_packages env \
