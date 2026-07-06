@@ -19,7 +19,7 @@ SOURCE_SUFFIXES = (".mbt.md", ".mbti", ".mbt", ".c", ".h")
 PACKAGE_CONFIG_NAMES = {"moon.pkg"}
 NATIVE_PACKAGE_DIR = PACKAGE_ROOT / "native"
 NATIVE_PACKAGE_CONFIG = NATIVE_PACKAGE_DIR / "moon.pkg"
-CAIRO_LINK_IMPORTS = ('"caimeo/cairoon"', '"caimeo/cairoon/native"')
+CAIRO_LINK_IMPORTS = ('"CAIMEOX/cairoon"', '"CAIMEOX/cairoon/native"')
 
 
 def is_source_like(path: pathlib.Path) -> bool:
@@ -110,9 +110,9 @@ def check_native_package() -> list[str]:
             "src/moon.pkg: public package must not own native-stub entries; "
             "put public C glue in src/native/moon.pkg"
         )
-    if '"caimeo/cairoon/native"' not in public_text:
+    if '"CAIMEOX/cairoon/native"' not in public_text:
         errors.append(
-            "src/moon.pkg: public package must import caimeo/cairoon/native "
+            "src/moon.pkg: public package must import CAIMEOX/cairoon/native "
             "so public FFI declarations link against the native stub package"
         )
     if not NATIVE_PACKAGE_CONFIG.exists():

@@ -1,5 +1,5 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "caimeo/cairoon/internal/pdf"
+package "CAIMEOX/cairoon/internal/pdf"
 
 import {
   "moonbitlang/core/ref",

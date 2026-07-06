@@ -1,5 +1,5 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "caimeo/cairoon/internal/stream"
+package "CAIMEOX/cairoon/internal/stream"
 
 // Values
 pub fn copy_chunk(Bytes) -> Bytes

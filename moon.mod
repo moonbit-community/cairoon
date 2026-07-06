@@ -1,4 +1,4 @@
-name = "caimeo/cairoon"
+name = "CAIMEOX/cairoon"
 
 version = "0.1.0"
 

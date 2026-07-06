@@ -1,5 +1,5 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "caimeo/cairoon/tests/oracle/native"
+package "CAIMEOX/cairoon/tests/oracle/native"
 
 // Values
 pub fn oracle_native_anchor() -> Int

@@ -27,7 +27,7 @@ Implemented in this workspace:
   continues to run native/ASan verify gates.
 - Initial external black-box test package extraction under `src/tests/api`.
   Root-level `tests/` packages are intentionally forbidden while
-  `moon.mod source = "src"` keeps the public import path as `caimeo/cairoon`.
+  `moon.mod source = "src"` keeps the public import path as `CAIMEOX/cairoon`.
   External test packages that import cairoon carry Cairo `cc-link-flags`, and
   `scripts/configure-link-flags.sh --check` verifies those flags alongside the
   public and native package configs.
@@ -36,76 +36,76 @@ Implemented in this workspace:
   `run_cairo`, all `CairoError` suberror classes, and pure public value types
   such as rectangles, glyphs, text clusters, and font/text extents.
 - Matrix black-box tests now live in `src/tests/matrix`, importing only the
-  public `caimeo/cairoon` API. This validates external-package access to public
+  public `CAIMEOX/cairoon` API. This validates external-package access to public
   types, methods, checked errors, and `CairoInvalidArgument` pattern matching;
   `scripts/verify.sh` discovers all `src/tests/**/moon.pkg` packages for normal
   and ASan targeted runs.
 - Region black-box tests now live in `src/tests/region`, importing only the
-  public `caimeo/cairoon` API. This validates Region lifetime/copy behavior,
+  public `CAIMEOX/cairoon` API. This validates Region lifetime/copy behavior,
   rectangle construction, containment, overlap enums, mutating boolean
   operations, chained pycairo-style mutators, and invalid-index error mapping
   from an external package.
 - Surface and ImageData black-box tests now live in `src/tests/surface`,
-  importing only the public `caimeo/cairoon` API. This validates image, mapped,
+  importing only the public `CAIMEOX/cairoon` API. This validates image, mapped,
   subsurface, recording, MIME, PDF, PS, SVG, Tee, PNG path, buffer-backed, and
   mutable `ImageData` behavior through the published package seam.
 - Context black-box tests now live in `src/tests/context`, importing only the
-  public `caimeo/cairoon` API. This validates drawing state, transforms, paths,
+  public `CAIMEOX/cairoon` API. This validates drawing state, transforms, paths,
   pycairo parity fixtures, groups, text/glyph APIs, extents, clipping, painting,
   tags, and ScaledFont text-to-glyph conversion through the published package
   seam.
 - Pattern black-box tests now live in `src/tests/pattern`, importing only the
-  public `caimeo/cairoon` API. This validates solid/surface/common-state
+  public `CAIMEOX/cairoon` API. This validates solid/surface/common-state
   patterns, pycairo parity fixtures, gradient queries, mesh patch lifecycle,
   raster-source callbacks, and raster-source callback fuzz/state behavior
   through the published package seam.
 - Font black-box tests now live in `src/tests/font`, importing only the public
-  `caimeo/cairoon` API. This validates toy font faces, font options, context
+  `CAIMEOX/cairoon` API. This validates toy font faces, font options, context
   font-option/font-face round trips, ScaledFont construction, matrix queries,
   text extents, invalid-string handling, and context error propagation through
   the published package seam; ScaledFont C-oracle tests remain white-box.
 - Stream/device black-box tests now live in `src/tests/stream`, importing only
-  the public `caimeo/cairoon` API. This validates PDF/PS/SVG/PNG stream
+  the public `CAIMEOX/cairoon` API. This validates PDF/PS/SVG/PNG stream
   writers/readers, callback chunk retention, script devices, script surfaces,
   device lifetime helpers, raw script content mapping, and stream error mapping
   through the published package seam; backend stream oracle tests remain
   white-box.
 - Object/path black-box tests now live in `src/tests/object`, importing only
-  the public `caimeo/cairoon` API. This validates Path formatting, iteration,
+  the public `CAIMEOX/cairoon` API. This validates Path formatting, iteration,
   flattening, scope survival, path comparison behavior, and Eq/Hash semantics
   across external object wrappers through the published package seam.
 - Lifetime/stress black-box tests now live in `src/tests/lifetime`, importing
-  only the public `caimeo/cairoon` API. This validates retained owner graphs,
+  only the public `CAIMEOX/cairoon` API. This validates retained owner graphs,
   mapped image lifetimes, image data views, value wrapper stress, raster-source
   callback retention, stream callback stress/fuzz, finalizer fuzz paths, and
   context borrowed-return lifetimes through the published package seam.
 - Public C stubs now live in the `src/native` native-stub package, and
   `src/native/moon.pkg` references each compiled C file by bare filename. The
-  public `src/moon.pkg` imports `caimeo/cairoon/native` for linking and owns no
+  public `src/moon.pkg` imports `CAIMEOX/cairoon/native` for linking and owns no
   `native-stub` entries. The layout gate checks that every `src/native/*.c`
   file is explicitly owned by `src/native/moon.pkg`.
 - The compile-time constants oracle now lives in
-  `src/tests/oracle/constants`, importing the public `caimeo/cairoon` package
+  `src/tests/oracle/constants`, importing the public `CAIMEOX/cairoon` package
   and declaring its test-only C oracle externs locally. This proves direct-C
   oracle tests can move out of the public package root while still linking
   against public-package native stubs.
 - The ScaledFont direct-C oracle now lives in `src/tests/oracle/scaled_font`,
-  importing the public `caimeo/cairoon` package and declaring its test-only
+  importing the public `CAIMEOX/cairoon` package and declaring its test-only
   extents/text-to-glyphs oracle externs plus native result decoder locally.
   This keeps ScaledFont oracle assertions outside the public package root
   without exposing private `TextToGlyphsNative` helpers.
 - The ARGB32 image rendering oracle now lives in `src/tests/oracle/image`,
-  importing the public `caimeo/cairoon` package and declaring its scene oracle
+  importing the public `CAIMEOX/cairoon` package and declaring its scene oracle
   extern locally. This proves pixel-differential rendering tests can leave the
   public package root while still exercising ordinary and buffer-backed image
   surfaces through the published API.
 - Raster-source pattern owner/state/manual lifecycle oracles now live in
-  `src/tests/oracle/pattern_raster`, importing the public `caimeo/cairoon`
+  `src/tests/oracle/pattern_raster`, importing the public `CAIMEOX/cairoon`
   package and declaring the owner-count extern inside a `*_test.mbt` helper.
   This keeps the public package root free of raster-source test-only owner
   accounting while preserving ASan-covered callback lifecycle fuzzing.
 - Vector-output and backend stream oracles now live in
-  `src/tests/oracle/vector_backend`, importing the public `caimeo/cairoon`
+  `src/tests/oracle/vector_backend`, importing the public `CAIMEOX/cairoon`
   package and declaring file/vector/direct-C oracle externs inside a
   `*_test.mbt` helper. This removes the last root `*_wbtest.mbt` files while
   preserving 105 PDF/PS/SVG vector, stream-equivalence, tag, metadata, page,

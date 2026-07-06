@@ -1,5 +1,5 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "caimeo/cairoon/internal/format"
+package "CAIMEOX/cairoon/internal/format"
 
 // Values
 pub fn stride_for_width_raw(Int, Int) -> Int

@@ -161,7 +161,7 @@ cairoon/
 ```
 
 The `src/moon.pkg` package keeps the published import path
-`caimeo/cairoon`. The move from root to `src/` must be paired with
+`CAIMEOX/cairoon`. The move from root to `src/` must be paired with
 `moon.mod source = "src"` so downstream imports do not change.
 Because `source = "src"` limits MoonBit's package search path, executable
 MoonBit test packages live under `src/tests/`, not repository-root `tests/`.
@@ -173,12 +173,12 @@ MoonBit package shape without weakening the public interface.
 
 | Role | Intended location | Interface rule |
 |---|---|---|
-| Public package | `src/` | Owns the stable `caimeo/cairoon` interface and public external object types until a facade proof proves otherwise. |
+| Public package | `src/` | Owns the stable `CAIMEOX/cairoon` interface and public external object types until a facade proof proves otherwise. |
 | Pure support packages | `src/core/` | May hold pure values/helpers only after their public names can be preserved or intentionally re-exported. `src/core/glyph` is the first accepted seam: the public package exposes `pub type Glyph = @glyph.Glyph`, owns `@glyph.field_arrays` for glyph-array marshaling preparation, and tests prove `@cairoon.Glyph::new`, field access, dot-method syntax, and glyph-array FFI paths still work through the facade. |
-| Internal implementation packages | `src/internal/<family>/` | May hold native-gated extern declarations and implementation helpers for small public facade functions when the public `caimeo/cairoon` API remains unchanged. `src/internal/version` owns the raw version externs and UTF-8 decoding while `src/version.mbt` remains a thin facade. `src/internal/format` owns the raw `cairo_format_stride_for_width` extern while `src/format.mbt` keeps the public `Format` enum, constructors, and methods. `src/internal/status` owns the raw status-message extern while `src/status.mbt` keeps the public `Status` enum and methods. `src/internal/pdf` owns raw PDF version query/string helpers while `src/pdf_surface.mbt` keeps `PDFVersion` constructors and PDF surface wrappers. `src/internal/ps` owns raw PostScript level query/string helpers while `src/ps_surface.mbt` keeps `PSLevel` constructors and PS surface wrappers. `src/internal/svg` owns raw SVG version query/string helpers while `src/svg_surface.mbt` keeps `SVGVersion` constructors and SVG surface wrappers. `src/internal/stream` owns pure callback chunk-copy helpers used by stream-writing facade wrappers. `src/internal/cstring` owns pure embedded-NUL scanning used by facade string validators. Any package that imports `caimeo/cairoon/native` must carry Cairo `cc-link-flags` so package-local tests link independently. |
-| Native stubs | `src/native/` | Owns public C glue compilation through `src/native/moon.pkg`. Every `.c` file beside that package file must be listed by bare filename in its `native-stub` list; `src/moon.pkg` imports `caimeo/cairoon/native` and must not own `native-stub` entries. Headers in `src/native/` are private to those stubs. |
-| Black-box tests | `src/tests/<family>/` | Import `caimeo/cairoon`; assert only public behavior. Any package that imports cairoon must carry Cairo `cc-link-flags`, because native link flags are not propagated to external test executables. |
-| White-box oracles | `src/tests/oracle/<family>/` plus shared C support in `src/tests/oracle/native/` | Import `caimeo/cairoon` for the public API and declare test-only direct-C oracle externs locally; public binding wrappers must never import oracle packages. Test-only C symbols are provided by the oracle-native support package, not `src/moon.pkg`. |
+| Internal implementation packages | `src/internal/<family>/` | May hold native-gated extern declarations and implementation helpers for small public facade functions when the public `CAIMEOX/cairoon` API remains unchanged. `src/internal/version` owns the raw version externs and UTF-8 decoding while `src/version.mbt` remains a thin facade. `src/internal/format` owns the raw `cairo_format_stride_for_width` extern while `src/format.mbt` keeps the public `Format` enum, constructors, and methods. `src/internal/status` owns the raw status-message extern while `src/status.mbt` keeps the public `Status` enum and methods. `src/internal/pdf` owns raw PDF version query/string helpers while `src/pdf_surface.mbt` keeps `PDFVersion` constructors and PDF surface wrappers. `src/internal/ps` owns raw PostScript level query/string helpers while `src/ps_surface.mbt` keeps `PSLevel` constructors and PS surface wrappers. `src/internal/svg` owns raw SVG version query/string helpers while `src/svg_surface.mbt` keeps `SVGVersion` constructors and SVG surface wrappers. `src/internal/stream` owns pure callback chunk-copy helpers used by stream-writing facade wrappers. `src/internal/cstring` owns pure embedded-NUL scanning used by facade string validators. Any package that imports `CAIMEOX/cairoon/native` must carry Cairo `cc-link-flags` so package-local tests link independently. |
+| Native stubs | `src/native/` | Owns public C glue compilation through `src/native/moon.pkg`. Every `.c` file beside that package file must be listed by bare filename in its `native-stub` list; `src/moon.pkg` imports `CAIMEOX/cairoon/native` and must not own `native-stub` entries. Headers in `src/native/` are private to those stubs. |
+| Black-box tests | `src/tests/<family>/` | Import `CAIMEOX/cairoon`; assert only public behavior. Any package that imports cairoon must carry Cairo `cc-link-flags`, because native link flags are not propagated to external test executables. |
+| White-box oracles | `src/tests/oracle/<family>/` plus shared C support in `src/tests/oracle/native/` | Import `CAIMEOX/cairoon` for the public API and declare test-only direct-C oracle externs locally; public binding wrappers must never import oracle packages. Test-only C symbols are provided by the oracle-native support package, not `src/moon.pkg`. |
 | Documentation | `docs/` and public package `.mbt.md` files | Narrative docs live outside source packages; executable reference docs stay with the package they test. |
 
 Do not split a family across packages until the type names, method call syntax,
@@ -203,13 +203,13 @@ Follow this order. Each step gets its own commit and must pass
    `.mbt`, `.mbt.md`, `.mbti`, `.c`, or `.h` files during the transition.
 2. **Source-root extraction**: completed. The current MoonBit package files
    live in `src/`, `moon.mod` sets `source = "src"`, scripts locate the
-   package root explicitly, and `caimeo/cairoon` remains the public package.
+   package root explicitly, and `CAIMEOX/cairoon` remains the public package.
 3. **Black-box test extraction**: started. Move pure `*_test.mbt` files into
-   `src/tests/<family>/` packages that import `caimeo/cairoon`; keep test names
+   `src/tests/<family>/` packages that import `CAIMEOX/cairoon`; keep test names
    and behavioral assertions unchanged.
 4. **Native-stub package extraction**: completed. Public C stubs live under
    `src/native/`, are compiled by `src/native/moon.pkg`, and are linked into
-   the public facade through the `caimeo/cairoon/native` package import.
+   the public facade through the `CAIMEOX/cairoon/native` package import.
 5. **White-box oracle extraction**: completed for MoonBit tests and C oracle
    support. Direct-C oracle tests now live under `src/tests/oracle/*`, and
    test-only C oracle helpers live under `src/tests/oracle/native` as a
@@ -295,10 +295,10 @@ before MoonBit compilation. The layout check proves:
   files, because it is outside the package search path;
 - every non-root `src/**/moon.pkg` has an adjacent `pkg.generated.mbti`, so
   package seams are reviewed through `moon info --target native`;
-- every child package that imports `caimeo/cairoon` or
-  `caimeo/cairoon/native` carries Cairo `cc-link-flags`, so both black-box
+- every child package that imports `CAIMEOX/cairoon` or
+  `CAIMEOX/cairoon/native` carries Cairo `cc-link-flags`, so both black-box
   tests and internal native-gated implementation packages link independently;
-- `src/moon.pkg` imports `caimeo/cairoon/native` and owns no `native-stub`
+- `src/moon.pkg` imports `CAIMEOX/cairoon/native` and owns no `native-stub`
   entries;
 - every `.c` file under `src/native/` is referenced by `src/native/moon.pkg`
   `native-stub`, every `native-stub` entry is a bare filename beside its

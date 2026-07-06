@@ -46,9 +46,9 @@ add new root-level `.mbt`, `.mbt.md`, `.mbti`, `.c`, or `.h` files;
 the package tree is migrated. Because `moon.mod` sets `source = "src"`,
 executable MoonBit black-box test packages live under `src/tests/<family>/`;
 root-level `tests/` files are outside MoonBit's package search path.
-Public C source/header files live in the `caimeo/cairoon/native` package under
+Public C source/header files live in the `CAIMEOX/cairoon/native` package under
 `src/native/`; every `.c` file there must appear in `src/native/moon.pkg`
-`native-stub`, and `src/moon.pkg` must import `caimeo/cairoon/native` rather
+`native-stub`, and `src/moon.pkg` must import `CAIMEOX/cairoon/native` rather
 than owning any `native-stub` entries itself.
 
 Use the historical flat layout below only to understand old audit references
@@ -168,7 +168,7 @@ MoonBit declarations to native:
 
 ```moonbit
 import {
-  "caimeo/cairoon/native",
+  "CAIMEOX/cairoon/native",
 }
 
 options(
@@ -220,7 +220,7 @@ Link to the system Cairo installation. Do not vendor Cairo into this repository
 for the initial binding. Use `pkg-config --cflags --libs cairo` during setup to
 derive `stub-cc-flags` and `cc-link-flags`; record `stub-cc-flags` in
 `src/native/moon.pkg` and record `cc-link-flags` in every package that imports
-`caimeo/cairoon` or compiles Cairo stubs. Refresh those checked-in flags with
+`CAIMEOX/cairoon` or compiles Cairo stubs. Refresh those checked-in flags with
 `scripts/configure-link-flags.sh`, and keep `scripts/configure-link-flags.sh
 --check` in the local verification gate so the public, native, internal, and
 external test package configs cannot silently drift away from the target
@@ -387,7 +387,7 @@ oracle-native package.
 ## Package Seam Rules
 
 Pure support packages may live under `src/core/<family>/` after a focused seam
-probe proves external call sites still work through `caimeo/cairoon`. The first
+probe proves external call sites still work through `CAIMEOX/cairoon`. The first
 accepted probe is `src/core/glyph`: the public package imports it and exposes
 `Glyph` with `pub type Glyph = @glyph.Glyph`. This keeps external construction,
 field access, and method syntax such as `@cairoon.Glyph::new(...)`,
@@ -425,13 +425,13 @@ embedded-NUL byte scanning, while `check_no_embedded_nul` and the
 `CairoInvalidArgument(InvalidString, _)` mapping stay in the facade. Keep enum
 constructors in the facade unless a compatibility proof shows that
 `@cairoon.<Constructor>` syntax survives. Any internal package that imports
-`caimeo/cairoon/native` must carry Cairo `cc-link-flags` and package-local
+`CAIMEOX/cairoon/native` must carry Cairo `cc-link-flags` and package-local
 tests so `moon test src/internal/<family> --target native` links
 independently.
 
 Do not move a type whose methods raise `CairoError` into a subpackage until the
 error/status family has its own proven non-cyclic package seam. A child package
-must not import the public `caimeo/cairoon` facade just to reuse facade errors,
+must not import the public `CAIMEOX/cairoon` facade just to reuse facade errors,
 because the facade imports child packages. Also do not move public enums or
 suberrors whose constructors are part of the facade syntax until a compatibility
 proof exists: MoonBit `pub type` aliases preserve the type and its methods, but

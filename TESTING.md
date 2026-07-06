@@ -156,7 +156,7 @@ python3 /Users/caimeo/.codex/skills/moonbit/moonbit-c-binding/scripts/run-asan.p
 For public C glue ownership changes, the local gate must also compile the
 native-stub package itself with `moon test src/native --target native -v`; the
 external black-box and oracle packages then prove those stubs link through the
-published `caimeo/cairoon` facade.
+published `CAIMEOX/cairoon` facade.
 
 Memory tests must cover:
 

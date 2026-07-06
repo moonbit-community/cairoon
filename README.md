@@ -37,13 +37,13 @@ moon test --target native
 Cairo installation. Run `scripts/configure-link-flags.sh` after installing or
 updating Cairo, and before testing on a new machine.
 
-When using cairoon from another MoonBit package, import `caimeo/cairoon` in the
+When using cairoon from another MoonBit package, import `CAIMEOX/cairoon` in the
 consumer package's `moon.pkg` and make sure the consumer executable/test
 package also links Cairo:
 
 ```moonbit
 import {
-  "caimeo/cairoon",
+  "CAIMEOX/cairoon",
 }
 
 options(

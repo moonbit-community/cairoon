@@ -1,5 +1,5 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "caimeo/cairoon/internal/cstring"
+package "CAIMEOX/cairoon/internal/cstring"
 
 // Values
 pub fn has_embedded_nul(Bytes) -> Bool

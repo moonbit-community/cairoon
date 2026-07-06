@@ -1,5 +1,5 @@
 import {
-  "caimeo/cairoon",
+  "CAIMEOX/cairoon",
   "moonbitlang/core/test",
 } for "test"
 

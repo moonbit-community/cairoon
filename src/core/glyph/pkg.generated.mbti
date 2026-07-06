@@ -1,5 +1,5 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "caimeo/cairoon/core/glyph"
+package "CAIMEOX/cairoon/core/glyph"
 
 import {
   "moonbitlang/core/debug",
