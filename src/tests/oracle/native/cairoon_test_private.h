@@ -25,6 +25,7 @@ cairo_status_t cairoon_test_apply_surface_pattern(
   cairo_t *cr,
   double width,
   double height);
+cairo_status_t cairoon_test_paint_quad_surface(cairo_surface_t *surface);
 cairo_status_t cairoon_test_apply_surface_pattern_combo(
   cairo_t *cr,
   double width,
