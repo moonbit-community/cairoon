@@ -7,4 +7,16 @@ test "cairo version is available" {
     @cairoon.CAIRO_VERSION_STRING == @cairoon.cairo_version_string(),
     content="true",
   )
+  inspect(
+    @cairoon.CAIRO_VERSION_STRING ==
+    "\{@cairoon.CAIRO_VERSION_MAJOR}.\{@cairoon.CAIRO_VERSION_MINOR}.\{@cairoon.CAIRO_VERSION_MICRO}",
+    content="true",
+  )
+  inspect(
+    @cairoon.CAIRO_VERSION ==
+    @cairoon.CAIRO_VERSION_MAJOR * 10000 +
+    @cairoon.CAIRO_VERSION_MINOR * 100 +
+    @cairoon.CAIRO_VERSION_MICRO,
+    content="true",
+  )
 }
