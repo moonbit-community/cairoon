@@ -142,6 +142,8 @@ cairoon/
     tests/
       api/
         moon.pkg
+      status/
+        moon.pkg
       value/
         moon.pkg
       matrix/

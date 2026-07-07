@@ -32,9 +32,12 @@ Implemented in this workspace:
   `scripts/configure-link-flags.sh --check` verifies those flags alongside the
   public and native package configs.
 - The external API black-box package covers portable enum constructors,
-  `Format::stride_for_width`, `FORMAT_INVALID`, `check_status`, `run_cairo`,
-  all `CairoError` suberror classes, and pycairo `test_api.py` smoke/lifetime
-  fixtures.
+  `Format::stride_for_width`, `FORMAT_INVALID`, and pycairo `test_api.py`
+  smoke/lifetime fixtures.
+- Status/error black-box tests now live in `src/tests/status`, importing only
+  the public `CAIMEOX/cairoon` API. This validates `check_status`,
+  `run_cairo`, public `Status::message`, and all `CairoError` suberror classes
+  through the published package seam.
 - Pure public value black-box tests now live in `src/tests/value`, importing
   only the public `CAIMEOX/cairoon` API. This validates rectangles, glyphs,
   text clusters, and font/text extents, including component access,
