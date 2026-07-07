@@ -256,7 +256,9 @@ support packages under `src/core/constants`, `src/core/glyph`,
 `src/tests/font/pycairo`, `src/tests/stream`,
 `src/tests/stream/device`,
 `src/tests/path`, `src/tests/object`, `src/tests/lifetime`,
-`src/tests/lifetime/finalizer`, `src/tests/lifetime/stream`, and
+`src/tests/lifetime/finalizer`, `src/tests/lifetime/stream`,
+`src/tests/lifetime/image_data`, `src/tests/lifetime/value`,
+`src/tests/lifetime/raster`, and
 `src/tests/oracle/native`, `src/tests/oracle/constants`,
 `src/tests/oracle/scaled_font`, and
 `src/tests/oracle/image`, `src/tests/oracle/pattern_raster`, and

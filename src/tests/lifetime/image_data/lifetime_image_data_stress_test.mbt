@@ -9,6 +9,26 @@ fn lifetime_image_data_from_local_surface(
 }
 
 ///|
+fn expect_lifetime_image_data_rgb24_white(data : Bytes) -> Unit raise {
+  inspect(data.length(), content="4")
+  inspect(data[0].to_int(), content="255")
+  inspect(data[1].to_int(), content="255")
+  inspect(data[2].to_int(), content="255")
+  inspect(data[3].to_int(), content="255")
+}
+
+///|
+fn expect_lifetime_image_data_mapped_finished(
+  result : Result[Unit, @cairoon.CairoError],
+) -> Unit raise {
+  inspect(result is Err(_), content="true")
+  match result {
+    Err(@cairoon.CairoError(@cairoon.SurfaceFinished, _)) => ()
+    _ => @test.fail("expected SurfaceFinished")
+  }
+}
+
+///|
 fn lifetime_stress_image_data_views(index : Int) -> Unit raise {
   let first : Byte = if index % 2 == 0 { b'\x11' } else { b'\x22' }
   let second : Byte = if index % 2 == 0 { b'\x33' } else { b'\x44' }
@@ -48,8 +68,8 @@ fn lifetime_stress_image_data_views(index : Int) -> Unit raise {
   }
   mapped.unmap()
   if index % 250 == 0 {
-    expect_lifetime_rgb24_white(base.copy_data())
-    expect_lifetime_mapped_finished(
+    expect_lifetime_image_data_rgb24_white(base.copy_data())
+    expect_lifetime_image_data_mapped_finished(
       @cairoon.run_cairo(() => {
         let _ = mapped_data.copy()
         ()

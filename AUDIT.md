@@ -101,12 +101,13 @@ Implemented in this workspace:
   the public `CAIMEOX/cairoon` API. This validates Eq/Hash semantics across
   external object wrappers through the published package seam.
 - Lifetime/stress black-box tests now live in `src/tests/lifetime`,
-  `src/tests/lifetime/finalizer`, and `src/tests/lifetime/stream`, importing
-  only the public `CAIMEOX/cairoon` API. This validates retained owner graphs,
-  mapped image lifetimes, image data views, value wrapper stress,
-  raster-source callback retention, stream callback stress/fuzz, finalizer fuzz
-  paths, and context borrowed-return lifetimes through separately linked
-  published-package seams.
+  `src/tests/lifetime/finalizer`, `src/tests/lifetime/stream`,
+  `src/tests/lifetime/image_data`, `src/tests/lifetime/value`, and
+  `src/tests/lifetime/raster`, importing only the public `CAIMEOX/cairoon`
+  API. This validates retained owner graphs, mapped image lifetimes, image data
+  views, value wrapper stress, raster-source callback retention, stream
+  callback stress/fuzz, finalizer fuzz paths, and context borrowed-return
+  lifetimes through separately linked published-package seams.
 - Public C stubs now live in the `src/native` native-stub package, and
   `src/native/moon.pkg` references each compiled C file by bare filename. The
   public `src/moon.pkg` imports `CAIMEOX/cairoon/native` for linking and owns no

@@ -230,7 +230,13 @@ cairoon/
         moon.pkg
         finalizer/
           moon.pkg
+        image_data/
+          moon.pkg
+        raster/
+          moon.pkg
         stream/
+          moon.pkg
+        value/
           moon.pkg
       oracle/
         native/
