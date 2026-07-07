@@ -74,7 +74,7 @@ Evaluate each slice with this scorecard:
 | Reliability ledger | `API_INVENTORY.md` statuses are `Done`, `Partial`, or `Decision`; every `Partial` row names its remaining gap; this scorecard and CI/verify gate are checked by `scripts/check-reliability-ledger.py` | Strong for current migrated slices; the lint runs in the local and CI verify gate, and any future full-product claim still requires zero `Todo`/`Partial` rows |
 | FFI boundary safety | Production raw `src/**/ffi*.mbt` declarations mark every non-primitive C FFI parameter with `#borrow` or `#owned`, and `scripts/check-ffi-ownership.py` passes | Strong for current raw externs, including internal helper packages; the lint runs in the local and CI verify gate |
 | Behavioral parity | pycairo-derived black-box cases or direct C Cairo primitive oracles cover normal and invalid inputs | Strong for image, context, path, font, pattern, region, surface/device, and backend helpers already listed in the inventory |
-| Rendering parity | Deterministic image pixels or normalized PDF/PS/SVG bytes match direct C Cairo output | Strong for the enumerated image and vector fixtures, including backend page-transition, state-stack, deep-tag, metadata-outline, page-ops, tag-metadata, and structure-sequence tag/metadata/page-operation output; still partial for broader tag/metadata/multi-page combinations |
+| Rendering parity | Deterministic image pixels or normalized PDF/PS/SVG bytes match direct C Cairo output | Strong for the enumerated image and vector fixtures, including backend page-transition, state-stack, deep-tag, metadata-outline, page-ops, tag-metadata, structure-sequence, and outline-sequence tag/metadata/page-operation output; still partial for broader tag/metadata/multi-page combinations |
 | Lifetime safety | External-object ownership, borrowed returns, callback retention, and error exits run under ASan/LSan or stress tests | Strong for targeted local gates; macOS LSan remains intentionally disabled for known toy-font/glyph leak reports |
 | Callback safety | C-held MoonBit callbacks and callback arguments are retained across the callback invocation and released deterministically | Strong for stream writers/readers and raster-source callbacks covered by current stress/fuzz tests |
 | Portability | Required backends pass on each supported platform, or unsupported APIs have explicit `Decision` rows | Partial until the shipped CI workflow has passing native, oracle, and sanitizer runs across the release platform matrix |
@@ -791,12 +791,21 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   `Context::show_page`, PDF metadata/custom metadata/page labels/outlines, URI
   and named-destination links, list/table/figure/paragraph structure tags, PS
   DSC, SVG point units, and backend page-size changes.
+- `moon -C cairoon test src/tests/oracle/vector_backend/surface_stream_outline_sequence_test.mbt
+  --target native -v`: 4 white-box backend outline-sequence tests passed,
+  comparing PDF/PS/SVG stream output with file output after normalization,
+  comparing file output with a direct C Cairo oracle, checking stable PDF/PS/SVG
+  markers, and checking PS/SVG file and stream negative PDF-metadata markers
+  for a three-page scene with `Context::copy_page`, `Surface::copy_page`,
+  `Surface::show_page`, PDF metadata/custom metadata/page labels/outlines, URI
+  and named-destination links, Document/Sect/Figure structure tags, PS DSC, SVG
+  point units, and backend page-size changes.
 - `moon -C cairoon test src/tests/oracle/vector_backend/surface_stream_oracle_test.mbt
   --target native -v`: 3 white-box stream-to-direct-C oracle tests passed,
-  with the backend feature stream dispatcher now including scenes 45 through 49
+  with the backend feature stream dispatcher now including scenes 45 through 50
   so the deep tag tree, metadata-outline, page-ops, tag-metadata, and
-  structure-sequence PDF/PS/SVG stream callback output is compared with
-  normalized direct C Cairo oracle files.
+  structure-sequence, and outline-sequence PDF/PS/SVG stream callback output is
+  compared with normalized direct C Cairo oracle files.
 - `moon -C cairoon test surface_stream_page_sequence_wbtest.mbt --target
   native -v`: 4 white-box backend resized page-sequence tests passed,
   comparing PDF/PS/SVG file output with stream output after normalized
@@ -2946,6 +2955,18 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   behavior, narrowing the remaining method-by-method context parity gap. This
   raises `context_pycairo_parity_test.mbt` to 34 tests and the expected full
   native suite to 575 tests without changing public API.
+  A later outline-sequence stream-to-direct-C oracle slice added scene 50 in
+  the focused `cairoon_test_backend_outline_sequence.c` oracle file, covering a
+  three-page PDF/PS/SVG sequence with `Context::copy_page`,
+  `Surface::copy_page`, and `Surface::show_page`, PDF
+  metadata/custom-metadata overwrite/removal, page labels,
+  root/child/sibling/grandchild outline flags, URI and named-destination tags,
+  Document/Sect/Figure structure tags, PDF/PS page resizing, PS Level 3 DSC
+  markers, and SVG point units. The slice adds file-vs-stream equality,
+  file-vs-direct-C equality, stream-vs-direct-C equality through the backend
+  oracle dispatcher, stable PDF/PS/SVG markers, and PS/SVG file/stream negative
+  PDF-metadata checks, raising the vector-backend package to 155 tests and the
+  expected full native suite to 579 tests without changing public API.
 
 Remaining reliability work is now narrower and should be tracked as evidence,
 not as an unstructured checklist:
@@ -2953,9 +2974,9 @@ not as an unstructured checklist:
 - Broaden normalized PDF/PS/SVG differential coverage for combinations not yet
   represented by the current direct-C and direct stream-oracle fixtures:
   additional deep tag nests beyond scenes 37, 39, 40, 44, 45, and 49, more
-  metadata/page-label/outline mixtures beyond scenes 38 through 42, 44, 46, 47, 48, and 49, and
+  metadata/page-label/outline mixtures beyond scenes 38 through 42, 44, 46, 47, 48, 49, and 50, and
   additional multi-page sequences beyond the current
-  retained/resized/tag-matrix/lifecycle/text-state/page-ops/structure-sequence
+  retained/resized/tag-matrix/lifecycle/text-state/page-ops/structure-sequence/outline-sequence
   page fixtures.
 - Add broader platform coverage and finalizer fuzz beyond the
   deterministic raster-source owner-count, state-machine, manual
