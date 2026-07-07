@@ -393,9 +393,10 @@ mismatches, and SVG document-unit getters after `finish()`.
 ImageData black-box tests cover ordinary, buffer-backed, and PNG-loaded
 `get_data` after `finish()`, plus retained ordinary views observing
 base-surface `SurfaceFinished` after the base surface is finished.
-Path has executable reference examples for typed segment iteration,
-pycairo-style string formatting, flattened append behavior, copied-path
-ownership, and checked invalid-matrix errors. Region now covers empty,
+Path has executable reference examples and pycairo-derived fixtures for typed
+segment iteration, pycairo-style string formatting, self comparison/hash,
+flattened append behavior, copied-path ownership, and checked invalid-matrix
+errors. Region now covers empty,
 single-rectangle, and multi-rectangle construction plus predicates, pycairo
 negative and positive rectangle-index fixtures, equality mapping through
 MoonBit `Eq`, empty-region overlap and translate behavior, region boolean
@@ -607,6 +608,10 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   tests passed, covering empty paths, pycairo-compatible stringification
   including close-path continuation formatting, typed segment iteration, copied-path lifetime after the source context exits,
   flattened copies, and path equality/hash behavior.
+- `moon -C cairoon test path_pycairo_parity_test.mbt --target native -v`: 4
+  pycairo `test_path.py`-derived fixtures passed, covering empty path string
+  behavior, `copy_path().to_string()` formatting, self comparison/hash
+  operators, and iterator `PathDataType`/coordinate tuples.
 - `moon -C cairoon test context_path_test.mbt --target native -v`: 11
   black-box Context path tests passed, covering current-point behavior,
   relative path operations, pycairo rectangle path-extents behavior,
@@ -3062,6 +3067,12 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   containment, mutating boolean operations returning the receiver, and
   translate behavior for empty and non-empty regions. This raises the expected
   full native suite to 611 tests without changing public API.
+  A later Path pycairo parity slice added `path_pycairo_parity_test.mbt` with
+  four pycairo `test_path.py`-derived fixtures covering empty path
+  string/length behavior, `copy_path().to_string()` formatting including
+  close-path continuation, self comparison/hash operators, and iterator
+  `PathDataType`/coordinate tuples. This raises the expected full native suite
+  to 615 tests without changing public API.
 
 Remaining reliability work is now narrower and should be tracked as evidence,
 not as an unstructured checklist:
