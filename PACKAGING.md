@@ -32,6 +32,69 @@ real compiler and linker flags. On another machine, run
 `scripts/configure-link-flags.sh` before local testing. Commit `moon.pkg` flag
 changes only when intentionally refreshing the package for the release host.
 
+## Downstream Consumer Smoke Test
+
+Before relying on a local checkout from another MoonBit project, verify both
+module resolution and native Cairo linking from the consumer package.
+
+For a local workspace:
+
+```sh
+moon work init
+moon work use /path/to/cairoon /path/to/consumer
+```
+
+The consumer module must declare the versioned dependency in `moon.mod`:
+
+```moonbit
+import {
+  "CAIMEOX/cairoon@0.1.0",
+}
+```
+
+The consumer package that builds an executable or black-box tests must import
+cairoon in `moon.pkg` and carry native Cairo link flags. If only tests use the
+binding, keep the import test-scoped:
+
+```moonbit
+import {
+  "CAIMEOX/cairoon",
+} for "test"
+
+options(
+  link: {
+    "native": {
+      "cc-link-flags": "-lcairo",
+    },
+  },
+)
+```
+
+Use the platform-specific `cc-link-flags` reported by `pkg-config --libs
+cairo` when `-lcairo` is not enough. A minimal black-box smoke test is:
+
+```moonbit
+///|
+test "consumer can draw through cairoon" {
+  let surface = @cairoon.Surface::image(@cairoon.Argb32, 8, 8)
+  let ctx = @cairoon.Context::new(surface)
+  ctx.set_source_rgb(1.0, 0.0, 0.0)
+  ctx.paint()
+  surface.flush()
+  inspect(surface.status() == @cairoon.Success, content="true")
+}
+```
+
+Run the consumer package itself:
+
+```sh
+moon test . --target native --deny-warn -v
+```
+
+In a workspace, plain `moon test --target native` may also run cairoon's own
+test packages. That is useful for release verification, but it is not the
+fastest downstream smoke test.
+
 ## Local Reliability Gate
 
 Use:

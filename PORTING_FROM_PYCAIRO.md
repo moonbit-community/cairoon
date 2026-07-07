@@ -10,10 +10,30 @@ Unlike pycairo, cairoon is not loaded from a process-wide Python extension
 module. Every MoonBit executable or test package that imports cairoon must also
 link the native Cairo library.
 
+In `moon.mod`, declare the versioned dependency. For a local workspace checkout,
+the same version string is still required; `moon.work` chooses the local member
+instead of a registry download:
+
+```moonbit
+import {
+  "CAIMEOX/cairoon@0.1.0",
+}
+```
+
+When using a local checkout, create a workspace that contains both modules:
+
+```sh
+moon work init
+moon work use /path/to/cairoon /path/to/consumer
+```
+
+In the package that uses cairoon, import `CAIMEOX/cairoon` and link Cairo. If
+only tests import cairoon, make the import test-scoped with `for "test"`.
+
 ```moonbit
 import {
   "CAIMEOX/cairoon",
-}
+} for "test"
 
 options(
   link: {
@@ -28,6 +48,16 @@ For a checkout of this repository, run `scripts/configure-link-flags.sh` to
 write the platform-specific flags discovered from `pkg-config --libs cairo`.
 For downstream projects, keep equivalent Cairo link flags in the consuming
 package that builds the native executable or black-box tests.
+
+After wiring the package, run a consumer-only smoke test with:
+
+```sh
+moon test . --target native --deny-warn -v
+```
+
+Plain `moon test --target native` from a workspace can run every workspace
+member, including cairoon's full test suite. Use that when you want full local
+verification, not just consumer integration.
 
 ## Core API Mapping
 
