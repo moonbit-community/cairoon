@@ -64,6 +64,26 @@ test "image data view reads writes and copies surface bytes" {
 }
 
 ///|
+test "pycairo image surface get_data mutable view fixture" {
+  let surface = @cairoon.Surface::image(@cairoon.Argb32, 3, 3)
+  let ctx = @cairoon.Context::new(surface)
+  ctx.paint()
+  surface.flush()
+
+  let data = surface.get_data()
+  inspect(data.length(), content="36")
+  inspect(data.copy().length(), content="36")
+  data.set(0, b'\x42')
+
+  let new_data = surface.get_data()
+  inspect(new_data.get(0).to_int(), content="66")
+  ctx.set_source_rgba(1.0, 1.0, 1.0, 1.0)
+  ctx.paint()
+  surface.flush()
+  inspect(new_data.get(0).to_int(), content="255")
+}
+
+///|
 test "image data view shares buffer-backed image storage" {
   let buffer : FixedArray[Byte] = FixedArray::make(4, b'\x00')
   let surface = @cairoon.Surface::image_for_data(buffer, @cairoon.Argb32, 1, 1)

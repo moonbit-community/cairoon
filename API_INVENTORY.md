@@ -14,6 +14,10 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 
 ## Recent Audit Deltas
 
+- 2026-07-07: pycairo `test_api.py` parity now includes the
+  `test_image_surface_get_data` mutable data-view fixture: an `ImageData` view
+  shares bytes with later `get_data()` calls and observes subsequent
+  `Context::paint` plus `Surface::flush` updates.
 - 2026-07-07: pycairo `test_api.py` parity now includes
   `Surface::has_show_text_glyphs` before and after `finish()` plus the
   `Context::paint`/`OperatorSource` smoke fixture, covering the finished-surface
