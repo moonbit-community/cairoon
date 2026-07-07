@@ -608,12 +608,14 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   path copy/append independence, pycairo-style append string
   equivalence after clearing the source context, flattened append behavior, and
   path error propagation.
-- `moon -C cairoon test context_pycairo_parity_test.mbt --target native -v`: 33
+- `moon -C cairoon test context_pycairo_parity_test.mbt --target native -v`: 35
   black-box Context pycairo parity tests passed, covering the 42x42 default
   clip-extents fixture, zero-radius `arc`/`arc_negative` non-empty paths,
+  context comparison/hash behavior from pycairo's `test_cmp_hash`,
   polygon `path_extents`, polygon `fill_extents`, empty `in_fill`, line
-  `in_stroke`, rectangle `path_extents`, relative path current-point updates,
-  empty `stroke_extents`, default user/device coordinate conversions,
+  `in_stroke`, rectangle `path_extents`, absolute move/line/curve
+  current-point fixtures, relative path current-point updates, empty
+  `stroke_extents`, default user/device coordinate conversions,
   matrix setter/translate/scale/transform/rotate fixtures, dash offset
   normalization, current-point state, drawing-state default getters and enum
   setter round trips, hairline getter/setter, raw operator C-int limit
@@ -1023,9 +1025,11 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   color-stop count/tuple retrieval, duplicate-offset insertion order, copied
   color-stop snapshot stability after later pattern mutation, pattern-type
   mismatch mapping, and invalid-index mapping.
-- `moon -C cairoon test pattern_pycairo_parity_test.mbt --target native -v`: 4
+- `moon -C cairoon test pattern_pycairo_parity_test.mbt --target native -v`: 6
   black-box Pattern pycairo parity tests passed, covering solid-pattern default
-  state and setter round trips, linear-gradient point/color-stop list fixtures,
+  state and setter round trips, surface-pattern default state/get-surface
+  behavior, repeated `Context.get_source()` comparison/hash behavior from
+  pycairo's `test_cmp_hash`, linear-gradient point/color-stop list fixtures,
   radial-gradient circle fixtures, and pycairo mesh example patch construction
   with corner colors and path extraction.
 - `moon -C cairoon test pattern_raster_manual_wbtest.mbt
@@ -2967,6 +2971,12 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   oracle dispatcher, stable PDF/PS/SVG markers, and PS/SVG file/stream negative
   PDF-metadata checks, raising the vector-backend package to 155 tests and the
   expected full native suite to 579 tests without changing public API.
+  A later context/pattern comparison parity slice added two pycairo
+  `test_cmp_hash` fixtures: `Context` self-equality plus same-target
+  different-context inequality, and repeated `Context.get_source()` pattern
+  equality/hash behavior. This raises `context_pycairo_parity_test.mbt` to 35
+  tests, `pattern_pycairo_parity_test.mbt` to 6 tests, and the expected full
+  native suite to 581 tests without changing public API.
 
 Remaining reliability work is now narrower and should be tracked as evidence,
 not as an unstructured checklist:

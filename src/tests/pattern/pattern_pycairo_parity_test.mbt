@@ -1,4 +1,17 @@
 ///|
+test "pycairo pattern cmp hash fixture" {
+  let surface = @cairoon.Surface::image(@cairoon.Argb32, 10, 10)
+  let context = @cairoon.Context::new(surface)
+  let pattern = context.get_source()
+  let other = context.get_source()
+  inspect(pattern == other, content="true")
+  inspect(pattern != other, content="false")
+  inspect(pattern.equal(other), content="true")
+  inspect(pattern.not_equal(other), content="false")
+  inspect(Hash::hash(pattern) == Hash::hash(other), content="true")
+}
+
+///|
 test "pycairo solid pattern default state fixture" {
   let pattern = @cairoon.Pattern::solid_rgb(1.0, 2.0, 4.0)
   debug_inspect(pattern.get_extend(), content="Pad")

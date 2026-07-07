@@ -96,6 +96,17 @@ test "context default clip extents mirror pycairo fixture dimensions" {
 }
 
 ///|
+test "context cmp hash mirrors pycairo fixture" {
+  let ctx = @cairoon.Context::new(pycairo_context_surface(42, 42))
+  let other = @cairoon.Context::new(ctx.get_target())
+  inspect(ctx == ctx, content="true")
+  inspect(ctx != other, content="true")
+  inspect(ctx.equal(other), content="false")
+  inspect(ctx.not_equal(other), content="true")
+  inspect(Hash::hash(ctx) == Hash::hash(ctx), content="true")
+}
+
+///|
 test "zero radius arcs leave non-empty paths like pycairo" {
   let ctx = @cairoon.Context::new(pycairo_context_surface(42, 42))
   inspect(ctx.copy_path().length(), content="0")
