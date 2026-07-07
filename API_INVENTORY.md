@@ -19,8 +19,9 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
   outline insertion, matching the corresponding pycairo post-context-manager
   error fixtures.
 - 2026-07-07: PS surface lifecycle parity now includes post-finish
-  `SurfaceFinished` checks for page size, DSC setup, DSC page setup, and DSC
-  comments, matching the same lifecycle policy used by PDF/SVG backend helpers.
+  `SurfaceFinished` checks for the EPS getter, page size, DSC setup, DSC page
+  setup, and DSC comments, matching the same lifecycle policy used by PDF/SVG
+  backend helpers.
 
 ## Current Coverage Snapshot
 
