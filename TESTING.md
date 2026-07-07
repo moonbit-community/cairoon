@@ -235,9 +235,9 @@ support packages under `src/core/constants`, `src/core/glyph`,
 `src/internal/ps`, `src/internal/svg`,
 `src/tests/matrix`,
 `src/tests/region`,
-`src/tests/surface`, `src/tests/context`, `src/tests/pattern`, `src/tests/font`,
-and `src/tests/stream`, `src/tests/path`, `src/tests/object`,
-`src/tests/lifetime`, and
+`src/tests/surface`, `src/tests/backend`, `src/tests/context`,
+`src/tests/pattern`, `src/tests/font`, and `src/tests/stream`,
+`src/tests/path`, `src/tests/object`, `src/tests/lifetime`, and
 `src/tests/oracle/native`, `src/tests/oracle/constants`,
 `src/tests/oracle/scaled_font`, and
 `src/tests/oracle/image`, `src/tests/oracle/pattern_raster`, and
@@ -698,14 +698,17 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   status, dash validation, raw C-int operator and drawing-state enum
   passthrough parity, CTM conversion, invalid-matrix propagation, pycairo polygon fill-extents
   coverage, stroke extents, and hit-testing.
-- `moon -C cairoon test src/tests/surface --target native -v`: 84 black-box
+- `moon -C cairoon test src/tests/surface --target native -v`: 55 black-box
   Surface package tests passed, including base image/similar/state/status
   wrappers, pycairo surface parity, buffer-backed image surfaces, mutable
   ImageData views, pycairo `test_image_surface_get_data` mutable-view sharing
   and post-paint flush update behavior, pycairo empty 0x0 image-surface
-  `get_data` behavior, pycairo recording-surface post-finish `get_extents`
-  behavior, PNG path round trips, mapped images, subsurfaces, recording, MIME,
-  PDF, PS, SVG, and Tee surfaces.
+  `get_data` behavior, PNG path round trips, mapped images, subsurfaces, MIME,
+  and backend MIME-support matrix checks.
+- `moon -C cairoon test src/tests/backend --target native -v`: 30 black-box
+  backend surface tests passed, covering Recording, PDF, PS, SVG, and Tee
+  constructors, raw backend enums, subtype and finished-surface errors,
+  filename constructors, recording replay, and Tee fanout/lifetime behavior.
 - `moon -C cairoon test surface_mapped_test.mbt --target native -v`: 6
   black-box mapped-image tests passed, covering whole-surface and extent
   uploads, wrong-base and double-unmap failures, mapped-wrapper unmap,
@@ -1005,8 +1008,8 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   mapped-image tests passed with leak detection disabled.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
-  surface_tee_test.mbt --target native -v`: 4 ASan-compiled black-box
-  TeeSurface tests passed with leak detection disabled.
+  src/tests/backend --target native -v`: 30 ASan-compiled black-box backend
+  surface tests passed with leak detection disabled.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
   context_state_test.mbt context_matrix_test.mbt context_extents_test.mbt

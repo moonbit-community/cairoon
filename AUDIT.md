@@ -47,8 +47,13 @@ Implemented in this workspace:
   from an external package.
 - Surface and ImageData black-box tests now live in `src/tests/surface`,
   importing only the public `CAIMEOX/cairoon` API. This validates image, mapped,
-  subsurface, recording, MIME, PDF, PS, SVG, Tee, PNG path, buffer-backed, and
-  mutable `ImageData` behavior through the published package seam.
+  subsurface, MIME, PNG path, buffer-backed, and mutable `ImageData` behavior
+  through the published package seam.
+- Backend surface black-box tests now live in `src/tests/backend`, importing
+  only the public `CAIMEOX/cairoon` API. This validates Recording, PDF, PS,
+  SVG, and Tee constructors, raw backend enums, subtype and finished-surface
+  errors, filename constructors, recording replay, and Tee fanout/lifetime
+  behavior through the published package seam.
 - Context black-box tests now live in `src/tests/context`, importing only the
   public `CAIMEOX/cairoon` API. This validates drawing state, transforms, paths,
   pycairo parity fixtures, groups, text/glyph APIs, extents, clipping, painting,
@@ -70,10 +75,13 @@ Implemented in this workspace:
   device lifetime helpers, raw script content mapping, and stream error mapping
   through the published package seam; backend stream oracle tests remain
   white-box.
-- Object/path black-box tests now live in `src/tests/object`, importing only
-  the public `CAIMEOX/cairoon` API. This validates Path formatting, iteration,
-  flattening, scope survival, path comparison behavior, and Eq/Hash semantics
-  across external object wrappers through the published package seam.
+- Path black-box tests now live in `src/tests/path`, importing only the public
+  `CAIMEOX/cairoon` API. This validates Path formatting, iteration, flattening,
+  scope survival, and path comparison behavior through the published package
+  seam.
+- Object trait black-box tests now live in `src/tests/object`, importing only
+  the public `CAIMEOX/cairoon` API. This validates Eq/Hash semantics across
+  external object wrappers through the published package seam.
 - Lifetime/stress black-box tests now live in `src/tests/lifetime`, importing
   only the public `CAIMEOX/cairoon` API. This validates retained owner graphs,
   mapped image lifetimes, image data views, value wrapper stress, raster-source
@@ -793,20 +801,14 @@ Prior full verifies passed on 2026-07-02, 2026-07-03, 2026-07-04,
   black-box mapped-image tests passed, covering whole-surface and extent
   uploads, wrong-base and double-unmap failures, mapped-wrapper unmap,
   scoped unmap on success and Cairo errors, and upload-before-error propagation.
-- `moon -C cairoon test surface_tee_test.mbt --target native -v`: 4
-  black-box TeeSurface tests passed, covering mirrored drawing, retained
-  primary/target wrappers, subtype errors, self add/remove errors,
-  negative-index `InvalidIndex`, and positive out-of-range `NoMemory`
-  status handling.
-- `moon -C cairoon test surface_context_test.mbt image_data_test.mbt
-  surface_subsurface_test.mbt surface_recording_test.mbt surface_mime_test.mbt
-  surface_pdf_test.mbt surface_ps_test.mbt surface_svg_test.mbt
-  device_test.mbt object_traits_test.mbt --target native -v`: 68 black-box
-  surface/device/object-trait tests passed, covering base surface state,
-  retained image-data views, retained subsurface parents, recording replay,
-  MIME storage/support, PDF/PS/SVG helper errors, script devices, script
-  stream callbacks, script writer invalid-status fallback, script surfaces, and
-  external-object `Eq`/`Hash` behavior.
+- `moon -C cairoon test src/tests/surface --target native -v`: 55 black-box
+  surface tests passed, covering base surface state, retained image-data views,
+  retained subsurface parents, MIME storage/support, mapped images, PNG paths,
+  image-surface data, and pycairo surface parity fixtures.
+- `moon -C cairoon test src/tests/backend --target native -v`: 30 black-box
+  backend surface tests passed, covering Recording replay/extents, PDF/PS/SVG
+  backend helpers and subtype/finished errors, filename constructors, raw
+  backend enums, and Tee fanout/lifetime behavior.
 - `moon -C cairoon test device_test.mbt backend_surfaces.mbt.md
   lifetime_stress_test.mbt lifetime_value_stress_test.mbt
   lifetime_image_data_stress_test.mbt lifetime_finalizer_fuzz_test.mbt
@@ -1025,15 +1027,12 @@ Prior full verifies passed on 2026-07-02, 2026-07-03, 2026-07-04,
   mapped-image tests passed with leak detection disabled.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
-  surface_tee_test.mbt --target native -v`: 4 ASan-compiled black-box
-  TeeSurface tests passed with leak detection disabled.
+  src/tests/surface --target native -v`: 55 ASan-compiled black-box surface
+  tests passed with leak detection disabled.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
-  surface_context_test.mbt image_data_test.mbt surface_subsurface_test.mbt
-  surface_recording_test.mbt surface_mime_test.mbt surface_pdf_test.mbt
-  surface_ps_test.mbt surface_svg_test.mbt device_test.mbt
-  object_traits_test.mbt --target native -v`: 68 ASan-compiled
-  surface/device/object-trait tests passed with leak detection disabled.
+  src/tests/backend --target native -v`: 30 ASan-compiled black-box backend
+  surface tests passed with leak detection disabled.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
   context_state_test.mbt context_matrix_test.mbt context_extents_test.mbt
