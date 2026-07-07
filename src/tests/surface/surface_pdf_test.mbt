@@ -110,6 +110,30 @@ test "pdf surface no-output constructor exposes page and document APIs" {
       surface.pdf_restrict_to_version(@cairoon.PdfVersion1_5)
     }),
   )
+  expect_pdf_surface_finished(
+    @cairoon.run_cairo(() => surface.pdf_set_page_label("after finish")),
+  )
+  expect_pdf_surface_finished(
+    @cairoon.run_cairo(() => {
+      surface.pdf_set_metadata(@cairoon.PdfMetadataAuthor, "after finish")
+    }),
+  )
+  expect_pdf_surface_finished(
+    @cairoon.run_cairo(() => {
+      surface.pdf_set_custom_metadata("ISBN", Some("after-finish"))
+    }),
+  )
+  expect_pdf_surface_finished(
+    @cairoon.run_cairo(() => {
+      let _ = surface.pdf_add_outline_with_flags(
+        @cairoon.PDF_OUTLINE_ROOT,
+        "after finish",
+        "page=1",
+        outline_flags,
+      )
+      ()
+    }),
+  )
 }
 
 ///|

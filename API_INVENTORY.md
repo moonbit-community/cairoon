@@ -12,6 +12,13 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 - Decision: product scope or platform policy must be pinned before
   implementation.
 
+## Recent Audit Deltas
+
+- 2026-07-07: PDF surface lifecycle parity now includes post-finish
+  `SurfaceFinished` checks for page labels, metadata, custom metadata, and
+  outline insertion, matching the corresponding pycairo post-context-manager
+  error fixtures.
+
 ## Current Coverage Snapshot
 
 | Area | Status | Evidence |
