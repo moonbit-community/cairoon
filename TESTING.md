@@ -3206,6 +3206,10 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   multi-seed fuzz files. The same 18 lifetime black-box tests remain covered,
   `lifetime_stream_stress_test.mbt` is replaced by 222/125/88-line files, and
   no public API changes.
+  A later surface-stream organization slice split `surface_stream_test.mbt`
+  into shared helper, vector-stream, PNG-stream, and retained-chunk files. The
+  same 13 public stream black-box tests remain covered, the largest stream
+  callback test file drops from 383 to 163 lines, and no public API changes.
 
 Remaining reliability work is now narrower and should be tracked as evidence,
 not as an unstructured checklist:
