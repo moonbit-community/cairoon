@@ -139,6 +139,27 @@ test "pycairo font face and scaled font cmp hash fixture" {
 }
 
 ///|
+test "pycairo scaled font metrics and matrix getter fixtures" {
+  let scaled = pycairo_font_context().get_scaled_font()
+  let extents = scaled.extents()
+  inspect(extents.height > 0.0, content="true")
+  inspect(extents.max_x_advance > 0.0, content="true")
+  inspect(scaled.get_font_face().status().is_success(), content="true")
+  inspect(scaled.get_font_options().status().is_success(), content="true")
+  assert_pycairo_font_matrix_close(scaled.get_ctm(), @cairoon.Matrix::new())
+  let font_matrix = scaled.get_font_matrix()
+  inspect(font_matrix.xx > 0.0, content="true")
+  inspect(font_matrix.yy > 0.0, content="true")
+  inspect(font_matrix.x0, content="0")
+  inspect(font_matrix.y0, content="0")
+  let scale_matrix = scaled.get_scale_matrix()
+  inspect(scale_matrix.xx > 0.0, content="true")
+  inspect(scale_matrix.yy > 0.0, content="true")
+  inspect(scale_matrix.x0, content="0")
+  inspect(scale_matrix.y0, content="0")
+}
+
+///|
 test "pycairo toy font face getter fixtures" {
   let empty = @cairoon.FontFace::toy("")
   inspect(empty.get_family(), content="Helvetica")
