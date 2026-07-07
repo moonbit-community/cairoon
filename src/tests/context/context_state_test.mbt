@@ -290,6 +290,19 @@ test "context invalid dash maps to cairo invalid argument" {
 }
 
 ///|
+test "context invalid restore maps to cairo error" {
+  let ctx = @cairoon.Context::new(context_state_surface())
+  debug_inspect(ctx.status(), content="Success")
+  let result = @cairoon.run_cairo(() => ctx.restore())
+  inspect(result is Err(_), content="true")
+  debug_inspect(ctx.status(), content="InvalidRestore")
+  match result {
+    Err(@cairoon.CairoError(@cairoon.InvalidRestore, _)) => ()
+    _ => @test.fail("expected InvalidRestore")
+  }
+}
+
+///|
 test "context drawing state getters propagate cairo error" {
   let ctx = @cairoon.Context::new(context_state_surface())
   let set_result = @cairoon.run_cairo(() => {

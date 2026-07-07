@@ -634,7 +634,7 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   path copy/append independence, pycairo-style append string
   equivalence after clearing the source context, flattened append behavior, and
   path error propagation.
-- `moon -C cairoon test src/tests/context --target native -v`: 103 black-box
+- `moon -C cairoon test src/tests/context --target native -v`: 104 black-box
   Context package tests passed, including 35 pycairo parity fixtures split
   across `context_pycairo_parity_test.mbt` and
   `context_font_text_pycairo_parity_test.mbt`, covering the 42x42 default
@@ -676,11 +676,16 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   `get_group_target`, `get_source`, and PDF/PS stream target wrappers that
   remain usable after their creating helper scopes exit.
 - `moon -C cairoon test context_state_test.mbt context_matrix_test.mbt
-  context_extents_test.mbt --target native -v`: 18 black-box context
+  context_extents_test.mbt --target native -v`: 19 black-box context
   state/matrix/extents tests passed, including save/restore, sticky error
   status, dash validation, raw C-int operator and drawing-state enum
   passthrough parity, CTM conversion, invalid-matrix propagation, pycairo polygon fill-extents
   coverage, stroke extents, and hit-testing.
+- `moon -C cairoon test src/tests/surface --target native -v`: 81 black-box
+  Surface package tests passed, including base image/similar/state/status
+  wrappers, pycairo surface parity, buffer-backed image surfaces, mutable
+  ImageData views, PNG path round trips, mapped images, subsurfaces, recording,
+  MIME, PDF, PS, SVG, and Tee surfaces.
 - `moon -C cairoon test surface_mapped_test.mbt --target native -v`: 6
   black-box mapped-image tests passed, covering whole-surface and extent
   uploads, wrong-base and double-unmap failures, mapped-wrapper unmap,
@@ -3171,6 +3176,12 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   the same 35 external pycairo parity fixtures, the observed full native suite
   remains 637 tests, and the largest Context pycairo parity file drops from 675
   to 471 lines without changing public API.
+  A later Surface/context test organization slice moved buffer-backed
+  image-surface tests into `image_surface_data_test.mbt`, PNG path round-trip
+  coverage into `surface_png_test.mbt`, and the context invalid-restore state
+  error test into `context_state_test.mbt`. The observed full native suite
+  remains 637 tests, `surface_context_test.mbt` drops from 525 to 348 lines, and
+  no public API changes.
 
 Remaining reliability work is now narrower and should be tracked as evidence,
 not as an unstructured checklist:
