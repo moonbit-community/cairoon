@@ -91,6 +91,9 @@ if [[ "$asan_mode" != "0" ]]; then
   if [[ -n "$clang_path" ]]; then
     asan_options="${ASAN_OPTIONS:-detect_leaks=0:fast_unwind_on_malloc=0}"
     moon_ar="${MOON_AR:-/usr/bin/ar}"
+    # Moon's native cache can retain compiler-runtime paths from an older clang.
+    # Rebuild ASan packages from a clean cache after switching MOON_CC.
+    run moon clean
     run_external_test_packages env \
       "MOON_CC=$clang_path" \
       "MOON_AR=$moon_ar" \

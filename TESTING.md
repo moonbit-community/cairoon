@@ -234,6 +234,9 @@ and `src/tests/stream`, `src/tests/object`, `src/tests/lifetime`, and
 packages when an ASan-capable `clang` is available. The public package root no
 longer has a separate targeted `*_wbtest.mbt` list; those tests have been
 converted into external oracle packages discovered by `scripts/verify.sh`.
+Before the targeted ASan pass, `scripts/verify.sh` runs `moon clean` so a
+compiler switch or Homebrew/Xcode clang update cannot reuse object files with
+stale sanitizer runtime paths.
 Set `CAIROON_VERIFY_ASAN=0` to skip the targeted ASan portion intentionally.
 
 ## Current Status
@@ -2932,6 +2935,17 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   PDF/PS/SVG marker checks, and PS/SVG file/stream negative PDF-metadata
   checks, raising the vector-backend package to 151 tests and the expected full
   native suite to 573 tests without changing public API.
+  A later surface-pattern pycairo parity slice added one black-box fixture for
+  `Pattern::for_surface`, proving pycairo-compatible default
+  `ExtendNone`/`Good`/`DitherDefault`/identity-matrix state and referenced
+  `get_surface()` dimensions. This raises `pattern_pycairo_parity_test.mbt` to
+  5 tests and the expected full native suite to 574 tests without changing
+  public API.
+  A later context absolute-path parity slice added one black-box fixture for
+  `Context::move_to`, `Context::line_to`, and `Context::curve_to` current-point
+  behavior, narrowing the remaining method-by-method context parity gap. This
+  raises `context_pycairo_parity_test.mbt` to 34 tests and the expected full
+  native suite to 575 tests without changing public API.
 
 Remaining reliability work is now narrower and should be tracked as evidence,
 not as an unstructured checklist:

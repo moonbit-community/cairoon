@@ -155,6 +155,22 @@ test "context current point mirrors pycairo fixture" {
 }
 
 ///|
+test "context absolute path primitives mirror pycairo current-point fixtures" {
+  let move_ctx = @cairoon.Context::new(pycairo_context_surface(42, 42))
+  move_ctx.move_to(10.0, 10.0)
+  assert_pycairo_context_point_close(move_ctx.get_current_point(), (10.0, 10.0))
+
+  let line_ctx = @cairoon.Context::new(pycairo_context_surface(42, 42))
+  line_ctx.line_to(1.0, 2.0)
+  assert_pycairo_context_point_close(line_ctx.get_current_point(), (1.0, 2.0))
+
+  let curve_ctx = @cairoon.Context::new(pycairo_context_surface(42, 42))
+  curve_ctx.move_to(0.0, 0.0)
+  curve_ctx.curve_to(1.0, 2.0, 3.0, 4.0, 5.0, 6.0)
+  assert_pycairo_context_point_close(curve_ctx.get_current_point(), (5.0, 6.0))
+}
+
+///|
 test "context rectangle and relative path methods mirror pycairo fixtures" {
   let rectangle_ctx = @cairoon.Context::new(pycairo_context_surface(42, 42))
   rectangle_ctx.rectangle(1.0, 2.0, 4.0, 5.0)
