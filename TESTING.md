@@ -332,7 +332,8 @@ text-to-glyph coordinate cases plus sheared font/CTM scale-matrix
 composition, and
 Device/ScriptDevice basics including status/type/equal/hash,
 finish/flush/acquire/release, scoped acquire/finish, file/stream script devices,
-script mode/comment helpers, recording replay, `Surface::get_device`,
+pycairo-derived context-manager, cmp/hash, image-surface `get_device`,
+script mode/comment, and recording replay fixtures, `Surface::get_device`,
 `Surface::script`, and
 `Surface::script_for_target`, TeeSurface mirrored drawing and target indexing,
 exhaustive `Status`/`CairoError` classification, retained-owner lifetime
@@ -683,8 +684,12 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   script-device finish, retained script surface/device wrappers, executable
   backend docs, retained owner graph stress, external value-wrapper stress,
   image-data view stress, finalizer graph multi-seed fuzz, backend stream
-  callback allocation stress, and
-  backend stream callback multi-seed fuzz.
+  callback allocation stress, and backend stream callback multi-seed fuzz.
+- `moon -C cairoon test device_pycairo_parity_test.mbt --target native -v`: 5
+  pycairo `test_device.py`-derived fixtures passed, covering script-device
+  context-manager cleanup, Device equality/hash through `Surface::get_device`,
+  image-surface `get_device is None`, script mode/comment output, and
+  recording-surface replay plus post-finish `DeviceFinished`.
 - `moon -C cairoon test vector_output_wbtest.mbt
   vector_output_oracle_wbtest.mbt --target native -v`: 58 white-box vector
   tests passed after splitting marker/output checks from direct C oracle and
@@ -3073,6 +3078,12 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   close-path continuation, self comparison/hash operators, and iterator
   `PathDataType`/coordinate tuples. This raises the expected full native suite
   to 615 tests without changing public API.
+  A later Device pycairo parity slice added `device_pycairo_parity_test.mbt`
+  with five pycairo `test_device.py`-derived fixtures covering script-device
+  context-manager cleanup, Device equality/hash through `Surface::get_device`,
+  image-surface `get_device is None`, script mode/comment output, and
+  recording-surface replay plus post-finish `DeviceFinished`. This raises the
+  expected full native suite to 620 tests without changing public API.
 
 Remaining reliability work is now narrower and should be tracked as evidence,
 not as an unstructured checklist:
