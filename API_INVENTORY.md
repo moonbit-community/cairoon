@@ -14,6 +14,9 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 
 ## Recent Audit Deltas
 
+- 2026-07-07: pycairo `test_api.py` parity now includes a Unicode
+  `Context::show_text` smoke fixture and a Unicode PNG filename round-trip
+  fixture through `Surface::write_to_png` and `Surface::image_from_png`.
 - 2026-07-07: Backend vector oracle coverage adds scene 53, a cross-backend
   semantic-index fixture with PDF metadata, custom metadata, page labels,
   nested outlines, destination and URI links, TOC/TOCI/Reference,

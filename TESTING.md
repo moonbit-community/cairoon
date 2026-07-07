@@ -227,7 +227,8 @@ It runs `moon fmt --check`, `scripts/check-project-layout.py`,
 `moon check --target native --deny-warn`, the `src/native` native-stub package,
 extracted external
 test packages under
-`src/tests/api` (version, enum, status, and pure value APIs),
+`src/tests/api` (version, enum, status, pure value APIs, and pycairo
+`test_api.py` Unicode text/path parity),
 support packages under `src/core/constants`, `src/core/glyph`,
 `src/internal/version`,
 `src/internal/format`, `src/internal/status`, `src/internal/pdf`,
@@ -273,12 +274,14 @@ expanded Context path, painting/page, target/source borrowed returns,
 source-surface convenience, Context pointer equality/hash, clip, matrix, drawing-state including pycairo hairline mode,
 compile-time Cairo
 constants, group APIs, tag APIs, toy
-text APIs, glyph array APIs, text-to-glyphs/show-text-glyphs APIs,
+text APIs including Unicode `show_text` smoke parity, glyph array APIs,
+text-to-glyphs/show-text-glyphs APIs,
 including glyph-only text conversion for pycairo's `with_clusters=False` path,
 documented product decisions for `CAPI`, legacy uppercase enum alias
 constants, and non-implemented FreeType/user-font classes,
 hit-testing/extents APIs, typed Path segment iteration and stringification,
-PNG filename load/save plus stream read/write, direct C Cairo oracle
+PNG filename load/save including Unicode filename round trips plus stream
+read/write, direct C Cairo oracle
 comparisons for forty deterministic ARGB32 image scenes on ordinary and
 buffer-backed image surfaces including toy-font `text_path`, toy-font
 `show_text`, `glyph_path`, `show_glyphs`, `show_text_glyphs`,
@@ -627,6 +630,11 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   pycairo `test_path.py`-derived fixtures passed, covering empty path string
   behavior, `copy_path().to_string()` formatting, self comparison/hash
   operators, and iterator `PathDataType`/coordinate tuples.
+- `moon -C cairoon test src/tests/api --target native --deny-warn -v`: 23
+  black-box API package tests passed, including two pycairo `test_api.py`
+  Unicode fixtures for `Context::show_text("ēxāmple.")` and PNG filename
+  write/read round trips through `Surface::write_to_png` and
+  `Surface::image_from_png`.
 - `moon -C cairoon test context_path_test.mbt --target native -v`: 11
   black-box Context path tests passed, covering current-point behavior,
   relative path operations, pycairo rectangle path-extents behavior,
