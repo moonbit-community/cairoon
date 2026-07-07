@@ -150,7 +150,10 @@ cairoon/
       status/
         moon.pkg
       value/
-        moon.pkg
+        core/
+          moon.pkg
+        pycairo/
+          moon.pkg
       matrix/
         moon.pkg
       surface/

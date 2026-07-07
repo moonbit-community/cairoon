@@ -38,11 +38,13 @@ Implemented in this workspace:
   the public `CAIMEOX/cairoon` API. This validates `check_status`,
   `run_cairo`, public `Status::message`, and all `CairoError` suberror classes
   through the published package seam.
-- Pure public value black-box tests now live in `src/tests/value`, importing
-  only the public `CAIMEOX/cairoon` API. This validates rectangles, glyphs,
-  text clusters, and font/text extents, including component access,
-  invalid-index error mapping, hash/equality fixtures, numeric limits, and
-  return paths from Context, ScaledFont, recording surfaces, and clip extents.
+- Pure public value black-box tests now live in
+  `src/tests/value/{core,pycairo}`, importing only the public
+  `CAIMEOX/cairoon` API. This validates rectangles, glyphs, text clusters, and
+  font/text extents, including component access, invalid-index error mapping,
+  hash/equality fixtures, numeric limits, and return paths from Context,
+  ScaledFont, recording surfaces, and clip extents through separately linked
+  published-package seams.
 - Matrix black-box tests now live in `src/tests/matrix`, importing only the
   public `CAIMEOX/cairoon` API. This validates external-package access to public
   types, methods, checked errors, and `CairoInvalidArgument` pattern matching;

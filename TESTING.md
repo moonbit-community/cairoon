@@ -233,7 +233,8 @@ test packages under
 context/pattern lifetime parity),
 `src/tests/status` (public status, `run_cairo`, and `CairoError`
 classification),
-`src/tests/value` (pure value APIs and pycairo value parity),
+`src/tests/value/core` (pure value APIs),
+`src/tests/value/pycairo` (pycairo value parity),
 support packages under `src/core/constants`, `src/core/glyph`,
 `src/internal/version`,
 `src/internal/format`, `src/internal/status`, `src/internal/pdf`,
@@ -678,11 +679,14 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   black-box status package tests passed, covering `run_cairo` success,
   `check_status`, public `Status::message`, and exhaustive `CairoError`
   suberror classification for every Cairo status exposed by the facade.
-- `moon -C cairoon test src/tests/value --target native --deny-warn -v`: 14
-  black-box value package tests passed, covering Rectangle, RectangleInt,
+- `moon -C cairoon test src/tests/value/core --target native --deny-warn -v`:
+  8 black-box value package tests passed, covering Rectangle, RectangleInt,
   Glyph, TextCluster, TextExtents, FontExtents, component access, invalid-index
-  error mapping, hash/equality fixtures, numeric limits, clip-rectangle
-  returns, recording extents, and Context/ScaledFont extents-return paths.
+  error mapping, and numeric limits.
+- `moon -C cairoon test src/tests/value/pycairo --target native --deny-warn -v`:
+  6 black-box value parity tests passed, covering pycairo-style value
+  equality/hash/component fixtures, clip-rectangle returns, recording extents,
+  and Context/ScaledFont extents-return paths.
 - `moon -C cairoon test src/tests/context/path --target native -v`: 11
   black-box Context path tests passed, covering current-point behavior,
   relative path operations, pycairo rectangle path-extents behavior,
