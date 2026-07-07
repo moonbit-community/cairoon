@@ -238,7 +238,9 @@ support packages under `src/core/constants`, `src/core/glyph`,
 `src/internal/ps`, `src/internal/svg`,
 `src/tests/matrix`,
 `src/tests/region`,
-`src/tests/surface`, `src/tests/image`, `src/tests/backend/pdf`,
+`src/tests/surface/base`, `src/tests/surface/mime`,
+`src/tests/surface/pycairo`, `src/tests/surface/subsurface`,
+`src/tests/image`, `src/tests/backend/pdf`,
 `src/tests/backend/ps`, `src/tests/backend/recording`,
 `src/tests/backend/svg`, `src/tests/backend/tee`,
 `src/tests/context`, `src/tests/context/clip`, `src/tests/context/extents`,
@@ -751,10 +753,10 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   black-box context lifetime tests passed, including `get_target`,
   `get_group_target`, `get_source`, and PDF/PS stream target wrappers that
   remain usable after their creating helper scopes exit.
-- `moon -C cairoon test src/tests/surface --target native -v`: 26 black-box
-  Surface package tests passed, including base image/similar/state/status
-  wrappers, pycairo surface parity, subsurfaces, MIME, and backend MIME-support
-  matrix checks.
+- `moon -C cairoon test src/tests/surface/{base,mime,pycairo,subsurface}
+  --target native -v`: 26 black-box Surface package tests passed, including
+  base image/similar/state/status wrappers, pycairo surface parity,
+  subsurfaces, MIME, and backend MIME-support matrix checks.
 - `moon -C cairoon test src/tests/image --target native -v`: 29 black-box
   image-family tests passed, including ImageSurface properties, raw image
   formats, buffer-backed image surfaces, mutable ImageData views, pycairo
@@ -1070,8 +1072,8 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   covering the previous intermittent stream-tag output comparison failure path.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
-  src/tests/surface --target native -v`: 26 ASan-compiled black-box surface
-  tests passed with leak detection disabled.
+  src/tests/surface/{base,mime,pycairo,subsurface} --target native -v`: 26
+  ASan-compiled black-box surface tests passed with leak detection disabled.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
   src/tests/image --target native -v`: 29 ASan-compiled black-box image-family

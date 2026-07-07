@@ -149,7 +149,14 @@ cairoon/
       matrix/
         moon.pkg
       surface/
-        moon.pkg
+        base/
+          moon.pkg
+        mime/
+          moon.pkg
+        pycairo/
+          moon.pkg
+        subsurface/
+          moon.pkg
       image/
         moon.pkg
       context/

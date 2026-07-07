@@ -1,4 +1,26 @@
 ///|
+fn expect_surface_invalid_size(
+  result : Result[@cairoon.Surface, @cairoon.CairoError],
+) -> Unit raise {
+  inspect(result is Err(_), content="true")
+  match result {
+    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidSize, _)) => ()
+    _ => @test.fail("expected InvalidSize")
+  }
+}
+
+///|
+fn[T] expect_surface_finished(
+  result : Result[T, @cairoon.CairoError],
+) -> Unit raise {
+  inspect(result is Err(_), content="true")
+  match result {
+    Err(@cairoon.CairoError(@cairoon.SurfaceFinished, _)) => ()
+    _ => @test.fail("expected SurfaceFinished")
+  }
+}
+
+///|
 fn expect_pycairo_surface_invalid_matrix(
   result : Result[Unit, @cairoon.CairoError],
 ) -> Unit raise {

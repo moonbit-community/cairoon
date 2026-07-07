@@ -53,10 +53,11 @@ Implemented in this workspace:
   rectangle construction, containment, overlap enums, mutating boolean
   operations, chained pycairo-style mutators, and invalid-index error mapping
   from an external package.
-- Surface black-box tests now live in `src/tests/surface`, importing only the
+- Surface black-box tests now live in
+  `src/tests/surface/{base,mime,pycairo,subsurface}`, importing only the
   public `CAIMEOX/cairoon` API. This validates base surface state,
   similar/subsurface behavior, MIME storage/support, and pycairo base-surface
-  parity through the published package seam.
+  parity through separately linked published-package seams.
 - Image-family black-box tests now live in `src/tests/image`, importing only
   the public `CAIMEOX/cairoon` API. This validates ImageSurface, ImageData,
   MappedImageSurface, PNG path, buffer-backed, float-format, and raw
@@ -815,9 +816,10 @@ Prior full verifies passed on 2026-07-02, 2026-07-03, 2026-07-04,
   error status, dash validation, raw C-int operator and drawing-state enum
   passthrough parity, CTM conversion, invalid-matrix propagation, pycairo
   polygon fill-extents coverage, stroke extents, and hit-testing.
-- `moon -C cairoon test src/tests/surface --target native -v`: 26 black-box
-  surface tests passed, covering base surface state, retained subsurface
-  parents, MIME storage/support, and pycairo surface parity fixtures.
+- `moon -C cairoon test src/tests/surface/{base,mime,pycairo,subsurface}
+  --target native -v`: 26 black-box surface tests passed, covering base
+  surface state, retained subsurface parents, MIME storage/support, and pycairo
+  surface parity fixtures.
 - `moon -C cairoon test src/tests/image --target native -v`: 29 black-box
   image-family tests passed, covering image properties, retained ImageData
   views, mapped images, PNG paths, buffer-backed image surfaces, and pycairo
@@ -1042,8 +1044,8 @@ Prior full verifies passed on 2026-07-02, 2026-07-03, 2026-07-04,
   covering the previous intermittent stream-tag output comparison failure path.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
-  src/tests/surface --target native -v`: 26 ASan-compiled black-box surface
-  tests passed with leak detection disabled.
+  src/tests/surface/{base,mime,pycairo,subsurface} --target native -v`: 26
+  ASan-compiled black-box surface tests passed with leak detection disabled.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
   src/tests/image --target native -v`: 29 ASan-compiled black-box image-family
