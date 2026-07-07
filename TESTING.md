@@ -227,8 +227,9 @@ It runs `moon fmt --check`, `scripts/check-project-layout.py`,
 `moon check --target native --deny-warn`, the `src/native` native-stub package,
 extracted external
 test packages under
-`src/tests/api` (version, enum, status, pure value APIs, and pycairo
-`test_api.py` Unicode text/path plus context/pattern lifetime parity),
+`src/tests/api` (version, enum, status, and pycairo `test_api.py` Unicode
+text/path plus context/pattern lifetime parity),
+`src/tests/value` (pure value APIs and pycairo value parity),
 support packages under `src/core/constants`, `src/core/glyph`,
 `src/internal/version`,
 `src/internal/format`, `src/internal/status`, `src/internal/pdf`,
@@ -634,15 +635,21 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   pycairo `test_path.py`-derived fixtures passed, covering empty path string
   behavior, `copy_path().to_string()` formatting, self comparison/hash
   operators, and iterator `PathDataType`/coordinate tuples.
-- `moon -C cairoon test src/tests/api --target native --deny-warn -v`: 27
-  black-box API package tests passed, including pycairo `test_api.py`
-  Unicode fixtures for `Context::show_text("ēxāmple.")` and PNG filename
-  write/read round trips through `Surface::write_to_png` and
-  `Surface::image_from_png`, plus `surface_destroy_before_context` and
+- `moon -C cairoon test src/tests/api --target native --deny-warn -v`: 13
+  black-box API package tests passed, covering version helpers, portable enums,
+  status/suberror mapping, pycairo `test_api.py` Unicode fixtures for
+  `Context::show_text("ēxāmple.")`, PNG filename write/read round trips through
+  `Surface::write_to_png` and `Surface::image_from_png`,
+  `surface_destroy_before_context` and
   `surface_destroy_before_surface_pattern` lifetime fixtures for stream-backed
   surfaces retained by contexts and surface patterns,
   `Surface::has_show_text_glyphs` finished-surface error mapping, and the
   `Context::paint`/`OperatorSource` smoke fixture.
+- `moon -C cairoon test src/tests/value --target native --deny-warn -v`: 14
+  black-box value package tests passed, covering Rectangle, RectangleInt,
+  Glyph, TextCluster, TextExtents, FontExtents, component access, invalid-index
+  error mapping, hash/equality fixtures, numeric limits, clip-rectangle
+  returns, recording extents, and Context/ScaledFont extents-return paths.
 - `moon -C cairoon test context_path_test.mbt --target native -v`: 11
   black-box Context path tests passed, covering current-point behavior,
   relative path operations, pycairo rectangle path-extents behavior,

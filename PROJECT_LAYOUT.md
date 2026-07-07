@@ -142,6 +142,8 @@ cairoon/
     tests/
       api/
         moon.pkg
+      value/
+        moon.pkg
       matrix/
         moon.pkg
       surface/
