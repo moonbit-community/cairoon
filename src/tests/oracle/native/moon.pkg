@@ -37,6 +37,7 @@ options(
     "cairoon_test_backend_annotation_sequence.c",
     "cairoon_test_backend_semantic_index.c",
     "cairoon_test_backend_bookmark_lattice.c",
+    "cairoon_test_backend_revision_ledger.c",
     "cairoon_test_pdf_vector.c",
     "cairoon_test_ps_vector.c",
     "cairoon_test_svg_vector.c",
