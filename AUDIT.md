@@ -45,10 +45,14 @@ Implemented in this workspace:
   rectangle construction, containment, overlap enums, mutating boolean
   operations, chained pycairo-style mutators, and invalid-index error mapping
   from an external package.
-- Surface and ImageData black-box tests now live in `src/tests/surface`,
-  importing only the public `CAIMEOX/cairoon` API. This validates image, mapped,
-  subsurface, MIME, PNG path, buffer-backed, and mutable `ImageData` behavior
-  through the published package seam.
+- Surface black-box tests now live in `src/tests/surface`, importing only the
+  public `CAIMEOX/cairoon` API. This validates base surface state,
+  similar/subsurface behavior, MIME storage/support, and pycairo base-surface
+  parity through the published package seam.
+- Image-family black-box tests now live in `src/tests/image`, importing only
+  the public `CAIMEOX/cairoon` API. This validates ImageSurface, ImageData,
+  MappedImageSurface, PNG path, buffer-backed, float-format, and raw
+  image-format behavior through the published package seam.
 - Backend surface black-box tests now live in `src/tests/backend`, importing
   only the public `CAIMEOX/cairoon` API. This validates Recording, PDF, PS,
   SVG, and Tee constructors, raw backend enums, subtype and finished-surface
@@ -797,14 +801,13 @@ Prior full verifies passed on 2026-07-02, 2026-07-03, 2026-07-04,
   status, dash validation, raw C-int operator and drawing-state enum
   passthrough parity, CTM conversion, invalid-matrix propagation, pycairo polygon fill-extents
   coverage, stroke extents, and hit-testing.
-- `moon -C cairoon test surface_mapped_test.mbt --target native -v`: 6
-  black-box mapped-image tests passed, covering whole-surface and extent
-  uploads, wrong-base and double-unmap failures, mapped-wrapper unmap,
-  scoped unmap on success and Cairo errors, and upload-before-error propagation.
-- `moon -C cairoon test src/tests/surface --target native -v`: 55 black-box
-  surface tests passed, covering base surface state, retained image-data views,
-  retained subsurface parents, MIME storage/support, mapped images, PNG paths,
-  image-surface data, and pycairo surface parity fixtures.
+- `moon -C cairoon test src/tests/surface --target native -v`: 26 black-box
+  surface tests passed, covering base surface state, retained subsurface
+  parents, MIME storage/support, and pycairo surface parity fixtures.
+- `moon -C cairoon test src/tests/image --target native -v`: 29 black-box
+  image-family tests passed, covering image properties, retained ImageData
+  views, mapped images, PNG paths, buffer-backed image surfaces, and pycairo
+  image-surface data fixtures.
 - `moon -C cairoon test src/tests/backend --target native -v`: 30 black-box
   backend surface tests passed, covering Recording replay/extents, PDF/PS/SVG
   backend helpers and subtype/finished errors, filename constructors, raw
@@ -1023,11 +1026,11 @@ Prior full verifies passed on 2026-07-02, 2026-07-03, 2026-07-04,
   covering the previous intermittent stream-tag output comparison failure path.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
-  surface_mapped_test.mbt --target native -v`: 6 ASan-compiled black-box
-  mapped-image tests passed with leak detection disabled.
+  src/tests/surface --target native -v`: 26 ASan-compiled black-box surface
+  tests passed with leak detection disabled.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
-  src/tests/surface --target native -v`: 55 ASan-compiled black-box surface
+  src/tests/image --target native -v`: 29 ASan-compiled black-box image-family
   tests passed with leak detection disabled.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
