@@ -53,6 +53,24 @@ test "context empty path clip matches pycairo in_clip behavior" {
 }
 
 ///|
+test "context clip clears path and clip_preserve keeps path" {
+  let clear_ctx = @cairoon.Context::new(context_clip_surface())
+  clear_ctx.rectangle(2.0, 3.0, 5.0, 7.0)
+  inspect(clear_ctx.copy_path().length() > 0, content="true")
+  clear_ctx.clip()
+  inspect(clear_ctx.copy_path().length(), content="0")
+  assert_clip_extents_close(clear_ctx.path_extents(), (0.0, 0.0, 0.0, 0.0))
+  assert_clip_extents_close(clear_ctx.clip_extents(), (2.0, 3.0, 7.0, 10.0))
+
+  let preserve_ctx = @cairoon.Context::new(context_clip_surface())
+  preserve_ctx.rectangle(2.0, 3.0, 5.0, 7.0)
+  preserve_ctx.clip_preserve()
+  inspect(preserve_ctx.copy_path().length() > 0, content="true")
+  assert_clip_extents_close(preserve_ctx.path_extents(), (2.0, 3.0, 7.0, 10.0))
+  assert_clip_extents_close(preserve_ctx.clip_extents(), (2.0, 3.0, 7.0, 10.0))
+}
+
+///|
 test "context clip_preserve keeps current path drawable" {
   let surface = @cairoon.Surface::image(@cairoon.Argb32, 4, 4)
   let ctx = @cairoon.Context::new(surface)
