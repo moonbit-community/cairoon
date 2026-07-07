@@ -231,7 +231,7 @@ test packages under
 `src/tests/api/enums` (portable enums and `Format` helpers),
 `src/tests/api/pycairo` (pycairo `test_api.py` Unicode text/path plus
 context/pattern lifetime parity),
-`src/tests/status` (public status, `run_cairo`, and `CairoError`
+`src/tests/status/core` (public status, `run_cairo`, and `CairoError`
 classification),
 `src/tests/value/core` (pure value APIs),
 `src/tests/value/pycairo` (pycairo value parity),
@@ -261,7 +261,7 @@ support packages under `src/core/constants`, `src/core/glyph`,
 `src/tests/font/options`, `src/tests/font/scaled`,
 `src/tests/font/pycairo`, `src/tests/stream/surface`,
 `src/tests/stream/device`,
-`src/tests/path/core`, `src/tests/path/pycairo`, `src/tests/object`,
+`src/tests/path/core`, `src/tests/path/pycairo`, `src/tests/object/core`,
 `src/tests/lifetime/context`,
 `src/tests/lifetime/owner`, `src/tests/lifetime/finalizer`,
 `src/tests/lifetime/stream`,
@@ -678,7 +678,7 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   surfaces retained by contexts and surface patterns,
   `Surface::has_show_text_glyphs` finished-surface error mapping, and the
   `Context::paint`/`OperatorSource` smoke fixture.
-- `moon -C cairoon test src/tests/status --target native --deny-warn -v`: 2
+- `moon -C cairoon test src/tests/status/core --target native --deny-warn -v`: 2
   black-box status package tests passed, covering `run_cairo` success,
   `check_status`, public `Status::message`, and exhaustive `CairoError`
   suberror classification for every Cairo status exposed by the facade.
@@ -1404,7 +1404,7 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   chainable-mutator slice. ASan/LSan was not rerun because this slice changed
   only MoonBit wrappers, docs, and tests, with no C glue, callback, finalizer,
   or retained-owner changes.
-- `moon -C cairoon test object_traits_test.mbt --target native -v`: 3
+- `moon -C cairoon test src/tests/object/core --target native -v`: 3
   black-box tests passed after adding MoonBit `Eq`/`Hash` protocol coverage for
   hashable Cairo external objects, `Path` self-comparison coverage through
   `Compare`, and `Region` equality coverage without `Hash`.

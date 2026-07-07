@@ -34,8 +34,8 @@ Implemented in this workspace:
 - The external API black-box packages cover version helpers, portable enum
   constructors, `Format::stride_for_width`, `FORMAT_INVALID`, and pycairo
   `test_api.py` smoke/lifetime fixtures.
-- Status/error black-box tests now live in `src/tests/status`, importing only
-  the public `CAIMEOX/cairoon` API. This validates `check_status`,
+- Status/error black-box tests now live in `src/tests/status/core`, importing
+  only the public `CAIMEOX/cairoon` API. This validates `check_status`,
   `run_cairo`, public `Status::message`, and all `CairoError` suberror classes
   through the published package seam.
 - Pure public value black-box tests now live in
@@ -101,9 +101,9 @@ Implemented in this workspace:
   only the public `CAIMEOX/cairoon` API. This validates Path formatting,
   iteration, flattening, scope survival, and pycairo-derived comparison/hash
   behavior through separately linked published-package seams.
-- Object trait black-box tests now live in `src/tests/object`, importing only
-  the public `CAIMEOX/cairoon` API. This validates Eq/Hash semantics across
-  external object wrappers through the published package seam.
+- Object trait black-box tests now live in `src/tests/object/core`, importing
+  only the public `CAIMEOX/cairoon` API. This validates Eq/Hash semantics
+  across external object wrappers through the published package seam.
 - Lifetime/stress black-box tests now live in
   `src/tests/lifetime/{context,owner,finalizer,stream,image_data,value,raster}`,
   importing only the public `CAIMEOX/cairoon` API. This validates retained
@@ -1378,7 +1378,7 @@ Prior full verifies passed on 2026-07-02, 2026-07-03, 2026-07-04,
   chainable-mutator slice. ASan/LSan was not rerun because this slice changed
   only MoonBit wrappers, docs, and tests, with no C glue, callback, finalizer,
   or retained-owner changes.
-- `moon -C cairoon test object_traits_test.mbt --target native -v`: 3
+- `moon -C cairoon test src/tests/object/core --target native -v`: 3
   black-box tests passed after adding MoonBit `Eq`/`Hash` protocol coverage for
   hashable Cairo external objects, `Path` self-comparison coverage through
   `Compare`, and `Region` equality coverage without `Hash`.

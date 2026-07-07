@@ -1,5 +1,5 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "CAIMEOX/cairoon/tests/status"
+package "CAIMEOX/cairoon/tests/object/core"
 
 // Values
 
@@ -10,3 +10,4 @@ package "CAIMEOX/cairoon/tests/status"
 // Type aliases
 
 // Traits
+

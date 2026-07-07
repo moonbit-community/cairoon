@@ -148,7 +148,8 @@ cairoon/
         version/
           moon.pkg
       status/
-        moon.pkg
+        core/
+          moon.pkg
       value/
         core/
           moon.pkg
@@ -240,6 +241,9 @@ cairoon/
         core/
           moon.pkg
         pycairo/
+          moon.pkg
+      object/
+        core/
           moon.pkg
       backend/
         pdf/
