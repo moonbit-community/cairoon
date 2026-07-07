@@ -14,6 +14,10 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 
 ## Recent Audit Deltas
 
+- 2026-07-07: PDF stream tag/metadata reliability now includes a public
+  black-box marker fixture covering PDF stream output with metadata, custom
+  metadata, page labels, parent/child outlines, URI links, named destinations,
+  and document-structure tags through the published `CAIMEOX/cairoon` package.
 - 2026-07-07: pycairo `test_surface.py` parity now includes a compact
   `ImageSurface.create_for_data` array fixture: a prefilled ARGB32
   `FixedArray[Byte]` can be wrapped with the default stride, queried for

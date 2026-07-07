@@ -3297,6 +3297,12 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   byte-for-byte, matching the core storage-sharing behavior of pycairo's
   array-backed `ImageSurface.create_for_data` fixture without changing public
   API.
+  A later PDF stream tag marker slice added one public black-box fixture for
+  stream output with PDF metadata, custom metadata, page labels, parent/child
+  outlines, URI links, named destinations, and document-structure tags. This
+  keeps the recent CI failure mode covered by the normal external stream test
+  package without requiring fragile PDF byte equality and without changing
+  public API.
 
 Remaining reliability work is now narrower and should be tracked as evidence,
 not as an unstructured checklist:
