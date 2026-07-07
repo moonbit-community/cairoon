@@ -66,11 +66,11 @@ Implemented in this workspace:
   SVG, and Tee constructors, raw backend enums, subtype and finished-surface
   errors, filename constructors, recording replay, and Tee fanout/lifetime
   behavior through the published package seam.
-- Context black-box tests now live in `src/tests/context`, importing only the
-  public `CAIMEOX/cairoon` API. This validates drawing state, transforms, paths,
-  pycairo parity fixtures, groups, text/glyph APIs, extents, clipping, painting,
-  tags, and ScaledFont text-to-glyph conversion through the published package
-  seam.
+- Context black-box tests now live in `src/tests/context` and
+  `src/tests/context/state`, importing only the public `CAIMEOX/cairoon` API.
+  This validates drawing state, transforms, paths, pycairo parity fixtures,
+  groups, text/glyph APIs, extents, clipping, painting, tags, and ScaledFont
+  text-to-glyph conversion through the published package seam.
 - Pattern black-box tests now live in `src/tests/pattern`, importing only the
   public `CAIMEOX/cairoon` API. This validates solid/surface/common-state
   patterns, pycairo parity fixtures, gradient queries, mesh patch lifecycle,

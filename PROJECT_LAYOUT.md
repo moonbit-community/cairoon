@@ -154,6 +154,8 @@ cairoon/
         moon.pkg
       context/
         moon.pkg
+        state/
+          moon.pkg
       pattern/
         moon.pkg
       font/

@@ -239,7 +239,8 @@ support packages under `src/core/constants`, `src/core/glyph`,
 `src/tests/matrix`,
 `src/tests/region`,
 `src/tests/surface`, `src/tests/image`, `src/tests/backend`,
-`src/tests/context`, `src/tests/pattern`, `src/tests/font`, and `src/tests/stream`,
+`src/tests/context`, `src/tests/context/state`, `src/tests/pattern`,
+`src/tests/font`, and `src/tests/stream`,
 `src/tests/path`, `src/tests/object`, `src/tests/lifetime`, and
 `src/tests/oracle/native`, `src/tests/oracle/constants`,
 `src/tests/oracle/scaled_font`, and
@@ -663,7 +664,7 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   path copy/append independence, pycairo-style append string
   equivalence after clearing the source context, flattened append behavior, and
   path error propagation.
-- `moon -C cairoon test src/tests/context --target native -v`: 104 black-box
+- `moon -C cairoon test src/tests/context --target native -v`: 96 black-box
   Context package tests passed, including 35 pycairo parity fixtures split
   across `context_pycairo_parity_test.mbt`,
   `context_state_paint_pycairo_parity_test.mbt`, and
@@ -691,6 +692,11 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   `copy_page`, `copy_path_flat`, `fill`, `fill_preserve`, `font_extents`,
   `identity_matrix`, `new_sub_path`, `show_page`, `stroke_preserve`, dash
   count, font matrix, group target, scalar getters, and final status.
+- `moon -C cairoon test src/tests/context/state --target native -v`: 10
+  black-box Context drawing-state tests passed from a nested external package,
+  covering default state, typed and raw drawing-state enum round trips,
+  save/restore state restoration, dash clearing and invalid-dash errors,
+  invalid restore mapping, and existing-context-error propagation.
 - `moon -C cairoon test context_group_test.mbt --target native -v`: 4
   black-box Context group tests passed, covering `push_group`, `pop_group`,
   `pop_group_to_source`, `push_group_with_content`, group-target stack
@@ -3285,6 +3291,10 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   error test into `context_state_test.mbt`. The observed full native suite
   remains 637 tests, `surface_context_test.mbt` drops from 525 to 348 lines, and
   no public API changes.
+  A later Context state package split moved `context_state_test.mbt` into the
+  nested external package `src/tests/context/state`. The observed focused
+  counts are 96 tests in `src/tests/context` and 10 tests in
+  `src/tests/context/state`, with no public API changes.
   A later Surface image-property organization slice moved image-surface
   property, raw-format/raw-content, finished/subtype error, and Cairo
   float-format black-box tests into `surface_image_properties_test.mbt`. The
