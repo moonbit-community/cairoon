@@ -238,7 +238,9 @@ support packages under `src/core/constants`, `src/core/glyph`,
 `src/internal/ps`, `src/internal/svg`,
 `src/tests/matrix`,
 `src/tests/region`,
-`src/tests/surface`, `src/tests/image`, `src/tests/backend`,
+`src/tests/surface`, `src/tests/image`, `src/tests/backend/pdf`,
+`src/tests/backend/ps`, `src/tests/backend/recording`,
+`src/tests/backend/svg`, `src/tests/backend/tee`,
 `src/tests/context`, `src/tests/context/clip`, `src/tests/context/extents`,
 `src/tests/context/glyph`, `src/tests/context/group`,
 `src/tests/context/matrix`, `src/tests/context/paint`,
@@ -757,10 +759,28 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   update behavior, pycairo empty 0x0 image-surface `get_data` behavior, PNG
   path round trips, mapped images, float image formats, and invalid
   image-family errors.
-- `moon -C cairoon test src/tests/backend --target native -v`: 30 black-box
-  backend surface tests passed, covering Recording, PDF, PS, SVG, and Tee
-  constructors, raw backend enums, subtype and finished-surface errors,
-  filename constructors, recording replay, and Tee fanout/lifetime behavior.
+- `moon -C cairoon test src/tests/backend/pdf --target native -v`: 8
+  black-box PDF surface tests passed from a nested external package, covering
+  version helpers, raw C-int enums, no-output/page/document APIs, thumbnails,
+  metadata/outline/path validation, filename construction, subtype errors, and
+  finished-surface errors.
+- `moon -C cairoon test src/tests/backend/ps --target native -v`: 7
+  black-box PS surface tests passed from a nested external package, covering
+  level helpers, raw C-int enums, no-output/EPS/page/DSC APIs, DSC/path
+  validation, filename construction, subtype errors, and setup/page-size
+  errors.
+- `moon -C cairoon test src/tests/backend/svg --target native -v`: 6
+  black-box SVG surface tests passed from a nested external package, covering
+  version helpers, raw C-int enums, no-output/unit/version APIs, filename
+  construction, subtype errors, and finished-surface document-unit errors.
+- `moon -C cairoon test src/tests/backend/recording --target native -v`: 5
+  black-box Recording surface tests passed from a nested external package,
+  covering bounded/unbounded extents, post-finish extents, raw content ints,
+  replay through patterns, and subtype errors.
+- `moon -C cairoon test src/tests/backend/tee --target native -v`: 4
+  black-box Tee surface tests passed from a nested external package, covering
+  fanout painting, retained targets, out-of-range index status, subtype errors,
+  and index errors.
 - `moon -C cairoon test device_test.mbt backend_surfaces.mbt.md
   lifetime_stress_test.mbt lifetime_value_stress_test.mbt
   lifetime_image_data_stress_test.mbt lifetime_finalizer_fuzz_test.mbt
@@ -1055,8 +1075,10 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   tests passed with leak detection disabled.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
-  src/tests/backend --target native -v`: 30 ASan-compiled black-box backend
-  surface tests passed with leak detection disabled.
+  src/tests/backend/pdf src/tests/backend/ps src/tests/backend/svg
+  src/tests/backend/recording src/tests/backend/tee --target native -v`: 30
+  ASan-compiled black-box backend surface tests passed with leak detection
+  disabled.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
   src/tests/context/state src/tests/context/matrix src/tests/context/extents

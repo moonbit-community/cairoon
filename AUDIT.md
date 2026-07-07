@@ -61,11 +61,12 @@ Implemented in this workspace:
   the public `CAIMEOX/cairoon` API. This validates ImageSurface, ImageData,
   MappedImageSurface, PNG path, buffer-backed, float-format, and raw
   image-format behavior through the published package seam.
-- Backend surface black-box tests now live in `src/tests/backend`, importing
-  only the public `CAIMEOX/cairoon` API. This validates Recording, PDF, PS,
-  SVG, and Tee constructors, raw backend enums, subtype and finished-surface
-  errors, filename constructors, recording replay, and Tee fanout/lifetime
-  behavior through the published package seam.
+- Backend surface black-box tests now live in
+  `src/tests/backend/{pdf,ps,recording,svg,tee}`, importing only the public
+  `CAIMEOX/cairoon` API. This validates Recording, PDF, PS, SVG, and Tee
+  constructors, raw backend enums, subtype and finished-surface errors,
+  filename constructors, recording replay, and Tee fanout/lifetime behavior
+  through separately linked published-package seams.
 - Context black-box tests now live in `src/tests/context` plus nested
   `src/tests/context/{clip,extents,glyph,group,matrix,paint,path,state,tag,text,text_to_glyphs}`
   packages, importing only the public `CAIMEOX/cairoon` API. This validates
@@ -819,10 +820,12 @@ Prior full verifies passed on 2026-07-02, 2026-07-03, 2026-07-04,
   image-family tests passed, covering image properties, retained ImageData
   views, mapped images, PNG paths, buffer-backed image surfaces, and pycairo
   image-surface data fixtures.
-- `moon -C cairoon test src/tests/backend --target native -v`: 30 black-box
-  backend surface tests passed, covering Recording replay/extents, PDF/PS/SVG
-  backend helpers and subtype/finished errors, filename constructors, raw
-  backend enums, and Tee fanout/lifetime behavior.
+- `moon -C cairoon test src/tests/backend/pdf src/tests/backend/ps
+  src/tests/backend/svg src/tests/backend/recording src/tests/backend/tee
+  --target native -v`: 30 black-box backend surface tests passed, covering
+  Recording replay/extents, PDF/PS/SVG backend helpers and subtype/finished
+  errors, filename constructors, raw backend enums, and Tee fanout/lifetime
+  behavior.
 - `moon -C cairoon test device_test.mbt backend_surfaces.mbt.md
   lifetime_stress_test.mbt lifetime_value_stress_test.mbt
   lifetime_image_data_stress_test.mbt lifetime_finalizer_fuzz_test.mbt
@@ -1045,8 +1048,10 @@ Prior full verifies passed on 2026-07-02, 2026-07-03, 2026-07-04,
   tests passed with leak detection disabled.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
-  src/tests/backend --target native -v`: 30 ASan-compiled black-box backend
-  surface tests passed with leak detection disabled.
+  src/tests/backend/pdf src/tests/backend/ps src/tests/backend/svg
+  src/tests/backend/recording src/tests/backend/tee --target native -v`: 30
+  ASan-compiled black-box backend surface tests passed with leak detection
+  disabled.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
   src/tests/context/state src/tests/context/matrix src/tests/context/extents

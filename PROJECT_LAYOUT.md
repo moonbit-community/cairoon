@@ -185,7 +185,16 @@ cairoon/
       region/
         moon.pkg
       backend/
-        moon.pkg
+        pdf/
+          moon.pkg
+        ps/
+          moon.pkg
+        recording/
+          moon.pkg
+        svg/
+          moon.pkg
+        tee/
+          moon.pkg
       lifetime/
         moon.pkg
       oracle/
