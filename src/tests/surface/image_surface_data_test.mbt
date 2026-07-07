@@ -5,6 +5,23 @@ fn surface_with_local_pixel_buffer() -> @cairoon.Surface raise @cairoon.CairoErr
 }
 
 ///|
+fn set_argb32_pixel(
+  data : FixedArray[Byte],
+  stride : Int,
+  x : Int,
+  y : Int,
+  alpha : Int,
+) -> Unit {
+  let offset = y * stride + x * 4
+  let blue = x * alpha / 31
+  let green = y * alpha / 31
+  data[offset] = blue.to_byte()
+  data[offset + 1] = green.to_byte()
+  data[offset + 2] = b'\x00'
+  data[offset + 3] = alpha.to_byte()
+}
+
+///|
 test "image surface for data shares caller buffer" {
   let stride = @cairoon.Format::stride_for_width(@cairoon.Argb32, 1)
   let data : FixedArray[Byte] = FixedArray::make(stride, b'\x00')
@@ -24,6 +41,48 @@ test "image surface for data shares caller buffer" {
   inspect(data[2].to_int(), content="0")
   inspect(data[3].to_int(), content="255")
   inspect(surface.copy_data() == Bytes::from_array(data), content="true")
+}
+
+///|
+test "pycairo image surface create_for_data array fixture" {
+  let width = 32
+  let height = 32
+  let stride = @cairoon.Format::stride_for_width(@cairoon.Argb32, width)
+  let data : FixedArray[Byte] = FixedArray::make(stride * height, b'\x00')
+  for y in 0..<height {
+    let alpha = y * 255 / 31
+    for x in 0..<width {
+      set_argb32_pixel(data, stride, x, y, alpha)
+    }
+  }
+  let surface = @cairoon.Surface::image_for_data(
+    data,
+    @cairoon.Argb32,
+    width,
+    height,
+  )
+  inspect(surface.get_width(), content="32")
+  inspect(surface.get_height(), content="32")
+  inspect(surface.get_stride(), content="\{stride}")
+  inspect(surface.copy_data() == Bytes::from_array(data), content="true")
+
+  let origin = 0
+  inspect(data[origin].to_int(), content="0")
+  inspect(data[origin + 1].to_int(), content="0")
+  inspect(data[origin + 2].to_int(), content="0")
+  inspect(data[origin + 3].to_int(), content="0")
+
+  let center = 16 * stride + 16 * 4
+  inspect(data[center].to_int(), content="67")
+  inspect(data[center + 1].to_int(), content="67")
+  inspect(data[center + 2].to_int(), content="0")
+  inspect(data[center + 3].to_int(), content="131")
+
+  let corner = 31 * stride + 31 * 4
+  inspect(data[corner].to_int(), content="255")
+  inspect(data[corner + 1].to_int(), content="255")
+  inspect(data[corner + 2].to_int(), content="0")
+  inspect(data[corner + 3].to_int(), content="255")
 }
 
 ///|

@@ -3266,6 +3266,12 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   fixture proving that an ordinary 0x0 `Surface::image` exposes an empty
   `ImageData` view and empty copied image bytes, matching pycairo's
   `test_image_surface_get_data_empty` behavior without changing public API.
+  A later create-for-data array parity slice added one public black-box
+  fixture proving that a prefilled ARGB32 `FixedArray[Byte]` can back
+  `Surface::image_for_data` with its default stride and be copied back
+  byte-for-byte, matching the core storage-sharing behavior of pycairo's
+  array-backed `ImageSurface.create_for_data` fixture without changing public
+  API.
 
 Remaining reliability work is now narrower and should be tracked as evidence,
 not as an unstructured checklist:
