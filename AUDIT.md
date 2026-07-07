@@ -96,10 +96,10 @@ Implemented in this workspace:
   helpers, raw script content mapping, and stream error mapping through
   separately linked published-package seams; backend stream oracle tests remain
   white-box.
-- Path black-box tests now live in `src/tests/path`, importing only the public
-  `CAIMEOX/cairoon` API. This validates Path formatting, iteration, flattening,
-  scope survival, and path comparison behavior through the published package
-  seam.
+- Path black-box tests now live in `src/tests/path/{core,pycairo}`, importing
+  only the public `CAIMEOX/cairoon` API. This validates Path formatting,
+  iteration, flattening, scope survival, and pycairo-derived comparison/hash
+  behavior through separately linked published-package seams.
 - Object trait black-box tests now live in `src/tests/object`, importing only
   the public `CAIMEOX/cairoon` API. This validates Eq/Hash semantics across
   external object wrappers through the published package seam.
@@ -770,11 +770,15 @@ Prior full verifies passed on 2026-07-02, 2026-07-03, 2026-07-04,
   wrapper and context scope have exited, plus the layered multi-page vector/tag
   oracle slice, the wide multi-page vector/tag oracle slice, and the raw FFI split slices that keep public API and test count
   unchanged while reducing `ffi.mbt`.
-- `moon -C cairoon test path_test.mbt --target native -v`: 7 black-box Path
+- `moon -C cairoon test src/tests/path/core --target native -v`: 7 black-box Path
   tests passed, covering empty paths, pycairo-compatible stringification
   including close-path continuation formatting, copied-path lifetime after the
   source context exits, typed segment iteration, flattened copies, and path
   equality/hash behavior.
+- `moon -C cairoon test src/tests/path/pycairo --target native -v`: 4
+  pycairo `test_path.py`-derived fixtures passed, covering empty path string
+  behavior, `copy_path().to_string()` formatting, self comparison/hash
+  operators, and iterator `PathDataType`/coordinate tuples.
 - `moon -C cairoon test src/tests/context/path --target native -v`: 11
   black-box Context path tests passed, covering current-point behavior,
   relative path operations, pycairo rectangle path-extents behavior,

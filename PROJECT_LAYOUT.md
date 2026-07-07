@@ -232,7 +232,10 @@ cairoon/
         surface/
           moon.pkg
       path/
-        moon.pkg
+        core/
+          moon.pkg
+        pycairo/
+          moon.pkg
       backend/
         pdf/
           moon.pkg

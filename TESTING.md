@@ -260,7 +260,8 @@ support packages under `src/core/constants`, `src/core/glyph`,
 `src/tests/font/options`, `src/tests/font/scaled`,
 `src/tests/font/pycairo`, `src/tests/stream/surface`,
 `src/tests/stream/device`,
-`src/tests/path`, `src/tests/object`, `src/tests/lifetime/context`,
+`src/tests/path/core`, `src/tests/path/pycairo`, `src/tests/object`,
+`src/tests/lifetime/context`,
 `src/tests/lifetime/owner`, `src/tests/lifetime/finalizer`,
 `src/tests/lifetime/stream`,
 `src/tests/lifetime/image_data`, `src/tests/lifetime/value`,
@@ -653,11 +654,11 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   Surface/Device targeted gate, raw FFI split slices through context painting,
   the layered multi-page vector/tag oracle slice, and the wide multi-page
   vector/tag oracle slice.
-- `moon -C cairoon test path_test.mbt --target native -v`: 7 black-box Path
+- `moon -C cairoon test src/tests/path/core --target native -v`: 7 black-box Path
   tests passed, covering empty paths, pycairo-compatible stringification
   including close-path continuation formatting, typed segment iteration, copied-path lifetime after the source context exits,
   flattened copies, and path equality/hash behavior.
-- `moon -C cairoon test path_pycairo_parity_test.mbt --target native -v`: 4
+- `moon -C cairoon test src/tests/path/pycairo --target native -v`: 4
   pycairo `test_path.py`-derived fixtures passed, covering empty path string
   behavior, `copy_path().to_string()` formatting, self comparison/hash
   operators, and iterator `PathDataType`/coordinate tuples.
