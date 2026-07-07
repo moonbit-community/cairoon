@@ -236,6 +236,122 @@ test "copy-page and glyph vector streams match direct cairo C oracle after norma
 }
 
 ///|
+test "single-backend document feature streams match direct cairo C oracle after normalization" {
+  for kind in 0..<3 {
+    let ext = stream_equivalence_extension(kind)
+    let scene = match kind {
+      0 => 18
+      1 => 19
+      2 => 20
+      _ => -1
+    }
+    let chunks : Array[Bytes] = []
+    let surface = make_stream_document_feature_stream_surface(kind, chunks)
+    render_stream_document_feature_scene(kind, surface)
+    inspect(chunks.length() > 0, content="true")
+
+    let oracle_path = "/tmp/cairoon_stream_single_backend_oracle_\{kind}_\{scene}.\{ext}"
+    @cairoon.check_status(
+      test_render_vector_scene_oracle_ffi(
+        kind,
+        scene,
+        checked_path_bytes(oracle_path),
+      ),
+    )
+    inspect(
+      test_vector_file_equals_bytes_ffi(
+        kind,
+        checked_path_bytes(oracle_path),
+        stream_equivalence_chunks_to_bytes(chunks),
+      ),
+      content="true",
+    )
+  }
+
+  for scene in [21, 34] {
+    let chunks : Array[Bytes] = []
+    let surface = @cairoon.Surface::pdf_stream(100.0, 100.0, fn(chunk) {
+      chunks.push(chunk)
+      @cairoon.Success
+    })
+    match scene {
+      21 => ignore(render_pdf_text_document_feature_surface(surface))
+      34 => ignore(render_pdf_page_operation_document_feature_surface(surface))
+      _ => @cairoon.check_status(@cairoon.InvalidStatus)
+    }
+    inspect(chunks.length() > 0, content="true")
+
+    let oracle_path = "/tmp/cairoon_stream_pdf_document_oracle_\{scene}.pdf"
+    @cairoon.check_status(
+      test_render_vector_scene_oracle_ffi(
+        0,
+        scene,
+        checked_path_bytes(oracle_path),
+      ),
+    )
+    inspect(
+      test_vector_file_equals_bytes_ffi(
+        0,
+        checked_path_bytes(oracle_path),
+        stream_equivalence_chunks_to_bytes(chunks),
+      ),
+      content="true",
+    )
+  }
+}
+
+///|
+test "pdf mime and thumbnail streams match direct cairo C oracle after normalization" {
+  let jpeg = tiny_jpeg_payload()
+  let jpeg_chunks : Array[Bytes] = []
+  let jpeg_surface = @cairoon.Surface::pdf_stream(3.0, 3.0, fn(chunk) {
+    jpeg_chunks.push(chunk)
+    @cairoon.Success
+  })
+  render_pdf_jpeg_mime_surface(jpeg_surface, jpeg)
+  inspect(jpeg_chunks.length() > 0, content="true")
+
+  let jpeg_oracle_path = "/tmp/cairoon_stream_pdf_jpeg_mime_oracle.pdf"
+  @cairoon.check_status(
+    test_render_pdf_jpeg_mime_oracle_ffi(
+      checked_path_bytes(jpeg_oracle_path),
+      jpeg,
+    ),
+  )
+  inspect(
+    test_vector_file_equals_bytes_ffi(
+      0,
+      checked_path_bytes(jpeg_oracle_path),
+      stream_equivalence_chunks_to_bytes(jpeg_chunks),
+    ),
+    content="true",
+  )
+
+  let thumbnail_chunks : Array[Bytes] = []
+  let thumbnail_surface = @cairoon.Surface::pdf_stream(20.0, 20.0, fn(chunk) {
+    thumbnail_chunks.push(chunk)
+    @cairoon.Success
+  })
+  render_pdf_thumbnail_surface(thumbnail_surface)
+  inspect(thumbnail_chunks.length() > 0, content="true")
+
+  let thumbnail_oracle_path = "/tmp/cairoon_stream_pdf_thumbnail_oracle.pdf"
+  @cairoon.check_status(
+    test_render_pdf_thumbnail_oracle_ffi(
+      checked_path_bytes(thumbnail_oracle_path),
+    ),
+  )
+  inspect(
+    test_vector_file_equals_bytes_ffi(
+      0,
+      checked_path_bytes(thumbnail_oracle_path),
+      stream_equivalence_chunks_to_bytes(thumbnail_chunks),
+    ),
+    content="true",
+  )
+}
+
+///|
 test "backend feature streams match direct cairo C oracle after normalization" {
   for kind in 0..<3 {
     let ext = stream_equivalence_extension(kind)

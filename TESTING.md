@@ -806,13 +806,14 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   and named-destination links, Document/Sect/Figure structure tags, PS DSC, SVG
   point units, and backend page-size changes.
 - `moon -C cairoon test src/tests/oracle/vector_backend/surface_stream_oracle_test.mbt
-  --target native -v`: 5 white-box stream-to-direct-C oracle tests passed,
+  --target native -v`: 7 white-box stream-to-direct-C oracle tests passed,
   covering primitive/text scenes 0 through 14, tag-heavy scenes 15 through 17
-  and 22 through 30, retained
-  `Context::copy_page`/`glyph_path`/`show_glyphs` scenes 31 through 33, tagged
-  font-matrix text scene 43, and backend feature scenes 35 through 42 and 44
-  through 50, so these PDF/PS/SVG stream callback outputs are compared with
-  normalized direct C Cairo oracle files.
+  and 22 through 30, single-backend document feature scenes 18 through 21 and
+  34, retained `Context::copy_page`/`glyph_path`/`show_glyphs` scenes 31
+  through 33, PDF JPEG MIME/thumbnail stream output, tagged font-matrix text
+  scene 43, and backend feature scenes 35 through 42 and 44 through 50, so
+  these PDF/PS/SVG stream callback outputs are compared with normalized direct
+  C Cairo oracle files.
 - `moon -C cairoon test surface_stream_page_sequence_wbtest.mbt --target
   native -v`: 4 white-box backend resized page-sequence tests passed,
   comparing PDF/PS/SVG file output with stream output after normalized
@@ -2991,6 +2992,15 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   surface-pattern, mask-surface, and mesh-pattern vector scenes. This raises
   the vector-backend package to 157 tests and the expected full native suite to
   587 tests without changing public API.
+  A later single-backend feature stream-to-direct-C oracle slice extended
+  `surface_stream_oracle_test.mbt` with scenes 18 through 21 and 34 plus PDF
+  JPEG MIME and thumbnail stream output, comparing PDF/PS/SVG stream callback
+  bytes directly against normalized direct C Cairo oracle files for PDF
+  metadata/custom-metadata/page-label/outline/tag document features, PDF
+  text-aware and page-operation document features, PS DSC/page setup, SVG
+  version/document units, JPEG MIME passthrough, and PDF thumbnail output. This
+  raises the vector-backend package to 159 tests and the expected full native
+  suite to 589 tests without changing public API.
   A later context/pattern comparison parity slice added two pycairo
   `test_cmp_hash` fixtures: `Context` self-equality plus same-target
   different-context inequality, and repeated `Context.get_source()` pattern
