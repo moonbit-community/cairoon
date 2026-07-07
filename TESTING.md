@@ -3046,6 +3046,13 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   `RecordingSurface::recording_get_extents`, and Context/ScaledFont
   text/font/glyph extents return paths. This raises the expected full native
   suite to 602 tests.
+  A later Matrix pycairo parity slice added `matrix_pycairo_parity_test.mbt`
+  with four pycairo `test_matrix.py`-derived fixtures covering equality,
+  `init_rotate(0)`, component access including positive and negative invalid
+  indexes, `Matrix(1, 1).invert()`, `multiply`, `translate`, scale-away then
+  scale-back-to-identity, rotate/scale/translate composition smoke, and
+  identity point/distance transforms. This raises the expected full native
+  suite to 606 tests without changing public API.
 
 Remaining reliability work is now narrower and should be tracked as evidence,
 not as an unstructured checklist:
