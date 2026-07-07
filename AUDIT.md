@@ -67,11 +67,11 @@ Implemented in this workspace:
   errors, filename constructors, recording replay, and Tee fanout/lifetime
   behavior through the published package seam.
 - Context black-box tests now live in `src/tests/context` plus nested
-  `src/tests/context/{clip,paint,path,state}` packages, importing only the
-  public `CAIMEOX/cairoon` API. This validates drawing state, transforms,
-  paths, pycairo parity fixtures, groups, text/glyph APIs, extents, clipping,
-  painting, tags, and ScaledFont text-to-glyph conversion through the published
-  package seam.
+  `src/tests/context/{clip,extents,glyph,group,matrix,paint,path,state,tag,text,text_to_glyphs}`
+  packages, importing only the public `CAIMEOX/cairoon` API. This validates
+  drawing state, transforms, paths, pycairo parity fixtures, groups,
+  text/glyph APIs, extents, clipping, painting, tags, and ScaledFont
+  text-to-glyph conversion through the published package seam.
 - Pattern black-box tests now live in `src/tests/pattern`, importing only the
   public `CAIMEOX/cairoon` API. This validates solid/surface/common-state
   patterns, pycairo parity fixtures, gradient queries, mesh patch lifecycle,
@@ -772,8 +772,8 @@ Prior full verifies passed on 2026-07-02, 2026-07-03, 2026-07-04,
   path copy/append independence, pycairo-style append string
   equivalence after clearing the source context, flattened append behavior, and
   path error propagation.
-- `moon -C cairoon test context_pycairo_parity_test.mbt --target native -v`: 31
-  black-box Context pycairo parity tests passed, covering the 42x42 default
+- `moon -C cairoon test src/tests/context --target native -v`: 36
+  shared black-box Context pycairo parity tests passed, covering the 42x42 default
   clip-extents fixture, zero-radius `arc`/`arc_negative` non-empty paths,
   polygon `path_extents`, polygon `fill_extents`, empty `in_fill`, line
   `in_stroke`, rectangle `path_extents`, relative path current-point updates,
@@ -789,27 +789,29 @@ Prior full verifies passed on 2026-07-02, 2026-07-03, 2026-07-04,
   font-options round trips, scaled-font round trips, empty
   `select_font_face("")`, `set_font_size(42)` font-matrix fixtures,
   text/font-extents/show-text/text-path fixtures, glyph-extents/show-glyphs/
-  glyph-path fixtures, and the PDF `show_text_glyphs` tuple fixture.
-- `moon -C cairoon test context_group_test.mbt --target native -v`: 4
+  glyph-path fixtures, pycairo's `test_simple` method-smoke flow, and the PDF
+  `show_text_glyphs` tuple fixture.
+- `moon -C cairoon test src/tests/context/group --target native -v`: 5
   black-box Context group tests passed, covering `push_group`, `pop_group`,
-  `pop_group_to_source`, `push_group_with_content`, group-target stack
-  restoration to the original target, returned group patterns, and unmatched
-  pop error mapping.
-- `moon -C cairoon test context_text_test.mbt glyph_array_test.mbt --target
-  native -v`: 11 black-box Context text/glyph tests passed, covering
-  context/scaled-font font-extents and text-extents parity, `show_text`
-  current-point advance, text/glyph path creation, empty glyph arrays,
-  embedded-NUL validation, and context error propagation.
-- `moon -C cairoon test context_lifetime_test.mbt --target native -v`: 9
+  `pop_group_to_source`, raw-content `push_group_with_content`, group-target
+  stack restoration to the original target, returned group patterns, and
+  unmatched pop error mapping.
+- `moon -C cairoon test src/tests/context/text --target native -v`,
+  `src/tests/context/glyph`, and `src/tests/context/text_to_glyphs`: 16
+  black-box Context text/glyph/text-to-glyph tests passed, covering
+  context/scaled-font font/text/glyph extents parity, `show_text` current-point
+  advance, text/glyph path creation, empty glyph arrays, text-to-glyph
+  conversion, embedded-NUL validation, and context error propagation.
+- `moon -C cairoon test src/tests/lifetime/context_lifetime_test.mbt --target native -v`: 9
   black-box context lifetime tests passed, including `get_target`,
   `get_group_target`, `get_source`, and PDF/PS stream target wrappers that
   remain usable after their creating helper scopes exit.
-- `moon -C cairoon test context_state_test.mbt context_matrix_test.mbt
-  context_extents_test.mbt --target native -v`: 18 black-box context
-  state/matrix/extents tests passed, including save/restore, sticky error
-  status, dash validation, raw C-int operator and drawing-state enum
-  passthrough parity, CTM conversion, invalid-matrix propagation, pycairo polygon fill-extents
-  coverage, stroke extents, and hit-testing.
+- `moon -C cairoon test src/tests/context/state --target native -v`,
+  `src/tests/context/matrix`, and `src/tests/context/extents`: 19 black-box
+  context state/matrix/extents tests passed, including save/restore, sticky
+  error status, dash validation, raw C-int operator and drawing-state enum
+  passthrough parity, CTM conversion, invalid-matrix propagation, pycairo
+  polygon fill-extents coverage, stroke extents, and hit-testing.
 - `moon -C cairoon test src/tests/surface --target native -v`: 26 black-box
   surface tests passed, covering base surface state, retained subsurface
   parents, MIME storage/support, and pycairo surface parity fixtures.
@@ -1047,8 +1049,8 @@ Prior full verifies passed on 2026-07-02, 2026-07-03, 2026-07-04,
   surface tests passed with leak detection disabled.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
-  context_state_test.mbt context_matrix_test.mbt context_extents_test.mbt
-  --target native -v`: 17 ASan-compiled black-box context state/matrix/extents
+  src/tests/context/state src/tests/context/matrix src/tests/context/extents
+  --target native -v`: 19 ASan-compiled black-box context state/matrix/extents
   tests passed with leak detection disabled.
 - `moon -C cairoon test image_oracle_wbtest.mbt --target native -v`: 2
   white-box image rendering oracle tests passed. Ordinary image surfaces and
@@ -1103,7 +1105,7 @@ Prior full verifies passed on 2026-07-02, 2026-07-03, 2026-07-04,
 - `moon -C cairoon test raster_lifetime_stress_test.mbt --target native -v`: 1
   black-box raster-source callback lifetime test passed after adding the
   1000-iteration set/get/manual acquire/release/replace/clear stress case.
-- `moon -C cairoon test context_lifetime_test.mbt --target native -v`: 9
+- `moon -C cairoon test src/tests/lifetime/context_lifetime_test.mbt --target native -v`: 9
   black-box context lifetime tests passed, including `get_group_target`
   returning a surface that remains readable after the creating context helper
   scope exits, `get_source` returning a surface pattern that still exposes

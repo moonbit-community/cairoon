@@ -156,11 +156,25 @@ cairoon/
         moon.pkg
         clip/
           moon.pkg
+        extents/
+          moon.pkg
+        glyph/
+          moon.pkg
+        group/
+          moon.pkg
+        matrix/
+          moon.pkg
         paint/
           moon.pkg
         path/
           moon.pkg
         state/
+          moon.pkg
+        tag/
+          moon.pkg
+        text/
+          moon.pkg
+        text_to_glyphs/
           moon.pkg
       pattern/
         moon.pkg

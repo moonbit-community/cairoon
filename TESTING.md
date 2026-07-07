@@ -239,9 +239,12 @@ support packages under `src/core/constants`, `src/core/glyph`,
 `src/tests/matrix`,
 `src/tests/region`,
 `src/tests/surface`, `src/tests/image`, `src/tests/backend`,
-`src/tests/context`, `src/tests/context/clip`, `src/tests/context/paint`,
-`src/tests/context/path`, `src/tests/context/state`, `src/tests/pattern`,
-`src/tests/font`, and `src/tests/stream`,
+`src/tests/context`, `src/tests/context/clip`, `src/tests/context/extents`,
+`src/tests/context/glyph`, `src/tests/context/group`,
+`src/tests/context/matrix`, `src/tests/context/paint`,
+`src/tests/context/path`, `src/tests/context/state`, `src/tests/context/tag`,
+`src/tests/context/text`, `src/tests/context/text_to_glyphs`,
+`src/tests/pattern`, `src/tests/font`, and `src/tests/stream`,
 `src/tests/path`, `src/tests/object`, `src/tests/lifetime`, and
 `src/tests/oracle/native`, `src/tests/oracle/constants`,
 `src/tests/oracle/scaled_font`, and
@@ -665,8 +668,8 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   path copy/append independence, pycairo-style append string
   equivalence after clearing the source context, flattened append behavior, and
   path error propagation.
-- `moon -C cairoon test src/tests/context --target native -v`: 71 black-box
-  Context package tests passed, including 35 pycairo parity fixtures split
+- `moon -C cairoon test src/tests/context --target native -v`: 36 black-box
+  shared Context parity tests passed, including 35 pycairo parity fixtures split
   across `context_pycairo_parity_test.mbt`,
   `context_state_paint_pycairo_parity_test.mbt`, and
   `context_font_text_pycairo_parity_test.mbt`, covering the 42x42 default
@@ -708,26 +711,41 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   covering default state, typed and raw drawing-state enum round trips,
   save/restore state restoration, dash clearing and invalid-dash errors,
   invalid restore mapping, and existing-context-error propagation.
-- `moon -C cairoon test context_group_test.mbt --target native -v`: 4
-  black-box Context group tests passed, covering `push_group`, `pop_group`,
-  `pop_group_to_source`, `push_group_with_content`, group-target stack
-  restoration to the original target, returned group patterns, and unmatched
-  pop error mapping.
-- `moon -C cairoon test context_text_test.mbt glyph_array_test.mbt --target
-  native -v`: 11 black-box Context text/glyph tests passed, covering
+- `moon -C cairoon test src/tests/context/group --target native -v`: 5
+  black-box Context group tests passed from a nested external package, covering
+  `push_group`, `pop_group`, `pop_group_to_source`, raw-content
+  `push_group_with_content`, group-target stack restoration to the original
+  target, returned group patterns, and unmatched pop error mapping.
+- `moon -C cairoon test src/tests/context/matrix --target native -v`: 4
+  black-box Context matrix tests passed from a nested external package,
+  covering get/set/identity, translate/scale/rotate/transform, user/device
+  coordinate conversions, and invalid-matrix error propagation.
+- `moon -C cairoon test src/tests/context/extents --target native -v`: 5
+  black-box Context extents and hit-testing tests passed from a nested external
+  package, covering fill/path/stroke extents, polygon fill-extents, hit tests,
+  and existing-context-error propagation.
+- `moon -C cairoon test src/tests/context/tag --target native -v`: 5
+  black-box Context tag tests passed from a nested external package, covering
+  matching begin/end, tag constants, embedded-NUL validation, nesting errors,
+  and existing-context-error propagation.
+- `moon -C cairoon test src/tests/context/text --target native -v`: 6
+  black-box Context text tests passed from a nested external package, covering
   context/scaled-font font-extents and text-extents parity, `show_text`
-  current-point advance, text/glyph path creation, empty glyph arrays,
-  embedded-NUL validation, and context error propagation.
-- `moon -C cairoon test context_lifetime_test.mbt --target native -v`: 9
+  current-point advance, text path creation, embedded-NUL validation, and
+  context error propagation.
+- `moon -C cairoon test src/tests/context/glyph --target native -v`: 5
+  black-box Context glyph tests passed from a nested external package, covering
+  context/scaled-font glyph-extents parity, `show_glyphs`, `glyph_path`, empty
+  glyph arrays, and context error propagation.
+- `moon -C cairoon test src/tests/context/text_to_glyphs --target native -v`:
+  5 black-box ScaledFont/Context text-to-glyph tests passed from a nested
+  external package, covering empty/single/spaced text, renderable
+  `show_text_glyphs` output, embedded-NUL validation, and context error
+  propagation.
+- `moon -C cairoon test src/tests/lifetime/context_lifetime_test.mbt --target native -v`: 9
   black-box context lifetime tests passed, including `get_target`,
   `get_group_target`, `get_source`, and PDF/PS stream target wrappers that
   remain usable after their creating helper scopes exit.
-- `moon -C cairoon test context_state_test.mbt context_matrix_test.mbt
-  context_extents_test.mbt --target native -v`: 19 black-box context
-  state/matrix/extents tests passed, including save/restore, sticky error
-  status, dash validation, raw C-int operator and drawing-state enum
-  passthrough parity, CTM conversion, invalid-matrix propagation, pycairo polygon fill-extents
-  coverage, stroke extents, and hit-testing.
 - `moon -C cairoon test src/tests/surface --target native -v`: 26 black-box
   Surface package tests passed, including base image/similar/state/status
   wrappers, pycairo surface parity, subsurfaces, MIME, and backend MIME-support
@@ -1041,8 +1059,8 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   surface tests passed with leak detection disabled.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
-  context_state_test.mbt context_matrix_test.mbt context_extents_test.mbt
-  --target native -v`: 17 ASan-compiled black-box context state/matrix/extents
+  src/tests/context/state src/tests/context/matrix src/tests/context/extents
+  --target native -v`: 19 ASan-compiled black-box context state/matrix/extents
   tests passed with leak detection disabled.
 - `moon -C cairoon test image_oracle_wbtest.mbt --target native -v`: 2
   white-box image rendering oracle tests passed. Ordinary image surfaces and
@@ -1103,7 +1121,7 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
 - `moon -C cairoon test raster_lifetime_stress_test.mbt --target native -v`: 1
   black-box raster-source callback lifetime test passed after adding the
   1000-iteration set/get/manual acquire/release/replace/clear stress case.
-- `moon -C cairoon test context_lifetime_test.mbt --target native -v`: 9
+- `moon -C cairoon test src/tests/lifetime/context_lifetime_test.mbt --target native -v`: 9
   black-box context lifetime tests passed, including `get_group_target`
   returning a surface that remains readable after the creating context helper
   scope exits, `get_source` returning a surface pattern that still exposes
@@ -3312,6 +3330,11 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   focused counts are 71 tests in `src/tests/context`, 11 in
   `src/tests/context/path`, 7 in `src/tests/context/clip`, and 7 in
   `src/tests/context/paint`, with no public API changes.
+  A later Context support package split moved group, matrix, extents, tag,
+  text, glyph, and text-to-glyphs tests into nested external packages under
+  `src/tests/context/`. The observed focused count for the shared parity root
+  is now 36 tests, with all moved behavior still covered through separately
+  linked public-package seams and no public API changes.
   A later Surface image-property organization slice moved image-surface
   property, raw-format/raw-content, finished/subtype error, and Cairo
   float-format black-box tests into `surface_image_properties_test.mbt`. The
