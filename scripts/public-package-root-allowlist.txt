@@ -3,7 +3,6 @@
 # oracle files should go into a subpackage instead of expanding src/.
 README.mbt.md
 backend_surfaces.mbt.md
-constants.mbt
 context.mbt
 context.mbt.md
 context_clip_extents.mbt

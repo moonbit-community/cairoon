@@ -6,7 +6,7 @@ cd "$repo_root"
 public_package_config="$repo_root/src/moon.pkg"
 native_package_config="$repo_root/src/native/moon.pkg"
 package_root="$repo_root/src"
-constants_file="$repo_root/src/constants.mbt"
+constants_file="$repo_root/src/core/constants/constants.mbt"
 feature_const_names=(
   HAS_ATSUI_FONT
   HAS_FT_FONT
@@ -252,7 +252,7 @@ check_const_value() {
   actual="$(extract_const_value "$constants_file" "$key")"
   if [[ "$actual" != "$expected" ]]; then
     cat >&2 <<EOF
-error: src/constants.mbt generated Cairo constant $key is out of sync with pkg-config.
+error: src/core/constants/constants.mbt generated Cairo constant $key is out of sync with pkg-config.
 
 Run:
   scripts/configure-link-flags.sh

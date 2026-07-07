@@ -218,7 +218,8 @@ native `moon check --target native --deny-warn`, the `src/native` native-stub
 package, extracted external
 test packages under
 `src/tests/api` (version, enum, status, and pure value APIs),
-support packages under `src/core/glyph`, `src/internal/version`, and
+support packages under `src/core/constants`, `src/core/glyph`,
+`src/internal/version`,
 `src/internal/format`, `src/internal/status`, `src/internal/pdf`,
 `src/internal/ps`, `src/internal/svg`,
 `src/tests/matrix`,
@@ -246,6 +247,8 @@ pycairo-style C glue split into a `src/native` native-stub package with private
 shared declarations plus per-family stub files, a first pure support package
 seam for `Glyph` under
 `src/core/glyph` with package-local pure value and glyph-array marshaling tests,
+and a pure constants support package under `src/core/constants` with facade
+`pub const` re-exports and package-local constant tests,
 with private test-only oracle glue moved to the
 `src/tests/oracle/native` support package and split into constants,
 ScaledFont, common drawing, file/normalized-output comparison, ARGB32 image,

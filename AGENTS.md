@@ -402,7 +402,12 @@ field access, and method syntax such as `@cairoon.Glyph::new(...)`,
 a subpackage. The same package owns `field_arrays`, the MoonBit-side
 preparation step for `cairo_glyph_t` array marshaling; public context and
 scaled-font wrappers should call `@glyph.field_arrays` instead of re-expanding
-glyph fields in the facade package.
+glyph fields in the facade package. The second accepted probe is
+`src/core/constants`: it owns pure primitive Cairo version, feature, MIME, tag,
+PDF outline, and color-palette constants, while the facade re-exports the same
+public names with `pub const` aliases. `scripts/configure-link-flags.sh` must
+update and check the child package constants so `pkg-config` remains the source
+of truth for generated version and feature constants.
 
 Internal implementation packages may live under `src/internal/<family>/` when a
 family's public API can remain in the facade while raw externs or helper logic

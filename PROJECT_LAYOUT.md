@@ -23,7 +23,9 @@ exemptions: when a file moves out of the repository root or direct `src/`, the
 same commit must remove its allowlist entry so an identically named file cannot
 silently return later.
 
-- 70 `.mbt` implementation files directly in `src/`.
+- 69 `.mbt` implementation files directly in `src/`.
+- 1 `.mbt` implementation file and 1 package-local `*_test.mbt` file in
+  `src/core/constants/`.
 - 1 `.mbt` implementation file and 1 package-local `*_test.mbt` file in
   `src/core/glyph/`.
 - 1 `.mbt` implementation file and 1 package-local `*_test.mbt` file in
@@ -79,6 +81,10 @@ cairoon/
     README.mbt.md
     pkg.generated.mbti
     core/
+      constants/
+        moon.pkg
+        constants.mbt
+        constants_test.mbt
       glyph/
         moon.pkg
         glyph.mbt
@@ -178,7 +184,7 @@ MoonBit package shape without weakening the public interface.
 | Role | Intended location | Interface rule |
 |---|---|---|
 | Public package | `src/` | Owns the stable `CAIMEOX/cairoon` interface and public external object types until a facade proof proves otherwise. |
-| Pure support packages | `src/core/` | May hold pure values/helpers only after their public names can be preserved or intentionally re-exported. `src/core/glyph` is the first accepted seam: the public package exposes `pub type Glyph = @glyph.Glyph`, owns `@glyph.field_arrays` for glyph-array marshaling preparation, and tests prove `@cairoon.Glyph::new`, field access, dot-method syntax, and glyph-array FFI paths still work through the facade. |
+| Pure support packages | `src/core/` | May hold pure values/helpers only after their public names can be preserved or intentionally re-exported. `src/core/glyph` is the first accepted seam: the public package exposes `pub type Glyph = @glyph.Glyph`, owns `@glyph.field_arrays` for glyph-array marshaling preparation, and tests prove `@cairoon.Glyph::new`, field access, dot-method syntax, and glyph-array FFI paths still work through the facade. `src/core/constants` is the second accepted seam: it owns generated primitive Cairo constants, while the facade preserves `@cairoon.CAIRO_VERSION`, `@cairoon.HAS_*`, `@cairoon.MIME_TYPE_*`, tag constants, `PDF_OUTLINE_ROOT`, and `COLOR_PALETTE_DEFAULT` through `pub const` aliases. |
 | Internal implementation packages | `src/internal/<family>/` | May hold native-gated extern declarations and implementation helpers for small public facade functions when the public `CAIMEOX/cairoon` API remains unchanged. `src/internal/version` owns the raw version externs and UTF-8 decoding while `src/version.mbt` remains a thin facade. `src/internal/format` owns the raw `cairo_format_stride_for_width` extern while `src/format.mbt` keeps the public `Format` enum, constructors, and methods. `src/internal/status` owns the raw status-message extern while `src/status.mbt` keeps the public `Status` enum and methods. `src/internal/pdf` owns raw PDF version query/string helpers while `src/pdf_surface.mbt` keeps `PDFVersion` constructors and PDF surface wrappers. `src/internal/ps` owns raw PostScript level query/string helpers while `src/ps_surface.mbt` keeps `PSLevel` constructors and PS surface wrappers. `src/internal/svg` owns raw SVG version query/string helpers while `src/svg_surface.mbt` keeps `SVGVersion` constructors and SVG surface wrappers. `src/internal/stream` owns pure callback chunk-copy helpers used by stream-writing facade wrappers. `src/internal/cstring` owns pure embedded-NUL scanning used by facade string validators. Any package that imports `CAIMEOX/cairoon/native` must carry Cairo `cc-link-flags` so package-local tests link independently. |
 | Native stubs | `src/native/` | Owns public C glue compilation through `src/native/moon.pkg`. Every `.c` file beside that package file must be listed by bare filename in its `native-stub` list; `src/moon.pkg` imports `CAIMEOX/cairoon/native` and must not own `native-stub` entries. Headers in `src/native/` are private to those stubs. |
 | Black-box tests | `src/tests/<family>/` | Import `CAIMEOX/cairoon`; assert only public behavior. Any package that imports cairoon must carry Cairo `cc-link-flags`, because native link flags are not propagated to external test executables. |
@@ -219,7 +225,11 @@ Follow this order. Each step gets its own commit and must pass
    test-only C oracle helpers live under `src/tests/oracle/native` as a
    separate native-stub package imported only by oracle tests. Public binding C
    files must not depend on oracle packages.
-6. **Family package probes**: started. `Glyph` now lives in
+6. **Family package probes**: started. Primitive Cairo constants now live in
+   `src/core/constants`, while the public facade preserves the pycairo-style
+   top-level constant names with `pub const` aliases and
+   `scripts/configure-link-flags.sh` updates the child package source of truth.
+   `Glyph` now lives in
    `src/core/glyph`, while the public facade exposes it with a type alias. This
    proves a pure value type can move into a support package while preserving
    external constructor, field, and method syntax; the glyph support package now
