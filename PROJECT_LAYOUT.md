@@ -178,6 +178,10 @@ cairoon/
           moon.pkg
       pattern/
         moon.pkg
+        gradient/
+          moon.pkg
+        raster/
+          moon.pkg
       font/
         moon.pkg
       path/

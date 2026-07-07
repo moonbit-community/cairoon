@@ -73,11 +73,12 @@ Implemented in this workspace:
   drawing state, transforms, paths, pycairo parity fixtures, groups,
   text/glyph APIs, extents, clipping, painting, tags, and ScaledFont
   text-to-glyph conversion through the published package seam.
-- Pattern black-box tests now live in `src/tests/pattern`, importing only the
-  public `CAIMEOX/cairoon` API. This validates solid/surface/common-state
-  patterns, pycairo parity fixtures, gradient queries, mesh patch lifecycle,
+- Pattern black-box tests now live in `src/tests/pattern` plus nested
+  `src/tests/pattern/{gradient,raster}` packages, importing only the public
+  `CAIMEOX/cairoon` API. This validates solid/surface/common-state patterns,
+  pycairo parity fixtures, gradient queries, mesh patch lifecycle,
   raster-source callbacks, and raster-source callback fuzz/state behavior
-  through the published package seam.
+  through separately linked published-package seams.
 - Font black-box tests now live in `src/tests/font`, importing only the public
   `CAIMEOX/cairoon` API. This validates toy font faces, font options, context
   font-option/font-face round trips, ScaledFont construction, matrix queries,
@@ -1117,23 +1118,24 @@ Prior full verifies passed on 2026-07-02, 2026-07-03, 2026-07-04,
   and paints from its source after the source wrapper and context scope exit,
   and PDF/PS stream target wrappers that remain usable after the creating
   surface helper scope exits.
-- `moon -C cairoon test pattern_test.mbt pattern_raster_source_test.mbt
-  --target native -v`: 20 black-box pattern tests passed after splitting the
-  core/surface-pattern coverage from raster-source callback/lifetime/error
-  coverage; the raster-source file retains compatible target/extents acquire
-  coverage, release-only raster callback state, finished-surface failure
-  injection, post-failure acquire replacement recovery, and deterministic
-  25-step callback replacement/failure fuzz with dynamic compatible source
-  surfaces plus final post-clear recovery.
-- `moon -C cairoon test pattern_gradient_test.mbt --target native -v`: 5
-  black-box gradient tests passed, covering linear/radial gradient geometry,
-  color-stop count/tuple retrieval, duplicate-offset insertion order, copied
-  color-stop snapshot stability after later pattern mutation, pattern-type
-  mismatch mapping, and invalid-index mapping.
-- `moon -C cairoon test pattern_pycairo_parity_test.mbt --target native -v`: 2
-  black-box pycairo Pattern parity tests passed, covering solid-pattern default
-  extend/filter/dither/matrix/clamped-RGBA getters and explicit matrix/extend/
-  filter/dither/RGBA setter round trips.
+- `moon -C cairoon test src/tests/pattern --target native -v`: 28 black-box
+  core, mesh, and pycairo Pattern parity tests passed, covering
+  solid/surface/common-state patterns, pointer identity/hash, raw enum
+  passthrough, surface-pattern lifetime, mesh patch lifecycle/query APIs,
+  pycairo solid/surface/gradient/mesh fixtures, and mesh error-state mapping.
+- `moon -C cairoon test src/tests/pattern/gradient --target native -v`: 5
+  black-box gradient tests passed from a nested external package, covering
+  linear/radial gradient geometry, color-stop count/tuple retrieval,
+  duplicate-offset insertion order, copied color-stop snapshot stability after
+  later pattern mutation, pattern-type mismatch mapping, and invalid-index
+  mapping.
+- `moon -C cairoon test src/tests/pattern/raster --target native -v`: 13
+  black-box raster-source tests passed from a nested external package,
+  covering raw content construction, compatible target/extents acquire,
+  release-only callback state, pycairo-derived raster callback fixtures,
+  finished-surface failure injection, post-failure acquire replacement
+  recovery, deterministic callback replacement/failure fuzz with dynamic
+  compatible source surfaces, and final post-clear recovery.
 - `moon -C cairoon test pattern_raster_manual_wbtest.mbt
   pattern_raster_owner_wbtest.mbt pattern_raster_state_wbtest.mbt --target
   native -v`: 6 white-box raster-source manual/owner/state tests passed,
@@ -1167,12 +1169,13 @@ Prior full verifies passed on 2026-07-02, 2026-07-03, 2026-07-04,
   change.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
-  pattern_test.mbt pattern_raster_source_test.mbt --target native -v`: 20
+  src/tests/pattern src/tests/pattern/raster --target native -v`: 41
   ASan-compiled black-box pattern tests passed with leak detection disabled
-  after the split, covering compatible target/extents raster-source acquire,
-  release-only callback state, the raster acquire finished-surface rejection
-  path, replacement recovery after that failure path, and deterministic
-  callback replacement/failure fuzz with dynamic compatible source surfaces.
+  after the split, covering core/surface/mesh/pycairo pattern behavior,
+  compatible target/extents raster-source acquire, release-only callback state,
+  the raster acquire finished-surface rejection path, replacement recovery
+  after that failure path, and deterministic callback replacement/failure fuzz
+  with dynamic compatible source surfaces.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
   pattern_raster_manual_wbtest.mbt pattern_raster_owner_wbtest.mbt
