@@ -45,12 +45,12 @@ silently return later.
 - 2 `.mbt` implementation files and 1 package-local `*_test.mbt` file in
   `src/internal/svg/`.
 - 1 native-package MoonBit anchor file in `src/native/`.
-- 118 `*_test.mbt` files under `src/tests/`, including black-box and oracle
+- 119 `*_test.mbt` files under `src/tests/`, including black-box and oracle
   packages.
 - 0 white-box `*_wbtest.mbt` files in `src/`.
 - 34 public C implementation files owned by `src/native/moon.pkg`.
 - 1 public C header in `src/native/`.
-- 36 oracle C implementation files in `src/tests/oracle/native/`.
+- 37 oracle C implementation files in `src/tests/oracle/native/`.
 - 2 oracle C headers in `src/tests/oracle/native/`.
 - 9 executable `.mbt.md` docs in `src/`.
 
@@ -321,6 +321,9 @@ before MoonBit compilation. The layout check proves:
 - every child package that imports `CAIMEOX/cairoon` or
   `CAIMEOX/cairoon/native` carries Cairo `cc-link-flags`, so both black-box
   tests and internal native-gated implementation packages link independently;
+- the `Current Layout` file counts in this document match the actual package
+  tree, so project-management evidence cannot silently drift as files are
+  moved or new test/oracle slices are added;
 - `src/moon.pkg` imports `CAIMEOX/cairoon/native` and owns no `native-stub`
   entries;
 - every `.c` file under `src/native/` is referenced by `src/native/moon.pkg`

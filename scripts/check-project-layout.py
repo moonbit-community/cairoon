@@ -20,6 +20,18 @@ PACKAGE_CONFIG_NAMES = {"moon.pkg"}
 NATIVE_PACKAGE_DIR = PACKAGE_ROOT / "native"
 NATIVE_PACKAGE_CONFIG = NATIVE_PACKAGE_DIR / "moon.pkg"
 CAIRO_LINK_IMPORTS = ('"CAIMEOX/cairoon"', '"CAIMEOX/cairoon/native"')
+CHECKED_PACKAGE_COUNT_PATHS = (
+    "src/core/constants",
+    "src/core/glyph",
+    "src/internal/cstring",
+    "src/internal/version",
+    "src/internal/format",
+    "src/internal/pdf",
+    "src/internal/ps",
+    "src/internal/status",
+    "src/internal/stream",
+    "src/internal/svg",
+)
 
 
 def is_source_like(path: pathlib.Path) -> bool:
@@ -180,6 +192,119 @@ def read_native_stubs(package_config: pathlib.Path) -> set[str]:
     return set(re.findall(r'"([^"]+\.c)"', block))
 
 
+def count_files(path: pathlib.Path, pattern: str) -> int:
+    return sum(1 for child in path.glob(pattern) if child.is_file())
+
+
+def count_recursive_files(path: pathlib.Path, pattern: str) -> int:
+    return sum(1 for child in path.rglob(pattern) if child.is_file())
+
+
+def require_layout_count(
+    text: str,
+    label: str,
+    pattern: str,
+    expected: dict[str, int],
+) -> list[str]:
+    match = re.search(pattern, text, re.DOTALL)
+    if match is None:
+        return [f"{LAYOUT_DOC}: missing Current Layout counter for {label}"]
+
+    errors: list[str] = []
+    for name, value in expected.items():
+        actual = int(match.group(name))
+        if actual != value:
+            errors.append(
+                f"{LAYOUT_DOC}: stale Current Layout counter for {label}: "
+                f"{name} says {actual}, actual is {value}"
+            )
+    return errors
+
+
+def check_layout_counters() -> list[str]:
+    text = LAYOUT_DOC.read_text(encoding="utf-8")
+    errors: list[str] = []
+
+    errors.extend(
+        require_layout_count(
+            text,
+            "direct src implementation files",
+            r"- (?P<count>\d+) `\.mbt` implementation files directly in `src/`\.",
+            {"count": count_files(PACKAGE_ROOT, "*.mbt")},
+        )
+    )
+
+    for rel_path in CHECKED_PACKAGE_COUNT_PATHS:
+        package_dir = REPO_ROOT / rel_path
+        escaped = re.escape(rel_path + "/")
+        implementation_count = count_files(package_dir, "*.mbt") - count_files(
+            package_dir,
+            "*_test.mbt",
+        )
+        errors.extend(
+            require_layout_count(
+                text,
+                rel_path,
+                rf"- (?P<impl>\d+) `\.mbt` implementation files? and "
+                rf"(?P<test>\d+) package-local `\*_test\.mbt` files? in\s+"
+                rf"`{escaped}`\.",
+                {
+                    "impl": implementation_count,
+                    "test": count_files(package_dir, "*_test.mbt"),
+                },
+            )
+        )
+
+    counter_specs = [
+        (
+            "native package MoonBit anchor",
+            r"- (?P<count>\d+) native-package MoonBit anchor file in `src/native/`\.",
+            {"count": count_files(NATIVE_PACKAGE_DIR, "*.mbt")},
+        ),
+        (
+            "src tests",
+            r"- (?P<count>\d+) `\*_test\.mbt` files under `src/tests/`",
+            {"count": count_recursive_files(TEST_PACKAGE_ROOT, "*_test.mbt")},
+        ),
+        (
+            "white-box tests",
+            r"- (?P<count>\d+) white-box `\*_wbtest\.mbt` files in `src/`\.",
+            {"count": count_files(PACKAGE_ROOT, "*_wbtest.mbt")},
+        ),
+        (
+            "public C implementation files",
+            r"- (?P<count>\d+) public C implementation files owned by "
+            r"`src/native/moon\.pkg`\.",
+            {"count": count_files(NATIVE_PACKAGE_DIR, "*.c")},
+        ),
+        (
+            "public C headers",
+            r"- (?P<count>\d+) public C header in `src/native/`\.",
+            {"count": count_files(NATIVE_PACKAGE_DIR, "*.h")},
+        ),
+        (
+            "oracle C implementation files",
+            r"- (?P<count>\d+) oracle C implementation files in "
+            r"`src/tests/oracle/native/`\.",
+            {"count": count_files(TEST_PACKAGE_ROOT / "oracle/native", "*.c")},
+        ),
+        (
+            "oracle C headers",
+            r"- (?P<count>\d+) oracle C headers in `src/tests/oracle/native/`\.",
+            {"count": count_files(TEST_PACKAGE_ROOT / "oracle/native", "*.h")},
+        ),
+        (
+            "executable docs",
+            r"- (?P<count>\d+) executable `\.mbt\.md` docs in `src/`\.",
+            {"count": count_files(PACKAGE_ROOT, "*.mbt.md")},
+        ),
+    ]
+    for label, pattern, expected in counter_specs:
+        errors.extend(require_layout_count(text, label, pattern, expected))
+
+    return errors
+
+
 def check_nested_c_files() -> list[str]:
     errors: list[str] = []
     native_stubs_by_package: dict[pathlib.Path, set[str]] = {}
@@ -263,6 +388,7 @@ def main() -> int:
     errors.extend(check_public_package_root_freeze(public_root_allowed))
     errors.extend(check_source_root())
     errors.extend(check_native_package())
+    errors.extend(check_layout_counters())
     errors.extend(check_nested_packages())
     errors.extend(check_nested_c_files())
     if errors:
