@@ -96,6 +96,7 @@ Run these tiers in order while developing a slice.
 ```sh
 cairoon/scripts/configure-link-flags.sh --check
 python3 cairoon/scripts/check-project-layout.py
+python3 cairoon/scripts/check-source-size-budget.py
 python3 cairoon/scripts/check-api-inventory.py
 python3 cairoon/scripts/check-ffi-ownership.py
 python3 cairoon/scripts/check-reliability-ledger.py
@@ -111,7 +112,9 @@ system Cairo installation may have changed. Run `scripts/check-api-inventory.py`
 whenever the pycairo stub, public API, or inventory changes. Run
 `scripts/check-ffi-ownership.py` whenever raw extern declarations change. Run
 `scripts/check-project-layout.py` whenever package structure, root source files,
-or `PROJECT_LAYOUT.md` changes. Run
+or `PROJECT_LAYOUT.md` changes. Run `scripts/check-source-size-budget.py`
+whenever a source, script, test, native glue, or executable-doc file is added
+or substantially expanded. Run
 `scripts/check-reliability-ledger.py` whenever migration status, scorecard, or
 CI/verify gate text changes. Run `scripts/check-vector-backend-scenes.py`
 whenever backend oracle scene ids, native oracle stubs, stream-oracle wiring,
@@ -216,8 +219,9 @@ The current local gate is executable as:
 ```
 
 It runs `moon fmt --check`, `scripts/check-project-layout.py`,
-`scripts/configure-link-flags.sh --check`, `scripts/check-ffi-ownership.py`,
-`scripts/check-api-inventory.py`, `scripts/check-reliability-ledger.py`,
+`scripts/check-source-size-budget.py`, `scripts/configure-link-flags.sh --check`,
+`scripts/check-ffi-ownership.py`, `scripts/check-api-inventory.py`,
+`scripts/check-reliability-ledger.py`,
 `scripts/check-vector-backend-scenes.py`, native
 `moon check --target native --deny-warn`, the `src/native` native-stub package,
 extracted external
@@ -3147,6 +3151,12 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   scene lists, native stub registration, and Backend Differential Slices rows
   in sync. This keeps the expected full native suite at 635 tests while making
   missing backend oracle evidence a local verify-gate failure.
+  A later source-size budget slice split the oversized ARGB32 image oracle
+  scene dispatcher into focused basic, pattern, and pattern-stack scene files
+  and added `scripts/check-source-size-budget.py` to the local verify gate.
+  This keeps the expected full native suite at 635 tests while making future
+  source/test/script/native-glue files above 900 lines fail local verification
+  until they are split deliberately.
 
 Remaining reliability work is now narrower and should be tracked as evidence,
 not as an unstructured checklist:
