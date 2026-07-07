@@ -828,6 +828,77 @@ fn draw_image_oracle_scene(
       ctx.mask(mask)
       ctx.restore()
     }
+    39 => {
+      let source = @cairoon.Surface::image(@cairoon.Argb32, 2, 2)
+      paint_image_oracle_quad_surface(source)
+      let surface_pattern = @cairoon.Pattern::for_surface(source)
+      surface_pattern.set_extend(@cairoon.Reflect)
+      surface_pattern.set_filter(@cairoon.Nearest)
+      surface_pattern.set_dither(@cairoon.DitherFast)
+      surface_pattern.set_matrix(
+        @cairoon.Matrix::new(
+          xx=0.58,
+          yx=-0.09,
+          xy=0.16,
+          yy=0.53,
+          x0=-1.80,
+          y0=0.25,
+        ),
+      )
+
+      let radial = @cairoon.Pattern::radial(4.0, 4.0, 0.75, 12.0, 11.0, 8.0)
+      radial.add_color_stop_rgba(0.0, 0.98, 0.92, 0.18, 0.92)
+      radial.add_color_stop_rgba(0.42, 0.10, 0.72, 0.85, 0.68)
+      radial.add_color_stop_rgba(1.0, 0.04, 0.05, 0.12, 0.88)
+      radial.set_extend(@cairoon.Repeat)
+      radial.set_filter(@cairoon.Good)
+      radial.set_dither(@cairoon.DitherBest)
+      radial.set_matrix(
+        @cairoon.Matrix::new(
+          xx=0.86,
+          yx=0.12,
+          xy=-0.14,
+          yy=0.79,
+          x0=0.75,
+          y0=-1.10,
+        ),
+      )
+
+      let mask = @cairoon.Pattern::linear(0.0, 16.0, 16.0, 0.0)
+      mask.add_color_stop_rgba(0.0, 1.0, 1.0, 1.0, 0.05)
+      mask.add_color_stop_rgba(0.50, 1.0, 1.0, 1.0, 0.62)
+      mask.add_color_stop_rgba(1.0, 1.0, 1.0, 1.0, 0.98)
+      mask.set_extend(@cairoon.Pad)
+      mask.set_filter(@cairoon.Good)
+      mask.set_dither(@cairoon.DitherDefault)
+      mask.set_matrix(
+        @cairoon.Matrix::new(
+          xx=0.93,
+          yx=-0.08,
+          xy=0.11,
+          yy=0.84,
+          x0=-0.35,
+          y0=0.70,
+        ),
+      )
+
+      ctx.set_source_rgb(0.018, 0.030, 0.055)
+      ctx.paint()
+      ctx.save()
+      ctx.rectangle(1.0, 1.0, 14.0, 14.0)
+      ctx.clip()
+      ctx.push_group_with_content(@cairoon.ContentColorAlpha)
+      ctx.set_source(surface_pattern)
+      ctx.paint()
+      ctx.set_operator(@cairoon.OperatorOverlay)
+      ctx.rectangle(0.0, 0.0, 16.0, 16.0)
+      ctx.set_source(radial)
+      ctx.fill()
+      ctx.set_operator(@cairoon.OperatorOver)
+      ctx.pop_group_to_source()
+      ctx.mask(mask)
+      ctx.restore()
+    }
     _ => @cairoon.check_status(@cairoon.InvalidStatus)
   }
 }
@@ -863,7 +934,7 @@ fn render_buffered_image_oracle_scene(
 
 ///|
 test "image rendering scenes match direct cairo C oracle" {
-  for scene in 0..<39 {
+  for scene in 0..<40 {
     let actual = render_image_oracle_scene(scene)
     let expected = test_argb32_scene_oracle_ffi(scene, 16, 16)
     inspect(expected.length(), content="1024")
@@ -873,7 +944,7 @@ test "image rendering scenes match direct cairo C oracle" {
 
 ///|
 test "buffer backed image rendering scenes match direct cairo C oracle" {
-  for scene in 0..<39 {
+  for scene in 0..<40 {
     let (actual, copied) = render_buffered_image_oracle_scene(scene)
     let expected = test_argb32_scene_oracle_ffi(scene, 16, 16)
     inspect(expected.length(), content="1024")
