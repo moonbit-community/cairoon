@@ -322,7 +322,8 @@ setter round-trip, gradient point/color-stop/radial-circle, and mesh example
 patch fixtures,
 RasterSourcePattern
 constructor/acquire/get-acquire/release callback glue with retained closure and acquired
-surface owners, finished-surface acquire failure injection, MeshPattern patch lifecycle/query
+surface owners, pycairo-derived callback-state/acquire-release paint fixtures,
+finished-surface acquire failure injection, MeshPattern patch lifecycle/query
 APIs, `FORMAT_INVALID` integer-sentinel coverage, FontOptions
 state/accessor APIs, FontFace/ToyFontFace APIs, ScaledFont
 basics including glyph extents, text-to-glyphs, and direct C Cairo oracle
@@ -1055,6 +1056,11 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   pycairo Coons-patch and mesh-rest fixtures covering
   corner-color/control-point queries and invalid patch/corner/control-point
   index errors.
+- `moon -C cairoon test pattern_raster_pycairo_parity_test.mbt --target
+  native -v`: 2 pycairo `test_raster_source`-derived fixtures passed,
+  covering callback optional/clear states, manual acquired/released callback
+  invocation, compatible-image acquire with device offset, acquire/release
+  event order, and red pixel output after `Context::paint`.
 - `moon -C cairoon test pattern_raster_manual_wbtest.mbt
   pattern_raster_owner_wbtest.mbt pattern_raster_state_wbtest.mbt --target
   native -v`: 6 white-box raster-source manual/owner/state tests passed,
@@ -3084,6 +3090,12 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   image-surface `get_device is None`, script mode/comment output, and
   recording-surface replay plus post-finish `DeviceFinished`. This raises the
   expected full native suite to 620 tests without changing public API.
+  A later Pattern raster-source pycairo parity slice added
+  `pattern_raster_pycairo_parity_test.mbt` with two pycairo
+  `test_raster_source`-derived fixtures covering callback optional/clear
+  states, compatible-image acquire with device offset, acquire/release event
+  order, and red pixel output after `Context::paint`. This raises the expected
+  full native suite to 622 tests without changing public API.
 
 Remaining reliability work is now narrower and should be tracked as evidence,
 not as an unstructured checklist:
