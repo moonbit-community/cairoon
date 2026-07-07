@@ -135,6 +135,10 @@ fn render_backend_oracle_stream_scene(
       let surface = make_stream_revision_ledger_stream_surface(kind, chunks)
       render_stream_revision_ledger_scene(kind, surface)
     }
+    56 => {
+      let surface = make_stream_article_thread_stream_surface(kind, chunks)
+      render_stream_article_thread_scene(kind, surface)
+    }
     _ => @cairoon.check_status(@cairoon.InvalidStatus)
   }
 }
@@ -378,7 +382,7 @@ test "backend feature streams match direct cairo C oracle after normalization" {
     for
       scene in [
         35, 36, 37, 38, 39, 40, 41, 42, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54,
-        55,
+        55, 56,
       ] {
       let chunks : Array[Bytes] = []
       render_backend_oracle_stream_scene(scene, kind, chunks)

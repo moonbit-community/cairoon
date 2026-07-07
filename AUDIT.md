@@ -2989,6 +2989,11 @@ Prior full verifies passed on 2026-07-02, 2026-07-03, 2026-07-04,
   backend-combo stream output, backend page-transition output, backend
   state-stack output, and backend structure-sequence output have matching
   PS/SVG negative PDF-metadata marker checks.
+  A later article-thread backend oracle slice adds scene 56 with PDF/PS/SVG
+  file-vs-stream equality, direct-C file equality, stream-to-direct-C
+  equality, stable metadata/page-label/outline/tag markers, and PS/SVG
+  negative PDF-metadata checks for article, block quote, note, figure,
+  caption, and reference structure tags.
   Broader cross-backend tag/metadata combinations, broader multi-page
   combinations, and richer tag-output assertions are still absent beyond those
   PDF scenes, the tagged multi-page, tagged `show_text_glyphs`, grouped
