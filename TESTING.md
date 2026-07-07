@@ -696,12 +696,13 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   status, dash validation, raw C-int operator and drawing-state enum
   passthrough parity, CTM conversion, invalid-matrix propagation, pycairo polygon fill-extents
   coverage, stroke extents, and hit-testing.
-- `moon -C cairoon test src/tests/surface --target native -v`: 82 black-box
+- `moon -C cairoon test src/tests/surface --target native -v`: 83 black-box
   Surface package tests passed, including base image/similar/state/status
   wrappers, pycairo surface parity, buffer-backed image surfaces, mutable
   ImageData views, pycairo `test_image_surface_get_data` mutable-view sharing
-  and post-paint flush update behavior, PNG path round trips, mapped images,
-  subsurfaces, recording, MIME, PDF, PS, SVG, and Tee surfaces.
+  and post-paint flush update behavior, pycairo recording-surface post-finish
+  `get_extents` behavior, PNG path round trips, mapped images, subsurfaces,
+  recording, MIME, PDF, PS, SVG, and Tee surfaces.
 - `moon -C cairoon test surface_mapped_test.mbt --target native -v`: 6
   black-box mapped-image tests passed, covering whole-surface and extent
   uploads, wrong-base and double-unmap failures, mapped-wrapper unmap,

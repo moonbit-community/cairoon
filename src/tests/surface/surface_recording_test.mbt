@@ -43,6 +43,28 @@ test "recording surface exposes bounded and unbounded extents" {
 }
 
 ///|
+test "pycairo recording surface get_extents after finish fixture" {
+  let unbounded = @cairoon.Surface::recording(@cairoon.ContentColor)
+  inspect(unbounded.recording_get_extents() is None, content="true")
+
+  let bounds = @cairoon.Rectangle::new(1.0, 2.0, 3.0, 4.0)
+  let bounded = @cairoon.Surface::recording(
+    @cairoon.ContentColor,
+    extents=Some(bounds),
+  )
+  match bounded.recording_get_extents() {
+    Some(rect) => debug_inspect(rect.components(), content="(1, 2, 3, 4)")
+    None => @test.fail("expected recording surface extents")
+  }
+
+  bounded.finish()
+  match bounded.recording_get_extents() {
+    Some(rect) => debug_inspect(rect.components(), content="(1, 2, 3, 4)")
+    None => @test.fail("expected recording surface extents after finish")
+  }
+}
+
+///|
 test "recording surface accepts pycairo raw content ints" {
   let bounds = @cairoon.Rectangle::new(0.0, 0.0, 2.0, 3.0)
   let recording = @cairoon.Surface::recording_raw(0x3000, extents=Some(bounds))

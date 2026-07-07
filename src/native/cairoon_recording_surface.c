@@ -1,5 +1,20 @@
 #include "cairoon_private.h"
 
+static cairo_status_t cairoon_recording_surface_require_type_allow_finished(
+  CairoonSurface *surface) {
+  if (surface == NULL || surface->ptr == NULL) {
+    return CAIRO_STATUS_NULL_POINTER;
+  }
+  cairo_status_t status = cairo_surface_status(surface->ptr);
+  if (status != CAIRO_STATUS_SUCCESS) {
+    return status;
+  }
+  if (cairo_surface_get_type(surface->ptr) != CAIRO_SURFACE_TYPE_RECORDING) {
+    return CAIRO_STATUS_SURFACE_TYPE_MISMATCH;
+  }
+  return CAIRO_STATUS_SUCCESS;
+}
+
 MOONBIT_FFI_EXPORT
 CairoonSurface *cairoon_recording_surface_create(
   cairo_content_t content,
@@ -74,7 +89,7 @@ cairo_status_t cairoon_recording_surface_get_extents(
   *has_extents = 0;
 #ifdef CAIRO_HAS_RECORDING_SURFACE
   cairo_status_t status =
-    cairoon_surface_require_type(surface, CAIRO_SURFACE_TYPE_RECORDING);
+    cairoon_recording_surface_require_type_allow_finished(surface);
   if (status != CAIRO_STATUS_SUCCESS) {
     return status;
   }
