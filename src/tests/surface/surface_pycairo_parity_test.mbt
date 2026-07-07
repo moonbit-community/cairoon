@@ -10,6 +10,12 @@ fn expect_pycairo_surface_invalid_matrix(
 }
 
 ///|
+fn pycairo_similar_image_from_local_pdf() -> @cairoon.Surface raise @cairoon.CairoError {
+  let surface = @cairoon.Surface::pdf(1.0, 1.0)
+  surface.create_similar_image(@cairoon.Argb32, 24, 42)
+}
+
+///|
 test "pycairo surface context manager fixture" {
   let surface = @cairoon.Surface::image(@cairoon.Argb32, 10, 10)
   surface.with_finished(() => surface.show_page())
@@ -104,6 +110,13 @@ test "pycairo surface create_similar_image fixture" {
   debug_inspect(image.get_format(), content="Argb32")
   inspect(image.get_width(), content="24")
   inspect(image.get_height(), content="42")
+
+  let scoped_image = pycairo_similar_image_from_local_pdf()
+  debug_inspect(scoped_image.get_type(), content="SurfaceTypeImage")
+  debug_inspect(scoped_image.get_format(), content="Argb32")
+  inspect(scoped_image.get_width(), content="24")
+  inspect(scoped_image.get_height(), content="42")
+  inspect(scoped_image.copy_data().length(), content="4032")
 
   expect_surface_invalid_size(
     @cairoon.run_cairo(() => {
