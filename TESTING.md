@@ -245,8 +245,8 @@ support packages under `src/core/constants`, `src/core/glyph`,
 `src/tests/image/buffer`, `src/tests/backend/pdf`,
 `src/tests/backend/ps`, `src/tests/backend/recording`,
 `src/tests/backend/svg`, `src/tests/backend/tee`,
-`src/tests/context`, `src/tests/context/clip`, `src/tests/context/extents`,
-`src/tests/context/glyph`, `src/tests/context/group`,
+`src/tests/context/pycairo`, `src/tests/context/clip`,
+`src/tests/context/extents`, `src/tests/context/glyph`, `src/tests/context/group`,
 `src/tests/context/matrix`, `src/tests/context/paint`,
 `src/tests/context/path`, `src/tests/context/state`, `src/tests/context/tag`,
 `src/tests/context/text`, `src/tests/context/text_to_glyphs`,
@@ -682,7 +682,7 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   path copy/append independence, pycairo-style append string
   equivalence after clearing the source context, flattened append behavior, and
   path error propagation.
-- `moon -C cairoon test src/tests/context --target native -v`: 36 black-box
+- `moon -C cairoon test src/tests/context/pycairo --target native -v`: 36 black-box
   shared Context parity tests passed, including 35 pycairo parity fixtures split
   across `context_pycairo_parity_test.mbt`,
   `context_state_paint_pycairo_parity_test.mbt`, and
@@ -3328,10 +3328,10 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   suite is now 637 tests without changing public API.
   A later Context pycairo parity organization slice moved the font/text/glyph
   and simple-smoke pycairo fixtures from `context_pycairo_parity_test.mbt` into
-  `context_font_text_pycairo_parity_test.mbt`. The Context package still carries
-  the same 35 external pycairo parity fixtures, the observed full native suite
-  remains 637 tests, and the largest Context pycairo parity file drops from 675
-  to 471 lines without changing public API.
+  `context_font_text_pycairo_parity_test.mbt`. The shared Context pycairo
+  parity package still carries the same 35 external pycairo parity fixtures,
+  the observed full native suite remains 637 tests, and the largest Context
+  pycairo parity file drops from 675 to 471 lines without changing public API.
   A later Context pycairo state/paint organization slice moved drawing-state,
   dash/scalar/source, copied-path, clip, group, and mask/alpha-paint pycairo
   fixtures into `context_state_paint_pycairo_parity_test.mbt`. The same 35
@@ -3365,6 +3365,10 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   `src/tests/context/`. The observed focused count for the shared parity root
   is now 36 tests, with all moved behavior still covered through separately
   linked public-package seams and no public API changes.
+  A later Context pycairo package split moved the remaining shared parity root
+  into `src/tests/context/pycairo`, leaving `src/tests/context` as a pure
+  directory container. The observed focused count for the pycairo package is
+  still 36 tests, with no public API changes.
   A later Surface image-property organization slice moved image-surface
   property, raw-format/raw-content, finished/subtype error, and Cairo
   float-format black-box tests into `surface_image_properties_test.mbt`. The

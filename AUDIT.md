@@ -69,12 +69,12 @@ Implemented in this workspace:
   constructors, raw backend enums, subtype and finished-surface errors,
   filename constructors, recording replay, and Tee fanout/lifetime behavior
   through separately linked published-package seams.
-- Context black-box tests now live in `src/tests/context` plus nested
-  `src/tests/context/{clip,extents,glyph,group,matrix,paint,path,state,tag,text,text_to_glyphs}`
-  packages, importing only the public `CAIMEOX/cairoon` API. This validates
-  drawing state, transforms, paths, pycairo parity fixtures, groups,
-  text/glyph APIs, extents, clipping, painting, tags, and ScaledFont
-  text-to-glyph conversion through the published package seam.
+- Context black-box tests now live in
+  `src/tests/context/{pycairo,clip,extents,glyph,group,matrix,paint,path,state,tag,text,text_to_glyphs}`,
+  importing only the public `CAIMEOX/cairoon` API. This validates drawing
+  state, transforms, paths, pycairo parity fixtures, groups, text/glyph APIs,
+  extents, clipping, painting, tags, and ScaledFont text-to-glyph conversion
+  through separately linked published-package seams.
 - Pattern black-box tests now live in `src/tests/pattern` plus nested
   `src/tests/pattern/{gradient,raster}` packages, importing only the public
   `CAIMEOX/cairoon` API. This validates solid/surface/common-state patterns,
@@ -779,7 +779,7 @@ Prior full verifies passed on 2026-07-02, 2026-07-03, 2026-07-04,
   path copy/append independence, pycairo-style append string
   equivalence after clearing the source context, flattened append behavior, and
   path error propagation.
-- `moon -C cairoon test src/tests/context --target native -v`: 36
+- `moon -C cairoon test src/tests/context/pycairo --target native -v`: 36
   shared black-box Context pycairo parity tests passed, covering the 42x42 default
   clip-extents fixture, zero-radius `arc`/`arc_negative` non-empty paths,
   polygon `path_extents`, polygon `fill_extents`, empty `in_fill`, line

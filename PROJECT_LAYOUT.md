@@ -169,7 +169,6 @@ cairoon/
         properties/
           moon.pkg
       context/
-        moon.pkg
         clip/
           moon.pkg
         extents/
@@ -183,6 +182,8 @@ cairoon/
         paint/
           moon.pkg
         path/
+          moon.pkg
+        pycairo/
           moon.pkg
         state/
           moon.pkg

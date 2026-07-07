@@ -1,5 +1,5 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "CAIMEOX/cairoon/tests/context"
+package "CAIMEOX/cairoon/tests/context/pycairo"
 
 // Values
 
@@ -10,4 +10,3 @@ package "CAIMEOX/cairoon/tests/context"
 // Type aliases
 
 // Traits
-
