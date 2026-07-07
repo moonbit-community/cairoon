@@ -12,6 +12,22 @@ test "pycairo pattern cmp hash fixture" {
 }
 
 ///|
+test "pycairo independent solid pattern identity fixture" {
+  let solid = @cairoon.Pattern::solid_rgba(0.1, 0.2, 0.3, 0.4)
+  debug_inspect(solid.get_rgba(), content="(0.1, 0.2, 0.3, 0.4)")
+
+  let same = solid
+  inspect(solid == same, content="true")
+  inspect(Hash::hash(solid) == Hash::hash(same), content="true")
+
+  let other = @cairoon.Pattern::solid_rgba(0.1, 0.2, 0.3, 0.4)
+  inspect(solid == other, content="false")
+  inspect(solid != other, content="true")
+  inspect(solid.equal(other), content="false")
+  inspect(solid.not_equal(other), content="true")
+}
+
+///|
 test "pycairo solid pattern default state fixture" {
   let pattern = @cairoon.Pattern::solid_rgb(1.0, 2.0, 4.0)
   debug_inspect(pattern.get_extend(), content="Pad")

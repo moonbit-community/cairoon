@@ -315,7 +315,8 @@ mode, size and DSC helpers including subtype-mismatch checks for every bound PS
 helper, SVGSurface filename/no-output/stream constructor,
 version helpers, version
 restriction, and document-unit helpers,
-surface-pattern borrowed surface returns, Pattern pointer equality/hash,
+surface-pattern borrowed surface returns, Pattern pointer equality/hash
+including independent solid-pattern identity,
 pycairo solid-pattern default extend/filter/dither/matrix/clamped-RGBA,
 setter round-trip, gradient point/color-stop/radial-circle, and mesh example
 patch fixtures,
@@ -1031,15 +1032,17 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   color-stop count/tuple retrieval, duplicate-offset insertion order, copied
   color-stop snapshot stability after later pattern mutation, pattern-type
   mismatch mapping, and invalid-index mapping.
-- `moon -C cairoon test pattern_pycairo_parity_test.mbt --target native -v`: 8
+- `moon -C cairoon test pattern_pycairo_parity_test.mbt --target native -v`: 9
   black-box Pattern pycairo parity tests passed, covering solid-pattern default
-  state and setter round trips, surface-pattern default state/get-surface
-  behavior, repeated `Context.get_source()` comparison/hash behavior from
-  pycairo's `test_cmp_hash`, linear-gradient point/color-stop list fixtures,
-  radial-gradient circle fixtures, and pycairo mesh example patch construction
-  with corner colors and path extraction, plus pycairo Coons-patch and
-  mesh-rest fixtures covering corner-color/control-point queries and invalid
-  patch/corner/control-point index errors.
+  state and setter round trips, independent solid-pattern identity/hash
+  behavior from pycairo's `test_pattern`, surface-pattern default
+  state/get-surface behavior, repeated `Context.get_source()`
+  comparison/hash behavior from pycairo's `test_cmp_hash`, linear-gradient
+  point/color-stop list fixtures, radial-gradient circle fixtures, and pycairo
+  mesh example patch construction with corner colors and path extraction, plus
+  pycairo Coons-patch and mesh-rest fixtures covering
+  corner-color/control-point queries and invalid patch/corner/control-point
+  index errors.
 - `moon -C cairoon test pattern_raster_manual_wbtest.mbt
   pattern_raster_owner_wbtest.mbt pattern_raster_state_wbtest.mbt --target
   native -v`: 6 white-box raster-source manual/owner/state tests passed,
@@ -3020,6 +3023,13 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   patch/corner/control-point index errors. This raises
   `pattern_pycairo_parity_test.mbt` to 8 tests and the expected full native
   suite to 583 tests without changing public API.
+  A later Pattern independent-identity parity slice added pycairo's
+  `test_pattern` identity/hash behavior for standalone solid patterns to
+  `pattern_pycairo_parity_test.mbt`, proving that the same wrapper compares
+  equal and hashes consistently while an independently allocated solid pattern
+  with identical RGBA components compares unequal by Cairo pointer identity.
+  This raises `pattern_pycairo_parity_test.mbt` to 9 tests and the expected
+  full native suite to 591 tests without changing public API.
 
 Remaining reliability work is now narrower and should be tracked as evidence,
 not as an unstructured checklist:
