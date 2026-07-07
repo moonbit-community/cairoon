@@ -14,6 +14,10 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 
 ## Recent Audit Deltas
 
+- 2026-07-07: pycairo `test_api.py` parity now includes
+  `Surface::has_show_text_glyphs` before and after `finish()` plus the
+  `Context::paint`/`OperatorSource` smoke fixture, covering the finished-surface
+  `SurfaceFinished` mapping and deterministic ARGB32 white output.
 - 2026-07-07: pycairo `test_api.py` parity now includes the
   `surface_destroy_before_context` and
   `surface_destroy_before_surface_pattern` lifetime fixtures, covering PDF/PS

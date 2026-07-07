@@ -9,6 +9,16 @@ fn has_nonzero_byte(bytes : Bytes) -> Bool {
 }
 
 ///|
+fn bytes_all_value(bytes : Bytes, value : Int) -> Bool {
+  for index in 0..<bytes.length() {
+    if bytes[index].to_int() != value {
+      return false
+    }
+  }
+  true
+}
+
+///|
 fn chunks_to_string(chunks : Array[Bytes]) -> String {
   let builder = StringBuilder()
   for chunk in chunks {
@@ -126,4 +136,25 @@ test "pycairo surface destroy before surface pattern fixture" {
   paint_and_finish_target(ctx)
   inspect(chunks_contain_marker(chunks, "%PDF-1."), content="true")
   inspect(chunks_contain_marker(chunks, "%%EOF"), content="true")
+}
+
+///|
+test "pycairo surface has_show_text_glyphs fixture" {
+  let surface = @cairoon.Surface::image(@cairoon.Argb32, 100, 100)
+  inspect(surface.has_show_text_glyphs(), content="false")
+  surface.finish()
+  match @cairoon.run_cairo(() => surface.has_show_text_glyphs()) {
+    Err(@cairoon.CairoError(@cairoon.SurfaceFinished, _)) => ()
+    _ => @test.fail("expected SurfaceFinished")
+  }
+}
+
+///|
+test "pycairo context paint smoke fixture" {
+  let surface = @cairoon.Surface::image(@cairoon.Argb32, 100, 100)
+  let ctx = @cairoon.Context::new(surface)
+  ctx.set_source_rgb(1.0, 1.0, 1.0)
+  ctx.set_operator(@cairoon.OperatorSource)
+  ctx.paint()
+  inspect(bytes_all_value(surface.copy_data(), 255), content="true")
 }

@@ -632,13 +632,15 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   pycairo `test_path.py`-derived fixtures passed, covering empty path string
   behavior, `copy_path().to_string()` formatting, self comparison/hash
   operators, and iterator `PathDataType`/coordinate tuples.
-- `moon -C cairoon test src/tests/api --target native --deny-warn -v`: 25
+- `moon -C cairoon test src/tests/api --target native --deny-warn -v`: 27
   black-box API package tests passed, including pycairo `test_api.py`
   Unicode fixtures for `Context::show_text("ēxāmple.")` and PNG filename
   write/read round trips through `Surface::write_to_png` and
   `Surface::image_from_png`, plus `surface_destroy_before_context` and
   `surface_destroy_before_surface_pattern` lifetime fixtures for stream-backed
-  surfaces retained by contexts and surface patterns.
+  surfaces retained by contexts and surface patterns,
+  `Surface::has_show_text_glyphs` finished-surface error mapping, and the
+  `Context::paint`/`OperatorSource` smoke fixture.
 - `moon -C cairoon test context_path_test.mbt --target native -v`: 11
   black-box Context path tests passed, covering current-point behavior,
   relative path operations, pycairo rectangle path-extents behavior,
