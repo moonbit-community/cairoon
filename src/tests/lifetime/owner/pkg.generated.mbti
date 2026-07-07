@@ -1,5 +1,5 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "CAIMEOX/cairoon/tests/lifetime"
+package "CAIMEOX/cairoon/tests/lifetime/owner"
 
 // Values
 
@@ -10,4 +10,3 @@ package "CAIMEOX/cairoon/tests/lifetime"
 // Type aliases
 
 // Traits
-

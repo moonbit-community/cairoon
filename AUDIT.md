@@ -100,14 +100,13 @@ Implemented in this workspace:
 - Object trait black-box tests now live in `src/tests/object`, importing only
   the public `CAIMEOX/cairoon` API. This validates Eq/Hash semantics across
   external object wrappers through the published package seam.
-- Lifetime/stress black-box tests now live in `src/tests/lifetime`,
-  `src/tests/lifetime/finalizer`, `src/tests/lifetime/stream`,
-  `src/tests/lifetime/image_data`, `src/tests/lifetime/value`, and
-  `src/tests/lifetime/raster`, importing only the public `CAIMEOX/cairoon`
-  API. This validates retained owner graphs, mapped image lifetimes, image data
-  views, value wrapper stress, raster-source callback retention, stream
-  callback stress/fuzz, finalizer fuzz paths, and context borrowed-return
-  lifetimes through separately linked published-package seams.
+- Lifetime/stress black-box tests now live in
+  `src/tests/lifetime/{context,owner,finalizer,stream,image_data,value,raster}`,
+  importing only the public `CAIMEOX/cairoon` API. This validates retained
+  owner graphs, mapped image lifetimes, image data views, value wrapper stress,
+  raster-source callback retention, stream callback stress/fuzz, finalizer fuzz
+  paths, and context borrowed-return lifetimes through separately linked
+  published-package seams.
 - Public C stubs now live in the `src/native` native-stub package, and
   `src/native/moon.pkg` references each compiled C file by bare filename. The
   public `src/moon.pkg` imports `CAIMEOX/cairoon/native` for linking and owns no
@@ -810,7 +809,7 @@ Prior full verifies passed on 2026-07-02, 2026-07-03, 2026-07-04,
   context/scaled-font font/text/glyph extents parity, `show_text` current-point
   advance, text/glyph path creation, empty glyph arrays, text-to-glyph
   conversion, embedded-NUL validation, and context error propagation.
-- `moon -C cairoon test src/tests/lifetime/context_lifetime_test.mbt --target native -v`: 9
+- `moon -C cairoon test src/tests/lifetime/context --target native -v`: 9
   black-box context lifetime tests passed, including `get_target`,
   `get_group_target`, `get_source`, and PDF/PS stream target wrappers that
   remain usable after their creating helper scopes exit.
@@ -1119,7 +1118,7 @@ Prior full verifies passed on 2026-07-02, 2026-07-03, 2026-07-04,
 - `moon -C cairoon test raster_lifetime_stress_test.mbt --target native -v`: 1
   black-box raster-source callback lifetime test passed after adding the
   1000-iteration set/get/manual acquire/release/replace/clear stress case.
-- `moon -C cairoon test src/tests/lifetime/context_lifetime_test.mbt --target native -v`: 9
+- `moon -C cairoon test src/tests/lifetime/context --target native -v`: 9
   black-box context lifetime tests passed, including `get_group_target`
   returning a surface that remains readable after the creating context helper
   scope exits, `get_source` returning a surface pattern that still exposes

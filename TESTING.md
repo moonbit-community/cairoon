@@ -255,8 +255,9 @@ support packages under `src/core/constants`, `src/core/glyph`,
 `src/tests/font/options`, `src/tests/font/scaled`,
 `src/tests/font/pycairo`, `src/tests/stream`,
 `src/tests/stream/device`,
-`src/tests/path`, `src/tests/object`, `src/tests/lifetime`,
-`src/tests/lifetime/finalizer`, `src/tests/lifetime/stream`,
+`src/tests/path`, `src/tests/object`, `src/tests/lifetime/context`,
+`src/tests/lifetime/owner`, `src/tests/lifetime/finalizer`,
+`src/tests/lifetime/stream`,
 `src/tests/lifetime/image_data`, `src/tests/lifetime/value`,
 `src/tests/lifetime/raster`, and
 `src/tests/oracle/native`, `src/tests/oracle/constants`,
@@ -755,7 +756,7 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   external package, covering empty/single/spaced text, renderable
   `show_text_glyphs` output, embedded-NUL validation, and context error
   propagation.
-- `moon -C cairoon test src/tests/lifetime/context_lifetime_test.mbt --target native -v`: 9
+- `moon -C cairoon test src/tests/lifetime/context --target native -v`: 9
   black-box context lifetime tests passed, including `get_target`,
   `get_group_target`, `get_source`, and PDF/PS stream target wrappers that
   remain usable after their creating helper scopes exit.
@@ -1155,7 +1156,7 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
 - `moon -C cairoon test raster_lifetime_stress_test.mbt --target native -v`: 1
   black-box raster-source callback lifetime test passed after adding the
   1000-iteration set/get/manual acquire/release/replace/clear stress case.
-- `moon -C cairoon test src/tests/lifetime/context_lifetime_test.mbt --target native -v`: 9
+- `moon -C cairoon test src/tests/lifetime/context --target native -v`: 9
   black-box context lifetime tests passed, including `get_group_target`
   returning a surface that remains readable after the creating context helper
   scope exits, `get_source` returning a surface pattern that still exposes

@@ -227,10 +227,13 @@ cairoon/
         tee/
           moon.pkg
       lifetime/
-        moon.pkg
+        context/
+          moon.pkg
         finalizer/
           moon.pkg
         image_data/
+          moon.pkg
+        owner/
           moon.pkg
         raster/
           moon.pkg
