@@ -3183,6 +3183,12 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   external pycairo parity fixtures remain covered, the observed full native
   suite remains 637 tests, and `context_pycairo_parity_test.mbt` drops from 471
   to 272 lines without changing public API.
+  A later vector-output oracle organization slice split direct-C vector oracle
+  tests from `vector_output_oracle_test.mbt` into focused basic,
+  tag/text-tag, page/glyph/multipage, and PDF document-feature files. The same
+  oracle, marker, and inert-tag assertions remain covered, the observed full
+  native suite remains 637 tests, and `vector_output_oracle_test.mbt` drops
+  from 441 to 25 lines without changing public API.
   A later Surface/context test organization slice moved buffer-backed
   image-surface tests into `image_surface_data_test.mbt`, PNG path round-trip
   coverage into `surface_png_test.mbt`, and the context invalid-restore state
