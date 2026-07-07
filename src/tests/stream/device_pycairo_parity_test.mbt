@@ -95,3 +95,32 @@ test "pycairo script device recording replay fixture" {
     @cairoon.run_cairo(() => device.script_from_recording_surface(recording)),
   )
 }
+
+///|
+test "pycairo script surface create_for_target parity fixture" {
+  let chunks : Array[Bytes] = []
+  let device = @cairoon.Device::script_stream(chunk => {
+    chunks.push(chunk)
+    @cairoon.Success
+  })
+  let target = @cairoon.Surface::image(@cairoon.Argb32, 2, 2)
+  let script = @cairoon.Surface::script_for_target(device, target)
+  let script_ctx = @cairoon.Context::new(script)
+  script_ctx.set_source_rgb(0.25, 0.5, 1.0)
+  script_ctx.paint()
+  script.flush()
+  target.flush()
+  device.flush()
+
+  let direct = @cairoon.Surface::image(@cairoon.Argb32, 2, 2)
+  let direct_ctx = @cairoon.Context::new(direct)
+  direct_ctx.set_source_rgb(0.25, 0.5, 1.0)
+  direct_ctx.paint()
+  direct.flush()
+
+  inspect(
+    pycairo_device_chunks_to_string(chunks).contains("paint"),
+    content="true",
+  )
+  inspect(target.copy_data() == direct.copy_data(), content="true")
+}

@@ -723,11 +723,13 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   backend docs, retained owner graph stress, external value-wrapper stress,
   image-data view stress, finalizer graph multi-seed fuzz, backend stream
   callback allocation stress, and backend stream callback multi-seed fuzz.
-- `moon -C cairoon test device_pycairo_parity_test.mbt --target native -v`: 5
-  pycairo `test_device.py`-derived fixtures passed, covering script-device
+- `moon -C cairoon test device_pycairo_parity_test.mbt --target native -v`: 6
+  pycairo-derived fixtures passed, covering script-device
   context-manager cleanup, Device equality/hash through `Surface::get_device`,
   image-surface `get_device is None`, script mode/comment output, and
-  recording-surface replay plus post-finish `DeviceFinished`.
+  recording-surface replay plus post-finish `DeviceFinished`, plus pycairo
+  `test_surface.py`-derived script-surface create-for-target target-paint
+  parity.
 - `moon -C cairoon test vector_output_wbtest.mbt
   vector_output_oracle_wbtest.mbt --target native -v`: 58 white-box vector
   tests passed after splitting marker/output checks from direct C oracle and
@@ -3241,6 +3243,11 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   negative PDF-metadata checks. This raises the vector-backend package by four
   tests and the expected full native suite to 645 tests without changing public
   API.
+  A later ScriptSurface create-for-target parity slice added one public
+  black-box fixture proving that drawing through `Surface::script_for_target`
+  emits script output and produces the same target image bytes as drawing
+  directly to an image surface. This adds one pycairo-derived fixture without
+  changing public API.
 
 Remaining reliability work is now narrower and should be tracked as evidence,
 not as an unstructured checklist:
