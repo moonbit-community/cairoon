@@ -90,6 +90,10 @@ cairo_status_t cairoon_test_apply_gradient_surface_overlay_combo(
   cairo_t *cr,
   double width,
   double height);
+cairo_status_t cairoon_test_apply_mesh_surface_soft_light_combo(
+  cairo_t *cr,
+  double width,
+  double height);
 cairo_status_t cairoon_test_apply_group_compositing(
   cairo_t *cr,
   double width,

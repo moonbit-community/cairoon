@@ -395,6 +395,105 @@ fn draw_image_oracle_pattern_stack_scene(
       ctx.mask(mask)
       ctx.restore()
     }
+    40 => {
+      let source = @cairoon.Surface::image(@cairoon.Argb32, 2, 2)
+      paint_image_oracle_quad_surface(source)
+
+      let surface_pattern = @cairoon.Pattern::for_surface(source)
+      surface_pattern.set_extend(@cairoon.Pad)
+      surface_pattern.set_filter(@cairoon.Bilinear)
+      surface_pattern.set_dither(@cairoon.DitherDefault)
+      surface_pattern.set_matrix(
+        @cairoon.Matrix::new(
+          xx=0.64,
+          yx=0.09,
+          xy=-0.12,
+          yy=0.59,
+          x0=-0.90,
+          y0=0.65,
+        ),
+      )
+
+      let mesh = @cairoon.Pattern::mesh()
+      mesh.mesh_begin_patch()
+      mesh.mesh_move_to(1.0, 1.0)
+      mesh.mesh_curve_to(5.0, -1.0, 13.0, 2.0, 15.0, 7.0)
+      mesh.mesh_curve_to(12.0, 14.0, 5.0, 16.0, 1.0, 11.0)
+      mesh.mesh_curve_to(-1.0, 7.0, -1.0, 3.0, 1.0, 1.0)
+      mesh.mesh_set_corner_color_rgba(0, 0.92, 0.08, 0.12, 0.95)
+      mesh.mesh_set_corner_color_rgba(1, 0.08, 0.82, 0.32, 0.82)
+      mesh.mesh_set_corner_color_rgba(2, 0.10, 0.24, 0.95, 0.78)
+      mesh.mesh_set_corner_color_rgba(3, 0.95, 0.88, 0.10, 0.92)
+      mesh.mesh_end_patch()
+      mesh.set_filter(@cairoon.Good)
+      mesh.set_dither(@cairoon.DitherGood)
+      mesh.set_matrix(
+        @cairoon.Matrix::new(
+          xx=0.87,
+          yx=-0.10,
+          xy=0.13,
+          yy=0.81,
+          x0=0.20,
+          y0=0.50,
+        ),
+      )
+
+      let linear = @cairoon.Pattern::linear(0.0, 3.0, 16.0, 13.0)
+      linear.add_color_stop_rgba(0.0, 0.06, 0.08, 0.16, 0.88)
+      linear.add_color_stop_rgba(0.33, 0.86, 0.24, 0.14, 0.65)
+      linear.add_color_stop_rgba(0.66, 0.16, 0.84, 0.62, 0.72)
+      linear.add_color_stop_rgba(1.0, 0.98, 0.92, 0.25, 0.82)
+      linear.set_extend(@cairoon.Repeat)
+      linear.set_filter(@cairoon.Bilinear)
+      linear.set_dither(@cairoon.DitherBest)
+      linear.set_matrix(
+        @cairoon.Matrix::new(
+          xx=0.74,
+          yx=0.05,
+          xy=-0.16,
+          yy=0.88,
+          x0=-1.10,
+          y0=1.50,
+        ),
+      )
+
+      let mask = @cairoon.Pattern::radial(5.0, 12.0, 0.5, 11.0, 4.0, 9.0)
+      mask.add_color_stop_rgba(0.0, 1.0, 1.0, 1.0, 0.08)
+      mask.add_color_stop_rgba(0.42, 1.0, 1.0, 1.0, 0.66)
+      mask.add_color_stop_rgba(1.0, 1.0, 1.0, 1.0, 0.96)
+      mask.set_extend(@cairoon.Reflect)
+      mask.set_filter(@cairoon.Good)
+      mask.set_dither(@cairoon.DitherFast)
+      mask.set_matrix(
+        @cairoon.Matrix::new(
+          xx=0.91,
+          yx=-0.06,
+          xy=0.10,
+          yy=0.83,
+          x0=0.45,
+          y0=-0.55,
+        ),
+      )
+
+      ctx.set_source_rgb(0.016, 0.020, 0.046)
+      ctx.paint()
+      ctx.save()
+      ctx.rectangle(1.0, 1.0, 14.0, 14.0)
+      ctx.clip()
+      ctx.push_group_with_content(@cairoon.ContentColorAlpha)
+      ctx.set_source(mesh)
+      ctx.paint()
+      ctx.set_operator(@cairoon.OperatorSoftLight)
+      ctx.rectangle(0.0, 0.0, 16.0, 16.0)
+      ctx.set_source(surface_pattern)
+      ctx.fill()
+      ctx.set_operator(@cairoon.OperatorOver)
+      ctx.set_source(linear)
+      ctx.paint_with_alpha(0.72)
+      ctx.pop_group_to_source()
+      ctx.mask(mask)
+      ctx.restore()
+    }
     _ => @cairoon.check_status(@cairoon.InvalidStatus)
   }
 }
