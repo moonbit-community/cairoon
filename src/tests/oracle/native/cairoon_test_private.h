@@ -94,6 +94,10 @@ cairo_status_t cairoon_test_apply_mesh_surface_soft_light_combo(
   cairo_t *cr,
   double width,
   double height);
+cairo_status_t cairoon_test_apply_difference_surface_stroke_combo(
+  cairo_t *cr,
+  double width,
+  double height);
 cairo_status_t cairoon_test_apply_group_compositing(
   cairo_t *cr,
   double width,
