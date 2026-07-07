@@ -279,8 +279,8 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 
 | pycairo API | cairoon status | Notes |
 |---|---|---|
-| `Region` | Done | External object, empty/single/multi-rectangle constructors, copy, extents, rectangle access, predicates, equality plus MoonBit `Eq`, translate, copied-region lifetime after the source region exits, targeted normal/ASan gate coverage, and executable reference docs |
-| Region boolean ops | Done | intersect/subtract/union/xor implemented for region and rectangle operands; mutating boolean operations return the receiver for pycairo-style chaining; rectangle-op tests cover XOR split semantics and chainable return behavior |
+| `Region` | Done | External object, empty/single/multi-rectangle constructors, copy, extents, rectangle access with pycairo negative/positive invalid-index fixtures, predicates, empty-region overlap and translate behavior, equality plus MoonBit `Eq`, translate, copied-region lifetime after the source region exits, targeted normal/ASan gate coverage, and executable reference docs |
+| Region boolean ops | Done | intersect/subtract/union/xor implemented for region and rectangle operands; pycairo-derived fixtures prove mutating boolean operations return the receiver; rectangle-op tests cover XOR split semantics and chainable return behavior |
 | `RegionOverlap` | Done | Enum implemented |
 
 ## Product Decisions

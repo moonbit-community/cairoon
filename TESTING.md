@@ -396,10 +396,12 @@ base-surface `SurfaceFinished` after the base surface is finished.
 Path has executable reference examples for typed segment iteration,
 pycairo-style string formatting, flattened append behavior, copied-path
 ownership, and checked invalid-matrix errors. Region now covers empty,
-single-rectangle, and multi-rectangle construction plus predicates, region
-boolean operations, and rectangle boolean operations including XOR split
-semantics and pycairo-style chainable boolean mutator returns; `region.mbt.md`
-adds executable reference examples for the same family. Matrix has executable
+single-rectangle, and multi-rectangle construction plus predicates, pycairo
+negative and positive rectangle-index fixtures, equality mapping through
+MoonBit `Eq`, empty-region overlap and translate behavior, region boolean
+operations, and rectangle boolean operations including XOR split semantics and
+pycairo-style chainable boolean mutator returns; `region.mbt.md` adds
+executable reference examples for the same family. Matrix has executable
 reference examples for component access,
 pure-value transforms, multiplication, inversion, and checked errors. Surface
 has executable reference examples for image properties, buffer-backed data,
@@ -3053,6 +3055,13 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   scale-back-to-identity, rotate/scale/translate composition smoke, and
   identity point/distance transforms. This raises the expected full native
   suite to 606 tests without changing public API.
+  A later Region pycairo parity slice added `region_pycairo_parity_test.mbt`
+  with five pycairo `test_region.py`-derived fixtures covering invalid
+  negative/positive rectangle indexes, returned rectangle equality, Region
+  equality/inequality through MoonBit `Eq`, empty-region overlap, point
+  containment, mutating boolean operations returning the receiver, and
+  translate behavior for empty and non-empty regions. This raises the expected
+  full native suite to 611 tests without changing public API.
 
 Remaining reliability work is now narrower and should be tracked as evidence,
 not as an unstructured checklist:
