@@ -303,11 +303,11 @@ finished-status coverage, device offset/scale, fallback resolution,
 show-text-glyphs support checks with finished-status coverage, invalid-size
 error mapping for similar and rectangular child
 surface construction, MIME constants, MIME data storage/query/clear support including
-image/PDF/PS/SVG MIME support matrices, PDF JPEG MIME passthrough with direct C oracle coverage, PDF thumbnail direct C oracle coverage, and
+image/PDF/PS/SVG MIME support matrices, PDF JPEG MIME passthrough with direct C oracle coverage, PDF thumbnail direct C oracle coverage, pycairo-style PDF thumbnail resize/reset and post-finish error parity, and
 RecordingSurface constructor/extents/ink-extents plus replay, mapped image
 surface mapping/unmapping, PDFSurface filename/no-output/stream constructor,
 version helpers, version restriction, size, metadata, custom metadata,
-page-label, thumbnail, and single-flag and combined-flag outline helpers,
+page-label, thumbnail reset, and single-flag and combined-flag outline helpers,
 including subtype-mismatch checks for every bound PDF helper,
 PSSurface
 filename/no-output/stream constructor, level helpers, level restriction, EPS
@@ -3001,6 +3001,12 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   version/document units, JPEG MIME passthrough, and PDF thumbnail output. This
   raises the vector-backend package to 159 tests and the expected full native
   suite to 589 tests without changing public API.
+  A later PDF thumbnail pycairo parity slice added one pure MoonBit black-box
+  test for `PDFSurface.set_thumbnail_size`, covering the upstream
+  `10x10 -> 0x0 -> 1x1` resize/reset sequence before finish and checked
+  `SurfaceFinished` mapping for a post-finish thumbnail update. This raises
+  `surface_pdf_test.mbt` to 8 tests and the expected full native suite to 590
+  tests without changing public API.
   A later context/pattern comparison parity slice added two pycairo
   `test_cmp_hash` fixtures: `Context` self-equality plus same-target
   different-context inequality, and repeated `Context.get_source()` pattern

@@ -113,6 +113,19 @@ test "pdf surface no-output constructor exposes page and document APIs" {
 }
 
 ///|
+test "pdf thumbnail size mirrors pycairo reset and finished-status fixture" {
+  let surface = @cairoon.Surface::pdf(128.0, 128.0)
+  surface.pdf_set_thumbnail_size(10, 10)
+  surface.pdf_set_thumbnail_size(0, 0)
+  surface.pdf_set_thumbnail_size(1, 1)
+  surface.finish()
+
+  expect_pdf_surface_finished(
+    @cairoon.run_cairo(() => surface.pdf_set_thumbnail_size(0, 0)),
+  )
+}
+
+///|
 test "pdf surface validates metadata outline and path strings" {
   let surface = @cairoon.Surface::pdf(10.0, 10.0)
   let page_label = @cairoon.run_cairo(() => {
