@@ -1209,12 +1209,14 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   `raster_lifetime_stress_test.mbt:0-1`, and `pattern.mbt.md:0-6`; it exited
   0 and `/tmp/cairoon-image-getters-blackbox-asan.txt` records the selected
   tests, including `image surface properties map status and subtype errors`.
-- `moon -C cairoon test surface_pycairo_parity_test.mbt --target native -v`: 6
+- `moon -C cairoon test surface_pycairo_parity_test.mbt --target native -v`: 9
   pycairo `test_surface.py`-derived fixtures passed, covering surface
   context-manager cleanup, target equality/hash through `Context::get_target`,
   content/format getters, device-scale valid/extreme/invalid-matrix cases,
-  `create_for_rectangle` success/invalid-size/extreme numeric cases, and
-  PDF-backed `create_similar_image`.
+  device-offset normal/extreme round trips, fallback-resolution round trips,
+  dirty/page operations, `create_for_rectangle`
+  success/invalid-size/extreme numeric cases, `create_similar`
+  success/invalid-size cases, and PDF-backed `create_similar_image`.
 - `moon -C cairoon test surface_mime_test.mbt --target native -v`: 5
   black-box tests passed after adding image/PDF/PS/SVG
   `supports_mime_type` matrix coverage and invalid MIME type string coverage.
@@ -3109,8 +3111,11 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   context-manager cleanup, target equality/hash through `Context::get_target`,
   content/format getters, device-scale valid/extreme/invalid-matrix cases,
   `create_for_rectangle` success/invalid-size/extreme numeric cases, and
-  PDF-backed `create_similar_image`. This raises the expected full native suite
-  to 628 tests without changing public API.
+  PDF-backed `create_similar_image`. A later Surface parity extension raised
+  that file to nine fixtures by covering `create_similar`, device-offset
+  normal/extreme round trips, fallback-resolution round trips, and dirty/page
+  operations. This raises the expected full native suite to 631 tests without
+  changing public API.
 
 Remaining reliability work is now narrower and should be tracked as evidence,
 not as an unstructured checklist:
