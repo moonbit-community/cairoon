@@ -3002,6 +3002,11 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   the previous valid variation value intact. This raises
   `font_options_test.mbt` to 9 tests and the expected full native suite to 558
   tests without changing public API.
+  A later pycairo FontOptions variations parity slice extended
+  `font_pycairo_parity_test.mbt` with the parent
+  `test_font_options_variations` behavior: default `None`, string set/get, and
+  clearing back to `None`. This raises the font pycairo parity file to 9 tests
+  and the current full native suite to 664 tests without changing public API.
   A later tag-metadata stream-to-direct-C oracle slice added scene 48 in the
   focused `cairoon_test_backend_tag_metadata.c` oracle file, covering PDF
   metadata/custom-metadata overwrite/removal, page labels, outline parent/child

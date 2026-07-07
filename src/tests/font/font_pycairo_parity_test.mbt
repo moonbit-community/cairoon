@@ -85,6 +85,19 @@ test "pycairo font options color palette fixture" {
 }
 
 ///|
+test "pycairo font options variations fixture" {
+  let options = pycairo_font_surface().get_font_options()
+  inspect(options.get_variations() is None, content="true")
+  options.set_variations(Some("foo"))
+  match options.get_variations() {
+    Some(variations) => inspect(variations, content="foo")
+    None => @test.fail("expected font variations")
+  }
+  options.set_variations(None)
+  inspect(options.get_variations() is None, content="true")
+}
+
+///|
 test "pycairo font options custom palette color fixture" {
   let options = pycairo_font_surface().get_font_options()
   let missing = @cairoon.run_cairo(() => {
