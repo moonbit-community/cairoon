@@ -1,0 +1,139 @@
+///|
+fn pycairo_font_surface() -> @cairoon.Surface raise @cairoon.CairoError {
+  @cairoon.Surface::image(@cairoon.Argb32, 10, 10)
+}
+
+///|
+fn pycairo_font_context() -> @cairoon.Context raise @cairoon.CairoError {
+  @cairoon.Context::new(pycairo_font_surface())
+}
+
+///|
+fn assert_pycairo_font_matrix_close(
+  actual : @cairoon.Matrix,
+  expected : @cairoon.Matrix,
+) -> Unit raise {
+  if !actual.xx.is_close(expected.xx, absolute_tolerance=0.000001) {
+    @test.fail("unexpected xx")
+  }
+  if !actual.yx.is_close(expected.yx, absolute_tolerance=0.000001) {
+    @test.fail("unexpected yx")
+  }
+  if !actual.xy.is_close(expected.xy, absolute_tolerance=0.000001) {
+    @test.fail("unexpected xy")
+  }
+  if !actual.yy.is_close(expected.yy, absolute_tolerance=0.000001) {
+    @test.fail("unexpected yy")
+  }
+  if !actual.x0.is_close(expected.x0, absolute_tolerance=0.000001) {
+    @test.fail("unexpected x0")
+  }
+  if !actual.y0.is_close(expected.y0, absolute_tolerance=0.000001) {
+    @test.fail("unexpected y0")
+  }
+}
+
+///|
+test "pycairo surface font options default getters fixture" {
+  let options = pycairo_font_surface().get_font_options()
+  debug_inspect(options.get_antialias(), content="AntialiasDefault")
+  debug_inspect(options.get_subpixel_order(), content="SubpixelDefault")
+  debug_inspect(options.get_hint_style(), content="HintStyleDefault")
+  debug_inspect(options.get_hint_metrics(), content="HintMetricsOn")
+}
+
+///|
+test "pycairo font options copy equality and merge fixture" {
+  let options = @cairoon.Surface::image(@cairoon.Rgb24, 1, 1).get_font_options()
+  options.set_hint_metrics(@cairoon.HintMetricsDefault)
+  let copied = options.copy()
+  inspect(options == copied, content="true")
+  inspect(options != copied, content="false")
+  inspect(options.equal(copied), content="true")
+  inspect(Hash::hash(options) == Hash::hash(copied), content="true")
+  debug_inspect(copied.get_hint_metrics(), content="HintMetricsDefault")
+
+  options.set_hint_metrics(@cairoon.HintMetricsOn)
+  inspect(options == copied, content="false")
+  inspect(options != copied, content="true")
+  inspect(options.equal(copied), content="false")
+  debug_inspect(copied.get_hint_metrics(), content="HintMetricsDefault")
+
+  copied.merge(options)
+  debug_inspect(copied.get_hint_metrics(), content="HintMetricsOn")
+}
+
+///|
+test "pycairo font face and scaled font cmp hash fixture" {
+  let ctx = pycairo_font_context()
+  let font_face = ctx.get_font_face()
+  let same_font_face = ctx.get_font_face()
+  inspect(font_face == same_font_face, content="true")
+  inspect(font_face != same_font_face, content="false")
+  inspect(font_face.equal(same_font_face), content="true")
+  inspect(Hash::hash(font_face) == Hash::hash(same_font_face), content="true")
+
+  let scaled_font = ctx.get_scaled_font()
+  let same_scaled_font = ctx.get_scaled_font()
+  inspect(scaled_font == same_scaled_font, content="true")
+  inspect(scaled_font != same_scaled_font, content="false")
+  inspect(scaled_font.equal(same_scaled_font), content="true")
+  inspect(
+    Hash::hash(scaled_font) == Hash::hash(same_scaled_font),
+    content="true",
+  )
+}
+
+///|
+test "pycairo toy font face getter fixtures" {
+  let empty = @cairoon.FontFace::toy("")
+  inspect(empty.get_family(), content="Helvetica")
+  debug_inspect(empty.get_slant(), content="FontSlantNormal")
+  debug_inspect(empty.get_weight(), content="FontWeightNormal")
+
+  let serif = @cairoon.FontFace::toy("serif")
+  inspect(serif.get_family(), content="serif")
+  debug_inspect(serif.get_slant(), content="FontSlantNormal")
+  debug_inspect(serif.get_weight(), content="FontWeightNormal")
+
+  let sans = @cairoon.FontFace::toy("sans-serif")
+  inspect(sans.get_family(), content="sans-serif")
+  debug_inspect(sans.get_slant(), content="FontSlantNormal")
+  debug_inspect(sans.get_weight(), content="FontWeightNormal")
+}
+
+///|
+test "pycairo scaled font getter and text_to_glyphs fixtures" {
+  let ctx = pycairo_font_context()
+  let scaled = ctx.get_scaled_font()
+  inspect(scaled.get_font_face().status().is_success(), content="true")
+  debug_inspect(
+    scaled.get_font_options().get_hint_metrics(),
+    content="HintMetricsOn",
+  )
+  assert_pycairo_font_matrix_close(scaled.get_ctm(), @cairoon.Matrix::new())
+  let font_matrix = scaled.get_font_matrix()
+  inspect(font_matrix.xx > 0.0, content="true")
+  inspect(font_matrix.yy > 0.0, content="true")
+  inspect(font_matrix.x0, content="0")
+  inspect(font_matrix.y0, content="0")
+
+  let empty = scaled.text_to_glyphs(0.0, 0.0, "")
+  inspect(empty.glyphs.length(), content="0")
+  inspect(empty.clusters.length(), content="0")
+  debug_inspect(empty.flags, content="TextClusterNone")
+
+  let single = scaled.text_to_glyphs(0.0, 0.0, "a")
+  inspect(single.glyphs.length(), content="1")
+  inspect(single.clusters.length(), content="1")
+  debug_inspect(single.flags, content="TextClusterNone")
+  inspect(
+    scaled.text_to_glyphs_only(0.0, 0.0, "a") == single.glyphs,
+    content="true",
+  )
+
+  let spaced = scaled.text_to_glyphs(0.0, 0.0, "a b")
+  inspect(spaced.glyphs.length(), content="3")
+  inspect(spaced.clusters.length(), content="3")
+  inspect(spaced.glyphs[0] != spaced.glyphs[1], content="true")
+}

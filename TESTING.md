@@ -3030,6 +3030,14 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   with identical RGBA components compares unequal by Cairo pointer identity.
   This raises `pattern_pycairo_parity_test.mbt` to 9 tests and the expected
   full native suite to 591 tests without changing public API.
+  A later Font pycairo parity fixture slice added
+  `font_pycairo_parity_test.mbt` with five pycairo `test_font.py`-derived
+  black-box fixtures covering surface font-options default getters,
+  FontOptions copy/equality/merge, FontFace and ScaledFont identity/hash
+  behavior, toy-font family/slant/weight getters including Cairo's empty-family
+  `Helvetica` normalization, ScaledFont matrix/font-options getters, and
+  empty/single/spaced ASCII `text_to_glyphs` result shape. This raises the
+  expected full native suite to 596 tests without changing public API.
 
 Remaining reliability work is now narrower and should be tracked as evidence,
 not as an unstructured checklist:
