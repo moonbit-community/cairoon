@@ -155,7 +155,12 @@ cairoon/
         pycairo/
           moon.pkg
       matrix/
-        moon.pkg
+        core/
+          moon.pkg
+        property/
+          moon.pkg
+        pycairo/
+          moon.pkg
       region/
         core/
           moon.pkg

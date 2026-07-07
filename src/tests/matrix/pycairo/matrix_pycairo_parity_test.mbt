@@ -1,14 +1,21 @@
 ///|
+fn assert_pycairo_close(actual : Double, expected : Double) -> Unit raise {
+  if !actual.is_close(expected, absolute_tolerance=0.000001) {
+    @test.fail("expected close pycairo matrix value")
+  }
+}
+
+///|
 fn assert_pycairo_matrix_close(
   actual : @cairoon.Matrix,
   expected : @cairoon.Matrix,
 ) -> Unit raise {
-  assert_close(actual.xx, expected.xx)
-  assert_close(actual.yx, expected.yx)
-  assert_close(actual.xy, expected.xy)
-  assert_close(actual.yy, expected.yy)
-  assert_close(actual.x0, expected.x0)
-  assert_close(actual.y0, expected.y0)
+  assert_pycairo_close(actual.xx, expected.xx)
+  assert_pycairo_close(actual.yx, expected.yx)
+  assert_pycairo_close(actual.xy, expected.xy)
+  assert_pycairo_close(actual.yy, expected.yy)
+  assert_pycairo_close(actual.x0, expected.x0)
+  assert_pycairo_close(actual.y0, expected.y0)
 }
 
 ///|
@@ -18,8 +25,8 @@ fn assert_pycairo_matrix_point_close(
 ) -> Unit raise {
   let (actual_x, actual_y) = actual
   let (expected_x, expected_y) = expected
-  assert_close(actual_x, expected_x)
-  assert_close(actual_y, expected_y)
+  assert_pycairo_close(actual_x, expected_x)
+  assert_pycairo_close(actual_y, expected_y)
 }
 
 ///|

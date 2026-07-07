@@ -239,7 +239,8 @@ support packages under `src/core/constants`, `src/core/glyph`,
 `src/internal/version`,
 `src/internal/format`, `src/internal/status`, `src/internal/pdf`,
 `src/internal/ps`, `src/internal/svg`,
-`src/tests/matrix`,
+`src/tests/matrix/core`, `src/tests/matrix/property`,
+`src/tests/matrix/pycairo`,
 `src/tests/region/core`,
 `src/tests/region/pycairo`,
 `src/tests/surface/base`, `src/tests/surface/mime`,
@@ -1409,11 +1410,19 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   `Compare`, and `Region` equality coverage without `Hash`.
 - `moon -C cairoon test region.mbt.md --target native -v`: 3 executable
   Region reference examples passed.
-- `moon -C cairoon test matrix_test.mbt matrix_property_test.mbt matrix.mbt.md
-  --target native -v`: 13 Matrix tests passed, covering field/component
-  semantics, deterministic property checks for multiplication associativity,
-  inverse identity, composed point/distance transforms, distance-vs-point-delta
-  behavior, and executable Matrix reference examples.
+- `moon -C cairoon test src/tests/matrix/core --target native -v`: 5 Matrix
+  core tests passed, covering field/component semantics, multiplication,
+  rotation, inversion, and invalid-index/invalid-matrix error mapping.
+- `moon -C cairoon test src/tests/matrix/property --target native -v`: 4
+  Matrix property tests passed, covering deterministic multiplication
+  associativity, inverse identity, composed point/distance transforms, and
+  distance-vs-point-delta behavior.
+- `moon -C cairoon test src/tests/matrix/pycairo --target native -v`: 4
+  pycairo `test_matrix.py`-derived fixtures passed, covering equality,
+  component access including positive/negative invalid indexes, invert/multiply,
+  translate/scale/rotate composition, and identity point/distance transforms.
+- `moon -C cairoon test src/matrix.mbt.md --target native -v`: 4 executable
+  Matrix reference examples passed.
 - `moon -C cairoon test path.mbt.md --target native -v`: 4 executable Path
   reference examples passed.
 - `moon -C cairoon test pattern.mbt.md --target native -v`: 7 executable
