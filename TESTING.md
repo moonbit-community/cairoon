@@ -99,6 +99,7 @@ python3 cairoon/scripts/check-project-layout.py
 python3 cairoon/scripts/check-api-inventory.py
 python3 cairoon/scripts/check-ffi-ownership.py
 python3 cairoon/scripts/check-reliability-ledger.py
+python3 cairoon/scripts/check-vector-backend-scenes.py
 moon -C cairoon check --target native --deny-warn
 moon -C cairoon info --target native
 ```
@@ -112,7 +113,10 @@ whenever the pycairo stub, public API, or inventory changes. Run
 `scripts/check-project-layout.py` whenever package structure, root source files,
 or `PROJECT_LAYOUT.md` changes. Run
 `scripts/check-reliability-ledger.py` whenever migration status, scorecard, or
-CI/verify gate text changes. The full local gate includes all of these checks.
+CI/verify gate text changes. Run `scripts/check-vector-backend-scenes.py`
+whenever backend oracle scene ids, native oracle stubs, stream-oracle wiring,
+or Backend Differential Slices rows change. The full local gate includes all
+of these checks.
 
 ### Tier 1: MoonBit Unit And Black-Box Tests
 
@@ -214,8 +218,9 @@ The current local gate is executable as:
 It runs `moon fmt --check`, `scripts/check-project-layout.py`,
 `scripts/configure-link-flags.sh --check`, `scripts/check-ffi-ownership.py`,
 `scripts/check-api-inventory.py`, `scripts/check-reliability-ledger.py`,
-native `moon check --target native --deny-warn`, the `src/native` native-stub
-package, extracted external
+`scripts/check-vector-backend-scenes.py`, native
+`moon check --target native --deny-warn`, the `src/native` native-stub package,
+extracted external
 test packages under
 `src/tests/api` (version, enum, status, and pure value APIs),
 support packages under `src/core/constants`, `src/core/glyph`,
@@ -3136,6 +3141,12 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   oracle dispatcher, stable PDF/PS/SVG markers, and PS/SVG file/stream
   negative PDF-metadata checks. This raises the expected full native suite to
   635 tests without changing public API.
+  A later vector backend scene wiring audit slice added
+  `scripts/check-vector-backend-scenes.py` to keep backend scene enum entries,
+  direct C dispatch, MoonBit stream-oracle match arms, aggregate stream-oracle
+  scene lists, native stub registration, and Backend Differential Slices rows
+  in sync. This keeps the expected full native suite at 635 tests while making
+  missing backend oracle evidence a local verify-gate failure.
 
 Remaining reliability work is now narrower and should be tracked as evidence,
 not as an unstructured checklist:

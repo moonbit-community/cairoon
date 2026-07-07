@@ -44,6 +44,7 @@ VERIFY_COMMANDS = (
     "python3 ./scripts/check-ffi-ownership.py",
     "python3 ./scripts/check-api-inventory.py",
     "python3 ./scripts/check-reliability-ledger.py",
+    "python3 ./scripts/check-vector-backend-scenes.py",
     "moon check --target native",
     "moon test --target native",
     "moon info --target native",

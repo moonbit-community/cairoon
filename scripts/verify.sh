@@ -71,6 +71,7 @@ run ./scripts/configure-link-flags.sh --check
 run python3 ./scripts/check-ffi-ownership.py
 run python3 ./scripts/check-api-inventory.py
 run python3 ./scripts/check-reliability-ledger.py
+run python3 ./scripts/check-vector-backend-scenes.py
 run moon check --target native --deny-warn
 run_support_packages
 run_external_test_packages
