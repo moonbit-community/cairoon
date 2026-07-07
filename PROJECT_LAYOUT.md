@@ -183,7 +183,14 @@ cairoon/
         raster/
           moon.pkg
       font/
-        moon.pkg
+        face/
+          moon.pkg
+        options/
+          moon.pkg
+        pycairo/
+          moon.pkg
+        scaled/
+          moon.pkg
       path/
         moon.pkg
       region/

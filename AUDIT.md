@@ -79,11 +79,12 @@ Implemented in this workspace:
   pycairo parity fixtures, gradient queries, mesh patch lifecycle,
   raster-source callbacks, and raster-source callback fuzz/state behavior
   through separately linked published-package seams.
-- Font black-box tests now live in `src/tests/font`, importing only the public
-  `CAIMEOX/cairoon` API. This validates toy font faces, font options, context
-  font-option/font-face round trips, ScaledFont construction, matrix queries,
-  text extents, invalid-string handling, and context error propagation through
-  the published package seam; ScaledFont C-oracle tests remain white-box.
+- Font black-box tests now live in `src/tests/font/{face,options,scaled,pycairo}`,
+  importing only the public `CAIMEOX/cairoon` API. This validates toy font
+  faces, font options, pycairo font parity fixtures, context font-option/font-face
+  round trips, ScaledFont construction, matrix queries, text extents,
+  invalid-string handling, and context error propagation through separately
+  linked published-package seams; ScaledFont C-oracle tests remain white-box.
 - Stream/device black-box tests now live in `src/tests/stream`, importing only
   the public `CAIMEOX/cairoon` API. This validates PDF/PS/SVG/PNG stream
   writers/readers, callback chunk retention, script devices, script surfaces,

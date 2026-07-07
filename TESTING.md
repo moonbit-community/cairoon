@@ -247,7 +247,9 @@ support packages under `src/core/constants`, `src/core/glyph`,
 `src/tests/context/path`, `src/tests/context/state`, `src/tests/context/tag`,
 `src/tests/context/text`, `src/tests/context/text_to_glyphs`,
 `src/tests/pattern`, `src/tests/pattern/gradient`,
-`src/tests/pattern/raster`, `src/tests/font`, and `src/tests/stream`,
+`src/tests/pattern/raster`, `src/tests/font/face`,
+`src/tests/font/options`, `src/tests/font/scaled`,
+`src/tests/font/pycairo`, and `src/tests/stream`,
 `src/tests/path`, `src/tests/object`, `src/tests/lifetime`, and
 `src/tests/oracle/native`, `src/tests/oracle/constants`,
 `src/tests/oracle/scaled_font`, and
@@ -3107,6 +3109,11 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   behavior, including positive text/glyph inputs and zeroed empty input
   extents. This raises the font pycairo parity file to 12 tests and the current
   full native suite to 667 tests without changing public API.
+  A later Font family package split moved the external black-box tests into
+  `src/tests/font/{face,options,scaled,pycairo}` so each font family links and
+  runs as its own external package. The four focused font package gates cover
+  39 tests, and the full native suite remains 677 tests without changing public
+  API.
   A later tag-metadata stream-to-direct-C oracle slice added scene 48 in the
   focused `cairoon_test_backend_tag_metadata.c` oracle file, covering PDF
   metadata/custom-metadata overwrite/removal, page labels, outline parent/child
@@ -3222,8 +3229,8 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   colors and missing-index errors, FontFace and ScaledFont identity/hash
   behavior, toy-font family/slant/weight getters including Cairo's empty-family
   `Helvetica` normalization, ScaledFont matrix/font-options getters, and
-  empty/single/spaced ASCII `text_to_glyphs` result shape. The current font
-  package gate has 35 tests without changing public API.
+  empty/single/spaced ASCII `text_to_glyphs` result shape. At that point, the
+  font package gate had 35 tests without changing public API.
   A later pure value pycairo parity slice added `Hash` derivations for
   `Rectangle`, `RectangleInt`, `Glyph`, `TextCluster`, `TextExtents`, and
   `FontExtents`, plus `value_pycairo_parity_test.mbt` with six pycairo

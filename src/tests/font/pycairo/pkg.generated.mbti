@@ -1,5 +1,5 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "CAIMEOX/cairoon/tests/font"
+package "CAIMEOX/cairoon/tests/font/pycairo"
 
 // Values
 
@@ -10,4 +10,3 @@ package "CAIMEOX/cairoon/tests/font"
 // Type aliases
 
 // Traits
-
