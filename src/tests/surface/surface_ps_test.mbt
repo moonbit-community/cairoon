@@ -66,6 +66,18 @@ test "ps surface no-output constructor exposes eps size dsc and level APIs" {
   expect_ps_surface_finished(
     @cairoon.run_cairo(() => surface.ps_restrict_to_level(@cairoon.PsLevel3)),
   )
+  expect_ps_surface_finished(
+    @cairoon.run_cairo(() => surface.ps_set_size(1.0, 1.0)),
+  )
+  expect_ps_surface_finished(
+    @cairoon.run_cairo(() => surface.ps_dsc_begin_setup()),
+  )
+  expect_ps_surface_finished(
+    @cairoon.run_cairo(() => surface.ps_dsc_begin_page_setup()),
+  )
+  expect_ps_surface_finished(
+    @cairoon.run_cairo(() => surface.ps_dsc_comment("%%Title: after finish")),
+  )
 }
 
 ///|
