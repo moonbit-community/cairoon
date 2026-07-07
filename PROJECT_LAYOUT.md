@@ -154,6 +154,12 @@ cairoon/
         moon.pkg
       context/
         moon.pkg
+        clip/
+          moon.pkg
+        paint/
+          moon.pkg
+        path/
+          moon.pkg
         state/
           moon.pkg
       pattern/

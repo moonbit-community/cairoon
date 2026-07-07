@@ -239,7 +239,8 @@ support packages under `src/core/constants`, `src/core/glyph`,
 `src/tests/matrix`,
 `src/tests/region`,
 `src/tests/surface`, `src/tests/image`, `src/tests/backend`,
-`src/tests/context`, `src/tests/context/state`, `src/tests/pattern`,
+`src/tests/context`, `src/tests/context/clip`, `src/tests/context/paint`,
+`src/tests/context/path`, `src/tests/context/state`, `src/tests/pattern`,
 `src/tests/font`, and `src/tests/stream`,
 `src/tests/path`, `src/tests/object`, `src/tests/lifetime`, and
 `src/tests/oracle/native`, `src/tests/oracle/constants`,
@@ -657,14 +658,14 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   Glyph, TextCluster, TextExtents, FontExtents, component access, invalid-index
   error mapping, hash/equality fixtures, numeric limits, clip-rectangle
   returns, recording extents, and Context/ScaledFont extents-return paths.
-- `moon -C cairoon test context_path_test.mbt --target native -v`: 11
+- `moon -C cairoon test src/tests/context/path --target native -v`: 11
   black-box Context path tests passed, covering current-point behavior,
   relative path operations, pycairo rectangle path-extents behavior,
   close-path current-point reset, arc current-point creation,
   path copy/append independence, pycairo-style append string
   equivalence after clearing the source context, flattened append behavior, and
   path error propagation.
-- `moon -C cairoon test src/tests/context --target native -v`: 96 black-box
+- `moon -C cairoon test src/tests/context --target native -v`: 71 black-box
   Context package tests passed, including 35 pycairo parity fixtures split
   across `context_pycairo_parity_test.mbt`,
   `context_state_paint_pycairo_parity_test.mbt`, and
@@ -692,6 +693,16 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   `copy_page`, `copy_path_flat`, `fill`, `fill_preserve`, `font_extents`,
   `identity_matrix`, `new_sub_path`, `show_page`, `stroke_preserve`, dash
   count, font matrix, group target, scalar getters, and final status.
+- `moon -C cairoon test src/tests/context/clip --target native -v`: 7
+  black-box Context clipping tests passed from a nested external package,
+  covering clip extents, `in_clip`, reset behavior, path-clearing versus
+  preserve behavior, rectangular clip-list copying, non-rectangular clip
+  status mapping, and existing-context-error propagation.
+- `moon -C cairoon test src/tests/context/paint --target native -v`: 7
+  black-box Context painting tests passed from a nested external package,
+  covering alpha paint, source RGB/RGBA round trips, mask and mask-surface
+  behavior, source-surface sampling, preserve variants, page operations, and
+  existing-context-error propagation.
 - `moon -C cairoon test src/tests/context/state --target native -v`: 10
   black-box Context drawing-state tests passed from a nested external package,
   covering default state, typed and raw drawing-state enum round trips,
@@ -3295,6 +3306,12 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   nested external package `src/tests/context/state`. The observed focused
   counts are 96 tests in `src/tests/context` and 10 tests in
   `src/tests/context/state`, with no public API changes.
+  A later Context family package split moved `context_path_test.mbt`,
+  `context_clip_test.mbt`, and `context_painting_test.mbt` into nested
+  external packages under `src/tests/context/{path,clip,paint}`. The observed
+  focused counts are 71 tests in `src/tests/context`, 11 in
+  `src/tests/context/path`, 7 in `src/tests/context/clip`, and 7 in
+  `src/tests/context/paint`, with no public API changes.
   A later Surface image-property organization slice moved image-surface
   property, raw-format/raw-content, finished/subtype error, and Cairo
   float-format black-box tests into `surface_image_properties_test.mbt`. The
