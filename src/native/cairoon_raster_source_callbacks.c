@@ -159,6 +159,9 @@ static cairo_surface_t *cairoon_raster_source_acquire(
     extents->width,
     extents->height,
     state->acquire_arg);
+  if (state->acquire_arg != NULL) {
+    moonbit_decref(state->acquire_arg);
+  }
   moonbit_decref(target_wrapper);
 
   if (source_wrapper == NULL || source_wrapper->ptr == NULL) {
@@ -210,6 +213,10 @@ static void cairoon_raster_source_release(
       moonbit_incref(state->release_arg);
     }
     state->release(owner->surface, state->release_arg);
+    if (state->release_arg != NULL) {
+      moonbit_decref(state->release_arg);
+    }
+    moonbit_decref(owner->surface);
   }
   cairoon_raster_surface_owner_release(surface);
 }

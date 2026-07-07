@@ -82,6 +82,9 @@ cairo_status_t cairoon_stream_write(
     moonbit_incref(state->arg);
   }
   cairo_status_t status = (cairo_status_t)state->callback(bytes, state->arg);
+  if (state->arg != NULL) {
+    moonbit_decref(state->arg);
+  }
   moonbit_decref(bytes);
   if (status < CAIRO_STATUS_SUCCESS || status >= CAIRO_STATUS_LAST_STATUS) {
     return CAIRO_STATUS_WRITE_ERROR;
@@ -180,6 +183,9 @@ cairo_status_t cairoon_stream_read(
     moonbit_incref(state->arg);
   }
   moonbit_bytes_t bytes = state->callback((int32_t)length, state->arg);
+  if (state->arg != NULL) {
+    moonbit_decref(state->arg);
+  }
   if (bytes == NULL) {
     return CAIRO_STATUS_READ_ERROR;
   }
