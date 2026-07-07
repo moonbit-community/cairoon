@@ -177,6 +177,31 @@ test "pycairo scaled font metrics and matrix getter fixtures" {
 }
 
 ///|
+test "pycairo scaled font text and glyph extents fixtures" {
+  let scaled = pycairo_font_context().get_scaled_font()
+
+  let text = scaled.text_extents("foo")
+  inspect(text.x_advance > 0.0, content="true")
+  inspect(text.y_advance, content="0")
+
+  let empty_text = scaled.text_extents("")
+  inspect(empty_text.width, content="0")
+  inspect(empty_text.height, content="0")
+  inspect(empty_text.x_advance, content="0")
+  inspect(empty_text.y_advance, content="0")
+
+  let glyph = scaled.glyph_extents([@cairoon.Glyph::new(0UL, 0.5, 0.25)])
+  inspect(glyph.x_advance >= 0.0, content="true")
+  inspect(glyph.y_advance, content="0")
+
+  let empty_glyphs = scaled.glyph_extents([])
+  inspect(empty_glyphs.width, content="0")
+  inspect(empty_glyphs.height, content="0")
+  inspect(empty_glyphs.x_advance, content="0")
+  inspect(empty_glyphs.y_advance, content="0")
+}
+
+///|
 test "pycairo toy font face getter fixtures" {
   let empty = @cairoon.FontFace::toy("")
   inspect(empty.get_family(), content="Helvetica")
