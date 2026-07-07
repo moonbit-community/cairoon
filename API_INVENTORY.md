@@ -22,6 +22,10 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
   `SurfaceFinished` checks for the EPS getter, page size, DSC setup, DSC page
   setup, and DSC comments, matching the same lifecycle policy used by PDF/SVG
   backend helpers.
+- 2026-07-07: Vector stream callback parity now covers the pycairo
+  closed-before-finish fixture by creating PDF/PS/SVG stream surfaces, closing
+  the writer state after construction, and requiring finish-time
+  `CairoIOError(WriteError, _)` mapping.
 
 ## Current Coverage Snapshot
 

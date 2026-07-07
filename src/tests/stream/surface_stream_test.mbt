@@ -85,6 +85,39 @@ fn make_vector_stream_surface_returning_status(
 }
 
 ///|
+fn make_vector_stream_surface_with_close_flag(
+  kind : Int,
+  closed : Ref[Bool],
+) -> @cairoon.Surface raise @cairoon.CairoError {
+  match kind {
+    0 =>
+      @cairoon.Surface::pdf_stream(10.0, 10.0, fn(_) {
+        if closed.val {
+          @cairoon.WriteError
+        } else {
+          @cairoon.Success
+        }
+      })
+    1 =>
+      @cairoon.Surface::ps_stream(10.0, 10.0, fn(_) {
+        if closed.val {
+          @cairoon.WriteError
+        } else {
+          @cairoon.Success
+        }
+      })
+    _ =>
+      @cairoon.Surface::svg_stream(10.0, 10.0, fn(_) {
+        if closed.val {
+          @cairoon.WriteError
+        } else {
+          @cairoon.Success
+        }
+      })
+  }
+}
+
+///|
 fn expect_vector_stream_write_error(
   kind : Int,
   status : @cairoon.Status,
@@ -96,6 +129,18 @@ fn expect_vector_stream_write_error(
   match result {
     Err(@cairoon.CairoIOError(@cairoon.WriteError, _)) => ()
     _ => @test.fail("expected WriteError from vector stream writer")
+  }
+}
+
+///|
+fn expect_vector_stream_closed_before_finish_error(kind : Int) -> Unit raise {
+  let closed = Ref(false)
+  let surface = make_vector_stream_surface_with_close_flag(kind, closed)
+  closed.val = true
+  let result = @cairoon.run_cairo(() => paint_stream_surface(surface))
+  match result {
+    Err(@cairoon.CairoIOError(@cairoon.WriteError, _)) => ()
+    _ => @test.fail("expected WriteError from closed vector stream writer")
   }
 }
 
@@ -157,6 +202,13 @@ test "svg stream writer receives output chunks" {
 test "stream writer status maps to cairo IO error" {
   for kind in 0..<3 {
     expect_vector_stream_write_error(kind, @cairoon.WriteError)
+  }
+}
+
+///|
+test "vector stream writer closed before finish maps to cairo IO error" {
+  for kind in 0..<3 {
+    expect_vector_stream_closed_before_finish_error(kind)
   }
 }
 
