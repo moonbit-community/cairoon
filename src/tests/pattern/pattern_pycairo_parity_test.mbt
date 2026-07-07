@@ -12,6 +12,22 @@ test "pycairo solid pattern default state fixture" {
 }
 
 ///|
+test "pycairo surface pattern default state fixture" {
+  let source = @cairoon.Surface::image(@cairoon.Argb32, 2, 3)
+  let pattern = @cairoon.Pattern::for_surface(source)
+  debug_inspect(pattern.get_extend(), content="ExtendNone")
+  debug_inspect(pattern.get_filter(), content="Good")
+  debug_inspect(pattern.get_dither(), content="DitherDefault")
+  debug_inspect(
+    pattern.get_matrix(),
+    content="{ xx: 1, yx: 0, xy: 0, yy: 1, x0: 0, y0: 0 }",
+  )
+  let returned = pattern.get_surface()
+  inspect(returned.get_width(), content="2")
+  inspect(returned.get_height(), content="3")
+}
+
+///|
 test "pycairo solid pattern setter round trip fixture" {
   let pattern = @cairoon.Pattern::solid_rgba(0.1, 0.2, 0.3, 0.4)
   debug_inspect(pattern.get_rgba(), content="(0.1, 0.2, 0.3, 0.4)")
