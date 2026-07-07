@@ -634,8 +634,10 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   path copy/append independence, pycairo-style append string
   equivalence after clearing the source context, flattened append behavior, and
   path error propagation.
-- `moon -C cairoon test context_pycairo_parity_test.mbt --target native -v`: 35
-  black-box Context pycairo parity tests passed, covering the 42x42 default
+- `moon -C cairoon test src/tests/context --target native -v`: 103 black-box
+  Context package tests passed, including 35 pycairo parity fixtures split
+  across `context_pycairo_parity_test.mbt` and
+  `context_font_text_pycairo_parity_test.mbt`, covering the 42x42 default
   clip-extents fixture, zero-radius `arc`/`arc_negative` non-empty paths,
   context comparison/hash behavior from pycairo's `test_cmp_hash`,
   polygon `path_extents`, polygon `fill_extents`, empty `in_fill`, line
@@ -3163,6 +3165,12 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   `Surface::write_to_png_stream`, compares exact PNG bytes, and compares the
   copied image data after reading both outputs back. The observed full native
   suite is now 637 tests without changing public API.
+  A later Context pycairo parity organization slice moved the font/text/glyph
+  and simple-smoke pycairo fixtures from `context_pycairo_parity_test.mbt` into
+  `context_font_text_pycairo_parity_test.mbt`. The Context package still carries
+  the same 35 external pycairo parity fixtures, the observed full native suite
+  remains 637 tests, and the largest Context pycairo parity file drops from 675
+  to 471 lines without changing public API.
 
 Remaining reliability work is now narrower and should be tracked as evidence,
 not as an unstructured checklist:
