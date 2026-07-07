@@ -107,6 +107,14 @@ test "context cmp hash mirrors pycairo fixture" {
 }
 
 ///|
+test "context tags mirror pycairo fixture" {
+  let ctx = @cairoon.Context::new(pycairo_context_surface(42, 42))
+  ctx.tag_begin("foo", "bar=quux")
+  ctx.tag_end("foo")
+  inspect(ctx.status().is_success(), content="true")
+}
+
+///|
 test "zero radius arcs leave non-empty paths like pycairo" {
   let ctx = @cairoon.Context::new(pycairo_context_surface(42, 42))
   inspect(ctx.copy_path().length(), content="0")

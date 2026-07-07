@@ -3105,6 +3105,11 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   with identical RGBA components compares unequal by Cairo pointer identity.
   This raises `pattern_pycairo_parity_test.mbt` to 9 tests and the expected
   full native suite to 591 tests without changing public API.
+  A later Context/Pattern pycairo parity slice added pycairo's `test_tags`
+  begin/end smoke fixture to `context_pycairo_parity_test.mbt` and pycairo's
+  `test_mesh_pattern_error_states` lifecycle checks to
+  `pattern_pycairo_parity_test.mbt`. The current context and pattern package
+  gates have 105 and 46 tests respectively without changing public API.
   A later Font pycairo parity fixture slice added
   `font_pycairo_parity_test.mbt` with eight pycairo `test_font.py`-derived
   black-box fixtures covering surface font-options default getters,

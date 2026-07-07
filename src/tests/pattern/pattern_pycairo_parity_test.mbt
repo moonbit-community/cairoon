@@ -207,3 +207,37 @@ test "pycairo mesh pattern rest fixture" {
     }),
   )
 }
+
+///|
+test "pycairo mesh pattern error states fixture" {
+  let pattern = @cairoon.Pattern::mesh()
+  pattern.mesh_begin_patch()
+  expect_mesh_error(@cairoon.run_cairo(() => pattern.mesh_begin_patch()))
+
+  expect_mesh_error(
+    @cairoon.run_cairo(() => @cairoon.Pattern::mesh().mesh_end_patch()),
+  )
+  expect_mesh_error(
+    @cairoon.run_cairo(() => {
+      @cairoon.Pattern::mesh().mesh_curve_to(0.0, 1.0, 2.0, 3.0, 4.0, 5.0)
+    }),
+  )
+  expect_mesh_error(
+    @cairoon.run_cairo(() => @cairoon.Pattern::mesh().mesh_line_to(130.0, 130.0)),
+  )
+  expect_mesh_error(
+    @cairoon.run_cairo(() => @cairoon.Pattern::mesh().mesh_move_to(0.0, 0.0)),
+  )
+  expect_mesh_error(
+    @cairoon.run_cairo(() => {
+      @cairoon.Pattern::mesh().mesh_set_corner_color_rgba(
+        0, 0.125, 0.25, 0.5, 0.75,
+      )
+    }),
+  )
+  expect_mesh_error(
+    @cairoon.run_cairo(() => {
+      @cairoon.Pattern::mesh().mesh_set_corner_color_rgb(0, 0.125, 0.25, 0.5)
+    }),
+  )
+}
