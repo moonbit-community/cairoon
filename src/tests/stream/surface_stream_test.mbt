@@ -36,12 +36,18 @@ fn bytes_slice(bytes : Bytes, offset : Int, length : Int) -> Bytes {
 }
 
 ///|
-fn make_png_bytes() -> Bytes raise @cairoon.CairoError {
-  let chunks : Array[Bytes] = []
+fn make_png_surface() -> @cairoon.Surface raise @cairoon.CairoError {
   let surface = @cairoon.Surface::image(@cairoon.Argb32, 2, 2)
   let ctx = @cairoon.Context::new(surface)
   ctx.set_source_rgb(1.0, 0.0, 0.0)
   ctx.paint()
+  surface
+}
+
+///|
+fn make_png_bytes() -> Bytes raise @cairoon.CairoError {
+  let chunks : Array[Bytes] = []
+  let surface = make_png_surface()
   surface.write_to_png_stream(fn(chunk) {
     chunks.push(chunk)
     @cairoon.Success
@@ -316,6 +322,7 @@ test "png stream reader creates image surface" {
   inspect(surface.get_height(), content="2")
   let format = surface.get_format()
   inspect(format == @cairoon.Argb32 || format == @cairoon.Rgb24, content="true")
+  inspect(surface.copy_data() == make_png_surface().copy_data(), content="true")
   inspect(offset.val == input.length(), content="true")
 }
 

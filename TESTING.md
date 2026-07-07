@@ -179,8 +179,8 @@ Memory tests must cover:
 For surfaces and devices, add backend-specific smoke tests:
 
 - Image: exact stride, format, dimensions, and raw byte output.
-- Image PNG streams: read/write callback round trips and read/write error
-  propagation.
+- Image PNG streams: read/write callback round trips, copied pixel-data
+  equivalence after stream readback, and read/write error propagation.
 - PDF/SVG/PS: create, finish, metadata, page behavior, stream writers, and
   normalized output, including direct-C comparisons for show/copy/show page
   transitions and clip/group/mask state-stack scenes with PDF tags and PS/SVG

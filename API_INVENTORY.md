@@ -14,6 +14,10 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 
 ## Recent Audit Deltas
 
+- 2026-07-07: PNG stream parity now includes a public black-box data round
+  trip: write an ARGB32 image through `Surface::write_to_png_stream`, read it
+  back through `Surface::image_from_png_stream`, and compare copied pixel data
+  with the original source image.
 - 2026-07-07: PDF surface lifecycle parity now includes post-finish
   `SurfaceFinished` checks for page labels, metadata, custom metadata, and
   outline insertion, matching the corresponding pycairo post-context-manager
