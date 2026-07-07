@@ -141,7 +141,12 @@ cairoon/
       moon.pkg
     tests/
       api/
-        moon.pkg
+        enums/
+          moon.pkg
+        pycairo/
+          moon.pkg
+        version/
+          moon.pkg
       status/
         moon.pkg
       value/

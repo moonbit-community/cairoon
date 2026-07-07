@@ -25,15 +25,15 @@ Implemented in this workspace:
   migration status rows use accepted statuses, `Partial` rows state remaining
   gaps explicitly, the TESTING scorecard keeps its required dimensions, and CI
   continues to run native/ASan verify gates.
-- Initial external black-box test package extraction under `src/tests/api`.
-  Root-level `tests/` packages are intentionally forbidden while
-  `moon.mod source = "src"` keeps the public import path as `CAIMEOX/cairoon`.
-  External test packages that import cairoon carry Cairo `cc-link-flags`, and
-  `scripts/configure-link-flags.sh --check` verifies those flags alongside the
-  public and native package configs.
-- The external API black-box package covers portable enum constructors,
-  `Format::stride_for_width`, `FORMAT_INVALID`, and pycairo `test_api.py`
-  smoke/lifetime fixtures.
+- Initial external black-box API package extraction under
+  `src/tests/api/{version,enums,pycairo}`. Root-level `tests/` packages are
+  intentionally forbidden while `moon.mod source = "src"` keeps the public
+  import path as `CAIMEOX/cairoon`. External test packages that import cairoon
+  carry Cairo `cc-link-flags`, and `scripts/configure-link-flags.sh --check`
+  verifies those flags alongside the public and native package configs.
+- The external API black-box packages cover version helpers, portable enum
+  constructors, `Format::stride_for_width`, `FORMAT_INVALID`, and pycairo
+  `test_api.py` smoke/lifetime fixtures.
 - Status/error black-box tests now live in `src/tests/status`, importing only
   the public `CAIMEOX/cairoon` API. This validates `check_status`,
   `run_cairo`, public `Status::message`, and all `CairoError` suberror classes
@@ -1344,9 +1344,9 @@ Prior full verifies passed on 2026-07-02, 2026-07-03, 2026-07-04,
 - `moon -C cairoon test surface_mime_test.mbt --target native -v`: 5
   black-box tests passed after adding image/PDF/PS/SVG
   `supports_mime_type` matrix coverage and invalid MIME type string coverage.
-- `moon -C cairoon test enums_test.mbt --target native -v`: 4 black-box tests
-  passed after adding `Rgb16_565`, `Rgb30`, `Rgb96F`, `Rgba128F`, and
-  negative-width `Format::stride_for_width` coverage.
+- `moon -C cairoon test src/tests/api/enums --target native --deny-warn -v`: 4
+  black-box tests passed after adding `Rgb16_565`, `Rgb30`, `Rgb96F`,
+  `Rgba128F`, and negative-width `Format::stride_for_width` coverage.
 - `moon -C cairoon test surface_subsurface_test.mbt --target native -v`: 3
   black-box tests passed after adding invalid-size coverage for
   `Surface::create_for_rectangle`.

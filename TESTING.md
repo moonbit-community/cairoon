@@ -227,8 +227,10 @@ It runs `moon fmt --check`, `scripts/check-project-layout.py`,
 `moon check --target native --deny-warn`, the `src/native` native-stub package,
 extracted external
 test packages under
-`src/tests/api` (version, enum, and pycairo `test_api.py` Unicode text/path
-plus context/pattern lifetime parity),
+`src/tests/api/version` (version helpers),
+`src/tests/api/enums` (portable enums and `Format` helpers),
+`src/tests/api/pycairo` (pycairo `test_api.py` Unicode text/path plus
+context/pattern lifetime parity),
 `src/tests/status` (public status, `run_cairo`, and `CairoError`
 classification),
 `src/tests/value` (pure value APIs and pycairo value parity),
@@ -657,11 +659,16 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   pycairo `test_path.py`-derived fixtures passed, covering empty path string
   behavior, `copy_path().to_string()` formatting, self comparison/hash
   operators, and iterator `PathDataType`/coordinate tuples.
-- `moon -C cairoon test src/tests/api --target native --deny-warn -v`: 11
-  black-box API package tests passed, covering version helpers, portable enums,
-  pycairo `test_api.py` Unicode fixtures for
-  `Context::show_text("ēxāmple.")`, PNG filename write/read round trips through
-  `Surface::write_to_png` and `Surface::image_from_png`,
+- `moon -C cairoon test src/tests/api/version --target native --deny-warn -v`:
+  1 black-box API package test passed, covering public version helpers.
+- `moon -C cairoon test src/tests/api/enums --target native --deny-warn -v`: 4
+  black-box API package tests passed, covering portable enums,
+  `Format::stride_for_width`, extended Cairo float/packed formats, and
+  `FORMAT_INVALID`.
+- `moon -C cairoon test src/tests/api/pycairo --target native --deny-warn -v`:
+  6 black-box API package tests passed, covering pycairo `test_api.py` Unicode
+  fixtures for `Context::show_text("ēxāmple.")`, PNG filename write/read round
+  trips through `Surface::write_to_png` and `Surface::image_from_png`,
   `surface_destroy_before_context` and
   `surface_destroy_before_surface_pattern` lifetime fixtures for stream-backed
   surfaces retained by contexts and surface patterns,
@@ -1416,9 +1423,9 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   stream output and writer errors, PDF metadata/outlines, PS DSC, SVG document
   units, recording replay, Tee fanout, script devices/surfaces, and checked
   backend-specific errors.
-- `moon -C cairoon test enums_test.mbt --target native -v`: 4 black-box tests
-  passed after adding `Rgb16_565`, `Rgb30`, `Rgb96F`, `Rgba128F`, and
-  negative-width `Format::stride_for_width` coverage.
+- `moon -C cairoon test src/tests/api/enums --target native --deny-warn -v`: 4
+  black-box tests passed after adding `Rgb16_565`, `Rgb30`, `Rgb96F`,
+  `Rgba128F`, and negative-width `Format::stride_for_width` coverage.
 - `moon -C cairoon test surface_pdf_test.mbt surface_ps_test.mbt
   surface_svg_test.mbt --target native -v`: 17 black-box tests passed after
   adding extended PDF/PS backend subtype-mismatch checks and SVG
