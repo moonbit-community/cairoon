@@ -1,4 +1,12 @@
 ///|
+fn inspect_rgb24_bytes(bytes : Bytes, expected : Array[Int]) -> Unit raise {
+  inspect(bytes.length(), content="\{expected.length()}")
+  for i in 0..<expected.length() {
+    inspect(bytes[i].to_int(), content="\{expected[i]}")
+  }
+}
+
+///|
 fn expect_image_data_invalid_index(
   result : Result[Unit, @cairoon.CairoError],
 ) -> Unit raise {
