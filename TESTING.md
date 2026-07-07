@@ -3106,13 +3106,14 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   This raises `pattern_pycairo_parity_test.mbt` to 9 tests and the expected
   full native suite to 591 tests without changing public API.
   A later Font pycairo parity fixture slice added
-  `font_pycairo_parity_test.mbt` with five pycairo `test_font.py`-derived
+  `font_pycairo_parity_test.mbt` with eight pycairo `test_font.py`-derived
   black-box fixtures covering surface font-options default getters,
-  FontOptions copy/equality/merge, FontFace and ScaledFont identity/hash
+  FontOptions copy/equality/merge, color mode, color palette, custom palette
+  colors and missing-index errors, FontFace and ScaledFont identity/hash
   behavior, toy-font family/slant/weight getters including Cairo's empty-family
   `Helvetica` normalization, ScaledFont matrix/font-options getters, and
-  empty/single/spaced ASCII `text_to_glyphs` result shape. This raises the
-  expected full native suite to 596 tests without changing public API.
+  empty/single/spaced ASCII `text_to_glyphs` result shape. The current font
+  package gate has 35 tests without changing public API.
   A later pure value pycairo parity slice added `Hash` derivations for
   `Rectangle`, `RectangleInt`, `Glyph`, `TextCluster`, `TextExtents`, and
   `FontExtents`, plus `value_pycairo_parity_test.mbt` with six pycairo

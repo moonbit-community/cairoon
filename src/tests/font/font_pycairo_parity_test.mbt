@@ -64,6 +64,47 @@ test "pycairo font options copy equality and merge fixture" {
 }
 
 ///|
+test "pycairo font options color mode fixture" {
+  let options = pycairo_font_surface().get_font_options()
+  debug_inspect(options.get_color_mode(), content="ColorModeDefault")
+
+  options.set_color_mode(@cairoon.ColorModeColor)
+  debug_inspect(options.get_color_mode(), content="ColorModeColor")
+}
+
+///|
+test "pycairo font options color palette fixture" {
+  let options = pycairo_font_surface().get_font_options()
+  inspect(
+    options.get_color_palette() == @cairoon.COLOR_PALETTE_DEFAULT,
+    content="true",
+  )
+
+  options.set_color_palette(42U)
+  inspect(options.get_color_palette().reinterpret_as_int(), content="42")
+}
+
+///|
+test "pycairo font options custom palette color fixture" {
+  let options = pycairo_font_surface().get_font_options()
+  let missing = @cairoon.run_cairo(() => {
+    let _ = options.get_custom_palette_color(24U)
+    ()
+  })
+  match missing {
+    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidIndex, _)) => ()
+    _ => @test.fail("expected InvalidIndex for missing palette color")
+  }
+
+  options.set_custom_palette_color(42U, 0.25, 0.5, 0.75, 1.0)
+  let (red, green, blue, alpha) = options.get_custom_palette_color(42U)
+  inspect(red, content="0.25")
+  inspect(green, content="0.5")
+  inspect(blue, content="0.75")
+  inspect(alpha, content="1")
+}
+
+///|
 test "pycairo font face and scaled font cmp hash fixture" {
   let ctx = pycairo_font_context()
   let font_face = ctx.get_font_face()
