@@ -696,13 +696,14 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   status, dash validation, raw C-int operator and drawing-state enum
   passthrough parity, CTM conversion, invalid-matrix propagation, pycairo polygon fill-extents
   coverage, stroke extents, and hit-testing.
-- `moon -C cairoon test src/tests/surface --target native -v`: 83 black-box
+- `moon -C cairoon test src/tests/surface --target native -v`: 84 black-box
   Surface package tests passed, including base image/similar/state/status
   wrappers, pycairo surface parity, buffer-backed image surfaces, mutable
   ImageData views, pycairo `test_image_surface_get_data` mutable-view sharing
-  and post-paint flush update behavior, pycairo recording-surface post-finish
-  `get_extents` behavior, PNG path round trips, mapped images, subsurfaces,
-  recording, MIME, PDF, PS, SVG, and Tee surfaces.
+  and post-paint flush update behavior, pycairo empty 0x0 image-surface
+  `get_data` behavior, pycairo recording-surface post-finish `get_extents`
+  behavior, PNG path round trips, mapped images, subsurfaces, recording, MIME,
+  PDF, PS, SVG, and Tee surfaces.
 - `moon -C cairoon test surface_mapped_test.mbt --target native -v`: 6
   black-box mapped-image tests passed, covering whole-surface and extent
   uploads, wrong-base and double-unmap failures, mapped-wrapper unmap,
@@ -3248,6 +3249,10 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   emits script output and produces the same target image bytes as drawing
   directly to an image surface. This adds one pycairo-derived fixture without
   changing public API.
+  A later image-surface empty-data parity slice added one public black-box
+  fixture proving that an ordinary 0x0 `Surface::image` exposes an empty
+  `ImageData` view and empty copied image bytes, matching pycairo's
+  `test_image_surface_get_data_empty` behavior without changing public API.
 
 Remaining reliability work is now narrower and should be tracked as evidence,
 not as an unstructured checklist:

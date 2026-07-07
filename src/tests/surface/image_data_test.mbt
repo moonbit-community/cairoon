@@ -84,6 +84,15 @@ test "pycairo image surface get_data mutable view fixture" {
 }
 
 ///|
+test "pycairo image surface get_data empty fixture" {
+  let surface = @cairoon.Surface::image(@cairoon.Argb32, 0, 0)
+  let data = surface.get_data()
+  inspect(data.length(), content="0")
+  inspect(data.copy().length(), content="0")
+  inspect(surface.copy_data().length(), content="0")
+}
+
+///|
 test "image data view shares buffer-backed image storage" {
   let buffer : FixedArray[Byte] = FixedArray::make(4, b'\x00')
   let surface = @cairoon.Surface::image_for_data(buffer, @cairoon.Argb32, 1, 1)
