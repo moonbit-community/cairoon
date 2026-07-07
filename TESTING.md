@@ -806,8 +806,9 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   and named-destination links, Document/Sect/Figure structure tags, PS DSC, SVG
   point units, and backend page-size changes.
 - `moon -C cairoon test src/tests/oracle/vector_backend/surface_stream_oracle_test.mbt
-  --target native -v`: 4 white-box stream-to-direct-C oracle tests passed,
-  covering tag-heavy scenes 15 through 17 and 22 through 30, retained
+  --target native -v`: 5 white-box stream-to-direct-C oracle tests passed,
+  covering primitive/text scenes 0 through 14, tag-heavy scenes 15 through 17
+  and 22 through 30, retained
   `Context::copy_page`/`glyph_path`/`show_glyphs` scenes 31 through 33, tagged
   font-matrix text scene 43, and backend feature scenes 35 through 42 and 44
   through 50, so these PDF/PS/SVG stream callback outputs are compared with
@@ -2983,6 +2984,13 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   oracle files for retained `Context::copy_page`, `glyph_path`, and
   `show_glyphs` vector scenes. This raises the vector-backend package to 156
   tests without changing public API.
+  A later primitive/text stream-to-direct-C oracle slice extended
+  `surface_stream_oracle_test.mbt` with scenes 0 through 14, comparing
+  PDF/PS/SVG stream callback output directly against normalized direct C Cairo
+  oracle files for paint/stroke/path/transform/gradient/text/page/clip/dash,
+  surface-pattern, mask-surface, and mesh-pattern vector scenes. This raises
+  the vector-backend package to 157 tests and the expected full native suite to
+  587 tests without changing public API.
   A later context/pattern comparison parity slice added two pycairo
   `test_cmp_hash` fixtures: `Context` self-equality plus same-target
   different-context inequality, and repeated `Context.get_source()` pattern

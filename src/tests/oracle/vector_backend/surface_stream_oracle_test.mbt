@@ -120,6 +120,35 @@ fn render_backend_oracle_stream_scene(
 }
 
 ///|
+test "primitive vector streams match direct cairo C oracle after normalization" {
+  for kind in 0..<3 {
+    let ext = stream_equivalence_extension(kind)
+    for scene in 0..<15 {
+      let chunks : Array[Bytes] = []
+      render_vector_oracle_stream_scene(scene, kind, chunks)
+      inspect(chunks.length() > 0, content="true")
+
+      let oracle_path = "/tmp/cairoon_stream_primitive_oracle_\{kind}_\{scene}.\{ext}"
+      @cairoon.check_status(
+        test_render_vector_scene_oracle_ffi(
+          kind,
+          scene,
+          checked_path_bytes(oracle_path),
+        ),
+      )
+      inspect(
+        test_vector_file_equals_bytes_ffi(
+          kind,
+          checked_path_bytes(oracle_path),
+          stream_equivalence_chunks_to_bytes(chunks),
+        ),
+        content="true",
+      )
+    }
+  }
+}
+
+///|
 test "tag-heavy vector streams match direct cairo C oracle after normalization" {
   for kind in 0..<3 {
     let ext = stream_equivalence_extension(kind)
