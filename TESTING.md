@@ -1025,13 +1025,15 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   color-stop count/tuple retrieval, duplicate-offset insertion order, copied
   color-stop snapshot stability after later pattern mutation, pattern-type
   mismatch mapping, and invalid-index mapping.
-- `moon -C cairoon test pattern_pycairo_parity_test.mbt --target native -v`: 6
+- `moon -C cairoon test pattern_pycairo_parity_test.mbt --target native -v`: 8
   black-box Pattern pycairo parity tests passed, covering solid-pattern default
   state and setter round trips, surface-pattern default state/get-surface
   behavior, repeated `Context.get_source()` comparison/hash behavior from
   pycairo's `test_cmp_hash`, linear-gradient point/color-stop list fixtures,
   radial-gradient circle fixtures, and pycairo mesh example patch construction
-  with corner colors and path extraction.
+  with corner colors and path extraction, plus pycairo Coons-patch and
+  mesh-rest fixtures covering corner-color/control-point queries and invalid
+  patch/corner/control-point index errors.
 - `moon -C cairoon test pattern_raster_manual_wbtest.mbt
   pattern_raster_owner_wbtest.mbt pattern_raster_state_wbtest.mbt --target
   native -v`: 6 white-box raster-source manual/owner/state tests passed,
@@ -2977,6 +2979,13 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   equality/hash behavior. This raises `context_pycairo_parity_test.mbt` to 35
   tests, `pattern_pycairo_parity_test.mbt` to 6 tests, and the expected full
   native suite to 581 tests without changing public API.
+  A later Pattern mesh-detail parity slice added pycairo's
+  `test_mesh_pattern_example1` and `test_mesh_pattern_rest` fixtures to
+  `pattern_pycairo_parity_test.mbt`, covering Coons-patch construction, path
+  extraction, corner-color queries, control-point queries, and invalid
+  patch/corner/control-point index errors. This raises
+  `pattern_pycairo_parity_test.mbt` to 8 tests and the expected full native
+  suite to 583 tests without changing public API.
 
 Remaining reliability work is now narrower and should be tracked as evidence,
 not as an unstructured checklist:

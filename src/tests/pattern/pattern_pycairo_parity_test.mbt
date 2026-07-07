@@ -119,3 +119,75 @@ test "pycairo mesh pattern example fixture" {
     content="true",
   )
 }
+
+///|
+test "pycairo mesh pattern coons patch fixture" {
+  let pattern = @cairoon.Pattern::mesh()
+  inspect(pattern.mesh_get_patch_count(), content="0")
+
+  pattern.mesh_begin_patch()
+  pattern.mesh_move_to(0.0, 0.0)
+  pattern.mesh_curve_to(30.0, -30.0, 60.0, 30.0, 100.0, 0.0)
+  pattern.mesh_curve_to(60.0, 30.0, 130.0, 60.0, 100.0, 100.0)
+  pattern.mesh_curve_to(60.0, 70.0, 30.0, 130.0, 0.0, 100.0)
+  pattern.mesh_curve_to(30.0, 70.0, -30.0, 30.0, 0.0, 0.0)
+  pattern.mesh_set_corner_color_rgb(0, 1.0, 0.0, 0.0)
+  pattern.mesh_set_corner_color_rgb(1, 0.0, 1.0, 0.0)
+  pattern.mesh_set_corner_color_rgb(2, 0.0, 0.0, 1.0)
+  pattern.mesh_set_corner_color_rgb(3, 1.0, 1.0, 0.0)
+  pattern.mesh_end_patch()
+
+  inspect(pattern.mesh_get_patch_count(), content="1")
+  inspect(pattern.mesh_get_path(0).length() > 0, content="true")
+  debug_inspect(
+    pattern.mesh_get_corner_color_rgba(0, 0),
+    content="(1, 0, 0, 1)",
+  )
+  expect_mesh_invalid_index(
+    @cairoon.run_cairo(() => {
+      let _ = pattern.mesh_get_corner_color_rgba(1, 0)
+      ()
+    }),
+  )
+  expect_mesh_invalid_index(
+    @cairoon.run_cairo(() => {
+      let _ = pattern.mesh_get_corner_color_rgba(0, 9)
+      ()
+    }),
+  )
+  expect_mesh_invalid_index(
+    @cairoon.run_cairo(() => {
+      let _ = pattern.mesh_get_path(9)
+      ()
+    }),
+  )
+}
+
+///|
+test "pycairo mesh pattern rest fixture" {
+  let pattern = @cairoon.Pattern::mesh()
+  pattern.mesh_begin_patch()
+  pattern.mesh_curve_to(0.0, 1.0, 2.0, 3.0, 4.0, 5.0)
+  pattern.mesh_set_corner_color_rgba(0, 0.125, 0.25, 0.5, 0.75)
+  pattern.mesh_set_control_point(0, 10.0, 12.0)
+  pattern.mesh_end_patch()
+
+  debug_inspect(
+    pattern.mesh_get_corner_color_rgba(0, 0),
+    content="(0.125, 0.25, 0.5, 0.75)",
+  )
+  debug_inspect(pattern.mesh_get_control_point(0, 0), content="(10, 12)")
+  let _ = pattern.mesh_get_control_point(0, 0)
+  expect_mesh_invalid_index(
+    @cairoon.run_cairo(() => {
+      let _ = pattern.mesh_get_control_point(1, 0)
+      ()
+    }),
+  )
+  expect_mesh_invalid_index(
+    @cairoon.run_cairo(() => {
+      let _ = pattern.mesh_get_control_point(0, 9)
+      ()
+    }),
+  )
+}
