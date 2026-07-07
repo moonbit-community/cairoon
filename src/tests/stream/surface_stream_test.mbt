@@ -233,6 +233,40 @@ test "png stream writer receives image bytes" {
 }
 
 ///|
+test "png path and stream writers produce identical bytes" {
+  let path = "/tmp/cairoon_png_path_stream_compare.png"
+  if @fs.path_exists(path) {
+    @fs.remove_file(path)
+  }
+
+  let surface = make_png_surface()
+  surface.write_to_png(path)
+  let path_bytes = @fs.read_file_to_bytes(path)
+
+  let chunks : Array[Bytes] = []
+  surface.write_to_png_stream(fn(chunk) {
+    chunks.push(chunk)
+    @cairoon.Success
+  })
+  inspect(path_bytes == chunks_to_bytes(chunks), content="true")
+
+  let path_surface = @cairoon.Surface::image_from_png(path)
+  let stream_bytes = chunks_to_bytes(chunks)
+  let offset = Ref(0)
+  let stream_surface = @cairoon.Surface::image_from_png_stream(fn(length) {
+    let chunk = bytes_slice(stream_bytes, offset.val, length)
+    offset.val += length
+    chunk
+  })
+  inspect(
+    path_surface.copy_data() == stream_surface.copy_data(),
+    content="true",
+  )
+
+  @fs.remove_file(path)
+}
+
+///|
 test "stream writer chunks remain usable after callback returns" {
   let pdf_chunks : Array[Bytes] = []
   let pdf = @cairoon.Surface::pdf_stream(10.0, 10.0, fn(chunk) {

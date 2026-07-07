@@ -3,6 +3,7 @@ import {
   "moonbitlang/core/builtin",
   "moonbitlang/core/encoding/utf8",
   "moonbitlang/core/test",
+  "moonbitlang/x/fs",
 } for "test"
 
 options(

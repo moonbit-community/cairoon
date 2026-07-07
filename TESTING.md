@@ -179,8 +179,9 @@ Memory tests must cover:
 For surfaces and devices, add backend-specific smoke tests:
 
 - Image: exact stride, format, dimensions, and raw byte output.
-- Image PNG streams: read/write callback round trips, copied pixel-data
-  equivalence after stream readback, and read/write error propagation.
+- Image PNG streams: path-vs-stream exact byte equality, read/write callback
+  round trips, copied pixel-data equivalence after stream readback, and
+  read/write error propagation.
 - PDF/SVG/PS: create, finish, metadata, page behavior, stream writers, and
   normalized output, including direct-C comparisons for show/copy/show page
   transitions and clip/group/mask state-stack scenes with PDF tags and PS/SVG
@@ -3157,6 +3158,11 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   This keeps the expected full native suite at 635 tests while making future
   source/test/script/native-glue files above 900 lines fail local verification
   until they are split deliberately.
+  A later PNG path/stream pycairo parity slice added a black-box fixture that
+  writes one ARGB32 image through both `Surface::write_to_png` and
+  `Surface::write_to_png_stream`, compares exact PNG bytes, and compares the
+  copied image data after reading both outputs back. The observed full native
+  suite is now 637 tests without changing public API.
 
 Remaining reliability work is now narrower and should be tracked as evidence,
 not as an unstructured checklist:
