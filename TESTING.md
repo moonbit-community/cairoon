@@ -3182,6 +3182,12 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   error test into `context_state_test.mbt`. The observed full native suite
   remains 637 tests, `surface_context_test.mbt` drops from 525 to 348 lines, and
   no public API changes.
+  A later vector-backend output test organization slice split the mixed
+  PDF/PS/SVG marker checks from `vector_output_test.mbt` into
+  `vector_output_pdf_test.mbt`, `vector_output_ps_test.mbt`, and
+  `vector_output_svg_test.mbt`. The observed full native suite remains 637
+  tests, the largest vector-output marker file drops from 490 to 383 lines, and
+  no public API changes.
 
 Remaining reliability work is now narrower and should be tracked as evidence,
 not as an unstructured checklist:
