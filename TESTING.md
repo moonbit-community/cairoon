@@ -299,7 +299,9 @@ unmap helpers with success/error cleanup coverage, portable
 Surface base helpers such as similar-surface creation, rectangular child
 surface creation with retained parent-wrapper lifetime, content/type queries,
 pointer equality/hash for ordinary surfaces, dirty markers with
-finished-status coverage, device offset/scale, fallback resolution,
+finished-status coverage, pycairo-derived surface context-manager/cmp-hash/
+content-format/device-scale/create-for-rectangle/create-similar-image
+fixtures, device offset/scale, fallback resolution,
 show-text-glyphs support checks with finished-status coverage, invalid-size
 error mapping for similar and rectangular child
 surface construction, MIME constants, MIME data storage/query/clear support including
@@ -1207,6 +1209,12 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   `raster_lifetime_stress_test.mbt:0-1`, and `pattern.mbt.md:0-6`; it exited
   0 and `/tmp/cairoon-image-getters-blackbox-asan.txt` records the selected
   tests, including `image surface properties map status and subtype errors`.
+- `moon -C cairoon test surface_pycairo_parity_test.mbt --target native -v`: 6
+  pycairo `test_surface.py`-derived fixtures passed, covering surface
+  context-manager cleanup, target equality/hash through `Context::get_target`,
+  content/format getters, device-scale valid/extreme/invalid-matrix cases,
+  `create_for_rectangle` success/invalid-size/extreme numeric cases, and
+  PDF-backed `create_similar_image`.
 - `moon -C cairoon test surface_mime_test.mbt --target native -v`: 5
   black-box tests passed after adding image/PDF/PS/SVG
   `supports_mime_type` matrix coverage and invalid MIME type string coverage.
@@ -3096,6 +3104,13 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   states, compatible-image acquire with device offset, acquire/release event
   order, and red pixel output after `Context::paint`. This raises the expected
   full native suite to 622 tests without changing public API.
+  A later Surface pycairo parity slice added `surface_pycairo_parity_test.mbt`
+  with six pycairo `test_surface.py`-derived fixtures covering surface
+  context-manager cleanup, target equality/hash through `Context::get_target`,
+  content/format getters, device-scale valid/extreme/invalid-matrix cases,
+  `create_for_rectangle` success/invalid-size/extreme numeric cases, and
+  PDF-backed `create_similar_image`. This raises the expected full native suite
+  to 628 tests without changing public API.
 
 Remaining reliability work is now narrower and should be tracked as evidence,
 not as an unstructured checklist:
