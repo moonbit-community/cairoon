@@ -4,6 +4,31 @@ This document maps common pycairo patterns to `cairoon`. It is a migration
 guide for the current MoonBit native binding, not a claim that every pycairo API
 is complete. Use `API_INVENTORY.md` as the source of truth for coverage.
 
+## Consumer Package Setup
+
+Unlike pycairo, cairoon is not loaded from a process-wide Python extension
+module. Every MoonBit executable or test package that imports cairoon must also
+link the native Cairo library.
+
+```moonbit
+import {
+  "CAIMEOX/cairoon",
+}
+
+options(
+  link: {
+    "native": {
+      "cc-link-flags": "-lcairo",
+    },
+  },
+)
+```
+
+For a checkout of this repository, run `scripts/configure-link-flags.sh` to
+write the platform-specific flags discovered from `pkg-config --libs cairo`.
+For downstream projects, keep equivalent Cairo link flags in the consuming
+package that builds the native executable or black-box tests.
+
 ## Core API Mapping
 
 | pycairo | cairoon |
@@ -28,6 +53,53 @@ Most context methods keep pycairo's snake_case names, for example
 `ctx.set_source_rgb`, `ctx.paint`, `ctx.stroke_preserve`, `ctx.show_text`, and
 `ctx.copy_path`.
 
+## Common Method Mapping
+
+Surface and image operations:
+
+| pycairo | cairoon |
+| --- | --- |
+| `surface.finish()` | `surface.finish()` |
+| `surface.flush()` | `surface.flush()` |
+| `surface.write_to_png(path)` | `surface.write_to_png(path)` |
+| `surface.write_to_png(file_like)` | `surface.write_to_png_stream(fn(chunk) { ... })` |
+| `surface.get_data()` | `surface.get_data()` for mutable `ImageData`, or `surface.copy_data()` for a copy |
+| `surface.map_to_image(rect)` | `surface.map_to_image(extents=Some(rect))` |
+| context manager cleanup | `with_finished` / `with_unmapped` helpers |
+
+Pattern operations:
+
+| pycairo | cairoon |
+| --- | --- |
+| `pattern.set_extend(cairo.Extend.REPEAT)` | `pattern.set_extend(ExtendRepeat)` |
+| `pattern.set_filter(cairo.Filter.NEAREST)` | `pattern.set_filter(FilterNearest)` |
+| `pattern.set_matrix(matrix)` | `pattern.set_matrix(matrix)` |
+| `gradient.add_color_stop_rgba(...)` | `gradient.add_color_stop_rgba(...)` |
+| `mesh.begin_patch()` / `mesh.end_patch()` | `mesh.mesh_begin_patch()` / `mesh.mesh_end_patch()` |
+
+Font and text operations:
+
+| pycairo | cairoon |
+| --- | --- |
+| `cairo.ToyFontFace(family, slant, weight)` | `FontFace::toy(family, slant=..., weight=...)` |
+| `ctx.select_font_face("Sans")` | `ctx.select_font_face("Sans")` |
+| `ctx.set_font_options(options)` | `ctx.set_font_options(options)` |
+| `ctx.get_scaled_font()` | `ctx.get_scaled_font()` |
+| `scaled.text_to_glyphs(x, y, text)` | `scaled.text_to_glyphs(x, y, text)` |
+| `ctx.show_text_glyphs(text, glyphs, clusters, flags)` | `ctx.show_text_glyphs(text, glyphs, clusters, flags=flags)` |
+
+Backend surface operations:
+
+| pycairo | cairoon |
+| --- | --- |
+| `pdf.set_metadata(cairo.PDFMetadata.TITLE, text)` | `pdf.pdf_set_metadata(PDFMetadataTitle, text)` |
+| `pdf.set_custom_metadata(name, value)` | `pdf.pdf_set_custom_metadata(name, value)` |
+| `pdf.add_outline(...)` | `pdf.pdf_add_outline(...)` |
+| `ps.set_eps(True)` | `ps.ps_set_eps(true)` |
+| `ps.dsc_comment(text)` | `ps.ps_dsc_comment(text)` |
+| `svg.set_document_unit(cairo.SVGUnit.PX)` | `svg.svg_set_document_unit(SVGUnitPx)` |
+| `cairo.ScriptDevice(path)` | `Device::script(path)` |
+
 ## Errors
 
 pycairo raises Python exceptions. `cairoon` functions that can fail are marked
@@ -48,6 +120,15 @@ Use `try`/`catch` for local handling, or `run_cairo` when a `Result` is more
 convenient. `CairoError` has suberrors for memory, IO/PNG/read/write, and
 invalid-argument statuses.
 
+Typical translations:
+
+| pycairo style | cairoon style |
+| --- | --- |
+| `with pytest.raises(cairo.Error): f()` | `match run_cairo(() => f()) { Err(_) => (), _ => fail(...) }` |
+| inspect `err.status` | match `CairoError(status, _)` or a narrower suberror |
+| invalid Python argument type | usually impossible at compile time in MoonBit |
+| Cairo invalid enum/status | `CairoInvalidArgument(...)` or `CairoError(...)` depending on the status |
+
 ## Ownership And Lifetime
 
 pycairo relies on Python reference counting. `cairoon` wraps Cairo handles as
@@ -63,6 +144,21 @@ MoonBit external objects with finalizers.
   cleanup.
 - MIME data is copied into C-owned storage on set and copied back into MoonBit
   `Bytes` on get. Python object identity for MIME data is not preserved.
+
+When porting Python code that uses context managers, prefer explicit scoped
+helpers in MoonBit:
+
+```mbt check
+///|
+test {
+  let surface = Surface::image(Argb32, 1, 1)
+  surface.with_finished(() => {
+    let ctx = Context::new(surface)
+    ctx.paint()
+  })
+  debug_inspect(surface.status(), content="SurfaceFinished")
+}
+```
 
 ## Strings And Bytes
 
@@ -121,8 +217,15 @@ release trampoline so retained acquired-surface wrappers are released.
 ## Known Differences
 
 - The package is native-only.
+- The project is temporarily unstable; pin exact versions or commits until a
+  stable release is cut.
 - `copy_data()` copies; mutable access is through `ImageData`.
 - MIME payload identity differs from pycairo because data is copied.
+- Python file-like objects are replaced by explicit MoonBit stream callbacks.
+- Python `None` constructors map to explicit optional arguments or no-output
+  constructors, for example `Surface::pdf(width, height)` for a no-output PDF.
+- Python `int` enum passthrough is available only through documented raw helper
+  methods such as `set_operator_raw`; prefer typed enums in new MoonBit code.
 - Exact vector bytes are Cairo-version and backend dependent; current tests
   compare against direct Cairo C output and selected stable markers.
 - The current implementation is still tracked in `API_INVENTORY.md`; do not
