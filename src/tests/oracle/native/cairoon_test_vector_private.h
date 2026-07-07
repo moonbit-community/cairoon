@@ -70,7 +70,8 @@ enum {
   CAIROON_TEST_VECTOR_BACKEND_PAGE_OPS = 47,
   CAIROON_TEST_VECTOR_BACKEND_TAG_METADATA = 48,
   CAIROON_TEST_VECTOR_BACKEND_STRUCTURE_SEQUENCE = 49,
-  CAIROON_TEST_VECTOR_BACKEND_OUTLINE_SEQUENCE = 50
+  CAIROON_TEST_VECTOR_BACKEND_OUTLINE_SEQUENCE = 50,
+  CAIROON_TEST_VECTOR_BACKEND_PATTERN_TAG = 51
 };
 
 cairo_status_t cairoon_test_draw_vector_scene(
@@ -138,6 +139,9 @@ cairo_status_t cairoon_test_render_backend_structure_sequence_features(
   int32_t kind,
   const char *name);
 cairo_status_t cairoon_test_render_backend_outline_sequence_features(
+  int32_t kind,
+  const char *name);
+cairo_status_t cairoon_test_render_backend_pattern_tag_features(
   int32_t kind,
   const char *name);
 cairo_status_t cairoon_test_render_ps_dsc_features(const char *name);

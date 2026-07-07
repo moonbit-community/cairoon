@@ -115,6 +115,10 @@ fn render_backend_oracle_stream_scene(
       let surface = make_stream_outline_sequence_stream_surface(kind, chunks)
       render_stream_outline_sequence_scene(kind, surface)
     }
+    51 => {
+      let surface = make_stream_pattern_tag_stream_surface(kind, chunks)
+      render_stream_pattern_tag_scene(kind, surface)
+    }
     _ => @cairoon.check_status(@cairoon.InvalidStatus)
   }
 }
@@ -355,7 +359,8 @@ test "pdf mime and thumbnail streams match direct cairo C oracle after normaliza
 test "backend feature streams match direct cairo C oracle after normalization" {
   for kind in 0..<3 {
     let ext = stream_equivalence_extension(kind)
-    for scene in [35, 36, 37, 38, 39, 40, 41, 42, 44, 45, 46, 47, 48, 49, 50] {
+    for
+      scene in [35, 36, 37, 38, 39, 40, 41, 42, 44, 45, 46, 47, 48, 49, 50, 51] {
       let chunks : Array[Bytes] = []
       render_backend_oracle_stream_scene(scene, kind, chunks)
       inspect(chunks.length() > 0, content="true")

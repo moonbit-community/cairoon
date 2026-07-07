@@ -74,7 +74,7 @@ Evaluate each slice with this scorecard:
 | Reliability ledger | `API_INVENTORY.md` statuses are `Done`, `Partial`, or `Decision`; every `Partial` row names its remaining gap; this scorecard and CI/verify gate are checked by `scripts/check-reliability-ledger.py` | Strong for current migrated slices; the lint runs in the local and CI verify gate, and any future full-product claim still requires zero `Todo`/`Partial` rows |
 | FFI boundary safety | Production raw `src/**/ffi*.mbt` declarations mark every non-primitive C FFI parameter with `#borrow` or `#owned`, and `scripts/check-ffi-ownership.py` passes | Strong for current raw externs, including internal helper packages; the lint runs in the local and CI verify gate |
 | Behavioral parity | pycairo-derived black-box cases or direct C Cairo primitive oracles cover normal and invalid inputs | Strong for image, context, path, font, pattern, region, surface/device, and backend helpers already listed in the inventory |
-| Rendering parity | Deterministic image pixels or normalized PDF/PS/SVG bytes match direct C Cairo output | Strong for the enumerated image and vector fixtures, including backend page-transition, state-stack, deep-tag, metadata-outline, page-ops, tag-metadata, structure-sequence, and outline-sequence tag/metadata/page-operation output; still partial for broader tag/metadata/multi-page combinations |
+| Rendering parity | Deterministic image pixels or normalized PDF/PS/SVG bytes match direct C Cairo output | Strong for the enumerated image and vector fixtures, including backend page-transition, state-stack, deep-tag, metadata-outline, page-ops, tag-metadata, structure-sequence, outline-sequence, and pattern-tag tag/metadata/page-operation output; still partial for broader tag/metadata/multi-page combinations |
 | Lifetime safety | External-object ownership, borrowed returns, callback retention, and error exits run under ASan/LSan or stress tests | Strong for targeted local gates; macOS LSan remains intentionally disabled for known toy-font/glyph leak reports |
 | Callback safety | C-held MoonBit callbacks and callback arguments are retained across the callback invocation and released deterministically | Strong for stream writers/readers and raster-source callbacks covered by current stress/fuzz tests |
 | Portability | Required backends pass on each supported platform, or unsupported APIs have explicit `Decision` rows | Partial until the shipped CI workflow has passing native, oracle, and sanitizer runs across the release platform matrix |
@@ -3124,16 +3124,28 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   normal/extreme round trips, fallback-resolution round trips, and dirty/page
   operations. This raises the expected full native suite to 631 tests without
   changing public API.
+  A later pattern-tag stream-to-direct-C oracle slice added scene 51 in the
+  focused `cairoon_test_backend_pattern_tag.c` oracle file, covering a
+  transformed surface pattern, radial mask, PDF metadata/custom-metadata
+  removal, page labels, outline flags, URI and named-destination links,
+  `Document`/`Sect`/`P`/`Figure`/`Div`/`Span` structure tags, retained
+  `Surface::copy_page`, `Surface::show_page`, PDF/PS page resizing, PS Level 3
+  DSC markers, SVG point units, `Context::set_font_matrix`, and
+  `ScaledFont::text_to_glyphs`. The slice adds file-vs-stream equality,
+  file-vs-direct-C equality, stream-vs-direct-C equality through the backend
+  oracle dispatcher, stable PDF/PS/SVG markers, and PS/SVG file/stream
+  negative PDF-metadata checks. This raises the expected full native suite to
+  635 tests without changing public API.
 
 Remaining reliability work is now narrower and should be tracked as evidence,
 not as an unstructured checklist:
 
 - Broaden normalized PDF/PS/SVG differential coverage for combinations not yet
   represented by the current direct-C and direct stream-oracle fixtures:
-  additional deep tag nests beyond scenes 37, 39, 40, 44, 45, and 49, more
-  metadata/page-label/outline mixtures beyond scenes 38 through 42, 44, 46, 47, 48, 49, and 50, and
+  additional deep tag nests beyond scenes 37, 39, 40, 44, 45, 49, and 51, more
+  metadata/page-label/outline mixtures beyond scenes 38 through 42, 44, 46, 47, 48, 49, 50, and 51, and
   additional multi-page sequences beyond the current
-  retained/resized/tag-matrix/lifecycle/text-state/page-ops/structure-sequence/outline-sequence
+  retained/resized/tag-matrix/lifecycle/text-state/page-ops/structure-sequence/outline-sequence/pattern-tag
   page fixtures.
 - Add broader platform coverage and finalizer fuzz beyond the
   deterministic raster-source owner-count, state-machine, manual

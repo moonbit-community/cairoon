@@ -32,6 +32,7 @@ options(
     "cairoon_test_backend_tag_metadata.c",
     "cairoon_test_backend_structure_sequence.c",
     "cairoon_test_backend_outline_sequence.c",
+    "cairoon_test_backend_pattern_tag.c",
     "cairoon_test_pdf_vector.c",
     "cairoon_test_ps_vector.c",
     "cairoon_test_svg_vector.c",
