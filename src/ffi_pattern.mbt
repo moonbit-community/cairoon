@@ -62,14 +62,14 @@ extern "C" fn pattern_get_extend_raw_ffi(pattern : Pattern) -> Int = "cairoon_pa
 #borrow(pattern)
 extern "C" fn pattern_set_extend_ffi(
   pattern : Pattern,
-  extend : Extend,
+  extend_mode : Extend,
 ) -> Status = "cairoon_pattern_set_extend"
 
 ///|
 #borrow(pattern)
 extern "C" fn pattern_set_extend_raw_ffi(
   pattern : Pattern,
-  extend : Int,
+  extend_mode : Int,
 ) -> Status = "cairoon_pattern_set_extend_raw"
 
 ///|

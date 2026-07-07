@@ -98,9 +98,9 @@ pub fn Pattern::get_extend(self : Pattern) -> Extend raise CairoError {
 ///|
 pub fn Pattern::set_extend(
   self : Pattern,
-  extend : Extend,
+  extend_mode : Extend,
 ) -> Unit raise CairoError {
-  check_status(pattern_set_extend_ffi(self, extend))
+  check_status(pattern_set_extend_ffi(self, extend_mode))
 }
 
 ///|
@@ -112,9 +112,9 @@ pub fn Pattern::get_extend_raw(self : Pattern) -> Int raise CairoError {
 ///|
 pub fn Pattern::set_extend_raw(
   self : Pattern,
-  extend : Int,
+  extend_mode : Int,
 ) -> Unit raise CairoError {
-  check_status(pattern_set_extend_raw_ffi(self, extend))
+  check_status(pattern_set_extend_raw_ffi(self, extend_mode))
 }
 
 ///|

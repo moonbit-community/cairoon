@@ -99,7 +99,7 @@ python3 cairoon/scripts/check-project-layout.py
 python3 cairoon/scripts/check-api-inventory.py
 python3 cairoon/scripts/check-ffi-ownership.py
 python3 cairoon/scripts/check-reliability-ledger.py
-moon -C cairoon check --target native
+moon -C cairoon check --target native --deny-warn
 moon -C cairoon info --target native
 ```
 
@@ -198,8 +198,8 @@ For surfaces and devices, add backend-specific smoke tests:
 
 A release candidate must pass on all supported platforms:
 
-- `moon check`
-- `moon test`
+- `moon check --target native --deny-warn`
+- `moon test --target native --deny-warn`
 - ASan/LSan native test run
 - Differential pycairo/C oracle suite
 - API inventory audit
@@ -214,7 +214,8 @@ The current local gate is executable as:
 It runs `moon fmt --check`, `scripts/check-project-layout.py`,
 `scripts/configure-link-flags.sh --check`, `scripts/check-ffi-ownership.py`,
 `scripts/check-api-inventory.py`, `scripts/check-reliability-ledger.py`,
-native `moon check`, the `src/native` native-stub package, extracted external
+native `moon check --target native --deny-warn`, the `src/native` native-stub
+package, extracted external
 test packages under
 `src/tests/api` (version, enum, status, and pure value APIs),
 support packages under `src/core/glyph`, `src/internal/version`, and
@@ -227,7 +228,8 @@ and `src/tests/stream`, `src/tests/object`, `src/tests/lifetime`, and
 `src/tests/oracle/native`, `src/tests/oracle/constants`,
 `src/tests/oracle/scaled_font`, and
 `src/tests/oracle/image`, `src/tests/oracle/pattern_raster`, and
-`src/tests/oracle/vector_backend`, the full native test suite,
+`src/tests/oracle/vector_backend`, the full native test suite with
+`moon test --target native --deny-warn`,
 `moon info --target native`, and targeted ASan builds for all external test
 packages when an ASan-capable `clang` is available. The public package root no
 longer has a separate targeted `*_wbtest.mbt` list; those tests have been

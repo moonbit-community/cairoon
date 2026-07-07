@@ -39,7 +39,7 @@ run() {
 run_support_packages() {
   local support_pkg
   for support_pkg in "${support_packages[@]}"; do
-    run moon test "$support_pkg" --target native -v
+    run moon test "$support_pkg" --target native --deny-warn -v
   done
 }
 
@@ -47,9 +47,9 @@ run_external_test_packages() {
   local test_pkg
   for test_pkg in "${external_test_packages[@]}"; do
     if [[ "$#" -gt 0 ]]; then
-      run "$@" moon test "$test_pkg" --target native -v
+      run "$@" moon test "$test_pkg" --target native --deny-warn -v
     else
-      run moon test "$test_pkg" --target native -v
+      run moon test "$test_pkg" --target native --deny-warn -v
     fi
   done
 }
@@ -71,11 +71,11 @@ run ./scripts/configure-link-flags.sh --check
 run python3 ./scripts/check-ffi-ownership.py
 run python3 ./scripts/check-api-inventory.py
 run python3 ./scripts/check-reliability-ledger.py
-run moon check --target native
+run moon check --target native --deny-warn
 run_support_packages
 run_external_test_packages
 
-run moon test --target native
+run moon test --target native --deny-warn
 run moon info --target native
 
 asan_mode="${CAIROON_VERIFY_ASAN:-auto}"
