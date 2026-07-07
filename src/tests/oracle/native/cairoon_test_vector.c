@@ -121,6 +121,9 @@ cairo_status_t cairoon_test_render_vector_scene_oracle(
   if (scene == CAIROON_TEST_VECTOR_BACKEND_PATTERN_TAG) {
     return cairoon_test_render_backend_pattern_tag_features(kind, name);
   }
+  if (scene == CAIROON_TEST_VECTOR_BACKEND_ANNOTATION_SEQUENCE) {
+    return cairoon_test_render_backend_annotation_sequence_features(kind, name);
+  }
 
   switch (kind) {
     case CAIROON_TEST_VECTOR_PDF:
