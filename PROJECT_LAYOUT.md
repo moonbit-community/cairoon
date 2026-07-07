@@ -45,7 +45,7 @@ silently return later.
 - 2 `.mbt` implementation files and 1 package-local `*_test.mbt` file in
   `src/internal/svg/`.
 - 1 native-package MoonBit anchor file in `src/native/`.
-- 119 `*_test.mbt` files under `src/tests/`, including black-box and oracle
+- 120 `*_test.mbt` files under `src/tests/`, including black-box and oracle
   packages.
 - 0 white-box `*_wbtest.mbt` files in `src/`.
 - 34 public C implementation files owned by `src/native/moon.pkg`.
@@ -194,8 +194,13 @@ cairoon/
         text_to_glyphs/
           moon.pkg
       pattern/
-        moon.pkg
+        core/
+          moon.pkg
         gradient/
+          moon.pkg
+        mesh/
+          moon.pkg
+        pycairo/
           moon.pkg
         raster/
           moon.pkg

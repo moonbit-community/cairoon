@@ -75,10 +75,10 @@ Implemented in this workspace:
   state, transforms, paths, pycairo parity fixtures, groups, text/glyph APIs,
   extents, clipping, painting, tags, and ScaledFont text-to-glyph conversion
   through separately linked published-package seams.
-- Pattern black-box tests now live in `src/tests/pattern` plus nested
-  `src/tests/pattern/{gradient,raster}` packages, importing only the public
-  `CAIMEOX/cairoon` API. This validates solid/surface/common-state patterns,
-  pycairo parity fixtures, gradient queries, mesh patch lifecycle,
+- Pattern black-box tests now live in
+  `src/tests/pattern/{core,mesh,pycairo,gradient,raster}`, importing only the
+  public `CAIMEOX/cairoon` API. This validates solid/surface/common-state
+  patterns, pycairo parity fixtures, gradient queries, mesh patch lifecycle,
   raster-source callbacks, and raster-source callback fuzz/state behavior
   through separately linked published-package seams.
 - Font black-box tests now live in `src/tests/font/{face,options,scaled,pycairo}`,
@@ -1125,11 +1125,17 @@ Prior full verifies passed on 2026-07-02, 2026-07-03, 2026-07-04,
   and paints from its source after the source wrapper and context scope exit,
   and PDF/PS stream target wrappers that remain usable after the creating
   surface helper scope exits.
-- `moon -C cairoon test src/tests/pattern --target native -v`: 28 black-box
-  core, mesh, and pycairo Pattern parity tests passed, covering
-  solid/surface/common-state patterns, pointer identity/hash, raw enum
-  passthrough, surface-pattern lifetime, mesh patch lifecycle/query APIs,
-  pycairo solid/surface/gradient/mesh fixtures, and mesh error-state mapping.
+- `moon -C cairoon test src/tests/pattern/core --target native -v`: 12
+  black-box Pattern core tests passed, covering solid/surface/common-state
+  patterns, pointer identity/hash, raw enum passthrough, surface-pattern
+  lifetime, and pattern type-mismatch error mapping.
+- `moon -C cairoon test src/tests/pattern/mesh --target native -v`: 6
+  black-box mesh Pattern tests passed, covering mesh patch lifecycle/query APIs,
+  patch and point index validation, lifecycle error propagation, and non-mesh
+  subtype rejection.
+- `moon -C cairoon test src/tests/pattern/pycairo --target native -v`: 10
+  black-box Pattern pycairo parity tests passed, covering pycairo
+  solid/surface/gradient/mesh fixtures and mesh error-state mapping.
 - `moon -C cairoon test src/tests/pattern/gradient --target native -v`: 5
   black-box gradient tests passed from a nested external package, covering
   linear/radial gradient geometry, color-stop count/tuple retrieval,
@@ -1176,7 +1182,8 @@ Prior full verifies passed on 2026-07-02, 2026-07-03, 2026-07-04,
   change.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
-  src/tests/pattern src/tests/pattern/raster --target native -v`: 41
+  src/tests/pattern/core src/tests/pattern/mesh src/tests/pattern/pycairo
+  src/tests/pattern/raster --target native -v`: 41
   ASan-compiled black-box pattern tests passed with leak detection disabled
   after the split, covering core/surface/mesh/pycairo pattern behavior,
   compatible target/extents raster-source acquire, release-only callback state,
