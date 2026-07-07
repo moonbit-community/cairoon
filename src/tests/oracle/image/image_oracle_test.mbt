@@ -38,8 +38,10 @@ fn draw_image_oracle_scene(
     draw_image_oracle_basic_scene(ctx, scene)
   } else if scene < 34 {
     draw_image_oracle_pattern_scene(ctx, scene)
-  } else {
+  } else if scene < 42 {
     draw_image_oracle_pattern_stack_scene(ctx, scene)
+  } else {
+    draw_image_oracle_pattern_operator_scene(ctx, scene)
   }
 }
 
@@ -74,7 +76,7 @@ fn render_buffered_image_oracle_scene(
 
 ///|
 test "image rendering scenes match direct cairo C oracle" {
-  for scene in 0..<42 {
+  for scene in 0..<43 {
     let actual = render_image_oracle_scene(scene)
     let expected = test_argb32_scene_oracle_ffi(scene, 16, 16)
     inspect(expected.length(), content="1024")
@@ -84,7 +86,7 @@ test "image rendering scenes match direct cairo C oracle" {
 
 ///|
 test "buffer backed image rendering scenes match direct cairo C oracle" {
-  for scene in 0..<42 {
+  for scene in 0..<43 {
     let (actual, copied) = render_buffered_image_oracle_scene(scene)
     let expected = test_argb32_scene_oracle_ffi(scene, 16, 16)
     inspect(expected.length(), content="1024")
