@@ -87,12 +87,13 @@ Implemented in this workspace:
   round trips, ScaledFont construction, matrix queries, text extents,
   invalid-string handling, and context error propagation through separately
   linked published-package seams; ScaledFont C-oracle tests remain white-box.
-- Stream/device black-box tests now live in `src/tests/stream` and
-  `src/tests/stream/device`, importing only the public `CAIMEOX/cairoon` API.
-  This validates PDF/PS/SVG/PNG stream writers/readers, callback chunk
-  retention, script devices, script surfaces, device lifetime helpers, raw
-  script content mapping, and stream error mapping through separately linked
-  published-package seams; backend stream oracle tests remain white-box.
+- Stream/device black-box tests now live in
+  `src/tests/stream/{surface,device}`, importing only the public
+  `CAIMEOX/cairoon` API. This validates PDF/PS/SVG/PNG stream writers/readers,
+  callback chunk retention, script devices, script surfaces, device lifetime
+  helpers, raw script content mapping, and stream error mapping through
+  separately linked published-package seams; backend stream oracle tests remain
+  white-box.
 - Path black-box tests now live in `src/tests/path`, importing only the public
   `CAIMEOX/cairoon` API. This validates Path formatting, iteration, flattening,
   scope survival, and path comparison behavior through the published package
@@ -1125,6 +1126,17 @@ Prior full verifies passed on 2026-07-02, 2026-07-03, 2026-07-04,
   and paints from its source after the source wrapper and context scope exit,
   and PDF/PS stream target wrappers that remain usable after the creating
   surface helper scope exits.
+- `moon -C cairoon test src/tests/stream/surface --target native -v`: 14
+  black-box surface stream tests passed, covering PDF/PS/SVG stream output
+  chunks, vector stream `WriteError` mapping, closed-before-finish failure
+  mapping, invalid-status fallback to `WriteError`, PNG stream write/read and
+  short-read errors, path-vs-stream PNG byte equality, PDF public tag markers,
+  and retained callback chunks after allocation pressure.
+- `moon -C cairoon test src/tests/stream/device --target native -v`: 18
+  black-box script device and script surface tests passed, covering pycairo
+  device parity fixtures, script file/stream devices, script surfaces,
+  device/surface retained-owner behavior, raw content construction, and script
+  stream write-error mapping.
 - `moon -C cairoon test src/tests/pattern/core --target native -v`: 12
   black-box Pattern core tests passed, covering solid/surface/common-state
   patterns, pointer identity/hash, raw enum passthrough, surface-pattern

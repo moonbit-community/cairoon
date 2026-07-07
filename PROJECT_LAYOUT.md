@@ -214,8 +214,9 @@ cairoon/
         scaled/
           moon.pkg
       stream/
-        moon.pkg
         device/
+          moon.pkg
+        surface/
           moon.pkg
       path/
         moon.pkg

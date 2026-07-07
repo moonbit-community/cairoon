@@ -254,7 +254,7 @@ support packages under `src/core/constants`, `src/core/glyph`,
 `src/tests/pattern/pycairo`, `src/tests/pattern/gradient`,
 `src/tests/pattern/raster`, `src/tests/font/face`,
 `src/tests/font/options`, `src/tests/font/scaled`,
-`src/tests/font/pycairo`, `src/tests/stream`,
+`src/tests/font/pycairo`, `src/tests/stream/surface`,
 `src/tests/stream/device`,
 `src/tests/path`, `src/tests/object`, `src/tests/lifetime/context`,
 `src/tests/lifetime/owner`, `src/tests/lifetime/finalizer`,
@@ -1164,6 +1164,17 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   and paints from its source after the source wrapper and context scope exit,
   and PDF/PS stream target wrappers that remain usable after the creating
   surface helper scope exits.
+- `moon -C cairoon test src/tests/stream/surface --target native -v`: 14
+  black-box surface stream tests passed, covering PDF/PS/SVG stream output
+  chunks, vector stream `WriteError` mapping, closed-before-finish failure
+  mapping, invalid-status fallback to `WriteError`, PNG stream write/read and
+  short-read errors, path-vs-stream PNG byte equality, PDF public tag markers,
+  and retained callback chunks after allocation pressure.
+- `moon -C cairoon test src/tests/stream/device --target native -v`: 18
+  black-box script device and script surface tests passed, covering pycairo
+  device parity fixtures, script file/stream devices, script surfaces,
+  device/surface retained-owner behavior, raw content construction, and script
+  stream write-error mapping.
 - `moon -C cairoon test src/tests/pattern/core --target native -v`: 12
   black-box Pattern core tests passed, covering solid/surface/common-state
   patterns, pointer identity/hash, raw enum passthrough, surface-pattern
@@ -3402,6 +3413,11 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   into shared helper, vector-stream, PNG-stream, and retained-chunk files. The
   same 13 public stream black-box tests remain covered, the largest stream
   callback test file drops from 383 to 163 lines, and no public API changes.
+  A later Stream surface package split moved those root stream callback tests
+  into `src/tests/stream/surface`, leaving `src/tests/stream` as a pure
+  directory container. The focused package has 14 tests, and
+  `src/tests/stream/device` keeps 18 script device/surface tests with no public
+  API changes.
   A later annotation-sequence stream-to-direct-C oracle slice added scene 52 as
   a focused PDF/PS/SVG backend fixture with annotation/list/table structure
   tags, metadata, page labels, outlines, URI/destination links, retained
