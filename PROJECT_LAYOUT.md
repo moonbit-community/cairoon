@@ -228,6 +228,8 @@ cairoon/
           moon.pkg
       lifetime/
         moon.pkg
+        finalizer/
+          moon.pkg
       oracle/
         native/
           moon.pkg
