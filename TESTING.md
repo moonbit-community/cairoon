@@ -3217,16 +3217,25 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   equality, and PS/SVG negative PDF-metadata checks. This raises the
   vector-backend package by four tests and the expected full native suite to
   641 tests without changing public API.
+  A later semantic-index stream-to-direct-C oracle slice added scene 53 as a
+  focused PDF/PS/SVG backend fixture with TOC/TOCI/Reference,
+  Art/BlockQuote/NonStruct/Note, Figure/Caption structure tags, metadata, page
+  labels, outlines, destination/URI links, retained `Surface::copy_page`,
+  stable marker checks, stream-to-direct-C normalized equality, and PS/SVG
+  negative PDF-metadata checks. This raises the vector-backend package by four
+  tests and the expected full native suite to 645 tests without changing public
+  API.
 
 Remaining reliability work is now narrower and should be tracked as evidence,
 not as an unstructured checklist:
 
 - Broaden normalized PDF/PS/SVG differential coverage for combinations not yet
   represented by the current direct-C and direct stream-oracle fixtures:
-  additional deep tag nests beyond scenes 37, 39, 40, 44, 45, 49, 51, and 52, more
-  metadata/page-label/outline mixtures beyond scenes 38 through 42, 44, 46, 47, 48, 49, 50, 51, and 52, and
+  additional deep tag nests beyond scenes 37, 39, 40, 44, 45, 49, 51, 52, and
+  53, more metadata/page-label/outline mixtures beyond scenes 38 through 42,
+  44, 46, 47, 48, 49, 50, 51, 52, and 53, and
   additional multi-page sequences beyond the current
-  retained/resized/tag-matrix/lifecycle/text-state/page-ops/structure-sequence/outline-sequence/pattern-tag/annotation-sequence
+  retained/resized/tag-matrix/lifecycle/text-state/page-ops/structure-sequence/outline-sequence/pattern-tag/annotation-sequence/semantic-index
   page fixtures.
 - Add broader platform coverage and finalizer fuzz beyond the
   deterministic raster-source owner-count, state-machine, manual

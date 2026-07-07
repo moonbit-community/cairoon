@@ -123,6 +123,10 @@ fn render_backend_oracle_stream_scene(
       let surface = make_stream_annotation_sequence_stream_surface(kind, chunks)
       render_stream_annotation_sequence_scene(kind, surface)
     }
+    53 => {
+      let surface = make_stream_semantic_index_stream_surface(kind, chunks)
+      render_stream_semantic_index_scene(kind, surface)
+    }
     _ => @cairoon.check_status(@cairoon.InvalidStatus)
   }
 }
@@ -365,7 +369,7 @@ test "backend feature streams match direct cairo C oracle after normalization" {
     let ext = stream_equivalence_extension(kind)
     for
       scene in [
-        35, 36, 37, 38, 39, 40, 41, 42, 44, 45, 46, 47, 48, 49, 50, 51, 52,
+        35, 36, 37, 38, 39, 40, 41, 42, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53,
       ] {
       let chunks : Array[Bytes] = []
       render_backend_oracle_stream_scene(scene, kind, chunks)
