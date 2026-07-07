@@ -806,11 +806,12 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   and named-destination links, Document/Sect/Figure structure tags, PS DSC, SVG
   point units, and backend page-size changes.
 - `moon -C cairoon test src/tests/oracle/vector_backend/surface_stream_oracle_test.mbt
-  --target native -v`: 3 white-box stream-to-direct-C oracle tests passed,
-  with the backend feature stream dispatcher now including scenes 45 through 50
-  so the deep tag tree, metadata-outline, page-ops, tag-metadata, and
-  structure-sequence, and outline-sequence PDF/PS/SVG stream callback output is
-  compared with normalized direct C Cairo oracle files.
+  --target native -v`: 4 white-box stream-to-direct-C oracle tests passed,
+  covering tag-heavy scenes 15 through 17 and 22 through 30, retained
+  `Context::copy_page`/`glyph_path`/`show_glyphs` scenes 31 through 33, tagged
+  font-matrix text scene 43, and backend feature scenes 35 through 42 and 44
+  through 50, so these PDF/PS/SVG stream callback outputs are compared with
+  normalized direct C Cairo oracle files.
 - `moon -C cairoon test surface_stream_page_sequence_wbtest.mbt --target
   native -v`: 4 white-box backend resized page-sequence tests passed,
   comparing PDF/PS/SVG file output with stream output after normalized
@@ -2976,6 +2977,12 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   oracle dispatcher, stable PDF/PS/SVG markers, and PS/SVG file/stream negative
   PDF-metadata checks, raising the vector-backend package to 155 tests and the
   expected full native suite to 579 tests without changing public API.
+  A later page/glyph stream-to-direct-C oracle slice extended
+  `surface_stream_oracle_test.mbt` with scenes 31 through 33, comparing
+  PDF/PS/SVG stream callback output directly against normalized direct C Cairo
+  oracle files for retained `Context::copy_page`, `glyph_path`, and
+  `show_glyphs` vector scenes. This raises the vector-backend package to 156
+  tests without changing public API.
   A later context/pattern comparison parity slice added two pycairo
   `test_cmp_hash` fixtures: `Context` self-equality plus same-target
   different-context inequality, and repeated `Context.get_source()` pattern
