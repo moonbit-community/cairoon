@@ -230,6 +230,8 @@ cairoon/
         moon.pkg
         finalizer/
           moon.pkg
+        stream/
+          moon.pkg
       oracle/
         native/
           moon.pkg
