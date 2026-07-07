@@ -14,6 +14,11 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 
 ## Recent Audit Deltas
 
+- 2026-07-07: pycairo `test_api.py` parity now includes the
+  `surface_destroy_before_context` and
+  `surface_destroy_before_surface_pattern` lifetime fixtures, covering PDF/PS
+  stream targets retained by `Context` and PDF stream surfaces retained through
+  `Pattern::for_surface`.
 - 2026-07-07: pycairo `test_api.py` parity now includes a Unicode
   `Context::show_text` smoke fixture and a Unicode PNG filename round-trip
   fixture through `Surface::write_to_png` and `Surface::image_from_png`.

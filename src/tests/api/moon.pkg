@@ -1,5 +1,6 @@
 import {
   "CAIMEOX/cairoon",
+  "moonbitlang/core/encoding/utf8",
   "moonbitlang/core/test",
 } for "test"
 

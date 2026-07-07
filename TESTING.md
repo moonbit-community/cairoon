@@ -228,7 +228,7 @@ It runs `moon fmt --check`, `scripts/check-project-layout.py`,
 extracted external
 test packages under
 `src/tests/api` (version, enum, status, pure value APIs, and pycairo
-`test_api.py` Unicode text/path parity),
+`test_api.py` Unicode text/path plus context/pattern lifetime parity),
 support packages under `src/core/constants`, `src/core/glyph`,
 `src/internal/version`,
 `src/internal/format`, `src/internal/status`, `src/internal/pdf`,
@@ -281,7 +281,9 @@ documented product decisions for `CAPI`, legacy uppercase enum alias
 constants, and non-implemented FreeType/user-font classes,
 hit-testing/extents APIs, typed Path segment iteration and stringification,
 PNG filename load/save including Unicode filename round trips plus stream
-read/write, direct C Cairo oracle
+read/write, pycairo `surface_destroy_before_context` and
+`surface_destroy_before_surface_pattern` lifetime parity for stream-backed
+surfaces retained by contexts and surface patterns, direct C Cairo oracle
 comparisons for forty deterministic ARGB32 image scenes on ordinary and
 buffer-backed image surfaces including toy-font `text_path`, toy-font
 `show_text`, `glyph_path`, `show_glyphs`, `show_text_glyphs`,
@@ -630,11 +632,13 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   pycairo `test_path.py`-derived fixtures passed, covering empty path string
   behavior, `copy_path().to_string()` formatting, self comparison/hash
   operators, and iterator `PathDataType`/coordinate tuples.
-- `moon -C cairoon test src/tests/api --target native --deny-warn -v`: 23
-  black-box API package tests passed, including two pycairo `test_api.py`
+- `moon -C cairoon test src/tests/api --target native --deny-warn -v`: 25
+  black-box API package tests passed, including pycairo `test_api.py`
   Unicode fixtures for `Context::show_text("ēxāmple.")` and PNG filename
   write/read round trips through `Surface::write_to_png` and
-  `Surface::image_from_png`.
+  `Surface::image_from_png`, plus `surface_destroy_before_context` and
+  `surface_destroy_before_surface_pattern` lifetime fixtures for stream-backed
+  surfaces retained by contexts and surface patterns.
 - `moon -C cairoon test context_path_test.mbt --target native -v`: 11
   black-box Context path tests passed, covering current-point behavior,
   relative path operations, pycairo rectangle path-extents behavior,
