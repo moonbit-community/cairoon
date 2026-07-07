@@ -4,7 +4,7 @@ pub struct Rectangle {
   y : Double
   width : Double
   height : Double
-} derive(Eq, Debug)
+} derive(Eq, Hash, Debug)
 
 ///|
 pub fn Rectangle::new(
@@ -43,7 +43,7 @@ pub struct RectangleInt {
   y : Int
   width : Int
   height : Int
-} derive(Eq, Debug)
+} derive(Eq, Hash, Debug)
 
 ///|
 pub fn RectangleInt::new(
@@ -81,7 +81,7 @@ pub type Glyph = @glyph.Glyph
 pub struct TextCluster {
   num_bytes : Int
   num_glyphs : Int
-} derive(Eq, Debug)
+} derive(Eq, Hash, Debug)
 
 ///|
 pub fn TextCluster::new(num_bytes : Int, num_glyphs : Int) -> TextCluster {
@@ -124,7 +124,7 @@ pub struct TextExtents {
   height : Double
   x_advance : Double
   y_advance : Double
-} derive(Eq, Debug)
+} derive(Eq, Hash, Debug)
 
 ///|
 pub fn TextExtents::new(
@@ -198,7 +198,7 @@ pub struct FontExtents {
   height : Double
   max_x_advance : Double
   max_y_advance : Double
-} derive(Eq, Debug)
+} derive(Eq, Hash, Debug)
 
 ///|
 pub fn FontExtents::new(

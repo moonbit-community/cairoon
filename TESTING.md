@@ -3038,6 +3038,14 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   `Helvetica` normalization, ScaledFont matrix/font-options getters, and
   empty/single/spaced ASCII `text_to_glyphs` result shape. This raises the
   expected full native suite to 596 tests without changing public API.
+  A later pure value pycairo parity slice added `Hash` derivations for
+  `Rectangle`, `RectangleInt`, `Glyph`, `TextCluster`, `TextExtents`, and
+  `FontExtents`, plus `value_pycairo_parity_test.mbt` with six pycairo
+  namedtuple-style fixtures covering fields, component order, equality/hash,
+  numeric limits, `Context::copy_clip_rectangle_list`,
+  `RecordingSurface::recording_get_extents`, and Context/ScaledFont
+  text/font/glyph extents return paths. This raises the expected full native
+  suite to 602 tests.
 
 Remaining reliability work is now narrower and should be tracked as evidence,
 not as an unstructured checklist:

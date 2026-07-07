@@ -172,12 +172,12 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 |---|---|---|
 | `Matrix` | Done | MoonBit pure-value API returns transformed copies; `component`/`components` cover pycairo indexing/unpacking semantics; deterministic property tests cover multiplication associativity, inverse identity, composed point/distance transforms, and distance-vs-point-delta behavior; executable reference docs cover pure-value transform usage |
 | `Path` | Done | Opaque owned `cairo_path_t *`, status/equality/hash, MoonBit `Eq`/`Hash`/`Compare` traits, pycairo-compatible stringification including close-path continuation formatting, segment values, iteration, copied-path lifetime after the source context exits, targeted normal/ASan gate coverage, and executable reference docs |
-| `Rectangle` | Done | Pure value type with field/component access and pycairo numeric-limit coverage |
-| `RectangleInt` | Done | Pure value type with defaults; needed by region, map-to-image, and raster-source acquire extents |
-| `Glyph` | Done | Pure value type implemented in `src/core/glyph` and re-exported by the public facade; `UInt64` index matches Cairo's `unsigned long` width on 64-bit platforms, and array marshaling remains separate |
-| `TextCluster` | Done | Pure value type with 32-bit integer limit coverage; array marshaling remains separate |
-| `TextExtents` | Done | Pure value type with pycairo numeric-limit coverage |
-| Font extents tuple | Done | Exposed as named `FontExtents` pure value per `AGENTS.md` |
+| `Rectangle` | Done | Pure value type with field/component access, MoonBit `Eq`/`Hash`, pycairo tuple-like parity fixtures, numeric-limit coverage, `Context::copy_clip_rectangle_list` return coverage, and `RecordingSurface` extents coverage |
+| `RectangleInt` | Done | Pure value type with defaults and MoonBit `Eq`/`Hash`; needed by region, map-to-image, and raster-source acquire extents |
+| `Glyph` | Done | Pure value type implemented in `src/core/glyph` and re-exported by the public facade, with MoonBit `Eq`/`Hash`; `UInt64` index matches Cairo's `unsigned long` width on 64-bit platforms, and pycairo tuple-like value plus limit fixtures cover fields/components while array marshaling remains separate |
+| `TextCluster` | Done | Pure value type with MoonBit `Eq`/`Hash`, pycairo tuple-like field/component/hash fixtures, and 32-bit integer limit coverage; array marshaling remains separate |
+| `TextExtents` | Done | Pure value type with MoonBit `Eq`/`Hash`, pycairo tuple-like field/component/hash fixtures, numeric-limit coverage, and Context/ScaledFont text/glyph extents return coverage |
+| Font extents tuple | Done | Exposed as named `FontExtents` pure value per `AGENTS.md`, with MoonBit `Eq`/`Hash`, field/component/hash fixtures, and Context/ScaledFont font-extents return coverage |
 
 ## Pattern APIs
 

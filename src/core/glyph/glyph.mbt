@@ -3,7 +3,7 @@ pub struct Glyph {
   index : UInt64
   x : Double
   y : Double
-} derive(Eq, Debug)
+} derive(Eq, Hash, Debug)
 
 ///|
 pub fn Glyph::new(index : UInt64, x : Double, y : Double) -> Glyph {

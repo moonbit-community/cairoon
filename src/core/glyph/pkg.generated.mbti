@@ -15,7 +15,7 @@ pub struct Glyph {
   index : UInt64
   x : Double
   y : Double
-} derive(Eq, @debug.Debug)
+} derive(Eq, Hash, @debug.Debug)
 pub fn Glyph::components(Self) -> (UInt64, Double, Double)
 pub fn Glyph::new(UInt64, Double, Double) -> Self
 

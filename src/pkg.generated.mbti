@@ -322,7 +322,7 @@ pub struct FontExtents {
   height : Double
   max_x_advance : Double
   max_y_advance : Double
-} derive(Eq, @debug.Debug)
+} derive(Eq, Hash, @debug.Debug)
 pub fn FontExtents::component(Self, Int) -> Double raise CairoError
 pub fn FontExtents::components(Self) -> (Double, Double, Double, Double, Double)
 pub fn FontExtents::new(Double, Double, Double, Double, Double) -> Self
@@ -635,7 +635,7 @@ pub struct Rectangle {
   y : Double
   width : Double
   height : Double
-} derive(Eq, @debug.Debug)
+} derive(Eq, Hash, @debug.Debug)
 pub fn Rectangle::component(Self, Int) -> Double raise CairoError
 pub fn Rectangle::components(Self) -> (Double, Double, Double, Double)
 pub fn Rectangle::new(Double, Double, Double, Double) -> Self
@@ -645,7 +645,7 @@ pub struct RectangleInt {
   y : Int
   width : Int
   height : Int
-} derive(Eq, @debug.Debug)
+} derive(Eq, Hash, @debug.Debug)
 pub fn RectangleInt::component(Self, Int) -> Int raise CairoError
 pub fn RectangleInt::components(Self) -> (Int, Int, Int, Int)
 pub fn RectangleInt::new(x? : Int, y? : Int, width? : Int, height? : Int) -> Self
@@ -912,7 +912,7 @@ pub(all) enum SurfaceType {
 pub struct TextCluster {
   num_bytes : Int
   num_glyphs : Int
-} derive(Eq, @debug.Debug)
+} derive(Eq, Hash, @debug.Debug)
 pub fn TextCluster::component(Self, Int) -> Int raise CairoError
 pub fn TextCluster::components(Self) -> (Int, Int)
 pub fn TextCluster::new(Int, Int) -> Self
@@ -929,7 +929,7 @@ pub struct TextExtents {
   height : Double
   x_advance : Double
   y_advance : Double
-} derive(Eq, @debug.Debug)
+} derive(Eq, Hash, @debug.Debug)
 pub fn TextExtents::component(Self, Int) -> Double raise CairoError
 pub fn TextExtents::components(Self) -> (Double, Double, Double, Double, Double, Double)
 pub fn TextExtents::new(Double, Double, Double, Double, Double, Double) -> Self
