@@ -156,6 +156,11 @@ cairoon/
           moon.pkg
       matrix/
         moon.pkg
+      region/
+        core/
+          moon.pkg
+        pycairo/
+          moon.pkg
       surface/
         base/
           moon.pkg
@@ -227,8 +232,6 @@ cairoon/
         surface/
           moon.pkg
       path/
-        moon.pkg
-      region/
         moon.pkg
       backend/
         pdf/

@@ -50,11 +50,11 @@ Implemented in this workspace:
   types, methods, checked errors, and `CairoInvalidArgument` pattern matching;
   `scripts/verify.sh` discovers all `src/tests/**/moon.pkg` packages for normal
   and ASan targeted runs.
-- Region black-box tests now live in `src/tests/region`, importing only the
-  public `CAIMEOX/cairoon` API. This validates Region lifetime/copy behavior,
-  rectangle construction, containment, overlap enums, mutating boolean
-  operations, chained pycairo-style mutators, and invalid-index error mapping
-  from an external package.
+- Region black-box tests now live in `src/tests/region/{core,pycairo}`,
+  importing only the public `CAIMEOX/cairoon` API. This validates Region
+  lifetime/copy behavior, rectangle construction, containment, overlap enums,
+  mutating boolean operations, chained pycairo-style mutators, and invalid-index
+  error mapping through separately linked published-package seams.
 - Surface black-box tests now live in
   `src/tests/surface/{base,mime,pycairo,subsurface}`, importing only the
   public `CAIMEOX/cairoon` API. This validates base surface state,

@@ -240,7 +240,8 @@ support packages under `src/core/constants`, `src/core/glyph`,
 `src/internal/format`, `src/internal/status`, `src/internal/pdf`,
 `src/internal/ps`, `src/internal/svg`,
 `src/tests/matrix`,
-`src/tests/region`,
+`src/tests/region/core`,
+`src/tests/region/pycairo`,
 `src/tests/surface/base`, `src/tests/surface/mime`,
 `src/tests/surface/pycairo`, `src/tests/surface/subsurface`,
 `src/tests/image/properties`, `src/tests/image/data`,
@@ -687,6 +688,13 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   6 black-box value parity tests passed, covering pycairo-style value
   equality/hash/component fixtures, clip-rectangle returns, recording extents,
   and Context/ScaledFont extents-return paths.
+- `moon -C cairoon test src/tests/region/core --target native --deny-warn -v`:
+  10 black-box Region package tests passed, covering constructors, copies,
+  containment/overlap queries, mutating boolean operations, chainable rectangle
+  mutators, invalid-index mapping, and copied-region lifetime.
+- `moon -C cairoon test src/tests/region/pycairo --target native --deny-warn -v`:
+  5 black-box Region parity tests passed, covering pycairo-derived rectangle
+  index, equality, containment, mutator receiver, and translate fixtures.
 - `moon -C cairoon test src/tests/context/path --target native -v`: 11
   black-box Context path tests passed, covering current-point behavior,
   relative path operations, pycairo rectangle path-extents behavior,
