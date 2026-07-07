@@ -87,12 +87,12 @@ Implemented in this workspace:
   round trips, ScaledFont construction, matrix queries, text extents,
   invalid-string handling, and context error propagation through separately
   linked published-package seams; ScaledFont C-oracle tests remain white-box.
-- Stream/device black-box tests now live in `src/tests/stream`, importing only
-  the public `CAIMEOX/cairoon` API. This validates PDF/PS/SVG/PNG stream
-  writers/readers, callback chunk retention, script devices, script surfaces,
-  device lifetime helpers, raw script content mapping, and stream error mapping
-  through the published package seam; backend stream oracle tests remain
-  white-box.
+- Stream/device black-box tests now live in `src/tests/stream` and
+  `src/tests/stream/device`, importing only the public `CAIMEOX/cairoon` API.
+  This validates PDF/PS/SVG/PNG stream writers/readers, callback chunk
+  retention, script devices, script surfaces, device lifetime helpers, raw
+  script content mapping, and stream error mapping through separately linked
+  published-package seams; backend stream oracle tests remain white-box.
 - Path black-box tests now live in `src/tests/path`, importing only the public
   `CAIMEOX/cairoon` API. This validates Path formatting, iteration, flattening,
   scope survival, and path comparison behavior through the published package

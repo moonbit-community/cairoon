@@ -207,6 +207,10 @@ cairoon/
           moon.pkg
         scaled/
           moon.pkg
+      stream/
+        moon.pkg
+        device/
+          moon.pkg
       path/
         moon.pkg
       region/

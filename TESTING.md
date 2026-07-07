@@ -253,7 +253,8 @@ support packages under `src/core/constants`, `src/core/glyph`,
 `src/tests/pattern`, `src/tests/pattern/gradient`,
 `src/tests/pattern/raster`, `src/tests/font/face`,
 `src/tests/font/options`, `src/tests/font/scaled`,
-`src/tests/font/pycairo`, and `src/tests/stream`,
+`src/tests/font/pycairo`, `src/tests/stream`,
+`src/tests/stream/device`,
 `src/tests/path`, `src/tests/object`, `src/tests/lifetime`, and
 `src/tests/oracle/native`, `src/tests/oracle/constants`,
 `src/tests/oracle/scaled_font`, and
