@@ -3201,6 +3201,11 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   `vector_output_svg_test.mbt`. The observed full native suite remains 637
   tests, the largest vector-output marker file drops from 490 to 383 lines, and
   no public API changes.
+  A later lifetime stream stress organization slice split
+  `lifetime_stream_stress_test.mbt` into focused helper, allocation-stress, and
+  multi-seed fuzz files. The same 18 lifetime black-box tests remain covered,
+  `lifetime_stream_stress_test.mbt` is replaced by 222/125/88-line files, and
+  no public API changes.
 
 Remaining reliability work is now narrower and should be tracked as evidence,
 not as an unstructured checklist:
