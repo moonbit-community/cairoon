@@ -724,10 +724,12 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   backend docs, retained owner graph stress, external value-wrapper stress,
   image-data view stress, finalizer graph multi-seed fuzz, backend stream
   callback allocation stress, and backend stream callback multi-seed fuzz.
-- `moon -C cairoon test device_pycairo_parity_test.mbt --target native -v`: 6
+- `moon -C cairoon test device_pycairo_parity_test.mbt --target native -v`: 8
   pycairo-derived fixtures passed, covering script-device
   context-manager cleanup, Device equality/hash through `Surface::get_device`,
-  image-surface `get_device is None`, script mode/comment output, and
+  image-surface `get_device is None`, `HAS_SCRIPT_SURFACE`, script-device
+  type queries, file-path construction, acquire/release, script mode/comment
+  output, and
   recording-surface replay plus post-finish `DeviceFinished`, plus pycairo
   `test_surface.py`-derived script-surface create-for-target target-paint
   parity.
@@ -3145,6 +3147,11 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   image-surface `get_device is None`, script mode/comment output, and
   recording-surface replay plus post-finish `DeviceFinished`. This raises the
   expected full native suite to 620 tests without changing public API.
+  A later Device parity extension raised that file to eight fixtures by
+  covering pycairo's script feature constant, script-device type query,
+  file-path constructor, basic acquire/release, and script-surface
+  create-for-target target-paint parity. This raises the expected full native
+  suite to 657 tests without changing public API.
   A later Pattern raster-source pycairo parity slice added
   `pattern_raster_pycairo_parity_test.mbt` with two pycairo
   `test_raster_source`-derived fixtures covering callback optional/clear

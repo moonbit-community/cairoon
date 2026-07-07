@@ -55,6 +55,25 @@ test "pycairo image surface get_device fixture" {
 }
 
 ///|
+test "pycairo script feature and device type fixture" {
+  inspect(@cairoon.HAS_SCRIPT_SURFACE, content="true")
+  let device = @cairoon.Device::script_stream(_chunk => @cairoon.Success)
+  debug_inspect(device.get_type(), content="DeviceTypeScript")
+}
+
+///|
+test "pycairo script device path and acquire fixture" {
+  let device = @cairoon.Device::script(
+    "/tmp/cairoon_pycairo_script_device_to_path.cs",
+  )
+  debug_inspect(device.get_type(), content="DeviceTypeScript")
+  device.acquire()
+  device.release()
+  device.finish()
+  expect_pycairo_device_finished(@cairoon.run_cairo(() => device.acquire()))
+}
+
+///|
 test "pycairo script device mode and comment fixture" {
   let chunks : Array[Bytes] = []
   let device = @cairoon.Device::script_stream(chunk => {
