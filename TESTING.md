@@ -3012,6 +3012,11 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, and 2026
   font-face/font-options, CTM, font-matrix, and scale-matrix getter behavior.
   This raises the font pycairo parity file to 10 tests and the current full
   native suite to 665 tests without changing public API.
+  A later pycairo FontOptions enum setter parity slice extended
+  `font_pycairo_parity_test.mbt` with the parent antialias, hint-metrics,
+  hint-style, and subpixel-order setter/getter behavior. This raises the font
+  pycairo parity file to 11 tests and the current full native suite to 666
+  tests without changing public API.
   A later tag-metadata stream-to-direct-C oracle slice added scene 48 in the
   focused `cairoon_test_backend_tag_metadata.c` oracle file, covering PDF
   metadata/custom-metadata overwrite/removal, page labels, outline parent/child

@@ -64,6 +64,23 @@ test "pycairo font options copy equality and merge fixture" {
 }
 
 ///|
+test "pycairo font options enum setter fixtures" {
+  let options = pycairo_font_surface().get_font_options()
+
+  options.set_antialias(@cairoon.AntialiasGray)
+  debug_inspect(options.get_antialias(), content="AntialiasGray")
+
+  options.set_hint_metrics(@cairoon.HintMetricsOff)
+  debug_inspect(options.get_hint_metrics(), content="HintMetricsOff")
+
+  options.set_hint_style(@cairoon.HintStyleSlight)
+  debug_inspect(options.get_hint_style(), content="HintStyleSlight")
+
+  options.set_subpixel_order(@cairoon.SubpixelVrgb)
+  debug_inspect(options.get_subpixel_order(), content="SubpixelVrgb")
+}
+
+///|
 test "pycairo font options color mode fixture" {
   let options = pycairo_font_surface().get_font_options()
   debug_inspect(options.get_color_mode(), content="ColorModeDefault")
