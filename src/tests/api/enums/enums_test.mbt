@@ -1,4 +1,14 @@
 ///|
+fn expect_operator_raw(
+  ctx : @cairoon.Context,
+  operator : @cairoon.Operator,
+  expected : Int,
+) -> Unit raise {
+  ctx.set_operator(operator)
+  inspect(ctx.get_operator_raw(), content="\{expected}")
+}
+
+///|
 test "portable enum constructors expose cairo names" {
   let antialias : @cairoon.Antialias = @cairoon.AntialiasDefault
   let content : @cairoon.Content = @cairoon.ContentColorAlpha
@@ -70,6 +80,53 @@ test "pycairo enum smoke fixtures" {
   debug_inspect(status, content="Jbig2GlobalMissing")
   debug_inspect(backward, content="TextClusterBackward")
   debug_inspect(observer, content="SurfaceObserverNormal")
+}
+
+///|
+test "pycairo module constants raw value fixture" {
+  let ctx = @cairoon.Context::new(
+    @cairoon.Surface::image(@cairoon.Argb32, 1, 1),
+  )
+  ctx.set_antialias(@cairoon.AntialiasFast)
+  inspect(ctx.get_antialias_raw(), content="4")
+  ctx.set_antialias(@cairoon.AntialiasGood)
+  inspect(ctx.get_antialias_raw(), content="5")
+  ctx.set_antialias(@cairoon.AntialiasBest)
+  inspect(ctx.get_antialias_raw(), content="6")
+
+  expect_operator_raw(ctx, @cairoon.OperatorMultiply, 14)
+  expect_operator_raw(ctx, @cairoon.OperatorScreen, 15)
+  expect_operator_raw(ctx, @cairoon.OperatorOverlay, 16)
+  expect_operator_raw(ctx, @cairoon.OperatorDarken, 17)
+  expect_operator_raw(ctx, @cairoon.OperatorLighten, 18)
+  expect_operator_raw(ctx, @cairoon.OperatorColorDodge, 19)
+  expect_operator_raw(ctx, @cairoon.OperatorColorBurn, 20)
+  expect_operator_raw(ctx, @cairoon.OperatorHardLight, 21)
+  expect_operator_raw(ctx, @cairoon.OperatorSoftLight, 22)
+  expect_operator_raw(ctx, @cairoon.OperatorDifference, 23)
+  expect_operator_raw(ctx, @cairoon.OperatorExclusion, 24)
+  expect_operator_raw(ctx, @cairoon.OperatorHslHue, 25)
+  expect_operator_raw(ctx, @cairoon.OperatorHslSaturation, 26)
+  expect_operator_raw(ctx, @cairoon.OperatorHslColor, 27)
+  expect_operator_raw(ctx, @cairoon.OperatorHslLuminosity, 28)
+
+  let region = @cairoon.Region::from_rectangle(
+    @cairoon.RectangleInt::new(x=0, y=0, width=4, height=4),
+  )
+  let inside = @cairoon.RectangleInt::new(x=1, y=1, width=1, height=1)
+  let outside = @cairoon.RectangleInt::new(x=5, y=5, width=1, height=1)
+  let partial = @cairoon.RectangleInt::new(x=3, y=3, width=2, height=2)
+  debug_inspect(region.contains_rectangle(inside), content="RegionOverlapIn")
+  debug_inspect(region.contains_rectangle(outside), content="RegionOverlapOut")
+  debug_inspect(region.contains_rectangle(partial), content="RegionOverlapPart")
+
+  let rgb30 = @cairoon.Surface::image_raw(5, 1, 1)
+  debug_inspect(rgb30.get_format(), content="Rgb30")
+  inspect(rgb30.get_format_raw(), content="5")
+  inspect(@cairoon.FORMAT_INVALID, content="-1")
+  inspect(@cairoon.MIME_TYPE_JPEG, content="image/jpeg")
+  inspect(@cairoon.SVGVersion::to_string_raw(0), content="SVG 1.1")
+  inspect(@cairoon.SVGVersion::to_string_raw(1), content="SVG 1.2")
 }
 
 ///|

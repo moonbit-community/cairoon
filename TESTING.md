@@ -3653,6 +3653,13 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, 2026-07-
   equality, direct C oracle equality, and PS/SVG negative PDF-metadata checks.
   This raises `src/tests/oracle/vector_backend` to 211 tests and the observed
   full native suite to 726 tests without changing public API.
+  A later pycairo module-constants slice added one external black-box fixture
+  mapping `test_api.py::test_constants` to public cairoon raw-value observation:
+  antialias/operator constants are checked through context raw getters, region
+  overlaps through public constructors, `FORMAT_RGB30` through `image_raw(5)`,
+  plus `FORMAT_INVALID`, `MIME_TYPE_JPEG`, and SVG 1.1/1.2 raw version strings.
+  This raises `src/tests/api/enums` to 6 tests and the observed full native
+  suite to 727 tests without changing public API.
 
 Remaining reliability work is now narrower and should be tracked as evidence,
 not as an unstructured checklist:
