@@ -158,3 +158,25 @@ test "pycairo context paint smoke fixture" {
   ctx.paint()
   inspect(bytes_all_value(surface.copy_data(), 255), content="true")
 }
+
+///|
+test "pycairo recording surface get_extents fixture" {
+  let unbounded = @cairoon.Surface::recording(@cairoon.ContentColor)
+  inspect(unbounded.recording_get_extents() is None, content="true")
+
+  let bounds = @cairoon.Rectangle::new(1.0, 2.0, 3.0, 4.0)
+  let bounded = @cairoon.Surface::recording(
+    @cairoon.ContentColor,
+    extents=Some(bounds),
+  )
+  match bounded.recording_get_extents() {
+    Some(rect) => debug_inspect(rect.components(), content="(1, 2, 3, 4)")
+    None => @test.fail("expected recording surface extents")
+  }
+
+  bounded.finish()
+  match bounded.recording_get_extents() {
+    Some(rect) => debug_inspect(rect.components(), content="(1, 2, 3, 4)")
+    None => @test.fail("expected recording surface extents after finish")
+  }
+}

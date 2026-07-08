@@ -230,7 +230,7 @@ test packages under
 `src/tests/api/version` (version helpers),
 `src/tests/api/enums` (portable enums and `Format` helpers),
 `src/tests/api/pycairo` (pycairo `test_api.py` Unicode text/path plus
-context/pattern lifetime parity),
+context/pattern lifetime and recording-extents parity),
 `src/tests/status/core` (public status, `run_cairo`, and `CairoError`
 classification),
 `src/tests/value/core` (pure value APIs),
@@ -670,14 +670,15 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, 2026-07-
   `Format::stride_for_width`, extended Cairo float/packed formats, and
   `FORMAT_INVALID`.
 - `moon -C cairoon test src/tests/api/pycairo --target native --deny-warn -v`:
-  6 black-box API package tests passed, covering pycairo `test_api.py` Unicode
+  7 black-box API package tests passed, covering pycairo `test_api.py` Unicode
   fixtures for `Context::show_text("ēxāmple.")`, PNG filename write/read round
   trips through `Surface::write_to_png` and `Surface::image_from_png`,
   `surface_destroy_before_context` and
   `surface_destroy_before_surface_pattern` lifetime fixtures for stream-backed
   surfaces retained by contexts and surface patterns,
   `Surface::has_show_text_glyphs` finished-surface error mapping, and the
-  `Context::paint`/`OperatorSource` smoke fixture.
+  `Context::paint`/`OperatorSource` smoke fixture, plus
+  `RecordingSurface::recording_get_extents` before and after finish.
 - `moon -C cairoon test src/tests/status/core --target native --deny-warn -v`: 2
   black-box status package tests passed, covering `run_cairo` success,
   `check_status`, public `Status::message`, and exhaustive `CairoError`

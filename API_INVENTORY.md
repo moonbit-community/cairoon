@@ -14,6 +14,10 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 
 ## Recent Audit Deltas
 
+- 2026-07-08: The external `src/tests/api/pycairo` package now carries the
+  pycairo `test_api.py::test_recording_surface_get_extents` fixture, proving
+  unbounded, bounded, and post-finish recording extents through the published
+  package path.
 - 2026-07-08: pycairo `test_device.py::test_script_device_to_path` parity now
   verifies `Device::script(path)` writes script content to the requested
   pathname and cleans the temporary output around the fixture.
@@ -170,7 +174,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 | Top-level and portable method inventory parity | Done | Extends `scripts/check-api-inventory.py` in `scripts/verify.sh`; the script parses parent `cairo/__init__.pyi`, requires every public top-level pycairo class/function to have an implementation or explicit product-decision anchor in this inventory, and requires every portable pycairo class method in the first-product scope to have a public MoonBit API anchor in `src/pkg.generated.mbti` |
 | Black-box test package extraction probe | Done | Moves version-helper tests into `src/tests/api`, proving external test packages can import the stable `CAIMEOX/cairoon` public package while preserving `moon.mod source = "src"`; `scripts/check-project-layout.py` rejects root-level MoonBit test packages and requires Cairo `cc-link-flags` for external cairoon test packages |
 | Core API black-box package expansion | Done | Moves enum and pycairo `test_api.py` smoke/lifetime tests into `src/tests/api`, proving public constructors, constants, methods, and smoke/lifetime behavior work from an external MoonBit package |
-| API family package split | Done | Splits API tests into `src/tests/api/{version,enums,pycairo}`, leaving `src/tests/api` as a pure directory container while preserving the 1 version, 4 enum/format, and 6 pycairo `test_api.py` fixtures through separately linked published-API black-box packages |
+| API family package split | Done | Splits API tests into `src/tests/api/{version,enums,pycairo}`, leaving `src/tests/api` as a pure directory container while preserving the 1 version, 4 enum/format, and 7 pycairo `test_api.py` fixtures through separately linked published-API black-box packages |
 | Status black-box package extraction | Done | Moves `check_status`, `run_cairo`, `Status::message`, and exhaustive `CairoError` suberror classification tests into `src/tests/status`, proving checked-error mapping works from an external MoonBit package while keeping `Status` and `CairoError` constructors in the public facade |
 | Status package split | Done | Moves status/error tests into `src/tests/status/core`, leaving `src/tests/status` as a pure directory container while preserving the 2 checked-error mapping fixtures through a separately linked published-API black-box package |
 | Value black-box package extraction | Done | Moves Rectangle, RectangleInt, Glyph, TextCluster, TextExtents, FontExtents, component, invalid-index, hash/equality, numeric-limit, clip-rectangle, recording-extents, and Context/ScaledFont extents-return tests into `src/tests/value`, proving pure value behavior works through the public package from an external MoonBit test package |
