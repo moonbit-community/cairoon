@@ -83,7 +83,9 @@ run moon info --target native
 asan_mode="${CAIROON_VERIFY_ASAN:-auto}"
 if [[ "$asan_mode" != "0" ]]; then
   clang_path=""
-  if [[ -n "${MOON_CC:-}" ]]; then
+  if [[ -n "${CAIROON_ASAN_CC:-}" ]]; then
+    clang_path="$(resolve_executable "$CAIROON_ASAN_CC")"
+  elif [[ -n "${MOON_CC:-}" ]]; then
     clang_path="$(resolve_executable "$MOON_CC")"
   fi
   if [[ -z "$clang_path" && -x /opt/homebrew/opt/llvm/bin/clang ]]; then
@@ -92,9 +94,9 @@ if [[ "$asan_mode" != "0" ]]; then
 
   if [[ -n "$clang_path" ]]; then
     asan_options="${ASAN_OPTIONS:-detect_leaks=0:fast_unwind_on_malloc=0}"
-    moon_ar="${MOON_AR:-/usr/bin/ar}"
-    if [[ -n "${MOON_AR:-}" ]]; then
-      resolved_moon_ar="$(resolve_executable "$MOON_AR")"
+    moon_ar="${CAIROON_ASAN_AR:-${MOON_AR:-/usr/bin/ar}}"
+    if [[ -n "${CAIROON_ASAN_AR:-${MOON_AR:-}}" ]]; then
+      resolved_moon_ar="$(resolve_executable "$moon_ar")"
       if [[ -n "$resolved_moon_ar" ]]; then
         moon_ar="$resolved_moon_ar"
       fi
@@ -107,6 +109,6 @@ if [[ "$asan_mode" != "0" ]]; then
       "MOON_AR=$moon_ar" \
       "ASAN_OPTIONS=$asan_options"
   else
-    printf '\nSkipping targeted ASan: set MOON_CC to an ASan-capable clang, or set CAIROON_VERIFY_ASAN=0 to silence this message.\n'
+    printf '\nSkipping targeted ASan: set CAIROON_ASAN_CC or MOON_CC to an ASan-capable clang, or set CAIROON_VERIFY_ASAN=0 to silence this message.\n'
   fi
 fi

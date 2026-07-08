@@ -110,7 +110,8 @@ image/scaled-font/vector/pattern oracle tests, the full native test suite,
 `clang` is available.
 
 Set `CAIROON_VERIFY_ASAN=0` only when intentionally skipping the targeted ASan
-portion. Set `MOON_CC` and `MOON_AR` to force a specific compiler pair.
+portion. Set `CAIROON_ASAN_CC` and `CAIROON_ASAN_AR` to force the compiler pair
+used by that targeted sanitizer pass without changing the ordinary native gate.
 
 ## Release Checklist
 
@@ -133,8 +134,10 @@ portion. Set `MOON_CC` and `MOON_AR` to force a specific compiler pair.
 The repository ships `.github/workflows/ci.yml`. It runs:
 
 - Native verification on `ubuntu-latest` and `macos-latest` with ASan disabled.
-- A dedicated Ubuntu ASan job with `clang` and leak detection disabled, matching
-  the local targeted sanitizer gate.
+- A dedicated Ubuntu ASan job with `CAIROON_ASAN_CC=clang`,
+  `CAIROON_ASAN_AR=llvm-ar`, and leak detection disabled, matching the local
+  targeted sanitizer gate while leaving the ordinary full native gate on the
+  default compiler.
 
 Custom CI should install Cairo and `pkg-config`, then run:
 

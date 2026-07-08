@@ -93,7 +93,7 @@ jobs:
 
       - name: Run ASan reliability gate
         env:
-          MOON_CC: clang
-          MOON_AR: llvm-ar
+          CAIROON_ASAN_CC: clang
+          CAIROON_ASAN_AR: llvm-ar
           ASAN_OPTIONS: detect_leaks=0:fast_unwind_on_malloc=0
         run: ./scripts/verify.sh

@@ -281,6 +281,8 @@ Before the targeted ASan pass, `scripts/verify.sh` runs `moon clean` so a
 compiler switch or Homebrew/Xcode clang update cannot reuse object files with
 stale sanitizer runtime paths.
 Set `CAIROON_VERIFY_ASAN=0` to skip the targeted ASan portion intentionally.
+Set `CAIROON_ASAN_CC` and `CAIROON_ASAN_AR` to choose the compiler pair for that
+targeted sanitizer pass without changing the ordinary full native gate.
 
 ## Current Status
 

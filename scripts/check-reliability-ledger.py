@@ -153,7 +153,8 @@ def check_ci_gate() -> list[str]:
     required = (
         "./scripts/verify.sh",
         "CAIROON_VERIFY_ASAN",
-        "MOON_CC: clang",
+        "CAIROON_ASAN_CC: clang",
+        "CAIROON_ASAN_AR: llvm-ar",
         "ubuntu-latest",
         "macos-latest",
     )
