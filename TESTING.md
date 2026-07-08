@@ -3620,6 +3620,12 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, 2026-07-
   matching pycairo's `test_surface_pattern` and `test_pattern_filter`
   behavior. This raises `src/tests/pattern/pycairo` to 13 tests and the
   observed full native suite to 716 tests without changing public API.
+  A later pycairo file-object error slice added one external black-box fixture
+  mapping pycairo's `test_api.py::test_surface_file_obj_error` to cairoon's
+  explicit PDF/PS stream-writer API: a failing writer now proves checked
+  `CairoIOError(WriteError, _)` propagation through `src/tests/api/pycairo`.
+  This raises that package to 9 tests and the observed full native suite to 717
+  tests without changing public API.
 
 Remaining reliability work is now narrower and should be tracked as evidence,
 not as an unstructured checklist:

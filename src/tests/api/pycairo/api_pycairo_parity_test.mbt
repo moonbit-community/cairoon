@@ -93,6 +93,17 @@ fn paint_and_finish_target(ctx : @cairoon.Context) -> Unit raise {
 }
 
 ///|
+fn expect_pycairo_surface_file_obj_error(
+  surface : @cairoon.Surface,
+) -> Unit raise {
+  let result = @cairoon.run_cairo(() => surface.finish())
+  match result {
+    Err(@cairoon.CairoIOError(@cairoon.WriteError, _)) => ()
+    _ => @test.fail("expected WriteError from failing stream writer")
+  }
+}
+
+///|
 test "pycairo unicode show_text smoke fixture" {
   let surface = paint_unicode_text_surface("ēxāmple.")
   inspect(has_nonzero_byte(surface.copy_data()), content="true")
@@ -136,6 +147,16 @@ test "pycairo surface destroy before surface pattern fixture" {
   paint_and_finish_target(ctx)
   inspect(chunks_contain_marker(chunks, "%PDF-1."), content="true")
   inspect(chunks_contain_marker(chunks, "%%EOF"), content="true")
+}
+
+///|
+test "pycairo surface file object error fixture" {
+  expect_pycairo_surface_file_obj_error(
+    @cairoon.Surface::pdf_stream(100.0, 100.0, fn(_) { @cairoon.WriteError }),
+  )
+  expect_pycairo_surface_file_obj_error(
+    @cairoon.Surface::ps_stream(100.0, 100.0, fn(_) { @cairoon.WriteError }),
+  )
 }
 
 ///|

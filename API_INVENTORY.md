@@ -14,6 +14,10 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 
 ## Recent Audit Deltas
 
+- 2026-07-08: The external `src/tests/api/pycairo` package now carries the
+  pycairo `test_api.py::test_surface_file_obj_error` fixture, proving failing
+  PDF/PS stream writers map to checked `CairoIOError(WriteError, _)` through
+  the published package path.
 - 2026-07-08: PDF/PS/SVG backend differential coverage now includes scene 61,
   a link-audit file/stream/direct-C oracle covering PDF metadata/custom
   metadata, page labels, nested outlines, URI links, named-destination links,
