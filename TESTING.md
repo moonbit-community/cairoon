@@ -704,8 +704,10 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, 2026-07-
   containment/overlap queries, mutating boolean operations, chainable rectangle
   mutators, invalid-index mapping, and copied-region lifetime.
 - `moon -C cairoon test src/tests/region/pycairo --target native --deny-warn -v`:
-  5 black-box Region parity tests passed, covering pycairo-derived rectangle
-  index, equality, containment, mutator receiver, and translate fixtures.
+  6 black-box Region parity tests passed, covering pycairo-derived rectangle
+  index, equality, containment, composite multi-rectangle normalization,
+  exact intersect/subtract/union/xor splits, mutator receiver, and translate
+  fixtures.
 - `moon -C cairoon test src/tests/context/path --target native -v`: 11
   black-box Context path tests passed, covering current-point behavior,
   relative path operations, pycairo rectangle path-extents behavior,
@@ -3660,6 +3662,12 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, 2026-07-
   plus `FORMAT_INVALID`, `MIME_TYPE_JPEG`, and SVG 1.1/1.2 raw version strings.
   This raises `src/tests/api/enums` to 6 tests and the observed full native
   suite to 727 tests without changing public API.
+  A later pycairo composite Region slice extended
+  `region_pycairo_parity_test.mbt` with the upstream
+  `test_api.py::test_region` multi-rectangle fixture, covering Cairo region
+  normalization, translate/copy behavior, and exact intersect/subtract/union/xor
+  split semantics. This raises `src/tests/region/pycairo` to 6 tests and the
+  observed full native suite to 728 tests without changing public API.
 
 Remaining reliability work is now narrower and should be tracked as evidence,
 not as an unstructured checklist:

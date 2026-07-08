@@ -9,6 +9,15 @@ fn[T] expect_region_invalid_index(
 }
 
 ///|
+fn expect_region_rectangle(
+  region : @cairoon.Region,
+  index : Int,
+  expected : @cairoon.RectangleInt,
+) -> Unit raise {
+  inspect(region.get_rectangle(index) == expected, content="true")
+}
+
+///|
 test "pycairo region get_rectangle index fixture" {
   let rect = @cairoon.RectangleInt::new(x=0, y=0, width=10, height=10)
   let region = @cairoon.Region::from_rectangle(rect)
@@ -44,6 +53,95 @@ test "pycairo region contains fixture" {
   )
   inspect(region.contains_point(0, 0), content="true")
   inspect(region.contains_point(0, 20), content="false")
+}
+
+///|
+test "pycairo composite region fixture" {
+  let b = @cairoon.RectangleInt::new(x=1, y=2, width=10, height=12)
+  let d = @cairoon.RectangleInt::new(x=1, y=1, width=10, height=12)
+  let e = @cairoon.RectangleInt::new(x=1, y=3, width=8, height=12)
+  let c = @cairoon.Region::from_rectangles([b, e])
+  inspect(c.is_empty(), content="false")
+  inspect(c.num_rectangles(), content="2")
+  expect_region_rectangle(
+    c,
+    1,
+    @cairoon.RectangleInt::new(x=1, y=14, width=8, height=1),
+  )
+  expect_region_rectangle(
+    c,
+    0,
+    @cairoon.RectangleInt::new(x=1, y=2, width=10, height=12),
+  )
+  debug_inspect(
+    c.get_extents(),
+    content="{ x: 1, y: 2, width: 10, height: 13 }",
+  )
+  debug_inspect(c.contains_rectangle(d), content="RegionOverlapPart")
+
+  c.translate(10, 20)
+  debug_inspect(c.contains_rectangle(d), content="RegionOverlapOut")
+  expect_region_rectangle(
+    c,
+    1,
+    @cairoon.RectangleInt::new(x=11, y=34, width=8, height=1),
+  )
+  let cp = c.copy()
+  inspect(c.num_rectangles() == cp.num_rectangles(), content="true")
+  expect_region_rectangle(cp, 0, c.get_rectangle(0))
+  inspect(c == cp, content="true")
+
+  let intersection = @cairoon.Region::from_rectangles([b, e])
+  ignore(intersection.intersect(@cairoon.Region::from_rectangle(d)))
+  inspect(intersection.num_rectangles(), content="1")
+  expect_region_rectangle(
+    intersection,
+    0,
+    @cairoon.RectangleInt::new(x=1, y=2, width=10, height=11),
+  )
+
+  let difference = @cairoon.Region::from_rectangles([b, e])
+  ignore(difference.subtract_rectangle(d))
+  inspect(
+    difference ==
+    @cairoon.Region::from_rectangles([
+      @cairoon.RectangleInt::new(x=1, y=13, width=10, height=1),
+      @cairoon.RectangleInt::new(x=1, y=14, width=8, height=1),
+    ]),
+    content="true",
+  )
+
+  let region_difference = @cairoon.Region::from_rectangles([b, e])
+  ignore(region_difference.subtract(@cairoon.Region::from_rectangle(d)))
+  expect_region_rectangle(
+    region_difference,
+    0,
+    @cairoon.RectangleInt::new(x=1, y=13, width=10, height=1),
+  )
+
+  let unioned = @cairoon.Region::from_rectangles([b, e])
+  ignore(unioned.union(@cairoon.Region::from_rectangle(d)))
+  inspect(
+    unioned ==
+    @cairoon.Region::from_rectangles([
+      @cairoon.RectangleInt::new(x=1, y=1, width=10, height=13),
+      @cairoon.RectangleInt::new(x=1, y=14, width=8, height=1),
+    ]),
+    content="true",
+  )
+
+  let xored = @cairoon.Region::from_rectangles([b, e])
+  ignore(xored.xor(@cairoon.Region::from_rectangle(d)))
+  inspect(xored.num_rectangles(), content="3")
+  inspect(
+    xored ==
+    @cairoon.Region::from_rectangles([
+      @cairoon.RectangleInt::new(x=1, y=1, width=10, height=1),
+      @cairoon.RectangleInt::new(x=1, y=14, width=8, height=1),
+      @cairoon.RectangleInt::new(x=1, y=13, width=10, height=1),
+    ]),
+    content="true",
+  )
 }
 
 ///|

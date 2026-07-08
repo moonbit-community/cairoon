@@ -14,6 +14,10 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 
 ## Recent Audit Deltas
 
+- 2026-07-08: The external `src/tests/region/pycairo` package now carries the
+  composite pycairo `test_api.py::test_region` fixture for multi-rectangle
+  normalization, translate/copy behavior, and exact intersect/subtract/union/xor
+  region splits through the published package path.
 - 2026-07-08: The external `src/tests/api/enums` package now carries a pycairo
   `test_api.py::test_constants` raw-value fixture for antialias/operator
   constants, region overlap constructors, `FORMAT_RGB30`, `FORMAT_INVALID`,
@@ -518,8 +522,8 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 
 | pycairo API | cairoon status | Notes |
 |---|---|---|
-| `Region` | Done | External object, empty/single/multi-rectangle constructors, copy, extents, rectangle access with pycairo negative/positive invalid-index fixtures, predicates, empty-region overlap and translate behavior, equality plus MoonBit `Eq`, translate, copied-region lifetime after the source region exits, targeted normal/ASan gate coverage, and executable reference docs |
-| Region boolean ops | Done | intersect/subtract/union/xor implemented for region and rectangle operands; pycairo-derived fixtures prove mutating boolean operations return the receiver; rectangle-op tests cover XOR split semantics and chainable return behavior |
+| `Region` | Done | External object, empty/single/multi-rectangle constructors, copy, extents, rectangle access with pycairo negative/positive invalid-index fixtures, predicates, empty-region overlap and translate behavior, pycairo composite multi-rectangle normalization/translate/copy fixture, equality plus MoonBit `Eq`, translate, copied-region lifetime after the source region exits, targeted normal/ASan gate coverage, and executable reference docs |
+| Region boolean ops | Done | intersect/subtract/union/xor implemented for region and rectangle operands; pycairo-derived fixtures prove mutating boolean operations return the receiver and reproduce upstream composite intersect/subtract/union/xor split semantics; rectangle-op tests cover XOR split semantics and chainable return behavior |
 | `RegionOverlap` | Done | Enum implemented |
 
 ## Product Decisions
