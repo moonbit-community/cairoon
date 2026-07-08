@@ -442,6 +442,9 @@ before MoonBit compilation. The layout check proves:
   files, because it is outside the package search path;
 - every non-root `src/**/moon.pkg` has an adjacent `pkg.generated.mbti`, so
   package seams are reviewed through `moon info --target native`;
+- every current `src/core/**/moon.pkg` and `src/internal/**/moon.pkg` package
+  has an explicit `Current Layout` counter in this document, discovered from
+  the package tree rather than a hand-maintained checker allowlist;
 - every child package that imports `CAIMEOX/cairoon` or
   `CAIMEOX/cairoon/native` carries Cairo `cc-link-flags`, so both black-box
   tests and internal native-gated implementation packages link independently;

@@ -21,17 +21,9 @@ NATIVE_PACKAGE_DIR = PACKAGE_ROOT / "native"
 NATIVE_PACKAGE_CONFIG = NATIVE_PACKAGE_DIR / "moon.pkg"
 NATIVE_TARGETS = {"native"}
 CAIRO_LINK_IMPORTS = ('"CAIMEOX/cairoon"', '"CAIMEOX/cairoon/native"')
-CHECKED_PACKAGE_COUNT_PATHS = (
-    "src/core/constants",
-    "src/core/glyph",
-    "src/internal/cstring",
-    "src/internal/version",
-    "src/internal/format",
-    "src/internal/pdf",
-    "src/internal/ps",
-    "src/internal/status",
-    "src/internal/stream",
-    "src/internal/svg",
+COUNTED_PACKAGE_ROOTS = (
+    PACKAGE_ROOT / "core",
+    PACKAGE_ROOT / "internal",
 )
 
 
@@ -259,6 +251,23 @@ def count_recursive_files(path: pathlib.Path, pattern: str) -> int:
     return sum(1 for child in path.rglob(pattern) if child.is_file())
 
 
+def checked_package_count_paths() -> list[str]:
+    """Return support/implementation package paths that need layout counters."""
+    package_dirs: list[pathlib.Path] = []
+    for root in COUNTED_PACKAGE_ROOTS:
+        if not root.exists():
+            continue
+        package_dirs.extend(
+            path.parent
+            for path in root.rglob("moon.pkg")
+            if path.parent != PACKAGE_ROOT
+        )
+    return [
+        str(path.relative_to(REPO_ROOT))
+        for path in sorted(package_dirs, key=lambda item: item.relative_to(REPO_ROOT))
+    ]
+
+
 def require_layout_count(
     text: str,
     label: str,
@@ -293,7 +302,7 @@ def check_layout_counters() -> list[str]:
         )
     )
 
-    for rel_path in CHECKED_PACKAGE_COUNT_PATHS:
+    for rel_path in checked_package_count_paths():
         package_dir = REPO_ROOT / rel_path
         escaped = re.escape(rel_path + "/")
         implementation_count = count_files(package_dir, "*.mbt") - count_files(
