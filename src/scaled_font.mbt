@@ -43,6 +43,21 @@ pub fn ScaledFont::hash(self : ScaledFont) -> UInt64 {
 }
 
 ///|
+pub impl Eq for ScaledFont with fn equal(self, other) {
+  self.equal(other)
+}
+
+///|
+pub impl Hash for ScaledFont with fn hash(self) {
+  self.hash().hash()
+}
+
+///|
+pub impl Hash for ScaledFont with fn hash_combine(self, hasher) {
+  hasher.combine_uint64(self.hash())
+}
+
+///|
 pub fn ScaledFont::get_font_face(
   self : ScaledFont,
 ) -> FontFace raise CairoError {

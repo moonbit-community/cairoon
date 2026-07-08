@@ -116,6 +116,11 @@ pub fn Region::equal(self : Region, other : Region) -> Bool {
 }
 
 ///|
+pub impl Eq for Region with fn equal(self, other) {
+  self.equal(other)
+}
+
+///|
 pub fn Region::translate(
   self : Region,
   dx : Int,

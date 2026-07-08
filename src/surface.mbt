@@ -109,6 +109,21 @@ pub fn Surface::hash(self : Surface) -> UInt64 {
 }
 
 ///|
+pub impl Eq for Surface with fn equal(self, other) {
+  self.equal(other)
+}
+
+///|
+pub impl Hash for Surface with fn hash(self) {
+  self.hash().hash()
+}
+
+///|
+pub impl Hash for Surface with fn hash_combine(self, hasher) {
+  hasher.combine_uint64(self.hash())
+}
+
+///|
 fn content_from_raw(raw : Int) -> Content raise CairoError {
   match raw {
     0x1000 => ContentColor

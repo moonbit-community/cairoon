@@ -70,6 +70,5 @@ surface_png.mbt
 surface_state.mbt
 svg_surface.mbt
 tee_surface.mbt
-traits.mbt
 value_types.mbt
 version.mbt

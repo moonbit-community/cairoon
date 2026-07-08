@@ -40,6 +40,21 @@ pub fn FontFace::hash(self : FontFace) -> UInt64 {
 }
 
 ///|
+pub impl Eq for FontFace with fn equal(self, other) {
+  self.equal(other)
+}
+
+///|
+pub impl Hash for FontFace with fn hash(self) {
+  self.hash().hash()
+}
+
+///|
+pub impl Hash for FontFace with fn hash_combine(self, hasher) {
+  hasher.combine_uint64(self.hash())
+}
+
+///|
 pub fn FontFace::get_family(self : FontFace) -> String raise CairoError {
   let status = Ref(Success)
   let family = toy_font_face_get_family_ffi(self, status)

@@ -38,6 +38,21 @@ pub fn Device::hash(self : Device) -> UInt64 {
 }
 
 ///|
+pub impl Eq for Device with fn equal(self, other) {
+  self.equal(other)
+}
+
+///|
+pub impl Hash for Device with fn hash(self) {
+  self.hash().hash()
+}
+
+///|
+pub impl Hash for Device with fn hash_combine(self, hasher) {
+  hasher.combine_uint64(self.hash())
+}
+
+///|
 pub fn Device::get_type(self : Device) -> DeviceType raise CairoError {
   let status = Ref(Success)
   let type_ = device_get_type_ffi(self, status)

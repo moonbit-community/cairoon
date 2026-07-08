@@ -32,6 +32,21 @@ pub fn Context::hash(self : Context) -> UInt64 {
 }
 
 ///|
+pub impl Eq for Context with fn equal(self, other) {
+  self.equal(other)
+}
+
+///|
+pub impl Hash for Context with fn hash(self) {
+  self.hash().hash()
+}
+
+///|
+pub impl Hash for Context with fn hash_combine(self, hasher) {
+  hasher.combine_uint64(self.hash())
+}
+
+///|
 pub fn Context::save(self : Context) -> Unit raise CairoError {
   check_status(context_save_ffi(self))
 }

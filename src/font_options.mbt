@@ -37,6 +37,21 @@ pub fn FontOptions::hash(self : FontOptions) -> UInt64 {
 }
 
 ///|
+pub impl Eq for FontOptions with fn equal(self, other) {
+  self.equal(other)
+}
+
+///|
+pub impl Hash for FontOptions with fn hash(self) {
+  self.hash().hash()
+}
+
+///|
+pub impl Hash for FontOptions with fn hash_combine(self, hasher) {
+  hasher.combine_uint64(self.hash())
+}
+
+///|
 pub fn FontOptions::get_antialias(
   self : FontOptions,
 ) -> Antialias raise CairoError {

@@ -52,6 +52,21 @@ pub fn Pattern::hash(self : Pattern) -> UInt64 {
 }
 
 ///|
+pub impl Eq for Pattern with fn equal(self, other) {
+  self.equal(other)
+}
+
+///|
+pub impl Hash for Pattern with fn hash(self) {
+  self.hash().hash()
+}
+
+///|
+pub impl Hash for Pattern with fn hash_combine(self, hasher) {
+  hasher.combine_uint64(self.hash())
+}
+
+///|
 fn extend_from_raw(raw : Int) -> Extend raise CairoError {
   match raw {
     0 => ExtendNone

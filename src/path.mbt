@@ -48,6 +48,26 @@ pub fn Path::hash(self : Path) -> UInt64 {
 }
 
 ///|
+pub impl Eq for Path with fn equal(self, other) {
+  self.equal(other)
+}
+
+///|
+pub impl Compare for Path with fn compare(self, other) {
+  self.hash().compare(other.hash())
+}
+
+///|
+pub impl Hash for Path with fn hash(self) {
+  self.hash().hash()
+}
+
+///|
+pub impl Hash for Path with fn hash_combine(self, hasher) {
+  hasher.combine_uint64(self.hash())
+}
+
+///|
 pub fn Path::length(self : Path) -> Int raise CairoError {
   let status = Ref(Success)
   let count = path_num_segments_ffi(self, status)

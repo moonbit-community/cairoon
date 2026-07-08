@@ -24,7 +24,7 @@ exemptions: when a file moves out of the repository root or direct `src/`, the
 same commit must remove its allowlist entry so an identically named file cannot
 silently return later.
 
-- 69 `.mbt` implementation files directly in `src/`.
+- 68 `.mbt` implementation files directly in `src/`.
 - 1 `.mbt` implementation file and 1 package-local `*_test.mbt` file in
   `src/core/constants/`.
 - 1 `.mbt` implementation file and 1 package-local `*_test.mbt` file in
