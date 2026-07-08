@@ -14,6 +14,9 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 
 ## Recent Audit Deltas
 
+- 2026-07-08: PDF custom metadata parity now asserts that pycairo's reserved
+  custom metadata names map to Cairo `InvalidString`, preserve
+  `Status::message`, and use the checked `CairoInvalidArgument` payload.
 - 2026-07-08: ARGB32 image rendering oracle coverage now includes a
   forty-fourth ordinary and buffer-backed direct-C scene in the
   pattern-operator oracle file, combining a transformed repeated surface

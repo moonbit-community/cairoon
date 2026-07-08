@@ -189,6 +189,15 @@ test "pdf surface validates metadata outline and path strings" {
     reserved_surface.pdf_set_custom_metadata("Author", Some("reserved"))
   })
   inspect(reserved_name is Err(_), content="true")
+  match reserved_name {
+    Err(@cairoon.CairoInvalidArgument(status, message)) => {
+      inspect(status == @cairoon.InvalidString, content="true")
+      inspect(message == @cairoon.InvalidString.message(), content="true")
+      inspect(message.length() > 0, content="true")
+    }
+    _ =>
+      @test.fail("expected InvalidString for reserved PDF custom metadata name")
+  }
 
   let outline = @cairoon.run_cairo(() => {
     let _ = surface.pdf_add_outline_with_flags(
