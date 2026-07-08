@@ -3007,6 +3007,12 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, 2026-07-
   `context_pycairo_parity_test.mbt`, covering pycairo's `set_hairline` and
   `get_hairline` fixture. It is included in the targeted normal and ASan
   verification gates and raises that parity file to 33 tests.
+  A later Context pycairo surface-source offset slice extended
+  `context_state_paint_pycairo_parity_test.mbt`, covering
+  `Context::set_source_surface` default and explicit offsets plus
+  `Context::mask_surface` explicit offsets with pixel-level ARGB32 fixtures.
+  It raises the context pycairo package to 38 black-box tests and the expected
+  full native suite to 687 tests without changing public API.
   A later Pattern raw-extend parity slice added
   `Pattern::set_extend_raw`/`Pattern::get_extend_raw`, covering pycairo's
   C-int extend passthrough for `42` while keeping typed `Pattern::get_extend`
@@ -3489,6 +3495,11 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, 2026-07-
   black-box fixture proving that drawing through `Surface::script_for_target`
   emits script output and produces the same target image bytes as drawing
   directly to an image surface. This adds one pycairo-derived fixture without
+  changing public API.
+  A later Context pycairo surface-source offset parity slice added two
+  black-box fixtures for `Context::set_source_surface` default/explicit
+  offsets and `Context::mask_surface` explicit offsets, checked with exact
+  ARGB32 pixels. This raises the context pycairo package to 38 tests without
   changing public API.
   A later image-surface empty-data parity slice added one public black-box
   fixture proving that an ordinary 0x0 `Surface::image` exposes an empty

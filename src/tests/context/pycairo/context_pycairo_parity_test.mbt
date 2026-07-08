@@ -66,6 +66,42 @@ fn assert_pycairo_context_argb32_pixel(
 }
 
 ///|
+fn assert_pycairo_context_argb32_pixel_at(
+  surface : @cairoon.Surface,
+  x : Int,
+  y : Int,
+  expected : Array[Int],
+) -> Unit raise {
+  let data = surface.copy_data()
+  let offset = y * surface.get_stride() + x * 4
+  for index in 0..<expected.length() {
+    inspect(data[offset + index].to_int(), content="\{expected[index]}")
+  }
+}
+
+///|
+fn pycairo_context_colored_argb32_source() -> @cairoon.Surface raise @cairoon.CairoError {
+  let data : FixedArray[Byte] = FixedArray::make(16, b'\x00')
+  data[0] = b'\x00'
+  data[1] = b'\x00'
+  data[2] = b'\xFF'
+  data[3] = b'\xFF'
+  data[4] = b'\x00'
+  data[5] = b'\xFF'
+  data[6] = b'\x00'
+  data[7] = b'\xFF'
+  data[8] = b'\xFF'
+  data[9] = b'\x00'
+  data[10] = b'\x00'
+  data[11] = b'\xFF'
+  data[12] = b'\xFF'
+  data[13] = b'\xFF'
+  data[14] = b'\xFF'
+  data[15] = b'\xFF'
+  @cairoon.Surface::image_for_data(data, @cairoon.Argb32, 2, 2)
+}
+
+///|
 fn pycairo_context_has_nonzero_byte(bytes : Bytes) -> Bool {
   for index in 0..<bytes.length() {
     if bytes[index].to_int() != 0 {

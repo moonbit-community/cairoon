@@ -196,3 +196,42 @@ test "context mask and alpha paint mirror pycairo fixtures" {
   surface_mask_ctx.mask_surface(mask_surface)
   assert_pycairo_context_argb32_pixel(surface_mask_target, [255, 0, 0, 255])
 }
+
+///|
+test "context surface source offsets mirror pycairo fixtures" {
+  let source = pycairo_context_colored_argb32_source()
+  let source_data = source.copy_data()
+
+  let default_target = @cairoon.Surface::image(@cairoon.Argb32, 2, 2)
+  let default_ctx = @cairoon.Context::new(default_target)
+  default_ctx.set_source_surface(source)
+  default_ctx.paint()
+  inspect(default_target.copy_data() == source_data, content="true")
+
+  let shifted_target = @cairoon.Surface::image(@cairoon.Argb32, 3, 3)
+  let shifted_ctx = @cairoon.Context::new(shifted_target)
+  shifted_ctx.set_source_surface(source, x=1.0, y=1.0)
+  shifted_ctx.paint()
+  assert_pycairo_context_argb32_pixel_at(shifted_target, 0, 0, [0, 0, 0, 0])
+  assert_pycairo_context_argb32_pixel_at(shifted_target, 1, 1, [0, 0, 255, 255])
+  assert_pycairo_context_argb32_pixel_at(shifted_target, 2, 1, [0, 255, 0, 255])
+  assert_pycairo_context_argb32_pixel_at(shifted_target, 1, 2, [255, 0, 0, 255])
+  assert_pycairo_context_argb32_pixel_at(shifted_target, 2, 2, [
+    255, 255, 255, 255,
+  ])
+}
+
+///|
+test "context mask_surface offset mirrors pycairo fixture" {
+  let mask = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let mask_ctx = @cairoon.Context::new(mask)
+  mask_ctx.set_source_rgba(1.0, 1.0, 1.0, 1.0)
+  mask_ctx.paint()
+
+  let target = @cairoon.Surface::image(@cairoon.Argb32, 3, 3)
+  let ctx = @cairoon.Context::new(target)
+  ctx.set_source_rgba(0.0, 0.0, 1.0, 1.0)
+  ctx.mask_surface(mask, x=1.0, y=1.0)
+  assert_pycairo_context_argb32_pixel_at(target, 0, 0, [0, 0, 0, 0])
+  assert_pycairo_context_argb32_pixel_at(target, 1, 1, [255, 0, 0, 255])
+}

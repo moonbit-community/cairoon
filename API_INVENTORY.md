@@ -14,6 +14,9 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 
 ## Recent Audit Deltas
 
+- 2026-07-08: Context pycairo parity now includes pixel-level coverage for
+  `Context::set_source_surface` default and explicit offsets plus
+  `Context::mask_surface` explicit offsets.
 - 2026-07-08: PDF/PS/SVG backend differential coverage now includes scene 57,
   a review-dossier file/stream/direct-C oracle covering PDF metadata/custom
   metadata overwrite-removal, page labels, nested outlines, URI and
@@ -233,6 +236,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 | Context pycairo parity test split | Done | Moves the font/text/glyph and simple-smoke pycairo fixtures into `context_font_text_pycairo_parity_test.mbt`, keeping the same 35 external black-box Context pycairo parity fixtures while reducing `context_pycairo_parity_test.mbt` from 675 to 471 lines and leaving public API unchanged |
 | Context pycairo state/paint test split | Done | Moves the drawing-state, dash/scalar/source, copied-path, clip, group, and mask/alpha-paint pycairo fixtures into `context_state_paint_pycairo_parity_test.mbt`, preserving the same 35 external black-box Context pycairo parity fixtures while reducing `context_pycairo_parity_test.mbt` from 471 to 272 lines and leaving public API unchanged |
 | Context pycairo tag fixture | Done | Extends `context_pycairo_parity_test.mbt` with pycairo's `test_tags` begin/end smoke fixture using image-surface no-op tag semantics; the context package now has 105 black-box tests under the normal gate |
+| Context pycairo surface-source offsets | Done | Extends `context_state_paint_pycairo_parity_test.mbt` with pixel-level pycairo-derived coverage for `Context::set_source_surface` default and explicit offsets plus `Context::mask_surface` explicit offsets; the context pycairo package now has 38 external black-box fixtures under the normal gate |
 | Pattern raw extend parity | Done | Adds `Pattern::set_extend_raw`/`Pattern::get_extend_raw`, covering pycairo's C-int extend passthrough for `42` while keeping typed `Pattern::get_extend` checked with `CairoInvalidArgument(InvalidStatus, _)` for unknown raw values |
 | Pattern raw filter/dither parity | Done | Adds `Pattern::set_filter_raw`/`Pattern::get_filter_raw` and `Pattern::set_dither_raw`/`Pattern::get_dither_raw`, covering pycairo `pattern.c` C-int parsing for filter and dither while keeping typed getters checked with `CairoInvalidArgument(InvalidStatus, _)` for unknown raw values |
 | Pattern raw enum documentation | Done | Extends `pattern.mbt.md` with an executable raw enum compatibility example covering `Pattern::set_extend_raw`, `Pattern::set_filter_raw`, and `Pattern::set_dither_raw`, documenting that unknown raw values remain visible through raw getters and are rejected by typed getters |

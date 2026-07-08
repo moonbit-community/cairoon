@@ -2794,6 +2794,12 @@ Prior full verifies passed on 2026-07-02, 2026-07-03, 2026-07-04,
   path, and PDF no-output `show_text_glyphs` tuple flow. It is included in the
   targeted normal and ASan verification gates, raises that parity file to 31
   tests, and raises the expected full native suite to 508 tests.
+  A later Context pycairo surface-source offset fixture slice extended
+  `context_state_paint_pycairo_parity_test.mbt`, covering
+  `Context::set_source_surface` default and explicit offsets plus
+  `Context::mask_surface` explicit offsets with pixel-level ARGB32 fixtures.
+  It raises the context pycairo package to 38 black-box tests without changing
+  public API.
   A later package-layout management slice added `PROJECT_LAYOUT.md`,
   `scripts/check-project-layout.py`, and the root source allowlist. It records
   the then-current single-package root as migration debt, forbids new
