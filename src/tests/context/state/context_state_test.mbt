@@ -297,7 +297,12 @@ test "context invalid restore maps to cairo error" {
   inspect(result is Err(_), content="true")
   debug_inspect(ctx.status(), content="InvalidRestore")
   match result {
-    Err(@cairoon.CairoError(@cairoon.InvalidRestore, _)) => ()
+    Err(@cairoon.CairoError(status, message)) => {
+      inspect(status == @cairoon.InvalidRestore, content="true")
+      inspect(status == ctx.status(), content="true")
+      inspect(message == @cairoon.InvalidRestore.message(), content="true")
+      inspect(message.length() > 0, content="true")
+    }
     _ => @test.fail("expected InvalidRestore")
   }
 }
