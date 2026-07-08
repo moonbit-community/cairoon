@@ -155,6 +155,10 @@ fn render_backend_oracle_stream_scene(
       let surface = make_stream_cross_reference_stream_surface(kind, chunks)
       render_stream_cross_reference_scene(kind, surface)
     }
+    61 => {
+      let surface = make_stream_link_audit_stream_surface(kind, chunks)
+      render_stream_link_audit_scene(kind, surface)
+    }
     _ => @cairoon.check_status(@cairoon.InvalidStatus)
   }
 }
@@ -398,7 +402,7 @@ test "backend feature streams match direct cairo C oracle after normalization" {
     for
       scene in [
         35, 36, 37, 38, 39, 40, 41, 42, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54,
-        55, 56, 57, 58, 59, 60,
+        55, 56, 57, 58, 59, 60, 61,
       ] {
       let chunks : Array[Bytes] = []
       render_backend_oracle_stream_scene(scene, kind, chunks)

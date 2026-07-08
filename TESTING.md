@@ -74,7 +74,7 @@ Evaluate each slice with this scorecard:
 | Reliability ledger | `API_INVENTORY.md` statuses are `Done`, `Partial`, or `Decision`; every `Partial` row names its remaining gap; this scorecard and CI/verify gate are checked by `scripts/check-reliability-ledger.py` | Strong for current migrated slices; the lint runs in the local and CI verify gate, and any future full-product claim still requires zero `Todo`/`Partial` rows |
 | FFI boundary safety | Production raw `src/**/ffi*.mbt` declarations are native-gated in their owning `moon.pkg`, mark every non-primitive C FFI parameter with `#borrow` or `#owned`, and `scripts/check-project-layout.py` plus `scripts/check-ffi-ownership.py` pass | Strong for current raw externs, including internal helper packages; both lints run in the local and CI verify gate |
 | Behavioral parity | pycairo-derived black-box cases or direct C Cairo primitive oracles cover normal and invalid inputs | Strong for image, context, path, font, pattern, region, surface/device, and backend helpers already listed in the inventory |
-| Rendering parity | Deterministic image pixels or normalized PDF/PS/SVG bytes match direct C Cairo output | Strong for the enumerated image and vector fixtures, including backend page-transition, state-stack, deep-tag, metadata-outline, page-ops, tag-metadata, structure-sequence, outline-sequence, pattern-tag, semantic-index, bookmark-lattice, revision-ledger, article-thread, review-dossier, appendix-rubric, research-note, and cross-reference tag/metadata/page-operation output; still partial for broader tag/metadata/multi-page combinations |
+| Rendering parity | Deterministic image pixels or normalized PDF/PS/SVG bytes match direct C Cairo output | Strong for the enumerated image and vector fixtures, including backend page-transition, state-stack, deep-tag, metadata-outline, page-ops, tag-metadata, structure-sequence, outline-sequence, pattern-tag, semantic-index, bookmark-lattice, revision-ledger, article-thread, review-dossier, appendix-rubric, research-note, cross-reference, and link-audit tag/metadata/page-operation output; still partial for broader tag/metadata/multi-page combinations |
 | Lifetime safety | External-object ownership, borrowed returns, callback retention, and error exits run under ASan/LSan or stress tests | Strong for targeted local gates; macOS LSan remains intentionally disabled for known toy-font/glyph leak reports |
 | Callback safety | C-held MoonBit callbacks and callback arguments are retained across the callback invocation and released deterministically | Strong for stream writers/readers and raster-source callbacks covered by current stress/fuzz tests |
 | Portability | Required backends pass on each supported platform, or unsupported APIs have explicit `Decision` rows | Partial until the shipped CI workflow has passing native, oracle, and sanitizer runs across the release platform matrix |
@@ -979,7 +979,7 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, 2026-07-
   and 22 through 30, single-backend document feature scenes 18 through 21 and
   34, retained `Context::copy_page`/`glyph_path`/`show_glyphs` scenes 31
   through 33, PDF JPEG MIME/thumbnail stream output, tagged font-matrix text
-  scene 43, and backend feature scenes 35 through 42 and 44 through 50, so
+  scene 43, and backend feature scenes 35 through 42 and 44 through 61, so
   these PDF/PS/SVG stream callback outputs are compared with normalized direct
   C Cairo oracle files.
 - `moon -C cairoon test surface_stream_page_sequence_wbtest.mbt --target
@@ -3369,6 +3369,14 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, 2026-07-
   for repeated base unmap, mapped-image data access, and repeated
   `with_unmapped`. This raises the mapped-image package to 7 tests and the
   expected full native suite to 709 tests without changing public API.
+  A later link-audit stream-to-direct-C oracle slice added scene 61 as a
+  focused PDF/PS/SVG backend fixture with title/author/keywords metadata,
+  custom metadata, page labels, nested outlines, URI and named-destination
+  links, `Document`/`Sect`/`P`/`L`/`LI`/`LBody` structure tags, PS DSC markers,
+  SVG pixel units, stream-to-direct-C normalized equality, file-vs-stream
+  equality, stable marker checks, and PS/SVG negative PDF-metadata checks. This
+  raises the vector-backend package by four tests and the expected full native
+  suite to 713 tests without changing public API.
   A later Path pycairo parity slice added `path_pycairo_parity_test.mbt` with
   four pycairo `test_path.py`-derived fixtures covering empty path
   string/length behavior, `copy_path().to_string()` formatting including
