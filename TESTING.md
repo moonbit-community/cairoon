@@ -3626,6 +3626,15 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, 2026-07-
   `CairoIOError(WriteError, _)` propagation through `src/tests/api/pycairo`.
   This raises that package to 9 tests and the observed full native suite to 717
   tests without changing public API.
+  A later pycairo PDF MIME payload slice added one external black-box fixture
+  mapping pycairo's `test_api.py::test_surface_mime_data_for_pdf` to cairoon's
+  public `Surface::set_mime_data` plus PDF file-output path. The test uses the
+  same 281-byte JPEG payload as the existing direct-C oracle and verifies that
+  Cairo embeds it in the generated PDF. This raises `src/tests/surface/mime` to
+  7 tests and the observed full native suite to 718 tests without changing
+  public API. Targeted local checks for this slice:
+  `moon test src/tests/surface/mime --target native --deny-warn -v` and
+  `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/opt/homebrew/opt/llvm/bin/llvm-ar ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon test src/tests/oracle/pattern_raster --target native --deny-warn -v`.
 
 Remaining reliability work is now narrower and should be tracked as evidence,
 not as an unstructured checklist:

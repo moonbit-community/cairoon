@@ -21,6 +21,89 @@ fn binary_mime_payload() -> Bytes {
 }
 
 ///|
+fn pycairo_pdf_jpeg_payload() -> Bytes {
+  let data : FixedArray[Byte] = [
+    b'\xFF', b'\xD8', b'\xFF', b'\xE0', b'\x00', b'\x10', b'\x4A', b'\x46', b'\x49',
+    b'\x46', b'\x00', b'\x01', b'\x01', b'\x01', b'\x00', b'\x48', b'\x00', b'\x48',
+    b'\x00', b'\x00', b'\xFF', b'\xDB', b'\x00', b'\x43', b'\x00', b'\x01', b'\x01',
+    b'\x01', b'\x01', b'\x01', b'\x01', b'\x01', b'\x01', b'\x01', b'\x01', b'\x01',
+    b'\x01', b'\x01', b'\x01', b'\x01', b'\x01', b'\x01', b'\x01', b'\x01', b'\x01',
+    b'\x01', b'\x01', b'\x01', b'\x01', b'\x01', b'\x01', b'\x01', b'\x01', b'\x01',
+    b'\x01', b'\x01', b'\x01', b'\x01', b'\x01', b'\x01', b'\x01', b'\x01', b'\x01',
+    b'\x01', b'\x01', b'\x01', b'\x01', b'\x01', b'\x01', b'\x01', b'\x01', b'\x01',
+    b'\x01', b'\x01', b'\x01', b'\x01', b'\x01', b'\x01', b'\x01', b'\x01', b'\x01',
+    b'\x01', b'\x01', b'\x01', b'\x01', b'\x01', b'\x01', b'\x01', b'\x01', b'\xFF',
+    b'\xC2', b'\x00', b'\x0B', b'\x08', b'\x00', b'\x01', b'\x00', b'\x01', b'\x01',
+    b'\x01', b'\x11', b'\x00', b'\xFF', b'\xC4', b'\x00', b'\x14', b'\x00', b'\x01',
+    b'\x00', b'\x00', b'\x00', b'\x00', b'\x00', b'\x00', b'\x00', b'\x00', b'\x00',
+    b'\x00', b'\x00', b'\x00', b'\x00', b'\x00', b'\x00', b'\x09', b'\xFF', b'\xDA',
+    b'\x00', b'\x08', b'\x01', b'\x01', b'\x00', b'\x00', b'\x00', b'\x01', b'\x7F',
+    b'\x3F', b'\xFF', b'\xC4', b'\x00', b'\x14', b'\x10', b'\x01', b'\x00', b'\x00',
+    b'\x00', b'\x00', b'\x00', b'\x00', b'\x00', b'\x00', b'\x00', b'\x00', b'\x00',
+    b'\x00', b'\x00', b'\x00', b'\x00', b'\x00', b'\xFF', b'\xDA', b'\x00', b'\x08',
+    b'\x01', b'\x01', b'\x00', b'\x01', b'\x05', b'\x02', b'\x7F', b'\xFF', b'\xC4',
+    b'\x00', b'\x14', b'\x10', b'\x01', b'\x00', b'\x00', b'\x00', b'\x00', b'\x00',
+    b'\x00', b'\x00', b'\x00', b'\x00', b'\x00', b'\x00', b'\x00', b'\x00', b'\x00',
+    b'\x00', b'\x00', b'\xFF', b'\xDA', b'\x00', b'\x08', b'\x01', b'\x01', b'\x00',
+    b'\x06', b'\x3F', b'\x02', b'\x7F', b'\xFF', b'\xC4', b'\x00', b'\x14', b'\x10',
+    b'\x01', b'\x00', b'\x00', b'\x00', b'\x00', b'\x00', b'\x00', b'\x00', b'\x00',
+    b'\x00', b'\x00', b'\x00', b'\x00', b'\x00', b'\x00', b'\x00', b'\x00', b'\xFF',
+    b'\xDA', b'\x00', b'\x08', b'\x01', b'\x01', b'\x00', b'\x01', b'\x3F', b'\x21',
+    b'\x7F', b'\xFF', b'\xDA', b'\x00', b'\x08', b'\x01', b'\x01', b'\x00', b'\x00',
+    b'\x00', b'\x10', b'\x7F', b'\xFF', b'\xC4', b'\x00', b'\x14', b'\x10', b'\x01',
+    b'\x00', b'\x00', b'\x00', b'\x00', b'\x00', b'\x00', b'\x00', b'\x00', b'\x00',
+    b'\x00', b'\x00', b'\x00', b'\x00', b'\x00', b'\x00', b'\x00', b'\xFF', b'\xDA',
+    b'\x00', b'\x08', b'\x01', b'\x01', b'\x00', b'\x01', b'\x3F', b'\x10', b'\x7F',
+    b'\xFF', b'\xD9',
+  ]
+  Bytes::from_array(data)
+}
+
+///|
+fn mime_bytes_contains(haystack : Bytes, needle : Bytes) -> Bool {
+  if needle.length() == 0 {
+    return true
+  }
+  if needle.length() > haystack.length() {
+    return false
+  }
+  let last = haystack.length() - needle.length()
+  for start in 0..<=last {
+    let mut matched = true
+    for offset in 0..<needle.length() {
+      if haystack[start + offset] != needle[offset] {
+        matched = false
+      }
+    }
+    if matched {
+      return true
+    }
+  }
+  false
+}
+
+///|
+fn write_pycairo_pdf_jpeg_mime(path : String, jpeg : Bytes) -> Unit raise {
+  let surface = @cairoon.Surface::pdf(3.0, 3.0, path=Some(path))
+  surface.pdf_restrict_to_version(@cairoon.PdfVersion1_4)
+  surface.pdf_set_metadata(@cairoon.PdfMetadataCreator, "cairoon-mime-parity")
+  surface.pdf_set_metadata(
+    @cairoon.PdfMetadataCreateDate,
+    "2026-01-02T03:04:05+00:00",
+  )
+  surface.pdf_set_metadata(
+    @cairoon.PdfMetadataModDate,
+    "2026-01-02T03:04:05+00:00",
+  )
+  let ctx = @cairoon.Context::new(surface)
+  let image = @cairoon.Surface::image(@cairoon.Rgb24, 1, 1)
+  image.set_mime_data(@cairoon.MIME_TYPE_JPEG, Some(jpeg))
+  ctx.set_source_surface(image)
+  ctx.paint()
+  surface.finish()
+}
+
+///|
 test "surface mime data set get and clear" {
   let surface = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
   inspect(surface.get_mime_data("foo") is None, content="true")
@@ -62,6 +145,19 @@ test "pycairo mime data multi-key clear fixture" {
   surface.set_mime_data("foo3", None)
   inspect(surface.get_mime_data("foo3") is None, content="true")
   surface.finish()
+}
+
+///|
+test "pycairo PDF MIME data embeds JPEG payload fixture" {
+  let jpeg = pycairo_pdf_jpeg_payload()
+  let path = "/tmp/cairoon_pycairo_pdf_jpeg_mime.pdf"
+  if @fs.path_exists(path) {
+    @fs.remove_file(path)
+  }
+  write_pycairo_pdf_jpeg_mime(path, jpeg)
+  let output = @fs.read_file_to_bytes(path)
+  inspect(mime_bytes_contains(output, jpeg), content="true")
+  @fs.remove_file(path)
 }
 
 ///|
