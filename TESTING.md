@@ -3607,6 +3607,13 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, 2026-07-
   `SurfaceFinished` copy-data check under `src/tests/image/buffer`, and raised
   that package to 7 tests and the observed full native suite to 700 tests
   without changing public API.
+  A later pycairo transformed-coordinate slice added one external black-box
+  fixture proving that `Context::user_to_device`,
+  `Context::user_to_device_distance`, `Context::device_to_user`, and
+  `Context::device_to_user_distance` match pycairo/Cairo behavior after a
+  translate-plus-scale CTM. This raises `src/tests/context/pycairo` to 14
+  tests and the observed full native suite to 714 tests without changing public
+  API.
 
 Remaining reliability work is now narrower and should be tracked as evidence,
 not as an unstructured checklist:

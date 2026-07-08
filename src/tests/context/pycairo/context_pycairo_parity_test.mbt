@@ -284,6 +284,28 @@ test "context default coordinate conversions mirror pycairo zero fixture" {
 }
 
 ///|
+test "context transformed coordinate conversions mirror pycairo fixture" {
+  let ctx = @cairoon.Context::new(pycairo_context_surface(42, 42))
+  ctx.translate(10.0, 20.0)
+  ctx.scale(2.0, 4.0)
+
+  assert_pycairo_context_matrix_close(
+    ctx.get_matrix(),
+    @cairoon.Matrix::new(xx=2.0, yy=4.0, x0=10.0, y0=20.0),
+  )
+  assert_pycairo_context_point_close(ctx.user_to_device(3.0, 5.0), (16.0, 40.0))
+  assert_pycairo_context_point_close(
+    ctx.user_to_device_distance(3.0, 5.0),
+    (6.0, 20.0),
+  )
+  assert_pycairo_context_point_close(ctx.device_to_user(16.0, 40.0), (3.0, 5.0))
+  assert_pycairo_context_point_close(
+    ctx.device_to_user_distance(6.0, 20.0),
+    (3.0, 5.0),
+  )
+}
+
+///|
 test "context matrix mutators mirror pycairo method fixtures" {
   let ctx = @cairoon.Context::new(pycairo_context_surface(42, 42))
   let identity = @cairoon.Matrix::new()
