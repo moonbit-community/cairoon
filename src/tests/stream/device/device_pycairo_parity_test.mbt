@@ -63,13 +63,19 @@ test "pycairo script feature and device type fixture" {
 
 ///|
 test "pycairo script device path and acquire fixture" {
-  let device = @cairoon.Device::script(
-    "/tmp/cairoon_pycairo_script_device_to_path.cs",
-  )
+  let path = "/tmp/cairoon_pycairo_script_device_to_path.cs"
+  if @fs.path_exists(path) {
+    @fs.remove_file(path)
+  }
+  let device = @cairoon.Device::script(path)
   debug_inspect(device.get_type(), content="DeviceTypeScript")
   device.acquire()
   device.release()
+  device.script_write_comment("pycairo path fixture")
   device.finish()
+  let script = @fs.read_file_to_string(path)
+  inspect(script.contains("pycairo path fixture"), content="true")
+  @fs.remove_file(path)
   expect_pycairo_device_finished(@cairoon.run_cairo(() => device.acquire()))
 }
 

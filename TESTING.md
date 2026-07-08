@@ -1193,9 +1193,9 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, 2026-07-
   and retained callback chunks after allocation pressure.
 - `moon -C cairoon test src/tests/stream/device --target native -v`: 18
   black-box script device and script surface tests passed, covering pycairo
-  device parity fixtures, script file/stream devices, script surfaces,
-  device/surface retained-owner behavior, raw content construction, and script
-  stream write-error mapping.
+  device parity fixtures, script file devices with path-output readback, stream
+  devices, script surfaces, device/surface retained-owner behavior, raw content
+  construction, and script stream write-error mapping.
 - `moon -C cairoon test src/tests/pattern/core --target native -v`: 12
   black-box Pattern core tests passed, covering solid/surface/common-state
   patterns, pointer identity/hash, raw enum passthrough, surface-pattern
@@ -3343,9 +3343,9 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, 2026-07-
   expected full native suite to 620 tests without changing public API.
   A later Device parity extension raised that file to eight fixtures by
   covering pycairo's script feature constant, script-device type query,
-  file-path constructor, basic acquire/release, and script-surface
-  create-for-target target-paint parity. This raises the expected full native
-  suite to 657 tests without changing public API.
+  file-path constructor with script-content readback, basic acquire/release, and
+  script-surface create-for-target target-paint parity. This raises the
+  expected full native suite to 657 tests without changing public API.
   A later Pattern raster-source pycairo parity slice added
   `pattern_raster_pycairo_parity_test.mbt` with two pycairo
   `test_raster_source`-derived fixtures covering callback optional/clear
