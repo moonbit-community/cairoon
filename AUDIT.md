@@ -130,7 +130,8 @@ Implemented in this workspace:
   importing the public `CAIMEOX/cairoon` package and declaring its scene oracle
   extern locally. This proves pixel-differential rendering tests can leave the
   public package root while still exercising ordinary and buffer-backed image
-  surfaces through the published API.
+  surfaces through the published API, including current pattern-operator
+  scenes for `OperatorColorDodge` and `OperatorHslHue` group-mask output.
 - Raster-source pattern owner/state/manual lifecycle oracles now live in
   `src/tests/oracle/pattern_raster`, importing the public `CAIMEOX/cairoon`
   package and declaring the owner-count extern inside a `*_test.mbt` helper.
