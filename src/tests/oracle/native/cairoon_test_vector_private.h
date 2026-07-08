@@ -77,7 +77,8 @@ enum {
   CAIROON_TEST_VECTOR_BACKEND_BOOKMARK_LATTICE = 54,
   CAIROON_TEST_VECTOR_BACKEND_REVISION_LEDGER = 55,
   CAIROON_TEST_VECTOR_BACKEND_ARTICLE_THREAD = 56,
-  CAIROON_TEST_VECTOR_BACKEND_REVIEW_DOSSIER = 57
+  CAIROON_TEST_VECTOR_BACKEND_REVIEW_DOSSIER = 57,
+  CAIROON_TEST_VECTOR_BACKEND_APPENDIX_RUBRIC = 58
 };
 
 cairo_status_t cairoon_test_draw_vector_scene(
@@ -166,6 +167,9 @@ cairo_status_t cairoon_test_render_backend_article_thread_features(
   int32_t kind,
   const char *name);
 cairo_status_t cairoon_test_render_backend_review_dossier_features(
+  int32_t kind,
+  const char *name);
+cairo_status_t cairoon_test_render_backend_appendix_rubric_features(
   int32_t kind,
   const char *name);
 cairo_status_t cairoon_test_render_ps_dsc_features(const char *name);
