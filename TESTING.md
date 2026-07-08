@@ -796,12 +796,13 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, 2026-07-
   base image/similar/state/status wrappers, pycairo surface parity,
   subsurfaces, MIME, and backend MIME-support matrix checks.
 - `moon -C cairoon test src/tests/image/{properties,data,mapped,png,buffer}
-  --target native -v`: 29 black-box image-family tests passed, including
+  --target native -v`: 30 black-box image-family tests passed, including
   ImageSurface properties, raw image formats, buffer-backed image surfaces,
   mutable ImageData views, pycairo `test_image_surface_get_data` mutable-view
   sharing and post-paint flush update behavior, pycairo empty 0x0 image-surface
-  `get_data` behavior, PNG path round trips, mapped images, float image
-  formats, and invalid image-family errors.
+  `get_data` behavior, PNG path round trips, mapped images, pycairo-style
+  mapped-image scope reuse failures, float image formats, and invalid
+  image-family errors.
 - `moon -C cairoon test src/tests/backend/pdf --target native -v`: 8
   black-box PDF surface tests passed from a nested external package, covering
   version helpers, raw C-int enums, no-output/page/document APIs, thumbnails,
@@ -3363,6 +3364,11 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, 2026-07-
   `Extend`, and `Filter` constructor coverage. This raises the API enum
   package to 5 tests and the expected full native suite to 708 tests without
   changing public API.
+  A later mapped-image pycairo context-manager slice extended
+  `surface_mapped_test.mbt` with reuse-after-scope `SurfaceFinished` coverage
+  for repeated base unmap, mapped-image data access, and repeated
+  `with_unmapped`. This raises the mapped-image package to 7 tests and the
+  expected full native suite to 709 tests without changing public API.
   A later Path pycairo parity slice added `path_pycairo_parity_test.mbt` with
   four pycairo `test_path.py`-derived fixtures covering empty path
   string/length behavior, `copy_path().to_string()` formatting including

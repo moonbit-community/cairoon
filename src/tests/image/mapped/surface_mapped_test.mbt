@@ -139,6 +139,26 @@ test "mapped image with_unmapped unmaps after success and cairo errors" {
 }
 
 ///|
+test "pycairo mapped image context scope cannot be reused" {
+  let main = @cairoon.Surface::image(@cairoon.Rgb24, 1, 1)
+  let mapped = main.map_to_image()
+  mapped.with_unmapped(() => ())
+
+  expect_mapped_surface_finished(
+    @cairoon.run_cairo(() => main.unmap_image(mapped)),
+  )
+  expect_mapped_surface_finished(
+    @cairoon.run_cairo(() => {
+      let _ = mapped.copy_data()
+      ()
+    }),
+  )
+  expect_mapped_surface_finished(
+    @cairoon.run_cairo(() => mapped.with_unmapped(() => ())),
+  )
+}
+
+///|
 test "mapped image with_unmapped uploads before propagated cairo error" {
   let main = @cairoon.Surface::image(@cairoon.Rgb24, 1, 1)
   let mapped = main.map_to_image()
