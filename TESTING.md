@@ -339,9 +339,15 @@ surface/linear/radial/mask pattern-stack clip/save/restore/OperatorAtop output,
 mesh/linear surface-mask group-compositing output, and
 set_source_surface/repeated-surface-pattern/radial-mask group-compositing
 output, surface-pattern device-offset mask with `OperatorScreen` group
-compositing output, and surface/radial-gradient `OperatorOverlay` group-mask
-output, and mesh/surface/linear pattern-stack `OperatorSoftLight` group-mask
-output, and surface-pattern stroke `OperatorDifference` group-mask output, and radial-gradient `OperatorColorDodge` over transformed reflected surface-pattern output, transformed repeated surface-pattern plus reflected linear-gradient `OperatorHslHue` group-mask output, transformed padded surface pattern plus repeated linear-gradient `OperatorHslSaturation` group-mask output;
+compositing output, surface/radial-gradient `OperatorOverlay` group-mask
+output, mesh/surface/linear pattern-stack `OperatorSoftLight` group-mask
+output, surface-pattern stroke `OperatorDifference` group-mask output,
+radial-gradient `OperatorColorDodge` over transformed reflected surface-pattern
+output, transformed repeated surface-pattern plus reflected linear-gradient
+`OperatorHslHue` group-mask output, transformed padded surface pattern plus
+repeated linear-gradient `OperatorHslSaturation` group-mask output, and
+transformed reflected surface pattern plus repeated radial gradient
+`OperatorHslColor` group-mask output;
 buffer-backed creation plus mutable `ImageData`
 views for image and
 mapped-image surfaces, pycairo-style scoped surface finish and mapped-image
@@ -2285,6 +2291,13 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, 2026-07-
   scenes, combining a transformed padded surface pattern, a transformed
   repeated linear gradient through `OperatorHslSaturation` inside a color-alpha
   group, and a transformed radial mask. The targeted
+  `moon test src/tests/oracle/image --target native --deny-warn -v` run passed
+  2 tests without changing public API or total test count.
+  The later HSL color group-mask image oracle slice expanded the ordinary and
+  buffer-backed direct C ARGB32 image oracle from forty-five to forty-six
+  scenes, combining a transformed reflected surface pattern, a transformed
+  repeated radial gradient through `OperatorHslColor` inside a color-alpha
+  group, and a transformed linear mask. The targeted
   `moon test src/tests/oracle/image --target native --deny-warn -v` run passed
   2 tests without changing public API or total test count.
   The later raster-source acquire-replacement recovery slice added one
