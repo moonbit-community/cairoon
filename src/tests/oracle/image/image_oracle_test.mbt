@@ -76,7 +76,7 @@ fn render_buffered_image_oracle_scene(
 
 ///|
 test "image rendering scenes match direct cairo C oracle" {
-  for scene in 0..<46 {
+  for scene in 0..<47 {
     let actual = render_image_oracle_scene(scene)
     let expected = test_argb32_scene_oracle_ffi(scene, 16, 16)
     inspect(expected.length(), content="1024")
@@ -86,7 +86,7 @@ test "image rendering scenes match direct cairo C oracle" {
 
 ///|
 test "buffer backed image rendering scenes match direct cairo C oracle" {
-  for scene in 0..<46 {
+  for scene in 0..<47 {
     let (actual, copied) = render_buffered_image_oracle_scene(scene)
     let expected = test_argb32_scene_oracle_ffi(scene, 16, 16)
     inspect(expected.length(), content="1024")

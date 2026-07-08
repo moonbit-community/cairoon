@@ -301,6 +301,90 @@ fn draw_image_oracle_pattern_operator_scene(
       ctx.mask(mask)
       ctx.restore()
     }
+    46 => {
+      let source = @cairoon.Surface::image(@cairoon.Argb32, 2, 2)
+      paint_image_oracle_quad_surface(source)
+      source.set_device_offset(0.10, -0.45)
+
+      let surface_pattern = @cairoon.Pattern::for_surface(source)
+      surface_pattern.set_extend(@cairoon.Repeat)
+      surface_pattern.set_filter(@cairoon.Bilinear)
+      surface_pattern.set_dither(@cairoon.DitherDefault)
+      surface_pattern.set_matrix(
+        @cairoon.Matrix::new(
+          xx=0.58,
+          yx=0.20,
+          xy=-0.22,
+          yy=0.66,
+          x0=0.40,
+          y0=-0.30,
+        ),
+      )
+
+      let linear = @cairoon.Pattern::linear(0.0, 14.0, 16.0, 1.0)
+      linear.add_color_stop_rgba(0.0, 0.94, 0.78, 0.12, 0.82)
+      linear.add_color_stop_rgba(0.34, 0.18, 0.92, 0.86, 0.74)
+      linear.add_color_stop_rgba(0.66, 0.92, 0.20, 0.34, 0.78)
+      linear.add_color_stop_rgba(1.0, 0.24, 0.30, 0.96, 0.88)
+      linear.set_extend(@cairoon.Reflect)
+      linear.set_filter(@cairoon.Good)
+      linear.set_dither(@cairoon.DitherBest)
+      linear.set_matrix(
+        @cairoon.Matrix::new(
+          xx=0.74,
+          yx=-0.18,
+          xy=0.10,
+          yy=0.82,
+          x0=-0.70,
+          y0=0.95,
+        ),
+      )
+
+      let mask = @cairoon.Pattern::radial(5.0, 5.0, 0.75, 10.5, 9.5, 7.2)
+      mask.add_color_stop_rgba(0.0, 1.0, 1.0, 1.0, 0.16)
+      mask.add_color_stop_rgba(0.48, 1.0, 1.0, 1.0, 0.84)
+      mask.add_color_stop_rgba(1.0, 1.0, 1.0, 1.0, 0.94)
+      mask.set_extend(@cairoon.Pad)
+      mask.set_filter(@cairoon.Bilinear)
+      mask.set_dither(@cairoon.DitherFast)
+      mask.set_matrix(
+        @cairoon.Matrix::new(
+          xx=0.92,
+          yx=0.08,
+          xy=-0.06,
+          yy=0.88,
+          x0=0.10,
+          y0=-0.45,
+        ),
+      )
+
+      ctx.set_source_rgb(0.018, 0.024, 0.046)
+      ctx.paint()
+      ctx.save()
+      ctx.rectangle(1.0, 1.0, 14.0, 14.0)
+      ctx.clip()
+      ctx.push_group_with_content(@cairoon.ContentColorAlpha)
+      ctx.set_source(surface_pattern)
+      ctx.rectangle(0.0, 0.0, 16.0, 16.0)
+      ctx.fill()
+      ctx.set_operator(@cairoon.OperatorHslLuminosity)
+      ctx.set_source(linear)
+      ctx.move_to(1.5, 8.0)
+      ctx.curve_to(4.0, 1.0, 10.5, 2.0, 14.5, 5.5)
+      ctx.line_to(13.0, 13.5)
+      ctx.curve_to(8.5, 15.0, 4.0, 13.0, 1.5, 8.0)
+      ctx.close_path()
+      ctx.fill()
+      ctx.set_operator(@cairoon.OperatorOver)
+      ctx.set_source_rgba(1.0, 0.96, 0.72, 0.14)
+      ctx.set_line_width(1.25)
+      ctx.move_to(3.0, 4.0)
+      ctx.curve_to(6.0, 9.5, 10.0, 5.5, 13.0, 11.5)
+      ctx.stroke()
+      ctx.pop_group_to_source()
+      ctx.mask(mask)
+      ctx.restore()
+    }
     _ => @cairoon.check_status(@cairoon.InvalidStatus)
   }
 }

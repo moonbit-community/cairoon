@@ -114,6 +114,10 @@ cairo_status_t cairoon_test_apply_radial_hsl_color_surface_mask_combo(
   cairo_t *cr,
   double width,
   double height);
+cairo_status_t cairoon_test_apply_linear_hsl_luminosity_surface_mask_combo(
+  cairo_t *cr,
+  double width,
+  double height);
 cairo_status_t cairoon_test_apply_group_compositing(
   cairo_t *cr,
   double width,
