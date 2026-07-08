@@ -14,6 +14,10 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 
 ## Recent Audit Deltas
 
+- 2026-07-08: The layout gate now enforces native-only target entries for every
+  production `src/**/ffi*.mbt` file, including internal helper packages, so raw
+  FFI declarations cannot silently become backend-generic during package
+  extraction.
 - 2026-07-08: PDF custom metadata parity now asserts that pycairo's reserved
   custom metadata names map to Cairo `InvalidString`, preserve
   `Status::message`, and use the checked `CairoInvalidArgument` payload.
@@ -227,6 +231,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 | C string helper implementation package seam | Done | Moves pure embedded-NUL byte scanning into `src/internal/cstring`, keeps public string/path validators and `CairoInvalidArgument(InvalidString, _)` error mapping in the facade, and verifies package-local plus existing font/context/surface invalid-string tests through the published package seam |
 | Executable docs package split | Done | Moves the family executable reference docs from direct `src/*.mbt.md` files into `src/docs`, keeps `src/README.mbt.md` as the package readme, and verifies 50 docs examples through an external package that imports `CAIMEOX/cairoon` with Cairo link flags |
 | Object trait facade colocation | Done | Moves external-object `Eq`/`Hash`/`Compare` impls from the grandfathered `src/traits.mbt` file into their owning facade wrapper files, deletes the old root file, and preserves the public trait surface through existing object black-box tests |
+| FFI native target layout lint | Done | Extends `scripts/check-project-layout.py` so every production `src/**/ffi*.mbt` file outside `src/tests/` must be listed in the adjacent `moon.pkg` `targets` map as `[ "native" ]`, and stale native target entries for moved raw FFI files are rejected before MoonBit compilation |
 | FFI ownership annotation lint | Done | Adds `scripts/check-ffi-ownership.py` and wires it into `scripts/verify.sh`, so every non-primitive raw C FFI parameter in production `src/**/ffi*.mbt` files, including internal helper packages, must be covered by `#borrow` or `#owned`; fixes the existing stream and raster-source callback trampoline annotations caught by the lint |
 | Source size budget lint | Done | Splits the oversized ARGB32 image oracle test dispatcher into focused basic, pattern, pattern-stack, and pattern-operator scene files, adds `scripts/check-source-size-budget.py`, and wires it into `scripts/verify.sh` so source, test, script, native glue, and executable-doc files under `src/` and `scripts/` cannot exceed the 900-line review budget without an intentional split |
 | Reliability ledger lint | Done | Adds `scripts/check-reliability-ledger.py` and wires it into `scripts/verify.sh`, so migration status rows use only the accepted statuses, `Partial` rows state their remaining gaps explicitly, the TESTING scorecard keeps all required reliability dimensions, and CI continues to run the native/ASan verify gates |

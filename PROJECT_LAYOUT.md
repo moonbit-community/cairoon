@@ -450,6 +450,9 @@ before MoonBit compilation. The layout check proves:
   moved or new test/oracle slices are added;
 - `src/moon.pkg` imports `CAIMEOX/cairoon/native` and owns no `native-stub`
   entries;
+- every production raw `src/**/ffi*.mbt` file outside `src/tests/` is listed
+  in the adjacent `moon.pkg` `targets` map as native-only, and stale native
+  target entries for moved raw FFI files are rejected;
 - every `.c` file under `src/native/` is referenced by `src/native/moon.pkg`
   `native-stub`, every `native-stub` entry is a bare filename beside its
   owning `moon.pkg`, headers stay with their owning native-stub package, oracle

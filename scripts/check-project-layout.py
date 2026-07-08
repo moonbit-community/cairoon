@@ -19,6 +19,7 @@ SOURCE_SUFFIXES = (".mbt.md", ".mbti", ".mbt", ".c", ".h")
 PACKAGE_CONFIG_NAMES = {"moon.pkg"}
 NATIVE_PACKAGE_DIR = PACKAGE_ROOT / "native"
 NATIVE_PACKAGE_CONFIG = NATIVE_PACKAGE_DIR / "moon.pkg"
+NATIVE_TARGETS = {"native"}
 CAIRO_LINK_IMPORTS = ('"CAIMEOX/cairoon"', '"CAIMEOX/cairoon/native"')
 CHECKED_PACKAGE_COUNT_PATHS = (
     "src/core/constants",
@@ -190,6 +191,64 @@ def read_native_stubs(package_config: pathlib.Path) -> set[str]:
         return set()
     block = text[open_bracket:close_bracket]
     return set(re.findall(r'"([^"]+\.c)"', block))
+
+
+def read_native_targets(package_config: pathlib.Path) -> dict[str, set[str]]:
+    text = package_config.read_text(encoding="utf-8")
+    return {
+        name: set(re.findall(r'"([^"]+)"', targets))
+        for name, targets in re.findall(
+            r'"([^"]+\.mbt)"\s*:\s*\[([^\]]*)\]',
+            text,
+        )
+    }
+
+
+def iter_production_ffi_files() -> list[pathlib.Path]:
+    return [
+        path
+        for path in sorted(PACKAGE_ROOT.rglob("ffi*.mbt"))
+        if TEST_PACKAGE_ROOT not in path.parents
+    ]
+
+
+def check_ffi_native_targets() -> list[str]:
+    errors: list[str] = []
+    targets_by_package: dict[pathlib.Path, dict[str, set[str]]] = {}
+    seen_by_package: dict[pathlib.Path, set[str]] = {}
+
+    for path in iter_production_ffi_files():
+        package_config = path.parent / "moon.pkg"
+        if not package_config.exists():
+            errors.append(
+                f"{path.relative_to(REPO_ROOT)}: raw FFI files must live beside "
+                "a moon.pkg that gates them to the native target"
+            )
+            continue
+        if package_config not in targets_by_package:
+            targets_by_package[package_config] = read_native_targets(package_config)
+        targets = targets_by_package[package_config].get(path.name)
+        seen_by_package.setdefault(package_config, set()).add(path.name)
+        if targets != NATIVE_TARGETS:
+            rel_config = package_config.relative_to(REPO_ROOT)
+            errors.append(
+                f"{path.relative_to(REPO_ROOT)}: production raw FFI files must "
+                f"be listed in {rel_config} targets as [ \"native\" ]"
+            )
+
+    for package_config, entries in sorted(targets_by_package.items()):
+        for name, targets in sorted(entries.items()):
+            if not name.startswith("ffi") or not name.endswith(".mbt"):
+                continue
+            if targets != NATIVE_TARGETS:
+                continue
+            if name in seen_by_package.get(package_config, set()):
+                continue
+            errors.append(
+                f"{package_config.relative_to(REPO_ROOT)}: native target entry "
+                f"{name!r} is missing beside its owning moon.pkg"
+            )
+    return errors
 
 
 def count_files(path: pathlib.Path, pattern: str) -> int:
@@ -391,6 +450,7 @@ def main() -> int:
     errors.extend(check_layout_counters())
     errors.extend(check_nested_packages())
     errors.extend(check_nested_c_files())
+    errors.extend(check_ffi_native_targets())
     if errors:
         for error in errors:
             print(error, file=sys.stderr)
