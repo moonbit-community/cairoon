@@ -42,6 +42,7 @@ options(
     "cairoon_test_backend_review_dossier.c",
     "cairoon_test_backend_appendix_rubric.c",
     "cairoon_test_backend_research_note.c",
+    "cairoon_test_backend_cross_reference.c",
     "cairoon_test_pdf_vector.c",
     "cairoon_test_ps_vector.c",
     "cairoon_test_svg_vector.c",
