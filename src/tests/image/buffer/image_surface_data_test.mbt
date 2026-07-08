@@ -5,6 +5,12 @@ fn surface_with_local_pixel_buffer() -> @cairoon.Surface raise @cairoon.CairoErr
 }
 
 ///|
+#borrow(surface)
+extern "C" fn image_surface_has_data_user_data_ffi(
+  surface : @cairoon.Surface,
+) -> Bool = "cairoon_image_surface_has_data_user_data"
+
+///|
 fn set_argb32_pixel(
   data : FixedArray[Byte],
   stride : Int,
@@ -41,6 +47,34 @@ test "image surface for data shares caller buffer" {
   inspect(data[2].to_int(), content="0")
   inspect(data[3].to_int(), content="255")
   inspect(surface.copy_data() == Bytes::from_array(data), content="true")
+}
+
+///|
+test "pycairo image surface create_for_data releases retained buffer on finish" {
+  let width = 6
+  let height = 4
+  let stride = @cairoon.Format::stride_for_width(@cairoon.Argb32, width)
+  let data : FixedArray[Byte] = FixedArray::make(stride * height, b'\x00')
+  let surface = @cairoon.Surface::image_for_data(
+    data,
+    @cairoon.Argb32,
+    width,
+    height,
+    stride~,
+  )
+  inspect(image_surface_has_data_user_data_ffi(surface), content="true")
+  surface.finish()
+  inspect(image_surface_has_data_user_data_ffi(surface), content="false")
+  let result = @cairoon.run_cairo(() => {
+    let _ = surface.copy_data()
+    ()
+  })
+  match result {
+    Err(@cairoon.CairoError(@cairoon.SurfaceFinished, _)) => ()
+    _ => @test.fail("expected SurfaceFinished after finish")
+  }
+  data[0] = b'\xff'
+  inspect(data[0].to_int(), content="255")
 }
 
 ///|

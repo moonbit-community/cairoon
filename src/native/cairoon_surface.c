@@ -157,5 +157,7 @@ cairo_status_t cairoon_surface_finish(CairoonSurface *surface) {
     return status;
   }
   cairo_surface_finish(surface->ptr);
-  return cairo_surface_status(surface->ptr);
+  status = cairo_surface_status(surface->ptr);
+  cairo_status_t data_status = cairoon_image_surface_release_data(surface->ptr);
+  return status == CAIRO_STATUS_SUCCESS ? data_status : status;
 }

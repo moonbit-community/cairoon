@@ -3558,6 +3558,12 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, 2026-07-
   and each key can be cleared independently. This raises
   `src/tests/surface/mime` to 6 tests and the observed full native suite to 699
   tests without changing public API.
+  A later pycairo create-for-data release-on-finish slice changed the C glue to
+  detach the backing-buffer user-data slot immediately after
+  `Surface::finish`, added a black-box retained-slot probe plus a
+  `SurfaceFinished` copy-data check under `src/tests/image/buffer`, and raised
+  that package to 7 tests and the observed full native suite to 700 tests
+  without changing public API.
 
 Remaining reliability work is now narrower and should be tracked as evidence,
 not as an unstructured checklist:

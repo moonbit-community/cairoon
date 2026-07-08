@@ -20,6 +20,21 @@ static cairo_status_t cairoon_surface_store_user_data(
     cairoon_decref_user_data);
 }
 
+cairo_status_t cairoon_image_surface_release_data(cairo_surface_t *surface) {
+  if (surface == NULL) {
+    return CAIRO_STATUS_NULL_POINTER;
+  }
+  if (cairo_surface_get_user_data(surface, &cairoon_image_surface_data_key) ==
+      NULL) {
+    return CAIRO_STATUS_SUCCESS;
+  }
+  return cairo_surface_set_user_data(
+    surface,
+    &cairoon_image_surface_data_key,
+    NULL,
+    NULL);
+}
+
 moonbit_bytes_t cairoon_copy_image_surface_data(
   cairo_surface_t *surface,
   cairo_status_t *status_out) {
@@ -160,6 +175,17 @@ CairoonSurface *cairoon_image_surface_create_from_png_stream(
   return cairoon_surface_wrap_owned(NULL);
 #endif
 }
+
+MOONBIT_FFI_EXPORT
+int32_t cairoon_image_surface_has_data_user_data(CairoonSurface *surface) {
+  if (surface == NULL || surface->ptr == NULL) {
+    return 0;
+  }
+  return cairo_surface_get_user_data(
+    surface->ptr,
+    &cairoon_image_surface_data_key) != NULL;
+}
+
 MOONBIT_FFI_EXPORT
 int32_t cairoon_image_surface_get_width(
   CairoonSurface *surface,

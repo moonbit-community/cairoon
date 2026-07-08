@@ -182,6 +182,7 @@ cairo_status_t cairoon_surface_require_type(
 moonbit_bytes_t cairoon_copy_image_surface_data(
   cairo_surface_t *surface,
   cairo_status_t *status_out);
+cairo_status_t cairoon_image_surface_release_data(cairo_surface_t *surface);
 cairo_status_t cairoon_device_status(CairoonDevice *device);
 cairo_status_t cairoon_mapped_image_surface_status(CairoonMappedImageSurface *surface);
 cairo_status_t cairoon_context_status(CairoonContext *ctx);
