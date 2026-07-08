@@ -1211,9 +1211,10 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, 2026-07-
   black-box mesh Pattern tests passed, covering mesh patch lifecycle/query APIs,
   patch and point index validation, lifecycle error propagation, and non-mesh
   subtype rejection.
-- `moon -C cairoon test src/tests/pattern/pycairo --target native -v`: 10
+- `moon -C cairoon test src/tests/pattern/pycairo --target native -v`: 11
   black-box Pattern pycairo parity tests passed, covering pycairo
-  solid/surface/gradient/mesh fixtures and mesh error-state mapping.
+  solid/surface/gradient/mesh fixtures, raw extend passthrough, and mesh
+  error-state mapping.
 - `moon -C cairoon test src/tests/pattern/gradient --target native -v`: 5
   black-box gradient tests passed from a nested external package, covering
   linear/radial gradient geometry, color-stop count/tuple retrieval,
@@ -1241,7 +1242,7 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, 2026-07-
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
   src/tests/pattern/core src/tests/pattern/mesh src/tests/pattern/pycairo
-  src/tests/pattern/raster --target native -v`: 41
+  src/tests/pattern/raster --target native -v`: 42
   ASan-compiled black-box pattern tests passed with leak detection disabled
   after the split, covering core/surface/mesh/pycairo pattern behavior,
   compatible target/extents raster-source acquire, release-only callback state,
@@ -3347,6 +3348,13 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, 2026-07-
   positive and negative component-index error coverage for `Rectangle`,
   `RectangleInt`, `TextCluster`, `TextExtents`, and `FontExtents`. This raises
   the expected full native suite to 706 tests without changing public API.
+  A later Pattern pycairo raw-extend slice extended
+  `pattern_pycairo_parity_test.mbt` with pycairo's `test_set_extend` raw C-int
+  passthrough fixture for `42`, preserving the raw value through
+  `get_extend_raw` while the typed getter rejects the unknown value with
+  `CairoInvalidArgument(InvalidStatus, _)`. This raises the pattern pycairo
+  package to 11 tests and the expected full native suite to 707 tests without
+  changing public API.
   A later Path pycairo parity slice added `path_pycairo_parity_test.mbt` with
   four pycairo `test_path.py`-derived fixtures covering empty path
   string/length behavior, `copy_path().to_string()` formatting including

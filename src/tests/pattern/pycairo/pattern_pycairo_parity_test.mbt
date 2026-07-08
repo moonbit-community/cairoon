@@ -76,6 +76,19 @@ test "pycairo solid pattern setter round trip fixture" {
 }
 
 ///|
+test "pycairo pattern raw extend fixture" {
+  let pattern = @cairoon.Pattern::solid_rgb(1.0, 2.0, 4.0)
+  pattern.set_extend_raw(42)
+  inspect(pattern.get_extend_raw(), content="42")
+
+  let typed_result = @cairoon.run_cairo(() => pattern.get_extend())
+  match typed_result {
+    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidStatus, _)) => ()
+    _ => @test.fail("expected typed getter to reject unknown raw extend")
+  }
+}
+
+///|
 test "pycairo gradient pattern method fixture" {
   let linear = @cairoon.Pattern::linear(0.0, 0.0, 0.0, 1.0)
   debug_inspect(linear.get_linear_points(), content="(0, 0, 0, 1)")
