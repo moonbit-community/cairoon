@@ -2994,6 +2994,11 @@ Prior full verifies passed on 2026-07-02, 2026-07-03, 2026-07-04,
   equality, stable metadata/page-label/outline/tag markers, and PS/SVG
   negative PDF-metadata checks for article, block quote, note, figure,
   caption, and reference structure tags.
+  A later review-dossier backend oracle slice adds scene 57 with PDF/PS/SVG
+  file-vs-stream equality, direct-C file equality, stream-to-direct-C
+  equality, stable metadata/page-label/outline/tag markers, and PS/SVG
+  negative PDF-metadata checks for TOC, reference, list, table, non-struct,
+  and note structure tags.
   Broader cross-backend tag/metadata combinations, broader multi-page
   combinations, and richer tag-output assertions are still absent beyond those
   PDF scenes, the tagged multi-page, tagged `show_text_glyphs`, grouped
@@ -3002,7 +3007,7 @@ Prior full verifies passed on 2026-07-02, 2026-07-03, 2026-07-04,
   PS/SVG tag-metadata absence checks including URI-link text tags,
   backend-combo stream output, resized page-sequence output, tag-matrix output,
   lifecycle-matrix output, page-transition output, state-stack output, and
-  structure-sequence output, and PS/SVG
+  structure-sequence output, review-dossier output, and PS/SVG
   Link/destination/document-structure rectangle/text plus tagged multi-page, tagged
   `show_text_glyphs`, grouped glyph/tag, mixed vector/tag/text, layered
   three-page, and wide three-page direct-oracle coverage.
@@ -3018,6 +3023,7 @@ Prior full verifies passed on 2026-07-02, 2026-07-03, 2026-07-04,
   clip/dash/surface-pattern/mask/tag/text, wide three-page tag/vector, PDF text
   document-feature, backend-feature/tag/multi-page combo, backend tag-matrix
   combo, backend lifecycle-matrix combo, backend structure-sequence combo,
+  backend review-dossier combo,
   PS/SVG stream negative tag-metadata checks for those combos, PDF JPEG
   MIME and PDF thumbnail output,
   and backend document-feature stream-vs-file normalized

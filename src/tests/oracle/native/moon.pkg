@@ -39,6 +39,7 @@ options(
     "cairoon_test_backend_bookmark_lattice.c",
     "cairoon_test_backend_revision_ledger.c",
     "cairoon_test_backend_article_thread.c",
+    "cairoon_test_backend_review_dossier.c",
     "cairoon_test_pdf_vector.c",
     "cairoon_test_ps_vector.c",
     "cairoon_test_svg_vector.c",
