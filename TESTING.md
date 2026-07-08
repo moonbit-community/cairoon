@@ -3614,6 +3614,12 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, 2026-07-
   translate-plus-scale CTM. This raises `src/tests/context/pycairo` to 14
   tests and the observed full native suite to 714 tests without changing public
   API.
+  A later pycairo pattern-surface/filter slice added two external black-box
+  fixtures proving `Pattern::for_surface` constructor/use through
+  `Context::set_source` and `Pattern::set_filter`/`get_filter` round trips,
+  matching pycairo's `test_surface_pattern` and `test_pattern_filter`
+  behavior. This raises `src/tests/pattern/pycairo` to 13 tests and the
+  observed full native suite to 716 tests without changing public API.
 
 Remaining reliability work is now narrower and should be tracked as evidence,
 not as an unstructured checklist:

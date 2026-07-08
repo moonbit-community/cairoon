@@ -57,6 +57,30 @@ test "pycairo surface pattern default state fixture" {
 }
 
 ///|
+test "pycairo surface pattern constructor fixture" {
+  let source = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let source_ctx = @cairoon.Context::new(source)
+  source_ctx.set_source_rgb(1.0, 0.0, 0.0)
+  source_ctx.paint()
+
+  let pattern = @cairoon.Pattern::for_surface(source)
+  let returned = pattern.get_surface()
+  inspect(returned.get_width(), content="1")
+  inspect(returned.get_height(), content="1")
+
+  let target = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let target_ctx = @cairoon.Context::new(target)
+  target_ctx.set_source(pattern)
+  target_ctx.paint()
+
+  let data = target.copy_data()
+  inspect(data[0].to_int(), content="0")
+  inspect(data[1].to_int(), content="0")
+  inspect(data[2].to_int(), content="255")
+  inspect(data[3].to_int(), content="255")
+}
+
+///|
 test "pycairo solid pattern setter round trip fixture" {
   let pattern = @cairoon.Pattern::solid_rgba(0.1, 0.2, 0.3, 0.4)
   debug_inspect(pattern.get_rgba(), content="(0.1, 0.2, 0.3, 0.4)")
@@ -73,6 +97,14 @@ test "pycairo solid pattern setter round trip fixture" {
   debug_inspect(pattern.get_extend(), content="Repeat")
   debug_inspect(pattern.get_filter(), content="Nearest")
   debug_inspect(pattern.get_dither(), content="DitherBest")
+}
+
+///|
+test "pycairo pattern filter fixture" {
+  let pattern = @cairoon.Pattern::solid_rgb(1.0, 2.0, 3.0)
+  debug_inspect(pattern.get_filter(), content="Good")
+  pattern.set_filter(@cairoon.Nearest)
+  debug_inspect(pattern.get_filter(), content="Nearest")
 }
 
 ///|
