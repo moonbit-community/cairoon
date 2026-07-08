@@ -3671,6 +3671,15 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, 2026-07-
   oracle equality, and PS/SVG negative PDF-metadata checks. This raises
   `src/tests/oracle/vector_backend` to 215 tests and the observed full native
   suite to 732 tests without changing public API.
+  A later backend section-catalog oracle slice added Scene 65, covering a
+  three-page PDF/PS/SVG document with metadata, custom metadata removal, page
+  labels, nested outlines, URI and named-destination tags, `TOC`/`TOCI`,
+  `Reference`, `H2`, `Code`, `Formula`, `Note`, `Figure`, `Caption`, and
+  `BibEntry` structure tags, backend resizing, stable marker checks,
+  file-vs-stream normalized equality, direct C oracle equality, stream-to-C
+  oracle equality, and PS/SVG negative PDF-metadata checks. This raises
+  `src/tests/oracle/vector_backend` to 219 tests and the observed full native
+  suite to 736 tests without changing public API.
   A later pycairo module-constants slice added one external black-box fixture
   mapping `test_api.py::test_constants` to public cairoon raw-value observation:
   antialias/operator constants are checked through context raw getters, region
@@ -3691,12 +3700,12 @@ not as an unstructured checklist:
 - Broaden normalized PDF/PS/SVG differential coverage for combinations not yet
   represented by the current direct-C and direct stream-oracle fixtures:
   additional deep tag nests beyond scenes 37, 39, 40, 44, 45, 49, 51, 52, 53,
-  54, 56, 57, 58, 59, 60, 61, 62, 63, and 64, more metadata/page-label/outline
+  54, 56, 57, 58, 59, 60, 61, 62, 63, 64, and 65, more metadata/page-label/outline
   mixtures beyond scenes 38 through 42, 44, 46, 47, 48, 49, 50, 51, 52, 53, 54,
-  55, 56, 57, 58, 59, 60, 61, 62, 63, and 64, and
+  55, 56, 57, 58, 59, 60, 61, 62, 63, 64, and 65, and
   additional multi-page sequences beyond the current
   retained/resized/tag-matrix/lifecycle/text-state/page-ops/structure-sequence/outline-sequence/pattern-tag/annotation-sequence/semantic-index/bookmark-lattice/revision-ledger/article-thread/review-dossier/appendix-rubric/research-note/cross-reference/link-audit/attachment-index/navigation-map
-  /accessibility-index page fixtures.
+  /accessibility-index/section-catalog page fixtures.
 - Add broader platform coverage and finalizer fuzz beyond the
   deterministic raster-source owner-count, state-machine, manual
   get-callback, callback allocation, retained-owner, stream retention, and

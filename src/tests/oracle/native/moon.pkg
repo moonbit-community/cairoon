@@ -47,6 +47,7 @@ options(
     "cairoon_test_backend_attachment_index.c",
     "cairoon_test_backend_navigation_map.c",
     "cairoon_test_backend_accessibility_index.c",
+    "cairoon_test_backend_section_catalog.c",
     "cairoon_test_pdf_vector.c",
     "cairoon_test_ps_vector.c",
     "cairoon_test_svg_vector.c",
