@@ -38,6 +38,33 @@ test "surface mime data set get and clear" {
 }
 
 ///|
+test "pycairo mime data multi-key clear fixture" {
+  let surface = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let payload = @utf8.encode("bla")
+  let head = Bytes::from_array([b'b'])
+
+  surface.set_mime_data("foo", Some(payload))
+  surface.set_mime_data("foo2", Some(payload))
+  surface.set_mime_data("foo3", Some(head))
+  expect_mime_bytes(surface, "foo", payload)
+  expect_mime_bytes(surface, "foo2", payload)
+  expect_mime_bytes(surface, "foo3", head)
+
+  surface.set_mime_data("foo", None)
+  inspect(surface.get_mime_data("foo") is None, content="true")
+  expect_mime_bytes(surface, "foo2", payload)
+  expect_mime_bytes(surface, "foo3", head)
+
+  surface.set_mime_data("foo2", None)
+  inspect(surface.get_mime_data("foo2") is None, content="true")
+  expect_mime_bytes(surface, "foo3", head)
+
+  surface.set_mime_data("foo3", None)
+  inspect(surface.get_mime_data("foo3") is None, content="true")
+  surface.finish()
+}
+
+///|
 test "surface mime data preserves embedded nul bytes and zero length payloads" {
   let surface = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
   let binary = binary_mime_payload()

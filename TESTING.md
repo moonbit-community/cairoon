@@ -1105,7 +1105,7 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, 2026-07-
   covering the previous intermittent stream-tag output comparison failure path.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
-  src/tests/surface/{base,mime,pycairo,subsurface} --target native -v`: 26
+  src/tests/surface/{base,mime,pycairo,subsurface} --target native -v`: 27
   ASan-compiled black-box surface tests passed with leak detection disabled.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
@@ -1381,9 +1381,10 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, 2026-07-
   success/invalid-size/extreme numeric cases, `create_similar`
   success/invalid-size cases, and PDF-backed `create_similar_image`, including
   returned image usability after the creating PDF surface scope exits.
-- `moon -C cairoon test surface_mime_test.mbt --target native -v`: 5
+- `moon -C cairoon test surface_mime_test.mbt --target native -v`: 6
   black-box tests passed after adding image/PDF/PS/SVG
-  `supports_mime_type` matrix coverage and invalid MIME type string coverage.
+  `supports_mime_type` matrix coverage, invalid MIME type string coverage, and
+  pycairo-derived same-payload multi-key storage with per-key clearing.
 - `moon -C cairoon test surface_subsurface_test.mbt --target native -v`: 3
   black-box tests passed after adding invalid-size coverage for
   `Surface::create_for_rectangle`.
@@ -3552,6 +3553,11 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, 2026-07-
   pycairo's `PSSurface` DSC page-setup-before-setup ordering through
   `src/tests/backend/ps`, raising that backend package to 8 tests and bringing
   the observed full native suite to 698 tests without changing public API.
+  A later pycairo MIME reference-semantics slice added one external black-box
+  fixture proving that the same MIME payload can be stored under multiple keys
+  and each key can be cleared independently. This raises
+  `src/tests/surface/mime` to 6 tests and the observed full native suite to 699
+  tests without changing public API.
 
 Remaining reliability work is now narrower and should be tracked as evidence,
 not as an unstructured checklist:
