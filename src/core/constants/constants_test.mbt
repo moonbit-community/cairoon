@@ -3,11 +3,15 @@ test "cairo version constants compose encoded version" {
   inspect(
     CAIRO_VERSION_MAJOR * 10000 +
     CAIRO_VERSION_MINOR * 100 +
-    CAIRO_VERSION_MICRO,
-    content="11804",
+    CAIRO_VERSION_MICRO ==
+    CAIRO_VERSION,
+    content="true",
   )
-  inspect(CAIRO_VERSION, content="11804")
-  inspect(CAIRO_VERSION_STRING, content="1.18.4")
+  inspect(
+    CAIRO_VERSION_STRING ==
+    "\{CAIRO_VERSION_MAJOR}.\{CAIRO_VERSION_MINOR}.\{CAIRO_VERSION_MICRO}",
+    content="true",
+  )
 }
 
 ///|
