@@ -802,11 +802,11 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, 2026-07-
   version helpers, raw C-int enums, no-output/page/document APIs, thumbnails,
   metadata/outline/path validation, filename construction, subtype errors, and
   finished-surface errors.
-- `moon -C cairoon test src/tests/backend/ps --target native -v`: 7
+- `moon -C cairoon test src/tests/backend/ps --target native -v`: 8
   black-box PS surface tests passed from a nested external package, covering
-  level helpers, raw C-int enums, no-output/EPS/page/DSC APIs, DSC/path
-  validation, filename construction, subtype errors, and setup/page-size
-  errors.
+  level helpers, raw C-int enums, no-output/EPS/page/DSC APIs, pycairo DSC
+  setup-order parity, DSC/path validation, filename construction, subtype
+  errors, and setup/page-size errors.
 - `moon -C cairoon test src/tests/backend/svg --target native -v`: 6
   black-box SVG surface tests passed from a nested external package, covering
   version helpers, raw C-int enums, no-output/unit/version APIs, filename
@@ -1115,7 +1115,7 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, 2026-07-
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
   ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon -C cairoon test
   src/tests/backend/pdf src/tests/backend/ps src/tests/backend/svg
-  src/tests/backend/recording src/tests/backend/tee --target native -v`: 30
+  src/tests/backend/recording src/tests/backend/tee --target native -v`: 31
   ASan-compiled black-box backend surface tests passed with leak detection
   disabled.
 - `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/usr/bin/ar
@@ -3548,6 +3548,10 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, 2026-07-
   constructors, and bounded/unbounded recording constructors through the
   published package path. This raises `src/tests/api/pycairo` to 8 tests
   without changing public API.
+  A later pycairo PS misc slice added one external black-box fixture proving
+  pycairo's `PSSurface` DSC page-setup-before-setup ordering through
+  `src/tests/backend/ps`, raising that backend package to 8 tests and bringing
+  the observed full native suite to 698 tests without changing public API.
 
 Remaining reliability work is now narrower and should be tracked as evidence,
 not as an unstructured checklist:

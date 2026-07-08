@@ -87,6 +87,14 @@ test "ps surface no-output constructor exposes eps size dsc and level APIs" {
 }
 
 ///|
+test "pycairo ps surface dsc setup order fixture" {
+  let surface = @cairoon.Surface::ps(10.0, 10.0)
+  surface.ps_dsc_begin_page_setup()
+  surface.ps_dsc_begin_setup()
+  inspect(surface.status().is_success(), content="true")
+}
+
+///|
 test "ps surface validates dsc comments and path strings" {
   let surface = @cairoon.Surface::ps(10.0, 10.0)
   let invalid_comment = @cairoon.run_cairo(() => surface.ps_dsc_comment(""))
