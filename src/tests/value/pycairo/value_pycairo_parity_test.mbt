@@ -33,6 +33,44 @@ test "pycairo rectangle tuple-like fixture" {
 }
 
 ///|
+test "pycairo rectangle int limits fixture" {
+  let max_int = 2147483647
+  let min_int = -2147483647 - 1
+  let rect = @cairoon.RectangleInt::new(
+    x=max_int,
+    y=min_int,
+    width=max_int,
+    height=min_int,
+  )
+  inspect(rect.x, content="2147483647")
+  inspect(rect.y, content="-2147483648")
+  inspect(rect.width, content="2147483647")
+  inspect(rect.height, content="-2147483648")
+  debug_inspect(
+    rect.components(),
+    content="(2147483647, -2147483648, 2147483647, -2147483648)",
+  )
+  let same = @cairoon.RectangleInt::new(
+    x=max_int,
+    y=min_int,
+    width=max_int,
+    height=min_int,
+  )
+  inspect(rect == same, content="true")
+  inspect(Hash::hash(rect) == Hash::hash(same), content="true")
+  inspect(
+    rect !=
+    @cairoon.RectangleInt::new(
+      x=max_int - 1,
+      y=min_int,
+      width=max_int,
+      height=min_int,
+    ),
+    content="true",
+  )
+}
+
+///|
 test "pycairo rectangle producing APIs return rectangle values" {
   let ctx = @cairoon.Context::new(
     @cairoon.Surface::image(@cairoon.Argb32, 10, 10),

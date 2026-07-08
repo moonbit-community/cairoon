@@ -693,9 +693,10 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, 2026-07-
   Glyph, TextCluster, TextExtents, FontExtents, component access, invalid-index
   error mapping, and numeric limits.
 - `moon -C cairoon test src/tests/value/pycairo --target native --deny-warn -v`:
-  6 black-box value parity tests passed, covering pycairo-style value
-  equality/hash/component fixtures, clip-rectangle returns, recording extents,
-  and Context/ScaledFont extents-return paths.
+  7 black-box value parity tests passed, covering pycairo-style value
+  equality/hash/component fixtures, `RectangleInt` 32-bit boundary fields,
+  clip-rectangle returns, recording extents, and Context/ScaledFont
+  extents-return paths.
 - `moon -C cairoon test src/tests/region/core --target native --deny-warn -v`:
   10 black-box Region package tests passed, covering constructors, copies,
   containment/overlap queries, mutating boolean operations, chainable rectangle
@@ -3336,6 +3337,12 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, 2026-07-
   containment, mutating boolean operations returning the receiver, and
   translate behavior for empty and non-empty regions. This raises the expected
   full native suite to 611 tests without changing public API.
+  A later RectangleInt pycairo limits slice extended
+  `value_pycairo_parity_test.mbt` with pycairo
+  `test_region.py::test_rectangles_limits`-derived 32-bit boundary coverage for
+  `RectangleInt` fields/components and MoonBit `Eq`/`Hash` identity. This
+  raises the expected full native suite to 705 tests without changing public
+  API.
   A later Path pycairo parity slice added `path_pycairo_parity_test.mbt` with
   four pycairo `test_path.py`-derived fixtures covering empty path
   string/length behavior, `copy_path().to_string()` formatting including
