@@ -689,9 +689,9 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, 2026-07-
   `check_status`, public `Status::message`, and exhaustive `CairoError`
   suberror classification for every Cairo status exposed by the facade.
 - `moon -C cairoon test src/tests/value/core --target native --deny-warn -v`:
-  8 black-box value package tests passed, covering Rectangle, RectangleInt,
-  Glyph, TextCluster, TextExtents, FontExtents, component access, invalid-index
-  error mapping, and numeric limits.
+  9 black-box value package tests passed, covering Rectangle, RectangleInt,
+  Glyph, TextCluster, TextExtents, FontExtents, component access,
+  positive/negative invalid-index error mapping, and numeric limits.
 - `moon -C cairoon test src/tests/value/pycairo --target native --deny-warn -v`:
   7 black-box value parity tests passed, covering pycairo-style value
   equality/hash/component fixtures, `RectangleInt` 32-bit boundary fields,
@@ -3343,6 +3343,10 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, 2026-07-
   `RectangleInt` fields/components and MoonBit `Eq`/`Hash` identity. This
   raises the expected full native suite to 705 tests without changing public
   API.
+  A later pure value invalid-index slice extended `value_types_test.mbt` with
+  positive and negative component-index error coverage for `Rectangle`,
+  `RectangleInt`, `TextCluster`, `TextExtents`, and `FontExtents`. This raises
+  the expected full native suite to 706 tests without changing public API.
   A later Path pycairo parity slice added `path_pycairo_parity_test.mbt` with
   four pycairo `test_path.py`-derived fixtures covering empty path
   string/length behavior, `copy_path().to_string()` formatting including

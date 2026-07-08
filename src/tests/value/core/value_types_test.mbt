@@ -1,4 +1,15 @@
 ///|
+fn[T] expect_value_invalid_index(
+  result : Result[T, @cairoon.CairoError],
+) -> Unit raise {
+  inspect(result is Err(_), content="true")
+  match result {
+    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidIndex, _)) => ()
+    _ => @test.fail("expected InvalidIndex")
+  }
+}
+
+///|
 test "rectangle values expose fields and components" {
   let rect = @cairoon.Rectangle::new(0.0, 0.5, 0.25, 0.75)
   inspect(rect.x, content="0")
@@ -7,12 +18,7 @@ test "rectangle values expose fields and components" {
   inspect(rect.height, content="0.75")
   debug_inspect(rect.components(), content="(0, 0.5, 0.25, 0.75)")
   inspect(rect.component(1), content="0.5")
-  let result = @cairoon.run_cairo(() => rect.component(4))
-  inspect(result is Err(_), content="true")
-  match result {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidIndex, _)) => ()
-    _ => @test.fail("expected InvalidIndex")
-  }
+  expect_value_invalid_index(@cairoon.run_cairo(() => rect.component(4)))
 }
 
 ///|
@@ -52,12 +58,7 @@ test "text cluster values expose tuple order" {
   inspect(cluster.num_glyphs, content="1")
   debug_inspect(cluster.components(), content="(2, 1)")
   inspect(cluster.component(0), content="2")
-  let result = @cairoon.run_cairo(() => cluster.component(2))
-  inspect(result is Err(_), content="true")
-  match result {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidIndex, _)) => ()
-    _ => @test.fail("expected InvalidIndex")
-  }
+  expect_value_invalid_index(@cairoon.run_cairo(() => cluster.component(2)))
 }
 
 ///|
@@ -115,4 +116,27 @@ test "pure value types preserve pycairo numeric limits" {
   let cluster = @cairoon.TextCluster::new(max_int, min_int)
   inspect(cluster.num_bytes, content="2147483647")
   inspect(cluster.num_glyphs, content="-2147483648")
+}
+
+///|
+test "pure value component invalid indexes map to InvalidIndex" {
+  let rect = @cairoon.Rectangle::new(0.0, 0.5, 0.25, 0.75)
+  expect_value_invalid_index(@cairoon.run_cairo(() => rect.component(-1)))
+  expect_value_invalid_index(@cairoon.run_cairo(() => rect.component(4)))
+
+  let rect_int = @cairoon.RectangleInt::new(x=1, y=2, width=3, height=4)
+  expect_value_invalid_index(@cairoon.run_cairo(() => rect_int.component(-1)))
+  expect_value_invalid_index(@cairoon.run_cairo(() => rect_int.component(4)))
+
+  let cluster = @cairoon.TextCluster::new(2, 1)
+  expect_value_invalid_index(@cairoon.run_cairo(() => cluster.component(-1)))
+  expect_value_invalid_index(@cairoon.run_cairo(() => cluster.component(2)))
+
+  let text = @cairoon.TextExtents::new(0.0, 0.5, 0.25, 0.75, 0.5, 0.125)
+  expect_value_invalid_index(@cairoon.run_cairo(() => text.component(-1)))
+  expect_value_invalid_index(@cairoon.run_cairo(() => text.component(6)))
+
+  let font = @cairoon.FontExtents::new(1.0, 2.0, 3.0, 4.0, 5.0)
+  expect_value_invalid_index(@cairoon.run_cairo(() => font.component(-1)))
+  expect_value_invalid_index(@cairoon.run_cairo(() => font.component(5)))
 }
