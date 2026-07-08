@@ -295,7 +295,7 @@ def check_layout_counters() -> list[str]:
         ),
         (
             "executable docs",
-            r"- (?P<count>\d+) executable `\.mbt\.md` docs in `src/`\.",
+            r"- (?P<count>\d+) executable `\.mbt\.md` docs? in `src/`\.",
             {"count": count_files(PACKAGE_ROOT, "*.mbt.md")},
         ),
     ]

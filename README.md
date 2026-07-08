@@ -90,7 +90,8 @@ fn draw_example() -> Unit raise @cairoon.CairoError {
 - Solid, surface, gradient, mesh, and raster-source patterns.
 - Toy font faces, font options, scaled fonts, text extents, glyph extents,
   `text_to_glyphs`, and `show_text_glyphs`.
-- Executable MoonBit reference examples in `src/*.mbt.md`.
+- Executable MoonBit reference examples in `src/README.mbt.md` and
+  `src/docs/*.mbt.md`.
 - Native and ASan verification gates with direct C Cairo oracle tests for the
   migrated rendering slices.
 
@@ -110,17 +111,17 @@ of the MoonBit API.
 ## Documentation
 
 - `src/README.mbt.md`: executable package overview and smoke examples.
-- `src/matrix.mbt.md`: affine transforms.
-- `src/surface.mbt.md`: image surfaces, PNG, MIME, mapped images, and surface
+- `src/docs/matrix.mbt.md`: affine transforms.
+- `src/docs/surface.mbt.md`: image surfaces, PNG, MIME, mapped images, and surface
   errors.
-- `src/backend_surfaces.mbt.md`: PDF, PS, SVG, recording, tee, and script
+- `src/docs/backend_surfaces.mbt.md`: PDF, PS, SVG, recording, tee, and script
   backends.
-- `src/context.mbt.md`: drawing state, transforms, paths, clips, groups, text,
+- `src/docs/context.mbt.md`: drawing state, transforms, paths, clips, groups, text,
   and glyphs.
-- `src/font.mbt.md`: font options, toy font faces, scaled fonts, and text
+- `src/docs/font.mbt.md`: font options, toy font faces, scaled fonts, and text
   conversion.
-- `src/path.mbt.md`, `src/pattern.mbt.md`, and `src/region.mbt.md`: the
-  remaining public API families.
+- `src/docs/path.mbt.md`, `src/docs/pattern.mbt.md`, and
+  `src/docs/region.mbt.md`: the remaining public API families.
 - `PORTING_FROM_PYCAIRO.md`: pycairo migration notes.
 - `TESTING.md`: reliability strategy and test tiers.
 - `PACKAGING.md`: native dependency and release checklist.

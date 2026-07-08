@@ -90,16 +90,17 @@ of the MoonBit API.
 ## Documentation
 
 Additional executable reference notes are split by API family. Start with
-`matrix.mbt.md` for pure-value affine transforms, `surface.mbt.md` for image
-surfaces, buffer-backed data, mapped images, PNG/MIME helpers, and checked
-surface errors, `backend_surfaces.mbt.md` for PDF/PS/SVG, recording, tee, and
-script backends, `context.mbt.md` for drawing state, transforms, paths, clips,
-groups, text, and checked context errors, `font.mbt.md` for FontOptions,
-FontFace, ScaledFont, text-to-glyphs, and checked font errors, `path.mbt.md`
-for typed path segments and path ownership, `pattern.mbt.md` for
-solid/surface/gradient/mesh and raster-source patterns, and `region.mbt.md` for
-Region construction, rectangle queries, boolean operations, and checked error
-mapping.
+`src/docs/matrix.mbt.md` for pure-value affine transforms,
+`src/docs/surface.mbt.md` for image surfaces, buffer-backed data, mapped
+images, PNG/MIME helpers, and checked surface errors,
+`src/docs/backend_surfaces.mbt.md` for PDF/PS/SVG, recording, tee, and script
+backends, `src/docs/context.mbt.md` for drawing state, transforms, paths,
+clips, groups, text, and checked context errors, `src/docs/font.mbt.md` for
+FontOptions, FontFace, ScaledFont, text-to-glyphs, and checked font errors,
+`src/docs/path.mbt.md` for typed path segments and path ownership,
+`src/docs/pattern.mbt.md` for solid/surface/gradient/mesh and raster-source
+patterns, and `src/docs/region.mbt.md` for Region construction, rectangle
+queries, boolean operations, and checked error mapping.
 
 Packaging, CI, and release rules live in the repository `PACKAGING.md`.
 pycairo migration notes live in `PORTING_FROM_PYCAIRO.md`.

@@ -12,8 +12,9 @@ As of the black-box, oracle, and oracle-native extraction slices, the
 repository root is project management space and contains no grandfathered
 source-like files. The current public MoonBit package lives in `src/`;
 external black-box tests live in `src/tests/*`, public C stubs live in the
-`src/native/` native-stub package, and test-only C oracles live in
-`src/tests/oracle/native/`. The public package root is now frozen by
+`src/native/` native-stub package, test-only C oracles live in
+`src/tests/oracle/native/`, and executable family reference docs live in the
+external `src/docs/` package. The public package root is now frozen by
 `scripts/public-package-root-allowlist.txt`: the existing direct `src/` files
 are grandfathered migration debt, and new implementation or test files must go
 into a MoonBit subpackage unless the layout plan is deliberately revised in the
@@ -44,6 +45,7 @@ silently return later.
   `src/internal/stream/`.
 - 2 `.mbt` implementation files and 1 package-local `*_test.mbt` file in
   `src/internal/svg/`.
+- 1 `.mbt` prelude file and 8 executable `.mbt.md` docs in `src/docs/`.
 - 1 native-package MoonBit anchor file in `src/native/`.
 - 124 `*_test.mbt` files under `src/tests/`, including black-box and oracle
   packages.
@@ -52,13 +54,13 @@ silently return later.
 - 1 public C header in `src/native/`.
 - 41 oracle C implementation files in `src/tests/oracle/native/`.
 - 2 oracle C headers in `src/tests/oracle/native/`.
-- 9 executable `.mbt.md` docs in `src/`.
+- 1 executable `.mbt.md` doc in `src/`.
 
 This is still migration debt, but the repository root and the public package
-root no longer carry standalone white-box test files, and public C glue is no
-longer compiled by `src/moon.pkg`. The remaining work is to split the large
-`src/` MoonBit implementation package into public, support, oracle, and family
-packages in reviewed slices.
+root no longer carry standalone white-box test files or family reference docs,
+and public C glue is no longer compiled by `src/moon.pkg`. The remaining work
+is to split the large `src/` MoonBit implementation package into public,
+support, oracle, and family packages in reviewed slices.
 
 ## Target Shape
 
@@ -129,6 +131,12 @@ cairoon/
         ffi.mbt
         version.mbt
         version_test.mbt
+    docs/
+      moon.pkg
+      prelude.mbt
+      matrix.mbt.md
+      surface.mbt.md
+      ...
     native/
       moon.pkg
       native_anchor.mbt
@@ -301,7 +309,7 @@ MoonBit package shape without weakening the public interface.
 | Native stubs | `src/native/` | Owns public C glue compilation through `src/native/moon.pkg`. Every `.c` file beside that package file must be listed by bare filename in its `native-stub` list; `src/moon.pkg` imports `CAIMEOX/cairoon/native` and must not own `native-stub` entries. Headers in `src/native/` are private to those stubs. |
 | Black-box tests | `src/tests/<family>/` | Import `CAIMEOX/cairoon`; assert only public behavior. Any package that imports cairoon must carry Cairo `cc-link-flags`, because native link flags are not propagated to external test executables. |
 | White-box oracles | `src/tests/oracle/<family>/` plus shared C support in `src/tests/oracle/native/` | Import `CAIMEOX/cairoon` for the public API and declare test-only direct-C oracle externs locally; public binding wrappers must never import oracle packages. Test-only C symbols are provided by the oracle-native support package, not `src/moon.pkg`. |
-| Documentation | `docs/` and public package `.mbt.md` files | Narrative docs live outside source packages; executable reference docs stay with the package they test. |
+| Documentation | `src/docs/`, `src/README.mbt.md`, and repository `docs/` | Narrative docs live outside source packages; the public package README stays at `src/README.mbt.md` for `moon.mod`, and family executable reference docs live in the external `src/docs` package so they compile like downstream user code through `CAIMEOX/cairoon`. |
 
 Do not split a family across packages until the type names, method call syntax,
 generated `.mbti`, and `moon test --target native` behavior are proven in a
@@ -312,8 +320,9 @@ package files listed in `scripts/public-package-root-allowlist.txt` are
 grandfathered only so the migration can proceed in reviewable slices. New
 MoonBit implementation belongs in `src/core/<family>/`,
 `src/internal/<family>/`, `src/<family-package>/`, or another explicit package
-role; new tests belong under `src/tests/<family>/`; new public C glue belongs
-under `src/native/`; new oracle C glue belongs under
+role; new executable reference docs belong under `src/docs/` unless they are
+the package README; new tests belong under `src/tests/<family>/`; new public C
+glue belongs under `src/native/`; new oracle C glue belongs under
 `src/tests/oracle/native/`.
 
 ## Migration Order
@@ -381,7 +390,11 @@ Follow this order. Each step gets its own commit and must pass
    NUL scanning: string/path validators and the `InvalidString` error mapping
    remain in the facade while byte scanning lives in an internal package with
    package-local tests.
-7. **Family package migration**: move one Cairo family per commit. C files,
+7. **Executable docs package split**: started. Keep `src/README.mbt.md` as the
+   `moon.mod` readme and move family executable reference docs into
+   `src/docs/`, which imports `CAIMEOX/cairoon` and carries Cairo link flags so
+   the examples are checked as downstream black-box code.
+8. **Family package migration**: move one Cairo family per commit. C files,
    raw externs, and wrappers move together only when the public package seam is
    proven.
 

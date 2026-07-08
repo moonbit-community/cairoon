@@ -1,0 +1,129 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "CAIMEOX/cairoon/docs"
+
+import {
+  "CAIMEOX/cairoon",
+  "CAIMEOX/cairoon/core/glyph",
+}
+
+// Values
+pub const CAIRO_VERSION : Int = 11804
+
+pub const COLOR_PALETTE_DEFAULT : UInt = 0
+
+pub const HAS_IMAGE_SURFACE : Bool = true
+
+pub const MIME_TYPE_JPEG : String = "image/jpeg"
+
+pub const PDF_OUTLINE_ROOT : Int = 0
+
+pub const TAG_DEST : String = "cairo.dest"
+
+pub fn cairo_version() -> Int
+
+pub fn[T] run_cairo(() -> T raise @cairoon.CairoError) -> Result[T, @cairoon.CairoError]
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+pub using @cairoon {type Antialias}
+
+pub using @cairoon {type CairoError}
+
+pub using @cairoon {type ColorMode}
+
+pub using @cairoon {type Content}
+
+pub using @cairoon {type Context}
+
+pub using @cairoon {type Device}
+
+pub using @cairoon {type DeviceType}
+
+pub using @cairoon {type Dither}
+
+pub using @cairoon {type Extend}
+
+pub using @cairoon {type FillRule}
+
+pub using @cairoon {type Filter}
+
+pub using @cairoon {type FontExtents}
+
+pub using @cairoon {type FontFace}
+
+pub using @cairoon {type FontOptions}
+
+pub using @cairoon {type FontSlant}
+
+pub using @cairoon {type FontWeight}
+
+pub using @cairoon {type Format}
+
+pub using @glyph {type Glyph}
+
+pub using @cairoon {type HintMetrics}
+
+pub using @cairoon {type HintStyle}
+
+pub using @cairoon {type LineCap}
+
+pub using @cairoon {type LineJoin}
+
+pub using @cairoon {type Matrix}
+
+pub using @cairoon {type Operator}
+
+pub using @cairoon {type PDFMetadata}
+
+pub using @cairoon {type PDFOutlineFlagSet}
+
+pub using @cairoon {type PDFOutlineFlags}
+
+pub using @cairoon {type PDFVersion}
+
+pub using @cairoon {type PSLevel}
+
+pub using @cairoon {type Path}
+
+pub using @cairoon {type PathDataType}
+
+pub using @cairoon {type PathSegment}
+
+pub using @cairoon {type Pattern}
+
+pub using @cairoon {type Rectangle}
+
+pub using @cairoon {type RectangleInt}
+
+pub using @cairoon {type Region}
+
+pub using @cairoon {type RegionOverlap}
+
+pub using @cairoon {type SVGUnit}
+
+pub using @cairoon {type SVGVersion}
+
+pub using @cairoon {type ScaledFont}
+
+pub using @cairoon {type ScriptMode}
+
+pub using @cairoon {type Status}
+
+pub using @cairoon {type SubpixelOrder}
+
+pub using @cairoon {type Surface}
+
+pub using @cairoon {type SurfaceType}
+
+pub using @cairoon {type TextCluster}
+
+pub using @cairoon {type TextClusterFlags}
+
+pub using @cairoon {type TextExtents}
+
+pub using @cairoon {type TextGlyphRun}
+
+// Traits
