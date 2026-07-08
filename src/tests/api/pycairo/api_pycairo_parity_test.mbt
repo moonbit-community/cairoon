@@ -160,6 +160,57 @@ test "pycairo context paint smoke fixture" {
 }
 
 ///|
+test "pycairo surface constructor smoke fixture" {
+  let image = @cairoon.Surface::image(@cairoon.Argb32, 100, 100)
+  debug_inspect(image.get_type(), content="SurfaceTypeImage")
+  debug_inspect(image.get_format(), content="Argb32")
+  inspect(image.get_width(), content="100")
+  inspect(image.get_height(), content="100")
+
+  let pdf_chunks : Array[Bytes] = []
+  let pdf = @cairoon.Surface::pdf_stream(100.0, 100.0, fn(chunk) {
+    pdf_chunks.push(chunk)
+    @cairoon.Success
+  })
+  debug_inspect(pdf.get_type(), content="SurfaceTypePdf")
+  pdf.finish()
+  inspect(chunks_contain_marker(pdf_chunks, "%PDF-1."), content="true")
+  inspect(chunks_contain_marker(pdf_chunks, "%%EOF"), content="true")
+
+  let ps_chunks : Array[Bytes] = []
+  let ps = @cairoon.Surface::ps_stream(100.0, 100.0, fn(chunk) {
+    ps_chunks.push(chunk)
+    @cairoon.Success
+  })
+  debug_inspect(ps.get_type(), content="SurfaceTypePs")
+  ps.finish()
+  inspect(chunks_contain_marker(ps_chunks, "%!PS-Adobe-3.0"), content="true")
+  inspect(chunks_contain_marker(ps_chunks, "%%EOF"), content="true")
+
+  let unbounded = @cairoon.Surface::recording(@cairoon.ContentColor)
+  debug_inspect(unbounded.get_type(), content="SurfaceTypeRecording")
+  inspect(unbounded.recording_get_extents() is None, content="true")
+  let bounds = @cairoon.Rectangle::new(1.0, 1.0, 10.0, 10.0)
+  let bounded = @cairoon.Surface::recording(
+    @cairoon.ContentColor,
+    extents=Some(bounds),
+  )
+  match bounded.recording_get_extents() {
+    Some(rect) => debug_inspect(rect.components(), content="(1, 1, 10, 10)")
+    None => @test.fail("expected recording surface extents")
+  }
+
+  let svg_chunks : Array[Bytes] = []
+  let svg = @cairoon.Surface::svg_stream(100.0, 100.0, fn(chunk) {
+    svg_chunks.push(chunk)
+    @cairoon.Success
+  })
+  debug_inspect(svg.get_type(), content="SurfaceTypeSvg")
+  svg.finish()
+  inspect(chunks_contain_marker(svg_chunks, "<svg"), content="true")
+}
+
+///|
 test "pycairo recording surface get_extents fixture" {
   let unbounded = @cairoon.Surface::recording(@cairoon.ContentColor)
   inspect(unbounded.recording_get_extents() is None, content="true")

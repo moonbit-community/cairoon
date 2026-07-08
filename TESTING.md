@@ -230,7 +230,8 @@ test packages under
 `src/tests/api/version` (version helpers),
 `src/tests/api/enums` (portable enums and `Format` helpers),
 `src/tests/api/pycairo` (pycairo `test_api.py` Unicode text/path plus
-context/pattern lifetime and recording-extents parity),
+surface-constructor smoke, context/pattern lifetime, and recording-extents
+parity),
 `src/tests/status/core` (public status, `run_cairo`, and `CairoError`
 classification),
 `src/tests/value/core` (pure value APIs),
@@ -670,9 +671,11 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, 2026-07-
   `Format::stride_for_width`, extended Cairo float/packed formats, and
   `FORMAT_INVALID`.
 - `moon -C cairoon test src/tests/api/pycairo --target native --deny-warn -v`:
-  7 black-box API package tests passed, covering pycairo `test_api.py` Unicode
+  8 black-box API package tests passed, covering pycairo `test_api.py` Unicode
   fixtures for `Context::show_text("ēxāmple.")`, PNG filename write/read round
   trips through `Surface::write_to_png` and `Surface::image_from_png`,
+  `test_surface` constructor smoke for image, PDF, PS, SVG, and recording
+  surfaces,
   `surface_destroy_before_context` and
   `surface_destroy_before_surface_pattern` lifetime fixtures for stream-backed
   surfaces retained by contexts and surface patterns,
@@ -3540,6 +3543,11 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, 2026-07-
   keeps the recent CI failure mode covered by the normal external stream test
   package without requiring fragile PDF byte equality and without changing
   public API.
+  A later API `test_surface` constructor-smoke slice added one external
+  black-box fixture proving image format/dimensions, PDF/PS/SVG stream
+  constructors, and bounded/unbounded recording constructors through the
+  published package path. This raises `src/tests/api/pycairo` to 8 tests
+  without changing public API.
 
 Remaining reliability work is now narrower and should be tracked as evidence,
 not as an unstructured checklist:

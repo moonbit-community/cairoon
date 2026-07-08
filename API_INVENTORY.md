@@ -15,6 +15,10 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 ## Recent Audit Deltas
 
 - 2026-07-08: The external `src/tests/api/pycairo` package now carries the
+  pycairo `test_api.py::test_surface` constructor smoke fixture, proving image
+  dimensions/format, PDF/PS/SVG stream constructors, and bounded/unbounded
+  recording constructors through the published package path.
+- 2026-07-08: The external `src/tests/api/pycairo` package now carries the
   pycairo `test_api.py::test_recording_surface_get_extents` fixture, proving
   unbounded, bounded, and post-finish recording extents through the published
   package path.
