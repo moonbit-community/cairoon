@@ -5,6 +5,7 @@ test "portable enum constructors expose cairo names" {
   let surface_type : @cairoon.SurfaceType = @cairoon.SurfaceTypeImage
   let device_type : @cairoon.DeviceType = @cairoon.DeviceTypeScript
   let fill : @cairoon.FillRule = @cairoon.FillEvenOdd
+  let filter : @cairoon.Filter = @cairoon.Bilinear
   let hint_metrics : @cairoon.HintMetrics = @cairoon.HintMetricsOn
   let color_mode : @cairoon.ColorMode = @cairoon.ColorModeColor
   let dither : @cairoon.Dither = @cairoon.DitherBest
@@ -13,6 +14,7 @@ test "portable enum constructors expose cairo names" {
   let line_cap : @cairoon.LineCap = @cairoon.LineCapSquare
   let line_join : @cairoon.LineJoin = @cairoon.LineJoinBevel
   let operator : @cairoon.Operator = @cairoon.OperatorHslLuminosity
+  let extend_mode : @cairoon.Extend = @cairoon.ExtendNone
   let font_slant : @cairoon.FontSlant = @cairoon.FontSlantOblique
   let font_weight : @cairoon.FontWeight = @cairoon.FontWeightBold
   let pdf_version : @cairoon.PDFVersion = @cairoon.PdfVersion1_7
@@ -31,6 +33,7 @@ test "portable enum constructors expose cairo names" {
   debug_inspect(surface_type, content="SurfaceTypeImage")
   debug_inspect(device_type, content="DeviceTypeScript")
   debug_inspect(fill, content="FillEvenOdd")
+  debug_inspect(filter, content="Bilinear")
   debug_inspect(hint_metrics, content="HintMetricsOn")
   debug_inspect(color_mode, content="ColorModeColor")
   debug_inspect(dither, content="DitherBest")
@@ -39,6 +42,7 @@ test "portable enum constructors expose cairo names" {
   debug_inspect(line_cap, content="LineCapSquare")
   debug_inspect(line_join, content="LineJoinBevel")
   debug_inspect(operator, content="OperatorHslLuminosity")
+  debug_inspect(extend_mode, content="ExtendNone")
   debug_inspect(font_slant, content="FontSlantOblique")
   debug_inspect(font_weight, content="FontWeightBold")
   debug_inspect(pdf_version, content="PdfVersion1_7")
@@ -52,6 +56,20 @@ test "portable enum constructors expose cairo names" {
   debug_inspect(script_mode, content="ScriptModeBinary")
   debug_inspect(cluster_flags, content="TextClusterBackward")
   debug_inspect(observer_mode, content="SurfaceObserverRecordOperations")
+}
+
+///|
+test "pycairo enum smoke fixtures" {
+  let status : @cairoon.Status = @cairoon.Jbig2GlobalMissing
+  let backward : @cairoon.TextClusterFlags = @cairoon.TextClusterBackward
+  let observer : @cairoon.SurfaceObserverMode = @cairoon.SurfaceObserverNormal
+  inspect(status == @cairoon.Jbig2GlobalMissing, content="true")
+  inspect(status.message().length() > 0, content="true")
+  inspect(backward == @cairoon.TextClusterBackward, content="true")
+  inspect(observer == @cairoon.SurfaceObserverNormal, content="true")
+  debug_inspect(status, content="Jbig2GlobalMissing")
+  debug_inspect(backward, content="TextClusterBackward")
+  debug_inspect(observer, content="SurfaceObserverNormal")
 }
 
 ///|

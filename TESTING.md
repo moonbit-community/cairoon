@@ -668,10 +668,12 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, 2026-07-
   operators, and iterator `PathDataType`/coordinate tuples.
 - `moon -C cairoon test src/tests/api/version --target native --deny-warn -v`:
   1 black-box API package test passed, covering public version helpers.
-- `moon -C cairoon test src/tests/api/enums --target native --deny-warn -v`: 4
+- `moon -C cairoon test src/tests/api/enums --target native --deny-warn -v`: 5
   black-box API package tests passed, covering portable enums,
   `Format::stride_for_width`, extended Cairo float/packed formats, and
-  `FORMAT_INVALID`.
+  `FORMAT_INVALID`, plus pycairo enum smoke fixtures for
+  `Jbig2GlobalMissing`, `TextClusterBackward`, and
+  `SurfaceObserverNormal`.
 - `moon -C cairoon test src/tests/api/pycairo --target native --deny-warn -v`:
   8 black-box API package tests passed, covering pycairo `test_api.py` Unicode
   fixtures for `Context::show_text("ēxāmple.")`, PNG filename write/read round
@@ -1454,9 +1456,10 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, 2026-07-
   stream output and writer errors, PDF metadata/outlines, PS DSC, SVG document
   units, recording replay, Tee fanout, script devices/surfaces, and checked
   backend-specific errors.
-- `moon -C cairoon test src/tests/api/enums --target native --deny-warn -v`: 4
+- `moon -C cairoon test src/tests/api/enums --target native --deny-warn -v`: 5
   black-box tests passed after adding `Rgb16_565`, `Rgb30`, `Rgb96F`,
-  `Rgba128F`, and negative-width `Format::stride_for_width` coverage.
+  `Rgba128F`, negative-width `Format::stride_for_width`, and pycairo enum
+  smoke coverage.
 - `moon -C cairoon test surface_pdf_test.mbt surface_ps_test.mbt
   surface_svg_test.mbt --target native -v`: 17 black-box tests passed after
   adding extended PDF/PS backend subtype-mismatch checks and SVG
@@ -3354,6 +3357,11 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, 2026-07-
   `get_extend_raw` while the typed getter rejects the unknown value with
   `CairoInvalidArgument(InvalidStatus, _)`. This raises the pattern pycairo
   package to 11 tests and the expected full native suite to 707 tests without
+  changing public API.
+  A later API enum pycairo smoke slice extended `enums_test.mbt` with
+  pycairo-derived status, text-cluster flag, surface-observer mode,
+  `Extend`, and `Filter` constructor coverage. This raises the API enum
+  package to 5 tests and the expected full native suite to 708 tests without
   changing public API.
   A later Path pycairo parity slice added `path_pycairo_parity_test.mbt` with
   four pycairo `test_path.py`-derived fixtures covering empty path
