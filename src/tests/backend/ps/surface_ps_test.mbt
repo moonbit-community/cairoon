@@ -117,11 +117,20 @@ test "ps surface validates dsc comments and path strings" {
 ///|
 test "ps surface filename constructor renders and finishes" {
   let path = "/tmp/cairoon_surface_ps_roundtrip.ps"
+  if @fs.path_exists(path) {
+    @fs.remove_file(path)
+  }
+
   let surface = @cairoon.Surface::ps(10.0, 10.0, path=Some(path))
   let ctx = @cairoon.Context::new(surface)
   ctx.set_source_rgb(0.0, 0.0, 1.0)
   ctx.paint()
   surface.finish()
+
+  let output = @fs.read_file_to_string(path)
+  inspect(output.length() > 16, content="true")
+  inspect(output.contains("%!PS"), content="true")
+  @fs.remove_file(path)
 }
 
 ///|

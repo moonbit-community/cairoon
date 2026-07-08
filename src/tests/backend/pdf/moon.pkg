@@ -2,6 +2,7 @@ import {
   "CAIMEOX/cairoon",
   "moonbitlang/core/builtin",
   "moonbitlang/core/test",
+  "moonbitlang/x/fs",
 } for "test"
 
 options(

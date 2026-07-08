@@ -78,11 +78,20 @@ test "svg surface no-output constructor exposes units and version restriction" {
 ///|
 test "svg surface filename constructor and invalid paths" {
   let path = "/tmp/cairoon_surface_svg_roundtrip.svg"
+  if @fs.path_exists(path) {
+    @fs.remove_file(path)
+  }
+
   let surface = @cairoon.Surface::svg(10.0, 10.0, path=Some(path))
   let ctx = @cairoon.Context::new(surface)
   ctx.set_source_rgb(1.0, 0.0, 0.0)
   ctx.paint()
   surface.finish()
+
+  let output = @fs.read_file_to_string(path)
+  inspect(output.length() > 16, content="true")
+  inspect(output.contains("<svg"), content="true")
+  @fs.remove_file(path)
 
   let invalid_path = "/tmp/cairoon\u{0}bad.svg"
   let invalid = @cairoon.run_cairo(() => {

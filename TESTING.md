@@ -806,17 +806,18 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, 2026-07-
 - `moon -C cairoon test src/tests/backend/pdf --target native -v`: 8
   black-box PDF surface tests passed from a nested external package, covering
   version helpers, raw C-int enums, no-output/page/document APIs, thumbnails,
-  metadata/outline/path validation, filename construction, subtype errors, and
-  finished-surface errors.
+  metadata/outline/path validation, filename construction with PDF header
+  readback, subtype errors, and finished-surface errors.
 - `moon -C cairoon test src/tests/backend/ps --target native -v`: 8
   black-box PS surface tests passed from a nested external package, covering
   level helpers, raw C-int enums, no-output/EPS/page/DSC APIs, pycairo DSC
-  setup-order parity, DSC/path validation, filename construction, subtype
-  errors, and setup/page-size errors.
+  setup-order parity, DSC/path validation, filename construction with PS
+  marker readback, subtype errors, and setup/page-size errors.
 - `moon -C cairoon test src/tests/backend/svg --target native -v`: 6
   black-box SVG surface tests passed from a nested external package, covering
   version helpers, raw C-int enums, no-output/unit/version APIs, filename
-  construction, subtype errors, and finished-surface document-unit errors.
+  construction with SVG marker readback, subtype errors, and finished-surface
+  document-unit errors.
 - `moon -C cairoon test src/tests/backend/recording --target native -v`: 5
   black-box Recording surface tests passed from a nested external package,
   covering bounded/unbounded extents, post-finish extents, raw content ints,

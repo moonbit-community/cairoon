@@ -227,12 +227,24 @@ test "pdf surface validates metadata outline and path strings" {
 ///|
 test "pdf surface filename constructor renders and finishes" {
   let path = "/tmp/cairoon_surface_pdf_roundtrip.pdf"
+  if @fs.path_exists(path) {
+    @fs.remove_file(path)
+  }
+
   let surface = @cairoon.Surface::pdf(10.0, 10.0, path=Some(path))
   surface.pdf_set_metadata(@cairoon.PdfMetadataCreator, "cairoon")
   let ctx = @cairoon.Context::new(surface)
   ctx.set_source_rgb(0.0, 0.0, 1.0)
   ctx.paint()
   surface.finish()
+
+  let output = @fs.read_file_to_bytes(path)
+  inspect(output.length() > 16, content="true")
+  inspect(output[0].to_int(), content="37")
+  inspect(output[1].to_int(), content="80")
+  inspect(output[2].to_int(), content="68")
+  inspect(output[3].to_int(), content="70")
+  @fs.remove_file(path)
 }
 
 ///|
