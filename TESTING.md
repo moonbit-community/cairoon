@@ -317,7 +317,7 @@ PNG filename load/save including Unicode filename round trips plus stream
 read/write, pycairo `surface_destroy_before_context` and
 `surface_destroy_before_surface_pattern` lifetime parity for stream-backed
 surfaces retained by contexts and surface patterns, direct C Cairo oracle
-comparisons for forty-four deterministic ARGB32 image scenes on ordinary and
+comparisons for forty-five deterministic ARGB32 image scenes on ordinary and
 buffer-backed image surfaces including toy-font `text_path`, toy-font
 `show_text`, `glyph_path`, `show_glyphs`, `show_text_glyphs`,
 source-surface offsets, mask-surface offsets, raster-source pattern repeat
@@ -341,7 +341,7 @@ set_source_surface/repeated-surface-pattern/radial-mask group-compositing
 output, surface-pattern device-offset mask with `OperatorScreen` group
 compositing output, and surface/radial-gradient `OperatorOverlay` group-mask
 output, and mesh/surface/linear pattern-stack `OperatorSoftLight` group-mask
-output, and surface-pattern stroke `OperatorDifference` group-mask output, and radial-gradient `OperatorColorDodge` over transformed reflected surface-pattern output, transformed repeated surface-pattern plus reflected linear-gradient `OperatorHslHue` group-mask output;
+output, and surface-pattern stroke `OperatorDifference` group-mask output, and radial-gradient `OperatorColorDodge` over transformed reflected surface-pattern output, transformed repeated surface-pattern plus reflected linear-gradient `OperatorHslHue` group-mask output, transformed padded surface pattern plus repeated linear-gradient `OperatorHslSaturation` group-mask output;
 buffer-backed creation plus mutable `ImageData`
 views for image and
 mapped-image surfaces, pycairo-style scoped surface finish and mapped-image
@@ -1135,7 +1135,7 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, 2026-07-
 - `moon -C cairoon test image_oracle_wbtest.mbt --target native -v`: 2
   white-box image rendering oracle tests passed. Ordinary image surfaces and
   buffer-backed `Surface::image_for_data` surfaces both match the direct C
-  ARGB32 fixture across forty-four scenes with `glyph_path`, `show_glyphs`,
+  ARGB32 fixture across forty-five scenes with `glyph_path`, `show_glyphs`,
   `show_text_glyphs`, source-surface offsets, mask-surface offsets, and
   raster-source pattern repeat rendering, dashed round-cap strokes, hairline strokes, and
   clipped paint/fill output, `OperatorClear` compositing output, group
@@ -2280,6 +2280,13 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, 2026-07-
   transformed radial mask. The targeted `moon test src/tests/oracle/image
   --target native -v --deny-warn` run passed 2 tests without changing public
   API or total test count.
+  The later HSL saturation group-mask image oracle slice expanded the ordinary
+  and buffer-backed direct C ARGB32 image oracle from forty-four to forty-five
+  scenes, combining a transformed padded surface pattern, a transformed
+  repeated linear gradient through `OperatorHslSaturation` inside a color-alpha
+  group, and a transformed radial mask. The targeted
+  `moon test src/tests/oracle/image --target native --deny-warn -v` run passed
+  2 tests without changing public API or total test count.
   The later raster-source acquire-replacement recovery slice added one
   black-box test proving that a finished-surface acquire failure maps to
   `NoMemory` for that paint, does not permanently poison the raster-source

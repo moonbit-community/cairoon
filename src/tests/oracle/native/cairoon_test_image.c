@@ -46,7 +46,8 @@ enum {
   CAIROON_TEST_IMAGE_MESH_SURFACE_SOFT_LIGHT_COMBO = 40,
   CAIROON_TEST_IMAGE_DIFFERENCE_SURFACE_STROKE_COMBO = 41,
   CAIROON_TEST_IMAGE_RADIAL_COLOR_DODGE_SURFACE_COMBO = 42,
-  CAIROON_TEST_IMAGE_LINEAR_HSL_HUE_SURFACE_MASK_COMBO = 43
+  CAIROON_TEST_IMAGE_LINEAR_HSL_HUE_SURFACE_MASK_COMBO = 43,
+  CAIROON_TEST_IMAGE_LINEAR_HSL_SATURATION_SURFACE_GROUP_COMBO = 44
 };
 
 static cairo_status_t cairoon_test_draw_argb32_scene(
@@ -356,6 +357,11 @@ static cairo_status_t cairoon_test_draw_argb32_scene(
         height);
     case CAIROON_TEST_IMAGE_LINEAR_HSL_HUE_SURFACE_MASK_COMBO:
       return cairoon_test_apply_linear_hsl_hue_surface_mask_combo(
+        cr,
+        width,
+        height);
+    case CAIROON_TEST_IMAGE_LINEAR_HSL_SATURATION_SURFACE_GROUP_COMBO:
+      return cairoon_test_apply_linear_hsl_saturation_surface_group_combo(
         cr,
         width,
         height);
