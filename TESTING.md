@@ -3635,6 +3635,15 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, 2026-07-
   public API. Targeted local checks for this slice:
   `moon test src/tests/surface/mime --target native --deny-warn -v` and
   `MOON_CC=/opt/homebrew/opt/llvm/bin/clang MOON_AR=/opt/homebrew/opt/llvm/bin/llvm-ar ASAN_OPTIONS=detect_leaks=0:fast_unwind_on_malloc=0 moon test src/tests/oracle/pattern_raster --target native --deny-warn -v`.
+  A later backend attachment-index oracle slice added Scene 62, covering a
+  two-page PDF/PS/SVG document with metadata, custom metadata removal, page
+  labels, nested outlines, URI and named-destination tags, structure tags,
+  backend resizing, stable marker checks, file-vs-stream normalized equality,
+  direct C oracle equality, and PS/SVG negative PDF-metadata checks. This
+  raises `src/tests/oracle/vector_backend` to 207 tests and the observed full
+  native suite to 722 tests without changing public API. Local checks for this
+  slice: `moon test src/tests/oracle/vector_backend --target native --deny-warn -v`
+  and `./scripts/verify.sh`, including the local ASan pass.
 
 Remaining reliability work is now narrower and should be tracked as evidence,
 not as an unstructured checklist:
@@ -3642,11 +3651,11 @@ not as an unstructured checklist:
 - Broaden normalized PDF/PS/SVG differential coverage for combinations not yet
   represented by the current direct-C and direct stream-oracle fixtures:
   additional deep tag nests beyond scenes 37, 39, 40, 44, 45, 49, 51, 52, 53,
-  54, 56, 57, 58, and 59, more metadata/page-label/outline mixtures beyond
-  scenes 38 through 42, 44, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58,
-  and 59, and
+  54, 56, 57, 58, 59, 60, 61, and 62, more metadata/page-label/outline
+  mixtures beyond scenes 38 through 42, 44, 46, 47, 48, 49, 50, 51, 52, 53, 54,
+  55, 56, 57, 58, 59, 60, 61, and 62, and
   additional multi-page sequences beyond the current
-  retained/resized/tag-matrix/lifecycle/text-state/page-ops/structure-sequence/outline-sequence/pattern-tag/annotation-sequence/semantic-index/bookmark-lattice/revision-ledger/article-thread/review-dossier/appendix-rubric/research-note
+  retained/resized/tag-matrix/lifecycle/text-state/page-ops/structure-sequence/outline-sequence/pattern-tag/annotation-sequence/semantic-index/bookmark-lattice/revision-ledger/article-thread/review-dossier/appendix-rubric/research-note/cross-reference/link-audit/attachment-index
   page fixtures.
 - Add broader platform coverage and finalizer fuzz beyond the
   deterministic raster-source owner-count, state-machine, manual

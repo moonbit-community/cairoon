@@ -81,7 +81,8 @@ enum {
   CAIROON_TEST_VECTOR_BACKEND_APPENDIX_RUBRIC = 58,
   CAIROON_TEST_VECTOR_BACKEND_RESEARCH_NOTE = 59,
   CAIROON_TEST_VECTOR_BACKEND_CROSS_REFERENCE = 60,
-  CAIROON_TEST_VECTOR_BACKEND_LINK_AUDIT = 61
+  CAIROON_TEST_VECTOR_BACKEND_LINK_AUDIT = 61,
+  CAIROON_TEST_VECTOR_BACKEND_ATTACHMENT_INDEX = 62
 };
 
 cairo_status_t cairoon_test_draw_vector_scene(
@@ -182,6 +183,9 @@ cairo_status_t cairoon_test_render_backend_cross_reference_features(
   int32_t kind,
   const char *name);
 cairo_status_t cairoon_test_render_backend_link_audit_features(
+  int32_t kind,
+  const char *name);
+cairo_status_t cairoon_test_render_backend_attachment_index_features(
   int32_t kind,
   const char *name);
 cairo_status_t cairoon_test_render_ps_dsc_features(const char *name);
