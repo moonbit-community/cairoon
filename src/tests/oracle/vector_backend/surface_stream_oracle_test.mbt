@@ -417,13 +417,16 @@ test "pdf mime and thumbnail streams match direct cairo C oracle after normaliza
 
 ///|
 test "backend feature streams match direct cairo C oracle after normalization" {
+  let scenes = [
+    35, 36, 37, 38, 39, 40, 41, 42, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55,
+    56, 57, 58, 59, 60, 61, 62, 63, 64, 65,
+  ]
+  if @cairoon.CAIRO_VERSION >= 11800 {
+    scenes.push(66)
+  }
   for kind in 0..<3 {
     let ext = stream_equivalence_extension(kind)
-    for
-      scene in [
-        35, 36, 37, 38, 39, 40, 41, 42, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54,
-        55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66,
-      ] {
+    for scene in scenes {
       let chunks : Array[Bytes] = []
       render_backend_oracle_stream_scene(scene, kind, chunks)
       inspect(chunks.length() > 0, content="true")

@@ -7,10 +7,17 @@ test "svg output contains stable geometry and color markers" {
   ctx.set_source_rgb(0.0, 0.0, 1.0)
   ctx.paint()
   surface.finish()
-  expect_vector_output(path, [
-    "<?xml version=\"1.0\"", "<svg", "width=\"10\" height=\"10\"", "fill=\"rgb(0%, 0%, 100%)\"",
-    "</svg>",
-  ])
+  if @cairoon.CAIRO_VERSION >= 11600 {
+    expect_vector_output(path, [
+      "<?xml version=\"1.0\"", "<svg", "width=\"10\" height=\"10\"", "fill=\"rgb(0%, 0%, 100%)\"",
+      "</svg>",
+    ])
+  } else {
+    expect_vector_output(path, [
+      "<?xml version=\"1.0\"", "<svg", "width=\"10pt\" height=\"10pt\"", "fill:rgb(0%,0%,100%)",
+      "</svg>",
+    ])
+  }
   expect_vector_oracle_match(2, 0, path, oracle_path)
 }
 
@@ -24,10 +31,18 @@ test "svg output contains multi-page markers" {
   paint_page(ctx, 1.0, 0.0, 0.0)
   ctx.show_page()
   surface.finish()
-  expect_vector_output(path, [
-    "<?xml version=\"1.0\"", "<svg", "width=\"12\" height=\"12\"", "<pageSet>", "<page>",
-    "fill=\"rgb(0%, 0%, 100%)\"", "fill=\"rgb(100%, 0%, 0%)\"", "</pageSet>", "</svg>",
-  ])
+  if @cairoon.CAIRO_VERSION >= 11600 {
+    expect_vector_output(path, [
+      "<?xml version=\"1.0\"", "<svg", "width=\"12\" height=\"12\"", "<pageSet>",
+      "<page>", "fill=\"rgb(0%, 0%, 100%)\"", "fill=\"rgb(100%, 0%, 0%)\"", "</pageSet>",
+      "</svg>",
+    ])
+  } else {
+    expect_vector_output(path, [
+      "<?xml version=\"1.0\"", "<svg", "width=\"12pt\" height=\"12pt\"", "fill:rgb(100%,0%,0%)",
+      "</svg>",
+    ])
+  }
 }
 
 ///|
@@ -36,10 +51,17 @@ test "svg output preserves version unit and page markers" {
   let oracle_path = "/tmp/cairoon_vector_svg_unit_multipage_oracle.svg"
   let surface = @cairoon.Surface::svg(12.0, 12.0, path=Some(path))
   render_svg_unit_multipage_surface(surface)
-  expect_vector_output(path, [
-    "<?xml version=\"1.0\"", "<svg", "width=\"12px\" height=\"12px\"", "<pageSet>",
-    "<page>", "fill=\"rgb(0%, 0%, 100%)\"", "fill=\"rgb(100%, 0%, 0%)\"", "</pageSet>",
-    "</svg>",
-  ])
+  if @cairoon.CAIRO_VERSION >= 11600 {
+    expect_vector_output(path, [
+      "<?xml version=\"1.0\"", "<svg", "width=\"12px\" height=\"12px\"", "<pageSet>",
+      "<page>", "fill=\"rgb(0%, 0%, 100%)\"", "fill=\"rgb(100%, 0%, 0%)\"", "</pageSet>",
+      "</svg>",
+    ])
+  } else {
+    expect_vector_output(path, [
+      "<?xml version=\"1.0\"", "<svg", "width=\"12px\" height=\"12px\"", "<pageSet>",
+      "<page>", "fill:rgb(0%,0%,100%)", "fill:rgb(100%,0%,0%)", "</pageSet>", "</svg>",
+    ])
+  }
   expect_vector_oracle_match(2, 20, path, oracle_path)
 }

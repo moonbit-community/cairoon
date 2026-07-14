@@ -22,8 +22,10 @@ pub fn Context::set_hairline(
 
 ///|
 pub fn Context::get_hairline(self : Context) -> Bool raise CairoError {
-  check_status(context_status_ffi(self))
-  context_get_hairline_ffi(self)
+  let status = Ref(Success)
+  let hairline = context_get_hairline_ffi(self, status)
+  check_status(status.val)
+  hairline
 }
 
 ///|

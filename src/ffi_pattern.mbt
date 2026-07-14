@@ -91,8 +91,11 @@ extern "C" fn pattern_set_filter_raw_ffi(
 ) -> Status = "cairoon_pattern_set_filter_raw"
 
 ///|
-#borrow(pattern)
-extern "C" fn pattern_get_dither_raw_ffi(pattern : Pattern) -> Int = "cairoon_pattern_get_dither_raw"
+#borrow(pattern, status)
+extern "C" fn pattern_get_dither_raw_ffi(
+  pattern : Pattern,
+  status : Ref[Status],
+) -> Int = "cairoon_pattern_get_dither_raw"
 
 ///|
 #borrow(pattern)

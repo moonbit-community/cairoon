@@ -76,12 +76,13 @@ fn configure_stream_accessibility_index_backend(
         @cairoon.PdfMetadataModDate,
         fixed_pdf_metadata_date(),
       )
-      surface.pdf_set_custom_metadata(
+      set_pdf_custom_metadata_if_supported(
+        surface,
         "AccessibilityIndex",
         Some("accessibility-index-64"),
       )
-      surface.pdf_set_custom_metadata("Draft", Some("remove-me"))
-      surface.pdf_set_custom_metadata("Draft", None)
+      set_pdf_custom_metadata_if_supported(surface, "Draft", Some("remove-me"))
+      set_pdf_custom_metadata_if_supported(surface, "Draft", None)
     }
     1 => {
       surface.ps_restrict_to_level(@cairoon.PsLevel3)
@@ -345,7 +346,7 @@ test "backend accessibility index output contains stable markers" {
     render_stream_accessibility_index_scene(kind, surface)
     match kind {
       0 =>
-        expect_vector_output(path, [
+        expect_backend_output_markers(kind, path, 11706, [
           "%PDF-1.4", "/Title (Cairoon Accessibility Index)", "/Author (cairoon accessibility index)",
           "/Subject (tagged index metadata)", "/Keywords (accessibility,index,outline,tags)",
           "/Creator (cairoon accessibility index)", "/CreationDate (20260102030405+00'00')",
@@ -360,13 +361,13 @@ test "backend accessibility index output contains stable markers" {
           "/S /Note", "/S /Figure", "/S /Caption", "%%EOF",
         ])
       1 =>
-        expect_vector_output(path, [
+        expect_backend_output_markers(kind, path, 11706, [
           "%!PS-Adobe-3.0", "%%LanguageLevel: 3", "%%Title: Cairoon Accessibility Index",
           "%%IncludeFeature: *MediaType AccessibilityIndex", "%%IncludeFeature: *PageSize AccessibilityIndex",
           "%%Pages: 3", "%%Page: 1 1", "%%Page: 2 2", "%%Page: 3 3", "%%EOF",
         ])
       2 =>
-        expect_vector_output(path, [
+        expect_backend_output_markers(kind, path, 11706, [
           "<?xml version=\"1.0\"", "<svg", "width=\"118px\" height=\"86px\"", "<pageSet>",
           "<page>", "</pageSet>", "</svg>",
         ])

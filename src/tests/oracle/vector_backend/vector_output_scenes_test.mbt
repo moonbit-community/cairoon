@@ -213,7 +213,7 @@ fn render_pdf_document_feature_surface(
     @cairoon.PdfMetadataModDate,
     fixed_pdf_metadata_date(),
   )
-  surface.pdf_set_custom_metadata("ISBN", Some("978-0123456789"))
+  set_pdf_custom_metadata_if_supported(surface, "ISBN", Some("978-0123456789"))
   surface.pdf_set_page_label("intro")
   let _ = surface.pdf_add_outline_with_flags(
     @cairoon.PDF_OUTLINE_ROOT,
@@ -289,7 +289,7 @@ fn render_pdf_text_document_feature_surface(
     @cairoon.PdfMetadataModDate,
     fixed_pdf_metadata_date(),
   )
-  surface.pdf_set_custom_metadata("ISBN", Some("978-0123456789"))
+  set_pdf_custom_metadata_if_supported(surface, "ISBN", Some("978-0123456789"))
   surface.pdf_set_page_label("intro")
   let intro_id = surface.pdf_add_outline_with_flags(
     @cairoon.PDF_OUTLINE_ROOT,

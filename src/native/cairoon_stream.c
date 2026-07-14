@@ -7,6 +7,8 @@
 typedef struct {
   CairoonStreamWriteCallback callback;
   void *arg;
+  cairo_status_t status;
+  int32_t defer_errors;
 } CairoonStreamState;
 
 typedef struct {
@@ -53,7 +55,31 @@ void *cairoon_stream_state_new(
 
   state->callback = callback;
   state->arg = arg;
+  state->status = CAIRO_STATUS_SUCCESS;
+  state->defer_errors = 0;
   return state;
+}
+
+void *cairoon_stream_state_new_deferred(
+  CairoonStreamWriteCallback callback,
+  void *arg,
+  cairo_status_t *status_out) {
+  CairoonStreamState *state = (CairoonStreamState *)cairoon_stream_state_new(
+    callback,
+    arg,
+    status_out);
+  if (state != NULL) {
+    state->defer_errors = 1;
+  }
+  return state;
+}
+
+cairo_status_t cairoon_stream_state_status(void *state_ptr) {
+  CairoonStreamState *state = (CairoonStreamState *)state_ptr;
+  if (state == NULL) {
+    return CAIRO_STATUS_NULL_POINTER;
+  }
+  return state->status;
 }
 
 cairo_status_t cairoon_stream_write(
@@ -66,6 +92,9 @@ cairo_status_t cairoon_stream_write(
   }
   if (length > (unsigned int)INT_MAX) {
     return CAIRO_STATUS_NO_MEMORY;
+  }
+  if (state->defer_errors && state->status != CAIRO_STATUS_SUCCESS) {
+    return CAIRO_STATUS_SUCCESS;
   }
 
   moonbit_bytes_t bytes = moonbit_make_bytes((int32_t)length, 0);
@@ -87,7 +116,11 @@ cairo_status_t cairoon_stream_write(
   }
   moonbit_decref(bytes);
   if (status < CAIRO_STATUS_SUCCESS || status >= CAIRO_STATUS_LAST_STATUS) {
-    return CAIRO_STATUS_WRITE_ERROR;
+    status = CAIRO_STATUS_WRITE_ERROR;
+  }
+  if (state->defer_errors && status != CAIRO_STATUS_SUCCESS) {
+    state->status = status;
+    return CAIRO_STATUS_SUCCESS;
   }
   return status;
 }

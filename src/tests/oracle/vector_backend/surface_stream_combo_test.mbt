@@ -64,7 +64,11 @@ fn configure_stream_combo_backend(
         @cairoon.PdfMetadataModDate,
         fixed_pdf_metadata_date(),
       )
-      surface.pdf_set_custom_metadata("Combo", Some("tag-metadata-multipage"))
+      set_pdf_custom_metadata_if_supported(
+        surface,
+        "Combo",
+        Some("tag-metadata-multipage"),
+      )
       surface.pdf_set_page_label("combo-cover")
       let _ = surface.pdf_add_outline_with_flags(
         @cairoon.PDF_OUTLINE_ROOT,
@@ -222,7 +226,7 @@ test "backend feature tag multipage output contains stable markers" {
     render_stream_combo_scene(kind, surface)
     match kind {
       0 =>
-        expect_vector_output(path, [
+        expect_backend_output_markers(kind, path, 11706, [
           "%PDF-1.4", "/Title (Cairoon Stream Combo)", "/Creator (cairoon stream combo)",
           "/CreationDate (20260102030405+00'00')", "/ModDate (20260102030405+00'00')",
           "/Combo (tag-metadata-multipage)", "/Count 3", "/PageLabels", "(combo-cover)",
@@ -233,13 +237,13 @@ test "backend feature tag multipage output contains stable markers" {
           "/S /Sect", "/S /H1", "/S /P", "/S /Span", "%%EOF",
         ])
       1 =>
-        expect_vector_output(path, [
+        expect_backend_output_markers(kind, path, 11706, [
           "%!PS-Adobe-3.0", "%%LanguageLevel: 3", "%%Title: Cairoon Stream Combo",
           "%%IncludeFeature: *MediaColor White", "%%IncludeFeature: *PageSize Letter",
           "%%Pages: 3", "%%Page: 1 1", "%%Page: 2 2", "%%Page: 3 3", "%%EOF",
         ])
       2 =>
-        expect_vector_output(path, [
+        expect_backend_output_markers(kind, path, 11706, [
           "<?xml version=\"1.0\"", "<svg", "width=\"100px\" height=\"100px\"", "<pageSet>",
           "<page>", "</pageSet>", "</svg>",
         ])

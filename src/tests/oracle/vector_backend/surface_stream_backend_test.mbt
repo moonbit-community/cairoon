@@ -33,7 +33,7 @@ test "document feature stream output contains backend markers" {
     render_stream_document_feature_scene(kind, stream_surface)
     match kind {
       0 =>
-        expect_stream_output_markers(chunks, [
+        expect_stream_output_markers_since(kind, chunks, 11706, [
           "%PDF-1.4", "/Title (Cairoon Combined Oracle)", "/Creator (cairoon-combined-oracle)",
           "/CreationDate (20260102030405+00'00')", "/ModDate (20260102030405+00'00')",
           "/ISBN (978-0123456789)", "/Count 2", "/PageLabels", "(intro)", "(details)",
@@ -43,14 +43,14 @@ test "document feature stream output contains backend markers" {
           "/S /Sect", "/S /P", "%%EOF",
         ])
       1 =>
-        expect_stream_output_markers(chunks, [
+        expect_stream_output_markers_since(kind, chunks, 11706, [
           "%!PS-Adobe-3.0", "%%LanguageLevel: 2", "%%Title: Cairoon PS Combined",
           "%%IncludeFeature: *MediaColor White", "%%IncludeFeature: *PageSize A4",
           "%%IncludeFeature: *MediaType Plain", "%%Pages: 2", "%%Page: 1 1", "%%Page: 2 2",
           "%%EOF",
         ])
       2 =>
-        expect_stream_output_markers(chunks, [
+        expect_stream_output_markers_since(kind, chunks, 11706, [
           "<?xml version=\"1.0\"", "<svg", "width=\"12px\" height=\"12px\"", "<pageSet>",
           "<page>", "</pageSet>", "</svg>",
         ])

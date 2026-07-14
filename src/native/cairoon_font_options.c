@@ -217,11 +217,14 @@ cairo_status_t cairoon_font_options_set_hint_metrics_raw(
 MOONBIT_FFI_EXPORT
 moonbit_bytes_t cairoon_font_options_get_variations(
   CairoonFontOptions *options,
-  int32_t *has_variations) {
-  if (cairoon_font_options_status(options) != CAIRO_STATUS_SUCCESS) {
+  int32_t *has_variations,
+  cairo_status_t *status_out) {
+  *status_out = cairoon_font_options_status(options);
+  if (*status_out != CAIRO_STATUS_SUCCESS) {
     *has_variations = 0;
     return moonbit_make_bytes(0, 0);
   }
+#if CAIRO_VERSION >= CAIRO_VERSION_ENCODE(1, 16, 0)
   const char *variations = cairo_font_options_get_variations(options->ptr);
   if (variations == NULL) {
     *has_variations = 0;
@@ -229,6 +232,11 @@ moonbit_bytes_t cairoon_font_options_get_variations(
   }
   *has_variations = 1;
   return cairoon_copy_c_string(variations);
+#else
+  *has_variations = 0;
+  *status_out = CAIRO_STATUS_INVALID_STATUS;
+  return moonbit_make_bytes(0, 0);
+#endif
 }
 
 MOONBIT_FFI_EXPORT
@@ -239,8 +247,13 @@ cairo_status_t cairoon_font_options_set_variations(
   if (status != CAIRO_STATUS_SUCCESS) {
     return status;
   }
+#if CAIRO_VERSION >= CAIRO_VERSION_ENCODE(1, 16, 0)
   cairo_font_options_set_variations(options->ptr, (const char *)variations);
   return cairo_font_options_status(options->ptr);
+#else
+  (void)variations;
+  return CAIRO_STATUS_INVALID_STATUS;
+#endif
 }
 
 MOONBIT_FFI_EXPORT
@@ -249,33 +262,45 @@ cairo_status_t cairoon_font_options_clear_variations(CairoonFontOptions *options
   if (status != CAIRO_STATUS_SUCCESS) {
     return status;
   }
+#if CAIRO_VERSION >= CAIRO_VERSION_ENCODE(1, 16, 0)
   cairo_font_options_set_variations(options->ptr, NULL);
   return cairo_font_options_status(options->ptr);
+#else
+  return CAIRO_STATUS_INVALID_STATUS;
+#endif
 }
 
 MOONBIT_FFI_EXPORT
-cairo_color_mode_t cairoon_font_options_get_color_mode(CairoonFontOptions *options) {
-  return cairo_font_options_get_color_mode(options->ptr);
-}
-
-MOONBIT_FFI_EXPORT
-int32_t cairoon_font_options_get_color_mode_raw(CairoonFontOptions *options) {
-  if (cairoon_font_options_status(options) != CAIRO_STATUS_SUCCESS) {
-    return CAIRO_COLOR_MODE_DEFAULT;
+int32_t cairoon_font_options_get_color_mode_raw(
+  CairoonFontOptions *options,
+  cairo_status_t *status_out) {
+  *status_out = cairoon_font_options_status(options);
+  if (*status_out != CAIRO_STATUS_SUCCESS) {
+    return 0;
   }
+#if CAIRO_VERSION >= CAIRO_VERSION_ENCODE(1, 18, 0)
   return (int32_t)cairo_font_options_get_color_mode(options->ptr);
+#else
+  *status_out = CAIRO_STATUS_INVALID_STATUS;
+  return 0;
+#endif
 }
 
 MOONBIT_FFI_EXPORT
 cairo_status_t cairoon_font_options_set_color_mode(
   CairoonFontOptions *options,
-  cairo_color_mode_t color_mode) {
+  int32_t color_mode) {
   cairo_status_t status = cairoon_font_options_status(options);
   if (status != CAIRO_STATUS_SUCCESS) {
     return status;
   }
-  cairo_font_options_set_color_mode(options->ptr, color_mode);
+#if CAIRO_VERSION >= CAIRO_VERSION_ENCODE(1, 18, 0)
+  cairo_font_options_set_color_mode(options->ptr, (cairo_color_mode_t)color_mode);
   return cairo_font_options_status(options->ptr);
+#else
+  (void)color_mode;
+  return CAIRO_STATUS_INVALID_STATUS;
+#endif
 }
 
 MOONBIT_FFI_EXPORT
@@ -286,13 +311,32 @@ cairo_status_t cairoon_font_options_set_color_mode_raw(
   if (status != CAIRO_STATUS_SUCCESS) {
     return status;
   }
+#if CAIRO_VERSION >= CAIRO_VERSION_ENCODE(1, 18, 0)
   cairo_font_options_set_color_mode(options->ptr, (cairo_color_mode_t)color_mode);
   return cairo_font_options_status(options->ptr);
+#else
+  (void)color_mode;
+  return CAIRO_STATUS_INVALID_STATUS;
+#endif
 }
 
 MOONBIT_FFI_EXPORT
-uint32_t cairoon_font_options_get_color_palette(CairoonFontOptions *options) {
+uint32_t cairoon_font_options_get_color_palette(
+  CairoonFontOptions *options,
+  cairo_status_t *status_out) {
+#if CAIRO_VERSION >= CAIRO_VERSION_ENCODE(1, 18, 0)
+  *status_out = cairoon_font_options_status(options);
+  if (*status_out != CAIRO_STATUS_SUCCESS) {
+    return 0;
+  }
   return (uint32_t)cairo_font_options_get_color_palette(options->ptr);
+#else
+  *status_out = cairoon_font_options_status(options);
+  if (*status_out == CAIRO_STATUS_SUCCESS) {
+    *status_out = CAIRO_STATUS_INVALID_STATUS;
+  }
+  return 0;
+#endif
 }
 
 MOONBIT_FFI_EXPORT
@@ -303,8 +347,13 @@ cairo_status_t cairoon_font_options_set_color_palette(
   if (status != CAIRO_STATUS_SUCCESS) {
     return status;
   }
+#if CAIRO_VERSION >= CAIRO_VERSION_ENCODE(1, 18, 0)
   cairo_font_options_set_color_palette(options->ptr, (unsigned int)palette_index);
   return cairo_font_options_status(options->ptr);
+#else
+  (void)palette_index;
+  return CAIRO_STATUS_INVALID_STATUS;
+#endif
 }
 
 MOONBIT_FFI_EXPORT
@@ -319,6 +368,7 @@ cairo_status_t cairoon_font_options_set_custom_palette_color(
   if (status != CAIRO_STATUS_SUCCESS) {
     return status;
   }
+#if CAIRO_VERSION >= CAIRO_VERSION_ENCODE(1, 18, 0)
   cairo_font_options_set_custom_palette_color(
     options->ptr,
     (unsigned int)index,
@@ -327,6 +377,14 @@ cairo_status_t cairoon_font_options_set_custom_palette_color(
     blue,
     alpha);
   return cairo_font_options_status(options->ptr);
+#else
+  (void)index;
+  (void)red;
+  (void)green;
+  (void)blue;
+  (void)alpha;
+  return CAIRO_STATUS_INVALID_STATUS;
+#endif
 }
 
 MOONBIT_FFI_EXPORT
@@ -337,10 +395,15 @@ cairo_status_t cairoon_font_options_get_custom_palette_color(
   double *green,
   double *blue,
   double *alpha) {
+  *red = 0.0;
+  *green = 0.0;
+  *blue = 0.0;
+  *alpha = 0.0;
   cairo_status_t status = cairoon_font_options_status(options);
   if (status != CAIRO_STATUS_SUCCESS) {
     return status;
   }
+#if CAIRO_VERSION >= CAIRO_VERSION_ENCODE(1, 18, 0)
   return cairo_font_options_get_custom_palette_color(
     options->ptr,
     (unsigned int)index,
@@ -348,4 +411,8 @@ cairo_status_t cairoon_font_options_get_custom_palette_color(
     green,
     blue,
     alpha);
+#else
+  (void)index;
+  return CAIRO_STATUS_INVALID_STATUS;
+#endif
 }

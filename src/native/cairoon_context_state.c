@@ -24,16 +24,29 @@ cairo_status_t cairoon_context_set_hairline(CairoonContext *ctx, int32_t set_hai
   if (status != CAIRO_STATUS_SUCCESS) {
     return status;
   }
+#if CAIRO_VERSION >= CAIRO_VERSION_ENCODE(1, 18, 0)
   cairo_set_hairline(ctx->ptr, set_hairline);
   return cairo_status(ctx->ptr);
+#else
+  (void)set_hairline;
+  return CAIRO_STATUS_INVALID_STATUS;
+#endif
 }
 
 MOONBIT_FFI_EXPORT
-int32_t cairoon_context_get_hairline(CairoonContext *ctx) {
-  if (cairoon_context_status(ctx) != CAIRO_STATUS_SUCCESS) {
+int32_t cairoon_context_get_hairline(
+  CairoonContext *ctx,
+  cairo_status_t *status_out) {
+  *status_out = cairoon_context_status(ctx);
+  if (*status_out != CAIRO_STATUS_SUCCESS) {
     return 0;
   }
+#if CAIRO_VERSION >= CAIRO_VERSION_ENCODE(1, 18, 0)
   return cairo_get_hairline(ctx->ptr) ? 1 : 0;
+#else
+  *status_out = CAIRO_STATUS_INVALID_STATUS;
+  return 0;
+#endif
 }
 
 MOONBIT_FFI_EXPORT

@@ -201,7 +201,7 @@ cairo_status_t cairoon_pdf_surface_set_metadata(
   CairoonSurface *surface,
   int32_t metadata,
   moonbit_bytes_t value) {
-#if CAIRO_HAS_PDF_SURFACE && CAIRO_VERSION >= CAIRO_VERSION_ENCODE(1, 16, 0)
+#if CAIRO_HAS_PDF_SURFACE && CAIRO_VERSION >= CAIRO_VERSION_ENCODE(1, 15, 10)
   cairo_status_t status = cairoon_pdf_surface_require(surface);
   if (status != CAIRO_STATUS_SUCCESS) {
     return status;
@@ -228,11 +228,11 @@ cairo_status_t cairoon_pdf_surface_set_custom_metadata(
   moonbit_bytes_t name,
   int32_t has_value,
   moonbit_bytes_t value) {
-#if CAIRO_HAS_PDF_SURFACE && CAIRO_VERSION >= CAIRO_VERSION_ENCODE(1, 17, 6)
   cairo_status_t status = cairoon_pdf_surface_require(surface);
   if (status != CAIRO_STATUS_SUCCESS) {
     return status;
   }
+#if CAIRO_HAS_PDF_SURFACE && CAIRO_VERSION >= CAIRO_VERSION_ENCODE(1, 17, 6)
   if (name == NULL || (has_value && value == NULL)) {
     return CAIRO_STATUS_NULL_POINTER;
   }
@@ -243,7 +243,6 @@ cairo_status_t cairoon_pdf_surface_set_custom_metadata(
     raw_value);
   return cairo_surface_status(surface->ptr);
 #else
-  (void)surface;
   (void)name;
   (void)has_value;
   (void)value;
@@ -255,7 +254,7 @@ MOONBIT_FFI_EXPORT
 cairo_status_t cairoon_pdf_surface_set_page_label(
   CairoonSurface *surface,
   moonbit_bytes_t label) {
-#if CAIRO_HAS_PDF_SURFACE && CAIRO_VERSION >= CAIRO_VERSION_ENCODE(1, 16, 0)
+#if CAIRO_HAS_PDF_SURFACE && CAIRO_VERSION >= CAIRO_VERSION_ENCODE(1, 15, 10)
   cairo_status_t status = cairoon_pdf_surface_require(surface);
   if (status != CAIRO_STATUS_SUCCESS) {
     return status;
@@ -277,7 +276,7 @@ cairo_status_t cairoon_pdf_surface_set_thumbnail_size(
   CairoonSurface *surface,
   int32_t width,
   int32_t height) {
-#if CAIRO_HAS_PDF_SURFACE && CAIRO_VERSION >= CAIRO_VERSION_ENCODE(1, 16, 0)
+#if CAIRO_HAS_PDF_SURFACE && CAIRO_VERSION >= CAIRO_VERSION_ENCODE(1, 15, 10)
   cairo_status_t status = cairoon_pdf_surface_require(surface);
   if (status != CAIRO_STATUS_SUCCESS) {
     return status;
@@ -301,7 +300,7 @@ int32_t cairoon_pdf_surface_add_outline(
   int32_t flags,
   cairo_status_t *status_out) {
   *status_out = CAIRO_STATUS_SUCCESS;
-#if CAIRO_HAS_PDF_SURFACE && CAIRO_VERSION >= CAIRO_VERSION_ENCODE(1, 16, 0)
+#if CAIRO_HAS_PDF_SURFACE && CAIRO_VERSION >= CAIRO_VERSION_ENCODE(1, 15, 10)
   *status_out = cairoon_pdf_surface_require(surface);
   if (*status_out != CAIRO_STATUS_SUCCESS) {
     return 0;

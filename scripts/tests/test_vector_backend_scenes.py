@@ -29,6 +29,7 @@ class VectorBackendSceneCheckerTests(unittest.TestCase):
         self.root = pathlib.Path(self.temp_dir.name)
         self.c_source = self.root / "tag_attributes.c"
         self.moonbit_source = self.root / "tag_attributes.mbt"
+        self.stream_oracle = self.root / "stream_oracle.mbt"
 
     def tearDown(self) -> None:
         self.temp_dir.cleanup()
@@ -89,6 +90,52 @@ class VectorBackendSceneCheckerTests(unittest.TestCase):
         errors = self.check_coverage()
 
         self.assertTrue(any(missing_test in error for error in errors), errors)
+
+    def check_stream_scene_list(
+        self,
+        source: str,
+        scenes: list[tuple[str, int]],
+    ) -> list[str]:
+        self.stream_oracle.write_text(source, encoding="utf-8")
+        with mock.patch.object(
+            self.checker,
+            "STREAM_ORACLE",
+            self.stream_oracle,
+        ):
+            return self.checker.check_stream_scene_list(scenes)
+
+    def test_named_scene_list_with_conditional_push_passes(self) -> None:
+        source = """
+let scenes = [35]
+if cairo_version >= 11800 {
+  scenes.push(66)
+}
+for scene in scenes {
+  ignore(scene)
+}
+"""
+
+        errors = self.check_stream_scene_list(
+            source,
+            [("BASE", 35), ("CAIRO_1_18", 66)],
+        )
+
+        self.assertEqual(errors, [])
+
+    def test_named_scene_list_missing_conditional_scene_fails(self) -> None:
+        source = """
+let scenes = [35]
+for scene in scenes {
+  ignore(scene)
+}
+"""
+
+        errors = self.check_stream_scene_list(
+            source,
+            [("BASE", 35), ("CAIRO_1_18", 66)],
+        )
+
+        self.assertTrue(any("66" in error for error in errors), errors)
 
 
 if __name__ == "__main__":

@@ -76,12 +76,17 @@ fn configure_stream_section_catalog_backend(
         @cairoon.PdfMetadataModDate,
         fixed_pdf_metadata_date(),
       )
-      surface.pdf_set_custom_metadata(
+      set_pdf_custom_metadata_if_supported(
+        surface,
         "SectionCatalog",
         Some("section-catalog-65"),
       )
-      surface.pdf_set_custom_metadata("TempSection", Some("remove-me"))
-      surface.pdf_set_custom_metadata("TempSection", None)
+      set_pdf_custom_metadata_if_supported(
+        surface,
+        "TempSection",
+        Some("remove-me"),
+      )
+      set_pdf_custom_metadata_if_supported(surface, "TempSection", None)
     }
     1 => {
       surface.ps_restrict_to_level(@cairoon.PsLevel3)
@@ -344,7 +349,7 @@ test "backend section catalog output contains stable markers" {
     render_stream_section_catalog_scene(kind, surface)
     match kind {
       0 =>
-        expect_vector_output(path, [
+        expect_backend_output_markers(kind, path, 11706, [
           "%PDF-1.4", "/Title (Cairoon Section Catalog)", "/Author (cairoon section catalog)",
           "/Subject (section metadata and tags)", "/Keywords (section,catalog,links,tags)",
           "/Creator (cairoon section catalog)", "/CreationDate (20260102030405+00'00')",
@@ -359,13 +364,13 @@ test "backend section catalog output contains stable markers" {
           "/S /BibEntry", "%%EOF",
         ])
       1 =>
-        expect_vector_output(path, [
+        expect_backend_output_markers(kind, path, 11706, [
           "%!PS-Adobe-3.0", "%%LanguageLevel: 3", "%%Title: Cairoon Section Catalog",
           "%%IncludeFeature: *MediaType SectionCatalog", "%%IncludeFeature: *PageSize SectionCatalog",
           "%%Pages: 3", "%%Page: 1 1", "%%Page: 2 2", "%%Page: 3 3", "%%EOF",
         ])
       2 =>
-        expect_vector_output(path, [
+        expect_backend_output_markers(kind, path, 11706, [
           "<?xml version=\"1.0\"", "<svg", "width=\"116px\" height=\"88px\"", "<pageSet>",
           "<page>", "</pageSet>", "</svg>",
         ])

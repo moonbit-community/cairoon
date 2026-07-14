@@ -76,12 +76,13 @@ fn configure_stream_attachment_index_backend(
         @cairoon.PdfMetadataModDate,
         fixed_pdf_metadata_date(),
       )
-      surface.pdf_set_custom_metadata(
+      set_pdf_custom_metadata_if_supported(
+        surface,
         "AttachmentSet",
         Some("attachment-index-62"),
       )
-      surface.pdf_set_custom_metadata("Scratch", Some("drop-me"))
-      surface.pdf_set_custom_metadata("Scratch", None)
+      set_pdf_custom_metadata_if_supported(surface, "Scratch", Some("drop-me"))
+      set_pdf_custom_metadata_if_supported(surface, "Scratch", None)
     }
     1 => {
       surface.ps_restrict_to_level(@cairoon.PsLevel3)
@@ -272,7 +273,7 @@ test "backend attachment index output contains stable markers" {
     render_stream_attachment_index_scene(kind, surface)
     match kind {
       0 =>
-        expect_vector_output(path, [
+        expect_backend_output_markers(kind, path, 11706, [
           "%PDF-1.4", "/Title (Cairoon Attachment Index)", "/Author (cairoon attachment index)",
           "/Subject (attachment index metadata)", "/Keywords (attachment,index,audit)",
           "/Creator (cairoon attachment index)", "/CreationDate (20260102030405+00'00')",
@@ -285,13 +286,13 @@ test "backend attachment index output contains stable markers" {
           "/S /Reference", "/S /Figure", "/S /Caption", "%%EOF",
         ])
       1 =>
-        expect_vector_output(path, [
+        expect_backend_output_markers(kind, path, 11706, [
           "%!PS-Adobe-3.0", "%%LanguageLevel: 3", "%%Title: Cairoon Attachment Index",
           "%%IncludeFeature: *MediaType AttachmentIndex", "%%IncludeFeature: *PageSize AttachmentIndex",
           "%%Pages: 2", "%%Page: 1 1", "%%Page: 2 2", "%%EOF",
         ])
       2 =>
-        expect_vector_output(path, [
+        expect_backend_output_markers(kind, path, 11706, [
           "<?xml version=\"1.0\"", "<svg", "width=\"124px\" height=\"96px\"", "<pageSet>",
           "<page>", "</pageSet>", "</svg>",
         ])

@@ -73,11 +73,19 @@ fn configure_stream_tag_matrix_backend(
         @cairoon.PdfMetadataModDate,
         fixed_pdf_metadata_date(),
       )
-      surface.pdf_set_custom_metadata("Matrix", Some("nested-resized-tags"))
-      surface.pdf_set_custom_metadata("Phase", Some("draft"))
-      surface.pdf_set_custom_metadata("Phase", Some("published"))
-      surface.pdf_set_custom_metadata("Scratch", Some("remove-me"))
-      surface.pdf_set_custom_metadata("Scratch", None)
+      set_pdf_custom_metadata_if_supported(
+        surface,
+        "Matrix",
+        Some("nested-resized-tags"),
+      )
+      set_pdf_custom_metadata_if_supported(surface, "Phase", Some("draft"))
+      set_pdf_custom_metadata_if_supported(surface, "Phase", Some("published"))
+      set_pdf_custom_metadata_if_supported(
+        surface,
+        "Scratch",
+        Some("remove-me"),
+      )
+      set_pdf_custom_metadata_if_supported(surface, "Scratch", None)
     }
     1 => {
       surface.ps_restrict_to_level(@cairoon.PsLevel3)
@@ -311,7 +319,7 @@ test "backend tag matrix output contains stable markers" {
     render_stream_tag_matrix_scene(kind, surface)
     match kind {
       0 => {
-        expect_vector_output(path, [
+        expect_backend_output_markers(kind, path, 11706, [
           "%PDF-1.4", "/Title (Cairoon Tag Matrix)", "/Author (cairoon matrix author)",
           "/Subject (nested tags with resized pages)", "/Keywords (matrix,nested,sequence)",
           "/Creator (cairoon tag matrix)", "/CreationDate (20260102030405+00'00')",
@@ -328,13 +336,13 @@ test "backend tag matrix output contains stable markers" {
         expect_vector_output_absent(path, ["/Phase (draft)", "remove-me"])
       }
       1 =>
-        expect_vector_output(path, [
+        expect_backend_output_markers(kind, path, 11706, [
           "%!PS-Adobe-3.0", "%%Title: Cairoon Tag Matrix", "%%IncludeFeature: *MediaType MatrixPlain",
           "%%IncludeFeature: *PageSize Matrix", "%%Pages: 4", "%%Page: 1 1", "%%Page: 2 2",
           "%%Page: 3 3", "%%Page: 4 4", "%%EOF",
         ])
       2 =>
-        expect_vector_output(path, [
+        expect_backend_output_markers(kind, path, 11706, [
           "<?xml version=\"1.0\"", "<svg", "width=\"144pt\" height=\"108pt\"", "<pageSet>",
           "<page>", "</pageSet>", "</svg>",
         ])

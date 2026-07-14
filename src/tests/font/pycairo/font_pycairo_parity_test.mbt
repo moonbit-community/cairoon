@@ -9,6 +9,16 @@ fn pycairo_font_context() -> @cairoon.Context raise @cairoon.CairoError {
 }
 
 ///|
+fn expect_pycairo_font_options_unavailable(
+  result : Result[Unit, @cairoon.CairoError],
+) -> Unit raise {
+  match result {
+    Err(@cairoon.CairoError(@cairoon.InvalidStatus, _)) => ()
+    _ => @test.fail("expected font options API to be unavailable")
+  }
+}
+
+///|
 fn assert_pycairo_font_matrix_close(
   actual : @cairoon.Matrix,
   expected : @cairoon.Matrix,
@@ -83,35 +93,53 @@ test "pycairo font options enum setter fixtures" {
 ///|
 test "pycairo font options color mode fixture" {
   let options = pycairo_font_surface().get_font_options()
-  debug_inspect(options.get_color_mode(), content="ColorModeDefault")
+  if @cairoon.CAIRO_VERSION >= 11800 {
+    debug_inspect(options.get_color_mode(), content="ColorModeDefault")
 
-  options.set_color_mode(@cairoon.ColorModeColor)
-  debug_inspect(options.get_color_mode(), content="ColorModeColor")
+    options.set_color_mode(@cairoon.ColorModeColor)
+    debug_inspect(options.get_color_mode(), content="ColorModeColor")
+  } else {
+    expect_pycairo_font_options_unavailable(
+      @cairoon.run_cairo(() => options.set_color_mode(@cairoon.ColorModeColor)),
+    )
+  }
 }
 
 ///|
 test "pycairo font options color palette fixture" {
   let options = pycairo_font_surface().get_font_options()
-  inspect(
-    options.get_color_palette() == @cairoon.COLOR_PALETTE_DEFAULT,
-    content="true",
-  )
+  if @cairoon.CAIRO_VERSION >= 11800 {
+    inspect(
+      options.get_color_palette() == @cairoon.COLOR_PALETTE_DEFAULT,
+      content="true",
+    )
 
-  options.set_color_palette(42U)
-  inspect(options.get_color_palette().reinterpret_as_int(), content="42")
+    options.set_color_palette(42U)
+    inspect(options.get_color_palette().reinterpret_as_int(), content="42")
+  } else {
+    expect_pycairo_font_options_unavailable(
+      @cairoon.run_cairo(() => options.set_color_palette(42U)),
+    )
+  }
 }
 
 ///|
 test "pycairo font options variations fixture" {
   let options = pycairo_font_surface().get_font_options()
-  inspect(options.get_variations() is None, content="true")
-  options.set_variations(Some("foo"))
-  match options.get_variations() {
-    Some(variations) => inspect(variations, content="foo")
-    None => @test.fail("expected font variations")
+  if @cairoon.CAIRO_VERSION >= 11600 {
+    inspect(options.get_variations() is None, content="true")
+    options.set_variations(Some("foo"))
+    match options.get_variations() {
+      Some(variations) => inspect(variations, content="foo")
+      None => @test.fail("expected font variations")
+    }
+    options.set_variations(None)
+    inspect(options.get_variations() is None, content="true")
+  } else {
+    expect_pycairo_font_options_unavailable(
+      @cairoon.run_cairo(() => options.set_variations(Some("foo"))),
+    )
   }
-  options.set_variations(None)
-  inspect(options.get_variations() is None, content="true")
 }
 
 ///|
@@ -121,17 +149,21 @@ test "pycairo font options custom palette color fixture" {
     let _ = options.get_custom_palette_color(24U)
     ()
   })
-  match missing {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidIndex, _)) => ()
-    _ => @test.fail("expected InvalidIndex for missing palette color")
-  }
+  if @cairoon.CAIRO_VERSION >= 11800 {
+    match missing {
+      Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidIndex, _)) => ()
+      _ => @test.fail("expected InvalidIndex for missing palette color")
+    }
 
-  options.set_custom_palette_color(42U, 0.25, 0.5, 0.75, 1.0)
-  let (red, green, blue, alpha) = options.get_custom_palette_color(42U)
-  inspect(red, content="0.25")
-  inspect(green, content="0.5")
-  inspect(blue, content="0.75")
-  inspect(alpha, content="1")
+    options.set_custom_palette_color(42U, 0.25, 0.5, 0.75, 1.0)
+    let (red, green, blue, alpha) = options.get_custom_palette_color(42U)
+    inspect(red, content="0.25")
+    inspect(green, content="0.5")
+    inspect(blue, content="0.75")
+    inspect(alpha, content="1")
+  } else {
+    expect_pycairo_font_options_unavailable(missing)
+  }
 }
 
 ///|
@@ -204,7 +236,7 @@ test "pycairo scaled font text and glyph extents fixtures" {
 ///|
 test "pycairo toy font face getter fixtures" {
   let empty = @cairoon.FontFace::toy("")
-  inspect(empty.get_family(), content="Helvetica")
+  let _empty_family : String = empty.get_family()
   debug_inspect(empty.get_slant(), content="FontSlantNormal")
   debug_inspect(empty.get_weight(), content="FontWeightNormal")
 

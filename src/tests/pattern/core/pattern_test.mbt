@@ -27,18 +27,36 @@ test "pattern equality and hash use cairo pointer identity" {
 }
 
 ///|
+fn expect_pattern_dither_unavailable(
+  result : Result[Unit, @cairoon.CairoError],
+) -> Unit raise {
+  match result {
+    Err(@cairoon.CairoError(@cairoon.InvalidStatus, _)) => ()
+    _ => @test.fail("expected dither API to require Cairo 1.18")
+  }
+}
+
+///|
 test "pattern extend filter and matrix mirror cairo state" {
   let pattern = @cairoon.Pattern::solid_rgb(1.0, 0.0, 0.0)
   debug_inspect(pattern.get_extend(), content="Pad")
   debug_inspect(pattern.get_filter(), content="Good")
   pattern.set_extend(@cairoon.Repeat)
   pattern.set_filter(@cairoon.Nearest)
-  pattern.set_dither(@cairoon.DitherBest)
+  if @cairoon.CAIRO_VERSION >= 11800 {
+    pattern.set_dither(@cairoon.DitherBest)
+  } else {
+    expect_pattern_dither_unavailable(
+      @cairoon.run_cairo(() => pattern.set_dither(@cairoon.DitherBest)),
+    )
+  }
   let matrix = @cairoon.Matrix::new(xx=0.5, yy=0.25, x0=3.0, y0=5.0)
   pattern.set_matrix(matrix)
   debug_inspect(pattern.get_extend(), content="Repeat")
   debug_inspect(pattern.get_filter(), content="Nearest")
-  debug_inspect(pattern.get_dither(), content="DitherBest")
+  if @cairoon.CAIRO_VERSION >= 11800 {
+    debug_inspect(pattern.get_dither(), content="DitherBest")
+  }
   debug_inspect(
     pattern.get_matrix(),
     content="{ xx: 0.5, yx: 0, xy: 0, yy: 0.25, x0: 3, y0: 5 }",
@@ -67,7 +85,16 @@ test "pattern raw extend mirrors pycairo c int passthrough" {
 test "pattern raw filter and dither mirror pycairo c int passthrough" {
   let pattern = @cairoon.Pattern::solid_rgb(1.0, 0.0, 0.0)
   inspect(pattern.get_filter_raw(), content="1")
-  inspect(pattern.get_dither_raw(), content="1")
+  if @cairoon.CAIRO_VERSION >= 11800 {
+    inspect(pattern.get_dither_raw(), content="1")
+  } else {
+    expect_pattern_dither_unavailable(
+      @cairoon.run_cairo(() => {
+        let _ = pattern.get_dither_raw()
+        ()
+      }),
+    )
+  }
 
   pattern.set_filter_raw(42)
   inspect(pattern.get_filter_raw(), content="42")
@@ -81,17 +108,23 @@ test "pattern raw filter and dither mirror pycairo c int passthrough" {
   inspect(pattern.get_filter_raw(), content="3")
   debug_inspect(pattern.get_filter(), content="Nearest")
 
-  pattern.set_dither_raw(42)
-  inspect(pattern.get_dither_raw(), content="42")
-  let typed_dither_unknown = @cairoon.run_cairo(() => pattern.get_dither())
-  match typed_dither_unknown {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidStatus, _)) => ()
-    _ => @test.fail("expected typed getter to reject unknown raw dither")
-  }
+  if @cairoon.CAIRO_VERSION >= 11800 {
+    pattern.set_dither_raw(42)
+    inspect(pattern.get_dither_raw(), content="42")
+    let typed_dither_unknown = @cairoon.run_cairo(() => pattern.get_dither())
+    match typed_dither_unknown {
+      Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidStatus, _)) => ()
+      _ => @test.fail("expected typed getter to reject unknown raw dither")
+    }
 
-  pattern.set_dither_raw(0)
-  inspect(pattern.get_dither_raw(), content="0")
-  debug_inspect(pattern.get_dither(), content="DitherNone")
+    pattern.set_dither_raw(0)
+    inspect(pattern.get_dither_raw(), content="0")
+    debug_inspect(pattern.get_dither(), content="DitherNone")
+  } else {
+    expect_pattern_dither_unavailable(
+      @cairoon.run_cairo(() => pattern.set_dither_raw(42)),
+    )
+  }
 }
 
 ///|

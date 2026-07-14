@@ -5,7 +5,7 @@ static cairo_status_t cairoon_test_configure_backend_metadata_outline(
   int32_t kind) {
   switch (kind) {
     case CAIROON_TEST_VECTOR_PDF:
-#if CAIRO_HAS_PDF_SURFACE && CAIRO_VERSION >= CAIRO_VERSION_ENCODE(1, 17, 6)
+#if CAIRO_HAS_PDF_SURFACE && CAIRO_VERSION >= CAIRO_VERSION_ENCODE(1, 15, 10)
       cairo_pdf_surface_restrict_to_version(surface, CAIRO_PDF_VERSION_1_4);
       cairo_pdf_surface_set_metadata(
         surface,
@@ -35,14 +35,14 @@ static cairo_status_t cairoon_test_configure_backend_metadata_outline(
         surface,
         CAIRO_PDF_METADATA_MOD_DATE,
         "2026-01-02T03:04:05+00:00");
-      cairo_pdf_surface_set_custom_metadata(
+      cairoon_test_pdf_surface_set_custom_metadata(
         surface,
         "OutlineScenario",
         "metadata-outline-tree");
-      cairo_pdf_surface_set_custom_metadata(surface, "OutlineRevision", "draft");
-      cairo_pdf_surface_set_custom_metadata(surface, "OutlineRevision", "final");
-      cairo_pdf_surface_set_custom_metadata(surface, "Scratch", "drop-me");
-      cairo_pdf_surface_set_custom_metadata(surface, "Scratch", NULL);
+      cairoon_test_pdf_surface_set_custom_metadata(surface, "OutlineRevision", "draft");
+      cairoon_test_pdf_surface_set_custom_metadata(surface, "OutlineRevision", "final");
+      cairoon_test_pdf_surface_set_custom_metadata(surface, "Scratch", "drop-me");
+      cairoon_test_pdf_surface_set_custom_metadata(surface, "Scratch", NULL);
       return cairo_surface_status(surface);
 #else
       return CAIRO_STATUS_INVALID_STATUS;
@@ -87,7 +87,7 @@ static cairo_status_t cairoon_test_pdf_metadata_outline_page(
   const char *link_attributes,
   cairo_pdf_outline_flags_t flags,
   int *outline_id) {
-#if CAIRO_HAS_PDF_SURFACE && CAIRO_VERSION >= CAIRO_VERSION_ENCODE(1, 17, 6)
+#if CAIRO_HAS_PDF_SURFACE && CAIRO_VERSION >= CAIRO_VERSION_ENCODE(1, 15, 10)
   cairo_pdf_surface_set_page_label(surface, label);
   int id = cairo_pdf_surface_add_outline(
     surface,
@@ -271,7 +271,7 @@ cairo_status_t cairoon_test_render_backend_metadata_outline_features(
   cairo_surface_t *surface = NULL;
   switch (kind) {
     case CAIROON_TEST_VECTOR_PDF:
-#if CAIRO_HAS_PDF_SURFACE && CAIRO_VERSION >= CAIRO_VERSION_ENCODE(1, 17, 6)
+#if CAIRO_HAS_PDF_SURFACE && CAIRO_VERSION >= CAIRO_VERSION_ENCODE(1, 15, 10)
       surface = cairo_pdf_surface_create(name, 128.0, 112.0);
       return cairoon_test_render_backend_metadata_outline_surface(
         surface,

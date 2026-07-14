@@ -174,8 +174,10 @@ pub fn Pattern::set_dither(
 
 ///|
 pub fn Pattern::get_dither_raw(self : Pattern) -> Int raise CairoError {
-  check_status(pattern_status_ffi(self))
-  pattern_get_dither_raw_ffi(self)
+  let status = Ref(Success)
+  let dither = pattern_get_dither_raw_ffi(self, status)
+  check_status(status.val)
+  dither
 }
 
 ///|

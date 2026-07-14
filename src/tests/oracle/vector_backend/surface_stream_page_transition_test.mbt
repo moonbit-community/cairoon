@@ -64,9 +64,17 @@ fn configure_stream_page_transition_backend(
         @cairoon.PdfMetadataModDate,
         fixed_pdf_metadata_date(),
       )
-      surface.pdf_set_custom_metadata("Transition", Some("show-copy-show"))
-      surface.pdf_set_custom_metadata("Transient", Some("drop-me"))
-      surface.pdf_set_custom_metadata("Transient", None)
+      set_pdf_custom_metadata_if_supported(
+        surface,
+        "Transition",
+        Some("show-copy-show"),
+      )
+      set_pdf_custom_metadata_if_supported(
+        surface,
+        "Transient",
+        Some("drop-me"),
+      )
+      set_pdf_custom_metadata_if_supported(surface, "Transient", None)
     }
     1 => {
       surface.ps_restrict_to_level(@cairoon.PsLevel3)
@@ -258,7 +266,7 @@ test "backend page transition output contains stable markers" {
     render_stream_page_transition_scene(kind, surface)
     match kind {
       0 => {
-        expect_vector_output(path, [
+        expect_backend_output_markers(kind, path, 11706, [
           "%PDF-1.4", "/Title (Cairoon Transition Tags)", "/Creator (cairoon page transition)",
           "/CreationDate (20260102030405+00'00')", "/ModDate (20260102030405+00'00')",
           "/Transition (show-copy-show)", "/Count 3", "/MediaBox [ 0 0 100 80 ]",
@@ -272,13 +280,13 @@ test "backend page transition output contains stable markers" {
         expect_vector_output_absent(path, ["/Transient", "drop-me"])
       }
       1 =>
-        expect_vector_output(path, [
+        expect_backend_output_markers(kind, path, 11706, [
           "%!PS-Adobe-3.0", "%%LanguageLevel: 2", "%%Title: Cairoon Transition Tags",
           "%%IncludeFeature: *PageRegion Transition", "%%Pages: 3", "%%Page: 1 1",
           "%%Page: 2 2", "%%Page: 3 3", "%%EOF",
         ])
       2 =>
-        expect_vector_output(path, [
+        expect_backend_output_markers(kind, path, 11706, [
           "<?xml version=\"1.0\"", "<svg", "width=\"100pt\" height=\"80pt\"", "<pageSet>",
           "<page>", "</pageSet>", "</svg>",
         ])

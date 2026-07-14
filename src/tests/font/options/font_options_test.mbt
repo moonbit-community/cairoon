@@ -1,17 +1,45 @@
 ///|
+fn expect_font_options_api_unavailable(
+  result : Result[Unit, @cairoon.CairoError],
+) -> Unit raise {
+  match result {
+    Err(@cairoon.CairoError(@cairoon.InvalidStatus, _)) => ()
+    _ => @test.fail("expected font options API to be unavailable")
+  }
+}
+
+///|
 test "font options new exposes default state" {
   let options = @cairoon.FontOptions::new()
   debug_inspect(options.get_antialias(), content="AntialiasDefault")
   debug_inspect(options.get_subpixel_order(), content="SubpixelDefault")
   debug_inspect(options.get_hint_style(), content="HintStyleDefault")
   debug_inspect(options.get_hint_metrics(), content="HintMetricsDefault")
-  debug_inspect(options.get_color_mode(), content="ColorModeDefault")
-  inspect(options.get_color_palette().reinterpret_as_int(), content="0")
-  inspect(
-    options.get_color_palette() == @cairoon.COLOR_PALETTE_DEFAULT,
-    content="true",
-  )
-  inspect(options.get_variations() is None, content="true")
+  if @cairoon.CAIRO_VERSION >= 11800 {
+    debug_inspect(options.get_color_mode(), content="ColorModeDefault")
+    inspect(options.get_color_palette().reinterpret_as_int(), content="0")
+    inspect(
+      options.get_color_palette() == @cairoon.COLOR_PALETTE_DEFAULT,
+      content="true",
+    )
+  } else {
+    expect_font_options_api_unavailable(
+      @cairoon.run_cairo(() => {
+        let _ = options.get_color_mode()
+        ()
+      }),
+    )
+  }
+  if @cairoon.CAIRO_VERSION >= 11600 {
+    inspect(options.get_variations() is None, content="true")
+  } else {
+    expect_font_options_api_unavailable(
+      @cairoon.run_cairo(() => {
+        let _ = options.get_variations()
+        ()
+      }),
+    )
+  }
 }
 
 ///|
@@ -21,27 +49,49 @@ test "font options setters round trip state" {
   options.set_subpixel_order(@cairoon.SubpixelVrgb)
   options.set_hint_style(@cairoon.HintStyleSlight)
   options.set_hint_metrics(@cairoon.HintMetricsOff)
-  options.set_color_mode(@cairoon.ColorModeColor)
-  options.set_color_palette(42U)
-  options.set_variations(Some("wght=200,wdth=140.5"))
+  if @cairoon.CAIRO_VERSION >= 11800 {
+    options.set_color_mode(@cairoon.ColorModeColor)
+    options.set_color_palette(42U)
+  }
+  if @cairoon.CAIRO_VERSION >= 11600 {
+    options.set_variations(Some("wght=200,wdth=140.5"))
+  }
   debug_inspect(options.get_antialias(), content="AntialiasGray")
   debug_inspect(options.get_subpixel_order(), content="SubpixelVrgb")
   debug_inspect(options.get_hint_style(), content="HintStyleSlight")
   debug_inspect(options.get_hint_metrics(), content="HintMetricsOff")
-  debug_inspect(options.get_color_mode(), content="ColorModeColor")
-  inspect(options.get_color_palette().reinterpret_as_int(), content="42")
-  match options.get_variations() {
-    Some(variations) => inspect(variations, content="wght=200,wdth=140.5")
-    None => @test.fail("expected font variations")
+  if @cairoon.CAIRO_VERSION >= 11800 {
+    debug_inspect(options.get_color_mode(), content="ColorModeColor")
+    inspect(options.get_color_palette().reinterpret_as_int(), content="42")
+  } else {
+    expect_font_options_api_unavailable(
+      @cairoon.run_cairo(() => options.set_color_mode(@cairoon.ColorModeColor)),
+    )
   }
-  options.set_variations(None)
-  inspect(options.get_variations() is None, content="true")
+  if @cairoon.CAIRO_VERSION >= 11600 {
+    match options.get_variations() {
+      Some(variations) => inspect(variations, content="wght=200,wdth=140.5")
+      None => @test.fail("expected font variations")
+    }
+    options.set_variations(None)
+    inspect(options.get_variations() is None, content="true")
+  } else {
+    expect_font_options_api_unavailable(
+      @cairoon.run_cairo(() => options.set_variations(Some("wght=200"))),
+    )
+  }
 }
 
 ///|
 test "font options variations reject embedded nul strings" {
   let options = @cairoon.FontOptions::new()
-  options.set_variations(Some("wght=300"))
+  if @cairoon.CAIRO_VERSION >= 11600 {
+    options.set_variations(Some("wght=300"))
+  } else {
+    expect_font_options_api_unavailable(
+      @cairoon.run_cairo(() => options.set_variations(Some("wght=300"))),
+    )
+  }
   let result = @cairoon.run_cairo(() => {
     options.set_variations(Some("wght=300\u{0}wdth=80"))
   })
@@ -50,9 +100,11 @@ test "font options variations reject embedded nul strings" {
     Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidString, _)) => ()
     _ => @test.fail("expected InvalidString")
   }
-  match options.get_variations() {
-    Some(variations) => inspect(variations, content="wght=300")
-    None => @test.fail("expected original variations to survive failed set")
+  if @cairoon.CAIRO_VERSION >= 11600 {
+    match options.get_variations() {
+      Some(variations) => inspect(variations, content="wght=300")
+      None => @test.fail("expected original variations to survive failed set")
+    }
   }
 }
 
@@ -114,16 +166,25 @@ test "font options raw enums mirror pycairo c int passthrough" {
   )
 
   let color_mode_options = @cairoon.FontOptions::new()
-  color_mode_options.set_color_mode(@cairoon.ColorModeColor)
-  inspect(color_mode_options.get_color_mode_raw(), content="2")
-  color_mode_options.set_color_mode_raw(42)
-  inspect(color_mode_options.get_color_mode_raw(), content="42")
-  match @cairoon.run_cairo(() => color_mode_options.get_color_mode()) {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidStatus, _)) => ()
-    _ => @test.fail("expected typed getter to reject unknown raw color mode")
+  if @cairoon.CAIRO_VERSION >= 11800 {
+    color_mode_options.set_color_mode(@cairoon.ColorModeColor)
+    inspect(color_mode_options.get_color_mode_raw(), content="2")
+    color_mode_options.set_color_mode_raw(42)
+    inspect(color_mode_options.get_color_mode_raw(), content="42")
+    match @cairoon.run_cairo(() => color_mode_options.get_color_mode()) {
+      Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidStatus, _)) => ()
+      _ => @test.fail("expected typed getter to reject unknown raw color mode")
+    }
+    color_mode_options.set_color_mode_raw(0)
+    debug_inspect(
+      color_mode_options.get_color_mode(),
+      content="ColorModeDefault",
+    )
+  } else {
+    expect_font_options_api_unavailable(
+      @cairoon.run_cairo(() => color_mode_options.set_color_mode_raw(42)),
+    )
   }
-  color_mode_options.set_color_mode_raw(0)
-  debug_inspect(color_mode_options.get_color_mode(), content="ColorModeDefault")
 }
 
 ///|
@@ -134,17 +195,21 @@ test "font options custom palette colors map invalid index" {
     ()
   })
   inspect(missing is Err(_), content="true")
-  match missing {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidIndex, _)) => ()
-    _ => @test.fail("expected InvalidIndex")
-  }
+  if @cairoon.CAIRO_VERSION >= 11800 {
+    match missing {
+      Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidIndex, _)) => ()
+      _ => @test.fail("expected InvalidIndex")
+    }
 
-  options.set_custom_palette_color(42U, 0.25, 0.5, 0.75, 1.0)
-  let (red, green, blue, alpha) = options.get_custom_palette_color(42U)
-  inspect(red, content="0.25")
-  inspect(green, content="0.5")
-  inspect(blue, content="0.75")
-  inspect(alpha, content="1")
+    options.set_custom_palette_color(42U, 0.25, 0.5, 0.75, 1.0)
+    let (red, green, blue, alpha) = options.get_custom_palette_color(42U)
+    inspect(red, content="0.25")
+    inspect(green, content="0.5")
+    inspect(blue, content="0.75")
+    inspect(alpha, content="1")
+  } else {
+    expect_font_options_api_unavailable(missing)
+  }
 }
 
 ///|
@@ -212,7 +277,11 @@ test "context font options methods propagate cairo error" {
 test "font options allocation and copy stress" {
   for index in 0..<1000 {
     let options = @cairoon.FontOptions::new()
-    options.set_color_palette(index.reinterpret_as_uint())
+    if @cairoon.CAIRO_VERSION >= 11800 {
+      options.set_color_palette(index.reinterpret_as_uint())
+    } else {
+      options.set_antialias(@cairoon.AntialiasGray)
+    }
     let copied = options.copy()
     inspect(options.equal(copied), content="true")
   }

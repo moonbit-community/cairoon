@@ -31,7 +31,7 @@ cairo_status_t cairoon_surface_write_to_png_stream(
     return status;
   }
 #if CAIRO_HAS_PNG_FUNCTIONS
-  void *state = cairoon_stream_state_new(callback, arg, &status);
+  void *state = cairoon_stream_state_new_deferred(callback, arg, &status);
   if (status != CAIRO_STATUS_SUCCESS) {
     return status;
   }
@@ -39,7 +39,11 @@ cairo_status_t cairoon_surface_write_to_png_stream(
     surface->ptr,
     cairoon_stream_write,
     state);
+  cairo_status_t callback_status = cairoon_stream_state_status(state);
   cairoon_stream_state_destroy(state);
+  if (callback_status != CAIRO_STATUS_SUCCESS) {
+    return callback_status;
+  }
   if (status != CAIRO_STATUS_SUCCESS) {
     return status;
   }

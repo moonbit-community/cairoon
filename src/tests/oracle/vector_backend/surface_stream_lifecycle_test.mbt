@@ -76,11 +76,15 @@ fn configure_stream_lifecycle_backend(
         @cairoon.PdfMetadataModDate,
         fixed_pdf_metadata_date(),
       )
-      surface.pdf_set_custom_metadata("Lifecycle", Some("copy-copy-show-show"))
-      surface.pdf_set_custom_metadata("Stage", Some("warmup"))
-      surface.pdf_set_custom_metadata("Stage", Some("settled"))
-      surface.pdf_set_custom_metadata("Scratch", Some("drop-me"))
-      surface.pdf_set_custom_metadata("Scratch", None)
+      set_pdf_custom_metadata_if_supported(
+        surface,
+        "Lifecycle",
+        Some("copy-copy-show-show"),
+      )
+      set_pdf_custom_metadata_if_supported(surface, "Stage", Some("warmup"))
+      set_pdf_custom_metadata_if_supported(surface, "Stage", Some("settled"))
+      set_pdf_custom_metadata_if_supported(surface, "Scratch", Some("drop-me"))
+      set_pdf_custom_metadata_if_supported(surface, "Scratch", None)
     }
     1 => {
       surface.ps_restrict_to_level(@cairoon.PsLevel2)
@@ -356,7 +360,7 @@ test "backend lifecycle matrix output contains stable markers" {
     render_stream_lifecycle_scene(kind, surface)
     match kind {
       0 => {
-        expect_vector_output(path, [
+        expect_backend_output_markers(kind, path, 11706, [
           "%PDF-1.4", "/Title (Cairoon Lifecycle Matrix)", "/Author (cairoon lifecycle author)",
           "/Subject (page lifecycle matrix)", "/Keywords (lifecycle,copy,show,tags)",
           "/Creator (cairoon lifecycle matrix)", "/CreationDate (20260102030405+00'00')",
@@ -375,14 +379,14 @@ test "backend lifecycle matrix output contains stable markers" {
         expect_vector_output_absent(path, ["/Stage (warmup)", "drop-me"])
       }
       1 =>
-        expect_vector_output(path, [
+        expect_backend_output_markers(kind, path, 11706, [
           "%!PS-Adobe-3.0", "%%LanguageLevel: 2", "%%Title: Cairoon Lifecycle Matrix",
           "%%IncludeFeature: *MediaColor Ivory", "%%IncludeFeature: *PageSize Lifecycle",
           "%%Pages: 5", "%%Page: 1 1", "%%Page: 2 2", "%%Page: 3 3", "%%Page: 4 4",
           "%%Page: 5 5", "%%EOF",
         ])
       2 =>
-        expect_vector_output(path, [
+        expect_backend_output_markers(kind, path, 11706, [
           "<?xml version=\"1.0\"", "<svg", "width=\"150mm\" height=\"110mm\"", "<pageSet>",
           "<page>", "</pageSet>", "</svg>",
         ])

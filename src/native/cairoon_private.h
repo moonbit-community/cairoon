@@ -123,6 +123,11 @@ void *cairoon_stream_state_new(
   CairoonStreamWriteCallback callback,
   void *arg,
   cairo_status_t *status_out);
+void *cairoon_stream_state_new_deferred(
+  CairoonStreamWriteCallback callback,
+  void *arg,
+  cairo_status_t *status_out);
+cairo_status_t cairoon_stream_state_status(void *state);
 cairo_status_t cairoon_stream_write(
   void *closure,
   const unsigned char *data,

@@ -17,8 +17,11 @@ extern "C" fn context_set_hairline_ffi(
 ) -> Status = "cairoon_context_set_hairline"
 
 ///|
-#borrow(ctx)
-extern "C" fn context_get_hairline_ffi(ctx : Context) -> Bool = "cairoon_context_get_hairline"
+#borrow(ctx, status)
+extern "C" fn context_get_hairline_ffi(
+  ctx : Context,
+  status : Ref[Status],
+) -> Bool = "cairoon_context_get_hairline"
 
 ///|
 #borrow(ctx)

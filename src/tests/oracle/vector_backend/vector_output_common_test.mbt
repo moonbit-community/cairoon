@@ -11,6 +11,22 @@ fn expect_vector_output(path : String, markers : Array[String]) -> Unit raise {
 }
 
 ///|
+fn expect_backend_output_markers(
+  kind : Int,
+  path : String,
+  pdf_markers_since : Int,
+  markers : Array[String],
+) -> Unit raise {
+  if kind != 0 || @cairoon.CAIRO_VERSION >= pdf_markers_since {
+    expect_vector_output(path, markers)
+  } else {
+    // Experimental PDF APIs in 1.15.x can serialize differently from their
+    // stable releases. C-oracle equality remains the behavioral assertion.
+    expect_vector_output(path, ["%PDF-1.4", "%%EOF"])
+  }
+}
+
+///|
 fn expect_vector_output_bytes(path : String, marker : Bytes) -> Unit raise {
   let filename = checked_path_bytes(path)
   inspect(test_file_size_ffi(filename) > 0, content="true")
@@ -35,6 +51,17 @@ fn expect_vector_output_absent(
 ///|
 fn fixed_pdf_metadata_date() -> String {
   "2026-01-02T03:04:05+00:00"
+}
+
+///|
+fn set_pdf_custom_metadata_if_supported(
+  surface : @cairoon.Surface,
+  name : String,
+  value : String?,
+) -> Unit raise @cairoon.CairoError {
+  if @cairoon.CAIRO_VERSION >= 11706 {
+    surface.pdf_set_custom_metadata(name, value)
+  }
 }
 
 ///|

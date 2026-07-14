@@ -72,10 +72,14 @@ fn configure_stream_cross_reference_backend(
         @cairoon.PdfMetadataModDate,
         fixed_pdf_metadata_date(),
       )
-      surface.pdf_set_custom_metadata("CrossRef", Some("draft"))
-      surface.pdf_set_custom_metadata("CrossRef", Some("final"))
-      surface.pdf_set_custom_metadata("StaleCrossRef", Some("drop-me"))
-      surface.pdf_set_custom_metadata("StaleCrossRef", None)
+      set_pdf_custom_metadata_if_supported(surface, "CrossRef", Some("draft"))
+      set_pdf_custom_metadata_if_supported(surface, "CrossRef", Some("final"))
+      set_pdf_custom_metadata_if_supported(
+        surface,
+        "StaleCrossRef",
+        Some("drop-me"),
+      )
+      set_pdf_custom_metadata_if_supported(surface, "StaleCrossRef", None)
     }
     1 => {
       surface.ps_restrict_to_level(@cairoon.PsLevel3)
@@ -308,7 +312,7 @@ test "backend cross reference output contains stable markers" {
     render_stream_cross_reference_scene(kind, surface)
     match kind {
       0 => {
-        expect_vector_output(path, [
+        expect_backend_output_markers(kind, path, 11706, [
           "%PDF-1.4", "/Title (Cairoon Cross Reference)", "/Subject (final cross reference)",
           "/Creator (cairoon cross reference)", "/CreationDate (20260102030405+00'00')",
           "/ModDate (20260102030405+00'00')", "/CrossRef (final)", "/MediaBox [ 0 0 126 96 ]",
@@ -325,13 +329,13 @@ test "backend cross reference output contains stable markers" {
         ])
       }
       1 =>
-        expect_vector_output(path, [
+        expect_backend_output_markers(kind, path, 11706, [
           "%!PS-Adobe-3.0", "%%LanguageLevel: 3", "%%Title: Cairoon Cross Reference",
           "%%IncludeFeature: *MediaType CrossReference", "%%IncludeFeature: *PageSize CrossReference",
           "%%Pages: 3", "%%Page: 1 1", "%%Page: 2 2", "%%Page: 3 3", "%%EOF",
         ])
       2 =>
-        expect_vector_output(path, [
+        expect_backend_output_markers(kind, path, 11706, [
           "<?xml version=\"1.0\"", "<svg", "width=\"126pt\" height=\"96pt\"", "<pageSet>",
           "<page>", "</pageSet>", "</svg>",
         ])

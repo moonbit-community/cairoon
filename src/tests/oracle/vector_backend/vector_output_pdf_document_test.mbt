@@ -13,7 +13,7 @@ fn render_pdf_page_operation_document_feature_surface(
     @cairoon.PdfMetadataModDate,
     fixed_pdf_metadata_date(),
   )
-  surface.pdf_set_custom_metadata("Case", Some("copy-show"))
+  set_pdf_custom_metadata_if_supported(surface, "Case", Some("copy-show"))
   surface.pdf_set_page_label("copy-intro")
   let intro_id = surface.pdf_add_outline_with_flags(
     @cairoon.PDF_OUTLINE_ROOT,

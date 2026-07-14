@@ -23,7 +23,12 @@ test "pdf stream public tag metadata markers stay stable" {
     "Cairoon Public Stream Tags",
   )
   surface.pdf_set_metadata(@cairoon.PdfMetadataCreator, "cairoon public stream")
-  surface.pdf_set_custom_metadata("PublicTag", Some("stream-marker-regression"))
+  if @cairoon.CAIRO_VERSION >= 11706 {
+    surface.pdf_set_custom_metadata(
+      "PublicTag",
+      Some("stream-marker-regression"),
+    )
+  }
   surface.pdf_set_page_label("stream-cover")
   let cover_id = surface.pdf_add_outline_with_flags(
     @cairoon.PDF_OUTLINE_ROOT,
@@ -68,12 +73,20 @@ test "pdf stream public tag metadata markers stay stable" {
   ctx.tag_end(@cairoon.TAG_LINK)
   surface.finish()
 
-  expect_pdf_stream_markers(chunks, [
-    "%PDF-1.4", "/Title (Cairoon Public Stream Tags)", "/Creator (cairoon public stream)",
-    "/PublicTag (stream-marker-regression)", "/Count 2", "/PageLabels", "(stream-cover)",
-    "(stream-final)", "/Outlines", "/Title (stream cover)", "/Title (stream final)",
-    "/Annots [", "/Subtype /Link", "/S /URI", "/URI (https://example.com/public-stream)",
-    "/Dest", "/Dests", "(public-stream-dest)", "/StructTreeRoot", "/S /Document",
-    "/S /Sect", "%%EOF",
-  ])
+  if @cairoon.CAIRO_VERSION >= 11706 {
+    expect_pdf_stream_markers(chunks, [
+      "%PDF-1.4", "/Title (Cairoon Public Stream Tags)", "/Creator (cairoon public stream)",
+      "/PublicTag (stream-marker-regression)", "/Count 2", "/PageLabels", "(stream-cover)",
+      "(stream-final)", "/Outlines", "/Title (stream cover)", "/Title (stream final)",
+      "/Annots [", "/Subtype /Link", "/S /URI", "/URI (https://example.com/public-stream)",
+      "/Dest", "/Dests", "(public-stream-dest)", "/StructTreeRoot", "/S /Document",
+      "/S /Sect", "%%EOF",
+    ])
+  } else {
+    expect_pdf_stream_markers(chunks, [
+      "%PDF-1.4", "/Title (Cairoon Public Stream Tags)", "/Creator (cairoon public stream)",
+      "/Count 2", "/PageLabels", "(stream-cover)", "(stream-final)", "/Outlines",
+      "/Title (stream cover)", "/Title (stream final)", "%%EOF",
+    ])
+  }
 }

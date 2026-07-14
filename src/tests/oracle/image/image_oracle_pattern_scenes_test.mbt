@@ -10,7 +10,7 @@ fn draw_image_oracle_pattern_scene(
       let pattern = @cairoon.Pattern::for_surface(source)
       pattern.set_extend(@cairoon.Reflect)
       pattern.set_filter(@cairoon.Nearest)
-      pattern.set_dither(@cairoon.DitherBest)
+      set_image_oracle_dither_if_supported(pattern, @cairoon.DitherBest)
       pattern.set_matrix(
         @cairoon.Matrix::new(xx=0.75, yx=0.2, xy=-0.25, yy=0.8, x0=-1.0, y0=0.5),
       )
@@ -27,7 +27,7 @@ fn draw_image_oracle_pattern_scene(
       pattern.add_color_stop_rgba(1.0, 0.0, 0.0, 1.0, 1.0)
       pattern.set_extend(@cairoon.Repeat)
       pattern.set_filter(@cairoon.Nearest)
-      pattern.set_dither(@cairoon.DitherFast)
+      set_image_oracle_dither_if_supported(pattern, @cairoon.DitherFast)
       pattern.set_matrix(
         @cairoon.Matrix::new(xx=0.6, yx=0.1, xy=-0.2, yy=0.9, x0=-2.0, y0=1.0),
       )
@@ -94,7 +94,7 @@ fn draw_image_oracle_pattern_scene(
       pattern.add_color_stop_rgba(1.0, 0.0, 0.0, 1.0, 0.9)
       pattern.set_extend(@cairoon.Reflect)
       pattern.set_filter(@cairoon.Nearest)
-      pattern.set_dither(@cairoon.DitherGood)
+      set_image_oracle_dither_if_supported(pattern, @cairoon.DitherGood)
       pattern.set_matrix(
         @cairoon.Matrix::new(
           xx=0.8,
@@ -117,7 +117,7 @@ fn draw_image_oracle_pattern_scene(
       let pattern = @cairoon.Pattern::for_surface(source)
       pattern.set_extend(@cairoon.Pad)
       pattern.set_filter(@cairoon.Bilinear)
-      pattern.set_dither(@cairoon.DitherDefault)
+      set_image_oracle_dither_if_supported(pattern, @cairoon.DitherDefault)
       pattern.set_matrix(
         @cairoon.Matrix::new(
           xx=0.55,
@@ -140,7 +140,7 @@ fn draw_image_oracle_pattern_scene(
       let pattern = @cairoon.Pattern::for_surface(source)
       pattern.set_extend(@cairoon.ExtendNone)
       pattern.set_filter(@cairoon.Nearest)
-      pattern.set_dither(@cairoon.DitherNone)
+      set_image_oracle_dither_if_supported(pattern, @cairoon.DitherNone)
       pattern.set_matrix(
         @cairoon.Matrix::new(
           xx=0.45,
@@ -165,7 +165,7 @@ fn draw_image_oracle_pattern_scene(
       pattern.add_color_stop_rgba(1.0, 0.98, 0.92, 0.25, 1.0)
       pattern.set_extend(@cairoon.Pad)
       pattern.set_filter(@cairoon.Bilinear)
-      pattern.set_dither(@cairoon.DitherBest)
+      set_image_oracle_dither_if_supported(pattern, @cairoon.DitherBest)
       pattern.set_matrix(
         @cairoon.Matrix::new(
           xx=0.70,
@@ -190,7 +190,7 @@ fn draw_image_oracle_pattern_scene(
       pattern.add_color_stop_rgba(1.0, 0.95, 0.95, 0.95, 0.90)
       pattern.set_extend(@cairoon.Repeat)
       pattern.set_filter(@cairoon.Bilinear)
-      pattern.set_dither(@cairoon.DitherFast)
+      set_image_oracle_dither_if_supported(pattern, @cairoon.DitherFast)
       pattern.set_matrix(
         @cairoon.Matrix::new(
           xx=0.65,
@@ -213,7 +213,7 @@ fn draw_image_oracle_pattern_scene(
       let pattern = @cairoon.Pattern::for_surface(source)
       pattern.set_extend(@cairoon.Repeat)
       pattern.set_filter(@cairoon.Bilinear)
-      pattern.set_dither(@cairoon.DitherGood)
+      set_image_oracle_dither_if_supported(pattern, @cairoon.DitherGood)
       pattern.set_matrix(
         @cairoon.Matrix::new(
           xx=0.70,
@@ -238,7 +238,7 @@ fn draw_image_oracle_pattern_scene(
       pattern.add_color_stop_rgba(1.0, 0.95, 0.10, 0.65, 0.95)
       pattern.set_extend(@cairoon.ExtendNone)
       pattern.set_filter(@cairoon.Good)
-      pattern.set_dither(@cairoon.DitherNone)
+      set_image_oracle_dither_if_supported(pattern, @cairoon.DitherNone)
       pattern.set_matrix(
         @cairoon.Matrix::new(
           xx=0.85,
@@ -263,7 +263,7 @@ fn draw_image_oracle_pattern_scene(
       pattern.add_color_stop_rgba(1.0, 0.02, 0.03, 0.08, 1.0)
       pattern.set_extend(@cairoon.Pad)
       pattern.set_filter(@cairoon.Good)
-      pattern.set_dither(@cairoon.DitherDefault)
+      set_image_oracle_dither_if_supported(pattern, @cairoon.DitherDefault)
       pattern.set_matrix(
         @cairoon.Matrix::new(
           xx=0.78,

@@ -6,7 +6,7 @@ fn expect_pdf_tag_stream_markers(
   let chunks : Array[Bytes] = []
   let stream_surface = make_stream_equivalence_stream_surface(0, chunks)
   render_stream_glyph_vector_scene(stream_surface, scene)
-  expect_stream_output_markers(chunks, markers)
+  expect_stream_output_markers_since(0, chunks, 11600, markers)
 }
 
 ///|
@@ -71,7 +71,7 @@ test "pdf wide multi-page tag vector stream output contains combined markers" {
   let chunks : Array[Bytes] = []
   let stream_surface = make_stream_equivalence_stream_surface(0, chunks)
   render_stream_wide_multipage_tag_vector_scene(stream_surface)
-  expect_stream_output_markers(chunks, [
+  expect_stream_output_markers_since(0, chunks, 11600, [
     "%PDF-1.4", "/Count 3", "/Type /Page % 1", "/Type /Page % 2", "/Type /Page % 3",
     "/Subtype /Link", "/S /URI", "/URI (https://example.com/wide)", "/Dest", "/Names",
     "/Dests", "(cairoon-wide-dest)", "/StructTreeRoot", "/S /Document", "/S /Sect",
@@ -130,7 +130,7 @@ test "pdf mixed tag vector stream output contains combined markers" {
   let chunks : Array[Bytes] = []
   let stream_surface = make_stream_equivalence_stream_surface(0, chunks)
   render_stream_mixed_tag_vector_scene(stream_surface)
-  expect_stream_output_markers(chunks, [
+  expect_stream_output_markers_since(0, chunks, 11600, [
     "%PDF-1.4", "/Type /Page % 1", "/Annots [", "/Subtype /Link", "/S /URI", "/URI (https://example.com/mixed)",
     "/Dest", "/Names", "/Dests", "(cairoon-mixed-dest)", "/StructTreeRoot", "/Type /StructElem",
     "/S /Link", "/S /Document", "/S /Sect", "/S /P", "/StructParents 0", "%%EOF",
@@ -165,7 +165,7 @@ test "pdf tagged show_text_glyphs stream output contains link markers" {
   let chunks : Array[Bytes] = []
   let stream_surface = make_stream_equivalence_stream_surface(0, chunks)
   render_stream_tagged_show_text_glyphs_scene(stream_surface)
-  expect_stream_output_markers(chunks, [
+  expect_stream_output_markers_since(0, chunks, 11600, [
     "%PDF-1.4", "/Annots [", "/Subtype /Link", "/S /URI", "/URI (https://example.com/text-glyphs)",
     "/S /Link", "/StructTreeRoot", "%%EOF",
   ])
@@ -199,7 +199,7 @@ test "pdf tagged font matrix text stream output contains combined markers" {
   let chunks : Array[Bytes] = []
   let stream_surface = make_stream_equivalence_stream_surface(0, chunks)
   render_stream_glyph_vector_scene(stream_surface, 43)
-  expect_stream_output_markers(chunks, [
+  expect_stream_output_markers_since(0, chunks, 11600, [
     "%PDF-1.4", "/Subtype /Link", "/S /URI", "/URI (https://example.com/font-matrix)",
     "/Dest", "/Dests", "(font-matrix-dest)", "/StructTreeRoot", "/S /Document", "/S /Sect",
     "%%EOF",
@@ -234,7 +234,7 @@ test "pdf grouped glyph tag stream output contains combined markers" {
   let chunks : Array[Bytes] = []
   let stream_surface = make_stream_equivalence_stream_surface(0, chunks)
   render_stream_grouped_glyph_tag_scene(stream_surface)
-  expect_stream_output_markers(chunks, [
+  expect_stream_output_markers_since(0, chunks, 11600, [
     "%PDF-1.4", "/Count 2", "/Type /Page % 1", "/Type /Page % 2", "/Annots [", "/Subtype /Link",
     "/S /URI", "/URI (https://example.com/grouped-glyphs)", "/Dest", "/Names", "/Dests",
     "(cairoon-grouped-dest)", "/StructTreeRoot", "/Type /StructElem", "/S /Link",
@@ -270,7 +270,7 @@ test "pdf layered multi-page tag vector stream output contains combined markers"
   let chunks : Array[Bytes] = []
   let stream_surface = make_stream_equivalence_stream_surface(0, chunks)
   render_stream_layered_multipage_scene(stream_surface)
-  expect_stream_output_markers(chunks, [
+  expect_stream_output_markers_since(0, chunks, 11600, [
     "%PDF-1.4", "/Count 3", "/Type /Page % 1", "/Type /Page % 2", "/Type /Page % 3",
     "/Subtype /Link", "/S /URI", "/URI (https://example.com/layered)", "/StructTreeRoot",
     "/S /Document", "/S /Sect", "/S /P", "%%EOF",
@@ -305,7 +305,7 @@ test "pdf tagged multi-page vector stream output contains structure markers" {
   let chunks : Array[Bytes] = []
   let stream_surface = make_stream_equivalence_stream_surface(0, chunks)
   render_stream_tagged_multipage_scene(stream_surface)
-  expect_stream_output_markers(chunks, [
+  expect_stream_output_markers_since(0, chunks, 11600, [
     "%PDF-1.4", "/Count 3", "/Type /Page % 1", "/Type /Page % 2", "/Type /Page % 3",
     "/Annots [", "/Subtype /Link", "/S /URI", "/URI (https://example.com/stream)",
     "/Type /StructElem", "/S /Link", "/S /Document", "/S /Sect", "/S /P", "/StructTreeRoot",

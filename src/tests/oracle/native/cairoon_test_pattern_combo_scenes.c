@@ -21,7 +21,7 @@ cairo_status_t cairoon_test_apply_surface_pattern_combo(
     cairo_matrix_init(&matrix, 0.75, 0.2, -0.25, 0.8, -1.0, 0.5);
     cairo_pattern_set_extend(pattern, CAIRO_EXTEND_REFLECT);
     cairo_pattern_set_filter(pattern, CAIRO_FILTER_NEAREST);
-    cairo_pattern_set_dither(pattern, CAIRO_DITHER_BEST);
+    cairoon_test_pattern_set_dither(pattern, CAIRO_DITHER_BEST);
     cairo_pattern_set_matrix(pattern, &matrix);
     status = cairo_pattern_status(pattern);
   }
@@ -58,7 +58,7 @@ cairo_status_t cairoon_test_apply_linear_pattern_combo(
     cairo_matrix_init(&matrix, 0.6, 0.1, -0.2, 0.9, -2.0, 1.0);
     cairo_pattern_set_extend(pattern, CAIRO_EXTEND_REPEAT);
     cairo_pattern_set_filter(pattern, CAIRO_FILTER_NEAREST);
-    cairo_pattern_set_dither(pattern, CAIRO_DITHER_FAST);
+    cairoon_test_pattern_set_dither(pattern, CAIRO_DITHER_FAST);
     cairo_pattern_set_matrix(pattern, &matrix);
     status = cairo_pattern_status(pattern);
   }
@@ -92,7 +92,7 @@ cairo_status_t cairoon_test_apply_radial_pattern_combo(
     cairo_matrix_init(&matrix, 0.8, -0.15, 0.25, 0.7, -1.5, 1.25);
     cairo_pattern_set_extend(pattern, CAIRO_EXTEND_REFLECT);
     cairo_pattern_set_filter(pattern, CAIRO_FILTER_NEAREST);
-    cairo_pattern_set_dither(pattern, CAIRO_DITHER_GOOD);
+    cairoon_test_pattern_set_dither(pattern, CAIRO_DITHER_GOOD);
     cairo_pattern_set_matrix(pattern, &matrix);
     status = cairo_pattern_status(pattern);
   }
@@ -129,7 +129,7 @@ cairo_status_t cairoon_test_apply_surface_pattern_pad_bilinear(
     cairo_matrix_init(&matrix, 0.55, 0.10, 0.20, 0.65, -1.25, -0.75);
     cairo_pattern_set_extend(pattern, CAIRO_EXTEND_PAD);
     cairo_pattern_set_filter(pattern, CAIRO_FILTER_BILINEAR);
-    cairo_pattern_set_dither(pattern, CAIRO_DITHER_DEFAULT);
+    cairoon_test_pattern_set_dither(pattern, CAIRO_DITHER_DEFAULT);
     cairo_pattern_set_matrix(pattern, &matrix);
     status = cairo_pattern_status(pattern);
   }
@@ -170,7 +170,7 @@ cairo_status_t cairoon_test_apply_surface_pattern_none_matrix(
     cairo_matrix_init(&matrix, 0.45, -0.05, 0.12, 0.50, -3.0, -2.0);
     cairo_pattern_set_extend(pattern, CAIRO_EXTEND_NONE);
     cairo_pattern_set_filter(pattern, CAIRO_FILTER_NEAREST);
-    cairo_pattern_set_dither(pattern, CAIRO_DITHER_NONE);
+    cairoon_test_pattern_set_dither(pattern, CAIRO_DITHER_NONE);
     cairo_pattern_set_matrix(pattern, &matrix);
     status = cairo_pattern_status(pattern);
   }
@@ -208,7 +208,7 @@ cairo_status_t cairoon_test_apply_linear_pattern_pad_bilinear(
     cairo_matrix_init(&matrix, 0.70, -0.10, 0.15, 0.85, -1.0, 2.0);
     cairo_pattern_set_extend(pattern, CAIRO_EXTEND_PAD);
     cairo_pattern_set_filter(pattern, CAIRO_FILTER_BILINEAR);
-    cairo_pattern_set_dither(pattern, CAIRO_DITHER_BEST);
+    cairoon_test_pattern_set_dither(pattern, CAIRO_DITHER_BEST);
     cairo_pattern_set_matrix(pattern, &matrix);
     status = cairo_pattern_status(pattern);
   }
@@ -243,7 +243,7 @@ cairo_status_t cairoon_test_apply_radial_pattern_repeat_bilinear(
     cairo_matrix_init(&matrix, 0.65, 0.18, -0.12, 0.75, -2.25, 0.40);
     cairo_pattern_set_extend(pattern, CAIRO_EXTEND_REPEAT);
     cairo_pattern_set_filter(pattern, CAIRO_FILTER_BILINEAR);
-    cairo_pattern_set_dither(pattern, CAIRO_DITHER_FAST);
+    cairoon_test_pattern_set_dither(pattern, CAIRO_DITHER_FAST);
     cairo_pattern_set_matrix(pattern, &matrix);
     status = cairo_pattern_status(pattern);
   }
@@ -280,7 +280,7 @@ cairo_status_t cairoon_test_apply_surface_pattern_repeat_bilinear(
     cairo_matrix_init(&matrix, 0.70, -0.18, 0.22, 0.58, -0.80, 1.35);
     cairo_pattern_set_extend(pattern, CAIRO_EXTEND_REPEAT);
     cairo_pattern_set_filter(pattern, CAIRO_FILTER_BILINEAR);
-    cairo_pattern_set_dither(pattern, CAIRO_DITHER_GOOD);
+    cairoon_test_pattern_set_dither(pattern, CAIRO_DITHER_GOOD);
     cairo_pattern_set_matrix(pattern, &matrix);
     status = cairo_pattern_status(pattern);
   }
@@ -319,7 +319,7 @@ cairo_status_t cairoon_test_apply_linear_pattern_none_good(
     cairo_matrix_init(&matrix, 0.85, 0.05, -0.18, 0.72, 2.5, -1.0);
     cairo_pattern_set_extend(pattern, CAIRO_EXTEND_NONE);
     cairo_pattern_set_filter(pattern, CAIRO_FILTER_GOOD);
-    cairo_pattern_set_dither(pattern, CAIRO_DITHER_NONE);
+    cairoon_test_pattern_set_dither(pattern, CAIRO_DITHER_NONE);
     cairo_pattern_set_matrix(pattern, &matrix);
     status = cairo_pattern_status(pattern);
   }
@@ -354,7 +354,7 @@ cairo_status_t cairoon_test_apply_radial_pattern_pad_good(
     cairo_matrix_init(&matrix, 0.78, -0.08, 0.16, 0.92, -0.60, 1.80);
     cairo_pattern_set_extend(pattern, CAIRO_EXTEND_PAD);
     cairo_pattern_set_filter(pattern, CAIRO_FILTER_GOOD);
-    cairo_pattern_set_dither(pattern, CAIRO_DITHER_DEFAULT);
+    cairoon_test_pattern_set_dither(pattern, CAIRO_DITHER_DEFAULT);
     cairo_pattern_set_matrix(pattern, &matrix);
     status = cairo_pattern_status(pattern);
   }

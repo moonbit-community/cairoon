@@ -265,6 +265,20 @@ fn expect_stream_output_markers(
 }
 
 ///|
+fn expect_stream_output_markers_since(
+  kind : Int,
+  chunks : Array[Bytes],
+  pdf_markers_since : Int,
+  markers : Array[String],
+) -> Unit raise {
+  if kind != 0 || @cairoon.CAIRO_VERSION >= pdf_markers_since {
+    expect_stream_output_markers(chunks, markers)
+  } else {
+    expect_stream_output_markers(chunks, ["%PDF-1.4", "%%EOF"])
+  }
+}
+
+///|
 fn expect_stream_output_absent(
   chunks : Array[Bytes],
   markers : Array[String],

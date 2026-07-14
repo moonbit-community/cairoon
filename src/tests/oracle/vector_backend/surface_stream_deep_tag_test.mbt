@@ -73,10 +73,14 @@ fn configure_stream_deep_tag_backend(
         @cairoon.PdfMetadataModDate,
         fixed_pdf_metadata_date(),
       )
-      surface.pdf_set_custom_metadata("Scenario", Some("deep-tag-tree"))
-      surface.pdf_set_custom_metadata("Depth", Some("part-table"))
-      surface.pdf_set_custom_metadata("Scratch", Some("drop-me"))
-      surface.pdf_set_custom_metadata("Scratch", None)
+      set_pdf_custom_metadata_if_supported(
+        surface,
+        "Scenario",
+        Some("deep-tag-tree"),
+      )
+      set_pdf_custom_metadata_if_supported(surface, "Depth", Some("part-table"))
+      set_pdf_custom_metadata_if_supported(surface, "Scratch", Some("drop-me"))
+      set_pdf_custom_metadata_if_supported(surface, "Scratch", None)
     }
     1 => {
       surface.ps_restrict_to_level(@cairoon.PsLevel3)
@@ -215,7 +219,7 @@ test "pdf deep tag tree stream output contains stable markers" {
   let chunks : Array[Bytes] = []
   let surface = make_stream_deep_tag_stream_surface(0, chunks)
   render_stream_deep_tag_scene(0, surface)
-  expect_stream_output_markers(chunks, [
+  expect_stream_output_markers_since(0, chunks, 11600, [
     "%PDF-1.4", "/Title (Cairoon Deep Tag Tree)", "/Author (cairoon deep tag author)",
     "/Subject (deep tag tree metadata)", "/Keywords (deep,tags,tree)", "/Creator (cairoon deep tag tree)",
     "/CreationDate (20260102030405+00'00')", "/ModDate (20260102030405+00'00')",
@@ -260,7 +264,7 @@ test "backend deep tag tree output contains stable markers" {
     render_stream_deep_tag_scene(kind, surface)
     match kind {
       0 =>
-        expect_vector_output(path, [
+        expect_backend_output_markers(kind, path, 11706, [
           "%PDF-1.4", "/Title (Cairoon Deep Tag Tree)", "/Scenario (deep-tag-tree)",
           "/Depth (part-table)", "/Count 2", "(deep-cover)", "(deep-table)", "/Title (deep cover)",
           "/Title (deep table)", "/URI (https://example.com/deep-tree)", "(deep-tree-dest)",
@@ -268,13 +272,13 @@ test "backend deep tag tree output contains stable markers" {
           "/S /Span", "/S /Figure", "/S /Table", "/S /TR", "/S /TH", "/S /TD", "%%EOF",
         ])
       1 =>
-        expect_vector_output(path, [
+        expect_backend_output_markers(kind, path, 11706, [
           "%!PS-Adobe-3.0", "%%LanguageLevel: 2", "%%Title: Cairoon Deep Tag Tree",
           "%%IncludeFeature: *MediaType Plain", "%%IncludeFeature: *PageSize A5",
           "%%Pages: 2", "%%Page: 1 1", "%%Page: 2 2", "%%EOF",
         ])
       2 =>
-        expect_vector_output(path, [
+        expect_backend_output_markers(kind, path, 11706, [
           "<?xml version=\"1.0\"", "<svg", "width=\"140pt\" height=\"130pt\"", "<pageSet>",
           "<page>", "</pageSet>", "</svg>",
         ])

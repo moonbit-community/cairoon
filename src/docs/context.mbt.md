@@ -249,12 +249,15 @@ portable contract:
 - `TAG_DEST` requires `name`, accepts optional `x` and `y`, and accepts the
   `internal` flag. Without coordinates, Cairo derives the destination from
   tagged drawing extents.
-- `TAG_CONTENT` requires `tag_name` and accepts `id`.
-- `TAG_CONTENT_REF` requires `ref`, which names a content `id`.
+- `TAG_CONTENT` requires Cairo 1.18, requires `tag_name`, and accepts `id`.
+- `TAG_CONTENT_REF` requires Cairo 1.18 and requires `ref`, which names a
+  content `id`.
 
 Document structure names such as `Document`, `Sect`, `H1`, and `P` use the
-same begin/end calls. Invalid attributes or nesting raise `CairoError` with
-`TagError`; Cairo may report a structural error only when a page is committed.
+same begin/end calls. Cairo 1.16 and newer map invalid attributes or nesting to
+`CairoError` with `TagError`; Cairo may report a structural error only when a
+page is committed. Cairo 1.15.x exposes the experimental tag API but does not
+enforce that later validation contract.
 
 ```mbt check
 ///|
@@ -264,10 +267,12 @@ test "context docs: PDF links destinations and content references" {
   ctx.select_font_face("sans")
   ctx.set_font_size(8.0)
 
-  ctx.tag_begin(@cairoon.TAG_CONTENT, "tag_name='H1' id='heading'")
-  ctx.move_to(8.0, 12.0)
-  ctx.show_text("Tagged heading")
-  ctx.tag_end(@cairoon.TAG_CONTENT)
+  if CAIRO_VERSION >= 11800 {
+    ctx.tag_begin(@cairoon.TAG_CONTENT, "tag_name='H1' id='heading'")
+    ctx.move_to(8.0, 12.0)
+    ctx.show_text("Tagged heading")
+    ctx.tag_end(@cairoon.TAG_CONTENT)
+  }
 
   ctx.tag_begin(
     @cairoon.TAG_LINK,
@@ -282,12 +287,14 @@ test "context docs: PDF links destinations and content references" {
   ctx.show_text("next page")
   ctx.tag_end(@cairoon.TAG_LINK)
 
-  ctx.tag_begin("Document", "")
-  ctx.tag_begin("H1", "")
-  ctx.tag_begin(@cairoon.TAG_CONTENT_REF, "ref='heading'")
-  ctx.tag_end(@cairoon.TAG_CONTENT_REF)
-  ctx.tag_end("H1")
-  ctx.tag_end("Document")
+  if CAIRO_VERSION >= 11800 {
+    ctx.tag_begin("Document", "")
+    ctx.tag_begin("H1", "")
+    ctx.tag_begin(@cairoon.TAG_CONTENT_REF, "ref='heading'")
+    ctx.tag_end(@cairoon.TAG_CONTENT_REF)
+    ctx.tag_end("H1")
+    ctx.tag_end("Document")
+  }
   surface.show_page()
 
   ctx.tag_begin(@cairoon.TAG_DEST, "name='chapter-two' x=8 y=16 internal")
@@ -298,14 +305,16 @@ test "context docs: PDF links destinations and content references" {
   surface.finish()
   debug_inspect(surface.status(), content="SurfaceFinished")
 
-  let invalid = Context::new(Surface::pdf(16.0, 16.0))
-  match
-    run_cairo(() => {
-      invalid.tag_begin(@cairoon.TAG_DEST, "x=1 y=2")
-      invalid.show_page()
-    }) {
-    Err(CairoError(TagError, _)) => ()
-    _ => @test.fail("expected TagError after committing an invalid tag")
+  if CAIRO_VERSION >= 11600 {
+    let invalid = Context::new(Surface::pdf(16.0, 16.0))
+    match
+      run_cairo(() => {
+        invalid.tag_begin(@cairoon.TAG_DEST, "x=1 y=2")
+        invalid.show_page()
+      }) {
+      Err(CairoError(TagError, _)) => ()
+      _ => @test.fail("expected TagError after committing an invalid tag")
+    }
   }
 }
 ```

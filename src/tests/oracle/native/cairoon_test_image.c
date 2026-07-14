@@ -327,7 +327,7 @@ static cairo_status_t cairoon_test_draw_argb32_scene(
     case CAIROON_TEST_IMAGE_HAIRLINE_STROKE:
       cairo_set_source_rgb(cr, 0.0, 0.0, 0.0);
       cairo_set_line_width(cr, 6.0);
-      cairo_set_hairline(cr, 1);
+      cairoon_test_context_set_hairline(cr, 1);
       cairo_move_to(cr, 1.5, height / 2.0);
       cairo_line_to(cr, width - 1.5, height / 2.0);
       cairo_stroke(cr);

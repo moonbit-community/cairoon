@@ -65,7 +65,7 @@ TAG_ATTRIBUTE_REQUIREMENTS = {
     ),
 }
 TAG_ATTRIBUTE_RUNTIME_TESTS = (
-    "tag attribute matrix invalid attributes map to TagError",
+    "tag attribute validation follows cairo version contract",
     "backend tag attribute matrix stream output matches file output after normalization",
     "backend tag attribute matrix file output matches direct cairo C oracle",
     "backend tag attribute matrix output contains stable markers",
@@ -134,6 +134,19 @@ def check_stream_scene_list(scenes: list[tuple[str, int]]) -> list[str]:
         parse_int_list(body)
         for body in re.findall(r"for\s+(?:\n\s*)?scene\s+in\s+\[([^\]]+)\]", text)
     ]
+    for variable, body in re.findall(
+        r"let\s+([A-Za-z_][A-Za-z0-9_]*)\s*=\s*\[([^\]]+)\]", text
+    ):
+        if not re.search(rf"for\s+scene\s+in\s+{re.escape(variable)}\b", text):
+            continue
+        ids = parse_int_list(body)
+        ids.update(
+            int(scene_id)
+            for scene_id in re.findall(
+                rf"\b{re.escape(variable)}\.push\((\d+)\)", text
+            )
+        )
+        lists.append(ids)
     backend_lists = [ids for ids in lists if scene_ids & ids]
     if not backend_lists:
         return [f"{STREAM_ORACLE}: no backend stream-oracle scene list found"]

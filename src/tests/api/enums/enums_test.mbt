@@ -150,8 +150,13 @@ test "format stride_for_width covers extended formats and invalid widths" {
   let rgba128f : @cairoon.Format = @cairoon.Rgba128F
   inspect(rgb16.stride_for_width(2), content="4")
   inspect(rgb30.stride_for_width(2), content="8")
-  inspect(rgb96f.stride_for_width(2), content="24")
-  inspect(rgba128f.stride_for_width(2), content="32")
+  if @cairoon.CAIRO_VERSION >= 11702 {
+    inspect(rgb96f.stride_for_width(2), content="24")
+    inspect(rgba128f.stride_for_width(2), content="32")
+  } else {
+    inspect(rgb96f.stride_for_width(2), content="-1")
+    inspect(rgba128f.stride_for_width(2), content="-1")
+  }
   inspect(argb32.stride_for_width(-1), content="-1")
 }
 

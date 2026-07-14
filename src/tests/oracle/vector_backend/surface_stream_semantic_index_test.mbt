@@ -68,9 +68,17 @@ fn configure_stream_semantic_index_backend(
         @cairoon.PdfMetadataModDate,
         fixed_pdf_metadata_date(),
       )
-      surface.pdf_set_custom_metadata("SemanticIndex", Some("toc-caption-note"))
-      surface.pdf_set_custom_metadata("Transient", Some("remove-me"))
-      surface.pdf_set_custom_metadata("Transient", None)
+      set_pdf_custom_metadata_if_supported(
+        surface,
+        "SemanticIndex",
+        Some("toc-caption-note"),
+      )
+      set_pdf_custom_metadata_if_supported(
+        surface,
+        "Transient",
+        Some("remove-me"),
+      )
+      set_pdf_custom_metadata_if_supported(surface, "Transient", None)
     }
     1 => {
       surface.ps_restrict_to_level(@cairoon.PsLevel3)
@@ -330,7 +338,7 @@ test "backend semantic index output contains stable markers" {
     render_stream_semantic_index_scene(kind, surface)
     match kind {
       0 => {
-        expect_vector_output(path, [
+        expect_backend_output_markers(kind, path, 11706, [
           "%PDF-1.4", "/Title (Cairoon Semantic Index)", "/Subject (toc quote caption tags)",
           "/Creator (cairoon semantic index)", "/CreationDate (20260102030405+00'00')",
           "/ModDate (20260102030405+00'00')", "/SemanticIndex (toc-caption-note)",
@@ -346,13 +354,13 @@ test "backend semantic index output contains stable markers" {
         expect_vector_output_absent(path, ["/Transient", "remove-me"])
       }
       1 =>
-        expect_vector_output(path, [
+        expect_backend_output_markers(kind, path, 11706, [
           "%!PS-Adobe-3.0", "%%LanguageLevel: 3", "%%Title: Cairoon Semantic Index",
           "%%IncludeFeature: *MediaType SemanticIndex", "%%IncludeFeature: *PageSize SemanticIndex",
           "%%Pages: 3", "%%Page: 1 1", "%%Page: 2 2", "%%Page: 3 3", "%%EOF",
         ])
       2 =>
-        expect_vector_output(path, [
+        expect_backend_output_markers(kind, path, 11706, [
           "<?xml version=\"1.0\"", "<svg", "width=\"132pt\" height=\"120pt\"", "<pageSet>",
           "<page>", "</pageSet>", "</svg>",
         ])

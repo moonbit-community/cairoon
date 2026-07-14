@@ -76,11 +76,19 @@ fn configure_stream_page_sequence_backend(
         @cairoon.PdfMetadataModDate,
         fixed_pdf_metadata_date(),
       )
-      surface.pdf_set_custom_metadata("Sequence", Some("copy-show-copy-show"))
-      surface.pdf_set_custom_metadata("Phase", Some("initial"))
-      surface.pdf_set_custom_metadata("Phase", Some("updated"))
-      surface.pdf_set_custom_metadata("Transient", Some("remove-me"))
-      surface.pdf_set_custom_metadata("Transient", None)
+      set_pdf_custom_metadata_if_supported(
+        surface,
+        "Sequence",
+        Some("copy-show-copy-show"),
+      )
+      set_pdf_custom_metadata_if_supported(surface, "Phase", Some("initial"))
+      set_pdf_custom_metadata_if_supported(surface, "Phase", Some("updated"))
+      set_pdf_custom_metadata_if_supported(
+        surface,
+        "Transient",
+        Some("remove-me"),
+      )
+      set_pdf_custom_metadata_if_supported(surface, "Transient", None)
     }
     1 => {
       surface.ps_restrict_to_level(@cairoon.PsLevel3)
@@ -284,7 +292,7 @@ test "backend page sequence output contains stable markers" {
     render_stream_page_sequence_scene(kind, surface)
     match kind {
       0 => {
-        expect_vector_output(path, [
+        expect_backend_output_markers(kind, path, 11706, [
           "%PDF-1.4", "/Title (Cairoon Page Sequence)", "/Author (cairoon sequence author)",
           "/Subject (page sequence metadata)", "/Keywords (sequence,pages,metadata)",
           "/Creator (cairoon page sequence)", "/CreationDate (20260102030405+00'00')",
@@ -300,14 +308,14 @@ test "backend page sequence output contains stable markers" {
         expect_vector_output_absent(path, ["/Phase (initial)", "remove-me"])
       }
       1 =>
-        expect_vector_output(path, [
+        expect_backend_output_markers(kind, path, 11706, [
           "%!PS-Adobe-3.0", "%%LanguageLevel: 2", "%%Title: Cairoon Page Sequence",
           "%%IncludeFeature: *MediaType Plain", "%%IncludeFeature: *PageSize Letter",
           "%%Pages: 4", "%%Page: 1 1", "%%Page: 2 2", "%%Page: 3 3", "%%Page: 4 4",
           "%%EOF",
         ])
       2 =>
-        expect_vector_output(path, [
+        expect_backend_output_markers(kind, path, 11706, [
           "<?xml version=\"1.0\"", "<svg", "width=\"132px\" height=\"96px\"", "<pageSet>",
           "<page>", "</pageSet>", "</svg>",
         ])

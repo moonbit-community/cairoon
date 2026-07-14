@@ -101,24 +101,38 @@ static int cairoon_test_skip_digits_after_prefix(
 static int cairoon_test_files_equal_svg_normalized(
   const CairoonTestFile *left,
   const CairoonTestFile *right) {
+  static const char *generated_id_prefixes[] = {
+    "source-",
+    "surface",
+    "image"
+  };
   size_t left_pos = 0;
   size_t right_pos = 0;
   while (left_pos < left->len && right_pos < right->len) {
-    size_t left_after_source = left_pos;
-    size_t right_after_source = right_pos;
-    if (
-      cairoon_test_skip_digits_after_prefix(
-        left->data,
-        left->len,
-        &left_after_source,
-        "source-") &&
-      cairoon_test_skip_digits_after_prefix(
-        right->data,
-        right->len,
-        &right_after_source,
-        "source-")) {
-      left_pos = left_after_source;
-      right_pos = right_after_source;
+    int skipped_generated_id = 0;
+    for (size_t i = 0;
+         i < sizeof(generated_id_prefixes) / sizeof(generated_id_prefixes[0]);
+         i++) {
+      size_t left_after_id = left_pos;
+      size_t right_after_id = right_pos;
+      if (
+        cairoon_test_skip_digits_after_prefix(
+          left->data,
+          left->len,
+          &left_after_id,
+          generated_id_prefixes[i]) &&
+        cairoon_test_skip_digits_after_prefix(
+          right->data,
+          right->len,
+          &right_after_id,
+          generated_id_prefixes[i])) {
+        left_pos = left_after_id;
+        right_pos = right_after_id;
+        skipped_generated_id = 1;
+        break;
+      }
+    }
+    if (skipped_generated_id) {
       continue;
     }
     if (left->data[left_pos] != right->data[right_pos]) {

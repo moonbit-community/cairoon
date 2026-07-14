@@ -13,6 +13,36 @@
 #include <cairo-svg.h>
 #endif
 
+#if CAIRO_VERSION < CAIRO_VERSION_ENCODE(1, 18, 0)
+#define CAIRO_DITHER_NONE 0
+#define CAIRO_DITHER_DEFAULT 1
+#define CAIRO_DITHER_FAST 2
+#define CAIRO_DITHER_GOOD 3
+#define CAIRO_DITHER_BEST 4
+#endif
+
+static inline void cairoon_test_pattern_set_dither(
+  cairo_pattern_t *pattern,
+  int32_t dither) {
+#if CAIRO_VERSION >= CAIRO_VERSION_ENCODE(1, 18, 0)
+  cairo_pattern_set_dither(pattern, (cairo_dither_t)dither);
+#else
+  (void)pattern;
+  (void)dither;
+#endif
+}
+
+static inline void cairoon_test_context_set_hairline(
+  cairo_t *cr,
+  int32_t enabled) {
+#if CAIRO_VERSION >= CAIRO_VERSION_ENCODE(1, 18, 0)
+  cairo_set_hairline(cr, enabled);
+#else
+  (void)cr;
+  (void)enabled;
+#endif
+}
+
 cairo_status_t cairoon_test_apply_linear_gradient(
   cairo_t *cr,
   double width,

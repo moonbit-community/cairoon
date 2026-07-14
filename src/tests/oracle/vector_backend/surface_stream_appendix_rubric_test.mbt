@@ -80,10 +80,10 @@ fn configure_stream_appendix_rubric_backend(
         @cairoon.PdfMetadataModDate,
         fixed_pdf_metadata_date(),
       )
-      surface.pdf_set_custom_metadata("Rubric", Some("draft"))
-      surface.pdf_set_custom_metadata("Rubric", Some("final"))
-      surface.pdf_set_custom_metadata("Obsolete", Some("drop-me"))
-      surface.pdf_set_custom_metadata("Obsolete", None)
+      set_pdf_custom_metadata_if_supported(surface, "Rubric", Some("draft"))
+      set_pdf_custom_metadata_if_supported(surface, "Rubric", Some("final"))
+      set_pdf_custom_metadata_if_supported(surface, "Obsolete", Some("drop-me"))
+      set_pdf_custom_metadata_if_supported(surface, "Obsolete", None)
     }
     1 => {
       surface.ps_restrict_to_level(@cairoon.PsLevel3)
@@ -336,7 +336,7 @@ test "backend appendix rubric output contains stable markers" {
     render_stream_appendix_rubric_scene(kind, surface)
     match kind {
       0 => {
-        expect_vector_output(path, [
+        expect_backend_output_markers(kind, path, 11706, [
           "%PDF-1.4", "/Title (Cairoon Appendix Rubric)", "/Author (cairoon backend oracle)",
           "/Subject (final appendix rubric)", "/Keywords (appendix,rubric,code,formula)",
           "/Creator (cairoon appendix rubric)", "/CreationDate (20260102030405+00'00')",
@@ -355,13 +355,13 @@ test "backend appendix rubric output contains stable markers" {
         ])
       }
       1 =>
-        expect_vector_output(path, [
+        expect_backend_output_markers(kind, path, 11706, [
           "%!PS-Adobe-3.0", "%%LanguageLevel: 3", "%%Title: Cairoon Appendix Rubric",
           "%%IncludeFeature: *MediaType AppendixRubric", "%%IncludeFeature: *PageSize AppendixRubric",
           "%%Pages: 3", "%%Page: 1 1", "%%Page: 2 2", "%%Page: 3 3", "%%EOF",
         ])
       2 =>
-        expect_vector_output(path, [
+        expect_backend_output_markers(kind, path, 11706, [
           "<?xml version=\"1.0\"", "<svg", "width=\"128pt\" height=\"104pt\"", "<pageSet>",
           "<page>", "</pageSet>", "</svg>",
         ])

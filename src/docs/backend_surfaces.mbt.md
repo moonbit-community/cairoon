@@ -84,7 +84,8 @@ PDF-specific methods include version restriction, metadata, custom metadata,
 page labels, thumbnails, and outlines. Prefer typed `PDFVersion`,
 `PDFMetadata`, and `PDFOutlineFlagSet` values in new MoonBit code; explicit
 `*_raw` helpers mirror pycairo's C-int parsing for ported code that already
-stores backend enum or flag values as integers.
+stores backend enum or flag values as integers. Custom metadata requires Cairo
+1.17.6; older supported versions raise `CairoError(InvalidStatus, _)`.
 
 ```mbt check
 ///|
@@ -101,8 +102,18 @@ test "backend docs: PDF metadata page labels and outlines" {
   surface.pdf_set_size(30.0, 30.0)
   surface.pdf_set_metadata(PdfMetadataTitle, "cairoon backend docs")
   surface.pdf_set_metadata_raw(4, "cairoon backend docs raw creator")
-  surface.pdf_set_custom_metadata("cairoon-key", Some("cairoon-value"))
-  surface.pdf_set_custom_metadata("cairoon-key", None)
+  if CAIRO_VERSION >= 11706 {
+    surface.pdf_set_custom_metadata("cairoon-key", Some("cairoon-value"))
+    surface.pdf_set_custom_metadata("cairoon-key", None)
+  } else {
+    match
+      run_cairo(() => {
+        surface.pdf_set_custom_metadata("cairoon-key", Some("cairoon-value"))
+      }) {
+      Err(CairoError(InvalidStatus, _)) => ()
+      _ => @test.fail("expected custom metadata to require Cairo 1.17.6")
+    }
+  }
   surface.pdf_set_page_label("page one")
   surface.pdf_set_thumbnail_size(2, 2)
 

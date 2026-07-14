@@ -45,6 +45,23 @@ test "png stream writer status maps to cairo IO error" {
 }
 
 ///|
+test "png stream writer stops user callbacks after first error" {
+  let surface = make_png_surface()
+  let calls = Ref(0)
+  let result = @cairoon.run_cairo(() => {
+    surface.write_to_png_stream(fn(_) {
+      calls.val += 1
+      @cairoon.WriteError
+    })
+  })
+  match result {
+    Err(@cairoon.CairoIOError(@cairoon.WriteError, _)) => ()
+    _ => @test.fail("expected WriteError from PNG stream writer")
+  }
+  inspect(calls.val, content="1")
+}
+
+///|
 test "png stream writer invalid status maps to write error" {
   expect_png_stream_write_error(@cairoon.LastStatus)
 }

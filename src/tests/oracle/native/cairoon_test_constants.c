@@ -202,10 +202,18 @@ moonbit_bytes_t cairoon_compile_string_constant(int32_t constant) {
       value = CAIRO_TAG_LINK;
       break;
     case 15:
+#if CAIRO_VERSION >= CAIRO_VERSION_ENCODE(1, 18, 0)
       value = CAIRO_TAG_CONTENT;
+#else
+      value = "cairo.content";
+#endif
       break;
     case 16:
+#if CAIRO_VERSION >= CAIRO_VERSION_ENCODE(1, 18, 0)
       value = CAIRO_TAG_CONTENT_REF;
+#else
+      value = "cairo.content_ref";
+#endif
       break;
     default:
       break;

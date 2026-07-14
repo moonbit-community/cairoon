@@ -11,6 +11,26 @@ extern "C" fn test_argb32_scene_oracle_ffi(
 ) -> Bytes = "cairoon_test_argb32_scene_oracle"
 
 ///|
+fn set_image_oracle_dither_if_supported(
+  pattern : @cairoon.Pattern,
+  dither : @cairoon.Dither,
+) -> Unit raise @cairoon.CairoError {
+  if @cairoon.CAIRO_VERSION >= 11800 {
+    pattern.set_dither(dither)
+  }
+}
+
+///|
+fn set_image_oracle_hairline_if_supported(
+  ctx : @cairoon.Context,
+  enabled : Bool,
+) -> Unit raise @cairoon.CairoError {
+  if @cairoon.CAIRO_VERSION >= 11800 {
+    ctx.set_hairline(enabled)
+  }
+}
+
+///|
 fn paint_image_oracle_quad_surface(
   surface : @cairoon.Surface,
 ) -> Unit raise @cairoon.CairoError {

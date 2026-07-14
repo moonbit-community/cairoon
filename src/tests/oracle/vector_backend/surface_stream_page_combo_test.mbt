@@ -64,7 +64,11 @@ fn configure_stream_page_combo_backend(
         @cairoon.PdfMetadataModDate,
         fixed_pdf_metadata_date(),
       )
-      surface.pdf_set_custom_metadata("Combo", Some("surface-page-tags"))
+      set_pdf_custom_metadata_if_supported(
+        surface,
+        "Combo",
+        Some("surface-page-tags"),
+      )
       surface.pdf_set_page_label("page-copy-cover")
       let _ = surface.pdf_add_outline_with_flags(
         @cairoon.PDF_OUTLINE_ROOT,
@@ -216,7 +220,7 @@ test "backend surface page combo output contains stable markers" {
     render_stream_page_combo_scene(kind, surface)
     match kind {
       0 =>
-        expect_vector_output(path, [
+        expect_backend_output_markers(kind, path, 11706, [
           "%PDF-1.4", "/Title (Cairoon Surface Page Combo)", "/Creator (cairoon surface page combo)",
           "/CreationDate (20260102030405+00'00')", "/ModDate (20260102030405+00'00')",
           "/Combo (surface-page-tags)", "/Count 3", "/PageLabels", "(page-copy-cover)",
@@ -227,13 +231,13 @@ test "backend surface page combo output contains stable markers" {
           "/S /Sect", "/S /P", "/S /Span", "%%EOF",
         ])
       1 =>
-        expect_vector_output(path, [
+        expect_backend_output_markers(kind, path, 11706, [
           "%!PS-Adobe-3.0", "%%LanguageLevel: 3", "%%Title: Cairoon Surface Page Combo",
           "%%IncludeFeature: *MediaColor White", "%%IncludeFeature: *PageSize Legal",
           "%%Pages: 3", "%%Page: 1 1", "%%Page: 2 2", "%%Page: 3 3", "%%EOF",
         ])
       2 =>
-        expect_vector_output(path, [
+        expect_backend_output_markers(kind, path, 11706, [
           "<?xml version=\"1.0\"", "<svg", "width=\"100px\" height=\"100px\"", "<pageSet>",
           "<page>", "</pageSet>", "</svg>",
         ])

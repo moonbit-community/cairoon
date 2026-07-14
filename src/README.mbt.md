@@ -125,8 +125,15 @@ test {
   ctx.scale(2.0, 3.0)
   ctx.set_dash([2.0, 1.0], offset=0.5)
   inspect(ctx.get_dash_count(), content="2")
-  ctx.set_hairline(true)
-  inspect(ctx.get_hairline(), content="true")
+  if CAIRO_VERSION >= 11800 {
+    ctx.set_hairline(true)
+    inspect(ctx.get_hairline(), content="true")
+  } else {
+    match run_cairo(() => ctx.set_hairline(true)) {
+      Err(CairoError(InvalidStatus, _)) => ()
+      _ => fail("expected hairline API to require Cairo 1.18")
+    }
+  }
   debug_inspect(ctx.user_to_device(1.0, 1.0), content="(7, 10)")
   ctx.identity_matrix()
   ctx.move_to(1.0, 1.0)
@@ -366,9 +373,16 @@ test {
   let gradient = Pattern::linear(0.0, 0.0, 10.0, 0.0)
   gradient.add_color_stop_rgb(0.0, 1.0, 0.0, 0.0)
   gradient.add_color_stop_rgba(1.0, 0.0, 0.0, 1.0, 0.5)
-  gradient.set_dither(DitherGood)
   inspect(gradient.get_color_stop_count(), content="2")
-  debug_inspect(gradient.get_dither(), content="DitherGood")
+  if CAIRO_VERSION >= 11800 {
+    gradient.set_dither(DitherGood)
+    debug_inspect(gradient.get_dither(), content="DitherGood")
+  } else {
+    match run_cairo(() => gradient.set_dither(DitherGood)) {
+      Err(CairoError(InvalidStatus, _)) => ()
+      _ => fail("expected dither API to require Cairo 1.18")
+    }
+  }
   debug_inspect(gradient.get_linear_points(), content="(0, 0, 10, 0)")
   let surface_pattern = Pattern::for_surface(Surface::image(Argb32, 2, 3))
   inspect(surface_pattern.get_surface().get_height(), content="3")
@@ -446,11 +460,18 @@ test {
   let options = FontOptions::new()
   options.set_antialias(AntialiasGray)
   options.set_hint_style(HintStyleSlight)
-  options.set_variations(Some("wght=200"))
   debug_inspect(options.get_antialias(), content="AntialiasGray")
-  match options.get_variations() {
-    Some(variations) => inspect(variations, content="wght=200")
-    None => fail("expected font variations")
+  if CAIRO_VERSION >= 11600 {
+    options.set_variations(Some("wght=200"))
+    match options.get_variations() {
+      Some(variations) => inspect(variations, content="wght=200")
+      None => fail("expected font variations")
+    }
+  } else {
+    match run_cairo(() => options.set_variations(Some("wght=200"))) {
+      Err(CairoError(InvalidStatus, _)) => ()
+      _ => fail("expected variations API to require Cairo 1.16")
+    }
   }
   let copied = options.copy()
   inspect(options.equal(copied), content="true")

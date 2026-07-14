@@ -68,12 +68,17 @@ fn configure_stream_outline_sequence_backend(
         @cairoon.PdfMetadataModDate,
         fixed_pdf_metadata_date(),
       )
-      surface.pdf_set_custom_metadata(
+      set_pdf_custom_metadata_if_supported(
+        surface,
         "OutlineSeq",
         Some("context-surface-page-ops"),
       )
-      surface.pdf_set_custom_metadata("OutlineScratch", Some("drop"))
-      surface.pdf_set_custom_metadata("OutlineScratch", None)
+      set_pdf_custom_metadata_if_supported(
+        surface,
+        "OutlineScratch",
+        Some("drop"),
+      )
+      set_pdf_custom_metadata_if_supported(surface, "OutlineScratch", None)
     }
     1 => {
       surface.ps_restrict_to_level(@cairoon.PsLevel3)
@@ -291,7 +296,7 @@ test "backend outline sequence output contains stable markers" {
     render_stream_outline_sequence_scene(kind, surface)
     match kind {
       0 => {
-        expect_vector_output(path, [
+        expect_backend_output_markers(kind, path, 11706, [
           "%PDF-1.4", "/Title (Cairoon Outline Sequence)", "/Subject (outline sequence page operations)",
           "/Creator (cairoon outline sequence)", "/CreationDate (20260102030405+00'00')",
           "/ModDate (20260102030405+00'00')", "/OutlineSeq (context-surface-page-ops)",
@@ -306,13 +311,13 @@ test "backend outline sequence output contains stable markers" {
         expect_vector_output_absent(path, ["/OutlineScratch", "drop"])
       }
       1 =>
-        expect_vector_output(path, [
+        expect_backend_output_markers(kind, path, 11706, [
           "%!PS-Adobe-3.0", "%%LanguageLevel: 3", "%%Title: Cairoon Outline Sequence",
           "%%IncludeFeature: *MediaType OutlineSeq", "%%IncludeFeature: *PageSize OutlineSeq",
           "%%Pages: 3", "%%Page: 1 1", "%%Page: 2 2", "%%Page: 3 3", "%%EOF",
         ])
       2 =>
-        expect_vector_output(path, [
+        expect_backend_output_markers(kind, path, 11706, [
           "<?xml version=\"1.0\"", "<svg", "width=\"112pt\" height=\"88pt\"", "<pageSet>",
           "<page>", "</pageSet>", "</svg>",
         ])

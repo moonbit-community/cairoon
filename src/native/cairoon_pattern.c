@@ -148,21 +148,34 @@ cairo_status_t cairoon_pattern_set_filter_raw(CairoonPattern *pattern, int32_t f
 }
 
 MOONBIT_FFI_EXPORT
-int32_t cairoon_pattern_get_dither_raw(CairoonPattern *pattern) {
-  if (cairoon_pattern_status(pattern) != CAIRO_STATUS_SUCCESS) {
-    return CAIRO_DITHER_DEFAULT;
+int32_t cairoon_pattern_get_dither_raw(
+  CairoonPattern *pattern,
+  cairo_status_t *status_out) {
+  *status_out = cairoon_pattern_status(pattern);
+  if (*status_out != CAIRO_STATUS_SUCCESS) {
+    return 0;
   }
+#if CAIRO_VERSION >= CAIRO_VERSION_ENCODE(1, 18, 0)
   return (int32_t)cairo_pattern_get_dither(pattern->ptr);
+#else
+  *status_out = CAIRO_STATUS_INVALID_STATUS;
+  return 0;
+#endif
 }
 
 MOONBIT_FFI_EXPORT
-cairo_status_t cairoon_pattern_set_dither(CairoonPattern *pattern, cairo_dither_t dither) {
+cairo_status_t cairoon_pattern_set_dither(CairoonPattern *pattern, int32_t dither) {
   cairo_status_t status = cairoon_pattern_status(pattern);
   if (status != CAIRO_STATUS_SUCCESS) {
     return status;
   }
-  cairo_pattern_set_dither(pattern->ptr, dither);
+#if CAIRO_VERSION >= CAIRO_VERSION_ENCODE(1, 18, 0)
+  cairo_pattern_set_dither(pattern->ptr, (cairo_dither_t)dither);
   return cairo_pattern_status(pattern->ptr);
+#else
+  (void)dither;
+  return CAIRO_STATUS_INVALID_STATUS;
+#endif
 }
 
 MOONBIT_FFI_EXPORT
@@ -171,8 +184,13 @@ cairo_status_t cairoon_pattern_set_dither_raw(CairoonPattern *pattern, int32_t d
   if (status != CAIRO_STATUS_SUCCESS) {
     return status;
   }
+#if CAIRO_VERSION >= CAIRO_VERSION_ENCODE(1, 18, 0)
   cairo_pattern_set_dither(pattern->ptr, (cairo_dither_t)dither);
   return cairo_pattern_status(pattern->ptr);
+#else
+  (void)dither;
+  return CAIRO_STATUS_INVALID_STATUS;
+#endif
 }
 
 MOONBIT_FFI_EXPORT

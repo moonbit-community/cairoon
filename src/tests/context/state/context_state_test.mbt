@@ -11,6 +11,16 @@ fn assert_state_close(actual : Double, expected : Double) -> Unit raise {
 }
 
 ///|
+fn expect_hairline_unavailable(
+  result : Result[Unit, @cairoon.CairoError],
+) -> Unit raise {
+  match result {
+    Err(@cairoon.CairoError(@cairoon.InvalidStatus, _)) => ()
+    _ => @test.fail("expected hairline API to require Cairo 1.18")
+  }
+}
+
+///|
 test "context default drawing state mirrors cairo" {
   let ctx = @cairoon.Context::new(context_state_surface())
   debug_inspect(ctx.get_antialias(), content="AntialiasDefault")
@@ -18,7 +28,16 @@ test "context default drawing state mirrors cairo" {
   debug_inspect(ctx.get_line_cap(), content="LineCapButt")
   debug_inspect(ctx.get_line_join(), content="LineJoinMiter")
   debug_inspect(ctx.get_operator(), content="OperatorOver")
-  inspect(ctx.get_hairline(), content="false")
+  if @cairoon.CAIRO_VERSION >= 11800 {
+    inspect(ctx.get_hairline(), content="false")
+  } else {
+    expect_hairline_unavailable(
+      @cairoon.run_cairo(() => {
+        let _ = ctx.get_hairline()
+        ()
+      }),
+    )
+  }
   assert_state_close(ctx.get_line_width(), 2.0)
   assert_state_close(ctx.get_tolerance(), 0.1)
   assert_state_close(ctx.get_miter_limit(), 10.0)
@@ -35,16 +54,22 @@ test "context drawing state setters round trip" {
   ctx.set_line_width(4.5)
   ctx.set_tolerance(0.25)
   ctx.set_miter_limit(2.5)
-  ctx.set_hairline(true)
   debug_inspect(ctx.get_antialias(), content="AntialiasSubpixel")
   debug_inspect(ctx.get_fill_rule(), content="FillEvenOdd")
   debug_inspect(ctx.get_line_cap(), content="LineCapSquare")
   debug_inspect(ctx.get_line_join(), content="LineJoinBevel")
   debug_inspect(ctx.get_operator(), content="OperatorSource")
-  inspect(ctx.get_hairline(), content="true")
-  assert_state_close(ctx.get_line_width(), 0.0)
-  ctx.set_hairline(false)
-  inspect(ctx.get_hairline(), content="false")
+  if @cairoon.CAIRO_VERSION >= 11800 {
+    ctx.set_hairline(true)
+    inspect(ctx.get_hairline(), content="true")
+    assert_state_close(ctx.get_line_width(), 0.0)
+    ctx.set_hairline(false)
+    inspect(ctx.get_hairline(), content="false")
+  } else {
+    expect_hairline_unavailable(
+      @cairoon.run_cairo(() => ctx.set_hairline(true)),
+    )
+  }
   assert_state_close(ctx.get_line_width(), 4.5)
   assert_state_close(ctx.get_tolerance(), 0.25)
   assert_state_close(ctx.get_miter_limit(), 2.5)
@@ -223,20 +248,32 @@ test "context save restore preserves drawing state" {
   let ctx = @cairoon.Context::new(context_state_surface())
   ctx.set_line_width(3.0)
   ctx.set_operator(@cairoon.OperatorOver)
-  ctx.set_hairline(true)
-  ctx.save()
-  ctx.set_hairline(false)
-  ctx.set_line_width(7.0)
-  ctx.set_operator(@cairoon.OperatorClear)
-  assert_state_close(ctx.get_line_width(), 7.0)
-  debug_inspect(ctx.get_operator(), content="OperatorClear")
-  inspect(ctx.get_hairline(), content="false")
-  ctx.restore()
-  debug_inspect(ctx.get_operator(), content="OperatorOver")
-  inspect(ctx.get_hairline(), content="true")
-  assert_state_close(ctx.get_line_width(), 0.0)
-  ctx.set_hairline(false)
-  assert_state_close(ctx.get_line_width(), 3.0)
+  if @cairoon.CAIRO_VERSION >= 11800 {
+    ctx.set_hairline(true)
+    ctx.save()
+    ctx.set_hairline(false)
+    ctx.set_line_width(7.0)
+    ctx.set_operator(@cairoon.OperatorClear)
+    assert_state_close(ctx.get_line_width(), 7.0)
+    debug_inspect(ctx.get_operator(), content="OperatorClear")
+    inspect(ctx.get_hairline(), content="false")
+    ctx.restore()
+    debug_inspect(ctx.get_operator(), content="OperatorOver")
+    inspect(ctx.get_hairline(), content="true")
+    assert_state_close(ctx.get_line_width(), 0.0)
+    ctx.set_hairline(false)
+    assert_state_close(ctx.get_line_width(), 3.0)
+  } else {
+    expect_hairline_unavailable(
+      @cairoon.run_cairo(() => ctx.set_hairline(true)),
+    )
+    ctx.save()
+    ctx.set_line_width(7.0)
+    ctx.set_operator(@cairoon.OperatorClear)
+    ctx.restore()
+    debug_inspect(ctx.get_operator(), content="OperatorOver")
+    assert_state_close(ctx.get_line_width(), 3.0)
+  }
 }
 
 ///|

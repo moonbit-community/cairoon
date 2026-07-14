@@ -32,7 +32,9 @@ test "pycairo solid pattern default state fixture" {
   let pattern = @cairoon.Pattern::solid_rgb(1.0, 2.0, 4.0)
   debug_inspect(pattern.get_extend(), content="Pad")
   debug_inspect(pattern.get_filter(), content="Good")
-  debug_inspect(pattern.get_dither(), content="DitherDefault")
+  if @cairoon.CAIRO_VERSION >= 11800 {
+    debug_inspect(pattern.get_dither(), content="DitherDefault")
+  }
   debug_inspect(
     pattern.get_matrix(),
     content="{ xx: 1, yx: 0, xy: 0, yy: 1, x0: 0, y0: 0 }",
@@ -46,7 +48,9 @@ test "pycairo surface pattern default state fixture" {
   let pattern = @cairoon.Pattern::for_surface(source)
   debug_inspect(pattern.get_extend(), content="ExtendNone")
   debug_inspect(pattern.get_filter(), content="Good")
-  debug_inspect(pattern.get_dither(), content="DitherDefault")
+  if @cairoon.CAIRO_VERSION >= 11800 {
+    debug_inspect(pattern.get_dither(), content="DitherDefault")
+  }
   debug_inspect(
     pattern.get_matrix(),
     content="{ xx: 1, yx: 0, xy: 0, yy: 1, x0: 0, y0: 0 }",
@@ -88,7 +92,9 @@ test "pycairo solid pattern setter round trip fixture" {
   pattern.set_matrix(@cairoon.Matrix::new())
   pattern.set_extend(@cairoon.Repeat)
   pattern.set_filter(@cairoon.Nearest)
-  pattern.set_dither(@cairoon.DitherBest)
+  if @cairoon.CAIRO_VERSION >= 11800 {
+    pattern.set_dither(@cairoon.DitherBest)
+  }
 
   debug_inspect(
     pattern.get_matrix(),
@@ -96,7 +102,14 @@ test "pycairo solid pattern setter round trip fixture" {
   )
   debug_inspect(pattern.get_extend(), content="Repeat")
   debug_inspect(pattern.get_filter(), content="Nearest")
-  debug_inspect(pattern.get_dither(), content="DitherBest")
+  if @cairoon.CAIRO_VERSION >= 11800 {
+    debug_inspect(pattern.get_dither(), content="DitherBest")
+  } else {
+    match @cairoon.run_cairo(() => pattern.set_dither(@cairoon.DitherBest)) {
+      Err(@cairoon.CairoError(@cairoon.InvalidStatus, _)) => ()
+      _ => @test.fail("expected dither API to require Cairo 1.18")
+    }
+  }
 }
 
 ///|

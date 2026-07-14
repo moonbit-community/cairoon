@@ -64,8 +64,18 @@ test "pdf surface no-output constructor exposes page and document APIs" {
   surface.pdf_restrict_to_version(@cairoon.PdfVersion1_4)
   surface.pdf_set_size(12.0, 14.0)
   surface.pdf_set_metadata(@cairoon.PdfMetadataTitle, "Cairoon PDF")
-  surface.pdf_set_custom_metadata("ISBN", Some("978-0123456789"))
-  surface.pdf_set_custom_metadata("ISBN", None)
+  if @cairoon.CAIRO_VERSION >= 11706 {
+    surface.pdf_set_custom_metadata("ISBN", Some("978-0123456789"))
+    surface.pdf_set_custom_metadata("ISBN", None)
+  } else {
+    match
+      @cairoon.run_cairo(() => {
+        surface.pdf_set_custom_metadata("ISBN", Some("978-0123456789"))
+      }) {
+      Err(@cairoon.CairoError(@cairoon.InvalidStatus, _)) => ()
+      _ => @test.fail("expected custom metadata to require Cairo 1.17.6")
+    }
+  }
   surface.pdf_set_page_label("page one")
   surface.pdf_set_thumbnail_size(4, 4)
   let outline_kinds : Array[@cairoon.PDFOutlineFlags] = [
@@ -189,14 +199,23 @@ test "pdf surface validates metadata outline and path strings" {
     reserved_surface.pdf_set_custom_metadata("Author", Some("reserved"))
   })
   inspect(reserved_name is Err(_), content="true")
-  match reserved_name {
-    Err(@cairoon.CairoInvalidArgument(status, message)) => {
-      inspect(status == @cairoon.InvalidString, content="true")
-      inspect(message == @cairoon.InvalidString.message(), content="true")
-      inspect(message.length() > 0, content="true")
+  if @cairoon.CAIRO_VERSION >= 11706 {
+    match reserved_name {
+      Err(@cairoon.CairoInvalidArgument(status, message)) => {
+        inspect(status == @cairoon.InvalidString, content="true")
+        inspect(message == @cairoon.InvalidString.message(), content="true")
+        inspect(message.length() > 0, content="true")
+      }
+      _ =>
+        @test.fail(
+          "expected InvalidString for reserved PDF custom metadata name",
+        )
     }
-    _ =>
-      @test.fail("expected InvalidString for reserved PDF custom metadata name")
+  } else {
+    match reserved_name {
+      Err(@cairoon.CairoError(@cairoon.InvalidStatus, _)) => ()
+      _ => @test.fail("expected custom metadata to require Cairo 1.17.6")
+    }
   }
 
   let outline = @cairoon.run_cairo(() => {

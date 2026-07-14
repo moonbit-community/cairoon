@@ -196,113 +196,142 @@ fn expect_tag_attribute_error(
   })
   match result {
     Err(@cairoon.CairoError(@cairoon.TagError, _)) => ()
-    _ => @test.fail("expected TagError")
+    _ => @test.fail("expected TagError for \{tag_name}: \{attributes}")
   }
 }
 
 ///|
-test "tag attribute matrix invalid attributes map to TagError" {
-  expect_tag_attribute_error(
-    @cairoon.TAG_LINK,
-    "uri='https://example.com' rect=[1 2 3]",
-  )
-  expect_tag_attribute_error(
-    @cairoon.TAG_LINK,
-    "uri='https://example.com' page=2",
-  )
-  expect_tag_attribute_error(@cairoon.TAG_DEST, "x=1 y=2")
-  expect_tag_attribute_error(@cairoon.TAG_CONTENT, "id='missing-tag-name'")
-  expect_tag_attribute_error(@cairoon.TAG_CONTENT_REF, "")
-  expect_tag_attribute_error("UnknownStructure", "")
+test "tag attribute validation follows cairo version contract" {
+  if @cairoon.CAIRO_VERSION >= 11600 {
+    expect_tag_attribute_error(
+      @cairoon.TAG_LINK,
+      "uri='https://example.com' rect=[1 2 3]",
+    )
+    expect_tag_attribute_error(
+      @cairoon.TAG_LINK,
+      "uri='https://example.com' page=2",
+    )
+    expect_tag_attribute_error(@cairoon.TAG_DEST, "x=1 y=2")
+    if @cairoon.CAIRO_VERSION >= 11800 {
+      expect_tag_attribute_error(@cairoon.TAG_CONTENT, "id='missing-tag-name'")
+      expect_tag_attribute_error(@cairoon.TAG_CONTENT_REF, "")
+      expect_tag_attribute_error("UnknownStructure", "")
 
-  let nested = @cairoon.Context::new(@cairoon.Surface::pdf(32.0, 32.0))
-  let nested_result = @cairoon.run_cairo(() => {
-    nested.tag_begin(@cairoon.TAG_CONTENT, "tag_name='P' id='nested-content'")
-    nested.tag_begin("Span", "")
-    nested.show_page()
-  })
-  match nested_result {
-    Err(@cairoon.CairoError(@cairoon.TagError, _)) => ()
-    _ => @test.fail("expected nested content TagError")
+      let nested = @cairoon.Context::new(@cairoon.Surface::pdf(32.0, 32.0))
+      let nested_result = @cairoon.run_cairo(() => {
+        nested.tag_begin(
+          @cairoon.TAG_CONTENT,
+          "tag_name='P' id='nested-content'",
+        )
+        nested.tag_begin("Span", "")
+        nested.show_page()
+      })
+      match nested_result {
+        Err(@cairoon.CairoError(@cairoon.TagError, _)) => ()
+        _ => @test.fail("expected nested content TagError")
+      }
+    }
+  } else {
+    let legacy = @cairoon.Context::new(@cairoon.Surface::pdf(32.0, 32.0))
+    let legacy_result = @cairoon.run_cairo(() => {
+      legacy.tag_begin(
+        @cairoon.TAG_LINK,
+        "uri='https://example.com' rect=[1 2 3]",
+      )
+      legacy.show_page()
+    })
+    match legacy_result {
+      Err(@cairoon.CairoError(@cairoon.TagError, _)) =>
+        @test.fail("Cairo 1.15.x unexpectedly enforced stable tag validation")
+      _ => ()
+    }
   }
 }
 
 ///|
 test "backend tag attribute matrix stream output matches file output after normalization" {
-  for kind in 0..<3 {
-    let ext = stream_equivalence_extension(kind)
-    let path = "/tmp/cairoon_stream_tag_attributes_file_\{kind}.\{ext}"
-    let file_surface = make_stream_tag_attribute_file_surface(kind, path)
-    render_stream_tag_attribute_scene(file_surface)
+  if @cairoon.CAIRO_VERSION >= 11800 {
+    for kind in 0..<3 {
+      let ext = stream_equivalence_extension(kind)
+      let path = "/tmp/cairoon_stream_tag_attributes_file_\{kind}.\{ext}"
+      let file_surface = make_stream_tag_attribute_file_surface(kind, path)
+      render_stream_tag_attribute_scene(file_surface)
 
-    let chunks : Array[Bytes] = []
-    let stream_surface = make_stream_tag_attribute_stream_surface(kind, chunks)
-    render_stream_tag_attribute_scene(stream_surface)
-    inspect(chunks.length() > 0, content="true")
-    inspect(
-      test_vector_file_equals_bytes_ffi(
-        kind,
-        checked_path_bytes(path),
-        stream_equivalence_chunks_to_bytes(chunks),
-      ),
-      content="true",
-    )
+      let chunks : Array[Bytes] = []
+      let stream_surface = make_stream_tag_attribute_stream_surface(
+        kind, chunks,
+      )
+      render_stream_tag_attribute_scene(stream_surface)
+      inspect(chunks.length() > 0, content="true")
+      inspect(
+        test_vector_file_equals_bytes_ffi(
+          kind,
+          checked_path_bytes(path),
+          stream_equivalence_chunks_to_bytes(chunks),
+        ),
+        content="true",
+      )
+    }
   }
 }
 
 ///|
 test "backend tag attribute matrix file output matches direct cairo C oracle" {
-  for kind in 0..<3 {
-    let ext = stream_equivalence_extension(kind)
-    let path = "/tmp/cairoon_stream_tag_attributes_file_oracle_\{kind}.\{ext}"
-    let oracle_path = "/tmp/cairoon_stream_tag_attributes_direct_oracle_\{kind}.\{ext}"
-    let surface = make_stream_tag_attribute_file_surface(kind, path)
-    render_stream_tag_attribute_scene(surface)
-    @cairoon.check_status(
-      test_render_vector_scene_oracle_ffi(
-        kind,
-        66,
-        checked_path_bytes(oracle_path),
-      ),
-    )
-    inspect(
-      test_vector_files_equal_ffi(
-        kind,
-        checked_path_bytes(path),
-        checked_path_bytes(oracle_path),
-      ),
-      content="true",
-    )
+  if @cairoon.CAIRO_VERSION >= 11800 {
+    for kind in 0..<3 {
+      let ext = stream_equivalence_extension(kind)
+      let path = "/tmp/cairoon_stream_tag_attributes_file_oracle_\{kind}.\{ext}"
+      let oracle_path = "/tmp/cairoon_stream_tag_attributes_direct_oracle_\{kind}.\{ext}"
+      let surface = make_stream_tag_attribute_file_surface(kind, path)
+      render_stream_tag_attribute_scene(surface)
+      @cairoon.check_status(
+        test_render_vector_scene_oracle_ffi(
+          kind,
+          66,
+          checked_path_bytes(oracle_path),
+        ),
+      )
+      inspect(
+        test_vector_files_equal_ffi(
+          kind,
+          checked_path_bytes(path),
+          checked_path_bytes(oracle_path),
+        ),
+        content="true",
+      )
+    }
   }
 }
 
 ///|
 test "backend tag attribute matrix output contains stable markers" {
-  for kind in 0..<3 {
-    let ext = stream_equivalence_extension(kind)
-    let path = "/tmp/cairoon_stream_tag_attributes_markers_\{kind}.\{ext}"
-    let surface = make_stream_tag_attribute_file_surface(kind, path)
-    render_stream_tag_attribute_scene(surface)
-    match kind {
-      0 =>
-        expect_vector_output(path, [
-          "%PDF-1.4", "/Title (Cairoon Tag Attribute Matrix)", "/Creator (cairoon tag attribute matrix)",
-          "/Count 2", "/Annots [", "/Subtype /Link", "/S /URI", "/URI (https://example.com/tag-attributes)",
-          "/S /GoToR", "/F (external.pdf)", "/StructTreeRoot", "/S /Document", "/S /H1",
-          "/S /Sect", "/S /P", "%%EOF",
-        ])
-      1 =>
-        expect_vector_output(path, [
-          "%!PS-Adobe-3.0", "%%LanguageLevel: 2", "%%Title: Cairoon Tag Attribute Matrix",
-          "%%IncludeFeature: *MediaType TagAttributes", "%%Pages: 2", "%%Page: 1 1",
-          "%%Page: 2 2", "%%EOF",
-        ])
-      2 =>
-        expect_vector_output(path, [
-          "<?xml version=\"1.0\"", "<svg", "width=\"144px\" height=\"120px\"", "<pageSet>",
-          "<page>", "</pageSet>", "</svg>",
-        ])
-      _ => ()
+  if @cairoon.CAIRO_VERSION >= 11800 {
+    for kind in 0..<3 {
+      let ext = stream_equivalence_extension(kind)
+      let path = "/tmp/cairoon_stream_tag_attributes_markers_\{kind}.\{ext}"
+      let surface = make_stream_tag_attribute_file_surface(kind, path)
+      render_stream_tag_attribute_scene(surface)
+      match kind {
+        0 =>
+          expect_backend_output_markers(kind, path, 11706, [
+            "%PDF-1.4", "/Title (Cairoon Tag Attribute Matrix)", "/Creator (cairoon tag attribute matrix)",
+            "/Count 2", "/Annots [", "/Subtype /Link", "/S /URI", "/URI (https://example.com/tag-attributes)",
+            "/S /GoToR", "/F (external.pdf)", "/StructTreeRoot", "/S /Document",
+            "/S /H1", "/S /Sect", "/S /P", "%%EOF",
+          ])
+        1 =>
+          expect_backend_output_markers(kind, path, 11706, [
+            "%!PS-Adobe-3.0", "%%LanguageLevel: 2", "%%Title: Cairoon Tag Attribute Matrix",
+            "%%IncludeFeature: *MediaType TagAttributes", "%%Pages: 2", "%%Page: 1 1",
+            "%%Page: 2 2", "%%EOF",
+          ])
+        2 =>
+          expect_backend_output_markers(kind, path, 11706, [
+            "<?xml version=\"1.0\"", "<svg", "width=\"144px\" height=\"120px\"",
+            "<pageSet>", "<page>", "</pageSet>", "</svg>",
+          ])
+        _ => ()
+      }
     }
   }
 }
@@ -314,16 +343,20 @@ test "ps svg backend tag attribute matrix omits pdf tag metadata" {
     "/S /Document", "/S /H1", "/S /Sect", "/S /P", "https://example.com/tag-attributes",
     "external.pdf", "tag-attribute-target", "tag-attribute-heading", "<a ",
   ]
-  for kind in 1..<3 {
-    let ext = stream_equivalence_extension(kind)
-    let path = "/tmp/cairoon_stream_tag_attributes_absent_\{kind}.\{ext}"
-    let surface = make_stream_tag_attribute_file_surface(kind, path)
-    render_stream_tag_attribute_scene(surface)
-    expect_vector_output_absent(path, forbidden)
+  if @cairoon.CAIRO_VERSION >= 11800 {
+    for kind in 1..<3 {
+      let ext = stream_equivalence_extension(kind)
+      let path = "/tmp/cairoon_stream_tag_attributes_absent_\{kind}.\{ext}"
+      let surface = make_stream_tag_attribute_file_surface(kind, path)
+      render_stream_tag_attribute_scene(surface)
+      expect_vector_output_absent(path, forbidden)
 
-    let chunks : Array[Bytes] = []
-    let stream_surface = make_stream_tag_attribute_stream_surface(kind, chunks)
-    render_stream_tag_attribute_scene(stream_surface)
-    expect_stream_output_absent(chunks, forbidden)
+      let chunks : Array[Bytes] = []
+      let stream_surface = make_stream_tag_attribute_stream_surface(
+        kind, chunks,
+      )
+      render_stream_tag_attribute_scene(stream_surface)
+      expect_stream_output_absent(chunks, forbidden)
+    }
   }
 }

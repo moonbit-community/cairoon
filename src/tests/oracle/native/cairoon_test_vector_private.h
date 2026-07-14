@@ -89,6 +89,19 @@ enum {
   CAIROON_TEST_VECTOR_BACKEND_TAG_ATTRIBUTES = 66
 };
 
+static inline void cairoon_test_pdf_surface_set_custom_metadata(
+  cairo_surface_t *surface,
+  const char *name,
+  const char *value) {
+#if CAIRO_HAS_PDF_SURFACE && CAIRO_VERSION >= CAIRO_VERSION_ENCODE(1, 17, 6)
+  cairo_pdf_surface_set_custom_metadata(surface, name, value);
+#else
+  (void)surface;
+  (void)name;
+  (void)value;
+#endif
+}
+
 cairo_status_t cairoon_test_draw_vector_scene(
   cairo_t *cr,
   int32_t scene,

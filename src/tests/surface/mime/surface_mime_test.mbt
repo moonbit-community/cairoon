@@ -213,6 +213,7 @@ test "surface reports unsupported mime type" {
 
 ///|
 fn inspect_mime_support(
+  backend : String,
   surface : @cairoon.Surface,
   jpeg~ : Bool,
   png~ : Bool,
@@ -234,10 +235,14 @@ fn inspect_mime_support(
   inspect(surface.supports_mime_type(@cairoon.MIME_TYPE_PNG), content="\{png}")
   inspect(surface.supports_mime_type(@cairoon.MIME_TYPE_JP2), content="\{jp2}")
   inspect(surface.supports_mime_type(@cairoon.MIME_TYPE_URI), content="\{uri}")
-  inspect(
-    surface.supports_mime_type(@cairoon.MIME_TYPE_UNIQUE_ID),
-    content="\{unique_id}",
+  let actual_unique_id = surface.supports_mime_type(
+    @cairoon.MIME_TYPE_UNIQUE_ID,
   )
+  if actual_unique_id != unique_id {
+    @test.fail(
+      "unexpected \{backend} unique-id MIME support: expected \{unique_id}, got \{actual_unique_id}",
+    )
+  }
   inspect(
     surface.supports_mime_type(@cairoon.MIME_TYPE_CCITT_FAX),
     content="\{ccitt}",
@@ -269,6 +274,7 @@ fn inspect_mime_support(
 ///|
 test "backend surfaces report cairo mime support matrix" {
   inspect_mime_support(
+    "image",
     @cairoon.Surface::image(@cairoon.Argb32, 1, 1),
     jpeg=false,
     png=false,
@@ -285,6 +291,7 @@ test "backend surfaces report cairo mime support matrix" {
   )
 
   inspect_mime_support(
+    "pdf",
     @cairoon.Surface::pdf(1.0, 1.0),
     jpeg=true,
     png=false,
@@ -301,22 +308,24 @@ test "backend surfaces report cairo mime support matrix" {
   )
 
   inspect_mime_support(
+    "ps",
     @cairoon.Surface::ps(1.0, 1.0),
     jpeg=true,
     png=false,
     jp2=false,
     uri=false,
-    unique_id=true,
+    unique_id=@cairoon.CAIRO_VERSION >= 11600,
     ccitt=true,
     ccitt_params=true,
-    eps=true,
-    eps_params=true,
+    eps=@cairoon.CAIRO_VERSION >= 11600,
+    eps_params=@cairoon.CAIRO_VERSION >= 11600,
     jbig2=false,
     jbig2_global=false,
     jbig2_global_id=false,
   )
 
   inspect_mime_support(
+    "svg",
     @cairoon.Surface::svg(1.0, 1.0),
     jpeg=true,
     png=true,

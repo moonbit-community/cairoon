@@ -72,12 +72,17 @@ fn configure_stream_bookmark_lattice_backend(
         @cairoon.PdfMetadataModDate,
         fixed_pdf_metadata_date(),
       )
-      surface.pdf_set_custom_metadata(
+      set_pdf_custom_metadata_if_supported(
+        surface,
         "BookmarkLattice",
         Some("outline-dest-copy"),
       )
-      surface.pdf_set_custom_metadata("Ephemeral", Some("remove-me"))
-      surface.pdf_set_custom_metadata("Ephemeral", None)
+      set_pdf_custom_metadata_if_supported(
+        surface,
+        "Ephemeral",
+        Some("remove-me"),
+      )
+      set_pdf_custom_metadata_if_supported(surface, "Ephemeral", None)
     }
     1 => {
       surface.ps_restrict_to_level(@cairoon.PsLevel3)
@@ -323,7 +328,7 @@ test "backend bookmark lattice output contains stable markers" {
     render_stream_bookmark_lattice_scene(kind, surface)
     match kind {
       0 => {
-        expect_vector_output(path, [
+        expect_backend_output_markers(kind, path, 11706, [
           "%PDF-1.4", "/Title (Cairoon Bookmark Lattice)", "/Author (cairoon backend oracle)",
           "/Creator (cairoon bookmark lattice)", "/Keywords (bookmark,lattice,tag,page)",
           "/CreationDate (20260102030405+00'00')", "/ModDate (20260102030405+00'00')",
@@ -339,13 +344,13 @@ test "backend bookmark lattice output contains stable markers" {
         expect_vector_output_absent(path, ["/Ephemeral", "remove-me"])
       }
       1 =>
-        expect_vector_output(path, [
+        expect_backend_output_markers(kind, path, 11706, [
           "%!PS-Adobe-3.0", "%%LanguageLevel: 3", "%%Title: Cairoon Bookmark Lattice",
           "%%IncludeFeature: *MediaType BookmarkLattice", "%%IncludeFeature: *PageSize BookmarkLattice",
           "%%Pages: 3", "%%Page: 1 1", "%%Page: 2 2", "%%Page: 3 3", "%%EOF",
         ])
       2 =>
-        expect_vector_output(path, [
+        expect_backend_output_markers(kind, path, 11706, [
           "<?xml version=\"1.0\"", "<svg", "width=\"128pt\" height=\"118pt\"", "<pageSet>",
           "<page>", "</pageSet>", "</svg>",
         ])

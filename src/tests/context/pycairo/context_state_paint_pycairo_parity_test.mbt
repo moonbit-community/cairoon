@@ -27,9 +27,16 @@ test "context drawing state setters mirror pycairo enum fixtures" {
 ///|
 test "context hairline mirrors pycairo fixture" {
   let ctx = @cairoon.Context::new(pycairo_context_surface(42, 42))
-  inspect(ctx.get_hairline(), content="false")
-  ctx.set_hairline(true)
-  inspect(ctx.get_hairline(), content="true")
+  if @cairoon.CAIRO_VERSION >= 11800 {
+    inspect(ctx.get_hairline(), content="false")
+    ctx.set_hairline(true)
+    inspect(ctx.get_hairline(), content="true")
+  } else {
+    match @cairoon.run_cairo(() => ctx.set_hairline(true)) {
+      Err(@cairoon.CairoError(@cairoon.InvalidStatus, _)) => ()
+      _ => @test.fail("expected hairline API to require Cairo 1.18")
+    }
+  }
 }
 
 ///|

@@ -17,20 +17,30 @@ field merge behavior. Raw C-int enum methods are compatibility APIs for
 pycairo's C glue; prefer typed methods unless porting code that intentionally
 passes or observes raw Cairo enum values.
 
+Variation strings require Cairo 1.16. Color mode, palette selection, and custom
+palette colors require Cairo 1.18. On older supported Cairo versions these
+methods raise `CairoError(InvalidStatus, _)` without mutating the options object.
+
 ```mbt check
 ///|
 test "font docs: font options state copy and merge" {
   let options = FontOptions::new()
   debug_inspect(options.get_antialias(), content="AntialiasDefault")
-  inspect(options.get_variations() is None, content="true")
+  if CAIRO_VERSION >= 11600 {
+    inspect(options.get_variations() is None, content="true")
+  }
 
   options.set_antialias(AntialiasGray)
   options.set_subpixel_order(SubpixelVrgb)
   options.set_hint_style(HintStyleSlight)
   options.set_hint_metrics(HintMetricsOff)
-  options.set_color_mode(ColorModeColor)
-  options.set_color_palette(42U)
-  options.set_variations(Some("wght=200,wdth=140.5"))
+  if CAIRO_VERSION >= 11800 {
+    options.set_color_mode(ColorModeColor)
+    options.set_color_palette(42U)
+  }
+  if CAIRO_VERSION >= 11600 {
+    options.set_variations(Some("wght=200,wdth=140.5"))
+  }
 
   let copied = options.copy()
   inspect(options.equal(copied), content="true")
@@ -38,11 +48,25 @@ test "font docs: font options state copy and merge" {
   debug_inspect(copied.get_subpixel_order(), content="SubpixelVrgb")
   debug_inspect(copied.get_hint_style(), content="HintStyleSlight")
   debug_inspect(copied.get_hint_metrics(), content="HintMetricsOff")
-  debug_inspect(copied.get_color_mode(), content="ColorModeColor")
-  inspect(copied.get_color_palette().reinterpret_as_int(), content="42")
-  match copied.get_variations() {
-    Some(variations) => inspect(variations, content="wght=200,wdth=140.5")
-    None => fail("expected variations")
+  if CAIRO_VERSION >= 11800 {
+    debug_inspect(copied.get_color_mode(), content="ColorModeColor")
+    inspect(copied.get_color_palette().reinterpret_as_int(), content="42")
+  } else {
+    match run_cairo(() => copied.set_color_mode(ColorModeColor)) {
+      Err(CairoError(InvalidStatus, _)) => ()
+      _ => @test.fail("expected color options to require Cairo 1.18")
+    }
+  }
+  if CAIRO_VERSION >= 11600 {
+    match copied.get_variations() {
+      Some(variations) => inspect(variations, content="wght=200,wdth=140.5")
+      None => fail("expected variations")
+    }
+  } else {
+    match run_cairo(() => copied.set_variations(Some("wght=200"))) {
+      Err(CairoError(InvalidStatus, _)) => ()
+      _ => @test.fail("expected variations to require Cairo 1.16")
+    }
   }
 
   copied.set_hint_style_raw(42)
@@ -68,12 +92,23 @@ palette indexes.
 ///|
 test "font docs: color palette custom colors" {
   let options = FontOptions::new()
-  inspect(options.get_color_palette() == COLOR_PALETTE_DEFAULT, content="true")
-  options.set_custom_palette_color(7U, 0.25, 0.5, 0.75, 1.0)
-  debug_inspect(
-    options.get_custom_palette_color(7U),
-    content="(0.25, 0.5, 0.75, 1)",
-  )
+  if CAIRO_VERSION >= 11800 {
+    inspect(
+      options.get_color_palette() == COLOR_PALETTE_DEFAULT,
+      content="true",
+    )
+    options.set_custom_palette_color(7U, 0.25, 0.5, 0.75, 1.0)
+    debug_inspect(
+      options.get_custom_palette_color(7U),
+      content="(0.25, 0.5, 0.75, 1)",
+    )
+  } else {
+    match
+      run_cairo(() => options.set_custom_palette_color(7U, 0.25, 0.5, 0.75, 1.0)) {
+      Err(CairoError(InvalidStatus, _)) => ()
+      _ => @test.fail("expected color palettes to require Cairo 1.18")
+    }
+  }
 }
 ```
 
@@ -227,13 +262,20 @@ Font APIs surface invalid strings and invalid indexes through checked
 ///|
 test "font docs: invalid font inputs are checked errors" {
   let options = FontOptions::new()
-  match
-    run_cairo(() => {
-      let _ = options.get_custom_palette_color(99U)
-      ()
-    }) {
-    Err(CairoInvalidArgument(InvalidIndex, _)) => ()
-    _ => @test.fail("expected InvalidIndex")
+  let palette_result = run_cairo(() => {
+    let _ = options.get_custom_palette_color(99U)
+    ()
+  })
+  if CAIRO_VERSION >= 11800 {
+    match palette_result {
+      Err(CairoInvalidArgument(InvalidIndex, _)) => ()
+      _ => @test.fail("expected InvalidIndex")
+    }
+  } else {
+    match palette_result {
+      Err(CairoError(InvalidStatus, _)) => ()
+      _ => @test.fail("expected color palettes to require Cairo 1.18")
+    }
   }
 
   match run_cairo(() => FontFace::toy("bad\u{0}family")) {

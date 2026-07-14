@@ -222,9 +222,10 @@ fn check_no_embedded_nul(bytes : Bytes) -> Unit raise CairoError {
 pub fn FontOptions::get_variations(
   self : FontOptions,
 ) -> String? raise CairoError {
-  check_status(font_options_status_ffi(self))
   let has_variations = Ref(0)
-  let bytes = font_options_get_variations_ffi(self, has_variations)
+  let status = Ref(Success)
+  let bytes = font_options_get_variations_ffi(self, has_variations, status)
+  check_status(status.val)
   if has_variations.val == 0 {
     None
   } else {
@@ -272,8 +273,10 @@ fn color_mode_from_raw(raw : Int) -> ColorMode raise CairoError {
 pub fn FontOptions::get_color_mode_raw(
   self : FontOptions,
 ) -> Int raise CairoError {
-  check_status(font_options_status_ffi(self))
-  font_options_get_color_mode_raw_ffi(self)
+  let status = Ref(Success)
+  let color_mode = font_options_get_color_mode_raw_ffi(self, status)
+  check_status(status.val)
+  color_mode
 }
 
 ///|
@@ -296,8 +299,10 @@ pub fn FontOptions::set_color_mode_raw(
 pub fn FontOptions::get_color_palette(
   self : FontOptions,
 ) -> UInt raise CairoError {
-  check_status(font_options_status_ffi(self))
-  font_options_get_color_palette_ffi(self)
+  let status = Ref(Success)
+  let palette = font_options_get_color_palette_ffi(self, status)
+  check_status(status.val)
+  palette
 }
 
 ///|

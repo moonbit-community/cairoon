@@ -85,7 +85,7 @@ cairo_status_t cairoon_test_render_pdf_jpeg_mime_oracle(
 MOONBIT_FFI_EXPORT
 cairo_status_t cairoon_test_render_pdf_thumbnail_oracle(
   moonbit_bytes_t filename) {
-#if CAIRO_HAS_PDF_SURFACE && CAIRO_VERSION >= CAIRO_VERSION_ENCODE(1, 16, 0)
+#if CAIRO_HAS_PDF_SURFACE && CAIRO_VERSION >= CAIRO_VERSION_ENCODE(1, 15, 10)
   if (filename == NULL) {
     return CAIRO_STATUS_INVALID_STRING;
   }
@@ -143,7 +143,7 @@ cairo_status_t cairoon_test_render_pdf_thumbnail_oracle(
 
 cairo_status_t cairoon_test_render_pdf_document_features(
   const char *name) {
-#if CAIRO_HAS_PDF_SURFACE && CAIRO_VERSION >= CAIRO_VERSION_ENCODE(1, 17, 6)
+#if CAIRO_HAS_PDF_SURFACE && CAIRO_VERSION >= CAIRO_VERSION_ENCODE(1, 15, 10)
   cairo_surface_t *surface = cairo_pdf_surface_create(name, 100.0, 100.0);
   cairo_status_t status = cairo_surface_status(surface);
 
@@ -165,7 +165,7 @@ cairo_status_t cairoon_test_render_pdf_document_features(
       surface,
       CAIRO_PDF_METADATA_MOD_DATE,
       "2026-01-02T03:04:05+00:00");
-    cairo_pdf_surface_set_custom_metadata(
+    cairoon_test_pdf_surface_set_custom_metadata(
       surface,
       "ISBN",
       "978-0123456789");
@@ -255,7 +255,7 @@ cairo_status_t cairoon_test_render_pdf_document_features(
 
 cairo_status_t cairoon_test_render_pdf_text_document_features(
   const char *name) {
-#if CAIRO_HAS_PDF_SURFACE && CAIRO_VERSION >= CAIRO_VERSION_ENCODE(1, 17, 6)
+#if CAIRO_HAS_PDF_SURFACE && CAIRO_VERSION >= CAIRO_VERSION_ENCODE(1, 15, 10)
   cairo_surface_t *surface = cairo_pdf_surface_create(name, 100.0, 100.0);
   cairo_status_t status = cairo_surface_status(surface);
 
@@ -277,7 +277,7 @@ cairo_status_t cairoon_test_render_pdf_text_document_features(
       surface,
       CAIRO_PDF_METADATA_MOD_DATE,
       "2026-01-02T03:04:05+00:00");
-    cairo_pdf_surface_set_custom_metadata(
+    cairoon_test_pdf_surface_set_custom_metadata(
       surface,
       "ISBN",
       "978-0123456789");
@@ -358,7 +358,7 @@ cairo_status_t cairoon_test_render_pdf_text_document_features(
 
 cairo_status_t cairoon_test_render_pdf_page_operation_document_features(
   const char *name) {
-#if CAIRO_HAS_PDF_SURFACE && CAIRO_VERSION >= CAIRO_VERSION_ENCODE(1, 17, 6)
+#if CAIRO_HAS_PDF_SURFACE && CAIRO_VERSION >= CAIRO_VERSION_ENCODE(1, 15, 10)
   cairo_surface_t *surface = cairo_pdf_surface_create(name, 100.0, 100.0);
   cairo_status_t status = cairo_surface_status(surface);
 
@@ -380,7 +380,7 @@ cairo_status_t cairoon_test_render_pdf_page_operation_document_features(
       surface,
       CAIRO_PDF_METADATA_MOD_DATE,
       "2026-01-02T03:04:05+00:00");
-    cairo_pdf_surface_set_custom_metadata(surface, "Case", "copy-show");
+    cairoon_test_pdf_surface_set_custom_metadata(surface, "Case", "copy-show");
     cairo_pdf_surface_set_page_label(surface, "copy-intro");
     cairo_pdf_surface_add_outline(
       surface,

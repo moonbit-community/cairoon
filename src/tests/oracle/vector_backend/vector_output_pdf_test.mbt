@@ -39,12 +39,12 @@ test "pdf output contains metadata and custom metadata markers" {
     @cairoon.PdfMetadataModDate,
     fixed_pdf_metadata_date(),
   )
-  surface.pdf_set_custom_metadata("ISBN", Some("978-0123456789"))
+  set_pdf_custom_metadata_if_supported(surface, "ISBN", Some("978-0123456789"))
   let ctx = @cairoon.Context::new(surface)
   ctx.set_source_rgb(0.0, 0.0, 1.0)
   ctx.paint()
   surface.finish()
-  expect_vector_output(path, [
+  expect_backend_output_markers(0, path, 11706, [
     "%PDF-1.4", "/Title (Cairoon Title)", "/Author (Cairoon Author)", "/Subject (Cairoon Subject)",
     "/Keywords (moonbit cairo ffi)", "/Creator (cairoon metadata test)", "/CreationDate (20260102030405+00'00')",
     "/ModDate (20260102030405+00'00')", "/ISBN (978-0123456789)", "%%EOF",
@@ -147,7 +147,7 @@ test "pdf output preserves metadata outlines labels and tags across pages" {
   let (intro_id, details_id) = render_pdf_text_document_feature_scene(path)
   inspect(intro_id > @cairoon.PDF_OUTLINE_ROOT, content="true")
   inspect(details_id > intro_id, content="true")
-  expect_vector_output(path, [
+  expect_backend_output_markers(0, path, 11706, [
     "%PDF-1.4", "/Title (Cairoon Combined)", "/Creator (cairoon combined test)",
     "/CreationDate (20260102030405+00'00')", "/ModDate (20260102030405+00'00')",
     "/ISBN (978-0123456789)", "/Count 2", "/PageLabels", "(intro)", "(details)",
@@ -163,7 +163,7 @@ test "pdf output preserves metadata outlines labels and tags across pages" {
 test "pdf direct document feature output contains combined markers" {
   let path = "/tmp/cairoon_vector_pdf_direct_document_markers.pdf"
   render_pdf_document_feature_scene(path)
-  expect_vector_output(path, [
+  expect_backend_output_markers(0, path, 11706, [
     "%PDF-1.4", "/Title (Cairoon Combined Oracle)", "/Creator (cairoon-combined-oracle)",
     "/CreationDate (20260102030405+00'00')", "/ModDate (20260102030405+00'00')",
     "/ISBN (978-0123456789)", "/Count 2", "/Type /Page % 1", "/Type /Page % 2", "/PageLabels",
@@ -182,7 +182,7 @@ test "pdf page operation document feature output contains retained markers" {
   )
   inspect(intro_id > @cairoon.PDF_OUTLINE_ROOT, content="true")
   inspect(details_id > intro_id, content="true")
-  expect_vector_output(path, [
+  expect_backend_output_markers(0, path, 11706, [
     "%PDF-1.4", "/Title (Cairoon Page Ops)", "/Creator (cairoon page ops test)",
     "/CreationDate (20260102030405+00'00')", "/ModDate (20260102030405+00'00')",
     "/Case (copy-show)", "/Count 2", "/PageLabels", "(copy-intro)", "(copy-details)",
@@ -205,7 +205,7 @@ test "pdf link tag output contains annotation markers" {
   ctx.show_text("example link")
   ctx.tag_end(@cairoon.TAG_LINK)
   surface.finish()
-  expect_vector_output(path, [
+  expect_backend_output_markers(0, path, 11600, [
     "%PDF-1.4", "/Annots [", "/Subtype /Link", "/S /URI", "/URI (https://example.com/)",
     "/S /Link", "/StructTreeRoot", "%%EOF",
   ])
@@ -228,7 +228,7 @@ test "pdf destination tag output contains named destination markers" {
   ctx.show_text("destination")
   ctx.tag_end(@cairoon.TAG_DEST)
   surface.finish()
-  expect_vector_output(path, [
+  expect_backend_output_markers(0, path, 11600, [
     "%PDF-1.4", "/Annots [", "/Subtype /Link", "/Dest", "/Names", "/Dests", "(cairoon-dest)",
     "/StructTreeRoot", "%%EOF",
   ])
@@ -265,21 +265,21 @@ test "pdf document structure tags output structure tree markers" {
 test "pdf rectangle tag oracle scenes contain tag markers" {
   let uri_path = "/tmp/cairoon_vector_pdf_rectangle_uri_tag_markers.pdf"
   render_vector_oracle_scene(0, 15, uri_path)
-  expect_vector_output(uri_path, [
+  expect_backend_output_markers(0, uri_path, 11600, [
     "%PDF-1.4", "/Annots [", "/Subtype /Link", "/S /URI", "/URI (https://example.com/direct)",
     "/S /Link", "/StructTreeRoot", "%%EOF",
   ])
 
   let dest_path = "/tmp/cairoon_vector_pdf_rectangle_dest_tag_markers.pdf"
   render_vector_oracle_scene(0, 16, dest_path)
-  expect_vector_output(dest_path, [
+  expect_backend_output_markers(0, dest_path, 11600, [
     "%PDF-1.4", "/Annots [", "/Subtype /Link", "/Dest", "/Names", "/Dests", "(cairoon-direct-dest)",
     "/StructTreeRoot", "%%EOF",
   ])
 
   let structure_path = "/tmp/cairoon_vector_pdf_rectangle_structure_tag_markers.pdf"
   render_vector_oracle_scene(0, 17, structure_path)
-  expect_vector_output(structure_path, [
+  expect_backend_output_markers(0, structure_path, 11600, [
     "%PDF-1.4", "/StructTreeRoot", "/MarkInfo << /Marked true >>", "/Type /StructElem",
     "/S /Document", "/S /Sect", "/S /H1", "/S /P", "/StructParents 0", "%%EOF",
   ])
@@ -289,21 +289,21 @@ test "pdf rectangle tag oracle scenes contain tag markers" {
 test "pdf text tag oracle scenes contain tag markers" {
   let uri_path = "/tmp/cairoon_vector_pdf_text_uri_tag_markers.pdf"
   render_vector_oracle_scene(0, 22, uri_path)
-  expect_vector_output(uri_path, [
+  expect_backend_output_markers(0, uri_path, 11600, [
     "%PDF-1.4", "/Annots [", "/Subtype /Link", "/S /URI", "/URI (https://example.com/)",
     "/S /Link", "/StructTreeRoot", "%%EOF",
   ])
 
   let dest_path = "/tmp/cairoon_vector_pdf_text_dest_tag_markers.pdf"
   render_vector_oracle_scene(0, 23, dest_path)
-  expect_vector_output(dest_path, [
+  expect_backend_output_markers(0, dest_path, 11600, [
     "%PDF-1.4", "/Annots [", "/Subtype /Link", "/Dest", "/Names", "/Dests", "(cairoon-dest)",
     "/StructTreeRoot", "%%EOF",
   ])
 
   let structure_path = "/tmp/cairoon_vector_pdf_text_structure_tag_markers.pdf"
   render_vector_oracle_scene(0, 24, structure_path)
-  expect_vector_output(structure_path, [
+  expect_backend_output_markers(0, structure_path, 11600, [
     "%PDF-1.4", "/StructTreeRoot", "/MarkInfo << /Marked true >>", "/Type /StructElem",
     "/S /Document", "/S /Sect", "/S /H1", "/S /P", "/StructParents 0", "%%EOF",
   ])
@@ -325,7 +325,7 @@ test "pdf tagged multi-page text output contains structure markers" {
 test "pdf mixed vector tag text output contains combined tag markers" {
   let path = "/tmp/cairoon_vector_pdf_mixed_tag_text_markers.pdf"
   render_vector_oracle_scene(0, 26, path)
-  expect_vector_output(path, [
+  expect_backend_output_markers(0, path, 11600, [
     "%PDF-1.4", "/Type /Page % 1", "/Annots [", "/Subtype /Link", "/S /URI", "/URI (https://example.com/mixed)",
     "/Dest", "/Names", "/Dests", "(cairoon-mixed-dest)", "/StructTreeRoot", "/Type /StructElem",
     "/S /Link", "/S /Document", "/S /Sect", "/S /P", "/StructParents 0", "%%EOF",
@@ -336,7 +336,7 @@ test "pdf mixed vector tag text output contains combined tag markers" {
 test "pdf tagged show_text_glyphs output contains link markers" {
   let path = "/tmp/cairoon_vector_pdf_tagged_text_glyphs_markers.pdf"
   render_vector_oracle_scene(0, 29, path)
-  expect_vector_output(path, [
+  expect_backend_output_markers(0, path, 11600, [
     "%PDF-1.4", "/Annots [", "/Subtype /Link", "/S /URI", "/URI (https://example.com/text-glyphs)",
     "/S /Link", "/StructTreeRoot", "%%EOF",
   ])

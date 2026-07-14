@@ -54,16 +54,23 @@ test "context tags validate embedded nul strings before ffi" {
 
 ///|
 test "context tag nesting errors map to TagError" {
-  let unmatched = @cairoon.Context::new(@cairoon.Surface::pdf(10.0, 10.0))
-  unmatched.tag_end("foo")
-  expect_tag_error(@cairoon.run_cairo(() => unmatched.show_page()))
-  debug_inspect(unmatched.status(), content="TagError")
+  if @cairoon.CAIRO_VERSION >= 11600 {
+    let unmatched = @cairoon.Context::new(@cairoon.Surface::pdf(10.0, 10.0))
+    unmatched.tag_end("foo")
+    expect_tag_error(@cairoon.run_cairo(() => unmatched.show_page()))
+    debug_inspect(unmatched.status(), content="TagError")
 
-  let mismatched = @cairoon.Context::new(@cairoon.Surface::pdf(10.0, 10.0))
-  mismatched.tag_begin("outer", "")
-  mismatched.tag_end("inner")
-  expect_tag_error(@cairoon.run_cairo(() => mismatched.show_page()))
-  debug_inspect(mismatched.status(), content="TagError")
+    let mismatched = @cairoon.Context::new(@cairoon.Surface::pdf(10.0, 10.0))
+    mismatched.tag_begin("outer", "")
+    mismatched.tag_end("inner")
+    expect_tag_error(@cairoon.run_cairo(() => mismatched.show_page()))
+    debug_inspect(mismatched.status(), content="TagError")
+  } else {
+    let legacy = @cairoon.Context::new(@cairoon.Surface::pdf(10.0, 10.0))
+    legacy.tag_end("foo")
+    legacy.show_page()
+    inspect(legacy.status().is_success(), content="true")
+  }
 }
 
 ///|

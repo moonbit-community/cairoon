@@ -121,31 +121,39 @@ test "pycairo image surface create_for_data array fixture" {
 
 ///|
 test "image surface for data supports cairo float formats" {
-  let rgb_stride = @cairoon.Format::stride_for_width(@cairoon.Rgb96F, 2)
-  let rgb_data : FixedArray[Byte] = FixedArray::make(rgb_stride, b'\x00')
-  let rgb = @cairoon.Surface::image_for_data(
-    rgb_data,
-    @cairoon.Rgb96F,
-    2,
-    1,
-    stride=rgb_stride,
-  )
-  debug_inspect(rgb.get_format(), content="Rgb96F")
-  inspect(rgb.get_stride(), content="\{rgb_stride}")
-  inspect(rgb.copy_data() == Bytes::from_array(rgb_data), content="true")
+  if @cairoon.CAIRO_VERSION >= 11702 {
+    let rgb_stride = @cairoon.Format::stride_for_width(@cairoon.Rgb96F, 2)
+    let rgb_data : FixedArray[Byte] = FixedArray::make(rgb_stride, b'\x00')
+    let rgb = @cairoon.Surface::image_for_data(
+      rgb_data,
+      @cairoon.Rgb96F,
+      2,
+      1,
+      stride=rgb_stride,
+    )
+    debug_inspect(rgb.get_format(), content="Rgb96F")
+    inspect(rgb.get_stride(), content="\{rgb_stride}")
+    inspect(rgb.copy_data() == Bytes::from_array(rgb_data), content="true")
 
-  let rgba_stride = @cairoon.Format::stride_for_width(@cairoon.Rgba128F, 2)
-  let rgba_data : FixedArray[Byte] = FixedArray::make(rgba_stride, b'\x00')
-  let rgba = @cairoon.Surface::image_for_data(
-    rgba_data,
-    @cairoon.Rgba128F,
-    2,
-    1,
-    stride=rgba_stride,
-  )
-  debug_inspect(rgba.get_format(), content="Rgba128F")
-  inspect(rgba.get_stride(), content="\{rgba_stride}")
-  inspect(rgba.copy_data() == Bytes::from_array(rgba_data), content="true")
+    let rgba_stride = @cairoon.Format::stride_for_width(@cairoon.Rgba128F, 2)
+    let rgba_data : FixedArray[Byte] = FixedArray::make(rgba_stride, b'\x00')
+    let rgba = @cairoon.Surface::image_for_data(
+      rgba_data,
+      @cairoon.Rgba128F,
+      2,
+      1,
+      stride=rgba_stride,
+    )
+    debug_inspect(rgba.get_format(), content="Rgba128F")
+    inspect(rgba.get_stride(), content="\{rgba_stride}")
+    inspect(rgba.copy_data() == Bytes::from_array(rgba_data), content="true")
+  } else {
+    inspect(@cairoon.Format::stride_for_width(@cairoon.Rgb96F, 2), content="-1")
+    inspect(
+      @cairoon.Format::stride_for_width(@cairoon.Rgba128F, 2),
+      content="-1",
+    )
+  }
 }
 
 ///|

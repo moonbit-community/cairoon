@@ -107,10 +107,11 @@ extern "C" fn font_options_set_hint_metrics_raw_ffi(
 ) -> Status = "cairoon_font_options_set_hint_metrics_raw"
 
 ///|
-#borrow(options, has_variations)
+#borrow(options, has_variations, status)
 extern "C" fn font_options_get_variations_ffi(
   options : FontOptions,
   has_variations : Ref[Int],
+  status : Ref[Status],
 ) -> Bytes = "cairoon_font_options_get_variations"
 
 ///|
@@ -127,8 +128,11 @@ extern "C" fn font_options_clear_variations_ffi(
 ) -> Status = "cairoon_font_options_clear_variations"
 
 ///|
-#borrow(options)
-extern "C" fn font_options_get_color_mode_raw_ffi(options : FontOptions) -> Int = "cairoon_font_options_get_color_mode_raw"
+#borrow(options, status)
+extern "C" fn font_options_get_color_mode_raw_ffi(
+  options : FontOptions,
+  status : Ref[Status],
+) -> Int = "cairoon_font_options_get_color_mode_raw"
 
 ///|
 #borrow(options)
@@ -145,8 +149,11 @@ extern "C" fn font_options_set_color_mode_raw_ffi(
 ) -> Status = "cairoon_font_options_set_color_mode_raw"
 
 ///|
-#borrow(options)
-extern "C" fn font_options_get_color_palette_ffi(options : FontOptions) -> UInt = "cairoon_font_options_get_color_palette"
+#borrow(options, status)
+extern "C" fn font_options_get_color_palette_ffi(
+  options : FontOptions,
+  status : Ref[Status],
+) -> UInt = "cairoon_font_options_get_color_palette"
 
 ///|
 #borrow(options)

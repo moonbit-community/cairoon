@@ -68,12 +68,13 @@ fn configure_stream_annotation_sequence_backend(
         @cairoon.PdfMetadataModDate,
         fixed_pdf_metadata_date(),
       )
-      surface.pdf_set_custom_metadata(
+      set_pdf_custom_metadata_if_supported(
+        surface,
         "AnnotationSequence",
         Some("list-table-outline"),
       )
-      surface.pdf_set_custom_metadata("Scratch", Some("drop-me"))
-      surface.pdf_set_custom_metadata("Scratch", None)
+      set_pdf_custom_metadata_if_supported(surface, "Scratch", Some("drop-me"))
+      set_pdf_custom_metadata_if_supported(surface, "Scratch", None)
     }
     1 => {
       surface.ps_restrict_to_level(@cairoon.PsLevel3)
@@ -338,7 +339,7 @@ test "backend annotation sequence output contains stable markers" {
     render_stream_annotation_sequence_scene(kind, surface)
     match kind {
       0 => {
-        expect_vector_output(path, [
+        expect_backend_output_markers(kind, path, 11706, [
           "%PDF-1.4", "/Title (Cairoon Annotation Sequence)", "/Subject (list table outline tags)",
           "/Creator (cairoon annotation sequence)", "/CreationDate (20260102030405+00'00')",
           "/ModDate (20260102030405+00'00')", "/AnnotationSequence (list-table-outline)",
@@ -353,13 +354,13 @@ test "backend annotation sequence output contains stable markers" {
         expect_vector_output_absent(path, ["/Scratch", "drop-me"])
       }
       1 =>
-        expect_vector_output(path, [
+        expect_backend_output_markers(kind, path, 11706, [
           "%!PS-Adobe-3.0", "%%LanguageLevel: 3", "%%Title: Cairoon Annotation Sequence",
           "%%IncludeFeature: *MediaType AnnotationSequence", "%%IncludeFeature: *PageSize AnnotationSequence",
           "%%Pages: 3", "%%Page: 1 1", "%%Page: 2 2", "%%Page: 3 3", "%%EOF",
         ])
       2 =>
-        expect_vector_output(path, [
+        expect_backend_output_markers(kind, path, 11706, [
           "<?xml version=\"1.0\"", "<svg", "width=\"128px\" height=\"118px\"", "<pageSet>",
           "<page>", "</pageSet>", "</svg>",
         ])

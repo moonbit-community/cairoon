@@ -12,8 +12,9 @@ it.
 
 ## Solid Patterns And State
 
-Pattern state such as extend mode, filter, dither, and matrix is shared across
-pattern families.
+Pattern state such as extend mode, filter, and matrix is shared across pattern
+families. Dither state requires Cairo 1.18; older supported Cairo versions raise
+`CairoError(InvalidStatus, _)` for dither getters and setters.
 
 ```mbt check
 ///|
@@ -23,12 +24,21 @@ test "pattern docs: solid rgba and shared pattern state" {
 
   pattern.set_extend(Repeat)
   pattern.set_filter(Nearest)
-  pattern.set_dither(DitherBest)
+  if CAIRO_VERSION >= 11800 {
+    pattern.set_dither(DitherBest)
+  }
   pattern.set_matrix(Matrix::new(xx=0.5, yy=0.25, x0=3.0, y0=5.0))
 
   debug_inspect(pattern.get_extend(), content="Repeat")
   debug_inspect(pattern.get_filter(), content="Nearest")
-  debug_inspect(pattern.get_dither(), content="DitherBest")
+  if CAIRO_VERSION >= 11800 {
+    debug_inspect(pattern.get_dither(), content="DitherBest")
+  } else {
+    match run_cairo(() => pattern.set_dither(DitherBest)) {
+      Err(CairoError(InvalidStatus, _)) => ()
+      _ => @test.fail("expected dither API to require Cairo 1.18")
+    }
+  }
   debug_inspect(
     pattern.get_matrix(),
     content="{ xx: 0.5, yx: 0, xy: 0, yy: 0.25, x0: 3, y0: 5 }",
@@ -62,13 +72,20 @@ test "pattern docs: raw enum compatibility is explicit" {
     _ => @test.fail("expected unknown raw filter to stay outside typed API")
   }
 
-  pattern.set_dither_raw(4)
-  debug_inspect(pattern.get_dither(), content="DitherBest")
-  pattern.set_dither_raw(42)
-  inspect(pattern.get_dither_raw(), content="42")
-  match run_cairo(() => pattern.get_dither()) {
-    Err(CairoInvalidArgument(InvalidStatus, _)) => ()
-    _ => @test.fail("expected unknown raw dither to stay outside typed API")
+  if CAIRO_VERSION >= 11800 {
+    pattern.set_dither_raw(4)
+    debug_inspect(pattern.get_dither(), content="DitherBest")
+    pattern.set_dither_raw(42)
+    inspect(pattern.get_dither_raw(), content="42")
+    match run_cairo(() => pattern.get_dither()) {
+      Err(CairoInvalidArgument(InvalidStatus, _)) => ()
+      _ => @test.fail("expected unknown raw dither to stay outside typed API")
+    }
+  } else {
+    match run_cairo(() => pattern.set_dither_raw(4)) {
+      Err(CairoError(InvalidStatus, _)) => ()
+      _ => @test.fail("expected raw dither API to require Cairo 1.18")
+    }
   }
 }
 ```

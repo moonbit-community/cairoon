@@ -121,25 +121,38 @@ test "image surface properties map status and subtype errors" {
 
 ///|
 test "image surface supports cairo float formats" {
-  let rgb = @cairoon.Surface::image(@cairoon.Rgb96F, 3, 2)
-  debug_inspect(rgb.get_type(), content="SurfaceTypeImage")
-  debug_inspect(rgb.get_format(), content="Rgb96F")
-  debug_inspect(rgb.get_content(), content="ContentColor")
-  inspect(rgb.get_width(), content="3")
-  inspect(rgb.get_height(), content="2")
-  inspect(
-    rgb.get_stride(),
-    content="\{@cairoon.Format::stride_for_width(@cairoon.Rgb96F, 3)}",
-  )
-  inspect(rgb.copy_data().length(), content="\{rgb.get_stride() * 2}")
+  if @cairoon.CAIRO_VERSION >= 11702 {
+    let rgb = @cairoon.Surface::image(@cairoon.Rgb96F, 3, 2)
+    debug_inspect(rgb.get_type(), content="SurfaceTypeImage")
+    debug_inspect(rgb.get_format(), content="Rgb96F")
+    debug_inspect(rgb.get_content(), content="ContentColor")
+    inspect(rgb.get_width(), content="3")
+    inspect(rgb.get_height(), content="2")
+    inspect(
+      rgb.get_stride(),
+      content="\{@cairoon.Format::stride_for_width(@cairoon.Rgb96F, 3)}",
+    )
+    inspect(rgb.copy_data().length(), content="\{rgb.get_stride() * 2}")
 
-  let rgba = @cairoon.Surface::image(@cairoon.Rgba128F, 3, 2)
-  debug_inspect(rgba.get_type(), content="SurfaceTypeImage")
-  debug_inspect(rgba.get_format(), content="Rgba128F")
-  debug_inspect(rgba.get_content(), content="ContentColorAlpha")
-  inspect(
-    rgba.get_stride(),
-    content="\{@cairoon.Format::stride_for_width(@cairoon.Rgba128F, 3)}",
-  )
-  inspect(rgba.copy_data().length(), content="\{rgba.get_stride() * 2}")
+    let rgba = @cairoon.Surface::image(@cairoon.Rgba128F, 3, 2)
+    debug_inspect(rgba.get_type(), content="SurfaceTypeImage")
+    debug_inspect(rgba.get_format(), content="Rgba128F")
+    debug_inspect(rgba.get_content(), content="ContentColorAlpha")
+    inspect(
+      rgba.get_stride(),
+      content="\{@cairoon.Format::stride_for_width(@cairoon.Rgba128F, 3)}",
+    )
+    inspect(rgba.copy_data().length(), content="\{rgba.get_stride() * 2}")
+  } else {
+    match
+      @cairoon.run_cairo(() => @cairoon.Surface::image(@cairoon.Rgb96F, 3, 2)) {
+      Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidFormat, _)) => ()
+      _ => @test.fail("expected InvalidFormat for RGB96F before Cairo 1.17.2")
+    }
+    match
+      @cairoon.run_cairo(() => @cairoon.Surface::image(@cairoon.Rgba128F, 3, 2)) {
+      Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidFormat, _)) => ()
+      _ => @test.fail("expected InvalidFormat for RGBA128F before Cairo 1.17.2")
+    }
+  }
 }
