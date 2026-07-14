@@ -45,7 +45,7 @@ VERIFY_COMMANDS = (
     "./scripts/configure-link-flags.sh --check",
     "python3 ./scripts/check-ffi-ownership.py",
     "python3 ./scripts/check-api-inventory.py",
-    "python3 ./scripts/check-context-test-parity.py",
+    "python3 ./scripts/check-pycairo-test-parity.py",
     "python3 ./scripts/check-reliability-ledger.py",
     "python3 ./scripts/check-vector-backend-scenes.py",
     "moon check --target native",

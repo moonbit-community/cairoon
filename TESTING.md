@@ -73,7 +73,7 @@ Evaluate each slice with this scorecard:
 | API surface | Public entries appear in `src/pkg.generated.mbti`; Python-only pycairo APIs are recorded as `Decision`; `scripts/check-api-inventory.py` passes against parent `cairo/__init__.pyi` | Strong for current portable APIs; all pycairo public top-level entries, top-level constants, and 255 portable class methods are mapped to public MoonBit API anchors or explicit product decisions |
 | Reliability ledger | `API_INVENTORY.md` statuses are `Done`, `Partial`, or `Decision`; every `Partial` row names its remaining gap; this scorecard and CI/verify gate are checked by `scripts/check-reliability-ledger.py` | Strong for current migrated slices; the lint runs in the local and CI verify gate, and any future full-product claim still requires zero `Todo`/`Partial` rows |
 | FFI boundary safety | Production raw `src/**/ffi*.mbt` declarations are native-gated in their owning `moon.pkg`, mark every non-primitive C FFI parameter with `#borrow` or `#owned`, and `scripts/check-project-layout.py` plus `scripts/check-ffi-ownership.py` pass | Strong for current raw externs, including internal helper packages; both lints run in the local and CI verify gate |
-| Behavioral parity | pycairo-derived black-box cases or direct C Cairo primitive oracles cover normal and invalid inputs | Strong for image, context, path, font, pattern, region, surface/device, and backend helpers already listed in the inventory; all 68 upstream Context tests are pinned and mapped to 39 MoonBit runtime anchors plus 54 generated static API anchors |
+| Behavioral parity | pycairo-derived black-box cases or direct C Cairo primitive oracles cover normal and invalid inputs | Strong for image, context, path, font, pattern, region, surface/device, and backend helpers already listed in the inventory; all 99 upstream Context and Pattern tests are pinned and mapped to 57 unique MoonBit runtime anchors, 80 required generated static API anchors, and 2 deliberately absent constructor anchors |
 | Rendering parity | Deterministic image pixels or normalized PDF/PS/SVG bytes match direct C Cairo output | Strong for the enumerated image and vector fixtures, including backend page-transition, state-stack, deep-tag, metadata-outline, page-ops, tag-metadata, structure-sequence, outline-sequence, pattern-tag, semantic-index, bookmark-lattice, revision-ledger, article-thread, review-dossier, appendix-rubric, research-note, cross-reference, and link-audit tag/metadata/page-operation output; still partial for broader tag/metadata/multi-page combinations |
 | Lifetime safety | External-object ownership, borrowed returns, callback retention, and error exits run under ASan/LSan or stress tests | Strong for targeted local gates; macOS LSan remains intentionally disabled for known toy-font/glyph leak reports |
 | Callback safety | C-held MoonBit callbacks and callback arguments are retained across the callback invocation and released deterministically | Strong for stream writers/readers and raster-source callbacks covered by current stress/fuzz tests |
@@ -99,7 +99,7 @@ python3 -m unittest discover -s cairoon/scripts/tests -p 'test_*.py'
 python3 cairoon/scripts/check-project-layout.py
 python3 cairoon/scripts/check-source-size-budget.py
 python3 cairoon/scripts/check-api-inventory.py
-python3 cairoon/scripts/check-context-test-parity.py
+python3 cairoon/scripts/check-pycairo-test-parity.py
 python3 cairoon/scripts/check-ffi-ownership.py
 python3 cairoon/scripts/check-reliability-ledger.py
 python3 cairoon/scripts/check-vector-backend-scenes.py
@@ -112,11 +112,13 @@ annotations, and enum constructors must match the intended API.
 Run `scripts/configure-link-flags.sh --check` before native checks when the
 system Cairo installation may have changed. Run `scripts/check-api-inventory.py`
 whenever the pycairo stub, public API, or inventory changes. Run
-`scripts/check-context-test-parity.py` whenever pycairo
-`tests/test_context.py`, a Context black-box test, or a generated Context
-signature changes. The ledger pins the upstream source digest, maps every
-upstream test to runtime evidence, and requires static API evidence for each
-Python runtime `TypeError` assertion. Run
+`scripts/check-pycairo-test-parity.py` whenever a tracked pycairo test file,
+its family black-box tests, or a generated family signature changes. Each
+ledger pins the upstream source digest, maps every upstream test to runtime
+evidence, and requires present or deliberately absent static API evidence for
+each Python runtime `TypeError` assertion. A detected parent pycairo source tree
+must contain every ledger source; use `--require-source` to enforce this in
+other strict environments. Run
 `scripts/check-ffi-ownership.py` whenever raw extern declarations change. Run
 `scripts/check-project-layout.py` whenever package structure, root source files,
 or `PROJECT_LAYOUT.md` changes. Run `scripts/check-source-size-budget.py`
@@ -230,7 +232,7 @@ It runs `moon fmt --check`, the checker unit tests under `scripts/tests`,
 `scripts/check-project-layout.py`,
 `scripts/check-source-size-budget.py`, `scripts/configure-link-flags.sh --check`,
 `scripts/check-ffi-ownership.py`, `scripts/check-api-inventory.py`,
-`scripts/check-context-test-parity.py`,
+`scripts/check-pycairo-test-parity.py`,
 `scripts/check-reliability-ledger.py`,
 `scripts/check-vector-backend-scenes.py`, native
 `moon check --target native --deny-warn`, the `src/native` native-stub package,
@@ -3741,6 +3743,18 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, 2026-07-
   7 tests in both native and targeted ASan runs, raising the observed full
   native suite to 737 tests; this closes the `RasterSourcePattern` API row while
   release-platform coverage remains a global `Tests`/portability gate.
+  A later pycairo Pattern test-parity slice generalized the Context-only gate
+  into `scripts/check-pycairo-test-parity.py`, moved family ledgers under
+  `scripts/parity/`, and pinned all 31 upstream `test_pattern.py` cases to 18
+  existing MoonBit runtime anchors, 26 required generated signatures, and 2
+  deliberately absent abstract-constructor signatures. Source mode verifies
+  the upstream SHA-256 and AST test sets; standalone mode verifies the pinned
+  ledger snapshot. No duplicate MoonBit behavior tests were needed, so the
+  observed full native suite remains 737 tests. The same full local gate found
+  and fixed the current MoonBit `ambiguous_braces` error in the object-trait
+  map fixture, then passed 737/737 native tests and all configured ASan runs.
+  This closes the `Pattern basics` row and reduces the reliability ledger from
+  10 to 9 `Partial` rows without changing public API.
 
 Remaining reliability work is now narrower and should be tracked as evidence,
 not as an unstructured checklist:

@@ -79,6 +79,11 @@ cairoon/
   PORTING_FROM_PYCAIRO.md
   moon.mod
   scripts/
+    parity/
+      context.json
+      pattern.json
+    tests/
+      test_pycairo_test_parity.py
   src/
     moon.pkg
     README.mbt.md

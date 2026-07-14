@@ -1,5 +1,7 @@
 {
   "schema_version": 1,
+  "family": "Context",
+  "runtime_root": "src/tests/context",
   "upstream": {
     "repository": "https://github.com/pygobject/pycairo",
     "commit": "80ea3348aff95e8441e6c3e2086371ea40528d81",

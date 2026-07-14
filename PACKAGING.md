@@ -104,10 +104,10 @@ Use:
 ```
 
 The gate runs formatting, link-flag drift checks, static FFI ownership linting,
-top-level pycairo API inventory linting, pinned pycairo Context test parity,
-native type checking, targeted image/scaled-font/vector/pattern oracle tests,
-the full native test suite, `moon info --target native`, and targeted ASan
-tests when an ASan-capable `clang` is available.
+top-level pycairo API inventory linting, pinned pycairo Context and Pattern test
+parity, native type checking, targeted image/scaled-font/vector/pattern oracle
+tests, the full native test suite, `moon info --target native`, and targeted
+ASan tests when an ASan-capable `clang` is available.
 
 Set `CAIROON_VERIFY_ASAN=0` only when intentionally skipping the targeted ASan
 portion. Set `CAIROON_ASAN_CC` and `CAIROON_ASAN_AR` to force the compiler pair

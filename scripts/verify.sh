@@ -72,7 +72,7 @@ run python3 ./scripts/check-source-size-budget.py
 run ./scripts/configure-link-flags.sh --check
 run python3 ./scripts/check-ffi-ownership.py
 run python3 ./scripts/check-api-inventory.py
-run python3 ./scripts/check-context-test-parity.py
+run python3 ./scripts/check-pycairo-test-parity.py
 run python3 ./scripts/check-reliability-ledger.py
 run python3 ./scripts/check-vector-backend-scenes.py
 run moon check --target native --deny-warn

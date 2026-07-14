@@ -20,13 +20,17 @@ Implemented in this workspace:
   implementation or explicit product-decision anchor in `API_INVENTORY.md`, and
   every portable pycairo class method in the first-product scope must have a
   public MoonBit API anchor in `src/pkg.generated.mbti`.
-- Executable pycairo Context test parity through
-  `scripts/check-context-test-parity.py` and
-  `scripts/context-test-parity.json`, wired into `scripts/verify.sh`. The gate
-  pins upstream `tests/test_context.py` by commit and SHA-256, requires all 68
-  upstream tests to map to existing MoonBit black-box test anchors, and maps
-  Python runtime `TypeError` assertions to exact generated public signatures.
-  The checker's own positive and negative fixtures run from `scripts/tests`.
+- Executable pycairo family test parity through
+  `scripts/check-pycairo-test-parity.py` and the ledgers under
+  `scripts/parity/`, wired into `scripts/verify.sh`. The Context and Pattern
+  ledgers pin upstream sources by commit and SHA-256, require all 99 upstream
+  tests to map to existing MoonBit black-box test anchors, and map Python
+  runtime `TypeError` assertions to required or deliberately absent generated
+  public signatures. The checker's positive and negative fixtures run from
+  `scripts/tests`, and pinned snapshots keep the gate usable in a standalone
+  cairoon checkout without the parent pycairo source tree. When the parent
+  pycairo marker is present, a missing ledger source is an error instead of a
+  snapshot fallback; strict environments can also pass `--require-source`.
 - Static reliability-ledger linting through
   `scripts/check-reliability-ledger.py`, wired into `scripts/verify.sh`, so
   migration status rows use accepted statuses, `Partial` rows state remaining
