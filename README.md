@@ -137,8 +137,9 @@ release:
 
 The gate checks formatting, Cairo link-flag drift, project layout, FFI
 ownership annotations, API inventory coverage, the reliability ledger, native
-type checking, full MoonBit tests, executable docs, direct C Cairo oracle tests,
-`moon info`, and targeted ASan runs when an ASan-capable compiler is available.
+type checking, pinned pycairo Context test parity, full MoonBit tests,
+executable docs, direct C Cairo oracle tests, `moon info`, and targeted ASan
+runs when an ASan-capable compiler is available.
 
 ## License
 

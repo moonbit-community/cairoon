@@ -20,6 +20,13 @@ Implemented in this workspace:
   implementation or explicit product-decision anchor in `API_INVENTORY.md`, and
   every portable pycairo class method in the first-product scope must have a
   public MoonBit API anchor in `src/pkg.generated.mbti`.
+- Executable pycairo Context test parity through
+  `scripts/check-context-test-parity.py` and
+  `scripts/context-test-parity.json`, wired into `scripts/verify.sh`. The gate
+  pins upstream `tests/test_context.py` by commit and SHA-256, requires all 68
+  upstream tests to map to existing MoonBit black-box test anchors, and maps
+  Python runtime `TypeError` assertions to exact generated public signatures.
+  The checker's own positive and negative fixtures run from `scripts/tests`.
 - Static reliability-ledger linting through
   `scripts/check-reliability-ledger.py`, wired into `scripts/verify.sh`, so
   migration status rows use accepted statuses, `Partial` rows state remaining

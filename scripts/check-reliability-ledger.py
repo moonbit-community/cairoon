@@ -39,11 +39,13 @@ SCORECARD_DIMENSIONS = (
 )
 VERIFY_COMMANDS = (
     "moon fmt --check",
+    "python3 -m unittest discover -s scripts/tests -p 'test_*.py'",
     "python3 ./scripts/check-project-layout.py",
     "python3 ./scripts/check-source-size-budget.py",
     "./scripts/configure-link-flags.sh --check",
     "python3 ./scripts/check-ffi-ownership.py",
     "python3 ./scripts/check-api-inventory.py",
+    "python3 ./scripts/check-context-test-parity.py",
     "python3 ./scripts/check-reliability-ledger.py",
     "python3 ./scripts/check-vector-backend-scenes.py",
     "moon check --target native",
