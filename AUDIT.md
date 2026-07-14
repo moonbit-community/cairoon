@@ -23,8 +23,8 @@ Implemented in this workspace:
 - Executable pycairo family test parity through
   `scripts/check-pycairo-test-parity.py` and the ledgers under
   `scripts/parity/`, wired into `scripts/verify.sh`. The Context, Device, Font,
-  Matrix, Pattern, Region, and Surface ledgers pin upstream sources by commit
-  and SHA-256, require all 236 upstream tests to map to existing MoonBit
+  Matrix, Path, Pattern, Region, and Surface ledgers pin upstream sources by
+  commit and SHA-256, require all 240 upstream tests to map to existing MoonBit
   black-box test anchors, and map Python runtime `TypeError` assertions to
   required or deliberately absent generated public signatures. The checker's
   positive and negative fixtures
@@ -114,7 +114,8 @@ Implemented in this workspace:
 - Path black-box tests now live in `src/tests/path/{core,pycairo}`, importing
   only the public `CAIMEOX/cairoon` API. This validates Path formatting,
   iteration, flattening, scope survival, and pycairo-derived comparison/hash
-  behavior through separately linked published-package seams.
+  behavior, including all 4 pinned upstream Path tests, through separately
+  linked published-package seams.
 - Object trait black-box tests now live in `src/tests/object/core`, importing
   only the public `CAIMEOX/cairoon` API. This validates Eq/Hash semantics
   across external object wrappers through the published package seam.
@@ -517,9 +518,9 @@ Implemented in this workspace:
   extension APIs are intentionally outside the current pycairo-migration
   product.
 - Gate 2 behavioral parity: partial but strong. Pinned Context, Device, Font,
-  Matrix, Pattern, Region, and Surface ledgers map 236 upstream tests to 151
-  family-local MoonBit runtime anchors, 196 required public signatures, and 16
-  deliberately absent signatures. Additional black-box tests cover Path,
+  Matrix, Path, Pattern, Region, and Surface ledgers map 240 upstream tests to
+  155 family-local MoonBit runtime anchors, 205 required public signatures,
+  and 17 deliberately absent signatures. Additional black-box tests cover
   value, API, raster-source callback, and error behavior; those remaining
   upstream families still need exact ledgers before this gate is complete.
 - Gate 3 differential rendering: partial. Deterministic raw-pixel rendering
@@ -617,9 +618,10 @@ The most recent full local verification passed on 2026-07-15:
   reliability-ledger, and vector-scene gates; native type checking; all
   739/739 native tests; generated-interface review; and every configured
   targeted ASan package with leak detection disabled under the documented
-  macOS policy. The parity gate verified all 236 pinned Context, Device, Font,
-  Matrix, Pattern, Region, and Surface tests against the parent pycairo source
-  checkout, and the reliability ledger reported 2 explicit `Partial` rows.
+  macOS policy. The parity gate verified all 240 pinned Context, Device, Font,
+  Matrix, Path, Pattern, Region, and Surface tests against the parent pycairo
+  source checkout, and the reliability ledger reported 2 explicit `Partial`
+  rows.
 
 Prior full verifies passed on 2026-07-02, 2026-07-03, 2026-07-04,
 2026-07-05, and earlier 2026-07-06 slices. The most recent 2026-07-06 run:

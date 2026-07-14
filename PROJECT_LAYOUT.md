@@ -84,6 +84,7 @@ cairoon/
       device.json
       font.json
       matrix.json
+      path.json
       pattern.json
       region.json
       surface.json

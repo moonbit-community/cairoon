@@ -92,6 +92,16 @@ values:
 | `matrix[index]` | `matrix[index]` or `matrix.component(index)` |
 | `matrix.translate(tx, ty)` mutates `matrix` | `let matrix = matrix.translate(tx, ty)` returns a new value |
 
+Path snapshots are abstract values returned by `Context::copy_path` or
+`Context::copy_path_flat`; they cannot be constructed directly:
+
+| pycairo | cairoon |
+| --- | --- |
+| `str(path)` | `path.to_string()` |
+| `len(list(path))` | `path.length()` |
+| `for data_type, points in path` | `for segment in path.iter()` and `segment.components()` |
+| Path equality, ordering, and hashing | `Eq`, `Compare`, and `Hash` traits on `Path` |
+
 Region operations use explicit overload names and checked chaining:
 
 | pycairo | cairoon |

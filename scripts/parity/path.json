@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "family": "Path",
+  "runtime_root": "src/tests/path",
+  "upstream": {
+    "repository": "https://github.com/pygobject/pycairo",
+    "commit": "80ea3348aff95e8441e6c3e2086371ea40528d81",
+    "path": "tests/test_path.py",
+    "sha256": "455034a8d6fccef8f96bb9bb6adff7bf40042305f959cd36027c6c6af558a9da",
+    "test_count": 4
+  },
+  "type_error_policy": "Pycairo runtime TypeError assertions map to MoonBit compile-time rejection. Path is an abstract opaque snapshot returned by Context copy operations and has no public constructor. Heterogeneous Python object comparisons are unavailable statically; Path-to-Path equality, ordering, and hashing preserve cairo path pointer identity.",
+  "type_error_tests": ["test_path"],
+  "tests": {
+    "test_path": {
+      "runtime": ["src/tests/path/pycairo/path_pycairo_parity_test.mbt::pycairo path empty string fixture"],
+      "static_api": [
+        "type Path",
+        "pub fn Context::copy_path(Self) -> Path raise CairoError"
+      ],
+      "static_absent": ["pub fn Path::new("],
+      "adaptation": "Path is an abstract opaque snapshot obtained from Context::copy_path or Context::copy_path_flat, so direct construction is rejected at compile time."
+    },
+    "test_path_str": {
+      "runtime": ["src/tests/path/pycairo/path_pycairo_parity_test.mbt::pycairo path string fixture"],
+      "static_api": ["pub fn Path::to_string(Self) -> String raise CairoError"],
+      "adaptation": "MoonBit uses the explicit to_string method; it preserves pycairo's line-oriented command spelling and six-decimal coordinate formatting."
+    },
+    "test_path_compare_hash": {
+      "runtime": ["src/tests/path/pycairo/path_pycairo_parity_test.mbt::pycairo path compare hash fixture"],
+      "static_api": [
+        "pub impl Eq for Path",
+        "pub impl Compare for Path",
+        "pub impl Hash for Path"
+      ],
+      "adaptation": "Path-to-Path equality, ordering, and hashing use the wrapped cairo_path_t identity, matching pycairo. Comparisons with unrelated dynamic objects are rejected statically."
+    },
+    "test_path_iter": {
+      "runtime": ["src/tests/path/pycairo/path_pycairo_parity_test.mbt::pycairo path iter fixture"],
+      "static_api": [
+        "pub fn Path::iter(Self) -> Iter[PathSegment] raise CairoError",
+        "pub fn PathSegment::components(Self) -> (PathDataType, Array[Double])",
+        "pub(all) enum PathDataType {\n  PathMoveTo\n  PathLineTo\n  PathCurveTo\n  PathClosePath\n} derive(Eq, @debug.Debug)"
+      ],
+      "adaptation": "Iteration yields a closed PathSegment enum. components exposes the pycairo-compatible (PathDataType, coordinates) view without dynamic tuples."
+    }
+  }
+}
