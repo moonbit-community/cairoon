@@ -917,6 +917,8 @@ pub struct TextCluster {
   num_bytes : Int
   num_glyphs : Int
 } derive(Eq, Hash, @debug.Debug)
+#alias("_[_]")
+pub fn TextCluster::at(Self, Int) -> Int raise CairoError
 pub fn TextCluster::component(Self, Int) -> Int raise CairoError
 pub fn TextCluster::components(Self) -> (Int, Int)
 pub fn TextCluster::new(Int, Int) -> Self
@@ -934,6 +936,8 @@ pub struct TextExtents {
   x_advance : Double
   y_advance : Double
 } derive(Eq, Hash, @debug.Debug)
+#alias("_[_]")
+pub fn TextExtents::at(Self, Int) -> Double raise CairoError
 pub fn TextExtents::component(Self, Int) -> Double raise CairoError
 pub fn TextExtents::components(Self) -> (Double, Double, Double, Double, Double, Double)
 pub fn TextExtents::new(Double, Double, Double, Double, Double, Double) -> Self

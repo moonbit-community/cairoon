@@ -102,16 +102,27 @@ Path snapshots are abstract values returned by `Context::copy_path` or
 | `for data_type, points in path` | `for segment in path.iter()` and `segment.components()` |
 | Path equality, ordering, and hashing | `Eq`, `Compare`, and `Hash` traits on `Path` |
 
-Pycairo's tuple-subclass values become closed MoonBit structs. For
-`Rectangle`, named fields, `components()`, equality, hashing, and checked index
-syntax preserve the useful value protocol:
+Pycairo's tuple-subclass values become closed MoonBit structs. Homogeneous
+values such as `Rectangle`, `TextCluster`, and `TextExtents` preserve named
+fields, `components()`, equality, hashing, and checked index syntax:
 
 | pycairo | cairoon |
 | --- | --- |
 | `cairo.Rectangle(x, y, width, height)` | `Rectangle::new(x, y, width, height)` |
 | `rectangle[1]` | `rectangle[1]`, raising `CairoInvalidArgument(InvalidIndex, _)` when out of range |
+| `text_cluster[1]` | `text_cluster[1]` with the same checked error behavior |
+| `text_extents[1]` | `text_extents[1]` with the same checked error behavior |
 | `tuple(rectangle)` | `rectangle.components()` |
 | `rectangle.x`, `.y`, `.width`, `.height` | the same named fields |
+
+`Glyph` is heterogeneous: its tuple shape is `(UInt64, Double, Double)`.
+MoonBit indexing has one static result type, so cairoon does not coerce the
+64-bit glyph index to `Double` merely to offer `glyph[index]`. Use named fields
+or destructure `glyph.components()` instead:
+
+```moonbit
+let (index, x, y) = glyph.components()
+```
 
 Region operations use explicit overload names and checked chaining:
 

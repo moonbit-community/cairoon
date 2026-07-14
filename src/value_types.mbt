@@ -123,6 +123,12 @@ pub fn TextCluster::component(
 }
 
 ///|
+#alias("_[_]")
+pub fn TextCluster::at(self : TextCluster, index : Int) -> Int raise CairoError {
+  self.component(index)
+}
+
+///|
 pub struct TextExtents {
   x_bearing : Double
   y_bearing : Double
@@ -172,6 +178,15 @@ pub fn TextExtents::component(
     5 => self.y_advance
     _ => raise CairoInvalidArgument(InvalidIndex, InvalidIndex.message())
   }
+}
+
+///|
+#alias("_[_]")
+pub fn TextExtents::at(
+  self : TextExtents,
+  index : Int,
+) -> Double raise CairoError {
+  self.component(index)
 }
 
 ///|

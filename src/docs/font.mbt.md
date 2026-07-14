@@ -187,7 +187,10 @@ test "font docs: scaled font matrices and metrics" {
 
 `ScaledFont::text_to_glyphs` returns copied pure MoonBit values: glyphs,
 clusters, and cluster flags. `text_to_glyphs_only` maps pycairo's
-`with_clusters=False` behavior.
+`with_clusters=False` behavior. `TextCluster` and `TextExtents` support checked
+pycairo-order indexing. A `Glyph` keeps its heterogeneous
+`(UInt64, Double, Double)` components; use fields or destructuring instead of
+coercing its index and coordinates to one type.
 
 ```mbt check
 ///|
@@ -201,11 +204,17 @@ test "font docs: text to glyphs and glyph extents" {
   inspect(run.clusters.length(), content="1")
   inspect(run.clusters[0].num_bytes, content="1")
   inspect(run.clusters[0].num_glyphs, content="1")
+  inspect(run.clusters[0][1], content="1")
+  let (glyph_index, glyph_x, glyph_y) = run.glyphs[0].components()
+  inspect(glyph_index == run.glyphs[0].index, content="true")
+  inspect(glyph_x == run.glyphs[0].x, content="true")
+  inspect(glyph_y == run.glyphs[0].y, content="true")
   debug_inspect(run.flags, content="TextClusterNone")
   inspect(scaled.text_to_glyphs_only(2.0, 12.0, "a").length(), content="1")
 
   let extents = scaled.glyph_extents(run.glyphs)
   inspect(extents.x_advance > 0.0, content="true")
+  inspect(extents[4] > 0.0, content="true")
 }
 ```
 

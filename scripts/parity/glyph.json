@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "family": "Glyph",
+  "runtime_root": "src/tests",
+  "upstream": {
+    "repository": "https://github.com/pygobject/pycairo",
+    "commit": "80ea3348aff95e8441e6c3e2086371ea40528d81",
+    "path": "tests/test_glyph.py",
+    "sha256": "8448497727caa226cff306ab83888e72602f6082f3a11af29e94fb239d352df8",
+    "test_count": 3
+  },
+  "type_error_policy": "Pycairo runtime TypeError and AttributeError assertions map to MoonBit compile-time rejection. Glyph is a closed typed value with a UInt64 index and Double coordinates; tuple subclassing maps to fields, a heterogeneous components tuple, value equality, and hashing. A runtime index operator is deliberately absent because MoonBit indexing has one static return type and converting the UInt64 index to Double would lose information. Python repr/eval behavior maps to derived structural Debug and typed construction.",
+  "type_error_tests": ["test_type", "test_context"],
+  "tests": {
+    "test_type": {
+      "runtime": ["src/tests/value/pycairo/value_pycairo_parity_test.mbt::pycairo glyph tuple-like fixture"],
+      "static_api": ["pub using @glyph {type Glyph}"],
+      "adaptation": "Glyph preserves its heterogeneous (UInt64, Double, Double) shape through fields and components(). Pycairo g[1] maps to destructuring components(); a homogeneous runtime index API would either erase the field type or lose UInt64 precision."
+    },
+    "test_context": {
+      "runtime": ["src/tests/context/pycairo/context_font_text_pycairo_parity_test.mbt::context glyph methods mirror pycairo fixtures"],
+      "static_api": [
+        "pub fn Context::glyph_extents(Self, ArrayView[@glyph.Glyph]) -> TextExtents raise CairoError",
+        "pub fn Context::glyph_path(Self, ArrayView[@glyph.Glyph]) -> Unit raise CairoError",
+        "pub fn Context::show_glyphs(Self, ArrayView[@glyph.Glyph]) -> Unit raise CairoError"
+      ],
+      "static_absent": [
+        "pub fn Context::glyph_extents(Self, ArrayView[@glyph.Glyph], Int)",
+        "pub fn Context::glyph_path(Self, ArrayView[@glyph.Glyph], Int)",
+        "pub fn Context::show_glyphs(Self, ArrayView[@glyph.Glyph], Int)"
+      ],
+      "adaptation": "ArrayView[Glyph] statically rejects tuple/object elements. Pycairo's deprecated num_glyphs compatibility parameter is deliberately absent because MoonBit arrays carry their length."
+    },
+    "test_glyph_limits": {
+      "runtime": ["src/tests/value/pycairo/value_pycairo_parity_test.mbt::pycairo glyph tuple-like fixture"],
+      "static_api": ["pub using @glyph {type Glyph}"],
+      "adaptation": "UInt64 preserves the full unsigned-long range used by the supported 64-bit native targets and statically rejects negative or wider integer inputs. C marshaling additionally checks unsigned-long width on narrower ABIs."
+    }
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "family": "TextExtents",
+  "runtime_root": "src/tests",
+  "upstream": {
+    "repository": "https://github.com/pygobject/pycairo",
+    "commit": "80ea3348aff95e8441e6c3e2086371ea40528d81",
+    "path": "tests/test_textextents.py",
+    "sha256": "c8e12879197c161d8cada9293c4813ce2926eb2fd20e0567361fccd95b65bfb5",
+    "test_count": 3
+  },
+  "type_error_policy": "Pycairo runtime TypeError and AttributeError assertions map to MoonBit compile-time rejection. TextExtents is a closed typed value with six required Double fields; tuple subclassing maps to fields, components, checked indexing, value equality, and hashing. Python repr/eval behavior maps to derived structural Debug and typed construction.",
+  "type_error_tests": ["test_type"],
+  "tests": {
+    "test_type": {
+      "runtime": ["src/tests/value/pycairo/value_pycairo_parity_test.mbt::pycairo text extents tuple-like fixture"],
+      "static_api": [
+        "pub struct TextExtents {\n  x_bearing : Double\n  y_bearing : Double\n  width : Double\n  height : Double\n  x_advance : Double\n  y_advance : Double\n} derive(Eq, Hash, @debug.Debug)",
+        "pub fn TextExtents::new(Double, Double, Double, Double, Double, Double) -> Self",
+        "pub fn TextExtents::components(Self) -> (Double, Double, Double, Double, Double, Double)",
+        "pub fn TextExtents::at(Self, Int) -> Double raise CairoError"
+      ],
+      "adaptation": "TextExtents is a closed MoonBit struct rather than a Python tuple subclass. Fields, components, equality, hashing, and checked index syntax preserve the useful value protocol."
+    },
+    "test_methods": {
+      "runtime": ["src/tests/value/pycairo/value_pycairo_parity_test.mbt::pycairo text extents tuple-like fixture"],
+      "static_api": [
+        "pub fn Context::glyph_extents(Self, ArrayView[@glyph.Glyph]) -> TextExtents raise CairoError",
+        "pub fn Context::text_extents(Self, String) -> TextExtents raise CairoError",
+        "pub fn ScaledFont::glyph_extents(Self, ArrayView[@glyph.Glyph]) -> TextExtents raise CairoError",
+        "pub fn ScaledFont::text_extents(Self, String) -> TextExtents raise CairoError"
+      ]
+    },
+    "test_text_extents_limits": {
+      "runtime": ["src/tests/value/core/value_types_test.mbt::pure value types preserve pycairo numeric limits"],
+      "static_api": ["pub fn TextExtents::new(Double, Double, Double, Double, Double, Double) -> Self"]
+    }
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "family": "TextCluster",
+  "runtime_root": "src/tests/value",
+  "upstream": {
+    "repository": "https://github.com/pygobject/pycairo",
+    "commit": "80ea3348aff95e8441e6c3e2086371ea40528d81",
+    "path": "tests/test_textcluster.py",
+    "sha256": "28d0cbc3d6508b33d540697c0451fc7834f662fe2054978bfcb679e4db5648fb",
+    "test_count": 2
+  },
+  "type_error_policy": "Pycairo runtime TypeError and AttributeError assertions map to MoonBit compile-time rejection. TextCluster is a closed typed value with two required Int fields; tuple subclassing maps to fields, components, checked indexing, value equality, and hashing. Python repr/eval behavior maps to derived structural Debug and typed construction, while Int enforces the signed 32-bit Cairo field range.",
+  "type_error_tests": ["test_type"],
+  "tests": {
+    "test_type": {
+      "runtime": ["src/tests/value/pycairo/value_pycairo_parity_test.mbt::pycairo text cluster tuple-like fixture"],
+      "static_api": [
+        "pub struct TextCluster {\n  num_bytes : Int\n  num_glyphs : Int\n} derive(Eq, Hash, @debug.Debug)",
+        "pub fn TextCluster::new(Int, Int) -> Self",
+        "pub fn TextCluster::components(Self) -> (Int, Int)",
+        "pub fn TextCluster::at(Self, Int) -> Int raise CairoError"
+      ],
+      "adaptation": "TextCluster is a closed MoonBit struct rather than a Python tuple subclass. Fields, components, equality, hashing, and checked index syntax preserve the useful value protocol."
+    },
+    "test_text_cluster_limits": {
+      "runtime": ["src/tests/value/pycairo/value_pycairo_parity_test.mbt::pycairo text cluster tuple-like fixture"],
+      "static_api": ["pub fn TextCluster::new(Int, Int) -> Self"],
+      "adaptation": "MoonBit Int matches Cairo's signed 32-bit int, so values outside the upstream bounds are rejected before a TextCluster or RectangleInt can be constructed."
+    }
+  }
+}

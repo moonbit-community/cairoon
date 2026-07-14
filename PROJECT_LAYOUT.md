@@ -83,12 +83,15 @@ cairoon/
       context.json
       device.json
       font.json
+      glyph.json
       matrix.json
       path.json
       pattern.json
       rectangle.json
       region.json
       surface.json
+      textcluster.json
+      textextents.json
     tests/
       test_pycairo_test_parity.py
   src/

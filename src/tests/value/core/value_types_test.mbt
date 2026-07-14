@@ -101,15 +101,16 @@ test "pure value types preserve pycairo numeric limits" {
   inspect(rect.width == max_double, content="true")
   inspect(rect.height == min_double, content="true")
 
+  let smallest_normal = 2.2250738585072014e-308
   let extents = @cairoon.TextExtents::new(
-    max_double, min_double, max_double, min_double, max_double, min_double,
+    max_double, smallest_normal, max_double, smallest_normal, max_double, smallest_normal,
   )
   inspect(extents.x_bearing == max_double, content="true")
-  inspect(extents.y_bearing == min_double, content="true")
+  inspect(extents.y_bearing == smallest_normal, content="true")
   inspect(extents.width == max_double, content="true")
-  inspect(extents.height == min_double, content="true")
+  inspect(extents.height == smallest_normal, content="true")
   inspect(extents.x_advance == max_double, content="true")
-  inspect(extents.y_advance == min_double, content="true")
+  inspect(extents.y_advance == smallest_normal, content="true")
 
   let max_int = 2147483647
   let min_int = -2147483647 - 1

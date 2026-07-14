@@ -77,6 +77,8 @@ test "pycairo glyph tuple-like fixture" {
   inspect(glyph.x, content="0.5")
   inspect(glyph.y, content="0.25")
   debug_inspect(glyph.components(), content="(0, 0.5, 0.25)")
+  let (_, tuple_x, _) = glyph.components()
+  inspect(tuple_x, content="0.5")
 
   let max_index : UInt64 = 18446744073709551615
   let max_double = 1.7976931348623157e308
@@ -99,9 +101,10 @@ test "pycairo text cluster tuple-like fixture" {
   inspect(cluster.num_glyphs, content="1")
   debug_inspect(cluster.components(), content="(2, 1)")
   inspect(cluster.component(1), content="1")
+  inspect(cluster[1], content="1")
   expect_value_invalid_index(
     @cairoon.run_cairo(() => {
-      let _ = cluster.component(2)
+      let _ = cluster[2]
       ()
     }),
   )
@@ -136,14 +139,26 @@ test "pycairo text extents tuple-like fixture" {
     content="(0, 0.5, 0.25, 0.75, 0.5, 0.125)",
   )
   inspect(extents.component(1), content="0.5")
+  inspect(extents[1], content="0.5")
+  expect_value_invalid_index(
+    @cairoon.run_cairo(() => {
+      let _ = extents[6]
+      ()
+    }),
+  )
 
   let ctx = @cairoon.Context::new(
     @cairoon.Surface::image(@cairoon.Argb32, 10, 10),
   )
   inspect(ctx.text_extents("foo").width > 0.0, content="true")
-  inspect(ctx.get_scaled_font().text_extents("foo").width > 0.0, content="true")
+  let scaled = ctx.get_scaled_font()
+  inspect(scaled.text_extents("foo").width > 0.0, content="true")
   inspect(
     ctx.glyph_extents([@cairoon.Glyph::new(0UL, 0.0, 0.0)]).height >= 0.0,
+    content="true",
+  )
+  inspect(
+    scaled.glyph_extents([@cairoon.Glyph::new(0UL, 0.0, 0.0)]).height >= 0.0,
     content="true",
   )
 }

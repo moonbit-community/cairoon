@@ -73,7 +73,7 @@ Evaluate each slice with this scorecard:
 | API surface | Public entries appear in `src/pkg.generated.mbti`; Python-only pycairo APIs are recorded as `Decision`; `scripts/check-api-inventory.py` passes against parent `cairo/__init__.pyi` | Strong for current portable APIs; all pycairo public top-level entries, top-level constants, and 255 portable class methods are mapped to public MoonBit API anchors or explicit product decisions |
 | Reliability ledger | `API_INVENTORY.md` statuses are `Done`, `Partial`, or `Decision`; every `Partial` row names its remaining gap; this scorecard and CI/verify gate are checked by `scripts/check-reliability-ledger.py` | Strong for current migrated slices; the lint runs in the local and CI verify gate, and any future full-product claim still requires zero `Todo`/`Partial` rows |
 | FFI boundary safety | Production raw `src/**/ffi*.mbt` declarations are native-gated in their owning `moon.pkg`, mark every non-primitive C FFI parameter with `#borrow` or `#owned`, and `scripts/check-project-layout.py` plus `scripts/check-ffi-ownership.py` pass | Strong for current raw externs, including internal helper packages; both lints run in the local and CI verify gate |
-| Behavioral parity | pycairo-derived black-box cases or direct C Cairo primitive oracles cover normal and invalid inputs | Strong for image, context, path, font, pattern, region, surface/device, and backend helpers already listed in the inventory; all 244 upstream Context, Device, Font, Matrix, Path, Pattern, Rectangle, Region, and Surface tests are pinned and mapped to 158 family-local MoonBit runtime anchors, 212 required generated static API anchors, and 17 deliberately absent signatures |
+| Behavioral parity | pycairo-derived black-box cases or direct C Cairo primitive oracles cover normal and invalid inputs | Strong for image, context, path, font, pattern, region, surface/device, and backend helpers already listed in the inventory; all 252 upstream Context, Device, Font, Glyph, Matrix, Path, Pattern, Rectangle, Region, Surface, TextCluster, and TextExtents tests are pinned and mapped to 163 family-local MoonBit runtime anchors, 228 required generated static API anchors, and 20 deliberately absent signatures |
 | Rendering parity | Deterministic image pixels or normalized PDF/PS/SVG bytes match direct C Cairo output | Strong for the enumerated image and vector fixtures, including backend page-transition, state-stack, deep-tag, metadata-outline, page-ops, tag-metadata, structure-sequence, outline-sequence, pattern-tag, semantic-index, bookmark-lattice, revision-ledger, article-thread, review-dossier, appendix-rubric, research-note, cross-reference, and link-audit tag/metadata/page-operation output; still partial for broader tag/metadata/multi-page combinations |
 | Lifetime safety | External-object ownership, borrowed returns, callback retention, and error exits run under ASan/LSan or stress tests | Strong for targeted local gates; macOS LSan remains intentionally disabled for known toy-font/glyph leak reports |
 | Callback safety | C-held MoonBit callbacks and callback arguments are retained across the callback invocation and released deterministically | Strong for stream writers/readers and raster-source callbacks covered by current stress/fuzz tests |
@@ -118,11 +118,11 @@ ledger pins the upstream source digest, maps every upstream test to runtime
 evidence, and requires present or deliberately absent static API evidence for
 each Python runtime `TypeError` assertion. A detected parent pycairo source tree
 must contain every ledger source; use `--require-source` to enforce this in
-other strict environments. The current Context, Device, Font, Matrix, Path,
-Pattern, Rectangle, Region, and Surface ledgers cover 244 upstream tests with
-158 family-local runtime anchors, 212 required public signatures, and 17
-deliberately absent signatures. Run `scripts/check-ffi-ownership.py` whenever raw extern
-declarations change. Run
+other strict environments. The current Context, Device, Font, Glyph, Matrix,
+Path, Pattern, Rectangle, Region, Surface, TextCluster, and TextExtents ledgers
+cover 252 upstream tests with 163 family-local runtime anchors, 228 required
+public signatures, and 20 deliberately absent signatures. Run
+`scripts/check-ffi-ownership.py` whenever raw extern declarations change. Run
 `scripts/check-project-layout.py` whenever package structure, root source files,
 or `PROJECT_LAYOUT.md` changes. Run `scripts/check-source-size-budget.py`
 whenever a source, script, test, native glue, or executable-doc file is added
@@ -3834,6 +3834,18 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, 2026-07-
   passes 739/739 native tests plus every configured ASan package, with no
   native test-count change; the reliability ledger remains at 2 explicit
   `Partial` rows.
+  A later pure-value parity slice added `scripts/parity/glyph.json`,
+  `textcluster.json`, and `textextents.json`, pinning all 8 upstream cases to 5
+  family-local MoonBit runtime anchors, 16 required generated signatures, and
+  3 deliberately absent deprecated glyph-count signatures. Checked
+  `TextCluster::at` and `TextExtents::at` operators preserve pycairo field
+  order and `InvalidIndex` errors. Glyph deliberately uses its heterogeneous
+  `(UInt64, Double, Double)` components rather than a precision-losing
+  homogeneous index return. The TextExtents boundary fixture now reproduces
+  pycairo's maximum and smallest-normal Double inputs. Source-backed parity
+  passes with 252 tests across 12 families. The full local gate passes 739/739
+  native tests plus every configured ASan package, with no native test-count
+  change; the reliability ledger remains at 2 explicit `Partial` rows.
 
 Remaining reliability work is now narrower and should be tracked as evidence,
 not as an unstructured checklist:

@@ -14,6 +14,12 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 
 ## Recent Audit Deltas
 
+- 2026-07-15: Pinned Glyph, TextCluster, and TextExtents ledgers map all 8
+  upstream tests to 5 family-local runtime anchors, 16 required generated
+  signatures, and 3 deliberately absent deprecated glyph-count signatures.
+  `TextCluster::at` and `TextExtents::at` provide checked index syntax. Glyph
+  keeps its heterogeneous `(UInt64, Double, Double)` components instead of
+  losing index precision through a homogeneous runtime-index return type.
 - 2026-07-15: The pinned Rectangle parity ledger maps all 4 upstream
   `test_rectangle.py` cases to 3 family-local runtime anchors and 7 required
   generated signatures. The audit exposed missing pycairo tuple-style index
@@ -455,9 +461,9 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 | `Path` | Done | Opaque owned `cairo_path_t *`, status/equality/hash, MoonBit `Eq`/`Hash`/`Compare` traits, pycairo-derived fixtures for empty/path stringification, self-comparison/hash, and iterator data, pycairo-compatible stringification including close-path continuation formatting, segment values, copied-path lifetime after the source context exits, targeted normal/ASan gate coverage, executable reference docs, and a pinned ledger mapping all 4 upstream Path tests to family-local runtime and static evidence, including the deliberately absent abstract constructor |
 | `Rectangle` | Done | Pure value type with field/component access, checked pycairo-order `rectangle[index]` syntax, MoonBit `Eq`/`Hash`, pycairo tuple-like parity fixtures, numeric-limit coverage, `Context::copy_clip_rectangle_list` return coverage, `RecordingSurface` extents coverage, executable Context reference documentation, and a pinned ledger mapping all 4 upstream Rectangle tests to family-local runtime and static evidence |
 | `RectangleInt` | Done | Pure value type with defaults, MoonBit `Eq` but deliberately no generic `Hash`/`Compare`, and pycairo-derived 32-bit boundary field/component coverage; needed by region, map-to-image, and raster-source acquire extents; the pinned Region ledger statically enforces pycairo's unhashable and non-orderable protocol behavior |
-| `Glyph` | Done | Pure value type implemented in `src/core/glyph` and re-exported by the public facade, with MoonBit `Eq`/`Hash`; `UInt64` index matches Cairo's `unsigned long` width on 64-bit platforms, and pycairo tuple-like value plus limit fixtures cover fields/components while array marshaling remains separate |
-| `TextCluster` | Done | Pure value type with MoonBit `Eq`/`Hash`, pycairo tuple-like field/component/hash fixtures, and 32-bit integer limit coverage; array marshaling remains separate |
-| `TextExtents` | Done | Pure value type with MoonBit `Eq`/`Hash`, pycairo tuple-like field/component/hash fixtures, numeric-limit coverage, and Context/ScaledFont text/glyph extents return coverage |
+| `Glyph` | Done | Pure value type implemented in `src/core/glyph` and re-exported by the public facade, with MoonBit `Eq`/`Hash`; `UInt64` index matches Cairo's `unsigned long` width on 64-bit platforms, and pycairo tuple-like value plus limit fixtures cover fields/components while array marshaling remains separate; the pinned 3-test Glyph ledger records fields and heterogeneous `(UInt64, Double, Double)` components as the type-preserving alternative to a homogeneous runtime index operator, and statically excludes pycairo's deprecated glyph-count compatibility arguments |
+| `TextCluster` | Done | Pure value type with MoonBit `Eq`/`Hash`, checked pycairo-order `text_cluster[index]` syntax, tuple-like field/component/hash fixtures, 32-bit integer limit coverage, and a pinned ledger mapping both upstream TextCluster tests; array marshaling remains separate |
+| `TextExtents` | Done | Pure value type with MoonBit `Eq`/`Hash`, checked pycairo-order `text_extents[index]` syntax, tuple-like field/component/hash fixtures, exact maximum/smallest-normal Double limit coverage, Context/ScaledFont text/glyph extents return coverage, and a pinned ledger mapping all 3 upstream TextExtents tests |
 | Font extents tuple | Done | Exposed as named `FontExtents` pure value per `AGENTS.md`, with MoonBit `Eq`/`Hash`, field/component/hash fixtures, and Context/ScaledFont font-extents return coverage |
 
 ## Pattern APIs
