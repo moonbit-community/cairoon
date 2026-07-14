@@ -318,6 +318,9 @@ release trampoline so retained acquired-surface wrappers are released.
 - The project is temporarily unstable; pin exact versions or commits until a
   stable release is cut.
 - `copy_data()` copies; mutable access is through `ImageData`.
+- NumPy/pygame buffer adapters do not transfer implicitly. Use
+  `Surface::image_for_data` with `FixedArray[Byte]`, or checked `ImageData`
+  access, and build any host graphics adapter around those lifetime-safe APIs.
 - MIME payload identity differs from pycairo because data is copied.
 - Filename APIs accept UTF-8 MoonBit `String` values. Python `bytes` paths and
   `__fspath__` objects have no implicit MoonBit equivalent.

@@ -8,9 +8,10 @@ by itself to claim a complete MoonBit Cairo binding.
 
 The parent repository has broad pytest coverage across context, surface,
 pattern, font, path, region, value types, errors, file-system paths, optional
-third-party buffer integrations, and the pycairo C API. A quick inventory with
-`rg --count-matches "^def test_" tests` shows roughly 288 pytest test
-functions in `tests/test_*.py`.
+third-party buffer integrations, and the pycairo C API. The pinned source
+checkout contains exactly 288 pytest test functions across 20
+`tests/test_*.py` files; the parity gate rejects an omitted or duplicate source
+file declaration.
 
 Use it as:
 
@@ -73,7 +74,7 @@ Evaluate each slice with this scorecard:
 | API surface | Public entries appear in `src/pkg.generated.mbti`; Python-only pycairo APIs are recorded as `Decision`; `scripts/check-api-inventory.py` passes against parent `cairo/__init__.pyi` | Strong for current portable APIs; all pycairo public top-level entries, top-level constants, and 255 portable class methods are mapped to public MoonBit API anchors or explicit product decisions |
 | Reliability ledger | `API_INVENTORY.md` statuses are `Done`, `Partial`, or `Decision`; every `Partial` row names its remaining gap; this scorecard and CI/verify gate are checked by `scripts/check-reliability-ledger.py` | Strong for current migrated slices; the lint runs in the local and CI verify gate, and any future full-product claim still requires zero `Todo`/`Partial` rows |
 | FFI boundary safety | Production raw `src/**/ffi*.mbt` declarations are native-gated in their owning `moon.pkg`, mark every non-primitive C FFI parameter with `#borrow` or `#owned`, and `scripts/check-project-layout.py` plus `scripts/check-ffi-ownership.py` pass | Strong for current raw externs, including internal helper packages; both lints run in the local and CI verify gate |
-| Behavioral parity | pycairo-derived black-box cases or direct C Cairo primitive oracles cover normal and invalid inputs | Strong for image, context, path, font, pattern, region, surface/device, and backend helpers already listed in the inventory; all 280 upstream API, Context, Device, Enums, Error, FilePaths, Font, Glyph, Matrix, Path, Pattern, Rectangle, Region, Surface, TextCluster, and TextExtents tests are pinned and mapped to 187 family-local MoonBit runtime anchors, 279 required generated static API anchors, 28 deliberately absent signatures, and 1 explicit inventory decision |
+| Behavioral parity | pycairo-derived black-box cases or direct C Cairo primitive oracles cover normal and invalid inputs | Strong for image, context, path, font, pattern, region, surface/device, and backend helpers already listed in the inventory; all 288 tests from all 20 upstream test files are pinned and mapped to 197 family-local MoonBit runtime anchors, 291 required generated static API anchors, 29 deliberately absent signatures, 4 explicit inventory decisions, and 1 mandatory static verify gate |
 | Rendering parity | Deterministic image pixels or normalized PDF/PS/SVG bytes match direct C Cairo output | Strong for the enumerated image and vector fixtures, including backend page-transition, state-stack, deep-tag, metadata-outline, page-ops, tag-metadata, structure-sequence, outline-sequence, pattern-tag, semantic-index, bookmark-lattice, revision-ledger, article-thread, review-dossier, appendix-rubric, research-note, cross-reference, and link-audit tag/metadata/page-operation output; still partial for broader tag/metadata/multi-page combinations |
 | Lifetime safety | External-object ownership, borrowed returns, callback retention, and error exits run under ASan/LSan or stress tests | Strong for targeted local gates; macOS LSan remains intentionally disabled for known toy-font/glyph leak reports |
 | Callback safety | C-held MoonBit callbacks and callback arguments are retained across the callback invocation and released deterministically | Strong for stream writers/readers and raster-source callbacks covered by current stress/fuzz tests |
@@ -114,17 +115,18 @@ system Cairo installation may have changed. Run `scripts/check-api-inventory.py`
 whenever the pycairo stub, public API, or inventory changes. Run
 `scripts/check-pycairo-test-parity.py` whenever a tracked pycairo test file,
 its family black-box tests, or a generated family signature changes. Each
-ledger pins the upstream source digest and maps every upstream test to runtime
-evidence. A runtime-less product decision must cite an exact inventory anchor
-and state its MoonBit adaptation. Every Python runtime `TypeError` assertion
-also requires present or deliberately absent static API evidence. A detected
-parent pycairo source tree must contain every ledger source; use
-`--require-source` to enforce this in other strict environments. The current
-API, Context, Device, Enums, Error, FilePaths, Font, Glyph, Matrix, Path,
-Pattern, Rectangle, Region, Surface, TextCluster, and TextExtents ledgers cover
-280 upstream tests with 187 family-local runtime anchors, 279 required public
-signatures, 28 deliberately absent signatures, and 1 explicit inventory
-decision. Run
+ledger pins the upstream source digest and maps every upstream test to runtime,
+inventory-decision, or mandatory static-gate evidence. A runtime-less product
+decision must cite an exact inventory anchor and state its MoonBit adaptation;
+a static gate must cite a command in `scripts/verify.sh` and explain the same.
+Every Python runtime `TypeError` assertion also requires present or deliberately
+absent static API evidence. A detected parent pycairo source tree must contain
+every ledger source; use `--require-source` to enforce this in other strict
+environments. The current 20 family ledgers cover all 288 upstream tests with
+197 family-local runtime anchors, 291 required public signatures, 29
+deliberately absent signatures, 4 explicit inventory decisions, and 1
+mandatory static verify gate. A detected source checkout must have exactly one
+ledger for every `tests/test_*.py` file. Run
 `scripts/check-ffi-ownership.py` whenever raw extern declarations change. Run
 `scripts/check-project-layout.py` whenever package structure, root source files,
 or `PROJECT_LAYOUT.md` changes. Run `scripts/check-source-size-budget.py`
@@ -3868,6 +3870,14 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, 2026-07-
   across 16 families. The full local gate passes 739/739 native tests plus
   every configured ASan package, with no native test-count change; the
   reliability ledger remains at 2 explicit `Partial` rows.
+  A later final-source parity slice added `scripts/parity/cmodule.json`,
+  `typing.json`, `surface_numpy.json`, and `surface_pygame.json`, pinning the
+  remaining 8 upstream tests to 10 runtime anchors, 12 required signatures, 1
+  deliberately absent CAPI signature, 3 family-local decisions, and 1 static
+  verify-gate anchor. The checker now rejects duplicate ledger source files and
+  any unclaimed upstream `tests/test_*.py` file. Source-backed parity therefore
+  covers all 288 tests across all 20 files exactly once; the native test count
+  remains 739 and the reliability ledger remains at 2 explicit `Partial` rows.
 
 Remaining reliability work is now narrower and should be tracked as evidence,
 not as an unstructured checklist:

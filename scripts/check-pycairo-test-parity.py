@@ -32,6 +32,7 @@ MAPPING_FIELDS = {
     "static_api",
     "static_absent",
     "decision",
+    "gate",
     "adaptation",
 }
 
@@ -149,8 +150,9 @@ def validate(
     ledger_path: pathlib.Path,
     public_api: str,
     inventory: str,
+    verify_gate: str,
     require_source: bool,
-) -> tuple[list[str], str, int, int, int, int, int, str]:
+) -> tuple[list[str], str, str, int, int, int, int, int, int, str]:
     errors: list[str] = []
     try:
         ledger = load_ledger(ledger_path)
@@ -158,6 +160,8 @@ def validate(
         return (
             [f"{ledger_path}: {exc}"],
             ledger_path.stem,
+            "",
+            0,
             0,
             0,
             0,
@@ -201,6 +205,7 @@ def validate(
         upstream.get("path"),
         errors,
     )
+    source_key = source_relative.as_posix() if source_relative is not None else ""
     upstream_path = (
         upstream_root.joinpath(*source_relative.parts)
         if source_relative is not None
@@ -280,6 +285,7 @@ def validate(
     used_static: set[str] = set()
     required_absent: set[str] = set()
     used_decisions: set[str] = set()
+    used_gates: set[str] = set()
     for name, mapping in sorted(mappings.items()):
         owner = f"{ledger_path}: tests.{name}"
         if not isinstance(name, str) or not name.startswith("test_"):
@@ -299,11 +305,17 @@ def validate(
                 errors.append(
                     f"{owner}: missing inventory decision anchor {decision!r}"
                 )
+        gate = string_list(
+            f"{owner}.gate",
+            mapping.get("gate"),
+            errors,
+            required=False,
+        )
         runtime = string_list(
             f"{owner}.runtime",
             mapping.get("runtime"),
             errors,
-            required=not valid_decision,
+            required=not valid_decision and not gate,
         )
         static_api = string_list(
             f"{owner}.static_api",
@@ -323,6 +335,8 @@ def validate(
             errors.append(f"{owner}.adaptation: must be a non-empty string")
         if valid_decision and not valid_adaptation:
             errors.append(f"{owner}: decision mappings require adaptation")
+        if gate and not valid_adaptation:
+            errors.append(f"{owner}: gate mappings require adaptation")
         if name in mapped_type_errors and not static_api and not static_absent:
             errors.append(f"{owner}: requires static_api or static_absent evidence")
         for anchor in runtime:
@@ -337,15 +351,21 @@ def validate(
             required_absent.add(anchor)
             if anchor in public_api:
                 errors.append(f"{owner}: forbidden public API anchor {anchor!r} is present")
+        for anchor in gate:
+            used_gates.add(anchor)
+            if anchor not in verify_gate:
+                errors.append(f"{owner}: missing verify gate anchor {anchor!r}")
 
     return (
         errors,
         family,
+        source_key,
         len(mapped_names),
         len(used_runtime),
         len(used_static),
         len(required_absent),
         len(used_decisions),
+        len(used_gates),
         source_mode,
     )
 
@@ -364,6 +384,7 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--public-api", type=pathlib.Path)
     parser.add_argument("--inventory", type=pathlib.Path)
+    parser.add_argument("--verify-script", type=pathlib.Path)
     parser.add_argument(
         "--require-source",
         action="store_true",
@@ -379,6 +400,7 @@ def main() -> int:
     ledger_dir = (args.ledger_dir or repo_root / "scripts/parity").resolve()
     public_api_path = (args.public_api or repo_root / "src/pkg.generated.mbti").resolve()
     inventory_path = (args.inventory or repo_root / "API_INVENTORY.md").resolve()
+    verify_path = (args.verify_script or repo_root / "scripts/verify.sh").resolve()
     source_marker = upstream_root.joinpath(*PYCAIRO_SOURCE_MARKER.parts)
     require_source = args.require_source or source_marker.is_file()
     ledger_paths = (
@@ -399,10 +421,16 @@ def main() -> int:
     except OSError as exc:
         print(f"{inventory_path}: cannot read API inventory: {exc}", file=sys.stderr)
         return 1
+    try:
+        verify_gate = verify_path.read_text(encoding="utf-8")
+    except OSError as exc:
+        print(f"{verify_path}: cannot read verify script: {exc}", file=sys.stderr)
+        return 1
 
     errors: list[str] = []
-    summaries: list[tuple[str, int, int, int, int, int, str]] = []
+    summaries: list[tuple[str, int, int, int, int, int, int, str]] = []
     seen_families: set[str] = set()
+    seen_sources: dict[str, pathlib.Path] = {}
     for ledger_path in ledger_paths:
         result = validate(
             repo_root=repo_root,
@@ -410,21 +438,54 @@ def main() -> int:
             ledger_path=ledger_path,
             public_api=public_api,
             inventory=inventory,
+            verify_gate=verify_gate,
             require_source=require_source,
         )
-        ledger_errors, family, tests, runtime, static, absent, decisions, mode = result
+        (
+            ledger_errors,
+            family,
+            source_key,
+            tests,
+            runtime,
+            static,
+            absent,
+            decisions,
+            gates,
+            mode,
+        ) = result
         errors.extend(ledger_errors)
         if family in seen_families:
             errors.append(f"{ledger_path}: duplicate parity family {family!r}")
         seen_families.add(family)
-        summaries.append((family, tests, runtime, static, absent, decisions, mode))
+        if source_key:
+            previous = seen_sources.get(source_key)
+            if previous is not None:
+                errors.append(
+                    f"{ledger_path}: duplicate upstream test source {source_key!r}; "
+                    f"first declared by {previous}"
+                )
+            else:
+                seen_sources[source_key] = ledger_path
+        summaries.append(
+            (family, tests, runtime, static, absent, decisions, gates, mode)
+        )
+
+    if source_marker.is_file() and not args.ledger:
+        upstream_test_root = upstream_root / "tests"
+        discovered_sources = {
+            path.relative_to(upstream_root).as_posix()
+            for path in upstream_test_root.glob("test_*.py")
+            if path.is_file()
+        }
+        for source_key in sorted(discovered_sources - set(seen_sources)):
+            errors.append(f"unmapped upstream test file {source_key!r}")
 
     if errors:
         for error in errors:
             print(error, file=sys.stderr)
         return 1
 
-    for family, tests, runtime, static, absent, decisions, mode in summaries:
+    for family, tests, runtime, static, absent, decisions, gates, mode in summaries:
         suffix = (
             "verified against pycairo source"
             if mode == "source"
@@ -435,7 +496,8 @@ def main() -> int:
             f"{runtime} MoonBit runtime {plural(runtime, 'anchor')}, {static} "
             f"required static API {plural(static, 'anchor')}, {absent} forbidden "
             f"static API {plural(absent, 'anchor')}, and {decisions} inventory "
-            f"decision {plural(decisions, 'anchor')}; {suffix}"
+            f"decision {plural(decisions, 'anchor')}, plus {gates} verify gate "
+            f"{plural(gates, 'anchor')}; {suffix}"
         )
     if len(summaries) > 1:
         total_tests = sum(summary[1] for summary in summaries)

@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "family": "CModule",
+  "runtime_root": "src/tests",
+  "upstream": {
+    "repository": "https://github.com/pygobject/pycairo",
+    "commit": "80ea3348aff95e8441e6c3e2086371ea40528d81",
+    "path": "tests/test_cmod.py",
+    "sha256": "ae720da73057480de2d1755ba28c35e751598c9c5aeec6ffda23e28e5b1bca35",
+    "test_count": 4
+  },
+  "type_error_policy": "The pycairo C module exercises CPython capsule wrappers. Cairoon tests the corresponding Cairo object/status behavior through typed MoonBit APIs; the CPython extension ABI itself is an explicit product decision.",
+  "type_error_tests": [],
+  "tests": {
+    "test_create_image_surface": {
+      "runtime": ["src/tests/api/pycairo/api_pycairo_parity_test.mbt::pycairo surface constructor smoke fixture"],
+      "static_api": ["pub fn Surface::image(Format, Int, Int) -> Self raise CairoError"],
+      "adaptation": "A native MoonBit Surface wrapper replaces PycairoSurface_FromSurface while preserving checked image creation and owned Cairo lifetime."
+    },
+    "test_create_context": {
+      "runtime": ["src/tests/api/pycairo/api_pycairo_parity_test.mbt::pycairo surface destroy before context fixture"],
+      "static_api": [
+        "pub fn Context::new(Surface) -> Self raise CairoError",
+        "pub fn Context::get_target(Self) -> Surface raise CairoError"
+      ],
+      "adaptation": "Context::new and referenced get_target wrappers replace PycairoContext_FromContext, including target retention after the original Surface binding leaves scope."
+    },
+    "test_check_status": {
+      "runtime": [
+        "src/tests/status/core/status_error_test.mbt::run_cairo returns Ok for success",
+        "src/tests/status/core/status_error_test.mbt::status error mapping classifies every cairo status"
+      ],
+      "static_api": ["pub fn check_status(Status) -> Unit raise CairoError"],
+      "decision": "| `CAPI` | Decision |",
+      "adaptation": "Known Cairo statuses map to typed CairoError suberrors. Pycairo_Check_Status's arbitrary raw integer input belongs to the CPython C API; cairoon's closed Status type rejects unknown values at the conversion boundary instead of preserving an untyped integer payload."
+    },
+    "test_capi": {
+      "decision": "| `CAPI` | Decision |",
+      "static_absent": ["CAPI"],
+      "adaptation": "The tested py3cairo.h type table and From* functions are a CPython extension ABI. Cairoon directly wraps Cairo objects as MoonBit external objects and deliberately exports no Python capsule table."
+    }
+  }
+}

@@ -81,6 +81,7 @@ cairoon/
   scripts/
     parity/
       api.json
+      cmodule.json
       context.json
       device.json
       enums.json
@@ -94,8 +95,11 @@ cairoon/
       rectangle.json
       region.json
       surface.json
+      surface_numpy.json
+      surface_pygame.json
       textcluster.json
       textextents.json
+      typing.json
     tests/
       test_pycairo_test_parity.py
   src/

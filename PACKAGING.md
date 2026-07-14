@@ -104,12 +104,12 @@ Use:
 ```
 
 The gate runs formatting, link-flag drift checks, static FFI ownership linting,
-top-level pycairo API inventory linting, pinned pycairo API, Context, Device,
-Enums, Error, FilePaths, Font, Glyph, Matrix, Path, Pattern, Rectangle, Region,
-Surface, TextCluster, and TextExtents test parity, native type checking,
-targeted image/scaled-font/vector/pattern oracle tests, the full native test
-suite, `moon info --target native`, and targeted ASan tests when an
-ASan-capable `clang` is available.
+top-level pycairo API inventory linting, all 20 pinned pycairo test-file
+families (288 tests), native type checking, targeted
+image/scaled-font/vector/pattern oracle tests, the full native test suite,
+`moon info --target native`, and targeted ASan tests when an ASan-capable
+`clang` is available. A detected pycairo checkout must have exactly one ledger
+for every `tests/test_*.py` source file.
 
 Set `CAIROON_VERIFY_ASAN=0` only when intentionally skipping the targeted ASan
 portion. Set `CAIROON_ASAN_CC` and `CAIROON_ASAN_AR` to force the compiler pair

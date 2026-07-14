@@ -24,6 +24,7 @@ class PycairoTestParityCheckerTests(unittest.TestCase):
         self.runtime_tests = self.repo_root / "src/tests/sample"
         self.public_api = self.repo_root / "src/pkg.generated.mbti"
         self.inventory = self.repo_root / "API_INVENTORY.md"
+        self.verify_gate = self.repo_root / "scripts/verify.sh"
         self.ledger = self.repo_root / "sample-test-parity.json"
         self.ledger_dir = self.repo_root / "scripts/parity"
 
@@ -58,6 +59,11 @@ test "typed evidence" {
         )
         self.inventory.write_text(
             "| `get_include()` | Decision | Python-only header discovery |\n",
+            encoding="utf-8",
+        )
+        self.verify_gate.parent.mkdir(parents=True, exist_ok=True)
+        self.verify_gate.write_text(
+            "python3 ./scripts/check-api-inventory.py\n",
             encoding="utf-8",
         )
         self.ledger_data = {
@@ -221,6 +227,48 @@ def test_typed():
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("decision mappings require adaptation", result.stderr)
 
+    def test_gate_mapping_can_replace_runtime_evidence(self) -> None:
+        self.upstream.write_text("def test_runtime():\n    pass\n", encoding="utf-8")
+        self.ledger_data["upstream"]["sha256"] = hashlib.sha256(
+            self.upstream.read_bytes()
+        ).hexdigest()
+        self.ledger_data["upstream"]["test_count"] = 1
+        self.ledger_data["type_error_tests"] = []
+        self.ledger_data["tests"] = {
+            "test_runtime": {
+                "gate": ["python3 ./scripts/check-api-inventory.py"],
+                "adaptation": "MoonBit validates its generated public interface.",
+            }
+        }
+        self.write_ledger()
+
+        result = self.run_checker()
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_gate_mapping_requires_verify_anchor(self) -> None:
+        self.ledger_data["tests"]["test_runtime"] = {
+            "gate": ["python3 ./scripts/missing.py"],
+            "adaptation": "A static verifier replaces runtime protocol behavior.",
+        }
+        self.write_ledger()
+
+        result = self.run_checker()
+
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("missing verify gate anchor", result.stderr)
+
+    def test_gate_mapping_requires_adaptation(self) -> None:
+        self.ledger_data["tests"]["test_runtime"] = {
+            "gate": ["python3 ./scripts/check-api-inventory.py"]
+        }
+        self.write_ledger()
+
+        result = self.run_checker()
+
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("gate mappings require adaptation", result.stderr)
+
     def test_missing_runtime_anchor_fails(self) -> None:
         self.ledger_data["tests"]["test_runtime"]["runtime"] = [
             "src/tests/sample/sample_test.mbt::missing evidence"
@@ -252,6 +300,20 @@ def test_typed():
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("source checkout is missing", result.stderr)
 
+    def test_detected_source_checkout_requires_every_test_file_ledger(self) -> None:
+        marker = self.repo_root / "cairo/__init__.pyi"
+        marker.parent.mkdir()
+        marker.write_text("", encoding="utf-8")
+        extra = self.repo_root / "tests/test_extra.py"
+        extra.parent.mkdir()
+        extra.write_text("def test_extra():\n    pass\n", encoding="utf-8")
+        self.write_ledger(self.ledger_dir / "sample.json")
+
+        result = self.run_checker(discover_ledgers=True)
+
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("unmapped upstream test file 'tests/test_extra.py'", result.stderr)
+
     def test_require_source_rejects_snapshot_fallback(self) -> None:
         self.upstream.unlink()
 
@@ -263,6 +325,12 @@ def test_typed():
     def test_default_ledger_discovery_checks_multiple_families(self) -> None:
         other = copy.deepcopy(self.ledger_data)
         other["family"] = "Other"
+        other_source = self.repo_root / "other_test_sample.py"
+        other_source.write_bytes(self.upstream.read_bytes())
+        other["upstream"]["path"] = "other_test_sample.py"
+        other["upstream"]["sha256"] = hashlib.sha256(
+            other_source.read_bytes()
+        ).hexdigest()
         self.write_ledger(self.ledger_dir / "sample.json")
         self.write_ledger(self.ledger_dir / "other.json", other)
 
@@ -281,6 +349,17 @@ def test_typed():
 
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("duplicate parity family", result.stderr)
+
+    def test_default_ledger_discovery_rejects_duplicate_upstream_source(self) -> None:
+        other = copy.deepcopy(self.ledger_data)
+        other["family"] = "Other"
+        self.write_ledger(self.ledger_dir / "sample.json")
+        self.write_ledger(self.ledger_dir / "other.json", other)
+
+        result = self.run_checker(discover_ledgers=True)
+
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("duplicate upstream test source", result.stderr)
 
     def test_source_sha_drift_fails(self) -> None:
         self.upstream.write_text(

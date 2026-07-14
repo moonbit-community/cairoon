@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "family": "SurfacePygame",
+  "runtime_root": "src/tests",
+  "upstream": {
+    "repository": "https://github.com/pygobject/pycairo",
+    "commit": "80ea3348aff95e8441e6c3e2086371ea40528d81",
+    "path": "tests/test_surface_pygame.py",
+    "sha256": "b15cb7b9a5c85f115dc4639d0bd48fc4fe1229b30dcf71907f10044f0cb7c508",
+    "test_count": 1
+  },
+  "type_error_policy": "pygame.image.frombuffer is a Python third-party adapter. Cairoon exposes the underlying retained ImageData and copied Bytes operations with typed dimensions; pygame object and format-string validation do not enter the MoonBit API.",
+  "type_error_tests": [],
+  "tests": {
+    "test_image_surface_to_pygame_image": {
+      "runtime": [
+        "src/tests/image/data/image_data_test.mbt::pycairo image surface get_data mutable view fixture",
+        "src/tests/surface/base/surface_context_test.mbt::context paints deterministic argb32 bytes"
+      ],
+      "static_api": [
+        "pub fn Surface::get_data(Self) -> ImageData raise CairoError",
+        "pub fn ImageData::copy(Self) -> Bytes raise CairoError"
+      ],
+      "decision": "| Python buffer protocol / NumPy / pygame adapters | Decision |",
+      "adaptation": "The Python-specific pygame Surface conversion is outside cairoon's runtime API. ImageData retention plus deterministic native BGRA byte order provide the data needed by a separately designed MoonBit graphics adapter without exposing a dangling pointer."
+    }
+  }
+}

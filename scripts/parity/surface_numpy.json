@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "family": "SurfaceNumpy",
+  "runtime_root": "src/tests",
+  "upstream": {
+    "repository": "https://github.com/pygobject/pycairo",
+    "commit": "80ea3348aff95e8441e6c3e2086371ea40528d81",
+    "path": "tests/test_surface_numpy.py",
+    "sha256": "491946a199dfc6365d30b9e3ac67339786c066b6df6770cf8e0892facb96dd27",
+    "test_count": 2
+  },
+  "type_error_policy": "NumPy ndarray and Python buffer-protocol coercions map to explicit typed FixedArray[Byte] backing storage and checked ImageData access. Shape, dtype, and foreign Python object errors are rejected before the Cairo API boundary rather than at runtime in cairoon.",
+  "type_error_tests": [],
+  "tests": {
+    "test_image_surface_create_for_data_numpy_array": {
+      "runtime": [
+        "src/tests/image/buffer/image_surface_data_test.mbt::image surface for data shares caller buffer",
+        "src/tests/image/buffer/image_surface_data_test.mbt::pycairo image surface create_for_data array fixture"
+      ],
+      "static_api": [
+        "pub fn Surface::image_for_data(FixedArray[Byte], Format, Int, Int, stride? : Int) -> Self raise CairoError",
+        "pub fn Surface::copy_data(Self) -> Bytes raise CairoError"
+      ],
+      "decision": "| Python buffer protocol / NumPy / pygame adapters | Decision |",
+      "adaptation": "A typed FixedArray[Byte] replaces NumPy's exported Python buffer. The MoonBit fixtures reproduce the ARGB32 population formula, shared backing storage, dimensions, stride, byte layout, and Cairo-owned lifetime without importing NumPy."
+    },
+    "test_image_surface_get_data_to_numpy_array": {
+      "runtime": [
+        "src/tests/image/data/image_data_test.mbt::pycairo image surface get_data mutable view fixture",
+        "src/tests/surface/base/surface_context_test.mbt::context paints deterministic argb32 bytes"
+      ],
+      "static_api": [
+        "pub fn Surface::get_data(Self) -> ImageData raise CairoError",
+        "pub fn ImageData::copy(Self) -> Bytes raise CairoError",
+        "pub fn ImageData::get(Self, Int) -> Byte raise CairoError",
+        "pub fn ImageData::set(Self, Int, Byte) -> Unit raise CairoError"
+      ],
+      "decision": "| Python buffer protocol / NumPy / pygame adapters | Decision |",
+      "adaptation": "ImageData is a retained, bounds-checked mutable pixel view rather than an unscoped Python buffer export. Runtime tests prove live writes, Cairo repaint visibility, and native ARGB32 byte order."
+    }
+  }
+}

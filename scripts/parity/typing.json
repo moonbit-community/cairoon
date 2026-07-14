@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "family": "Typing",
+  "runtime_root": "src/tests",
+  "upstream": {
+    "repository": "https://github.com/pygobject/pycairo",
+    "commit": "80ea3348aff95e8441e6c3e2086371ea40528d81",
+    "path": "tests/test_typing.py",
+    "sha256": "1cb731bb506ea9f9543c350890ba01b9e7a5f2d4063d25dd1d13d926b6014a55",
+    "test_count": 1
+  },
+  "type_error_policy": "Pycairo verifies that its Python .pyi namespace covers runtime names. MoonBit generates pkg.generated.mbti from checked source, and the mandatory API inventory gate compares that interface with every portable pycairo entry.",
+  "type_error_tests": [],
+  "tests": {
+    "test_typing": {
+      "gate": ["python3 ./scripts/check-api-inventory.py"],
+      "adaptation": "The mandatory API inventory gate replaces Python stub execution: it parses cairo/__init__.pyi and requires each portable public entry to map to src/pkg.generated.mbti or an explicit product decision."
+    }
+  }
+}
