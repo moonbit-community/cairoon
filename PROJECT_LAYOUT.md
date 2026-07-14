@@ -82,6 +82,8 @@ cairoon/
     parity/
       context.json
       device.json
+      enums.json
+      error.json
       font.json
       glyph.json
       matrix.json

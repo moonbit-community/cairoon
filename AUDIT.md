@@ -22,12 +22,13 @@ Implemented in this workspace:
   public MoonBit API anchor in `src/pkg.generated.mbti`.
 - Executable pycairo family test parity through
   `scripts/check-pycairo-test-parity.py` and the ledgers under
-  `scripts/parity/`, wired into `scripts/verify.sh`. The Context, Device, Font,
-  Glyph, Matrix, Path, Pattern, Rectangle, Region, Surface, TextCluster, and
-  TextExtents ledgers pin upstream sources by commit and SHA-256, require all
-  252 upstream tests to map to existing MoonBit black-box test anchors, and map
-  Python runtime `TypeError` assertions to required or deliberately absent
-  generated public signatures. The checker's positive and negative fixtures
+  `scripts/parity/`, wired into `scripts/verify.sh`. The Context, Device, Enums,
+  Error, Font, Glyph, Matrix, Path, Pattern, Rectangle, Region, Surface,
+  TextCluster, and TextExtents ledgers pin upstream sources by commit and
+  SHA-256, require all 263 upstream tests to map to existing MoonBit black-box
+  test anchors, and map Python runtime `TypeError` assertions to required or
+  deliberately absent generated public signatures. The checker's positive and
+  negative fixtures
   run from `scripts/tests`, and pinned snapshots keep the gate usable in a
   standalone cairoon checkout without the parent pycairo source tree. When the
   parent pycairo marker is present, a missing ledger source is an error instead
@@ -45,11 +46,15 @@ Implemented in this workspace:
   verifies those flags alongside the public and native package configs.
 - The external API black-box packages cover version helpers, portable enum
   constructors, `Format::stride_for_width`, `FORMAT_INVALID`, and pycairo
-  `test_api.py` smoke/lifetime fixtures.
+  `test_api.py` smoke/lifetime fixtures. The pinned Enum ledger maps all 7
+  upstream enum tests to typed constructor, raw-value, status, flag, observer,
+  stride, and explicit Python-only protocol decisions.
 - Status/error black-box tests now live in `src/tests/status/core`, importing
   only the public `CAIMEOX/cairoon` API. This validates `check_status`,
   `run_cairo`, public `Status::message`, and all `CairoError` suberror classes
-  through the published package seam.
+  through the published package seam; the pinned Error ledger maps all 4
+  upstream error tests to exhaustive classification and real Context failure
+  evidence.
 - Pure public value black-box tests now live in
   `src/tests/value/{core,pycairo}`, importing only the public
   `CAIMEOX/cairoon` API. This validates rectangles, glyphs, text clusters, and
@@ -519,13 +524,13 @@ Implemented in this workspace:
   Cairo's native observer surface/device APIs and native FreeType/user-font
   extension APIs are intentionally outside the current pycairo-migration
   product.
-- Gate 2 behavioral parity: partial but strong. Pinned Context, Device, Font,
-  Glyph, Matrix, Path, Pattern, Rectangle, Region, Surface, TextCluster, and
-  TextExtents ledgers map 252 upstream tests to 163 family-local MoonBit runtime
-  anchors, 228 required public signatures, and 20 deliberately absent
-  signatures. Additional black-box tests cover API, raster-source callback,
-  and error behavior; those remaining upstream families still need exact
-  ledgers before this gate is complete.
+- Gate 2 behavioral parity: partial but strong. Pinned Context, Device, Enums,
+  Error, Font, Glyph, Matrix, Path, Pattern, Rectangle, Region, Surface,
+  TextCluster, and TextExtents ledgers map 263 upstream tests to 169
+  family-local MoonBit runtime anchors, 243 required public signatures, and 24
+  deliberately absent signatures. Additional black-box tests cover API and
+  raster-source callback behavior; those remaining upstream families still
+  need exact ledgers before this gate is complete.
 - Gate 3 differential rendering: partial. Deterministic raw-pixel rendering
   tests exist for direct colors and explicit patterns, a direct C image oracle
   covers forty-seven deterministic ARGB32 scenes including stroke, rectangle,
@@ -621,10 +626,10 @@ The most recent full local verification passed on 2026-07-15:
   reliability-ledger, and vector-scene gates; native type checking; all
   739/739 native tests; generated-interface review; and every configured
   targeted ASan package with leak detection disabled under the documented
-  macOS policy. The parity gate verified all 252 pinned Context, Device, Font,
-  Glyph, Matrix, Path, Pattern, Rectangle, Region, Surface, TextCluster, and
-  TextExtents tests against the parent pycairo source checkout, and the
-  reliability ledger reported 2 explicit `Partial` rows.
+  macOS policy. The parity gate verified all 263 pinned Context, Device, Enums,
+  Error, Font, Glyph, Matrix, Path, Pattern, Rectangle, Region, Surface,
+  TextCluster, and TextExtents tests against the parent pycairo source checkout,
+  and the reliability ledger reported 2 explicit `Partial` rows.
 
 Prior full verifies passed on 2026-07-02, 2026-07-03, 2026-07-04,
 2026-07-05, and earlier 2026-07-06 slices. The most recent 2026-07-06 run:

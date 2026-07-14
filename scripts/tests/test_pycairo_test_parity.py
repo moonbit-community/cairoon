@@ -133,6 +133,47 @@ test "typed evidence" {
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn("Sample parity ledger covers 2 upstream tests", result.stdout)
 
+    def test_source_without_type_errors_accepts_empty_mapping(self) -> None:
+        self.upstream.write_text(
+            """\
+def test_runtime():
+    pass
+""",
+            encoding="utf-8",
+        )
+        self.ledger_data["upstream"]["sha256"] = hashlib.sha256(
+            self.upstream.read_bytes()
+        ).hexdigest()
+        self.ledger_data["upstream"]["test_count"] = 1
+        self.ledger_data["type_error_tests"] = []
+        del self.ledger_data["tests"]["test_typed"]
+        self.write_ledger()
+
+        result = self.run_checker()
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_tuple_type_error_assertion_is_detected(self) -> None:
+        self.upstream.write_text(
+            """\
+def test_runtime():
+    pass
+
+def test_typed():
+    with pytest.raises((TypeError, AttributeError)):
+        object()
+""",
+            encoding="utf-8",
+        )
+        self.ledger_data["upstream"]["sha256"] = hashlib.sha256(
+            self.upstream.read_bytes()
+        ).hexdigest()
+        self.write_ledger()
+
+        result = self.run_checker()
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+
     def test_missing_runtime_anchor_fails(self) -> None:
         self.ledger_data["tests"]["test_runtime"]["runtime"] = [
             "src/tests/sample/sample_test.mbt::missing evidence"

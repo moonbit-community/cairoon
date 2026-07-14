@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "family": "Error",
+  "runtime_root": "src/tests",
+  "upstream": {
+    "repository": "https://github.com/pygobject/pycairo",
+    "commit": "80ea3348aff95e8441e6c3e2086371ea40528d81",
+    "path": "tests/test_error.py",
+    "sha256": "27ed73412386c7b84508d1748673651d40f84a1ef054858c9e1b944261dbc93e",
+    "test_count": 4
+  },
+  "type_error_policy": "Pycairo's mutable Python exception object maps to a closed MoonBit CairoError suberror family with immutable typed Status and String payloads. Deleting payload fields, parameterless construction, arbitrary integer status payloads, runtime subclassing, and Python exception aliases are rejected or inapplicable; run_cairo provides an explicit Result adapter.",
+  "type_error_tests": ["test_error_check_status"],
+  "tests": {
+    "test_error_check_status": {
+      "runtime": ["src/tests/status/core/status_error_test.mbt::status error mapping classifies every cairo status"],
+      "static_api": [
+        "pub fn check_status(Status) -> Unit raise CairoError",
+        "pub suberror CairoError {\n  CairoError(Status, String)\n  CairoMemoryError(Status, String)\n  CairoIOError(Status, String)\n  CairoInvalidArgument(Status, String)\n} derive(@debug.Debug)",
+        "pub fn Status::message(Self) -> String"
+      ],
+      "adaptation": "Cairo statuses map exhaustively to general, memory, IO, or invalid-argument suberrors. Payloads are immutable typed values, so Python-style status reassignment/deletion is unavailable."
+    },
+    "test_error_context": {
+      "runtime": ["src/tests/context/state/context_state_test.mbt::context invalid restore maps to cairo error"],
+      "static_api": [
+        "pub fn Context::restore(Self) -> Unit raise CairoError",
+        "pub fn Context::status(Self) -> Status"
+      ]
+    },
+    "test_error": {
+      "runtime": ["src/tests/status/core/status_error_test.mbt::status error mapping classifies every cairo status"],
+      "static_api": ["pub suberror CairoError {"],
+      "adaptation": "CairoError is a closed suberror family whose constructors require typed Status and String payloads. Parameterless/arbitrary Python exception construction and runtime subclassing do not transfer to MoonBit."
+    },
+    "test_error_alias": {
+      "runtime": ["src/tests/status/core/status_error_test.mbt::status error mapping classifies every cairo status"],
+      "static_api": ["pub suberror CairoError {"],
+      "adaptation": "MoonBit exposes one CairoError suberror family; there is no separate Error class requiring a compatibility alias."
+    }
+  }
+}

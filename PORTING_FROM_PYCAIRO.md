@@ -213,7 +213,10 @@ test {
 
 Use `try`/`catch` for local handling, or `run_cairo` when a `Result` is more
 convenient. `CairoError` has suberrors for memory, IO/PNG/read/write, and
-invalid-argument statuses.
+invalid-argument statuses. Its `Status` and `String` payloads are immutable;
+Python-style status reassignment/deletion, parameterless exception
+construction, runtime exception subclassing, and the `Error`/`CairoError`
+class alias do not transfer to MoonBit.
 
 Typical translations:
 
@@ -321,6 +324,9 @@ release trampoline so retained acquired-surface wrappers are released.
   constructors, for example `Surface::pdf(width, height)` for a no-output PDF.
 - Python `int` enum passthrough is available only through documented raw helper
   methods such as `set_operator_raw`; prefer typed enums in new MoonBit code.
+- MoonBit enums are closed values, not Python `int` subclasses. Legacy
+  uppercase enum aliases and Python pickle compatibility are deliberately
+  absent; use the typed constructors and `Debug` representation.
 - Exact vector bytes are Cairo-version and backend dependent; current tests
   compare against direct Cairo C output and selected stable markers.
 - The current implementation is still tracked in `API_INVENTORY.md`; do not

@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "family": "Enums",
+  "runtime_root": "src/tests/api",
+  "upstream": {
+    "repository": "https://github.com/pygobject/pycairo",
+    "commit": "80ea3348aff95e8441e6c3e2086371ea40528d81",
+    "path": "tests/test_enums.py",
+    "sha256": "c1a869717ef06c6a6e8529248c900df51d4a9b05d5ce559d7ad4af6fdc81fafb",
+    "test_count": 7
+  },
+  "type_error_policy": "Pycairo's open int-subclass enum construction, runtime subclassing, and Python reflection map to closed MoonBit enums and compile-time rejection. Typed constructors are the primary API; explicitly named raw methods preserve C-int passthrough only where pycairo accepts unknown values. Legacy uppercase enum aliases and Python pickle behavior are language-specific and deliberately absent.",
+  "type_error_tests": ["test_type"],
+  "tests": {
+    "test_type": {
+      "runtime": ["src/tests/api/enums/enums_test.mbt::portable enum constructors expose cairo names"],
+      "static_api": ["pub(all) enum Antialias {"],
+      "adaptation": "Antialias is a closed MoonBit enum rather than an int subclass. Missing/object arguments, runtime enum subclassing, Python __mro__/__module__ reflection, and construction of unknown raw values are rejected or inapplicable; raw C-int compatibility is exposed only by explicitly named APIs."
+    },
+    "test_misc": {
+      "runtime": ["src/tests/api/enums/enums_test.mbt::pycairo enum smoke fixtures"],
+      "static_api": [
+        "pub(all) enum Status {",
+        "Jbig2GlobalMissing"
+      ]
+    },
+    "test_format_methods": {
+      "runtime": ["src/tests/api/enums/enums_test.mbt::format stride_for_width delegates to cairo"],
+      "static_api": ["pub fn Format::stride_for_width(Self, Int) -> Int"],
+      "adaptation": "MoonBit method syntax is statically dispatched; Python's unbound class-call spelling is not a separate API."
+    },
+    "test_text_cluster_flags": {
+      "runtime": ["src/tests/api/enums/enums_test.mbt::pycairo enum smoke fixtures"],
+      "static_api": ["pub(all) enum TextClusterFlags {"]
+    },
+    "test_surface_observer_mode": {
+      "runtime": ["src/tests/api/enums/enums_test.mbt::pycairo enum smoke fixtures"],
+      "static_api": ["pub(all) enum SurfaceObserverMode {"],
+      "adaptation": "The portable enum value is exposed even though native observer-surface construction remains an explicit product-scope decision."
+    },
+    "test_aliases": {
+      "runtime": [
+        "src/tests/api/enums/enums_test.mbt::portable enum constructors expose cairo names",
+        "src/tests/api/enums/enums_test.mbt::pycairo module constants raw value fixture"
+      ],
+      "static_api": [
+        "pub(all) enum SVGVersion {",
+        "pub(all) enum PDFVersion {",
+        "pub(all) enum PSLevel {"
+      ],
+      "static_absent": [
+        "pub const ANTIALIAS_DEFAULT",
+        "pub const SVG_VERSION_1_1",
+        "pub const PDF_VERSION_1_4",
+        "pub const PS_LEVEL_2"
+      ],
+      "adaptation": "MoonBit cannot define uppercase enum-typed constants because non-primitive constants are not supported. Typed enum constructors replace pycairo's legacy aliases; primitive module constants remain available where representable."
+    },
+    "test_pickle": {
+      "runtime": ["src/tests/api/enums/enums_test.mbt::portable enum constructors expose cairo names"],
+      "adaptation": "Python pickle compatibility is not part of a native MoonBit value API. Closed enum values have stable typed constructors and Debug output instead."
+    }
+  }
+}

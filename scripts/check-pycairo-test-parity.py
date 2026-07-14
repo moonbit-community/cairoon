@@ -59,8 +59,9 @@ def is_pytest_type_error_assertion(node: ast.AST) -> bool:
     if not isinstance(node.func, ast.Attribute) or node.func.attr != "raises":
         return False
     return any(
-        isinstance(argument, ast.Name) and argument.id == "TypeError"
+        isinstance(child, ast.Name) and child.id == "TypeError"
         for argument in node.args
+        for child in ast.walk(argument)
     )
 
 
@@ -100,6 +101,7 @@ def string_list(
     errors: list[str],
     *,
     required: bool,
+    allow_empty: bool = False,
 ) -> list[str]:
     if value is None and not required:
         return []
@@ -108,7 +110,7 @@ def string_list(
     ):
         errors.append(f"{owner}: must be a list of non-empty strings")
         return []
-    if required and not value:
+    if required and not allow_empty and not value:
         errors.append(f"{owner}: must not be empty")
     if len(value) != len(set(value)):
         errors.append(f"{owner}: contains duplicate entries")
@@ -213,6 +215,7 @@ def validate(
         ledger.get("type_error_tests"),
         errors,
         required=True,
+        allow_empty=True,
     )
     mapped_type_errors = set(type_error_list)
     for name in sorted(mapped_type_errors - mapped_names):

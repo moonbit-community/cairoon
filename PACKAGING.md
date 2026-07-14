@@ -104,9 +104,9 @@ Use:
 ```
 
 The gate runs formatting, link-flag drift checks, static FFI ownership linting,
-top-level pycairo API inventory linting, pinned pycairo Context, Device, Font,
-Glyph, Matrix, Path, Pattern, Rectangle, Region, Surface, TextCluster, and
-TextExtents test parity, native type checking, targeted
+top-level pycairo API inventory linting, pinned pycairo Context, Device, Enums,
+Error, Font, Glyph, Matrix, Path, Pattern, Rectangle, Region, Surface,
+TextCluster, and TextExtents test parity, native type checking, targeted
 image/scaled-font/vector/pattern oracle tests, the full native test suite,
 `moon info --target native`, and targeted ASan tests when an ASan-capable
 `clang` is available.
