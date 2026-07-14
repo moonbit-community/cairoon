@@ -520,7 +520,7 @@ Implemented in this workspace:
 ## Gate Status
 
 - Gate 1 API inventory: partial. A full inventory ledger exists in
-  `API_INVENTORY.md`; two rows remain `Partial`, while `Decision` rows record
+  `API_INVENTORY.md`; one row remains `Partial`, while `Decision` rows record
   explicit product scope. The
   `CAPI`, legacy uppercase enum alias constants, `SurfaceObserverMode`,
   `FreeTypeFontFace`, and `UserFontFace` rows are resolved product decisions.
@@ -532,10 +532,10 @@ Implemented in this workspace:
   required public signatures, 29 deliberately absent signatures, 4 explicit
   inventory decisions, and 1 mandatory static verify gate. Source-set checking
   proves every upstream `tests/test_*.py` file is claimed exactly once.
-  Additional black-box tests cover raster-source callback behavior; broader
-  tag combinations and release-platform evidence still keep the product-level
-  gate partial.
-- Gate 3 differential rendering: partial. Deterministic raw-pixel rendering
+  Additional black-box tests cover raster-source callback behavior;
+  release-platform evidence still keeps the product-level gate partial.
+- Gate 3 differential rendering: strong for the portable migration scope.
+  Deterministic raw-pixel rendering
   tests exist for direct colors and explicit patterns, a direct C image oracle
   covers forty-seven deterministic ARGB32 scenes including stroke, rectangle,
   Bezier, transform, RGBA, linear/radial gradient, toy-font `text_path`,
@@ -587,7 +587,13 @@ Implemented in this workspace:
   document-structure, tagged `show_text_glyphs`, mixed vector/tag/text,
   layered three-page, and wide three-page tag
   scenes also have negative marker checks proving PDF-only tag metadata is not emitted.
-  Full cross-run comparison against pycairo output is not yet automated.
+  Scene 66 closes Cairo 1.18's finite tag-attribute contract with URI,
+  multi-rectangle, named-destination, page-position, external-file,
+  internal/extent-derived destination, content, and content-reference cases;
+  invalid attributes and nesting map to `TagError`. A pycairo byte-output
+  cross-run is not automated, but direct-C Cairo is the normative portable
+  rendering oracle and all upstream pycairo tests are pinned by the parity
+  ledger.
 - Gate 4 memory and lifetime: partial. Stub ownership follows the documented
   external-object pattern, and retained-owner stress now covers subsurfaces,
   data-backed surface patterns, data-backed raster-source acquire surfaces,
@@ -628,11 +634,13 @@ The most recent full local verification passed on 2026-07-15:
 - `./scripts/verify.sh`: passed formatting, project-layout, source-size,
   link-flag, FFI ownership, portable API inventory, pycairo parity,
   reliability-ledger, and vector-scene gates; native type checking; all
-  739/739 native tests; generated-interface review; and every configured
+  745/745 native tests; generated-interface review; and every configured
   targeted ASan package with leak detection disabled under the documented
   macOS policy. The parity gate verified all 288 tests from all 20 pinned
   upstream test files against the parent pycairo source checkout, and the
-  reliability ledger reported 2 explicit `Partial` rows.
+  reliability ledger reported 1 explicit `Partial` row. Scene 66's static
+  contract required all 10 Cairo 1.18 tag-attribute dimensions and all 5
+  runtime evidence tests.
 
 Prior full verifies passed on 2026-07-02, 2026-07-03, 2026-07-04,
 2026-07-05, and earlier 2026-07-06 slices. The most recent 2026-07-06 run:
@@ -2986,114 +2994,18 @@ Prior full verifies passed on 2026-07-02, 2026-07-03, 2026-07-04,
 - Current tests are strong enough for the `Done` inventory rows when
   `./scripts/verify.sh` passes on the target platform, but they are not enough
   for a full pycairo migration claim. Full-product reliability still requires
-  every `Partial` row in `API_INVENTORY.md` to gain explicit evidence or become
-  a documented `Decision`, plus passing CI coverage for the
+  the remaining `Partial` row in `API_INVENTORY.md` to gain explicit evidence
+  or become a documented `Decision`, plus passing CI coverage for the
   native/oracle/sanitizer gates on each supported release platform.
-- Broader normalized PDF/SVG/PS output comparison is still missing for
-  tag/metadata/multi-page combinations beyond the current seventeen-scene
-  cross-backend direct C fixtures, three PDF rectangle tag oracle scenes, three
-  PDF text-tag oracle scenes with stable PDF marker checks, PS/SVG destination
-  and document-structure
-  rectangle and text tag oracle scenes, one cross-backend tagged multi-page
-  text oracle scene, one cross-backend mixed vector/tag/text oracle scene, one
-  cross-backend layered three-page clip/dash/surface-pattern/mask/tag/text oracle
-  scene, one cross-backend wide three-page URI/destination/document-structure
-  tag/vector oracle scene, one cross-backend tagged `show_text_glyphs` oracle
-  scene, one cross-backend grouped glyph/tag multi-page oracle scene, one
-  cross-backend copy_page retained two-page oracle scene, one cross-backend
-  backend-feature/tag stream-combo oracle scene with PS/SVG negative
-  tag-metadata marker checks, one cross-backend backend nested tag/page
-  sequence oracle scene with PS/SVG negative tag-metadata marker checks, one
-  cross-backend resized page-sequence oracle scene with PS/SVG negative
-  tag-metadata marker checks, one cross-backend backend tag-matrix oracle scene
-  with PS/SVG negative tag-metadata marker checks, one cross-backend backend
-  lifecycle matrix oracle scene with PS/SVG negative tag-metadata marker checks,
-  one cross-backend backend page-transition oracle scene with PS/SVG negative
-  tag-metadata marker checks,
-  one cross-backend backend state-stack oracle scene with PS/SVG negative
-  tag-metadata marker checks,
-  one cross-backend backend structure-sequence oracle scene with PS/SVG
-  negative tag-metadata marker checks,
-  and three PDF
-  document-feature/page-operation oracle scenes. PDF/PS/SVG now
-  have multi-page marker checks and three two-page direct C oracle scenes,
-  PDF/PS/SVG have a single-page toy-font `show_text` oracle scene, and PDF has
-  direct C coverage for URI links, named destinations, Document/Sect/H1/P
-  structure tags in both rectangle and text cases, PDF/PS/SVG stream-vs-file
-  equality for the corresponding single-page rectangle/text tag scenes, plus
-  three two-page metadata/custom-metadata/page-label/outline/tag combinations,
-  including one text/tag-aware scene, plus cross-backend stream-vs-file
-  backend-feature/tag/multi-page combo, resized page-sequence combo, and
-  tag-matrix/lifecycle combo scenes,
-  plus explicit PDF text-tag,
-  PDF direct document-feature marker, tagged multi-page text, tagged
-  `show_text_glyphs`, grouped glyph/tag
-  multi-page, copy_page retained two-page, mixed vector/tag/text, layered
-  three-page, and wide three-page structure/tag
-  markers. PS/SVG Link tag inertness plus destination/document-structure
-  rectangle/text and tagged multi-page text tags also have direct C oracle
-  coverage, and PS/SVG URI-link text tags, destination/document-structure
-  rectangle/text tags, mixed vector/tag/text tags, layered three-page tags, and
-  wide three-page tags now have negative PDF-metadata marker checks, and the
-  backend-combo stream output, backend page-transition output, backend
-  state-stack output, and backend structure-sequence output have matching
-  PS/SVG negative PDF-metadata marker checks.
-  A later article-thread backend oracle slice adds scene 56 with PDF/PS/SVG
-  file-vs-stream equality, direct-C file equality, stream-to-direct-C
-  equality, stable metadata/page-label/outline/tag markers, and PS/SVG
-  negative PDF-metadata checks for article, block quote, note, figure,
-  caption, and reference structure tags.
-  A later review-dossier backend oracle slice adds scene 57 with PDF/PS/SVG
-  file-vs-stream equality, direct-C file equality, stream-to-direct-C
-  equality, stable metadata/page-label/outline/tag markers, and PS/SVG
-  negative PDF-metadata checks for TOC, reference, list, table, non-struct,
-  and note structure tags.
-  A later appendix-rubric backend oracle slice adds scene 58 with PDF/PS/SVG
-  file-vs-stream equality, direct-C file equality, stream-to-direct-C
-  equality, stable metadata/page-label/outline/tag markers, and PS/SVG
-  negative PDF-metadata checks for Index, reference, code, formula, figure,
-  caption, block-quote, and bibliography-entry structure tags.
-  A later research-note backend oracle slice adds scene 59 with PDF/PS/SVG
-  file-vs-stream equality, direct-C file equality, stream-to-direct-C
-  equality, stable metadata/page-label/outline/tag markers, and PS/SVG
-  negative PDF-metadata checks for table, list, note, reference, figure, and
-  caption structure tags.
-  Broader cross-backend tag/metadata combinations, broader multi-page
-  combinations, and richer tag-output assertions are still absent beyond those
-  PDF scenes, the tagged multi-page, tagged `show_text_glyphs`, grouped
-  glyph/tag multi-page, copy_page retained two-page, mixed
-  vector/tag/text, layered three-page, and wide three-page PDF marker tests,
-  PS/SVG tag-metadata absence checks including URI-link text tags,
-  backend-combo stream output, resized page-sequence output, tag-matrix output,
-  lifecycle-matrix output, page-transition output, state-stack output, and
-  structure-sequence output, review-dossier output, appendix-rubric output,
-  research-note output, and PS/SVG Link/destination/document-structure
-  rectangle/text plus tagged
-  multi-page, tagged `show_text_glyphs`, grouped glyph/tag, mixed
-  vector/tag/text, layered three-page, and wide three-page direct-oracle
-  coverage.
-  Broader platform coverage and finalizer fuzz remain absent beyond
-  the current deterministic raster-source owner-count, state-machine, manual
-  get-callback, callback allocation, retained-owner, stream retention, backend
-  stream multi-seed callback fuzz, and finalizer graph fuzz tests.
-  PDF/PS/SVG stream-writer constructors now also have non-text primitive vector
-  scenes, standalone toy-font `text_path`/`show_text` vector scenes,
-  deterministic two-page, tagged three-page, tagged `show_text_glyphs`,
-  grouped glyph/tag multi-page,
-  copy_page retained two-page, mixed vector/tag/text, layered three-page
-  clip/dash/surface-pattern/mask/tag/text, wide three-page tag/vector, PDF text
-  document-feature, backend-feature/tag/multi-page combo, backend tag-matrix
-  combo, backend lifecycle-matrix combo, backend structure-sequence combo,
-  backend review-dossier combo, backend appendix-rubric combo,
-  backend research-note combo,
-  PS/SVG stream negative tag-metadata checks for those combos, PDF JPEG
-  MIME and PDF thumbnail output,
-  and backend document-feature stream-vs-file normalized
-  equality plus stream marker coverage, plus
-  PDF/PS/SVG, PNG-writer, and script-writer `WriteError`
-  and invalid-status fallback mapping; script stream devices and PNG
-  stream read/write now have copied-byte callback tests and read/write error
-  propagation coverage.
+- Cairo 1.18's finite portable tag-attribute contract is closed by Scene 66:
+  all 10 official Link/Dest/content/content-reference dimensions have
+  MoonBit and direct-C evidence, invalid forms map to `TagError`, and
+  normalized PDF/PS/SVG file and stream outputs have stable positive or
+  negative markers. Additional scene combinations are optional regression
+  depth, not an open migration requirement.
+- Broader release-platform coverage and finalizer fuzz remain global release
+  evidence beyond the current deterministic owner-count, state-machine,
+  callback, retained-owner, stream-retention, and finalizer-graph tests.
 - `Surface::copy_data` still copies Cairo image data into MoonBit `Bytes`;
   `Surface::get_data` is the mutable image-surface view and intentionally
   retains the surface wrapper instead of exposing a raw pointer.
@@ -3102,7 +3014,8 @@ Prior full verifies passed on 2026-07-02, 2026-07-03, 2026-07-04,
   those flags from the target platform's `pkg-config`, and the local gate
   checks for drift; a future publishing workflow may still want package-manager
   specific guidance for non-`pkg-config` Cairo installations.
-- ASan was run manually for the current expanded slice; CI automation has not
-  been wired into this repository yet. The current LSan failure on macOS
-  toy-font, scaled-font, toy-text rendering, glyph rendering/path, and
-  show-text-glyphs paths is an open reliability item.
+- The CI workflow runs native verify on Ubuntu and macOS plus an Ubuntu ASan
+  job. Release evidence still requires those jobs to pass for the release
+  commit. The current macOS LSan reports for toy-font, scaled-font, toy-text
+  rendering, glyph rendering/path, and `show_text_glyphs` remain an open
+  version-bounded policy item.

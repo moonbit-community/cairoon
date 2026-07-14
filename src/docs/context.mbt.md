@@ -236,6 +236,80 @@ test "context docs: text extents paths glyphs and scaled font" {
 }
 ```
 
+## PDF Tags And Links
+
+`tag_begin` and `tag_end` expose Cairo's generic tag interface. For Cairo
+1.18, cairoon treats the following official attribute forms as the finite
+portable contract:
+
+- `TAG_LINK` accepts one target: `uri`, `dest`, or `page` with `pos`. A link
+  may add `file` for an external document and `rect=[x y width height ...]`
+  for one or more explicit hit regions; otherwise Cairo derives the region
+  from tagged drawing extents.
+- `TAG_DEST` requires `name`, accepts optional `x` and `y`, and accepts the
+  `internal` flag. Without coordinates, Cairo derives the destination from
+  tagged drawing extents.
+- `TAG_CONTENT` requires `tag_name` and accepts `id`.
+- `TAG_CONTENT_REF` requires `ref`, which names a content `id`.
+
+Document structure names such as `Document`, `Sect`, `H1`, and `P` use the
+same begin/end calls. Invalid attributes or nesting raise `CairoError` with
+`TagError`; Cairo may report a structural error only when a page is committed.
+
+```mbt check
+///|
+test "context docs: PDF links destinations and content references" {
+  let surface = Surface::pdf(96.0, 72.0)
+  let ctx = Context::new(surface)
+  ctx.select_font_face("sans")
+  ctx.set_font_size(8.0)
+
+  ctx.tag_begin(@cairoon.TAG_CONTENT, "tag_name='H1' id='heading'")
+  ctx.move_to(8.0, 12.0)
+  ctx.show_text("Tagged heading")
+  ctx.tag_end(@cairoon.TAG_CONTENT)
+
+  ctx.tag_begin(
+    @cairoon.TAG_LINK,
+    "rect=[8 18 36 10 48 18 36 10] uri='https://example.com/cairoon'",
+  )
+  ctx.move_to(10.0, 25.0)
+  ctx.show_text("two hit regions")
+  ctx.tag_end(@cairoon.TAG_LINK)
+
+  ctx.tag_begin(@cairoon.TAG_LINK, "dest='chapter-two'")
+  ctx.move_to(8.0, 40.0)
+  ctx.show_text("next page")
+  ctx.tag_end(@cairoon.TAG_LINK)
+
+  ctx.tag_begin("Document", "")
+  ctx.tag_begin("H1", "")
+  ctx.tag_begin(@cairoon.TAG_CONTENT_REF, "ref='heading'")
+  ctx.tag_end(@cairoon.TAG_CONTENT_REF)
+  ctx.tag_end("H1")
+  ctx.tag_end("Document")
+  surface.show_page()
+
+  ctx.tag_begin(@cairoon.TAG_DEST, "name='chapter-two' x=8 y=16 internal")
+  ctx.move_to(8.0, 16.0)
+  ctx.show_text("Destination")
+  ctx.tag_end(@cairoon.TAG_DEST)
+  surface.show_page()
+  surface.finish()
+  debug_inspect(surface.status(), content="SurfaceFinished")
+
+  let invalid = Context::new(Surface::pdf(16.0, 16.0))
+  match
+    run_cairo(() => {
+      invalid.tag_begin(@cairoon.TAG_DEST, "x=1 y=2")
+      invalid.show_page()
+    }) {
+    Err(CairoError(TagError, _)) => ()
+    _ => @test.fail("expected TagError after committing an invalid tag")
+  }
+}
+```
+
 ## Checked Errors
 
 Sticky Cairo errors are surfaced immediately by safe wrappers. Use `run_cairo`

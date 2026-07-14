@@ -16,7 +16,7 @@ stream callbacks, and GC-managed external objects for Cairo handles.
 ## Requirements
 
 - MoonBit with native target support.
-- Cairo development headers and library.
+- Cairo 1.18 or newer development headers and library.
 - `pkg-config` that can resolve `cairo`.
 - Python 3 for the repository verification scripts.
 
@@ -99,9 +99,11 @@ fn draw_example() -> Unit raise @cairoon.CairoError {
 
 cairoon is reliable for the migrated slices that are marked `Done` in
 `API_INVENTORY.md` and pass `./scripts/verify.sh` on your target platform. It
-is not yet a full pycairo migration. The main remaining beta areas are broad
-PDF/PS/SVG tag and metadata combinations, broader method-by-method context and
-pattern parity, raster-source platform fuzzing, and release-platform coverage.
+is not yet a stable release. The portable API and pinned pycairo test-source
+rows are closed, including Cairo 1.18's finite tag-attribute contract. The
+remaining beta risk is release evidence: passing the supported-platform CI and
+sanitizer matrix, plus resolving or version-bounding the documented macOS Cairo
+font-stack LeakSanitizer reports.
 
 Platform-specific Xlib, XCB, and Win32 surfaces are outside the first portable
 scope. Python-specific pycairo APIs such as `CAPI`, `get_include()`, Python
@@ -116,8 +118,8 @@ of the MoonBit API.
   errors.
 - `src/docs/backend_surfaces.mbt.md`: PDF, PS, SVG, recording, tee, and script
   backends.
-- `src/docs/context.mbt.md`: drawing state, transforms, paths, clips, groups, text,
-  and glyphs.
+- `src/docs/context.mbt.md`: drawing state, transforms, paths, clips, groups,
+  text, glyphs, PDF tags, links, destinations, and content references.
 - `src/docs/font.mbt.md`: font options, toy font faces, scaled fonts, and text
   conversion.
 - `src/docs/path.mbt.md`, `src/docs/pattern.mbt.md`, and

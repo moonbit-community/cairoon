@@ -9,7 +9,7 @@ public interface, audit files, and reliability gate in sync.
 Required:
 
 - MoonBit toolchain with native target support.
-- Cairo development headers and library.
+- Cairo 1.18 or newer development headers and library.
 - `pkg-config` that can resolve `cairo`.
 - Python 3 for static FFI ownership and API-inventory linting.
 

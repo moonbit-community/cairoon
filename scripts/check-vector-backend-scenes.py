@@ -17,6 +17,60 @@ STREAM_ORACLE = (
 NATIVE_DIR = REPO_ROOT / "src/tests/oracle/native"
 NATIVE_PKG = NATIVE_DIR / "moon.pkg"
 API_INVENTORY = REPO_ROOT / "API_INVENTORY.md"
+TAG_ATTRIBUTE_C = NATIVE_DIR / "cairoon_test_backend_tag_attributes.c"
+TAG_ATTRIBUTE_MOONBIT = (
+    REPO_ROOT
+    / "src/tests/oracle/vector_backend/surface_stream_tag_attributes_test.mbt"
+)
+TAG_ATTRIBUTE_REQUIREMENTS = {
+    "URI link": (
+        "uri='https://example.com/tag-attributes'",
+        "uri='https://example.com/tag-attributes'",
+    ),
+    "multi-rectangle link": (
+        "rect=[10 28 52 12 72 28 58 12]",
+        "rect=[10 28 52 12 72 28 58 12]",
+    ),
+    "named destination link": (
+        "dest='tag-attribute-target'",
+        "dest='tag-attribute-target'",
+    ),
+    "page-position link": (
+        "page=2 pos=[18 44]",
+        "page=2 pos=[18 44]",
+    ),
+    "file page-position link": (
+        "file='external.pdf' page=3 pos=[12 34]",
+        "file='external.pdf' page=3 pos=[12 34]",
+    ),
+    "file destination link": (
+        "file='external.pdf' dest='appendix'",
+        "file='external.pdf' dest='appendix'",
+    ),
+    "internal destination": (
+        "name='tag-attribute-target' x=18 y=44 internal",
+        "name='tag-attribute-target' x=18 y=44 internal",
+    ),
+    "extent-derived destination": (
+        "name='tag-attribute-extent'",
+        "name='tag-attribute-extent'",
+    ),
+    "content tag": (
+        "tag_name='H1' id='tag-attribute-heading'",
+        "tag_name='H1' id='tag-attribute-heading'",
+    ),
+    "content reference": (
+        "ref='tag-attribute-heading'",
+        "ref='tag-attribute-heading'",
+    ),
+}
+TAG_ATTRIBUTE_RUNTIME_TESTS = (
+    "tag attribute matrix invalid attributes map to TagError",
+    "backend tag attribute matrix stream output matches file output after normalization",
+    "backend tag attribute matrix file output matches direct cairo C oracle",
+    "backend tag attribute matrix output contains stable markers",
+    "ps svg backend tag attribute matrix omits pdf tag metadata",
+)
 
 
 def read_text(path: pathlib.Path) -> str:
@@ -136,6 +190,40 @@ def check_inventory_rows(scenes: list[tuple[str, int]]) -> list[str]:
     return errors
 
 
+def check_tag_attribute_coverage() -> list[str]:
+    errors: list[str] = []
+    try:
+        c_text = read_text(TAG_ATTRIBUTE_C)
+    except OSError as exc:
+        return [f"{TAG_ATTRIBUTE_C}: cannot read tag attribute C oracle: {exc}"]
+    try:
+        moonbit_text = read_text(TAG_ATTRIBUTE_MOONBIT)
+    except OSError as exc:
+        return [
+            f"{TAG_ATTRIBUTE_MOONBIT}: cannot read tag attribute MoonBit tests: {exc}"
+        ]
+
+    for feature, (c_anchor, moonbit_anchor) in TAG_ATTRIBUTE_REQUIREMENTS.items():
+        if c_anchor not in c_text:
+            errors.append(
+                f"{TAG_ATTRIBUTE_C}: missing direct C tag evidence for {feature!r}: "
+                f"{c_anchor!r}"
+            )
+        if moonbit_anchor not in moonbit_text:
+            errors.append(
+                f"{TAG_ATTRIBUTE_MOONBIT}: missing MoonBit tag evidence for "
+                f"{feature!r}: {moonbit_anchor!r}"
+            )
+
+    for test_name in TAG_ATTRIBUTE_RUNTIME_TESTS:
+        if f'test "{test_name}"' not in moonbit_text:
+            errors.append(
+                f"{TAG_ATTRIBUTE_MOONBIT}: missing tag runtime test {test_name!r}"
+            )
+
+    return errors
+
+
 def main() -> int:
     scenes = backend_scenes()
     errors: list[str] = []
@@ -150,6 +238,7 @@ def main() -> int:
         errors.extend(check_inventory_rows(scenes))
 
     errors.extend(check_native_stubs())
+    errors.extend(check_tag_attribute_coverage())
 
     if errors:
         for error in errors:
@@ -159,7 +248,8 @@ def main() -> int:
     stub_count = len(re.findall(r'"([^"]+\.c)"', read_text(NATIVE_PKG)))
     print(
         f"Vector backend scene wiring ok; {len(scenes)} scenes checked; "
-        f"{stub_count} native stubs checked"
+        f"{stub_count} native stubs checked; "
+        f"{len(TAG_ATTRIBUTE_REQUIREMENTS)} tag requirements checked"
     )
     return 0
 

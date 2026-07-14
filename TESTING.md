@@ -64,7 +64,7 @@ For the full-product claim, there must be no `Todo` or `Partial` rows left in
 The current test set is sufficient to protect the migrated slices that are
 listed as `Done` in `API_INVENTORY.md`, provided `./scripts/verify.sh` passes
 on the target platform. It is not sufficient to claim a complete pycairo
-migration because several rows are intentionally still `Partial`, and because
+migration because one row is intentionally still `Partial`, and because
 some reliability evidence is local/manual rather than continuous CI evidence.
 
 Evaluate each slice with this scorecard:
@@ -75,7 +75,7 @@ Evaluate each slice with this scorecard:
 | Reliability ledger | `API_INVENTORY.md` statuses are `Done`, `Partial`, or `Decision`; every `Partial` row names its remaining gap; this scorecard and CI/verify gate are checked by `scripts/check-reliability-ledger.py` | Strong for current migrated slices; the lint runs in the local and CI verify gate, and any future full-product claim still requires zero `Todo`/`Partial` rows |
 | FFI boundary safety | Production raw `src/**/ffi*.mbt` declarations are native-gated in their owning `moon.pkg`, mark every non-primitive C FFI parameter with `#borrow` or `#owned`, and `scripts/check-project-layout.py` plus `scripts/check-ffi-ownership.py` pass | Strong for current raw externs, including internal helper packages; both lints run in the local and CI verify gate |
 | Behavioral parity | pycairo-derived black-box cases or direct C Cairo primitive oracles cover normal and invalid inputs | Strong for image, context, path, font, pattern, region, surface/device, and backend helpers already listed in the inventory; all 288 tests from all 20 upstream test files are pinned and mapped to 197 family-local MoonBit runtime anchors, 291 required generated static API anchors, 29 deliberately absent signatures, 4 explicit inventory decisions, and 1 mandatory static verify gate |
-| Rendering parity | Deterministic image pixels or normalized PDF/PS/SVG bytes match direct C Cairo output | Strong for the enumerated image and vector fixtures, including backend page-transition, state-stack, deep-tag, metadata-outline, page-ops, tag-metadata, structure-sequence, outline-sequence, pattern-tag, semantic-index, bookmark-lattice, revision-ledger, article-thread, review-dossier, appendix-rubric, research-note, cross-reference, and link-audit tag/metadata/page-operation output; still partial for broader tag/metadata/multi-page combinations |
+| Rendering parity | Deterministic image pixels or normalized PDF/PS/SVG bytes match direct C Cairo output | Strong for the portable migration scope. Scene 66 closes Cairo 1.18's finite tag-attribute contract across URI, multi-rectangle, destination, page-position, external-file, content, and content-reference cases; it joins the enumerated image and vector fixtures with file/stream/direct-C comparisons and stable positive or negative backend markers |
 | Lifetime safety | External-object ownership, borrowed returns, callback retention, and error exits run under ASan/LSan or stress tests | Strong for targeted local gates; macOS LSan remains intentionally disabled for known toy-font/glyph leak reports |
 | Callback safety | C-held MoonBit callbacks and callback arguments are retained across the callback invocation and released deterministically | Strong for stream writers/readers and raster-source callbacks covered by current stress/fuzz tests |
 | Portability | Required backends pass on each supported platform, or unsupported APIs have explicit `Decision` rows | Partial until the shipped CI workflow has passing native, oracle, and sanitizer runs across the release platform matrix |
@@ -84,8 +84,8 @@ Evaluate each slice with this scorecard:
 The practical release rule is simple: a feature can be trusted when its
 inventory row is `Done`, its reference docs are executable where practical,
 and the verify gate passes locally and in CI for every supported platform.
-Until the remaining `Partial` rows are closed or downgraded to explicit
-`Decision` rows, the project is a reliable partial binding rather than a
+Until the remaining `Partial` row is closed or downgraded to an explicit
+`Decision` row, the project is a reliable partial binding rather than a
 complete pycairo migration.
 
 ## Test Tiers
@@ -3878,19 +3878,22 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, 2026-07-
   any unclaimed upstream `tests/test_*.py` file. Source-backed parity therefore
   covers all 288 tests across all 20 files exactly once; the native test count
   remains 739 and the reliability ledger remains at 2 explicit `Partial` rows.
+  A later Cairo 1.18 tag-attribute closure slice added Scene 66 and five
+  vector-backend tests. The MoonBit and direct-C scenes cover URI links with
+  multiple explicit rectangles, named and page-position links, external-file
+  page-position and destination links, explicit internal and extent-derived
+  destinations, `TAG_CONTENT` `tag_name`/`id`, and `TAG_CONTENT_REF` `ref`.
+  Invalid attributes, unknown structure tags, and forbidden nesting map to
+  `TagError`; PDF/PS/SVG file, stream, and direct-C output are normalized and
+  compared with stable positive or negative markers. The static scene checker
+  requires all 10 attribute dimensions and all five runtime evidence tests.
+  This closes the `Tags` row. The full local gate passes 745/745 native tests
+  plus every configured clang/ASan package and reduces the reliability ledger
+  to one explicit `Partial` row.
 
 Remaining reliability work is now narrower and should be tracked as evidence,
 not as an unstructured checklist:
 
-- Broaden normalized PDF/PS/SVG differential coverage for combinations not yet
-  represented by the current direct-C and direct stream-oracle fixtures:
-  additional deep tag nests beyond scenes 37, 39, 40, 44, 45, 49, 51, 52, 53,
-  54, 56, 57, 58, 59, 60, 61, 62, 63, 64, and 65, more metadata/page-label/outline
-  mixtures beyond scenes 38 through 42, 44, 46, 47, 48, 49, 50, 51, 52, 53, 54,
-  55, 56, 57, 58, 59, 60, 61, 62, 63, 64, and 65, and
-  additional multi-page sequences beyond the current
-  retained/resized/tag-matrix/lifecycle/text-state/page-ops/structure-sequence/outline-sequence/pattern-tag/annotation-sequence/semantic-index/bookmark-lattice/revision-ledger/article-thread/review-dossier/appendix-rubric/research-note/cross-reference/link-audit/attachment-index/navigation-map
-  /accessibility-index/section-catalog page fixtures.
 - Add broader release-platform coverage and finalizer fuzz beyond the
   deterministic raster-source owner-count, state-machine, manual
   get-callback, exhaustive transition-matrix, callback allocation,
@@ -3903,7 +3906,7 @@ not as an unstructured checklist:
 - Resolve the known macOS LSan reports for toy-font, scaled-font, toy-text,
   glyph rendering/path, and `show_text_glyphs`, or document a Cairo/upstream
   suppression with version bounds.
-- Close each remaining `Partial` row in `API_INVENTORY.md` by adding the
+- Close the remaining `Partial` row in `API_INVENTORY.md` by adding the
   missing evidence or converting out-of-scope API families to explicit
   `Decision` rows.
 
