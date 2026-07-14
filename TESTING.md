@@ -408,6 +408,9 @@ white-box owner-count check for acquire-only repeated same-surface paints,
 64-step acquire-only retained-owner replacement fuzz, compatible target/extents
 acquire rendering with device-offset source surfaces, and deterministic
 callback replacement/failure fuzz with dynamic compatible source surfaces,
+plus a six-state exhaustive matrix covering all 36 directed callback-state
+replacements with callback-shape, stale-token, pixel/error, and retained-owner
+balance assertions,
 Cairo float
 image-format creation/readback coverage, `Format::stride_for_width` coverage
 for legacy, 16-bit, 30-bit, float, and invalid-width cases, stable
@@ -3718,6 +3721,17 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, 2026-07-
   normalization, translate/copy behavior, and exact intersect/subtract/union/xor
   split semantics. This raises `src/tests/region/pycairo` to 6 tests and the
   observed full native suite to 728 tests without changing public API.
+  A later raster-source callback transition-closure slice added
+  `pattern_raster_transition_matrix_test.mbt`, exhaustively executing all 36
+  directed transitions among clear, release-only, acquire-only,
+  acquire-with-release, dynamic acquire-with-release, and failed-acquire
+  states. Every edge exercises the replaced state before replacement and the
+  replacement state afterward, checks callback introspection and stale callback
+  tokens, validates successful pixels or checked `NoMemory`, and verifies the
+  C-side retained-surface owner count returns to zero. The package passes all
+  7 tests in both native and targeted ASan runs, raising the observed full
+  native suite to 737 tests; this closes the `RasterSourcePattern` API row while
+  release-platform coverage remains a global `Tests`/portability gate.
 
 Remaining reliability work is now narrower and should be tracked as evidence,
 not as an unstructured checklist:
@@ -3731,10 +3745,12 @@ not as an unstructured checklist:
   additional multi-page sequences beyond the current
   retained/resized/tag-matrix/lifecycle/text-state/page-ops/structure-sequence/outline-sequence/pattern-tag/annotation-sequence/semantic-index/bookmark-lattice/revision-ledger/article-thread/review-dossier/appendix-rubric/research-note/cross-reference/link-audit/attachment-index/navigation-map
   /accessibility-index/section-catalog page fixtures.
-- Add broader platform coverage and finalizer fuzz beyond the
+- Add broader release-platform coverage and finalizer fuzz beyond the
   deterministic raster-source owner-count, state-machine, manual
-  get-callback, callback allocation, retained-owner, stream retention, and
-  backend stream multi-seed callback and finalizer graph fuzz tests.
+  get-callback, exhaustive transition-matrix, callback allocation,
+  retained-owner, stream retention, and backend stream multi-seed callback and
+  finalizer graph fuzz tests. This is global release evidence rather than an
+  unbounded `RasterSourcePattern` API requirement.
 - Keep the CI workflow green and expand it as the supported release platform
   matrix grows; generated-interface review, differential oracles, and sanitizer
   gates should be required before release.
