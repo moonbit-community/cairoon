@@ -23,11 +23,11 @@ Implemented in this workspace:
 - Executable pycairo family test parity through
   `scripts/check-pycairo-test-parity.py` and the ledgers under
   `scripts/parity/`, wired into `scripts/verify.sh`. The Context, Device, Font,
-  Matrix, Path, Pattern, Region, and Surface ledgers pin upstream sources by
-  commit and SHA-256, require all 240 upstream tests to map to existing MoonBit
-  black-box test anchors, and map Python runtime `TypeError` assertions to
-  required or deliberately absent generated public signatures. The checker's
-  positive and negative fixtures
+  Matrix, Path, Pattern, Rectangle, Region, and Surface ledgers pin upstream
+  sources by commit and SHA-256, require all 244 upstream tests to map to
+  existing MoonBit black-box test anchors, and map Python runtime `TypeError`
+  assertions to required or deliberately absent generated public signatures.
+  The checker's positive and negative fixtures
   run from `scripts/tests`, and pinned snapshots keep the gate usable in a
   standalone cairoon checkout without the parent pycairo source tree. When the
   parent pycairo marker is present, a missing ledger source is an error instead
@@ -54,9 +54,10 @@ Implemented in this workspace:
   `src/tests/value/{core,pycairo}`, importing only the public
   `CAIMEOX/cairoon` API. This validates rectangles, glyphs, text clusters, and
   font/text extents, including component access, invalid-index error mapping,
-  type-appropriate equality/hash fixtures, numeric limits, and return paths
-  from Context, ScaledFont, recording surfaces, and clip extents through
-  separately linked published-package seams.
+  checked Rectangle index syntax, type-appropriate equality/hash fixtures,
+  numeric limits, all 4 pinned upstream Rectangle tests, and return paths from
+  Context, ScaledFont, recording surfaces, and clip extents through separately
+  linked published-package seams.
 - Matrix black-box tests now live in
   `src/tests/matrix/{core,property,pycairo}`, importing only the public
   `CAIMEOX/cairoon` API. This validates external-package access to public
@@ -518,11 +519,12 @@ Implemented in this workspace:
   extension APIs are intentionally outside the current pycairo-migration
   product.
 - Gate 2 behavioral parity: partial but strong. Pinned Context, Device, Font,
-  Matrix, Path, Pattern, Region, and Surface ledgers map 240 upstream tests to
-  155 family-local MoonBit runtime anchors, 205 required public signatures,
-  and 17 deliberately absent signatures. Additional black-box tests cover
-  value, API, raster-source callback, and error behavior; those remaining
-  upstream families still need exact ledgers before this gate is complete.
+  Matrix, Path, Pattern, Rectangle, Region, and Surface ledgers map 244 upstream
+  tests to 158 family-local MoonBit runtime anchors, 212 required public
+  signatures, and 17 deliberately absent signatures. Additional black-box
+  tests cover other value families, API, raster-source callback, and error
+  behavior; those remaining upstream families still need exact ledgers before
+  this gate is complete.
 - Gate 3 differential rendering: partial. Deterministic raw-pixel rendering
   tests exist for direct colors and explicit patterns, a direct C image oracle
   covers forty-seven deterministic ARGB32 scenes including stroke, rectangle,
@@ -618,10 +620,10 @@ The most recent full local verification passed on 2026-07-15:
   reliability-ledger, and vector-scene gates; native type checking; all
   739/739 native tests; generated-interface review; and every configured
   targeted ASan package with leak detection disabled under the documented
-  macOS policy. The parity gate verified all 240 pinned Context, Device, Font,
-  Matrix, Path, Pattern, Region, and Surface tests against the parent pycairo
-  source checkout, and the reliability ledger reported 2 explicit `Partial`
-  rows.
+  macOS policy. The parity gate verified all 244 pinned Context, Device, Font,
+  Matrix, Path, Pattern, Rectangle, Region, and Surface tests against the
+  parent pycairo source checkout, and the reliability ledger reported 2
+  explicit `Partial` rows.
 
 Prior full verifies passed on 2026-07-02, 2026-07-03, 2026-07-04,
 2026-07-05, and earlier 2026-07-06 slices. The most recent 2026-07-06 run:

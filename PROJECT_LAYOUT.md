@@ -86,6 +86,7 @@ cairoon/
       matrix.json
       path.json
       pattern.json
+      rectangle.json
       region.json
       surface.json
     tests/

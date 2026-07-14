@@ -150,7 +150,8 @@ test "context docs: paint fill preserve stroke and pixel output" {
 
 Clip APIs expose rectangular clip lists when Cairo can represent the clip as
 rectangles. Non-rectangular clips raise `ClipNotRepresentable` through the
-normal checked error path.
+normal checked error path. `Rectangle` supports checked index syntax in
+pycairo tuple order: x, y, width, then height.
 
 ```mbt check
 ///|
@@ -166,6 +167,7 @@ test "context docs: clip extents rectangle lists and reset" {
   let rectangles = ctx.copy_clip_rectangle_list()
   inspect(rectangles.length(), content="1")
   debug_inspect(rectangles[0].components(), content="(2, 3, 5, 7)")
+  inspect(rectangles[0][1], content="3")
 
   ctx.reset_clip()
   debug_inspect(ctx.clip_extents(), content="(0, 0, 20, 20)")

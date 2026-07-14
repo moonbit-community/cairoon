@@ -638,6 +638,8 @@ pub struct Rectangle {
   width : Double
   height : Double
 } derive(Eq, Hash, @debug.Debug)
+#alias("_[_]")
+pub fn Rectangle::at(Self, Int) -> Double raise CairoError
 pub fn Rectangle::component(Self, Int) -> Double raise CairoError
 pub fn Rectangle::components(Self) -> (Double, Double, Double, Double)
 pub fn Rectangle::new(Double, Double, Double, Double) -> Self

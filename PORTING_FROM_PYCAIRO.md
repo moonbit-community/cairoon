@@ -102,6 +102,17 @@ Path snapshots are abstract values returned by `Context::copy_path` or
 | `for data_type, points in path` | `for segment in path.iter()` and `segment.components()` |
 | Path equality, ordering, and hashing | `Eq`, `Compare`, and `Hash` traits on `Path` |
 
+Pycairo's tuple-subclass values become closed MoonBit structs. For
+`Rectangle`, named fields, `components()`, equality, hashing, and checked index
+syntax preserve the useful value protocol:
+
+| pycairo | cairoon |
+| --- | --- |
+| `cairo.Rectangle(x, y, width, height)` | `Rectangle::new(x, y, width, height)` |
+| `rectangle[1]` | `rectangle[1]`, raising `CairoInvalidArgument(InvalidIndex, _)` when out of range |
+| `tuple(rectangle)` | `rectangle.components()` |
+| `rectangle.x`, `.y`, `.width`, `.height` | the same named fields |
+
 Region operations use explicit overload names and checked chaining:
 
 | pycairo | cairoon |

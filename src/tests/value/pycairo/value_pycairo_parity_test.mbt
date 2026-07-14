@@ -24,9 +24,10 @@ test "pycairo rectangle tuple-like fixture" {
   inspect(rect.height, content="0.75")
   debug_inspect(rect.components(), content="(0, 0.5, 0.25, 0.75)")
   inspect(rect.component(1), content="0.5")
+  inspect(rect[1], content="0.5")
   expect_value_invalid_index(
     @cairoon.run_cairo(() => {
-      let _ = rect.component(4)
+      let _ = rect[4]
       ()
     }),
   )

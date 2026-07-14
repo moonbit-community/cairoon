@@ -14,6 +14,11 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 
 ## Recent Audit Deltas
 
+- 2026-07-15: The pinned Rectangle parity ledger maps all 4 upstream
+  `test_rectangle.py` cases to 3 family-local runtime anchors and 7 required
+  generated signatures. The audit exposed missing pycairo tuple-style index
+  syntax; `Rectangle::at` now provides checked `rectangle[index]` access and
+  reuses the existing `InvalidIndex` error mapping.
 - 2026-07-15: The pinned Path parity ledger maps all 4 upstream
   `test_path.py` cases to 4 family-local runtime anchors, 9 required generated
   signatures, and 1 deliberately absent constructor signature. It locks
@@ -448,7 +453,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 |---|---|---|
 | `Matrix` | Done | MoonBit pure-value API returns transformed copies; checked `matrix[index]` plus `component`/`components` cover pycairo indexing/unpacking semantics including invalid positive/negative indexes; `multiply` and Matrix-only `*` share Cairo multiplication order; pycairo-derived fixtures cover equality/debug, `init_rotate(0)`, invert, multiply, translate, scale back to identity, rotate, and identity point/distance transforms; deterministic property tests cover multiplication associativity, inverse identity, composed point/distance transforms, and distance-vs-point-delta behavior; executable reference docs cover pure-value transform usage; and the pinned Matrix ledger maps all 11 upstream tests to executable evidence |
 | `Path` | Done | Opaque owned `cairo_path_t *`, status/equality/hash, MoonBit `Eq`/`Hash`/`Compare` traits, pycairo-derived fixtures for empty/path stringification, self-comparison/hash, and iterator data, pycairo-compatible stringification including close-path continuation formatting, segment values, copied-path lifetime after the source context exits, targeted normal/ASan gate coverage, executable reference docs, and a pinned ledger mapping all 4 upstream Path tests to family-local runtime and static evidence, including the deliberately absent abstract constructor |
-| `Rectangle` | Done | Pure value type with field/component access, MoonBit `Eq`/`Hash`, pycairo tuple-like parity fixtures, numeric-limit coverage, `Context::copy_clip_rectangle_list` return coverage, and `RecordingSurface` extents coverage |
+| `Rectangle` | Done | Pure value type with field/component access, checked pycairo-order `rectangle[index]` syntax, MoonBit `Eq`/`Hash`, pycairo tuple-like parity fixtures, numeric-limit coverage, `Context::copy_clip_rectangle_list` return coverage, `RecordingSurface` extents coverage, executable Context reference documentation, and a pinned ledger mapping all 4 upstream Rectangle tests to family-local runtime and static evidence |
 | `RectangleInt` | Done | Pure value type with defaults, MoonBit `Eq` but deliberately no generic `Hash`/`Compare`, and pycairo-derived 32-bit boundary field/component coverage; needed by region, map-to-image, and raster-source acquire extents; the pinned Region ledger statically enforces pycairo's unhashable and non-orderable protocol behavior |
 | `Glyph` | Done | Pure value type implemented in `src/core/glyph` and re-exported by the public facade, with MoonBit `Eq`/`Hash`; `UInt64` index matches Cairo's `unsigned long` width on 64-bit platforms, and pycairo tuple-like value plus limit fixtures cover fields/components while array marshaling remains separate |
 | `TextCluster` | Done | Pure value type with MoonBit `Eq`/`Hash`, pycairo tuple-like field/component/hash fixtures, and 32-bit integer limit coverage; array marshaling remains separate |

@@ -38,6 +38,12 @@ pub fn Rectangle::component(
 }
 
 ///|
+#alias("_[_]")
+pub fn Rectangle::at(self : Rectangle, index : Int) -> Double raise CairoError {
+  self.component(index)
+}
+
+///|
 pub struct RectangleInt {
   x : Int
   y : Int

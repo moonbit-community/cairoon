@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "family": "Rectangle",
+  "runtime_root": "src/tests/value",
+  "upstream": {
+    "repository": "https://github.com/pygobject/pycairo",
+    "commit": "80ea3348aff95e8441e6c3e2086371ea40528d81",
+    "path": "tests/test_rectangle.py",
+    "sha256": "a7feb45bc1cc207409d55dc959adaeefb1ee24b469e05a2e4a4aef17d568f9c3",
+    "test_count": 4
+  },
+  "type_error_policy": "Pycairo runtime TypeError and AttributeError assertions map to MoonBit compile-time rejection. Rectangle is a closed typed value with four required Double constructor arguments and four public fields; tuple subclassing maps to fields, components, checked indexing, value equality, and hashing. Python repr/eval behavior maps to the derived structural Debug representation and typed construction rather than runtime code evaluation.",
+  "type_error_tests": ["test_type"],
+  "tests": {
+    "test_type": {
+      "runtime": ["src/tests/value/pycairo/value_pycairo_parity_test.mbt::pycairo rectangle tuple-like fixture"],
+      "static_api": [
+        "pub struct Rectangle {\n  x : Double\n  y : Double\n  width : Double\n  height : Double\n} derive(Eq, Hash, @debug.Debug)",
+        "pub fn Rectangle::new(Double, Double, Double, Double) -> Self",
+        "pub fn Rectangle::components(Self) -> (Double, Double, Double, Double)",
+        "pub fn Rectangle::at(Self, Int) -> Double raise CairoError"
+      ],
+      "adaptation": "Rectangle is a closed MoonBit struct rather than a Python tuple subclass. Fields, components, equality, hashing, checked index syntax, and derived Debug preserve the useful value protocol; missing constructor arguments, unknown fields, and heterogeneous tuple equality are rejected statically."
+    },
+    "test_context": {
+      "runtime": ["src/tests/value/pycairo/value_pycairo_parity_test.mbt::pycairo rectangle producing APIs return rectangle values"],
+      "static_api": ["pub fn Context::copy_clip_rectangle_list(Self) -> Array[Rectangle] raise CairoError"]
+    },
+    "test_recording_surface": {
+      "runtime": ["src/tests/value/pycairo/value_pycairo_parity_test.mbt::pycairo rectangle producing APIs return rectangle values"],
+      "static_api": [
+        "pub fn Surface::recording(Content, extents? : Rectangle?) -> Self raise CairoError",
+        "pub fn Surface::recording_get_extents(Self) -> Rectangle? raise CairoError"
+      ],
+      "adaptation": "Pycairo uses a nullable recording extent return; MoonBit represents it explicitly as Rectangle?."
+    },
+    "test_rectangle_limits": {
+      "runtime": ["src/tests/value/core/value_types_test.mbt::pure value types preserve pycairo numeric limits"],
+      "static_api": ["pub fn Rectangle::new(Double, Double, Double, Double) -> Self"]
+    }
+  }
+}
