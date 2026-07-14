@@ -80,11 +80,13 @@ cairoon/
   moon.mod
   scripts/
     parity/
+      api.json
       context.json
       device.json
       enums.json
       error.json
       font.json
+      fspaths.json
       glyph.json
       matrix.json
       path.json

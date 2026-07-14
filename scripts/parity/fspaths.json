@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "family": "FilePaths",
+  "runtime_root": "src/tests",
+  "upstream": {
+    "repository": "https://github.com/pygobject/pycairo",
+    "commit": "80ea3348aff95e8441e6c3e2086371ea40528d81",
+    "path": "tests/test_fspaths.py",
+    "sha256": "81967a25f1fea9039c23c85174d7be5d1d4bbd08abd27da685d8fd895a75e009",
+    "test_count": 1
+  },
+  "type_error_policy": "Cairoon file APIs accept MoonBit UTF-8 String paths only. Python bytes and __fspath__ coercion do not transfer; embedded NUL is checked at the FFI boundary and raises CairoInvalidArgument(InvalidString, _).",
+  "type_error_tests": ["test_fspaths"],
+  "tests": {
+    "test_fspaths": {
+      "runtime": [
+        "src/tests/api/pycairo/api_pycairo_parity_test.mbt::pycairo unicode png filename roundtrip fixture",
+        "src/tests/image/png/surface_png_test.mbt::image surface png file roundtrip and invalid paths"
+      ],
+      "static_api": [
+        "pub fn Surface::image_from_png(String) -> Self raise CairoError",
+        "pub fn Surface::write_to_png(Self, String) -> Unit raise CairoError"
+      ],
+      "adaptation": "MoonBit String directly covers ordinary and Unicode paths. Python bytes and path-like protocol objects are rejected by the type checker; embedded NUL reaches the checked native wrapper and maps to InvalidString without creating a file."
+    }
+  }
+}

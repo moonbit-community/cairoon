@@ -1,0 +1,139 @@
+{
+  "schema_version": 1,
+  "family": "API",
+  "runtime_root": "src/tests",
+  "upstream": {
+    "repository": "https://github.com/pygobject/pycairo",
+    "commit": "80ea3348aff95e8441e6c3e2086371ea40528d81",
+    "path": "tests/test_api.py",
+    "sha256": "0befd218c545c92f28c4c260b73b77fecbd2a5e1367d756cb3acc91f65fc155f",
+    "test_count": 16
+  },
+  "type_error_policy": "Pycairo's abstract constructor and unhashable RectangleInt assertions map to MoonBit's typed constructors and deliberate absence of Hash. Python file objects and reference-count identity map to explicit callbacks and owned Bytes copies.",
+  "type_error_tests": ["test_surface", "test_region"],
+  "tests": {
+    "test_get_include": {
+      "decision": "Resolved here: pycairo's `version`, `version_info`, and `get_include()`",
+      "static_absent": ["pub fn get_include"],
+      "adaptation": "get_include() locates headers for consumers of pycairo's CPython extension ABI. Cairoon is linked as a MoonBit native package, so link configuration replaces this Python-only runtime helper."
+    },
+    "test_version": {
+      "runtime": ["src/tests/api/version/version_test.mbt::cairo version is available"],
+      "static_api": [
+        "pub const CAIRO_VERSION : Int",
+        "pub const CAIRO_VERSION_STRING : String",
+        "pub fn cairo_version() -> Int",
+        "pub fn cairo_version_string() -> String"
+      ]
+    },
+    "test_show_unicode_text": {
+      "runtime": ["src/tests/api/pycairo/api_pycairo_parity_test.mbt::pycairo unicode show_text smoke fixture"],
+      "static_api": [
+        "pub fn Context::select_font_face(Self, String, slant? : FontSlant, weight? : FontWeight) -> Unit raise CairoError",
+        "pub fn Context::show_text(Self, String) -> Unit raise CairoError"
+      ]
+    },
+    "test_unicode_filenames": {
+      "runtime": ["src/tests/api/pycairo/api_pycairo_parity_test.mbt::pycairo unicode png filename roundtrip fixture"],
+      "static_api": [
+        "pub fn Surface::image_from_png(String) -> Self raise CairoError",
+        "pub fn Surface::write_to_png(Self, String) -> Unit raise CairoError"
+      ]
+    },
+    "test_surface_has_show_text_glyphs": {
+      "runtime": ["src/tests/api/pycairo/api_pycairo_parity_test.mbt::pycairo surface has_show_text_glyphs fixture"],
+      "static_api": ["pub fn Surface::has_show_text_glyphs(Self) -> Bool raise CairoError"]
+    },
+    "test_context": {
+      "runtime": ["src/tests/api/pycairo/api_pycairo_parity_test.mbt::pycairo context paint smoke fixture"],
+      "static_api": [
+        "pub fn Context::new(Surface) -> Self raise CairoError",
+        "pub fn Context::paint(Self) -> Unit raise CairoError",
+        "pub fn Context::set_operator(Self, Operator) -> Unit raise CairoError",
+        "pub fn Context::set_source_rgb(Self, Double, Double, Double) -> Unit raise CairoError"
+      ]
+    },
+    "test_surface": {
+      "runtime": ["src/tests/api/pycairo/api_pycairo_parity_test.mbt::pycairo surface constructor smoke fixture"],
+      "static_api": [
+        "pub fn Surface::image(Format, Int, Int) -> Self raise CairoError",
+        "pub fn Surface::pdf_stream(Double, Double, (Bytes) -> Status) -> Self raise CairoError",
+        "pub fn Surface::ps_stream(Double, Double, (Bytes) -> Status) -> Self raise CairoError",
+        "pub fn Surface::recording(Content, extents? : Rectangle?) -> Self raise CairoError",
+        "pub fn Surface::svg_stream(Double, Double, (Bytes) -> Status) -> Self raise CairoError"
+      ],
+      "static_absent": ["pub fn Surface::new("],
+      "adaptation": "MoonBit exposes backend-specific typed Surface constructors instead of an instantiable abstract base class. File-like constructors map to explicit stream callbacks, and recording extents use Rectangle? instead of Python tuple coercion."
+    },
+    "test_surface_destroy_before_context": {
+      "runtime": ["src/tests/api/pycairo/api_pycairo_parity_test.mbt::pycairo surface destroy before context fixture"],
+      "static_api": ["pub fn Context::get_target(Self) -> Surface raise CairoError"],
+      "adaptation": "The Context owner retains its target Surface through the C glue owner graph, so the target remains valid after the original MoonBit binding leaves scope."
+    },
+    "test_surface_destroy_before_surface_pattern": {
+      "runtime": ["src/tests/api/pycairo/api_pycairo_parity_test.mbt::pycairo surface destroy before surface pattern fixture"],
+      "static_api": ["pub fn Pattern::get_surface(Self) -> Surface raise CairoError"],
+      "adaptation": "SurfacePattern retains its source Surface and returned wrappers take their own Cairo reference, preserving the pycairo lifetime guarantee without Python reference counting."
+    },
+    "test_recording_surface_get_extents": {
+      "runtime": ["src/tests/api/pycairo/api_pycairo_parity_test.mbt::pycairo recording surface get_extents fixture"],
+      "static_api": ["pub fn Surface::recording_get_extents(Self) -> Rectangle? raise CairoError"]
+    },
+    "test_image_surface_get_data": {
+      "runtime": ["src/tests/image/data/image_data_test.mbt::pycairo image surface get_data mutable view fixture"],
+      "static_api": [
+        "pub fn Surface::get_data(Self) -> ImageData raise CairoError",
+        "pub fn ImageData::get(Self, Int) -> Byte raise CairoError",
+        "pub fn ImageData::set(Self, Int, Byte) -> Unit raise CairoError"
+      ],
+      "adaptation": "ImageData is a checked mutable view retaining its Surface owner. Byte get/set and copy replace Python's memoryview protocol while preserving live pixel updates."
+    },
+    "test_surface_file_obj_error": {
+      "runtime": ["src/tests/api/pycairo/api_pycairo_parity_test.mbt::pycairo surface file object error fixture"],
+      "static_api": [
+        "pub fn Surface::pdf_stream(Double, Double, (Bytes) -> Status) -> Self raise CairoError",
+        "pub fn Surface::ps_stream(Double, Double, (Bytes) -> Status) -> Self raise CairoError"
+      ],
+      "adaptation": "Python objects with write() map to explicit MoonBit callbacks returning Status. Callback failure is deterministically raised as CairoIOError(WriteError, _)."
+    },
+    "test_region": {
+      "runtime": [
+        "src/tests/region/pycairo/region_pycairo_parity_test.mbt::pycairo composite region fixture",
+        "src/tests/region/pycairo/region_pycairo_parity_test.mbt::pycairo region rectangle int limits and equality fixture"
+      ],
+      "static_api": [
+        "pub fn Region::new() -> Self raise CairoError",
+        "pub fn Region::from_rectangles(ArrayView[RectangleInt]) -> Self raise CairoError",
+        "pub fn Region::contains_rectangle(Self, RectangleInt) -> RegionOverlap",
+        "pub impl Eq for Region"
+      ],
+      "static_absent": [
+        "pub struct RectangleInt {\n  x : Int\n  y : Int\n  width : Int\n  height : Int\n} derive(Eq, Hash, @debug.Debug)",
+        "pub impl Hash for RectangleInt"
+      ],
+      "adaptation": "Region construction and boolean operations use explicit typed methods. RectangleInt retains value equality/debug output but deliberately has no Hash implementation, so hash use is rejected statically."
+    },
+    "test_constants": {
+      "runtime": ["src/tests/api/enums/enums_test.mbt::pycairo module constants raw value fixture"],
+      "static_api": [
+        "pub(all) enum Operator {",
+        "pub(all) enum Format {",
+        "pub(all) enum RegionOverlap {",
+        "pub(all) enum SVGVersion {"
+      ],
+      "adaptation": "Pycairo integer constants map to typed MoonBit enum constructors. The runtime fixture verifies their exact Cairo integer values through raw accessors, including the FORMAT_INVALID sentinel and MIME string constant."
+    },
+    "test_surface_get_set_mime_data_references": {
+      "runtime": ["src/tests/surface/mime/surface_mime_test.mbt::pycairo mime data multi-key clear fixture"],
+      "static_api": [
+        "pub fn Surface::get_mime_data(Self, String) -> Bytes? raise CairoError",
+        "pub fn Surface::set_mime_data(Self, String, Bytes?) -> Unit raise CairoError"
+      ],
+      "adaptation": "Cairoon copies Bytes into Cairo-owned MIME storage and returns a fresh Bytes value instead of preserving Python memoryview identity. Multi-key replacement, clearing, and post-finish lifetime are exercised directly."
+    },
+    "test_surface_mime_data_for_pdf": {
+      "runtime": ["src/tests/surface/mime/surface_mime_test.mbt::pycairo PDF MIME data embeds JPEG payload fixture"],
+      "static_api": ["pub fn Surface::set_mime_data(Self, String, Bytes?) -> Unit raise CairoError"]
+    }
+  }
+}

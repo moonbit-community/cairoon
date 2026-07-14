@@ -14,6 +14,13 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 
 ## Recent Audit Deltas
 
+- 2026-07-15: Pinned API and FilePaths ledgers map all 17 upstream tests to 18
+  MoonBit runtime anchors, 36 required generated signatures, 4 deliberately
+  absent signatures, and 1 explicit product-decision anchor. The parity
+  checker now permits a runtime-less mapping only when it cites an exact
+  `API_INVENTORY.md` decision and supplies a non-empty MoonBit adaptation;
+  `get_include()` uses that path because it is a CPython extension packaging
+  helper rather than a Cairo runtime operation.
 - 2026-07-15: Pinned Enum and Error ledgers map all 11 upstream tests to 6
   family-local runtime anchors, 15 required generated signatures, and 4
   deliberately absent legacy enum aliases. The parity checker now accepts a

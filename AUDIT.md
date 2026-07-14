@@ -22,17 +22,19 @@ Implemented in this workspace:
   public MoonBit API anchor in `src/pkg.generated.mbti`.
 - Executable pycairo family test parity through
   `scripts/check-pycairo-test-parity.py` and the ledgers under
-  `scripts/parity/`, wired into `scripts/verify.sh`. The Context, Device, Enums,
-  Error, Font, Glyph, Matrix, Path, Pattern, Rectangle, Region, Surface,
-  TextCluster, and TextExtents ledgers pin upstream sources by commit and
-  SHA-256, require all 263 upstream tests to map to existing MoonBit black-box
-  test anchors, and map Python runtime `TypeError` assertions to required or
-  deliberately absent generated public signatures. The checker's positive and
-  negative fixtures
-  run from `scripts/tests`, and pinned snapshots keep the gate usable in a
-  standalone cairoon checkout without the parent pycairo source tree. When the
-  parent pycairo marker is present, a missing ledger source is an error instead
-  of a snapshot fallback; strict environments can also pass `--require-source`.
+  `scripts/parity/`, wired into `scripts/verify.sh`. The API, Context, Device,
+  Enums, Error, FilePaths, Font, Glyph, Matrix, Path, Pattern, Rectangle,
+  Region, Surface, TextCluster, and TextExtents ledgers pin upstream sources by
+  commit and SHA-256, require all 280 upstream tests to map to existing MoonBit
+  black-box test anchors or exact inventory decisions, and map Python runtime
+  `TypeError` assertions to required or deliberately absent generated public
+  signatures. Runtime-less decisions must cite an exact `API_INVENTORY.md`
+  anchor and state the MoonBit adaptation. The checker's positive and negative
+  fixtures run from `scripts/tests`, and pinned snapshots keep the gate usable
+  in a standalone cairoon checkout without the parent pycairo source tree.
+  When the parent pycairo marker is present, a missing ledger source is an
+  error instead of a snapshot fallback; strict environments can also pass
+  `--require-source`.
 - Static reliability-ledger linting through
   `scripts/check-reliability-ledger.py`, wired into `scripts/verify.sh`, so
   migration status rows use accepted statuses, `Partial` rows state remaining
@@ -524,13 +526,15 @@ Implemented in this workspace:
   Cairo's native observer surface/device APIs and native FreeType/user-font
   extension APIs are intentionally outside the current pycairo-migration
   product.
-- Gate 2 behavioral parity: partial but strong. Pinned Context, Device, Enums,
-  Error, Font, Glyph, Matrix, Path, Pattern, Rectangle, Region, Surface,
-  TextCluster, and TextExtents ledgers map 263 upstream tests to 169
-  family-local MoonBit runtime anchors, 243 required public signatures, and 24
-  deliberately absent signatures. Additional black-box tests cover API and
-  raster-source callback behavior; those remaining upstream families still
-  need exact ledgers before this gate is complete.
+- Gate 2 behavioral parity: partial but strong. Pinned API, Context, Device,
+  Enums, Error, FilePaths, Font, Glyph, Matrix, Path, Pattern, Rectangle,
+  Region, Surface, TextCluster, and TextExtents ledgers map 280 upstream tests
+  to 187 family-local MoonBit runtime anchors, 279 required public signatures,
+  28 deliberately absent signatures, and 1 explicit inventory decision.
+  Additional black-box tests cover raster-source callback behavior; the 8
+  remaining upstream tests are CPython C-module, typing, NumPy, or pygame
+  integration cases and still need explicit ledgers before this gate is
+  complete.
 - Gate 3 differential rendering: partial. Deterministic raw-pixel rendering
   tests exist for direct colors and explicit patterns, a direct C image oracle
   covers forty-seven deterministic ARGB32 scenes including stroke, rectangle,
@@ -626,10 +630,11 @@ The most recent full local verification passed on 2026-07-15:
   reliability-ledger, and vector-scene gates; native type checking; all
   739/739 native tests; generated-interface review; and every configured
   targeted ASan package with leak detection disabled under the documented
-  macOS policy. The parity gate verified all 263 pinned Context, Device, Enums,
-  Error, Font, Glyph, Matrix, Path, Pattern, Rectangle, Region, Surface,
-  TextCluster, and TextExtents tests against the parent pycairo source checkout,
-  and the reliability ledger reported 2 explicit `Partial` rows.
+  macOS policy. The parity gate verified all 280 pinned API, Context, Device,
+  Enums, Error, FilePaths, Font, Glyph, Matrix, Path, Pattern, Rectangle,
+  Region, Surface, TextCluster, and TextExtents tests against the parent
+  pycairo source checkout, and the reliability ledger reported 2 explicit
+  `Partial` rows.
 
 Prior full verifies passed on 2026-07-02, 2026-07-03, 2026-07-04,
 2026-07-05, and earlier 2026-07-06 slices. The most recent 2026-07-06 run:

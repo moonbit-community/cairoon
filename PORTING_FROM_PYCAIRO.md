@@ -319,7 +319,11 @@ release trampoline so retained acquired-surface wrappers are released.
   stable release is cut.
 - `copy_data()` copies; mutable access is through `ImageData`.
 - MIME payload identity differs from pycairo because data is copied.
+- Filename APIs accept UTF-8 MoonBit `String` values. Python `bytes` paths and
+  `__fspath__` objects have no implicit MoonBit equivalent.
 - Python file-like objects are replaced by explicit MoonBit stream callbacks.
+- `get_include()` and pycairo's other CPython extension packaging helpers are
+  absent; native package link configuration supplies Cairo headers and flags.
 - Python `None` constructors map to explicit optional arguments or no-output
   constructors, for example `Surface::pdf(width, height)` for a no-output PDF.
 - Python `int` enum passthrough is available only through documented raw helper

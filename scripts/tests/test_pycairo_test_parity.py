@@ -23,6 +23,7 @@ class PycairoTestParityCheckerTests(unittest.TestCase):
         self.upstream = self.repo_root / "upstream_test_sample.py"
         self.runtime_tests = self.repo_root / "src/tests/sample"
         self.public_api = self.repo_root / "src/pkg.generated.mbti"
+        self.inventory = self.repo_root / "API_INVENTORY.md"
         self.ledger = self.repo_root / "sample-test-parity.json"
         self.ledger_dir = self.repo_root / "scripts/parity"
 
@@ -53,6 +54,10 @@ test "typed evidence" {
         )
         self.public_api.write_text(
             "pub fn Context::typed(Self, Double) -> Unit raise CairoError\n",
+            encoding="utf-8",
+        )
+        self.inventory.write_text(
+            "| `get_include()` | Decision | Python-only header discovery |\n",
             encoding="utf-8",
         )
         self.ledger_data = {
@@ -173,6 +178,48 @@ def test_typed():
         result = self.run_checker()
 
         self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_decision_mapping_can_replace_runtime_evidence(self) -> None:
+        self.upstream.write_text("def test_runtime():\n    pass\n", encoding="utf-8")
+        self.ledger_data["upstream"]["sha256"] = hashlib.sha256(
+            self.upstream.read_bytes()
+        ).hexdigest()
+        self.ledger_data["upstream"]["test_count"] = 1
+        self.ledger_data["type_error_tests"] = []
+        self.ledger_data["tests"] = {
+            "test_runtime": {
+                "decision": "| `get_include()` | Decision |",
+                "adaptation": "MoonBit uses package-native link configuration.",
+            }
+        }
+        self.write_ledger()
+
+        result = self.run_checker()
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_decision_mapping_requires_inventory_anchor(self) -> None:
+        self.ledger_data["tests"]["test_runtime"] = {
+            "decision": "| `missing()` | Decision |",
+            "adaptation": "The API is outside the MoonBit product scope.",
+        }
+        self.write_ledger()
+
+        result = self.run_checker()
+
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("missing inventory decision anchor", result.stderr)
+
+    def test_decision_mapping_requires_adaptation(self) -> None:
+        self.ledger_data["tests"]["test_runtime"] = {
+            "decision": "| `get_include()` | Decision |"
+        }
+        self.write_ledger()
+
+        result = self.run_checker()
+
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("decision mappings require adaptation", result.stderr)
 
     def test_missing_runtime_anchor_fails(self) -> None:
         self.ledger_data["tests"]["test_runtime"]["runtime"] = [
