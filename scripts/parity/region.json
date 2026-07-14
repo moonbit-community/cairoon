@@ -1,0 +1,122 @@
+{
+  "schema_version": 1,
+  "family": "Region",
+  "runtime_root": "src/tests/region",
+  "upstream": {
+    "repository": "https://github.com/pygobject/pycairo",
+    "commit": "80ea3348aff95e8441e6c3e2086371ea40528d81",
+    "path": "tests/test_region.py",
+    "sha256": "ac8334bb368ab37b38f0c54aa50698345f580073078048b08c2124c10b6ede2d",
+    "test_count": 12
+  },
+  "type_error_policy": "Pycairo runtime TypeError assertions map to MoonBit compile-time rejection. Region construction and boolean-operation overloads become explicit typed methods. Region and RectangleInt support equality but deliberately lack generic Hash and Compare traits.",
+  "type_error_tests": [
+    "test_region",
+    "test_get_rectangle",
+    "test_contains_point",
+    "test_intersect",
+    "test_equal",
+    "test_subtract",
+    "test_union",
+    "test_xor",
+    "test_translate",
+    "test_region_contains_rectangle",
+    "test_region_cmp_hash"
+  ],
+  "tests": {
+    "test_region": {
+      "runtime": [
+        "src/tests/region/core/region_test.mbt::region empty and rectangle construction",
+        "src/tests/region/core/region_test.mbt::region construction from multiple rectangles"
+      ],
+      "static_api": [
+        "pub fn Region::new() -> Self raise CairoError",
+        "pub fn Region::from_rectangle(RectangleInt) -> Self raise CairoError",
+        "pub fn Region::from_rectangles(ArrayView[RectangleInt]) -> Self raise CairoError"
+      ],
+      "adaptation": "Pycairo's overloaded Region constructor maps to separate empty, single-rectangle, and rectangle-sequence constructors so invalid object and sequence element types are rejected statically."
+    },
+    "test_get_rectangle": {
+      "runtime": ["src/tests/region/pycairo/region_pycairo_parity_test.mbt::pycairo region get_rectangle index fixture"],
+      "static_api": ["pub fn Region::get_rectangle(Self, Int) -> RectangleInt raise CairoError"],
+      "adaptation": "Out-of-range indexes map to CairoInvalidArgument(InvalidIndex, _); non-integer indexes are rejected statically."
+    },
+    "test_rectangles_limits": {
+      "runtime": ["src/tests/region/pycairo/region_pycairo_parity_test.mbt::pycairo region rectangle int limits and equality fixture"],
+      "static_api": [
+        "pub struct RectangleInt {\n  x : Int\n  y : Int\n  width : Int\n  height : Int\n} derive(Eq, @debug.Debug)",
+        "pub fn RectangleInt::new(x? : Int, y? : Int, width? : Int, height? : Int) -> Self"
+      ],
+      "adaptation": "MoonBit Int is the binding's signed 32-bit cairo int representation, so out-of-range integer literals are compile-time errors while both extrema are runtime tested."
+    },
+    "test_contains_point": {
+      "runtime": ["src/tests/region/pycairo/region_pycairo_parity_test.mbt::pycairo region contains fixture"],
+      "static_api": ["pub fn Region::contains_point(Self, Int, Int) -> Bool"]
+    },
+    "test_intersect": {
+      "runtime": [
+        "src/tests/region/core/region_test.mbt::region boolean operations with rectangles",
+        "src/tests/region/core/region_test.mbt::region boolean operations with regions"
+      ],
+      "static_api": [
+        "pub fn Region::intersect(Self, Self) -> Self raise CairoError",
+        "pub fn Region::intersect_rectangle(Self, RectangleInt) -> Self raise CairoError",
+        "pub impl Eq for Region"
+      ],
+      "adaptation": "Pycairo's Region-or-RectangleInt overload maps to two statically typed methods; both mutate and return the receiver to support checked chaining."
+    },
+    "test_equal": {
+      "runtime": ["src/tests/region/pycairo/region_pycairo_parity_test.mbt::pycairo region equality fixture"],
+      "static_api": ["pub fn Region::equal(Self, Self) -> Bool"]
+    },
+    "test_subtract": {
+      "runtime": ["src/tests/region/core/region_test.mbt::region boolean operations with regions"],
+      "static_api": [
+        "pub fn Region::subtract(Self, Self) -> Self raise CairoError",
+        "pub fn Region::subtract_rectangle(Self, RectangleInt) -> Self raise CairoError"
+      ],
+      "adaptation": "Pycairo's Region-or-RectangleInt overload maps to separate typed methods that return the mutated receiver."
+    },
+    "test_union": {
+      "runtime": ["src/tests/region/core/region_test.mbt::region boolean operations with rectangles"],
+      "static_api": [
+        "pub fn Region::union(Self, Self) -> Self raise CairoError",
+        "pub fn Region::union_rectangle(Self, RectangleInt) -> Self raise CairoError"
+      ],
+      "adaptation": "Pycairo's Region-or-RectangleInt overload maps to separate typed methods that return the mutated receiver."
+    },
+    "test_xor": {
+      "runtime": ["src/tests/region/core/region_test.mbt::region xor rectangle splits overlapping area"],
+      "static_api": [
+        "pub fn Region::xor(Self, Self) -> Self raise CairoError",
+        "pub fn Region::xor_rectangle(Self, RectangleInt) -> Self raise CairoError"
+      ],
+      "adaptation": "Pycairo's Region-or-RectangleInt overload maps to separate typed methods that return the mutated receiver."
+    },
+    "test_translate": {
+      "runtime": ["src/tests/region/pycairo/region_pycairo_parity_test.mbt::pycairo region translate fixture"],
+      "static_api": ["pub fn Region::translate(Self, Int, Int) -> Unit raise CairoError"]
+    },
+    "test_region_contains_rectangle": {
+      "runtime": ["src/tests/region/pycairo/region_pycairo_parity_test.mbt::pycairo region contains fixture"],
+      "static_api": ["pub fn Region::contains_rectangle(Self, RectangleInt) -> RegionOverlap"]
+    },
+    "test_region_cmp_hash": {
+      "runtime": [
+        "src/tests/region/pycairo/region_pycairo_parity_test.mbt::pycairo region equality fixture",
+        "src/tests/region/pycairo/region_pycairo_parity_test.mbt::pycairo region rectangle int limits and equality fixture"
+      ],
+      "static_api": [
+        "pub impl Eq for Region",
+        "pub struct RectangleInt {\n  x : Int\n  y : Int\n  width : Int\n  height : Int\n} derive(Eq, @debug.Debug)"
+      ],
+      "static_absent": [
+        "pub impl Hash for Region",
+        "pub impl Compare for Region",
+        "pub struct RectangleInt {\n  x : Int\n  y : Int\n  width : Int\n  height : Int\n} derive(Eq, Hash, @debug.Debug)",
+        "pub impl Compare for RectangleInt"
+      ],
+      "adaptation": "Region and RectangleInt preserve value equality while generic hashing, ordering, and heterogeneous equality are unavailable, matching pycairo's protocol behavior through static rejection."
+    }
+  }
+}

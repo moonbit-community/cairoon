@@ -92,6 +92,18 @@ values:
 | `matrix[index]` | `matrix[index]` or `matrix.component(index)` |
 | `matrix.translate(tx, ty)` mutates `matrix` | `let matrix = matrix.translate(tx, ty)` returns a new value |
 
+Region operations use explicit overload names and checked chaining:
+
+| pycairo | cairoon |
+| --- | --- |
+| `cairo.Region()` | `Region::new()` |
+| `cairo.Region(rect)` | `Region::from_rectangle(rect)` |
+| `cairo.Region(rectangles)` | `Region::from_rectangles(rectangles)` |
+| `region.intersect(other_region)` | `region.intersect(other_region)` |
+| `region.intersect(rect)` | `region.intersect_rectangle(rect)` |
+| boolean mutators return `None` | boolean mutators return the same mutated `Region` for chaining |
+| `hash(region)` and `hash(rectangle_int)` raise `TypeError` | `Region` and `RectangleInt` implement `Eq`, but not `Hash` or `Compare` |
+
 ## Common Method Mapping
 
 Surface and image operations:

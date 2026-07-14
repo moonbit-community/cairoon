@@ -205,7 +205,7 @@ test "region boolean operations with regions" {
 }
 
 ///|
-test "region boolean operations chain like pycairo mutators" {
+test "region boolean operations return receiver for cairoon chaining" {
   let base = @cairoon.Region::from_rectangle(
     @cairoon.RectangleInt::new(x=0, y=0, width=10, height=10),
   )

@@ -84,6 +84,7 @@ cairoon/
       font.json
       matrix.json
       pattern.json
+      region.json
       surface.json
     tests/
       test_pycairo_test_parity.py

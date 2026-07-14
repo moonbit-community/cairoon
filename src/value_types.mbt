@@ -43,7 +43,7 @@ pub struct RectangleInt {
   y : Int
   width : Int
   height : Int
-} derive(Eq, Hash, Debug)
+} derive(Eq, Debug)
 
 ///|
 pub fn RectangleInt::new(

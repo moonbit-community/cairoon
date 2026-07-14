@@ -73,7 +73,7 @@ Evaluate each slice with this scorecard:
 | API surface | Public entries appear in `src/pkg.generated.mbti`; Python-only pycairo APIs are recorded as `Decision`; `scripts/check-api-inventory.py` passes against parent `cairo/__init__.pyi` | Strong for current portable APIs; all pycairo public top-level entries, top-level constants, and 255 portable class methods are mapped to public MoonBit API anchors or explicit product decisions |
 | Reliability ledger | `API_INVENTORY.md` statuses are `Done`, `Partial`, or `Decision`; every `Partial` row names its remaining gap; this scorecard and CI/verify gate are checked by `scripts/check-reliability-ledger.py` | Strong for current migrated slices; the lint runs in the local and CI verify gate, and any future full-product claim still requires zero `Todo`/`Partial` rows |
 | FFI boundary safety | Production raw `src/**/ffi*.mbt` declarations are native-gated in their owning `moon.pkg`, mark every non-primitive C FFI parameter with `#borrow` or `#owned`, and `scripts/check-project-layout.py` plus `scripts/check-ffi-ownership.py` pass | Strong for current raw externs, including internal helper packages; both lints run in the local and CI verify gate |
-| Behavioral parity | pycairo-derived black-box cases or direct C Cairo primitive oracles cover normal and invalid inputs | Strong for image, context, path, font, pattern, region, surface/device, and backend helpers already listed in the inventory; all 213 upstream Context, Font, Matrix, Pattern, and Surface tests are pinned and mapped to 132 family-local MoonBit runtime anchors, 162 required generated static API anchors, and 11 deliberately absent signatures |
+| Behavioral parity | pycairo-derived black-box cases or direct C Cairo primitive oracles cover normal and invalid inputs | Strong for image, context, path, font, pattern, region, surface/device, and backend helpers already listed in the inventory; all 225 upstream Context, Font, Matrix, Pattern, Region, and Surface tests are pinned and mapped to 142 family-local MoonBit runtime anchors, 181 required generated static API anchors, and 15 deliberately absent signatures |
 | Rendering parity | Deterministic image pixels or normalized PDF/PS/SVG bytes match direct C Cairo output | Strong for the enumerated image and vector fixtures, including backend page-transition, state-stack, deep-tag, metadata-outline, page-ops, tag-metadata, structure-sequence, outline-sequence, pattern-tag, semantic-index, bookmark-lattice, revision-ledger, article-thread, review-dossier, appendix-rubric, research-note, cross-reference, and link-audit tag/metadata/page-operation output; still partial for broader tag/metadata/multi-page combinations |
 | Lifetime safety | External-object ownership, borrowed returns, callback retention, and error exits run under ASan/LSan or stress tests | Strong for targeted local gates; macOS LSan remains intentionally disabled for known toy-font/glyph leak reports |
 | Callback safety | C-held MoonBit callbacks and callback arguments are retained across the callback invocation and released deterministically | Strong for stream writers/readers and raster-source callbacks covered by current stress/fuzz tests |
@@ -118,10 +118,11 @@ ledger pins the upstream source digest, maps every upstream test to runtime
 evidence, and requires present or deliberately absent static API evidence for
 each Python runtime `TypeError` assertion. A detected parent pycairo source tree
 must contain every ledger source; use `--require-source` to enforce this in
-other strict environments. The current Context, Font, Matrix, Pattern, and
-Surface ledgers cover 213 upstream tests with 132 family-local runtime anchors,
-162 required public signatures, and 11 deliberately absent signatures. Run
-`scripts/check-ffi-ownership.py` whenever raw extern declarations change. Run
+other strict environments. The current Context, Font, Matrix, Pattern, Region,
+and Surface ledgers cover 225 upstream tests with 142 family-local runtime
+anchors, 181 required public signatures, and 15 deliberately absent
+signatures. Run `scripts/check-ffi-ownership.py` whenever raw extern
+declarations change. Run
 `scripts/check-project-layout.py` whenever package structure, root source files,
 or `PROJECT_LAYOUT.md` changes. Run `scripts/check-source-size-budget.py`
 whenever a source, script, test, native glue, or executable-doc file is added
@@ -478,7 +479,7 @@ single-rectangle, and multi-rectangle construction plus predicates, pycairo
 negative and positive rectangle-index fixtures, equality mapping through
 MoonBit `Eq`, empty-region overlap and translate behavior, region boolean
 operations, and rectangle boolean operations including XOR split semantics and
-pycairo-style chainable boolean mutator returns; `region.mbt.md` adds
+cairoon's checked-chaining boolean mutator extension; `region.mbt.md` adds
 executable reference examples for the same family. Matrix has executable
 reference examples for component access,
 pure-value transforms, multiplication, inversion, and checked errors. Surface
@@ -718,19 +719,18 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, 2026-07-
   Glyph, TextCluster, TextExtents, FontExtents, component access,
   positive/negative invalid-index error mapping, and numeric limits.
 - `moon -C cairoon test src/tests/value/pycairo --target native --deny-warn -v`:
-  7 black-box value parity tests passed, covering pycairo-style value
-  equality/hash/component fixtures, `RectangleInt` 32-bit boundary fields,
-  clip-rectangle returns, recording extents, and Context/ScaledFont
-  extents-return paths.
+  6 black-box value parity tests passed, covering pycairo-style value
+  equality/hash/component fixtures, clip-rectangle returns, recording extents,
+  and Context/ScaledFont extents-return paths.
 - `moon -C cairoon test src/tests/region/core --target native --deny-warn -v`:
   10 black-box Region package tests passed, covering constructors, copies,
   containment/overlap queries, mutating boolean operations, chainable rectangle
   mutators, invalid-index mapping, and copied-region lifetime.
 - `moon -C cairoon test src/tests/region/pycairo --target native --deny-warn -v`:
-  6 black-box Region parity tests passed, covering pycairo-derived rectangle
-  index, equality, containment, composite multi-rectangle normalization,
-  exact intersect/subtract/union/xor splits, mutator receiver, and translate
-  fixtures.
+  7 black-box Region parity tests passed, covering pycairo-derived rectangle
+  index, signed 32-bit limits, equality, containment, composite multi-rectangle
+  normalization, exact intersect/subtract/union/xor splits, cairoon's mutator
+  receiver extension, and translate fixtures.
 - `moon -C cairoon test src/tests/context/path --target native -v`: 11
   black-box Context path tests passed, covering current-point behavior,
   relative path operations, pycairo rectangle path-extents behavior,
@@ -1437,9 +1437,9 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, 2026-07-
   tests passed after adding `Region::xor_rectangle` split-semantics coverage.
 - `moon -C cairoon test region_test.mbt region.mbt.md --target native -v`: 12
   tests passed after changing Region boolean operations to return the mutated
-  receiver for pycairo-style chaining. This covered region and rectangle
-  operands, explicit returned-receiver checks, a chained rectangle-boolean
-  sequence, and executable Region docs.
+  receiver as a cairoon checked-chaining extension over pycairo's `None`.
+  This covered region and rectangle operands, explicit returned-receiver
+  checks, a chained rectangle-boolean sequence, and executable Region docs.
 - `moon -C cairoon info --target native`: regenerated `pkg.generated.mbti`
   after the public Region return-type change.
 - `moon -C cairoon test --target native`: 333 tests passed after the Region
@@ -3396,7 +3396,7 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, 2026-07-
   A later RectangleInt pycairo limits slice extended
   `value_pycairo_parity_test.mbt` with pycairo
   `test_region.py::test_rectangles_limits`-derived 32-bit boundary coverage for
-  `RectangleInt` fields/components and MoonBit `Eq`/`Hash` identity. This
+  `RectangleInt` fields/components and MoonBit `Eq` identity. This
   raises the expected full native suite to 705 tests without changing public
   API.
   A later pure value invalid-index slice extended `value_types_test.mbt` with
@@ -3786,6 +3786,20 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, 2026-07-
   instead of mutating their receiver. This raises the observed full native
   suite from 737 to 739 tests, passes every configured ASan run, and leaves the
   reliability ledger at 2 explicit `Partial` rows.
+  A later pycairo Region test-parity slice added `scripts/parity/region.json`,
+  pinning all 12 upstream `test_region.py` cases to 10 family-local MoonBit
+  runtime anchors, 19 required generated signatures, and 4 deliberately absent
+  signatures. Its static protocol evidence exposed that `RectangleInt` still
+  implemented generic `Hash` even though pycairo explicitly rejects hashing;
+  cairoon now retains value equality while omitting `Hash` and `Compare` for
+  both `Region` and `RectangleInt`. The 32-bit boundary/equality fixture moved
+  from the generic value package into the Region family, so the full native
+  suite remains 739 tests while Region grows from 6 to 7 fixtures and the value
+  package shrinks from 7 to 6. The ledger also records cairoon's receiver-return
+  boolean mutators as an explicit extension over pycairo's `None`. Source and
+  pinned-snapshot parity modes pass with 225 tests across 6 families, and the
+  full local gate passes 739/739 native tests plus every configured ASan
+  package; the reliability ledger remains at 2 explicit `Partial` rows.
 
 Remaining reliability work is now narrower and should be tracked as evidence,
 not as an unstructured checklist:

@@ -23,11 +23,11 @@ Implemented in this workspace:
 - Executable pycairo family test parity through
   `scripts/check-pycairo-test-parity.py` and the ledgers under
   `scripts/parity/`, wired into `scripts/verify.sh`. The Context, Font, Matrix,
-  Pattern, and Surface ledgers pin upstream sources by commit and SHA-256,
-  require all 213 upstream tests to map to existing MoonBit black-box test
-  anchors, and map
-  Python runtime `TypeError` assertions to required or deliberately absent
-  generated public signatures. The checker's positive and negative fixtures
+  Pattern, Region, and Surface ledgers pin upstream sources by commit and
+  SHA-256, require all 225 upstream tests to map to existing MoonBit black-box
+  test anchors, and map Python runtime `TypeError` assertions to required or
+  deliberately absent generated public signatures. The checker's positive and
+  negative fixtures
   run from `scripts/tests`, and pinned snapshots keep the gate usable in a
   standalone cairoon checkout without the parent pycairo source tree. When the
   parent pycairo marker is present, a missing ledger source is an error instead
@@ -54,9 +54,9 @@ Implemented in this workspace:
   `src/tests/value/{core,pycairo}`, importing only the public
   `CAIMEOX/cairoon` API. This validates rectangles, glyphs, text clusters, and
   font/text extents, including component access, invalid-index error mapping,
-  hash/equality fixtures, numeric limits, and return paths from Context,
-  ScaledFont, recording surfaces, and clip extents through separately linked
-  published-package seams.
+  type-appropriate equality/hash fixtures, numeric limits, and return paths
+  from Context, ScaledFont, recording surfaces, and clip extents through
+  separately linked published-package seams.
 - Matrix black-box tests now live in
   `src/tests/matrix/{core,property,pycairo}`, importing only the public
   `CAIMEOX/cairoon` API. This validates external-package access to public
@@ -66,8 +66,10 @@ Implemented in this workspace:
 - Region black-box tests now live in `src/tests/region/{core,pycairo}`,
   importing only the public `CAIMEOX/cairoon` API. This validates Region
   lifetime/copy behavior, rectangle construction, containment, overlap enums,
-  mutating boolean operations, chained pycairo-style mutators, and invalid-index
-  error mapping through separately linked published-package seams.
+  mutating boolean operations, cairoon's explicit checked-chaining extension,
+  `RectangleInt` equality without generic hashing/ordering, all 12 pinned
+  upstream Region tests, and invalid-index error mapping through separately
+  linked published-package seams.
 - Surface black-box tests now live in
   `src/tests/surface/{base,mime,pycairo,subsurface}`, importing only the
   public `CAIMEOX/cairoon` API. This validates base surface state,
@@ -371,7 +373,7 @@ Implemented in this workspace:
   initial solid/surface/linear/radial/mesh `Pattern` APIs with
   pointer equality/hash, extend/filter/dither/matrix/gradient state, mesh patch lifecycle/query
   helpers, and complete portable `Region` APIs including multi-rectangle
-  construction and pycairo-style chainable boolean mutator returns.
+  construction and cairoon's checked-chaining boolean mutator extension.
 - `FontOptions` external object with copy/merge/equal/hash, variations,
   Cairo 1.18 color font options, classic antialias/subpixel/hint state, and
   Surface/Context font-options accessors.
@@ -515,10 +517,10 @@ Implemented in this workspace:
   extension APIs are intentionally outside the current pycairo-migration
   product.
 - Gate 2 behavioral parity: partial but strong. Pinned Context, Font, Matrix,
-  Pattern, and Surface ledgers map 213 upstream tests to 132 family-local
-  MoonBit runtime anchors, 162 required public signatures, and 11 deliberately
-  absent signatures. Additional black-box tests cover Path, Region, Device,
-  value, API, raster-source callback, and error behavior; those remaining
+  Pattern, Region, and Surface ledgers map 225 upstream tests to 142
+  family-local MoonBit runtime anchors, 181 required public signatures, and 15
+  deliberately absent signatures. Additional black-box tests cover Path,
+  Device, value, API, raster-source callback, and error behavior; those remaining
   upstream families still need exact ledgers before this gate is complete.
 - Gate 3 differential rendering: partial. Deterministic raw-pixel rendering
   tests exist for direct colors and explicit patterns, a direct C image oracle
@@ -615,9 +617,9 @@ The most recent full local verification passed on 2026-07-15:
   reliability-ledger, and vector-scene gates; native type checking; all
   739/739 native tests; generated-interface review; and every configured
   targeted ASan package with leak detection disabled under the documented
-  macOS policy. The parity gate verified all 213 pinned Context, Font, Matrix,
-  Pattern, and Surface tests against the parent pycairo source checkout, and the
-  reliability ledger reported 2 explicit `Partial` rows.
+  macOS policy. The parity gate verified all 225 pinned Context, Font, Matrix,
+  Pattern, Region, and Surface tests against the parent pycairo source checkout,
+  and the reliability ledger reported 2 explicit `Partial` rows.
 
 Prior full verifies passed on 2026-07-02, 2026-07-03, 2026-07-04,
 2026-07-05, and earlier 2026-07-06 slices. The most recent 2026-07-06 run:
@@ -1397,9 +1399,9 @@ Prior full verifies passed on 2026-07-02, 2026-07-03, 2026-07-04,
   tests passed after adding `Region::xor_rectangle` split-semantics coverage.
 - `moon -C cairoon test region_test.mbt region.mbt.md --target native -v`: 12
   tests passed after changing Region boolean operations to return the mutated
-  receiver for pycairo-style chaining. This covered region and rectangle
-  operands, explicit returned-receiver checks, a chained rectangle-boolean
-  sequence, and executable Region docs.
+  receiver as a cairoon checked-chaining extension over pycairo's `None`.
+  This covered region and rectangle operands, explicit returned-receiver
+  checks, a chained rectangle-boolean sequence, and executable Region docs.
 - `moon -C cairoon info --target native`: regenerated `pkg.generated.mbti`
   after the public Region return-type change.
 - `moon -C cairoon test --target native`: 333 tests passed after the Region

@@ -5,8 +5,12 @@ tracking raster areas such as invalidated tiles, clip approximations, and dirty
 rectangles.
 
 Regions own their Cairo handle. Copying a region creates a distinct Cairo
-object; boolean operations mutate and return the receiver, matching pycairo's
-chainable mutator behavior while preserving checked Cairo error handling.
+object. Boolean operations mutate and return the receiver for checked chaining;
+this is a cairoon extension over pycairo's `None` return.
+
+`Region` and `RectangleInt` support value equality. They deliberately do not
+implement MoonBit's generic `Hash` or `Compare` traits, matching pycairo's
+unhashable and non-orderable protocol behavior.
 
 ## Construction And Queries
 

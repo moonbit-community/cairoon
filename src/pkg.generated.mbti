@@ -647,7 +647,7 @@ pub struct RectangleInt {
   y : Int
   width : Int
   height : Int
-} derive(Eq, Hash, @debug.Debug)
+} derive(Eq, @debug.Debug)
 pub fn RectangleInt::component(Self, Int) -> Int raise CairoError
 pub fn RectangleInt::components(Self) -> (Int, Int, Int, Int)
 pub fn RectangleInt::new(x? : Int, y? : Int, width? : Int, height? : Int) -> Self
