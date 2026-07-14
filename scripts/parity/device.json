@@ -1,0 +1,91 @@
+{
+  "schema_version": 1,
+  "family": "Device",
+  "runtime_root": "src/tests/stream/device",
+  "upstream": {
+    "repository": "https://github.com/pygobject/pycairo",
+    "commit": "80ea3348aff95e8441e6c3e2086371ea40528d81",
+    "path": "tests/test_device.py",
+    "sha256": "4c86fc724fdab2b8c048abc89fba665b6508edfd488cb8bcb419d62e3769be9b",
+    "test_count": 11
+  },
+  "type_error_policy": "Pycairo runtime TypeError assertions map to MoonBit compile-time rejection where the public signature carries the distinction. Device is an abstract opaque owner, path and stream construction are separate typed constructors, and script mode/comment arguments are statically typed. Cairo only exposes recording and image surfaces through one surface pointer type, so script replay additionally performs a checked runtime surface-kind validation and raises CairoError(SurfaceTypeMismatch, _).",
+  "type_error_tests": [
+    "test_type",
+    "test_script_device",
+    "test_script_device_mode",
+    "test_script_device_write_comment",
+    "test_from_recording_surface"
+  ],
+  "tests": {
+    "test_context_manager": {
+      "runtime": ["src/tests/stream/device/device_pycairo_parity_test.mbt::pycairo device context manager fixture"],
+      "static_api": ["pub fn[T] Device::with_finished(Self, () -> T raise CairoError) -> T raise CairoError"],
+      "adaptation": "MoonBit has no Python context-manager protocol; with_finished provides the same finish-on-scope-exit behavior for successful and Cairo-error paths."
+    },
+    "test_cmp_hash": {
+      "runtime": ["src/tests/stream/device/device_pycairo_parity_test.mbt::pycairo device cmp hash fixture"],
+      "static_api": ["pub impl Eq for Device", "pub impl Hash for Device"],
+      "adaptation": "Opaque Device values compare and hash by the referenced cairo_device_t identity; heterogeneous Python object comparisons are unavailable statically."
+    },
+    "test_get_device": {
+      "runtime": ["src/tests/stream/device/device_pycairo_parity_test.mbt::pycairo image surface get_device fixture"],
+      "static_api": ["pub fn Surface::get_device(Self) -> Device? raise CairoError"]
+    },
+    "test_type": {
+      "runtime": ["src/tests/stream/device/device_pycairo_parity_test.mbt::pycairo script feature and device type fixture"],
+      "static_api": ["type Device"],
+      "static_absent": ["pub fn Device::new("],
+      "adaptation": "Device is an abstract opaque owner and has no public base constructor; concrete devices are created by backend-specific constructors."
+    },
+    "test_has": {
+      "runtime": ["src/tests/stream/device/device_pycairo_parity_test.mbt::pycairo script feature and device type fixture"],
+      "static_api": ["pub const HAS_SCRIPT_SURFACE : Bool = true"]
+    },
+    "test_script_device": {
+      "runtime": [
+        "src/tests/stream/device/device_pycairo_parity_test.mbt::pycairo script device path and acquire fixture",
+        "src/tests/stream/device/device_test.mbt::script stream device writes output chunks",
+        "src/tests/stream/device/device_test.mbt::script device validates strings and recording replay surface type"
+      ],
+      "static_api": [
+        "pub fn Device::script(String) -> Self raise CairoError",
+        "pub fn Device::script_stream((Bytes) -> Status) -> Self raise CairoError",
+        "pub fn Device::get_type(Self) -> DeviceType raise CairoError"
+      ],
+      "adaptation": "Pycairo overloads path strings and binary file-like objects in ScriptDevice. MoonBit uses separate path and stream-callback constructors; missing, null, text-stream, and unrelated arguments are rejected statically, while embedded NUL bytes raise CairoInvalidArgument(InvalidString, _). Both constructors return the single opaque Device owner, whose backend is observable through get_type."
+    },
+    "test_script_device_mode": {
+      "runtime": ["src/tests/stream/device/device_pycairo_parity_test.mbt::pycairo script device mode and comment fixture"],
+      "static_api": [
+        "pub fn Device::script_get_mode(Self) -> ScriptMode raise CairoError",
+        "pub fn Device::script_set_mode(Self, ScriptMode) -> Unit raise CairoError"
+      ],
+      "adaptation": "ScriptMode is a closed MoonBit enum, so arbitrary mode objects are rejected at compile time."
+    },
+    "test_script_device_write_comment": {
+      "runtime": ["src/tests/stream/device/device_pycairo_parity_test.mbt::pycairo script device mode and comment fixture"],
+      "static_api": ["pub fn Device::script_write_comment(Self, String) -> Unit raise CairoError"],
+      "adaptation": "The comment must be a MoonBit String; unrelated Python-style objects are rejected statically and embedded NUL bytes raise CairoInvalidArgument(InvalidString, _)."
+    },
+    "test_from_recording_surface": {
+      "runtime": [
+        "src/tests/stream/device/device_pycairo_parity_test.mbt::pycairo script device recording replay fixture",
+        "src/tests/stream/device/device_test.mbt::script device validates strings and recording replay surface type"
+      ],
+      "static_api": ["pub fn Device::script_from_recording_surface(Self, Surface) -> Unit raise CairoError"],
+      "adaptation": "Null and unrelated values are rejected statically. Cairo surface backends share one opaque Surface type, so non-recording surfaces are rejected by a checked C boundary with CairoError(SurfaceTypeMismatch, _); finished devices raise CairoError(DeviceFinished, _)."
+    },
+    "test_device_acquire": {
+      "runtime": ["src/tests/stream/device/device_pycairo_parity_test.mbt::pycairo script device path and acquire fixture"],
+      "static_api": [
+        "pub fn Device::acquire(Self) -> Unit raise CairoError",
+        "pub fn Device::release(Self) -> Unit raise CairoError"
+      ]
+    },
+    "test_script_device_to_path": {
+      "runtime": ["src/tests/stream/device/device_pycairo_parity_test.mbt::pycairo script device path and acquire fixture"],
+      "static_api": ["pub fn Device::script(String) -> Self raise CairoError"]
+    }
+  }
+}

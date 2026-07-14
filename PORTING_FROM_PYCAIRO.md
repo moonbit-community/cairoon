@@ -150,6 +150,18 @@ Backend surface operations:
 | `ps.dsc_comment(text)` | `ps.ps_dsc_comment(text)` |
 | `svg.set_document_unit(cairo.SVGUnit.PX)` | `svg.svg_set_document_unit(SVGUnitPx)` |
 | `cairo.ScriptDevice(path)` | `Device::script(path)` |
+| `cairo.ScriptDevice(binary_file_like)` | `Device::script_stream(fn(chunk) { ... })` |
+| `with cairo.ScriptDevice(...) as device` | `device.with_finished(fn() { ... })` |
+| `device.get_mode()` / `device.set_mode(mode)` | `device.script_get_mode()` / `device.script_set_mode(mode)` |
+| `device.write_comment(text)` | `device.script_write_comment(text)` |
+| `device.from_recording_surface(surface)` | `device.script_from_recording_surface(surface)` |
+
+`Device` is one opaque MoonBit owner rather than a Python base/subclass tree;
+use `get_type()` when the backend kind matters. Missing, null, text-stream, and
+unrelated constructor arguments are rejected statically. Because Cairo exposes
+recording and image backends through the same surface pointer type,
+`script_from_recording_surface` checks the backend at runtime and raises
+`CairoError(SurfaceTypeMismatch, _)` for a non-recording surface.
 
 ## Errors
 

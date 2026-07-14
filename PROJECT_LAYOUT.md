@@ -81,6 +81,7 @@ cairoon/
   scripts/
     parity/
       context.json
+      device.json
       font.json
       matrix.json
       pattern.json
