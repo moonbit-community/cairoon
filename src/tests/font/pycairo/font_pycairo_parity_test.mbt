@@ -50,7 +50,7 @@ test "pycairo font options copy equality and merge fixture" {
   inspect(options == copied, content="true")
   inspect(options != copied, content="false")
   inspect(options.equal(copied), content="true")
-  inspect(Hash::hash(options) == Hash::hash(copied), content="true")
+  inspect(options.hash() == copied.hash(), content="true")
   debug_inspect(copied.get_hint_metrics(), content="HintMetricsDefault")
 
   options.set_hint_metrics(@cairoon.HintMetricsOn)

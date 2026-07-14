@@ -81,6 +81,7 @@ cairoon/
   scripts/
     parity/
       context.json
+      font.json
       pattern.json
       surface.json
     tests/

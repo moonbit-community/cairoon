@@ -33,7 +33,7 @@ test "font and region traits preserve cairo equality semantics" {
   options.set_hint_metrics(@cairoon.HintMetricsDefault)
   let copied_options = options.copy()
   inspect(options == copied_options, content="true")
-  inspect(Hash::hash(options) == Hash::hash(copied_options), content="true")
+  inspect(options.hash() == copied_options.hash(), content="true")
   copied_options.set_hint_metrics(@cairoon.HintMetricsOn)
   inspect(options == copied_options, content="false")
 

@@ -1,0 +1,166 @@
+{
+  "schema_version": 1,
+  "family": "Font",
+  "runtime_root": "src/tests/font",
+  "upstream": {
+    "repository": "https://github.com/pygobject/pycairo",
+    "commit": "80ea3348aff95e8441e6c3e2086371ea40528d81",
+    "path": "tests/test_font.py",
+    "sha256": "ecb3e08492f7478416907563fdfbf0449f72198297e9b0df93c78a7f6ea76369",
+    "test_count": 35
+  },
+  "type_error_policy": "Pycairo runtime TypeError assertions map to MoonBit compile-time rejection. Mutable FontOptions retains its explicit hash method but deliberately lacks the generic Hash and Compare traits; abstract font faces remain unconstructible; and pycairo's optional text-to-glyph cluster result maps to two statically distinct methods.",
+  "type_error_tests": [
+    "test_font_options_set_color_mode",
+    "test_font_options_variations",
+    "test_font_options",
+    "test_font_options_copy_equal",
+    "test_font_options_merge",
+    "test_font_options_hashable_protocol",
+    "test_font_options_set_antialias",
+    "test_font_options_set_hint_metrics",
+    "test_font_options_set_hint_style",
+    "test_font_options_set_subpixel_order",
+    "test_font_face",
+    "test_font_face_cmp_hash",
+    "test_scaled_font",
+    "test_scaled_font_text_extents",
+    "test_scaled_font_glyph_extents",
+    "test_toy_font_face",
+    "test_scaled_font_text_to_glyphs"
+  ],
+  "tests": {
+    "test_font_options_custom_palette_color": {
+      "runtime": ["src/tests/font/pycairo/font_pycairo_parity_test.mbt::pycairo font options custom palette color fixture"]
+    },
+    "test_font_options_set_color_mode": {
+      "runtime": ["src/tests/font/pycairo/font_pycairo_parity_test.mbt::pycairo font options color mode fixture"],
+      "static_api": ["pub fn FontOptions::set_color_mode(Self, ColorMode) -> Unit raise CairoError"]
+    },
+    "test_font_options_get_color_mode": {
+      "runtime": ["src/tests/font/pycairo/font_pycairo_parity_test.mbt::pycairo font options color mode fixture"]
+    },
+    "test_font_options_set_color_palette": {
+      "runtime": ["src/tests/font/pycairo/font_pycairo_parity_test.mbt::pycairo font options color palette fixture"]
+    },
+    "test_font_options_get_color_palette": {
+      "runtime": ["src/tests/font/pycairo/font_pycairo_parity_test.mbt::pycairo font options color palette fixture"]
+    },
+    "test_font_options_variations": {
+      "runtime": ["src/tests/font/pycairo/font_pycairo_parity_test.mbt::pycairo font options variations fixture"],
+      "static_api": ["pub fn FontOptions::set_variations(Self, String?) -> Unit raise CairoError"]
+    },
+    "test_font_options": {
+      "runtime": ["src/tests/font/options/font_options_test.mbt::font options new exposes default state"],
+      "static_api": ["pub fn FontOptions::new() -> Self raise CairoError"]
+    },
+    "test_font_options_copy_equal": {
+      "runtime": ["src/tests/font/pycairo/font_pycairo_parity_test.mbt::pycairo font options copy equality and merge fixture"],
+      "static_api": ["pub fn FontOptions::equal(Self, Self) -> Bool"]
+    },
+    "test_font_options_hash": {
+      "runtime": ["src/tests/font/options/font_options_test.mbt::font options copy equal hash and merge follow cairo state"]
+    },
+    "test_font_options_merge": {
+      "runtime": ["src/tests/font/pycairo/font_pycairo_parity_test.mbt::pycairo font options copy equality and merge fixture"],
+      "static_api": ["pub fn FontOptions::merge(Self, Self) -> Unit raise CairoError"]
+    },
+    "test_font_options_hashable_protocol": {
+      "runtime": ["src/tests/font/pycairo/font_pycairo_parity_test.mbt::pycairo font options copy equality and merge fixture"],
+      "static_api": ["pub impl Eq for FontOptions", "pub fn FontOptions::hash(Self) -> UInt64"],
+      "static_absent": ["pub impl Hash for FontOptions", "pub impl Compare for FontOptions"],
+      "adaptation": "FontOptions equality follows mutable option content. Its explicit Cairo hash method remains available, but generic Hash and ordering traits are absent so mutable values cannot be collection keys."
+    },
+    "test_font_options_set_antialias": {
+      "runtime": ["src/tests/font/pycairo/font_pycairo_parity_test.mbt::pycairo font options enum setter fixtures"],
+      "static_api": ["pub fn FontOptions::set_antialias(Self, Antialias) -> Unit raise CairoError"]
+    },
+    "test_font_options_set_hint_metrics": {
+      "runtime": ["src/tests/font/pycairo/font_pycairo_parity_test.mbt::pycairo font options enum setter fixtures"],
+      "static_api": ["pub fn FontOptions::set_hint_metrics(Self, HintMetrics) -> Unit raise CairoError"]
+    },
+    "test_font_options_set_hint_style": {
+      "runtime": ["src/tests/font/pycairo/font_pycairo_parity_test.mbt::pycairo font options enum setter fixtures"],
+      "static_api": ["pub fn FontOptions::set_hint_style(Self, HintStyle) -> Unit raise CairoError"]
+    },
+    "test_font_options_set_subpixel_order": {
+      "runtime": ["src/tests/font/pycairo/font_pycairo_parity_test.mbt::pycairo font options enum setter fixtures"],
+      "static_api": ["pub fn FontOptions::set_subpixel_order(Self, SubpixelOrder) -> Unit raise CairoError"]
+    },
+    "test_font_face": {
+      "runtime": ["src/tests/font/pycairo/font_pycairo_parity_test.mbt::pycairo font face and scaled font cmp hash fixture"],
+      "static_api": ["pub impl Eq for FontFace"],
+      "static_absent": ["pub fn FontFace::new("],
+      "adaptation": "The abstract FontFace base cannot be constructed; concrete toy faces use FontFace::toy and borrowed context returns use the same opaque owner type."
+    },
+    "test_font_face_cmp_hash": {
+      "runtime": ["src/tests/font/pycairo/font_pycairo_parity_test.mbt::pycairo font face and scaled font cmp hash fixture"],
+      "static_api": ["pub impl Eq for FontFace", "pub impl Hash for FontFace", "pub impl Eq for ScaledFont", "pub impl Hash for ScaledFont"],
+      "static_absent": ["pub impl Hash for FontOptions"]
+    },
+    "test_scaled_font": {
+      "runtime": ["src/tests/font/pycairo/font_pycairo_parity_test.mbt::pycairo font face and scaled font cmp hash fixture"],
+      "static_api": ["pub fn ScaledFont::new(FontFace, Matrix, Matrix, FontOptions) -> Self raise CairoError", "pub impl Eq for ScaledFont"]
+    },
+    "test_scaled_font_extents": {
+      "runtime": ["src/tests/font/pycairo/font_pycairo_parity_test.mbt::pycairo scaled font metrics and matrix getter fixtures"]
+    },
+    "test_scaled_font_get_font_face": {
+      "runtime": ["src/tests/font/pycairo/font_pycairo_parity_test.mbt::pycairo scaled font metrics and matrix getter fixtures"]
+    },
+    "test_scaled_font_get_scale_matrix": {
+      "runtime": ["src/tests/font/pycairo/font_pycairo_parity_test.mbt::pycairo scaled font metrics and matrix getter fixtures"]
+    },
+    "test_scaled_font_text_extents": {
+      "runtime": ["src/tests/font/pycairo/font_pycairo_parity_test.mbt::pycairo scaled font text and glyph extents fixtures"],
+      "static_api": ["pub fn ScaledFont::text_extents(Self, String) -> TextExtents raise CairoError"]
+    },
+    "test_scaled_font_glyph_extents": {
+      "runtime": ["src/tests/font/pycairo/font_pycairo_parity_test.mbt::pycairo scaled font text and glyph extents fixtures"],
+      "static_api": ["pub fn ScaledFont::glyph_extents(Self, ArrayView[@glyph.Glyph]) -> TextExtents raise CairoError"],
+      "adaptation": "ArrayView[Glyph] statically rejects non-glyph elements, missing arrays, and pycairo's deprecated num_glyphs compatibility argument."
+    },
+    "test_toy_font_face": {
+      "runtime": ["src/tests/font/pycairo/font_pycairo_parity_test.mbt::pycairo toy font face getter fixtures"],
+      "static_api": ["pub fn FontFace::toy(String, slant? : FontSlant, weight? : FontWeight) -> Self raise CairoError"]
+    },
+    "test_toy_font_get_family": {
+      "runtime": ["src/tests/font/pycairo/font_pycairo_parity_test.mbt::pycairo toy font face getter fixtures"]
+    },
+    "test_toy_font_get_slant": {
+      "runtime": ["src/tests/font/pycairo/font_pycairo_parity_test.mbt::pycairo toy font face getter fixtures"]
+    },
+    "test_toy_font_get_weight": {
+      "runtime": ["src/tests/font/pycairo/font_pycairo_parity_test.mbt::pycairo toy font face getter fixtures"]
+    },
+    "test_font_options_get_antialias": {
+      "runtime": ["src/tests/font/pycairo/font_pycairo_parity_test.mbt::pycairo surface font options default getters fixture"]
+    },
+    "test_font_options_get_hint_metrics": {
+      "runtime": ["src/tests/font/pycairo/font_pycairo_parity_test.mbt::pycairo surface font options default getters fixture"]
+    },
+    "test_font_options_get_hint_style": {
+      "runtime": ["src/tests/font/pycairo/font_pycairo_parity_test.mbt::pycairo surface font options default getters fixture"]
+    },
+    "test_font_options_get_subpixel_order": {
+      "runtime": ["src/tests/font/pycairo/font_pycairo_parity_test.mbt::pycairo surface font options default getters fixture"]
+    },
+    "test_scaled_font_get_ctm": {
+      "runtime": ["src/tests/font/pycairo/font_pycairo_parity_test.mbt::pycairo scaled font metrics and matrix getter fixtures"]
+    },
+    "test_scaled_font_get_font_matrix": {
+      "runtime": ["src/tests/font/pycairo/font_pycairo_parity_test.mbt::pycairo scaled font metrics and matrix getter fixtures"]
+    },
+    "test_scaled_font_get_font_options": {
+      "runtime": ["src/tests/font/pycairo/font_pycairo_parity_test.mbt::pycairo scaled font getter and text_to_glyphs fixtures"]
+    },
+    "test_scaled_font_text_to_glyphs": {
+      "runtime": ["src/tests/font/pycairo/font_pycairo_parity_test.mbt::pycairo scaled font getter and text_to_glyphs fixtures"],
+      "static_api": [
+        "pub fn ScaledFont::text_to_glyphs(Self, Double, Double, String) -> TextGlyphRun raise CairoError",
+        "pub fn ScaledFont::text_to_glyphs_only(Self, Double, Double, String) -> Array[@glyph.Glyph] raise CairoError"
+      ],
+      "adaptation": "Pycairo's optional with_clusters Boolean is represented by separate full-run and glyph-only methods, eliminating a heterogeneous return type."
+    }
+  }
+}

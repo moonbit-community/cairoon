@@ -375,7 +375,6 @@ pub fn FontOptions::set_subpixel_order_raw(Self, Int) -> Unit raise CairoError
 pub fn FontOptions::set_variations(Self, String?) -> Unit raise CairoError
 pub fn FontOptions::status(Self) -> Status
 pub impl Eq for FontOptions
-pub impl Hash for FontOptions
 
 pub(all) enum FontSlant {
   FontSlantNormal
@@ -946,4 +945,3 @@ pub fn TextGlyphRun::new(Array[@glyph.Glyph], Array[TextCluster], TextClusterFla
 pub using @glyph {type Glyph}
 
 // Traits
-

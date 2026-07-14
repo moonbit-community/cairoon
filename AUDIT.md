@@ -22,15 +22,16 @@ Implemented in this workspace:
   public MoonBit API anchor in `src/pkg.generated.mbti`.
 - Executable pycairo family test parity through
   `scripts/check-pycairo-test-parity.py` and the ledgers under
-  `scripts/parity/`, wired into `scripts/verify.sh`. The Context, Pattern, and
-  Surface ledgers pin upstream sources by commit and SHA-256, require all 167
-  upstream tests to map to existing MoonBit black-box test anchors, and map
+  `scripts/parity/`, wired into `scripts/verify.sh`. The Context, Font,
+  Pattern, and Surface ledgers pin upstream sources by commit and SHA-256,
+  require all 202 upstream tests to map to existing MoonBit black-box test
+  anchors, and map
   Python runtime `TypeError` assertions to required or deliberately absent
   generated public signatures. The checker's positive and negative fixtures
   run from `scripts/tests`, and pinned snapshots keep the gate usable in a
-  standalone cairoon checkout without the parent pycairo source tree. When the parent
-  pycairo marker is present, a missing ledger source is an error instead of a
-  snapshot fallback; strict environments can also pass `--require-source`.
+  standalone cairoon checkout without the parent pycairo source tree. When the
+  parent pycairo marker is present, a missing ledger source is an error instead
+  of a snapshot fallback; strict environments can also pass `--require-source`.
 - Static reliability-ledger linting through
   `scripts/check-reliability-ledger.py`, wired into `scripts/verify.sh`, so
   migration status rows use accepted statuses, `Partial` rows state remaining
@@ -513,9 +514,9 @@ Implemented in this workspace:
   Cairo's native observer surface/device APIs and native FreeType/user-font
   extension APIs are intentionally outside the current pycairo-migration
   product.
-- Gate 2 behavioral parity: partial but strong. Pinned Context, Pattern, and
-  Surface ledgers map 167 upstream tests to 112 family-local MoonBit runtime
-  anchors, 130 required public signatures, and 6 deliberately absent
+- Gate 2 behavioral parity: partial but strong. Pinned Context, Font, Pattern,
+  and Surface ledgers map 202 upstream tests to 126 family-local MoonBit runtime
+  anchors, 151 required public signatures, and 9 deliberately absent
   signatures. Additional black-box tests cover Matrix, Path, Region, Device,
   Font, value, API, raster-source callback, and error behavior; those remaining
   upstream families still need exact ledgers before this gate is complete.
@@ -614,9 +615,9 @@ The most recent full local verification passed on 2026-07-15:
   reliability-ledger, and vector-scene gates; native type checking; all
   737/737 native tests; generated-interface review; and every configured
   targeted ASan package with leak detection disabled under the documented
-  macOS policy. The parity gate verified all 167 pinned Context, Pattern, and
-  Surface tests against the parent pycairo source checkout, and the reliability
-  ledger reported 3 explicit `Partial` rows.
+  macOS policy. The parity gate verified all 202 pinned Context, Font, Pattern,
+  and Surface tests against the parent pycairo source checkout, and the
+  reliability ledger reported 2 explicit `Partial` rows.
 
 Prior full verifies passed on 2026-07-02, 2026-07-03, 2026-07-04,
 2026-07-05, and earlier 2026-07-06 slices. The most recent 2026-07-06 run:
