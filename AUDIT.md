@@ -22,9 +22,9 @@ Implemented in this workspace:
   public MoonBit API anchor in `src/pkg.generated.mbti`.
 - Executable pycairo family test parity through
   `scripts/check-pycairo-test-parity.py` and the ledgers under
-  `scripts/parity/`, wired into `scripts/verify.sh`. The Context, Font,
+  `scripts/parity/`, wired into `scripts/verify.sh`. The Context, Font, Matrix,
   Pattern, and Surface ledgers pin upstream sources by commit and SHA-256,
-  require all 202 upstream tests to map to existing MoonBit black-box test
+  require all 213 upstream tests to map to existing MoonBit black-box test
   anchors, and map
   Python runtime `TypeError` assertions to required or deliberately absent
   generated public signatures. The checker's positive and negative fixtures
@@ -60,9 +60,9 @@ Implemented in this workspace:
 - Matrix black-box tests now live in
   `src/tests/matrix/{core,property,pycairo}`, importing only the public
   `CAIMEOX/cairoon` API. This validates external-package access to public
-  types, methods, checked errors, deterministic Matrix properties, and
-  pycairo-derived component/transform fixtures through separately linked
-  published-package seams.
+  types, methods, checked errors, deterministic Matrix properties, Matrix-only
+  multiplication, checked index syntax, and pycairo-derived component/transform
+  fixtures through separately linked published-package seams.
 - Region black-box tests now live in `src/tests/region/{core,pycairo}`,
   importing only the public `CAIMEOX/cairoon` API. This validates Region
   lifetime/copy behavior, rectangle construction, containment, overlap enums,
@@ -507,18 +507,18 @@ Implemented in this workspace:
 ## Gate Status
 
 - Gate 1 API inventory: partial. A full inventory ledger exists in
-  `API_INVENTORY.md`; three rows remain `Partial`, while `Decision` rows record
+  `API_INVENTORY.md`; two rows remain `Partial`, while `Decision` rows record
   explicit product scope. The
   `CAPI`, legacy uppercase enum alias constants, `SurfaceObserverMode`,
   `FreeTypeFontFace`, and `UserFontFace` rows are resolved product decisions.
   Cairo's native observer surface/device APIs and native FreeType/user-font
   extension APIs are intentionally outside the current pycairo-migration
   product.
-- Gate 2 behavioral parity: partial but strong. Pinned Context, Font, Pattern,
-  and Surface ledgers map 202 upstream tests to 126 family-local MoonBit runtime
-  anchors, 151 required public signatures, and 9 deliberately absent
-  signatures. Additional black-box tests cover Matrix, Path, Region, Device,
-  Font, value, API, raster-source callback, and error behavior; those remaining
+- Gate 2 behavioral parity: partial but strong. Pinned Context, Font, Matrix,
+  Pattern, and Surface ledgers map 213 upstream tests to 132 family-local
+  MoonBit runtime anchors, 162 required public signatures, and 11 deliberately
+  absent signatures. Additional black-box tests cover Path, Region, Device,
+  value, API, raster-source callback, and error behavior; those remaining
   upstream families still need exact ledgers before this gate is complete.
 - Gate 3 differential rendering: partial. Deterministic raw-pixel rendering
   tests exist for direct colors and explicit patterns, a direct C image oracle
@@ -613,10 +613,10 @@ The most recent full local verification passed on 2026-07-15:
 - `./scripts/verify.sh`: passed formatting, project-layout, source-size,
   link-flag, FFI ownership, portable API inventory, pycairo parity,
   reliability-ledger, and vector-scene gates; native type checking; all
-  737/737 native tests; generated-interface review; and every configured
+  739/739 native tests; generated-interface review; and every configured
   targeted ASan package with leak detection disabled under the documented
-  macOS policy. The parity gate verified all 202 pinned Context, Font, Pattern,
-  and Surface tests against the parent pycairo source checkout, and the
+  macOS policy. The parity gate verified all 213 pinned Context, Font, Matrix,
+  Pattern, and Surface tests against the parent pycairo source checkout, and the
   reliability ledger reported 2 explicit `Partial` rows.
 
 Prior full verifies passed on 2026-07-02, 2026-07-03, 2026-07-04,

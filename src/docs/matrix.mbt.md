@@ -56,6 +56,10 @@ test "matrix docs: multiply and invert" {
     matrix.multiply(matrix),
     content="{ xx: 1, yx: 2, xy: 0, yy: 1, x0: 0, y0: 0 }",
   )
+  debug_inspect(
+    matrix * matrix,
+    content="{ xx: 1, yx: 2, xy: 0, yy: 1, x0: 0, y0: 0 }",
+  )
 
   let inverse = matrix.invert()
   debug_inspect(
@@ -78,7 +82,9 @@ Invalid component indexes and singular inversions are reported through
 ///|
 test "matrix docs: invalid operations raise checked cairo errors" {
   let matrix = Matrix::new()
-  match run_cairo(() => matrix.component(6)) {
+  inspect(matrix[0], content="1")
+  inspect(matrix[5], content="0")
+  match run_cairo(() => matrix[6]) {
     Err(CairoInvalidArgument(InvalidIndex, _)) => ()
     _ => @test.fail("expected InvalidIndex")
   }

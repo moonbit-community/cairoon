@@ -46,6 +46,10 @@ test "pycairo matrix equality and component fixture" {
   inspect(identity == identity, content="true")
   inspect(identity == @cairoon.Matrix::init_rotate(0.0), content="true")
   inspect(identity != @cairoon.Matrix::new(x0=1.0), content="true")
+  debug_inspect(
+    identity,
+    content="{ xx: 1, yx: 0, xy: 0, yy: 1, x0: 0, y0: 0 }",
+  )
 
   let matrix = @cairoon.Matrix::new(
     xx=1.0,
@@ -73,6 +77,33 @@ test "pycairo matrix equality and component fixture" {
 }
 
 ///|
+test "pycairo matrix index operator fixture" {
+  let matrix = @cairoon.Matrix::new(
+    xx=1.0,
+    yx=2.0,
+    xy=3.0,
+    yy=4.0,
+    x0=5.0,
+    y0=6.0,
+  )
+  for index in 0..<6 {
+    inspect(matrix[index], content="\{index + 1}")
+  }
+  expect_pycairo_matrix_invalid_index(
+    @cairoon.run_cairo(() => {
+      let _ = matrix[6]
+      ()
+    }),
+  )
+  expect_pycairo_matrix_invalid_index(
+    @cairoon.run_cairo(() => {
+      let _ = matrix[-1]
+      ()
+    }),
+  )
+}
+
+///|
 test "pycairo matrix invert and multiply fixtures" {
   assert_pycairo_matrix_close(
     @cairoon.Matrix::new(xx=1.0, yx=1.0).invert(),
@@ -82,6 +113,16 @@ test "pycairo matrix invert and multiply fixtures" {
   let matrix = @cairoon.Matrix::new(xx=1.0, yx=1.0)
   inspect(
     matrix.multiply(matrix) ==
+    @cairoon.Matrix::new(xx=1.0, yx=2.0, xy=0.0, yy=1.0, x0=0.0, y0=0.0),
+    content="true",
+  )
+}
+
+///|
+test "pycairo matrix multiplication operator fixture" {
+  let matrix = @cairoon.Matrix::new(xx=1.0, yx=1.0)
+  inspect(
+    matrix * matrix ==
     @cairoon.Matrix::new(xx=1.0, yx=2.0, xy=0.0, yy=1.0, x0=0.0, y0=0.0),
     content="true",
   )

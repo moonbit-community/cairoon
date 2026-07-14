@@ -454,6 +454,8 @@ pub struct Matrix {
   x0 : Double
   y0 : Double
 } derive(Eq, @debug.Debug)
+#alias("_[_]")
+pub fn Matrix::at(Self, Int) -> Double raise CairoError
 pub fn Matrix::component(Self, Int) -> Double raise CairoError
 pub fn Matrix::components(Self) -> (Double, Double, Double, Double, Double, Double)
 pub fn Matrix::init_rotate(Double) -> Self
@@ -465,6 +467,7 @@ pub fn Matrix::scale(Self, Double, Double) -> Self
 pub fn Matrix::transform_distance(Self, Double, Double) -> (Double, Double)
 pub fn Matrix::transform_point(Self, Double, Double) -> (Double, Double)
 pub fn Matrix::translate(Self, Double, Double) -> Self
+pub impl Mul for Matrix
 
 pub(all) enum Operator {
   OperatorClear

@@ -48,6 +48,12 @@ pub fn Matrix::component(self : Matrix, index : Int) -> Double raise CairoError 
 }
 
 ///|
+#alias("_[_]")
+pub fn Matrix::at(self : Matrix, index : Int) -> Double raise CairoError {
+  self.component(index)
+}
+
+///|
 pub fn Matrix::translate(self : Matrix, tx : Double, ty : Double) -> Matrix {
   {
     xx: self.xx,
@@ -102,6 +108,11 @@ pub fn Matrix::multiply(self : Matrix, other : Matrix) -> Matrix {
     x0: self.x0 * other.xx + self.y0 * other.xy + other.x0,
     y0: self.x0 * other.yx + self.y0 * other.yy + other.y0,
   }
+}
+
+///|
+pub impl Mul for Matrix with fn mul(self, other) {
+  self.multiply(other)
 }
 
 ///|

@@ -83,6 +83,15 @@ Most context methods keep pycairo's snake_case names, for example
 `ctx.set_source_rgb`, `ctx.paint`, `ctx.stroke_preserve`, `ctx.show_text`, and
 `ctx.copy_path`.
 
+Matrix operations keep pycairo's component order while using immutable MoonBit
+values:
+
+| pycairo | cairoon |
+| --- | --- |
+| `matrix1.multiply(matrix2)` or `matrix1 * matrix2` | `matrix1.multiply(matrix2)` or `matrix1 * matrix2` |
+| `matrix[index]` | `matrix[index]` or `matrix.component(index)` |
+| `matrix.translate(tx, ty)` mutates `matrix` | `let matrix = matrix.translate(tx, ty)` returns a new value |
+
 ## Common Method Mapping
 
 Surface and image operations:

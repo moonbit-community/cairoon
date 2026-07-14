@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "family": "Matrix",
+  "runtime_root": "src/tests/matrix",
+  "upstream": {
+    "repository": "https://github.com/pygobject/pycairo",
+    "commit": "80ea3348aff95e8441e6c3e2086371ea40528d81",
+    "path": "tests/test_matrix.py",
+    "sha256": "664b9d07349d0b10e9bd6cb21fc6114704744476c84486e096fe9fd32e9b7134",
+    "test_count": 11
+  },
+  "type_error_policy": "Pycairo runtime TypeError assertions map to MoonBit compile-time rejection. Matrix multiplication is available only for two Matrix values, addition is absent, and every scalar parameter is statically Double. Pycairo's mutable fields and in-place transforms map to an immutable MoonBit value whose transform methods return a new Matrix.",
+  "type_error_tests": [
+    "test_matrix",
+    "test_init_rotate",
+    "test_multiply",
+    "test_translate",
+    "test_rotate",
+    "test_scale",
+    "test_transform_distance",
+    "test_transform_point"
+  ],
+  "tests": {
+    "test_matrix": {
+      "runtime": [
+        "src/tests/matrix/pycairo/matrix_pycairo_parity_test.mbt::pycairo matrix equality and component fixture",
+        "src/tests/matrix/pycairo/matrix_pycairo_parity_test.mbt::pycairo matrix translate scale and rotate fixtures"
+      ],
+      "static_api": [
+        "pub struct Matrix {\n  xx : Double\n  yx : Double\n  xy : Double\n  yy : Double\n  x0 : Double\n  y0 : Double\n} derive(Eq, @debug.Debug)",
+        "pub fn Matrix::new(xx? : Double, yx? : Double, xy? : Double, yy? : Double, x0? : Double, y0? : Double) -> Self",
+        "pub impl Mul for Matrix"
+      ],
+      "static_absent": ["pub impl Add for Matrix"],
+      "adaptation": "Object-valued construction, heterogeneous equality, scalar multiplication, and addition are rejected statically. MoonBit Debug is the language-native counterpart to pycairo repr, and transforms return new immutable values."
+    },
+    "test_init_rotate": {
+      "runtime": ["src/tests/matrix/pycairo/matrix_pycairo_parity_test.mbt::pycairo matrix equality and component fixture"],
+      "static_api": ["pub fn Matrix::init_rotate(Double) -> Self"]
+    },
+    "test_invert": {
+      "runtime": ["src/tests/matrix/pycairo/matrix_pycairo_parity_test.mbt::pycairo matrix invert and multiply fixtures"]
+    },
+    "test_matrix_properties": {
+      "runtime": [
+        "src/tests/matrix/pycairo/matrix_pycairo_parity_test.mbt::pycairo matrix equality and component fixture",
+        "src/tests/matrix/pycairo/matrix_pycairo_parity_test.mbt::pycairo matrix translate scale and rotate fixtures"
+      ],
+      "static_api": [
+        "pub struct Matrix {\n  xx : Double\n  yx : Double\n  xy : Double\n  yy : Double\n  x0 : Double\n  y0 : Double\n} derive(Eq, @debug.Debug)",
+        "pub fn Matrix::scale(Self, Double, Double) -> Self"
+      ],
+      "static_absent": ["pub struct Matrix {\n  mut xx : Double"],
+      "adaptation": "Pycairo mutates public fields and transform state in place. Cairoon exposes readable immutable fields and returns a new Matrix from each transform, as documented by executable examples."
+    },
+    "test_get_item": {
+      "runtime": ["src/tests/matrix/pycairo/matrix_pycairo_parity_test.mbt::pycairo matrix index operator fixture"],
+      "static_api": ["#alias(\"_[_]\")\npub fn Matrix::at(Self, Int) -> Double raise CairoError"],
+      "adaptation": "MoonBit matrix indexing preserves pycairo component order and maps out-of-range indexes to CairoInvalidArgument(InvalidIndex, _) under the checked error policy."
+    },
+    "test_multiply": {
+      "runtime": [
+        "src/tests/matrix/pycairo/matrix_pycairo_parity_test.mbt::pycairo matrix invert and multiply fixtures",
+        "src/tests/matrix/pycairo/matrix_pycairo_parity_test.mbt::pycairo matrix multiplication operator fixture"
+      ],
+      "static_api": [
+        "pub fn Matrix::multiply(Self, Self) -> Self",
+        "pub impl Mul for Matrix"
+      ],
+      "adaptation": "Both multiply() and the Matrix-only * operator are available; non-Matrix operands are rejected by the Mul(Self, Self) trait signature."
+    },
+    "test_translate": {
+      "runtime": ["src/tests/matrix/pycairo/matrix_pycairo_parity_test.mbt::pycairo matrix translate scale and rotate fixtures"],
+      "static_api": ["pub fn Matrix::translate(Self, Double, Double) -> Self"]
+    },
+    "test_rotate": {
+      "runtime": ["src/tests/matrix/pycairo/matrix_pycairo_parity_test.mbt::pycairo matrix translate scale and rotate fixtures"],
+      "static_api": ["pub fn Matrix::rotate(Self, Double) -> Self"]
+    },
+    "test_scale": {
+      "runtime": ["src/tests/matrix/pycairo/matrix_pycairo_parity_test.mbt::pycairo matrix translate scale and rotate fixtures"],
+      "static_api": ["pub fn Matrix::scale(Self, Double, Double) -> Self"]
+    },
+    "test_transform_distance": {
+      "runtime": ["src/tests/matrix/pycairo/matrix_pycairo_parity_test.mbt::pycairo matrix transform point and distance fixtures"],
+      "static_api": ["pub fn Matrix::transform_distance(Self, Double, Double) -> (Double, Double)"]
+    },
+    "test_transform_point": {
+      "runtime": ["src/tests/matrix/pycairo/matrix_pycairo_parity_test.mbt::pycairo matrix transform point and distance fixtures"],
+      "static_api": ["pub fn Matrix::transform_point(Self, Double, Double) -> (Double, Double)"]
+    }
+  }
+}
