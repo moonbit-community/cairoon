@@ -1,0 +1,388 @@
+{
+  "schema_version": 1,
+  "family": "Surface",
+  "runtime_root": "src/tests",
+  "upstream": {
+    "repository": "https://github.com/pygobject/pycairo",
+    "commit": "80ea3348aff95e8441e6c3e2086371ea40528d81",
+    "path": "tests/test_surface.py",
+    "sha256": "d3e28d7893f90d9bce590debdafb17299affe8903f2e41f0bfeefd2764406fd7",
+    "test_count": 68
+  },
+  "type_error_policy": "Pycairo runtime TypeError assertions map to MoonBit compile-time rejection. Python file objects map to separate path and callback APIs, and mapped-image lifetime restrictions map to deliberately absent public operations. Every upstream TypeError test retains generated static evidence plus runtime evidence for valid behavior.",
+  "type_error_tests": [
+    "test_surface_cmp_hash",
+    "test_surface_map_to_image",
+    "test_tee_surface",
+    "test_pdf_get_error",
+    "test_pdf_set_size",
+    "test_pdf_surface",
+    "test_svg_version_to_string",
+    "test_svg_surface_restrict_to_version",
+    "test_pdf_surface_restrict_to_version",
+    "test_pdf_version_to_string",
+    "test_ps_surface_error",
+    "test_ps_surface_dsc_comment",
+    "test_ps_get_eps",
+    "test_ps_set_size",
+    "test_ps_restrict_to_level",
+    "test_ps_surface_level_to_string",
+    "test_ps_surface",
+    "test_scg_surface",
+    "test_surface_set_device_scale",
+    "test_surface_create_for_rectangle",
+    "test_surface_create_similar_image",
+    "test_surface_get_set_mime_data",
+    "test_supports_mime_type",
+    "test_image_surface_png_obj_roundtrip",
+    "test_image_surface_write_to_png_error",
+    "test_script_surface",
+    "test_script_surface_create_for_target",
+    "test_create_similar",
+    "test_get_device_offset",
+    "test_get_fallback_resolution",
+    "test_mark_dirty_rectangle",
+    "test_write_to_png",
+    "test_image_surface",
+    "test_image_surface_create_for_data",
+    "test_image_surface_stride_for_width",
+    "test_recording_surface"
+  ],
+  "tests": {
+    "test_context_manager": {
+      "runtime": ["src/tests/surface/pycairo/surface_pycairo_parity_test.mbt::pycairo surface context manager fixture"],
+      "adaptation": "Surface::with_finished provides deterministic scoped cleanup and preserves pycairo's post-scope SurfaceFinished behavior."
+    },
+    "test_surface_cmp_hash": {
+      "runtime": ["src/tests/surface/pycairo/surface_pycairo_parity_test.mbt::pycairo surface cmp hash fixture"],
+      "static_api": ["pub impl Eq for Surface", "pub impl Hash for Surface"],
+      "static_absent": ["pub impl Eq for MappedImageSurface", "pub impl Hash for MappedImageSurface"],
+      "adaptation": "Ordinary surfaces use Cairo pointer identity. Mapped images deliberately implement neither Eq nor Hash because unmap changes their underlying resource state."
+    },
+    "test_surface_map_to_image": {
+      "runtime": [
+        "src/tests/image/mapped/surface_mapped_test.mbt::mapped image paints whole surface and explicit unmap uploads",
+        "src/tests/image/mapped/surface_mapped_test.mbt::mapped image rejects wrong base and double unmap"
+      ],
+      "static_api": [
+        "pub fn Surface::map_to_image(Self, extents? : RectangleInt?) -> MappedImageSurface raise CairoError",
+        "pub fn Surface::unmap_image(Self, MappedImageSurface) -> Unit raise CairoError",
+        "pub fn Context::new_for_mapped_image(MappedImageSurface) -> Self raise CairoError"
+      ],
+      "static_absent": ["pub fn MappedImageSurface::new(", "pub fn MappedImageSurface::finish("],
+      "adaptation": "MappedImageSurface is unconstructible and can only be consumed by typed mapped-image APIs. Cairoon accepts omitted extents as an explicit full-surface convenience, while preserving wrong-base, double-unmap, and post-unmap failures."
+    },
+    "test_surface_map_to_image_context_manager": {
+      "runtime": [
+        "src/tests/image/mapped/surface_mapped_test.mbt::mapped image with_unmapped unmaps after success and cairo errors",
+        "src/tests/image/mapped/surface_mapped_test.mbt::pycairo mapped image context scope cannot be reused"
+      ],
+      "adaptation": "MappedImageSurface::with_unmapped is cairoon's scoped equivalent of pycairo's mapped-image context manager."
+    },
+    "test_surface_map_to_image_data": {
+      "runtime": [
+        "src/tests/image/mapped/surface_mapped_test.mbt::mapped image paints whole surface and explicit unmap uploads",
+        "src/tests/image/mapped/surface_mapped_test.mbt::mapped image extents update only selected rectangle"
+      ]
+    },
+    "test_tee_surface": {
+      "runtime": [
+        "src/tests/backend/tee/surface_tee_test.mbt::tee surface mirrors drawing to primary and added target",
+        "src/tests/backend/tee/surface_tee_test.mbt::tee methods map subtype and index errors"
+      ],
+      "static_api": [
+        "pub fn Surface::tee(Self) -> Self raise CairoError",
+        "pub fn Surface::tee_add(Self, Self) -> Unit raise CairoError",
+        "pub fn Surface::tee_index(Self, Int) -> Self raise CairoError",
+        "pub fn Surface::tee_remove(Self, Self) -> Unit raise CairoError"
+      ],
+      "adaptation": "Tee surfaces share the opaque Surface owner type; typed parameters replace pycairo's runtime object checks."
+    },
+    "test_image_surface_get_data_refcount": {
+      "runtime": ["src/tests/image/data/image_data_test.mbt::image data view retains local surface wrapper"],
+      "adaptation": "The retained ImageData owner test replaces CPython refcount inspection with observable MoonBit lifetime behavior."
+    },
+    "test_image_surface_get_data_crasher": {
+      "runtime": ["src/tests/image/data/image_data_test.mbt::pycairo image surface get_data mutable view fixture"]
+    },
+    "test_surface_get_content": {
+      "runtime": ["src/tests/surface/pycairo/surface_pycairo_parity_test.mbt::pycairo surface content and format getters fixture"]
+    },
+    "test_surface_get_format": {
+      "runtime": ["src/tests/surface/pycairo/surface_pycairo_parity_test.mbt::pycairo surface content and format getters fixture"]
+    },
+    "test_pdf_get_error": {
+      "runtime": ["src/tests/stream/surface/surface_stream_vector_test.mbt::pdf stream writer receives output chunks"],
+      "static_api": [
+        "pub fn Surface::pdf(Double, Double, path? : String?) -> Self raise CairoError",
+        "pub fn Surface::pdf_stream(Double, Double, (Bytes) -> Status) -> Self raise CairoError"
+      ],
+      "adaptation": "Pycairo's filename-or-file-object constructor is split into typed path and stream-callback constructors."
+    },
+    "test_pdf_get_versions": {
+      "runtime": ["src/tests/backend/pdf/surface_pdf_test.mbt::pdf version helpers expose cairo-supported versions"]
+    },
+    "test_pdf_set_size": {
+      "runtime": ["src/tests/backend/pdf/surface_pdf_test.mbt::pdf surface no-output constructor exposes page and document APIs"],
+      "static_api": ["pub fn Surface::pdf_set_size(Self, Double, Double) -> Unit raise CairoError"]
+    },
+    "test_pdf_set_page_label": {
+      "runtime": ["src/tests/backend/pdf/surface_pdf_test.mbt::pdf surface no-output constructor exposes page and document APIs"]
+    },
+    "test_pdf_set_metadata": {
+      "runtime": ["src/tests/backend/pdf/surface_pdf_test.mbt::pdf surface no-output constructor exposes page and document APIs"]
+    },
+    "test_pdf_set_custom_metadata": {
+      "runtime": [
+        "src/tests/backend/pdf/surface_pdf_test.mbt::pdf surface no-output constructor exposes page and document APIs",
+        "src/tests/backend/pdf/surface_pdf_test.mbt::pdf surface validates metadata outline and path strings"
+      ]
+    },
+    "test_pdf_add_outline": {
+      "runtime": ["src/tests/backend/pdf/surface_pdf_test.mbt::pdf surface no-output constructor exposes page and document APIs"]
+    },
+    "test_pdf_set_thumbnail_size": {
+      "runtime": ["src/tests/backend/pdf/surface_pdf_test.mbt::pdf thumbnail size mirrors pycairo reset and finished-status fixture"]
+    },
+    "test_pdf_surface": {
+      "runtime": [
+        "src/tests/backend/pdf/surface_pdf_test.mbt::pdf surface filename constructor renders and finishes",
+        "src/tests/backend/pdf/surface_pdf_test.mbt::pdf surface validates metadata outline and path strings"
+      ],
+      "static_api": ["pub fn Surface::pdf(Double, Double, path? : String?) -> Self raise CairoError"],
+      "adaptation": "Surface::pdf requires dimensions and uses an optional typed path; file-object output is provided separately by Surface::pdf_stream."
+    },
+    "test_svg_version_to_string": {
+      "runtime": ["src/tests/backend/svg/surface_svg_test.mbt::svg version helpers expose cairo-supported versions"],
+      "static_api": [
+        "pub fn SVGVersion::to_string(Self) -> String raise CairoError",
+        "pub fn SVGVersion::to_string_raw(Int) -> String raise CairoError"
+      ]
+    },
+    "test_svg_surface_get_document_unit": {
+      "runtime": [
+        "src/tests/backend/svg/surface_svg_test.mbt::svg surface no-output constructor exposes units and version restriction",
+        "src/tests/backend/svg/surface_svg_test.mbt::svg document unit getter rejects finished surfaces"
+      ]
+    },
+    "test_svg_surface_restrict_to_version": {
+      "runtime": ["src/tests/backend/svg/surface_svg_test.mbt::svg surface no-output constructor exposes units and version restriction"],
+      "static_api": [
+        "pub fn Surface::svg_restrict_to_version(Self, SVGVersion) -> Unit raise CairoError",
+        "pub fn Surface::svg_restrict_to_version_raw(Self, Int) -> Unit raise CairoError"
+      ]
+    },
+    "test_pdf_surface_restrict_to_version": {
+      "runtime": ["src/tests/backend/pdf/surface_pdf_test.mbt::pdf surface no-output constructor exposes page and document APIs"],
+      "static_api": [
+        "pub fn Surface::pdf_restrict_to_version(Self, PDFVersion) -> Unit raise CairoError",
+        "pub fn Surface::pdf_restrict_to_version_raw(Self, Int) -> Unit raise CairoError"
+      ]
+    },
+    "test_pdf_version_to_string": {
+      "runtime": ["src/tests/backend/pdf/surface_pdf_test.mbt::pdf version helpers expose cairo-supported versions"],
+      "static_api": [
+        "pub fn PDFVersion::to_string(Self) -> String raise CairoError",
+        "pub fn PDFVersion::to_string_raw(Int) -> String raise CairoError"
+      ]
+    },
+    "test_ps_surface_error": {
+      "runtime": ["src/tests/stream/surface/surface_stream_vector_test.mbt::ps stream writer receives output chunks"],
+      "static_api": [
+        "pub fn Surface::ps(Double, Double, path? : String?) -> Self raise CairoError",
+        "pub fn Surface::ps_stream(Double, Double, (Bytes) -> Status) -> Self raise CairoError"
+      ],
+      "adaptation": "Pycairo's filename-or-file-object constructor is split into typed path and stream-callback constructors."
+    },
+    "test_ps_surface_misc": {
+      "runtime": ["src/tests/backend/ps/surface_ps_test.mbt::pycairo ps surface dsc setup order fixture"]
+    },
+    "test_ps_surface_dsc_comment": {
+      "runtime": ["src/tests/backend/ps/surface_ps_test.mbt::ps surface validates dsc comments and path strings"],
+      "static_api": ["pub fn Surface::ps_dsc_comment(Self, String) -> Unit raise CairoError"]
+    },
+    "test_ps_get_eps": {
+      "runtime": ["src/tests/backend/ps/surface_ps_test.mbt::ps surface no-output constructor exposes eps size dsc and level APIs"],
+      "static_api": ["pub fn Surface::ps_set_eps(Self, Bool) -> Unit raise CairoError"]
+    },
+    "test_ps_set_size": {
+      "runtime": ["src/tests/backend/ps/surface_ps_test.mbt::ps surface no-output constructor exposes eps size dsc and level APIs"],
+      "static_api": ["pub fn Surface::ps_set_size(Self, Double, Double) -> Unit raise CairoError"]
+    },
+    "test_ps_restrict_to_level": {
+      "runtime": ["src/tests/backend/ps/surface_ps_test.mbt::ps surface no-output constructor exposes eps size dsc and level APIs"],
+      "static_api": [
+        "pub fn Surface::ps_restrict_to_level(Self, PSLevel) -> Unit raise CairoError",
+        "pub fn Surface::ps_restrict_to_level_raw(Self, Int) -> Unit raise CairoError"
+      ]
+    },
+    "test_ps_surface_level_to_string": {
+      "runtime": ["src/tests/backend/ps/surface_ps_test.mbt::ps level helpers expose cairo-supported levels"],
+      "static_api": [
+        "pub fn PSLevel::to_string(Self) -> String raise CairoError",
+        "pub fn PSLevel::to_string_raw(Int) -> String raise CairoError"
+      ]
+    },
+    "test_ps_surface_get_levels": {
+      "runtime": ["src/tests/backend/ps/surface_ps_test.mbt::ps level helpers expose cairo-supported levels"]
+    },
+    "test_ps_surface": {
+      "runtime": [
+        "src/tests/backend/ps/surface_ps_test.mbt::ps surface filename constructor renders and finishes",
+        "src/tests/backend/ps/surface_ps_test.mbt::ps surface validates dsc comments and path strings"
+      ],
+      "static_api": ["pub fn Surface::ps(Double, Double, path? : String?) -> Self raise CairoError"],
+      "adaptation": "Surface::ps requires dimensions and uses an optional typed path; file-object output is provided separately by Surface::ps_stream."
+    },
+    "test_scg_surface": {
+      "runtime": ["src/tests/backend/svg/surface_svg_test.mbt::svg surface filename constructor and invalid paths"],
+      "static_api": ["pub fn Surface::svg(Double, Double, path? : String?) -> Self raise CairoError"],
+      "adaptation": "The upstream test name contains the historical scg typo; it covers the SVG filename constructor."
+    },
+    "test_svg_surface_get_versions": {
+      "runtime": ["src/tests/backend/svg/surface_svg_test.mbt::svg version helpers expose cairo-supported versions"]
+    },
+    "test_surface_get_device_scale": {
+      "runtime": ["src/tests/surface/pycairo/surface_pycairo_parity_test.mbt::pycairo surface device scale fixture"]
+    },
+    "test_surface_set_device_scale": {
+      "runtime": ["src/tests/surface/pycairo/surface_pycairo_parity_test.mbt::pycairo surface device scale fixture"],
+      "static_api": ["pub fn Surface::set_device_scale(Self, Double, Double) -> Unit raise CairoError"]
+    },
+    "test_surface_create_for_rectangle": {
+      "runtime": ["src/tests/surface/pycairo/surface_pycairo_parity_test.mbt::pycairo surface create_for_rectangle fixture"],
+      "static_api": ["pub fn Surface::create_for_rectangle(Self, Double, Double, Double, Double) -> Self raise CairoError"]
+    },
+    "test_surface_create_similar_image": {
+      "runtime": ["src/tests/surface/pycairo/surface_pycairo_parity_test.mbt::pycairo surface create_similar_image fixture"],
+      "static_api": ["pub fn Surface::create_similar_image(Self, Format, Int, Int) -> Self raise CairoError"]
+    },
+    "test_surface_get_set_mime_data": {
+      "runtime": [
+        "src/tests/surface/mime/surface_mime_test.mbt::surface mime data set get and clear",
+        "src/tests/surface/mime/surface_mime_test.mbt::surface mime data preserves embedded nul bytes and zero length payloads"
+      ],
+      "static_api": [
+        "pub fn Surface::get_mime_data(Self, String) -> Bytes? raise CairoError",
+        "pub fn Surface::set_mime_data(Self, String, Bytes?) -> Unit raise CairoError"
+      ]
+    },
+    "test_supports_mime_type": {
+      "runtime": ["src/tests/surface/mime/surface_mime_test.mbt::surface reports unsupported mime type"],
+      "static_api": ["pub fn Surface::supports_mime_type(Self, String) -> Bool raise CairoError"]
+    },
+    "test_image_surface_create_for_data_array": {
+      "runtime": ["src/tests/image/buffer/image_surface_data_test.mbt::pycairo image surface create_for_data array fixture"]
+    },
+    "test_image_surface_write_to_png_filename_and_obj_compare": {
+      "runtime": ["src/tests/stream/surface/surface_stream_png_test.mbt::png path and stream writers produce identical bytes"],
+      "adaptation": "Pycairo's filename-or-file-object writer is split into write_to_png and write_to_png_stream."
+    },
+    "test_image_surface_png_obj_roundtrip": {
+      "runtime": ["src/tests/stream/surface/surface_stream_png_test.mbt::png stream reader creates image surface"],
+      "static_api": [
+        "pub fn Surface::image_from_png(String) -> Self raise CairoError",
+        "pub fn Surface::image_from_png_stream((Int) -> Bytes) -> Self raise CairoError"
+      ],
+      "adaptation": "Pycairo's filename-or-file-object reader is split into typed path and stream-reader APIs."
+    },
+    "test_image_surface_png_file_roundtrip": {
+      "runtime": ["src/tests/image/png/surface_png_test.mbt::image surface png file roundtrip and invalid paths"]
+    },
+    "test_image_surface_write_to_png_error": {
+      "runtime": ["src/tests/image/png/surface_png_test.mbt::image surface png file roundtrip and invalid paths"],
+      "static_api": [
+        "pub fn Surface::write_to_png(Self, String) -> Unit raise CairoError",
+        "pub fn Surface::write_to_png_stream(Self, (Bytes) -> Status) -> Unit raise CairoError"
+      ]
+    },
+    "test_surface_from_stream_closed_before_finished": {
+      "runtime": ["src/tests/stream/surface/surface_stream_vector_test.mbt::vector stream writer closed before finish maps to cairo IO error"]
+    },
+    "test_script_surface": {
+      "runtime": ["src/tests/stream/device/device_test.mbt::script device lifecycle and surface device references"],
+      "static_api": ["pub fn Surface::script(Device, Content, Double, Double) -> Self raise CairoError"]
+    },
+    "test_script_device_device_ref": {
+      "runtime": ["src/tests/stream/device/device_test.mbt::script surface get_device survives local device wrapper scope"]
+    },
+    "test_script_surface_create_for_target": {
+      "runtime": ["src/tests/stream/device/device_test.mbt::script surface create_for_target wraps and paints target"],
+      "static_api": ["pub fn Surface::script_for_target(Device, Self) -> Self raise CairoError"]
+    },
+    "test_misc": {
+      "runtime": ["src/tests/surface/pycairo/surface_pycairo_parity_test.mbt::pycairo surface fallback resolution and dirty page fixture"]
+    },
+    "test_create_similar": {
+      "runtime": ["src/tests/surface/pycairo/surface_pycairo_parity_test.mbt::pycairo surface create_similar fixture"],
+      "static_api": ["pub fn Surface::create_similar(Self, Content, Int, Int) -> Self raise CairoError"]
+    },
+    "test_get_device_offset": {
+      "runtime": ["src/tests/surface/pycairo/surface_pycairo_parity_test.mbt::pycairo surface device offset fixture"],
+      "static_api": ["pub fn Surface::set_device_offset(Self, Double, Double) -> Unit raise CairoError"]
+    },
+    "test_get_fallback_resolution": {
+      "runtime": ["src/tests/surface/pycairo/surface_pycairo_parity_test.mbt::pycairo surface fallback resolution and dirty page fixture"],
+      "static_api": ["pub fn Surface::set_fallback_resolution(Self, Double, Double) -> Unit raise CairoError"]
+    },
+    "test_mark_dirty_rectangle": {
+      "runtime": ["src/tests/surface/pycairo/surface_pycairo_parity_test.mbt::pycairo surface fallback resolution and dirty page fixture"],
+      "static_api": ["pub fn Surface::mark_dirty_rectangle(Self, Int, Int, Int, Int) -> Unit raise CairoError"]
+    },
+    "test_write_to_png": {
+      "runtime": ["src/tests/image/png/surface_png_test.mbt::image surface png file roundtrip and invalid paths"],
+      "static_api": [
+        "pub fn Surface::write_to_png(Self, String) -> Unit raise CairoError",
+        "pub fn Surface::write_to_png_stream(Self, (Bytes) -> Status) -> Unit raise CairoError"
+      ]
+    },
+    "test_image_surface": {
+      "runtime": ["src/tests/image/properties/surface_image_properties_test.mbt::image surface properties"],
+      "static_api": ["pub fn Surface::image(Format, Int, Int) -> Self raise CairoError"]
+    },
+    "test_image_surface_create_for_data": {
+      "runtime": [
+        "src/tests/image/buffer/image_surface_data_test.mbt::image surface for data shares caller buffer",
+        "src/tests/image/buffer/image_surface_data_test.mbt::image surface for data validates stride and buffer size"
+      ],
+      "static_api": ["pub fn Surface::image_for_data(FixedArray[Byte], Format, Int, Int, stride? : Int) -> Self raise CairoError"]
+    },
+    "test_image_surface_create_for_data_empty": {
+      "runtime": ["src/tests/image/buffer/image_surface_data_test.mbt::image surface for data allows empty zero dimension buffer"]
+    },
+    "test_image_surface_get_data_finished": {
+      "runtime": ["src/tests/image/data/image_data_test.mbt::image surfaces reject get data after finish"],
+      "adaptation": "Cairoon raises SurfaceFinished instead of preserving pycairo's deprecated post-finish memoryview access."
+    },
+    "test_image_surface_get_data_empty": {
+      "runtime": ["src/tests/image/data/image_data_test.mbt::pycairo image surface get_data empty fixture"]
+    },
+    "test_image_surface_buffer_get_data_finished": {
+      "runtime": ["src/tests/image/data/image_data_test.mbt::image surfaces reject get data after finish"],
+      "adaptation": "Cairoon releases the retained input buffer on finish and rejects subsequent data access with SurfaceFinished."
+    },
+    "test_image_surface_png_get_data_finished": {
+      "runtime": ["src/tests/image/data/image_data_test.mbt::image surfaces reject get data after finish"],
+      "adaptation": "Cairoon consistently rejects post-finish data access for PNG-loaded surfaces with SurfaceFinished."
+    },
+    "test_image_surface_stride_for_width": {
+      "runtime": ["src/tests/api/enums/enums_test.mbt::format stride_for_width delegates to cairo"],
+      "static_api": ["pub fn Format::stride_for_width(Self, Int) -> Int"],
+      "adaptation": "The operation is a Format method rather than a Python ImageSurface static method."
+    },
+    "test_image_surface_get_stride": {
+      "runtime": ["src/tests/image/properties/surface_image_properties_test.mbt::image surface properties"]
+    },
+    "test_recording_surface": {
+      "runtime": ["src/tests/backend/recording/surface_recording_test.mbt::recording surface exposes bounded and unbounded extents"],
+      "static_api": ["pub fn Surface::recording(Content, extents? : Rectangle?) -> Self raise CairoError"],
+      "adaptation": "Recording surfaces share the opaque Surface owner type; omitted extents explicitly select an unbounded recording surface."
+    },
+    "test_format_rgbf": {
+      "runtime": ["src/tests/image/properties/surface_image_properties_test.mbt::image surface supports cairo float formats"]
+    },
+    "test_image_surface_release_on_finish": {
+      "runtime": ["src/tests/image/buffer/image_surface_data_test.mbt::pycairo image surface create_for_data releases retained buffer on finish"]
+    }
+  }
+}

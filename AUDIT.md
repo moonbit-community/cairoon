@@ -22,13 +22,13 @@ Implemented in this workspace:
   public MoonBit API anchor in `src/pkg.generated.mbti`.
 - Executable pycairo family test parity through
   `scripts/check-pycairo-test-parity.py` and the ledgers under
-  `scripts/parity/`, wired into `scripts/verify.sh`. The Context and Pattern
-  ledgers pin upstream sources by commit and SHA-256, require all 99 upstream
-  tests to map to existing MoonBit black-box test anchors, and map Python
-  runtime `TypeError` assertions to required or deliberately absent generated
-  public signatures. The checker's positive and negative fixtures run from
-  `scripts/tests`, and pinned snapshots keep the gate usable in a standalone
-  cairoon checkout without the parent pycairo source tree. When the parent
+  `scripts/parity/`, wired into `scripts/verify.sh`. The Context, Pattern, and
+  Surface ledgers pin upstream sources by commit and SHA-256, require all 167
+  upstream tests to map to existing MoonBit black-box test anchors, and map
+  Python runtime `TypeError` assertions to required or deliberately absent
+  generated public signatures. The checker's positive and negative fixtures
+  run from `scripts/tests`, and pinned snapshots keep the gate usable in a
+  standalone cairoon checkout without the parent pycairo source tree. When the parent
   pycairo marker is present, a missing ledger source is an error instead of a
   snapshot fallback; strict environments can also pass `--require-source`.
 - Static reliability-ledger linting through
@@ -506,18 +506,22 @@ Implemented in this workspace:
 ## Gate Status
 
 - Gate 1 API inventory: partial. A full inventory ledger exists in
-  `API_INVENTORY.md`; multiple rows remain Partial or Decision. The
+  `API_INVENTORY.md`; three rows remain `Partial`, while `Decision` rows record
+  explicit product scope. The
   `CAPI`, legacy uppercase enum alias constants, `SurfaceObserverMode`,
   `FreeTypeFontFace`, and `UserFontFace` rows are resolved product decisions.
   Cairo's native observer surface/device APIs and native FreeType/user-font
   extension APIs are intentionally outside the current pycairo-migration
   product.
-- Gate 2 behavioral parity: partial. First MoonBit tests cover a small subset
-  of pycairo's matrix, surface, context, pattern, raster-source callback,
-  region, and error behavior.
+- Gate 2 behavioral parity: partial but strong. Pinned Context, Pattern, and
+  Surface ledgers map 167 upstream tests to 112 family-local MoonBit runtime
+  anchors, 130 required public signatures, and 6 deliberately absent
+  signatures. Additional black-box tests cover Matrix, Path, Region, Device,
+  Font, value, API, raster-source callback, and error behavior; those remaining
+  upstream families still need exact ledgers before this gate is complete.
 - Gate 3 differential rendering: partial. Deterministic raw-pixel rendering
   tests exist for direct colors and explicit patterns, a direct C image oracle
-  covers thirty-five deterministic ARGB32 scenes including stroke, rectangle,
+  covers forty-seven deterministic ARGB32 scenes including stroke, rectangle,
   Bezier, transform, RGBA, linear/radial gradient, toy-font `text_path`,
   toy-font `show_text`, `glyph_path`, `show_glyphs`, `show_text_glyphs`,
   source-surface offset sampling, mask-surface offset compositing, and
@@ -602,6 +606,17 @@ Implemented in this workspace:
   remain before claiming the full memory gate.
 
 ## Last Verified
+
+The most recent full local verification passed on 2026-07-15:
+
+- `./scripts/verify.sh`: passed formatting, project-layout, source-size,
+  link-flag, FFI ownership, portable API inventory, pycairo parity,
+  reliability-ledger, and vector-scene gates; native type checking; all
+  737/737 native tests; generated-interface review; and every configured
+  targeted ASan package with leak detection disabled under the documented
+  macOS policy. The parity gate verified all 167 pinned Context, Pattern, and
+  Surface tests against the parent pycairo source checkout, and the reliability
+  ledger reported 3 explicit `Partial` rows.
 
 Prior full verifies passed on 2026-07-02, 2026-07-03, 2026-07-04,
 2026-07-05, and earlier 2026-07-06 slices. The most recent 2026-07-06 run:
