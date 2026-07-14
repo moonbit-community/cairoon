@@ -5,7 +5,7 @@ test "external object Eq and Hash traits follow existing cairoon equality" {
   let target = ctx.get_target()
   inspect(target == surface, content="true")
   inspect(Hash::hash(target) == Hash::hash(surface), content="true")
-  let surface_map : Map[@cairoon.Surface, Int] = {}
+  let surface_map : Map[@cairoon.Surface, Int] = Map([])
   surface_map[surface] = 42
   inspect(surface_map[target], content="42")
 
