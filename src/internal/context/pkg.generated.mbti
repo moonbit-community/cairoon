@@ -202,6 +202,8 @@ pub fn show_glyphs_raw(RawContext, FixedArray[UInt64], FixedArray[Double], Fixed
 
 pub fn show_page_raw(RawContext) -> Int
 
+pub fn show_text_glyphs_raw(RawContext, Bytes, FixedArray[UInt64], FixedArray[Double], FixedArray[Double], FixedArray[Int], FixedArray[Int], Int) -> Int
+
 pub fn show_text_raw(RawContext, Bytes) -> Int
 
 pub fn status_raw(RawContext) -> Int

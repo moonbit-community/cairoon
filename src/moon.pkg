@@ -33,10 +33,6 @@ warnings = "+unnecessary_annotation"
 
 options(
   targets: {
-    "ffi_context_font_text.mbt": [ "native" ],
-    "ffi_context_state.mbt": [ "native" ],
-    "ffi_device.mbt": [ "native" ],
-    "ffi_pattern.mbt": [ "native" ],
     "ffi_pattern_raster_source.mbt": [ "native" ],
     "ffi_pdf_surface.mbt": [ "native" ],
     "ffi_ps_surface.mbt": [ "native" ],

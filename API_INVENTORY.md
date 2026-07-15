@@ -14,6 +14,14 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 
 ## Recent Audit Deltas
 
+- 2026-07-15: All 11 non-callback public-root FFI declarations move into the
+  Context, Pattern, and Device child packages. Typed facade methods now perform
+  exhaustive enum-to-`Int` conversion before calling raw functions; the public
+  root retains exactly 12 callback bridges in five files. One package-local
+  Context test raises the native suite to 784. The FFI gate proves one-to-one
+  parity between 348 cairoon externs and native exports, permits only two exact
+  libcairo direct symbols, and rejects test-only exports from the production C
+  package. The public generated interface remains byte-for-byte unchanged.
 - 2026-07-15: The Surface object seam moves `RawSurface`,
   `RawMappedImageSurface`, `RawImageData`, and 79 raw externs into
   `src/internal/surface`; Context, Pattern, and Device child packages exchange

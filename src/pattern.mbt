@@ -104,6 +104,16 @@ fn extend_from_raw(raw : Int) -> Extend raise CairoError {
 }
 
 ///|
+fn extend_to_raw(extend_mode : Extend) -> Int {
+  match extend_mode {
+    ExtendNone => 0
+    Repeat => 1
+    Reflect => 2
+    Pad => 3
+  }
+}
+
+///|
 fn filter_from_raw(raw : Int) -> Filter raise CairoError {
   match raw {
     0 => Fast
@@ -114,6 +124,18 @@ fn filter_from_raw(raw : Int) -> Filter raise CairoError {
     5 => Gaussian
     _ =>
       raise CairoInvalidArgument(InvalidStatus, "unknown cairo filter: \{raw}")
+  }
+}
+
+///|
+fn filter_to_raw(filter : Filter) -> Int {
+  match filter {
+    Fast => 0
+    Good => 1
+    Best => 2
+    Nearest => 3
+    Bilinear => 4
+    Gaussian => 5
   }
 }
 
@@ -131,6 +153,17 @@ fn dither_from_raw(raw : Int) -> Dither raise CairoError {
 }
 
 ///|
+fn dither_to_raw(dither : Dither) -> Int {
+  match dither {
+    DitherNone => 0
+    DitherDefault => 1
+    DitherFast => 2
+    DitherGood => 3
+    DitherBest => 4
+  }
+}
+
+///|
 pub fn Pattern::get_extend(self : Pattern) -> Extend raise CairoError {
   extend_from_raw(self.get_extend_raw())
 }
@@ -140,7 +173,9 @@ pub fn Pattern::set_extend(
   self : Pattern,
   extend_mode : Extend,
 ) -> Unit raise CairoError {
-  check_status(pattern_set_extend_ffi(self.to_raw(), extend_mode))
+  check_pattern_status_raw(
+    @pattern_impl.set_extend_raw(self.to_raw(), extend_to_raw(extend_mode)),
+  )
 }
 
 ///|
@@ -169,7 +204,9 @@ pub fn Pattern::set_filter(
   self : Pattern,
   filter : Filter,
 ) -> Unit raise CairoError {
-  check_status(pattern_set_filter_ffi(self.to_raw(), filter))
+  check_pattern_status_raw(
+    @pattern_impl.set_filter_raw(self.to_raw(), filter_to_raw(filter)),
+  )
 }
 
 ///|
@@ -196,7 +233,9 @@ pub fn Pattern::set_dither(
   self : Pattern,
   dither : Dither,
 ) -> Unit raise CairoError {
-  check_status(pattern_set_dither_ffi(self.to_raw(), dither))
+  check_pattern_status_raw(
+    @pattern_impl.set_dither_raw(self.to_raw(), dither_to_raw(dither)),
+  )
 }
 
 ///|

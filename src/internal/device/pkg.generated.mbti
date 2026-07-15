@@ -39,6 +39,8 @@ pub fn script_write_comment_raw(RawDevice, Bytes) -> Int
 
 pub fn status_raw(RawDevice) -> Int
 
+pub fn surface_get_device_raw(@surface.RawSurface, @ref.Ref[Int], @ref.Ref[Int]) -> RawDevice
+
 // Errors
 
 // Types and methods

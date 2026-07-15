@@ -171,6 +171,23 @@ pub fn show_glyphs_raw(
 }
 
 ///|
+pub fn show_text_glyphs_raw(
+  ctx : RawContext,
+  text : Bytes,
+  indices : FixedArray[UInt64],
+  xs : FixedArray[Double],
+  ys : FixedArray[Double],
+  cluster_num_bytes : FixedArray[Int],
+  cluster_num_glyphs : FixedArray[Int],
+  flags : Int,
+) -> Int {
+  ensure_native()
+  context_show_text_glyphs_ffi(
+    ctx, text, indices, xs, ys, cluster_num_bytes, cluster_num_glyphs, flags,
+  )
+}
+
+///|
 pub fn get_scaled_font_raw(
   ctx : RawContext,
   status : Ref[Int],

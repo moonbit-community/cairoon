@@ -2,6 +2,14 @@
 type RawDevice
 
 ///|
+#borrow(surface, has_device, status)
+extern "C" fn surface_get_device_ffi(
+  surface : @surface_impl.RawSurface,
+  has_device : Ref[Int],
+  status : Ref[Int],
+) -> RawDevice = "cairoon_surface_get_device"
+
+///|
 #borrow(device, surface)
 extern "C" fn script_device_from_recording_surface_ffi(
   device : RawDevice,

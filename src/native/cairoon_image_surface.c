@@ -176,7 +176,6 @@ CairoonSurface *cairoon_image_surface_create_from_png_stream(
 #endif
 }
 
-MOONBIT_FFI_EXPORT
 int32_t cairoon_image_surface_has_data_user_data(CairoonSurface *surface) {
   if (surface == NULL || surface->ptr == NULL) {
     return 0;

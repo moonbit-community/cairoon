@@ -3147,6 +3147,39 @@ The layout now contains 46 direct public implementation files, a 49-entry
 exact public-root allowlist, 394 source files, 44 production FFI files, and 83
 Cairo-linked package configs.
 
+## Typed Facade FFI Elimination
+
+The tenth package-boundary pass removed the last 11 public-root non-callback
+extern declarations. Typed Context and Pattern enum APIs now convert their
+closed MoonBit enums to raw Cairo `Int` values before crossing into the owner
+package. Context font selection and text-cluster flags use the same rule, and
+Surface-to-Device exchange now happens through `src/internal/device`. Context,
+Pattern, Device, and Surface own 109, 38, 17, and 79 externs respectively. The
+public root retains exactly 12 callback ABI declarations in five files: seven
+raster-source callbacks, two PNG stream callbacks, and one PDF, PS, and SVG
+stream constructor each.
+
+The corresponding duplicate typed C setter/selector bridges and unused typed
+getter helpers were deleted. The production boundary now contains exactly 348
+`MOONBIT_FFI_EXPORT` definitions, each paired one-to-one with one production
+MoonBit extern, plus the explicitly allowlisted direct libcairo symbols
+`cairo_version` and `cairo_format_stride_for_width`. The ownership audit also
+rejects duplicate exports and duplicate extern declarations. The image-surface
+user-data probe is no longer a production export; its MoonBit-callable test
+entry point lives in the oracle-native package.
+
+The new raw Context and Device tests raise the native suite to 784/784. The
+final layout has 42 direct public implementation files, a 45-entry exact
+public-root allowlist, 390 source files, 40 production FFI files, and 83
+Cairo-linked package configs. The public interface is byte-for-byte unchanged
+at SHA-256
+`6c647f7e0c12188c36330a66681141a4449558884ce948d2c74e462a91b2f0f3`.
+The local host release gate and both exact Linux Cairo lanes pass; each lane
+runs all ordinary tests and every discovered package under ASan/LSan. The only
+suppression is the standalone-C-probe-confirmed recording snapshot in the
+vector oracle: exactly 16 allocations/7424 bytes on Cairo 1.15.10 and 16
+allocations/9344 bytes on Cairo 1.18.4.
+
 ## Downstream Consumer Evidence
 
 The 2026-07-15 local release gate now includes a separately named MoonBit
@@ -3158,10 +3191,10 @@ public API, and passed 1/1 tests. `moon package --list` also confirms that root
 module metadata excludes the integration fixture from the release archive.
 The gate now additionally integrity-tests that exact zip, extracts it into a
 fresh temporary workspace, and reruns the same consumer test against the
-packaged module; the artifact path also passes 1/1. The host verify run passed
-783/783 repository tests with duplicate ASan disabled, while both exact Linux
-Cairo lanes reran this gate, all 783 tests, and every package-isolated
-ASan/LSan invocation. The publication archive contained 599 members in all
+packaged module; the artifact path also passes 1/1. The final host verify run
+passed 784/784 repository tests with duplicate ASan disabled, while both exact
+Linux Cairo lanes reran this gate, all 784 tests, and every package-isolated
+ASan/LSan invocation. The publication archive contained 595 members in all
 three release-gate runs.
 
 ## Known Gaps

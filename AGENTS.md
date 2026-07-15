@@ -182,10 +182,6 @@ import {
 
 options(
   targets: {
-    "ffi_context_font_text.mbt": ["native"],
-    "ffi_context_state.mbt": ["native"],
-    "ffi_device.mbt": ["native"],
-    "ffi_pattern.mbt": ["native"],
     "ffi_pattern_raster_source.mbt": ["native"],
     "ffi_pdf_surface.mbt": ["native"],
     "ffi_ps_surface.mbt": ["native"],
@@ -233,8 +229,10 @@ platform's `pkg-config` result.
 Raw `extern "C"` declarations are split by Cairo concept family, mirroring the
 C glue split. Every GC-managed object handle has one declaration in
 `src/internal/<family>/`; the public package may retain only bridge externs
-whose signature genuinely requires a facade enum, value, or callback type.
-Every FFI file is native-gated by its owning `moon.pkg`. A child package must
+whose signature genuinely requires a MoonBit callback type. Facade enums and
+values must be converted to primitive raw fields before entering a child
+package and are never grounds for a root FFI declaration. Every FFI file is
+native-gated by its owning `moon.pkg`. A child package must
 expose raw statuses and enum values as `Int`, must not import
 `CAIMEOX/cairoon`, and must not map failures to facade-owned `CairoError`.
 For example, `src/internal/font_face/ffi.mbt` owns
@@ -250,25 +248,24 @@ accessors that call `cairoon_scaled_font.c` or `cairoon_glyph.c`;
 `src/internal/pattern/ffi.mbt` owns `RawPattern` and 25 constructor, identity,
 common-state, matrix, solid, gradient, SurfacePattern, and raw raster-source
 externs; its `ffi_mesh.mbt` owns all 13 mesh-pattern externs and exchanges
-`RawPath` with `src/internal/path`. Public `ffi_pattern.mbt` retains exactly
-three typed-enum setter bridges, and `ffi_pattern_raster_source.mbt` retains
-exactly seven facade callback bridges that call public exports in
+`RawPath` with `src/internal/path`. Typed enum setters convert to `Int` and use
+the child raw functions. Public `ffi_pattern_raster_source.mbt` retains exactly
+seven facade callback bridges that call public exports in
 `cairoon_raster_source_pattern.c`;
 retained callback state, acquired-surface owner tracking, and Cairo
 acquire/release trampolines live in `cairoon_raster_source_callbacks.c`;
-`src/internal/context` owns the sole `RawContext` external object and 108 raw
+`src/internal/context` owns the sole `RawContext` external object and 109 raw
 Context externs. Its FFI files must match the C split exactly: `ffi.mbt` owns
-16 core declarations, `ffi_clip_extents.mbt` 11, `ffi_font_text.mbt` 18,
+16 core declarations, `ffi_clip_extents.mbt` 11, `ffi_font_text.mbt` 19,
 `ffi_matrix.mbt` 11, `ffi_paint.mbt` 14, `ffi_path.mbt` 17, and
-`ffi_state.mbt` 21. The public package retains exactly seven Context bridges:
-five typed-enum setters in `ffi_context_state.mbt` and two typed
-font/text-cluster bridges in `ffi_context_font_text.mbt`. No public
-`ffi_context_core.mbt` or `ffi_context_paint.mbt` is permitted.
+`ffi_state.mbt` 21. Context enum setters, toy-font selection, and
+`show_text_glyphs` convert facade values to primitive arrays and `Int` values
+before calling the child package. No public Context FFI file is permitted.
 The child exchanges raw FontOptions, FontFace, Path, Pattern, ScaledFont,
 Surface, and MappedImageSurface handles with their internal packages;
-`src/internal/device/ffi.mbt` owns `RawDevice` and all 16 raw Device/script
-externs, including the recording-surface and raw script-surface paths.
-`ffi_device.mbt` retains exactly one bridge, `Surface::get_device`;
+`src/internal/device/ffi.mbt` owns `RawDevice` and all 17 raw Device/script
+externs, including `Surface::get_device`, the recording-surface path, and the
+raw script-surface paths. No public Device FFI file is permitted;
 `src/internal/path/ffi.mbt` owns `RawPath` and the Path-specific extern
 declarations that call `cairoon_path.c`;
 `src/internal/surface` owns the sole `RawSurface`, `RawMappedImageSurface`, and
@@ -287,7 +284,9 @@ remains in `src/internal/format`. Deleted root files such as
 `ffi_image_data.mbt`, `ffi_mapped_image_surface.mbt`,
 `ffi_surface_state.mbt`, `ffi_surface_mime.mbt`,
 `ffi_surface_font_options.mbt`, `ffi_tee_surface.mbt`, `ffi_surface.mbt`,
-`ffi_image_surface.mbt`, and `ffi_recording_surface.mbt` must not return.
+`ffi_image_surface.mbt`, `ffi_recording_surface.mbt`,
+`ffi_context_font_text.mbt`, `ffi_context_state.mbt`, `ffi_device.mbt`, and
+`ffi_pattern.mbt` must not return.
 `src/internal/font_face/ffi.mbt` owns the
 abstract `RawFontFace` external object and every declared FontFace-specific
 extern; the internal Context and ScaledFont packages may accept or return that
@@ -314,13 +313,13 @@ import `CAIMEOX/cairoon`. Public `path.mbt` retains the abstract single-field
 `Path` wrapper, `PathSegment`, `PathDataType` conversion, traits, UTF-8
 decoding, and all `CairoError` mapping.
 `src/internal/device/ffi.mbt` owns the abstract `RawDevice` external object and
-all 16 raw Device/script externs. Its child interface uses `Int` for statuses,
+all 17 raw Device/script externs. Its child interface uses `Int` for statuses,
 `DeviceType`, `ScriptMode`, and stream callback results, and it must not import
 `CAIMEOX/cairoon`. Public `device.mbt` retains the abstract single-field
 `Device` wrapper, typed enum conversion, path/string validation, traits,
-scoped lifecycle helpers, and all `CairoError`/`CairoIOError` mapping. Public
-`ffi_device.mbt` keeps only `Surface::get_device`; all script-surface paths
-exchange `RawSurface` in the child after facade enum conversion. The child
+scoped lifecycle helpers, and all `CairoError`/`CairoIOError` mapping.
+`Surface::get_device` and all script-surface paths exchange `RawSurface` in the
+child after facade enum conversion. The child
 stream constructor owns the writer closure, copies each
 call-scoped chunk before invoking it, and relies on native stream state to
 release the closure exactly once.
@@ -340,20 +339,18 @@ raw enum values, imports `src/internal/path` and `src/internal/surface`, and
 must not import
 `CAIMEOX/cairoon`. Public `pattern.mbt` retains the abstract single-field
 `Pattern` wrapper, typed enum/status conversion, Matrix/value assembly,
-traits, and all `CairoError` mapping. Public `ffi_pattern.mbt` keeps only three
-facade-enum setter bridges, while `ffi_pattern_raster_source.mbt` keeps seven
+traits, and all `CairoError` mapping. `ffi_pattern_raster_source.mbt` keeps seven
 callback bridges whose types include `Surface`, `RectangleInt`, or MoonBit
 closures. Context source/group/mask paths exchange
 `RawPattern`; only checked facade methods may wrap or unwrap it.
 `src/internal/context` owns the abstract `RawContext` external object and all
-108 raw Context externs. Its seven FFI and seven wrapper files
+109 raw Context externs. Its seven FFI and seven wrapper files
 must preserve the core, clip/extents, font/text, matrix, paint, path, and state
 C-family split; no catch-all Context file may be added. Public `context*.mbt`
 files retain the abstract single-field `Context` wrapper, typed enum/status and
 value conversion, string validation, traits, and every `CairoError` mapping.
-The two public `ffi_context_*.mbt` bridge files contain exactly seven typed
-bridges and may exchange `RawContext`, but only checked facade methods may wrap
-or unwrap it. The child constructs real contexts from `RawSurface` or
+No public Context FFI file is permitted; only checked facade methods may wrap
+or unwrap `RawContext`. The child constructs real contexts from `RawSurface` or
 `RawMappedImageSurface`; package-local tests must cover both constructors,
 target/group-target returns, and surface source/mask calls. External tests must
 still cover status failures, source-scope lifetime, callbacks, and
@@ -764,12 +761,19 @@ Concrete requirements:
 object set must include `RawSurface`, `RawMappedImageSurface`, and
 `RawImageData`; production FFI must not use public `MappedImageSurface` or
 `ImageData` in place of those handles. `Surface` remains recognized only
-because existing raster callback/test ABIs intentionally accept the
-pointer-transparent facade wrapper. The checker must also reject duplicate C
-symbol declarations across production FFI files. A typed facade method converts
-its enum to the child package's raw `Int`; it must not redeclare the same C
-symbol with a facade enum or `Ref[Status]`, because clean native compilation
-would otherwise emit incompatible generated-C prototypes.
+because existing raster callback ABIs intentionally accept the
+pointer-transparent facade wrapper. The checker must reject duplicate C symbol
+declarations and exports, missing `MOONBIT_FFI_EXPORT` definitions, native
+exports with no production extern, and drift in the exact public-facade callback
+set. The 348 cairoon production externs and native exports must be a one-to-one
+set; only `cairo_version` and `cairo_format_stride_for_width` may bind directly
+to libcairo. The public package root contains exactly 12 callback bridges in
+five files: seven raster-source callbacks, two PNG stream callbacks, and one
+PDF, PS, and SVG stream constructor. A typed facade method converts its enum to
+the child package's raw `Int`; it must not redeclare the same C symbol with a
+facade enum or `Ref[Status]`, because clean native compilation would otherwise
+emit incompatible generated-C prototypes. Test-only MoonBit-callable C probes
+must be exported by `src/tests/oracle/native`, never by `src/native`.
 
 Use these annotation defaults:
 

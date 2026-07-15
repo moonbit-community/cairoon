@@ -52,6 +52,11 @@ enum {
   CAIROON_TEST_IMAGE_LINEAR_HSL_LUMINOSITY_SURFACE_MASK_COMBO = 46
 };
 
+MOONBIT_FFI_EXPORT
+int32_t cairoon_test_image_surface_has_data_user_data(CairoonSurface *surface) {
+  return cairoon_image_surface_has_data_user_data(surface);
+}
+
 static cairo_status_t cairoon_test_draw_argb32_scene(
   cairo_t *cr,
   int32_t scene,

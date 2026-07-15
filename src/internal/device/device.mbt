@@ -4,6 +4,16 @@ fn ensure_native() -> Unit {
 }
 
 ///|
+pub fn surface_get_device_raw(
+  surface : @surface_impl.RawSurface,
+  has_device : Ref[Int],
+  status : Ref[Int],
+) -> RawDevice {
+  ensure_native()
+  surface_get_device_ffi(surface, has_device, status)
+}
+
+///|
 pub fn script_from_recording_surface_raw(
   device : RawDevice,
   surface : @surface_impl.RawSurface,

@@ -133,6 +133,19 @@ extern "C" fn context_show_glyphs_ffi(
 ) -> Int = "cairoon_context_show_glyphs"
 
 ///|
+#borrow(ctx, text, indices, xs, ys, cluster_num_bytes, cluster_num_glyphs)
+extern "C" fn context_show_text_glyphs_ffi(
+  ctx : RawContext,
+  text : Bytes,
+  indices : FixedArray[UInt64],
+  xs : FixedArray[Double],
+  ys : FixedArray[Double],
+  cluster_num_bytes : FixedArray[Int],
+  cluster_num_glyphs : FixedArray[Int],
+  flags : Int,
+) -> Int = "cairoon_context_show_text_glyphs"
+
+///|
 #borrow(ctx, status)
 extern "C" fn context_get_scaled_font_ffi(
   ctx : RawContext,

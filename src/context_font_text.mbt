@@ -52,8 +52,13 @@ pub fn Context::select_font_face(
 ) -> Unit raise CairoError {
   let bytes = @utf8.encode(family)
   check_no_embedded_nul(bytes)
-  check_status(
-    context_select_font_face_ffi(self.to_raw(), bytes, slant, weight),
+  check_context_status_raw(
+    @context_impl.select_font_face_raw(
+      self.to_raw(),
+      bytes,
+      font_slant_to_raw(slant),
+      font_weight_to_raw(weight),
+    ),
   )
 }
 
@@ -240,8 +245,8 @@ pub fn Context::show_text_glyphs(
   let (cluster_num_bytes, cluster_num_glyphs) = text_cluster_field_arrays(
     clusters,
   )
-  check_status(
-    context_show_text_glyphs_ffi(
+  check_context_status_raw(
+    @context_impl.show_text_glyphs_raw(
       self.to_raw(),
       checked_c_string_bytes(text),
       indices,
@@ -249,9 +254,17 @@ pub fn Context::show_text_glyphs(
       ys,
       cluster_num_bytes,
       cluster_num_glyphs,
-      flags,
+      text_cluster_flags_to_raw(flags),
     ),
   )
+}
+
+///|
+fn text_cluster_flags_to_raw(flags : TextClusterFlags) -> Int {
+  match flags {
+    TextClusterNone => 0
+    TextClusterBackward => 1
+  }
 }
 
 ///|

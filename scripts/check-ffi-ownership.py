@@ -11,6 +11,25 @@ import sys
 REPO_ROOT = pathlib.Path(__file__).resolve().parents[1]
 PACKAGE_ROOT = REPO_ROOT / "src"
 TEST_PACKAGE_ROOT = PACKAGE_ROOT / "tests"
+NATIVE_ROOT = PACKAGE_ROOT / "native"
+PUBLIC_FACADE_CALLBACK_SYMBOLS = {
+    "cairoon_image_surface_create_from_png_stream",
+    "cairoon_pdf_surface_create_for_stream",
+    "cairoon_ps_surface_create_for_stream",
+    "cairoon_raster_source_pattern_clear_acquire",
+    "cairoon_raster_source_pattern_get_acquire_callback",
+    "cairoon_raster_source_pattern_get_release_callback",
+    "cairoon_raster_source_pattern_has_callbacks",
+    "cairoon_raster_source_pattern_set_acquire",
+    "cairoon_raster_source_pattern_set_acquire_with_release",
+    "cairoon_raster_source_pattern_set_release",
+    "cairoon_surface_write_to_png_stream",
+    "cairoon_svg_surface_create_for_stream",
+}
+DIRECT_CAIRO_SYMBOLS = {
+    "cairo_format_stride_for_width",
+    "cairo_version",
+}
 OBJECT_TYPES = {
     "Device",
     "FontFace",
@@ -191,6 +210,20 @@ def iter_production_ffi_files() -> list[pathlib.Path]:
     ]
 
 
+def native_export_symbols() -> dict[str, list[str]]:
+    exports: dict[str, list[str]] = {}
+    pattern = re.compile(r"\bMOONBIT_FFI_EXPORT\b(.*?\{)", re.DOTALL)
+    for path in sorted(NATIVE_ROOT.glob("*.c")):
+        text = path.read_text(encoding="utf-8")
+        for match in pattern.finditer(text):
+            names = re.findall(r"\b(cairoon_[A-Za-z0-9_]+)\s*\(", match.group(1))
+            if not names:
+                continue
+            line_no = text.count("\n", 0, match.start()) + 1
+            exports.setdefault(names[-1], []).append(f"{path}:{line_no}")
+    return exports
+
+
 def main() -> int:
     errors: list[str] = []
     files = iter_production_ffi_files()
@@ -205,12 +238,61 @@ def main() -> int:
                 f"C symbol '{symbol}' is declared more than once: "
                 + ", ".join(locations)
             )
+    root_symbols = {
+        symbol
+        for path in files
+        if path.parent == PACKAGE_ROOT
+        for symbol, _ in extern_symbols(path)
+    }
+    extra_root_symbols = root_symbols - PUBLIC_FACADE_CALLBACK_SYMBOLS
+    missing_root_symbols = PUBLIC_FACADE_CALLBACK_SYMBOLS - root_symbols
+    if extra_root_symbols:
+        errors.append(
+            "public facade declares non-callback C symbols: "
+            + ", ".join(sorted(extra_root_symbols))
+        )
+    if missing_root_symbols:
+        errors.append(
+            "public facade callback allowlist is stale; missing declarations: "
+            + ", ".join(sorted(missing_root_symbols))
+        )
+
+    exports = native_export_symbols()
+    for symbol, locations in sorted(exports.items()):
+        if len(locations) > 1:
+            errors.append(
+                f"C symbol '{symbol}' is exported more than once: "
+                + ", ".join(locations)
+            )
+    declared_symbols = set(declarations)
+    local_declared_symbols = declared_symbols - DIRECT_CAIRO_SYMBOLS
+    exported_symbols = set(exports)
+    missing_exports = local_declared_symbols - exported_symbols
+    dead_exports = exported_symbols - local_declared_symbols
+    if missing_exports:
+        errors.append(
+            "production externs lack MOONBIT_FFI_EXPORT definitions: "
+            + ", ".join(sorted(missing_exports))
+        )
+    if dead_exports:
+        errors.append(
+            "native stubs export undeclared production symbols: "
+            + ", ".join(sorted(dead_exports))
+        )
+    unknown_direct_symbols = DIRECT_CAIRO_SYMBOLS - declared_symbols
+    if unknown_direct_symbols:
+        errors.append(
+            "direct libcairo symbol allowlist is stale: "
+            + ", ".join(sorted(unknown_direct_symbols))
+        )
     if errors:
         for error in errors:
             print(error, file=sys.stderr)
         return 1
     print(
-        "FFI ownership annotations and C symbol uniqueness ok in "
+        "FFI ownership, facade boundary, and C export parity ok for "
+        f"{len(local_declared_symbols)} native symbols plus "
+        f"{len(DIRECT_CAIRO_SYMBOLS)} direct libcairo symbols in "
         f"{len(files)} production files"
     )
     return 0

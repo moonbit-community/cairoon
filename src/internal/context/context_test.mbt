@@ -35,3 +35,32 @@ test "raw context accepts a mapped-image surface handle" {
   inspect(paint_raw(ctx), content="0")
   inspect(@surface_impl.mapped_unmap_raw(mapped), content="0")
 }
+
+///|
+test "raw context owns enum setters and text glyph bridge" {
+  let surface = @surface_impl.image_create_raw(0, 8, 8)
+  let ctx = create_raw(surface)
+  inspect(status_raw(ctx), content="0")
+
+  inspect(set_line_cap_raw(ctx, 2), content="0")
+  inspect(get_line_cap_raw(ctx), content="2")
+  inspect(set_line_join_raw(ctx, 1), content="0")
+  inspect(get_line_join_raw(ctx), content="1")
+  inspect(set_fill_rule_raw(ctx, 1), content="0")
+  inspect(get_fill_rule_raw(ctx), content="1")
+  inspect(set_operator_raw(ctx, 12), content="0")
+  inspect(get_operator_raw(ctx), content="12")
+  inspect(set_antialias_raw(ctx, 1), content="0")
+  inspect(get_antialias_raw(ctx), content="1")
+
+  inspect(select_font_face_raw(ctx, b"Sans", 2, 1), content="0")
+  let indices : FixedArray[UInt64] = FixedArray::make(0, 0UL)
+  let positions : FixedArray[Double] = FixedArray::make(0, 0.0)
+  let clusters : FixedArray[Int] = FixedArray::make(0, 0)
+  inspect(
+    show_text_glyphs_raw(
+      ctx, b"", indices, positions, positions, clusters, clusters, 0,
+    ),
+    content="0",
+  )
+}

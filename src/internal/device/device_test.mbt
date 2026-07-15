@@ -55,6 +55,11 @@ test "raw script device exchanges cross-package surface handles" {
   inspect(status.val, content="0")
   inspect(@surface_impl.status_raw(surface), content="0")
   inspect(@surface_impl.get_type_raw(surface), content="14")
+  let has_device = Ref(0)
+  let returned_device = surface_get_device_raw(surface, has_device, status)
+  inspect(status.val, content="0")
+  inspect(has_device.val, content="1")
+  inspect(equal_raw(returned_device, device), content="true")
 
   let target = @surface_impl.image_create_raw(0, 2, 2)
   let target_surface = script_surface_create_for_target_raw(

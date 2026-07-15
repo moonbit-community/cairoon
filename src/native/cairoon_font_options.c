@@ -63,11 +63,6 @@ uint64_t cairoon_font_options_hash(CairoonFontOptions *options) {
 }
 
 MOONBIT_FFI_EXPORT
-cairo_antialias_t cairoon_font_options_get_antialias(CairoonFontOptions *options) {
-  return cairo_font_options_get_antialias(options->ptr);
-}
-
-MOONBIT_FFI_EXPORT
 int32_t cairoon_font_options_get_antialias_raw(CairoonFontOptions *options) {
   if (cairoon_font_options_status(options) != CAIRO_STATUS_SUCCESS) {
     return CAIRO_ANTIALIAS_DEFAULT;
@@ -97,11 +92,6 @@ cairo_status_t cairoon_font_options_set_antialias_raw(
   }
   cairo_font_options_set_antialias(options->ptr, (cairo_antialias_t)antialias);
   return cairo_font_options_status(options->ptr);
-}
-
-MOONBIT_FFI_EXPORT
-cairo_subpixel_order_t cairoon_font_options_get_subpixel_order(CairoonFontOptions *options) {
-  return cairo_font_options_get_subpixel_order(options->ptr);
 }
 
 MOONBIT_FFI_EXPORT
@@ -139,11 +129,6 @@ cairo_status_t cairoon_font_options_set_subpixel_order_raw(
 }
 
 MOONBIT_FFI_EXPORT
-cairo_hint_style_t cairoon_font_options_get_hint_style(CairoonFontOptions *options) {
-  return cairo_font_options_get_hint_style(options->ptr);
-}
-
-MOONBIT_FFI_EXPORT
 int32_t cairoon_font_options_get_hint_style_raw(CairoonFontOptions *options) {
   if (cairoon_font_options_status(options) != CAIRO_STATUS_SUCCESS) {
     return CAIRO_HINT_STYLE_DEFAULT;
@@ -173,11 +158,6 @@ cairo_status_t cairoon_font_options_set_hint_style_raw(
   }
   cairo_font_options_set_hint_style(options->ptr, (cairo_hint_style_t)hint_style);
   return cairo_font_options_status(options->ptr);
-}
-
-MOONBIT_FFI_EXPORT
-cairo_hint_metrics_t cairoon_font_options_get_hint_metrics(CairoonFontOptions *options) {
-  return cairo_font_options_get_hint_metrics(options->ptr);
 }
 
 MOONBIT_FFI_EXPORT

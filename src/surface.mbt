@@ -251,9 +251,13 @@ pub fn Surface::get_type(self : Surface) -> SurfaceType raise CairoError {
 ///|
 pub fn Surface::get_device(self : Surface) -> Device? raise CairoError {
   let has_device = Ref(0)
-  let status = Ref(Success)
-  let device = surface_get_device_ffi(self.to_raw(), has_device, status)
-  check_status(status.val)
+  let status = Ref(0)
+  let device = @device_impl.surface_get_device_raw(
+    self.to_raw(),
+    has_device,
+    status,
+  )
+  check_device_status_raw(status.val)
   if has_device.val == 0 {
     None
   } else {

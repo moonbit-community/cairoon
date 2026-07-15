@@ -47,11 +47,22 @@ fn line_cap_from_raw(raw : Int) -> LineCap raise CairoError {
 }
 
 ///|
+fn line_cap_to_raw(cap : LineCap) -> Int {
+  match cap {
+    LineCapButt => 0
+    LineCapRound => 1
+    LineCapSquare => 2
+  }
+}
+
+///|
 pub fn Context::set_line_cap(
   self : Context,
   cap : LineCap,
 ) -> Unit raise CairoError {
-  check_status(context_set_line_cap_ffi(self.to_raw(), cap))
+  check_context_status_raw(
+    @context_impl.set_line_cap_raw(self.to_raw(), line_cap_to_raw(cap)),
+  )
 }
 
 ///|
@@ -88,11 +99,22 @@ fn line_join_from_raw(raw : Int) -> LineJoin raise CairoError {
 }
 
 ///|
+fn line_join_to_raw(join : LineJoin) -> Int {
+  match join {
+    LineJoinMiter => 0
+    LineJoinRound => 1
+    LineJoinBevel => 2
+  }
+}
+
+///|
 pub fn Context::set_line_join(
   self : Context,
   join : LineJoin,
 ) -> Unit raise CairoError {
-  check_status(context_set_line_join_ffi(self.to_raw(), join))
+  check_context_status_raw(
+    @context_impl.set_line_join_raw(self.to_raw(), line_join_to_raw(join)),
+  )
 }
 
 ///|
@@ -128,11 +150,21 @@ fn fill_rule_from_raw(raw : Int) -> FillRule raise CairoError {
 }
 
 ///|
+fn fill_rule_to_raw(fill_rule : FillRule) -> Int {
+  match fill_rule {
+    FillWinding => 0
+    FillEvenOdd => 1
+  }
+}
+
+///|
 pub fn Context::set_fill_rule(
   self : Context,
   fill_rule : FillRule,
 ) -> Unit raise CairoError {
-  check_status(context_set_fill_rule_ffi(self.to_raw(), fill_rule))
+  check_context_status_raw(
+    @context_impl.set_fill_rule_raw(self.to_raw(), fill_rule_to_raw(fill_rule)),
+  )
 }
 
 ///|
@@ -161,7 +193,44 @@ pub fn Context::set_operator(
   self : Context,
   operator : Operator,
 ) -> Unit raise CairoError {
-  check_status(context_set_operator_ffi(self.to_raw(), operator))
+  check_context_status_raw(
+    @context_impl.set_operator_raw(self.to_raw(), operator_to_raw(operator)),
+  )
+}
+
+///|
+fn operator_to_raw(operator : Operator) -> Int {
+  match operator {
+    OperatorClear => 0
+    OperatorSource => 1
+    OperatorOver => 2
+    OperatorIn => 3
+    OperatorOut => 4
+    OperatorAtop => 5
+    OperatorDest => 6
+    OperatorDestOver => 7
+    OperatorDestIn => 8
+    OperatorDestOut => 9
+    OperatorDestAtop => 10
+    OperatorXor => 11
+    OperatorAdd => 12
+    OperatorSaturate => 13
+    OperatorMultiply => 14
+    OperatorScreen => 15
+    OperatorOverlay => 16
+    OperatorDarken => 17
+    OperatorLighten => 18
+    OperatorColorDodge => 19
+    OperatorColorBurn => 20
+    OperatorHardLight => 21
+    OperatorSoftLight => 22
+    OperatorDifference => 23
+    OperatorExclusion => 24
+    OperatorHslHue => 25
+    OperatorHslSaturation => 26
+    OperatorHslColor => 27
+    OperatorHslLuminosity => 28
+  }
 }
 
 ///|
@@ -230,7 +299,9 @@ pub fn Context::set_antialias(
   self : Context,
   antialias : Antialias,
 ) -> Unit raise CairoError {
-  check_status(context_set_antialias_ffi(self.to_raw(), antialias))
+  check_context_status_raw(
+    @context_impl.set_antialias_raw(self.to_raw(), antialias_to_raw(antialias)),
+  )
 }
 
 ///|

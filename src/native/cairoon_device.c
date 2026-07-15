@@ -9,6 +9,7 @@ typedef enum {
 } cairo_script_mode_t;
 #endif
 
+MOONBIT_FFI_EXPORT
 cairo_status_t cairoon_device_status(CairoonDevice *device) {
   if (device == NULL || device->ptr == NULL) {
     return CAIRO_STATUS_NULL_POINTER;

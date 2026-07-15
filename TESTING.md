@@ -4146,6 +4146,41 @@ package-isolated ASan/LSan invocation; the only suppression is the standalone
 C-probe-verified recording-snapshot leak, at 16 allocations/7424 bytes and 16
 allocations/9344 bytes respectively.
 
+## Typed Facade FFI Elimination
+
+The next facade cleanup removed all 11 remaining non-callback extern
+declarations from the public package root. Context and Pattern typed enum
+methods now perform explicit enum-to-raw-`Int` conversion in MoonBit and call
+their owner packages; Context font selection and `show_text_glyphs` follow the
+same raw boundary. `Surface::get_device` now exchanges a raw Device handle
+through `src/internal/device`. The final child-package counts are 109 Context,
+38 Pattern, 17 Device, and 79 Surface externs. The only public-root externs are
+the exact 12 callback ABI bridges in five files: seven raster-source callbacks,
+two PNG stream callbacks, and one stream constructor each for PDF, PS, and
+SVG.
+
+The native audit now parses every `MOONBIT_FFI_EXPORT` definition, rejects
+duplicate C exports, and requires one production MoonBit extern for every
+local native export and vice versa. The resulting boundary has 348 local
+native symbols plus the two deliberately direct libcairo symbols
+`cairo_version` and `cairo_format_stride_for_width` across 40 production FFI
+files. Test-only image user-data inspection moved out of production C and into
+the oracle-native test package. A new Context raw-boundary test and a Device
+cross-package Surface identity test raise the full native suite to 784/784.
+
+The final local release replay covers 390 source files, 42 direct public
+implementation files, a 45-entry exact public-root allowlist, and 83
+Cairo-linked package configs. The checkout consumer and extracted-package
+consumer each pass 1/1 against the integrity-checked 595-member publication
+archive. The public generated interface remains byte-for-byte unchanged at
+SHA-256
+`6c647f7e0c12188c36330a66681141a4449558884ce948d2c74e462a91b2f0f3`.
+The host gate passes with duplicate ASan disabled, and both exact Linux Cairo
+1.15.10 and 1.18.4 lanes pass every ordinary and package-isolated ASan/LSan
+test. Their sole suppression remains the pure-C-probe-verified vector-oracle
+recording snapshot: exactly 16 allocations/7424 bytes on Cairo 1.15.10 and 16
+allocations/9344 bytes on Cairo 1.18.4.
+
 Remaining reliability work is now narrower and should be tracked as evidence,
 not as an unstructured checklist:
 

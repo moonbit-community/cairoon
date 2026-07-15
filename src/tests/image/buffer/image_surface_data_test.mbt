@@ -8,7 +8,7 @@ fn surface_with_local_pixel_buffer() -> @cairoon.Surface raise @cairoon.CairoErr
 #borrow(surface)
 extern "C" fn image_surface_has_data_user_data_ffi(
   surface : @cairoon.Surface,
-) -> Bool = "cairoon_image_surface_has_data_user_data"
+) -> Bool = "cairoon_test_image_surface_has_data_user_data"
 
 ///|
 fn set_argb32_pixel(
@@ -62,6 +62,7 @@ test "pycairo image surface create_for_data releases retained buffer on finish" 
     height,
     stride~,
   )
+  ignore(@oracle_native.oracle_native_anchor())
   inspect(image_surface_has_data_user_data_ffi(surface), content="true")
   surface.finish()
   inspect(image_surface_has_data_user_data_ffi(surface), content="false")
