@@ -43,10 +43,11 @@ test "context current point new_path and new_sub_path" {
   ctx.move_to(10.0, 11.0)
   inspect(ctx.has_current_point(), content="true")
   assert_path_point_close(ctx.get_current_point(), (10.0, 11.0))
+  ctx.line_to(12.0, 14.0)
 
   ctx.new_sub_path()
   inspect(ctx.has_current_point(), content="false")
-  assert_path_extents_close(ctx.path_extents(), (0.0, 0.0, 0.0, 0.0))
+  assert_path_extents_close(ctx.path_extents(), (10.0, 11.0, 12.0, 14.0))
 
   ctx.new_path()
   inspect(ctx.has_current_point(), content="false")
@@ -183,13 +184,32 @@ test "context path copy and append propagate cairo error" {
 }
 
 ///|
-test "context relative path without current point maps cairo error" {
-  let ctx = @cairoon.Context::new(context_path_surface())
-  let result = @cairoon.run_cairo(() => ctx.rel_line_to(1.0, 1.0))
-  inspect(result is Err(_), content="true")
-  match result {
+test "context relative path operations without current point map cairo error" {
+  let rel_move_ctx = @cairoon.Context::new(context_path_surface())
+  let rel_move_result = @cairoon.run_cairo(() => {
+    rel_move_ctx.rel_move_to(1.0, 1.0)
+  })
+  match rel_move_result {
     Err(@cairoon.CairoError(@cairoon.NoCurrentPoint, _)) => ()
-    _ => @test.fail("expected NoCurrentPoint")
+    _ => @test.fail("expected NoCurrentPoint from rel_move_to")
+  }
+
+  let rel_line_ctx = @cairoon.Context::new(context_path_surface())
+  let rel_line_result = @cairoon.run_cairo(() => {
+    rel_line_ctx.rel_line_to(1.0, 1.0)
+  })
+  match rel_line_result {
+    Err(@cairoon.CairoError(@cairoon.NoCurrentPoint, _)) => ()
+    _ => @test.fail("expected NoCurrentPoint from rel_line_to")
+  }
+
+  let rel_curve_ctx = @cairoon.Context::new(context_path_surface())
+  let rel_curve_result = @cairoon.run_cairo(() => {
+    rel_curve_ctx.rel_curve_to(1.0, 1.0, 2.0, 2.0, 3.0, 3.0)
+  })
+  match rel_curve_result {
+    Err(@cairoon.CairoError(@cairoon.NoCurrentPoint, _)) => ()
+    _ => @test.fail("expected NoCurrentPoint from rel_curve_to")
   }
 }
 

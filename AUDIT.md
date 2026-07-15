@@ -966,12 +966,13 @@ Prior full verifies passed on 2026-07-02, 2026-07-03, 2026-07-04,
   operators, and iterator `PathDataType`/coordinate tuples.
 - `moon -C cairoon test src/tests/context/path --target native -v`: 11
   black-box Context path tests passed, covering current-point behavior,
-  relative path operations, pycairo rectangle path-extents behavior,
+  relative path operations and all three no-current-point errors,
+  `new_sub_path` geometry retention, pycairo rectangle path-extents behavior,
   close-path current-point reset, arc current-point creation,
   path copy/append independence, pycairo-style append string
   equivalence after clearing the source context, flattened append behavior, and
   path error propagation.
-- `moon -C cairoon test src/tests/context/pycairo --target native -v`: 36
+- `moon -C cairoon test src/tests/context/pycairo --target native -v`: 39
   shared black-box Context pycairo parity tests passed, covering the 42x42 default
   clip-extents fixture, zero-radius `arc`/`arc_negative` non-empty paths,
   polygon `path_extents`, polygon `fill_extents`, empty `in_fill`, line
@@ -3205,8 +3206,9 @@ raw-enum compatibility, variation, and color-palette declarations. Context
 drawing state contributes all 31 line, fill, operator, antialias, tolerance,
 miter, hairline, and dash declarations. Context core contributes all 18
 ownership, construction, identity, save/restore, target/source, group, and tag
-declarations. The current exact baseline is therefore 285 documented
-declarations and 294 grandfathered documentation-debt entries.
+declarations. Context paths contribute all 17 construction, current-point,
+copy, flatten, and append declarations. The current exact baseline is therefore
+302 documented declarations and 277 grandfathered documentation-debt entries.
 
 `scripts/check-public-docs.py` parses the audited declaration forms and checks
 the sorted debt ledger in both directions: a new undocumented declaration,
