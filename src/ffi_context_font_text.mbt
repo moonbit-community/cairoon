@@ -3,13 +3,13 @@
 extern "C" fn context_get_font_options_ffi(
   ctx : Context,
   status : Ref[Status],
-) -> FontOptions = "cairoon_context_get_font_options"
+) -> @font_options_impl.RawFontOptions = "cairoon_context_get_font_options"
 
 ///|
 #borrow(ctx, options)
 extern "C" fn context_set_font_options_ffi(
   ctx : Context,
-  options : FontOptions,
+  options : @font_options_impl.RawFontOptions,
 ) -> Status = "cairoon_context_set_font_options"
 
 ///|

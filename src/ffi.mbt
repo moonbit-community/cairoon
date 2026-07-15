@@ -17,9 +17,6 @@ type Context
 type Pattern
 
 ///|
-type FontOptions
-
-///|
 type FontFace
 
 ///|

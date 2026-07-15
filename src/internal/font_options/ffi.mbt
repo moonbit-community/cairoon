@@ -1,185 +1,192 @@
 ///|
-extern "C" fn font_options_create_ffi() -> FontOptions = "cairoon_font_options_create"
+type RawFontOptions
+
+///|
+extern "C" fn font_options_create_ffi() -> RawFontOptions = "cairoon_font_options_create"
 
 ///|
 #borrow(options)
-extern "C" fn font_options_status_ffi(options : FontOptions) -> Status = "cairoon_font_options_status"
+extern "C" fn font_options_status_ffi(options : RawFontOptions) -> Int = "cairoon_font_options_status"
 
 ///|
 #borrow(options, status)
 extern "C" fn font_options_copy_ffi(
-  options : FontOptions,
-  status : Ref[Status],
-) -> FontOptions = "cairoon_font_options_copy"
+  options : RawFontOptions,
+  status : Ref[Int],
+) -> RawFontOptions = "cairoon_font_options_copy"
 
 ///|
 #borrow(options, other)
 extern "C" fn font_options_merge_ffi(
-  options : FontOptions,
-  other : FontOptions,
-) -> Status = "cairoon_font_options_merge"
+  options : RawFontOptions,
+  other : RawFontOptions,
+) -> Int = "cairoon_font_options_merge"
 
 ///|
 #borrow(options, other)
 extern "C" fn font_options_equal_ffi(
-  options : FontOptions,
-  other : FontOptions,
+  options : RawFontOptions,
+  other : RawFontOptions,
 ) -> Bool = "cairoon_font_options_equal"
 
 ///|
 #borrow(options)
-extern "C" fn font_options_hash_ffi(options : FontOptions) -> UInt64 = "cairoon_font_options_hash"
+extern "C" fn font_options_hash_ffi(options : RawFontOptions) -> UInt64 = "cairoon_font_options_hash"
 
 ///|
 #borrow(options)
-extern "C" fn font_options_get_antialias_raw_ffi(options : FontOptions) -> Int = "cairoon_font_options_get_antialias_raw"
+extern "C" fn font_options_get_antialias_raw_ffi(
+  options : RawFontOptions,
+) -> Int = "cairoon_font_options_get_antialias_raw"
 
 ///|
 #borrow(options)
 extern "C" fn font_options_set_antialias_ffi(
-  options : FontOptions,
-  antialias : Antialias,
-) -> Status = "cairoon_font_options_set_antialias"
+  options : RawFontOptions,
+  antialias : Int,
+) -> Int = "cairoon_font_options_set_antialias"
 
 ///|
 #borrow(options)
 extern "C" fn font_options_set_antialias_raw_ffi(
-  options : FontOptions,
+  options : RawFontOptions,
   antialias : Int,
-) -> Status = "cairoon_font_options_set_antialias_raw"
+) -> Int = "cairoon_font_options_set_antialias_raw"
 
 ///|
 #borrow(options)
 extern "C" fn font_options_get_subpixel_order_raw_ffi(
-  options : FontOptions,
+  options : RawFontOptions,
 ) -> Int = "cairoon_font_options_get_subpixel_order_raw"
 
 ///|
 #borrow(options)
 extern "C" fn font_options_set_subpixel_order_ffi(
-  options : FontOptions,
-  subpixel_order : SubpixelOrder,
-) -> Status = "cairoon_font_options_set_subpixel_order"
+  options : RawFontOptions,
+  subpixel_order : Int,
+) -> Int = "cairoon_font_options_set_subpixel_order"
 
 ///|
 #borrow(options)
 extern "C" fn font_options_set_subpixel_order_raw_ffi(
-  options : FontOptions,
+  options : RawFontOptions,
   subpixel_order : Int,
-) -> Status = "cairoon_font_options_set_subpixel_order_raw"
+) -> Int = "cairoon_font_options_set_subpixel_order_raw"
 
 ///|
 #borrow(options)
-extern "C" fn font_options_get_hint_style_raw_ffi(options : FontOptions) -> Int = "cairoon_font_options_get_hint_style_raw"
+extern "C" fn font_options_get_hint_style_raw_ffi(
+  options : RawFontOptions,
+) -> Int = "cairoon_font_options_get_hint_style_raw"
 
 ///|
 #borrow(options)
 extern "C" fn font_options_set_hint_style_ffi(
-  options : FontOptions,
-  hint_style : HintStyle,
-) -> Status = "cairoon_font_options_set_hint_style"
+  options : RawFontOptions,
+  hint_style : Int,
+) -> Int = "cairoon_font_options_set_hint_style"
 
 ///|
 #borrow(options)
 extern "C" fn font_options_set_hint_style_raw_ffi(
-  options : FontOptions,
+  options : RawFontOptions,
   hint_style : Int,
-) -> Status = "cairoon_font_options_set_hint_style_raw"
+) -> Int = "cairoon_font_options_set_hint_style_raw"
 
 ///|
 #borrow(options)
 extern "C" fn font_options_get_hint_metrics_raw_ffi(
-  options : FontOptions,
+  options : RawFontOptions,
 ) -> Int = "cairoon_font_options_get_hint_metrics_raw"
 
 ///|
 #borrow(options)
 extern "C" fn font_options_set_hint_metrics_ffi(
-  options : FontOptions,
-  hint_metrics : HintMetrics,
-) -> Status = "cairoon_font_options_set_hint_metrics"
+  options : RawFontOptions,
+  hint_metrics : Int,
+) -> Int = "cairoon_font_options_set_hint_metrics"
 
 ///|
 #borrow(options)
 extern "C" fn font_options_set_hint_metrics_raw_ffi(
-  options : FontOptions,
+  options : RawFontOptions,
   hint_metrics : Int,
-) -> Status = "cairoon_font_options_set_hint_metrics_raw"
+) -> Int = "cairoon_font_options_set_hint_metrics_raw"
 
 ///|
 #borrow(options, has_variations, status)
 extern "C" fn font_options_get_variations_ffi(
-  options : FontOptions,
+  options : RawFontOptions,
   has_variations : Ref[Int],
-  status : Ref[Status],
+  status : Ref[Int],
 ) -> Bytes = "cairoon_font_options_get_variations"
 
 ///|
 #borrow(options, variations)
 extern "C" fn font_options_set_variations_ffi(
-  options : FontOptions,
+  options : RawFontOptions,
   variations : Bytes,
-) -> Status = "cairoon_font_options_set_variations"
+) -> Int = "cairoon_font_options_set_variations"
 
 ///|
 #borrow(options)
 extern "C" fn font_options_clear_variations_ffi(
-  options : FontOptions,
-) -> Status = "cairoon_font_options_clear_variations"
+  options : RawFontOptions,
+) -> Int = "cairoon_font_options_clear_variations"
 
 ///|
 #borrow(options, status)
 extern "C" fn font_options_get_color_mode_raw_ffi(
-  options : FontOptions,
-  status : Ref[Status],
+  options : RawFontOptions,
+  status : Ref[Int],
 ) -> Int = "cairoon_font_options_get_color_mode_raw"
 
 ///|
 #borrow(options)
 extern "C" fn font_options_set_color_mode_ffi(
-  options : FontOptions,
-  color_mode : ColorMode,
-) -> Status = "cairoon_font_options_set_color_mode"
+  options : RawFontOptions,
+  color_mode : Int,
+) -> Int = "cairoon_font_options_set_color_mode"
 
 ///|
 #borrow(options)
 extern "C" fn font_options_set_color_mode_raw_ffi(
-  options : FontOptions,
+  options : RawFontOptions,
   color_mode : Int,
-) -> Status = "cairoon_font_options_set_color_mode_raw"
+) -> Int = "cairoon_font_options_set_color_mode_raw"
 
 ///|
 #borrow(options, status)
 extern "C" fn font_options_get_color_palette_ffi(
-  options : FontOptions,
-  status : Ref[Status],
+  options : RawFontOptions,
+  status : Ref[Int],
 ) -> UInt = "cairoon_font_options_get_color_palette"
 
 ///|
 #borrow(options)
 extern "C" fn font_options_set_color_palette_ffi(
-  options : FontOptions,
+  options : RawFontOptions,
   palette_index : UInt,
-) -> Status = "cairoon_font_options_set_color_palette"
+) -> Int = "cairoon_font_options_set_color_palette"
 
 ///|
 #borrow(options)
 extern "C" fn font_options_set_custom_palette_color_ffi(
-  options : FontOptions,
+  options : RawFontOptions,
   index : UInt,
   red : Double,
   green : Double,
   blue : Double,
   alpha : Double,
-) -> Status = "cairoon_font_options_set_custom_palette_color"
+) -> Int = "cairoon_font_options_set_custom_palette_color"
 
 ///|
 #borrow(options, red, green, blue, alpha)
 extern "C" fn font_options_get_custom_palette_color_ffi(
-  options : FontOptions,
+  options : RawFontOptions,
   index : UInt,
   red : Ref[Double],
   green : Ref[Double],
   blue : Ref[Double],
   alpha : Ref[Double],
-) -> Status = "cairoon_font_options_get_custom_palette_color"
+) -> Int = "cairoon_font_options_get_custom_palette_color"

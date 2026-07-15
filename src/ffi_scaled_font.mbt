@@ -14,7 +14,7 @@ extern "C" fn scaled_font_create_ffi(
   ctm_yy : Double,
   ctm_x0 : Double,
   ctm_y0 : Double,
-  options : FontOptions,
+  options : @font_options_impl.RawFontOptions,
 ) -> ScaledFont = "cairoon_scaled_font_create"
 
 ///|
@@ -44,7 +44,7 @@ extern "C" fn scaled_font_get_font_face_ffi(
 extern "C" fn scaled_font_get_font_options_ffi(
   scaled_font : ScaledFont,
   status : Ref[Status],
-) -> FontOptions = "cairoon_scaled_font_get_font_options"
+) -> @font_options_impl.RawFontOptions = "cairoon_scaled_font_get_font_options"
 
 ///|
 #borrow(scaled_font, xx, yx, xy, yy, x0, y0)

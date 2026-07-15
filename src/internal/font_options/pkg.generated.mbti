@@ -1,0 +1,72 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "CAIMEOX/cairoon/internal/font_options"
+
+import {
+  "moonbitlang/core/ref",
+}
+
+// Values
+pub fn clear_variations_raw(RawFontOptions) -> Int
+
+pub fn copy_raw(RawFontOptions, @ref.Ref[Int]) -> RawFontOptions
+
+pub fn create_raw() -> RawFontOptions
+
+pub fn equal_raw(RawFontOptions, RawFontOptions) -> Bool
+
+pub fn get_antialias_raw(RawFontOptions) -> Int
+
+pub fn get_color_mode_raw(RawFontOptions, @ref.Ref[Int]) -> Int
+
+pub fn get_color_palette_raw(RawFontOptions, @ref.Ref[Int]) -> UInt
+
+pub fn get_custom_palette_color_raw(RawFontOptions, UInt, @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double]) -> Int
+
+pub fn get_hint_metrics_raw(RawFontOptions) -> Int
+
+pub fn get_hint_style_raw(RawFontOptions) -> Int
+
+pub fn get_subpixel_order_raw(RawFontOptions) -> Int
+
+pub fn get_variations_raw(RawFontOptions, @ref.Ref[Int], @ref.Ref[Int]) -> Bytes
+
+pub fn hash_raw(RawFontOptions) -> UInt64
+
+pub fn merge_raw(RawFontOptions, RawFontOptions) -> Int
+
+pub fn set_antialias_raw(RawFontOptions, Int) -> Int
+
+pub fn set_antialias_value_raw(RawFontOptions, Int) -> Int
+
+pub fn set_color_mode_raw(RawFontOptions, Int) -> Int
+
+pub fn set_color_mode_value_raw(RawFontOptions, Int) -> Int
+
+pub fn set_color_palette_raw(RawFontOptions, UInt) -> Int
+
+pub fn set_custom_palette_color_raw(RawFontOptions, UInt, Double, Double, Double, Double) -> Int
+
+pub fn set_hint_metrics_raw(RawFontOptions, Int) -> Int
+
+pub fn set_hint_metrics_value_raw(RawFontOptions, Int) -> Int
+
+pub fn set_hint_style_raw(RawFontOptions, Int) -> Int
+
+pub fn set_hint_style_value_raw(RawFontOptions, Int) -> Int
+
+pub fn set_subpixel_order_raw(RawFontOptions, Int) -> Int
+
+pub fn set_subpixel_order_value_raw(RawFontOptions, Int) -> Int
+
+pub fn set_variations_raw(RawFontOptions, Bytes) -> Int
+
+pub fn status_raw(RawFontOptions) -> Int
+
+// Errors
+
+// Types and methods
+type RawFontOptions
+
+// Type aliases
+
+// Traits

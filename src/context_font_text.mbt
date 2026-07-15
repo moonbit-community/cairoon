@@ -3,9 +3,9 @@ pub fn Context::get_font_options(
   self : Context,
 ) -> FontOptions raise CairoError {
   let status = Ref(Success)
-  let options = context_get_font_options_ffi(self, status)
+  let raw = context_get_font_options_ffi(self, status)
   check_status(status.val)
-  options
+  FontOptions::from_raw(raw)
 }
 
 ///|
@@ -13,7 +13,7 @@ pub fn Context::set_font_options(
   self : Context,
   options : FontOptions,
 ) -> Unit raise CairoError {
-  check_status(context_set_font_options_ffi(self, options))
+  check_status(context_set_font_options_ffi(self, options.to_raw()))
 }
 
 ///|

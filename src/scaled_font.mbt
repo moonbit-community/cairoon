@@ -21,7 +21,7 @@ pub fn ScaledFont::new(
     ctm.yy,
     ctm.x0,
     ctm.y0,
-    options,
+    options.to_raw(),
   )
   check_status(scaled_font_status_ffi(scaled_font))
   scaled_font
@@ -72,9 +72,9 @@ pub fn ScaledFont::get_font_options(
   self : ScaledFont,
 ) -> FontOptions raise CairoError {
   let status = Ref(Success)
-  let options = scaled_font_get_font_options_ffi(self, status)
+  let raw = scaled_font_get_font_options_ffi(self, status)
   check_status(status.val)
-  options
+  FontOptions::from_raw(raw)
 }
 
 ///|
