@@ -3201,9 +3201,10 @@ abstract `Path` type. The 42 support-package constants and one native anchor
 are now documented as well. Region contributes all 22 owned-object,
 construction, query, copy, translation, and boolean-operation declarations.
 FontOptions contributes all 33 ownership, copy/merge, rendering-state,
-raw-enum compatibility, variation, and color-palette declarations. The current
-exact baseline is therefore 236 documented declarations and 343 grandfathered
-documentation-debt entries.
+raw-enum compatibility, variation, and color-palette declarations. Context
+drawing state contributes all 31 line, fill, operator, antialias, tolerance,
+miter, hairline, and dash declarations. The current exact baseline is therefore
+267 documented declarations and 312 grandfathered documentation-debt entries.
 
 `scripts/check-public-docs.py` parses the audited declaration forms and checks
 the sorted debt ledger in both directions: a new undocumented declaration,
