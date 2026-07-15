@@ -1,4 +1,8 @@
 ///|
+/// A status code reported by Cairo.
+///
+/// `Success` is the only successful value. The remaining constructors retain
+/// Cairo's numeric ABI so statuses can be classified without string matching.
 pub(all) enum Status {
   Success = 0
   NoMemory = 1
@@ -154,11 +158,13 @@ fn status_from_raw(raw : Int) -> Status raise CairoError {
 }
 
 ///|
+/// Return Cairo's diagnostic message for this status.
 pub fn Status::message(self : Status) -> String {
   @status_impl.status_message_raw(self.to_raw())
 }
 
 ///|
+/// Return whether this status is `Success`.
 pub fn Status::is_success(self : Status) -> Bool {
   self == Success
 }

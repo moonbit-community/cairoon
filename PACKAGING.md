@@ -129,10 +129,10 @@ Use:
 ```
 
 The gate runs formatting, link-flag drift checks, static FFI ownership linting,
-top-level pycairo API inventory linting, all 20 pinned pycairo test-file
-families (288 tests), the isolated downstream import/link/render test against
-both source and extracted publication zip, archive integrity and fixture
-exclusion checks, native type checking, targeted
+top-level pycairo API inventory linting, exact public doc-comment debt linting,
+all 20 pinned pycairo test-file families (288 tests), the isolated downstream
+import/link/render test against both source and extracted publication zip,
+archive integrity and fixture exclusion checks, native type checking, targeted
 image/scaled-font/vector/pattern oracle tests, the full native test suite,
 `moon info --target native`, and package-isolated ASan/LSan tests when an
 ASan-capable `clang` is available. A detected pycairo checkout must have

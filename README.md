@@ -105,9 +105,10 @@ fn draw_example() -> Unit raise @cairoon.CairoError {
 cairoon is suitable for light native use when the required inventory rows are
 marked `Done`, the automated downstream consumer smoke test passes, and the
 project is pinned. It is not yet a stable or complete pycairo replacement. The
-portable API and all 20 pinned pycairo test-source families are covered, but one global
-test/release-evidence row remains `Partial`, platform-specific backends are out
-of scope, and no source-compatibility promise exists before `1.0`.
+portable API and all 20 pinned pycairo test-source families are covered, but
+public API doc comments and test/release evidence remain `Partial`,
+platform-specific backends are out of scope, and no source-compatibility
+promise exists before `1.0`.
 
 Linux ASan/LSan runs each MoonBit package in a separate process. Cairo 1.15.10
 and 1.18.4 both have a reproducible SVG recording-surface snapshot leak in
@@ -154,8 +155,9 @@ release:
 ```
 
 The gate checks formatting, Cairo link-flag drift, project layout, FFI
-ownership annotations, API inventory coverage, the reliability ledger, native
-type checking, all 20 pinned pycairo test-file families (288 upstream tests),
+ownership annotations, API inventory and public-documentation coverage, the
+reliability ledger, native type checking, all 20 pinned pycairo test-file
+families (288 upstream tests),
 784 in-module MoonBit tests, one isolated downstream-module import/link/render
 test against both the checkout and extracted publication zip,
 publication-archive isolation, executable docs, direct C Cairo oracle tests,

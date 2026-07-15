@@ -3180,6 +3180,29 @@ suppression is the standalone-C-probe-confirmed recording snapshot in the
 vector oracle: exactly 16 allocations/7424 bytes on Cairo 1.15.10 and 16
 allocations/9344 bytes on Cairo 1.18.4.
 
+## Public Documentation Audit
+
+The 2026-07-15 audit rechecked the pinned pycairo source against upstream HEAD
+`80ea3348aff95e8441e6c3e2086371ea40528d81`; the revisions match. The public
+MoonBit facade contains 525 declarations across 43 audited files. Empty
+`///|` block markers were not counted as documentation. Foundational errors,
+statuses, enums, formats, and version declarations now provide substantive
+`///` comments, yielding an exact baseline of 82 documented declarations and
+443 grandfathered documentation-debt entries.
+
+`scripts/check-public-docs.py` parses the audited declaration forms and checks
+the sorted debt ledger in both directions: a new undocumented declaration,
+an undocumented declaration missing from the ledger, or a now-documented
+stale entry fails verification. Eleven focused checker tests raise the script
+unit suite to 74/74. The local release gate passes all 784 native tests, both
+checkout and extracted-package consumers pass 1/1, and the integrity-checked
+archive contains 598 members. The public generated interface remains
+byte-for-byte unchanged at SHA-256
+`6c647f7e0c12188c36330a66681141a4449558884ce948d2c74e462a91b2f0f3`.
+This documentation-only replay skipped duplicate host ASan; the unchanged
+runtime remains covered by the immediately preceding exact Cairo 1.15.10 and
+1.18.4 ordinary plus package-isolated ASan/LSan runs.
+
 ## Downstream Consumer Evidence
 
 The 2026-07-15 local release gate now includes a separately named MoonBit
@@ -3195,16 +3218,18 @@ packaged module; the artifact path also passes 1/1. The final host verify run
 passed 784/784 repository tests with duplicate ASan disabled, while both exact
 Linux Cairo lanes reran this gate, all 784 tests, and every package-isolated
 ASan/LSan invocation. The publication archive contained 595 members in all
-three release-gate runs.
+three runtime release-gate runs; the documentation-audit replay contains 598
+members after adding the checker, its tests, and the exact debt ledger.
 
 ## Known Gaps
 
 - Current tests are strong enough for the `Done` inventory rows when
   `./scripts/verify.sh` passes on the target platform, but they are not enough
-  for a full pycairo migration claim. Full-product reliability still requires
-  the remaining `Partial` row in `API_INVENTORY.md` to gain explicit evidence
-  or become a documented `Decision`, plus passing CI coverage for the
-  native/oracle/sanitizer gates on each supported release platform.
+  for a full pycairo migration claim. Full-product status still requires the
+  exact public-doc-comment debt ledger to reach zero and the release-evidence
+  `Partial` row to gain passing CI coverage for the native/oracle/sanitizer
+  gates on each supported release platform, or for genuinely unsupported scope
+  to become an explicit `Decision`.
 - Cairo 1.18's finite portable tag-attribute contract is closed by Scene 66:
   all 10 official Link/Dest/content/content-reference dimensions have
   MoonBit and direct-C evidence, invalid forms map to `TagError`, and

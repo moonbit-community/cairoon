@@ -915,6 +915,37 @@ Implement in this order:
 Do not start a later phase by weakening ownership or error rules from an
 earlier phase.
 
+## Public Documentation Contract
+
+Every user-facing declaration in the public facade must have a substantive
+MoonBit `///` Markdown doc comment immediately before the declaration. The
+empty `///|` block marker is required for source structure but does not count
+as documentation. Public methods re-exported through a facade type alias, such
+as `Glyph`, must be documented in their owning package as well.
+
+Documentation must state the behavior a caller needs to use the API correctly:
+
+- ownership or retained-lifetime behavior for object-returning and callback
+  APIs;
+- raised `CairoError` classes and important finished/type-mismatch cases;
+- Cairo version or backend requirements where behavior is conditional;
+- raw-integer compatibility semantics for every `*_raw` entry point;
+- units, coordinate spaces, buffer layout, and mutation effects where they are
+  not obvious from the signature.
+
+Use executable `mbt check` examples in `src/docs/*.mbt.md` for family workflows
+and nontrivial edge cases. A doc comment may link to those family notes instead
+of repeating a large example, but a bare method name or signature is not a
+description.
+
+`scripts/check-public-docs.py` audits every public declaration in direct
+`src/*.mbt` facade files plus the re-exported `src/core/glyph/glyph.mbt` API.
+`scripts/public-docs-debt.txt` is an exact, sorted grandfather list: it may only
+shrink, and documenting a declaration must remove its entry in the same commit.
+New public declarations must be documented when introduced and must never be
+added to the debt ledger. The Docs inventory row remains `Partial` until the
+checker reports zero debt entries.
+
 ## Test Suite Assessment
 
 `TESTING.md` is the executable testing and reliability strategy. This section

@@ -1,4 +1,9 @@
 ///|
+/// The checked error hierarchy raised by cairoon operations.
+///
+/// Every variant carries the originating Cairo status and its diagnostic
+/// message. Memory, I/O, and invalid-argument failures have dedicated
+/// variants so callers can handle those classes without inspecting strings.
 pub suberror CairoError {
   CairoError(Status, String)
   CairoMemoryError(Status, String)
@@ -7,6 +12,7 @@ pub suberror CairoError {
 } derive(Debug)
 
 ///|
+/// Raise the appropriate `CairoError` variant unless `status` is `Success`.
 pub fn check_status(status : Status) -> Unit raise CairoError {
   match status {
     Success => ()
@@ -27,6 +33,7 @@ pub fn check_status(status : Status) -> Unit raise CairoError {
 }
 
 ///|
+/// Run a checked Cairo operation and capture its raised error as a `Result`.
 pub fn[T] run_cairo(f : () -> T raise CairoError) -> Result[T, CairoError] {
   try f() catch {
     err => Err(err)
