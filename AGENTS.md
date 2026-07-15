@@ -917,11 +917,16 @@ earlier phase.
 
 ## Public Documentation Contract
 
-Every user-facing declaration in the public facade must have a substantive
-MoonBit `///` Markdown doc comment immediately before the declaration. The
-empty `///|` block marker is required for source structure but does not count
-as documentation. Public methods re-exported through a facade type alias, such
-as `Glyph`, must be documented in their owning package as well.
+Every user-facing declaration in the public facade or an intentionally
+published support package must have a substantive MoonBit `///` Markdown doc
+comment immediately before the declaration. The empty `///|` block marker is
+required for source structure but does not count as documentation. Public
+methods re-exported through a facade type alias, such as `Glyph`, must be
+documented in their owning package as well.
+
+MoonBit types are abstract and externally nameable by default. A declaration
+such as `struct Context(...)` is therefore public documentation surface even
+without a `pub` modifier; only `priv` types are excluded from the audit.
 
 Documentation must state the behavior a caller needs to use the API correctly:
 
@@ -939,7 +944,14 @@ of repeating a large example, but a bare method name or signature is not a
 description.
 
 `scripts/check-public-docs.py` audits every public declaration in direct
-`src/*.mbt` facade files plus the re-exported `src/core/glyph/glyph.mbt` API.
+`src/*.mbt` facade files and the three intentionally published support owners:
+`src/core/constants/constants.mbt`, `src/core/glyph/glyph.mbt`, and
+`src/native/native_anchor.mbt`. The executable `src/docs/prelude.mbt` package
+contains only `pub using` aliases whose declarations are audited at their
+owners, so aliases are not counted a second time. Declarations in `internal`
+packages and test-only source files are not downstream product API and are
+excluded.
+
 `scripts/public-docs-debt.txt` is an exact, sorted grandfather list: it may only
 shrink, and documenting a declaration must remove its entry in the same commit.
 New public declarations must be documented when introduced and must never be

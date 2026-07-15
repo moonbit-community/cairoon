@@ -79,7 +79,7 @@ Evaluate each slice with this scorecard:
 | Lifetime safety | External-object ownership, borrowed returns, callback retention, and error exits run under ASan/LSan or stress tests | Strong for the current portable scope: Linux runs every MoonBit package in a separate ASan/LSan process; the only suppression is a pure-C-probe-verified Cairo recording-snapshot function in the vector oracle package, while all other packages remain unsuppressed |
 | Callback safety | C-held MoonBit callbacks and callback arguments are retained across the callback invocation and released deterministically | Strong for stream writers/readers and raster-source callbacks covered by current stress/fuzz tests |
 | Portability | Required backends pass on each supported platform, or unsupported APIs have explicit `Decision` rows | Strong local evidence at the exact Cairo 1.15.10 compatibility floor and recommended 1.18.4 release, plus the host lane; still Partial until the release commit's shipped Ubuntu/macOS CI jobs pass |
-| Documentation | Public declarations have substantive MoonBit `///` comments, family workflows have executable examples where practical, and `scripts/check-public-docs.py` reports zero debt | Partial: executable family notes exist and 82 foundational declarations are documented, but the exact grandfather ledger still contains 443 public declarations; new undocumented APIs and ledger drift fail the gate |
+| Documentation | Public declarations have substantive MoonBit `///` comments, family workflows have executable examples where practical, and `scripts/check-public-docs.py` reports zero debt | Partial: executable family notes exist and 181 foundational, pure geometry/value, and published-support declarations are documented, but the corrected exact grandfather ledger still contains 398 of 579 public declarations; new undocumented APIs and ledger drift fail the gate |
 | Downstream consumption | A separately named MoonBit module resolves the versioned local dependency, imports only `CAIMEOX/cairoon`, supplies its own native Cairo link flags, renders through the public API against both checkout and extracted publication zip, and stays outside that archive | Strong local evidence through `integration/consumer` and `scripts/check-downstream-consumer.sh`; the zip is integrity-tested and recompiled in a fresh temporary workspace, while release CI must run the same `verify.sh` gate |
 
 The practical release rule is simple: a feature can be trusted when its
@@ -4189,17 +4189,31 @@ allocations/9344 bytes on Cairo 1.18.4.
 ## Public Documentation Baseline
 
 The public-doc audit treats empty `///|` block markers as source separators,
-not documentation. It checks 525 public declarations across the 42 direct
-facade implementation files plus the re-exported Glyph owner file. The first
-documented slice covers all 82 foundational error, status, enum, format, and
-version declarations. The remaining 443 declarations are named exactly in
+not documentation. Its first implementation counted only declarations with an
+explicit `pub` modifier. Generated MBTI review exposed 11 omitted object-handle
+types: MoonBit types are abstract and externally nameable by default unless
+declared `priv`. Publication-archive review then exposed the importable
+constants and native support packages. The corrected checker covers 579 public
+declarations across the 42 direct facade implementation files plus the
+constants, Glyph, and native support owners. The docs package's `pub using`
+aliases are audited at their declaration owners; internal and test-only
+declarations are excluded.
+
+The first documented slice covers 82 foundational error, status, enum, format,
+and version declarations. The pure geometry/value slice adds all 56 Matrix,
+Path, Rectangle, TextCluster, TextExtents, TextGlyphRun, FontExtents, and Glyph
+declarations, including the previously omitted abstract `Path` type. The 42
+support constants and native link anchor add another 43 documented
+declarations. The remaining 398 declarations are named exactly in
 `scripts/public-docs-debt.txt`; that ledger may shrink but may not grow.
 
 `scripts/check-public-docs.py` fails for a new undocumented declaration, a
 missing debt entry, a stale entry after documentation is added, duplicate or
-unsorted entries, and malformed ledger lines. Eleven focused unit tests cover
-those parser and ledger invariants, raising the script suite to 74/74. The
-documentation-only host replay covers 392 source files and passes all 784
+unsorted entries, and malformed ledger lines. Thirteen focused unit tests cover
+those parser and ledger invariants, including default-abstract versus `priv`
+types and the exact published-support scope, raising the script suite to 76/76.
+The documentation-only host replay
+covers 392 source files and passes all 784
 native tests, both 1/1 downstream consumer paths, and publication-archive
 integrity for 598 members. `src/pkg.generated.mbti` remains byte-for-byte
 unchanged at SHA-256

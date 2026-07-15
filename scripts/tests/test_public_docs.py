@@ -74,6 +74,36 @@ class PublicDocsTests(unittest.TestCase):
         )
         self.assertTrue(all(item.documented for item in items))
 
+    def test_default_abstract_type_is_public_and_private_type_is_not(self) -> None:
+        items = self.parse(
+            "/// An opaque handle.\nstruct Handle(Int)\n"
+            "/// A package-private helper.\npriv struct Hidden(Int)\n"
+        )
+        self.assertEqual([item.symbol for item in items], ["Handle"])
+        self.assertTrue(items[0].documented)
+
+    def test_published_support_packages_are_audited_once(self) -> None:
+        sources = self.checker.public_sources()
+        paths = {
+            path.relative_to(self.checker.REPO_ROOT).as_posix()
+            for path in sources
+        }
+        facade_paths = {
+            path.relative_to(self.checker.REPO_ROOT).as_posix()
+            for path in self.checker.PACKAGE_ROOT.glob("*.mbt")
+        }
+        self.assertEqual(len(sources), len(paths))
+        self.assertEqual(
+            paths - facade_paths,
+            {
+                "src/core/constants/constants.mbt",
+                "src/core/glyph/glyph.mbt",
+                "src/native/native_anchor.mbt",
+            },
+        )
+        self.assertNotIn("src/docs/prelude.mbt", paths)
+        self.assertFalse(any("/internal/" in path for path in paths))
+
     def test_trait_implementations_are_not_documentation_items(self) -> None:
         items = self.parse("pub impl Eq for Value with op_equal(self, other) { true }\n")
         self.assertEqual(items, [])

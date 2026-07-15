@@ -3183,19 +3183,32 @@ allocations/9344 bytes on Cairo 1.18.4.
 ## Public Documentation Audit
 
 The 2026-07-15 audit rechecked the pinned pycairo source against upstream HEAD
-`80ea3348aff95e8441e6c3e2086371ea40528d81`; the revisions match. The public
-MoonBit facade contains 525 declarations across 43 audited files. Empty
-`///|` block markers were not counted as documentation. Foundational errors,
-statuses, enums, formats, and version declarations now provide substantive
-`///` comments, yielding an exact baseline of 82 documented declarations and
-443 grandfathered documentation-debt entries.
+`80ea3348aff95e8441e6c3e2086371ea40528d81`; the revisions match. Empty `///|`
+block markers are not documentation. The first checker version also omitted 11
+object-handle declarations without an explicit `pub` modifier. Generated MBTI
+and MoonBit's access-control contract prove those are default-abstract public
+types; only `priv` types are package-private. Publication-archive inspection
+then exposed two more downstream-importable support owners that the first gate
+did not audit: generated constants and the native-stub anchor. The corrected
+product inventory contains 579 declarations across 45 audited files. The docs
+package's `pub using` aliases are counted at their declaration owners, while
+internal and test-only declarations remain excluded.
+
+Foundational errors, statuses, enums, formats, and versions account for 82
+documented declarations. Matrix, Path, Rectangle, TextCluster, TextExtents,
+TextGlyphRun, FontExtents, and Glyph documentation adds 56, including the
+abstract `Path` type. The 42 support-package constants and one native anchor
+are now documented as well. The current exact baseline is therefore 181
+documented declarations and 398 grandfathered documentation-debt entries.
 
 `scripts/check-public-docs.py` parses the audited declaration forms and checks
 the sorted debt ledger in both directions: a new undocumented declaration,
 an undocumented declaration missing from the ledger, or a now-documented
-stale entry fails verification. Eleven focused checker tests raise the script
-unit suite to 74/74. The local release gate passes all 784 native tests, both
-checkout and extracted-package consumers pass 1/1, and the integrity-checked
+stale entry fails verification. Thirteen focused checker tests include the
+default-abstract/private distinction and the exact published-support scope,
+raising the script unit suite to 76/76.
+The local release gate passes all 784 native tests, both checkout and
+extracted-package consumers pass 1/1, and the integrity-checked
 archive contains 598 members. The public generated interface remains
 byte-for-byte unchanged at SHA-256
 `6c647f7e0c12188c36330a66681141a4449558884ce948d2c74e462a91b2f0f3`.

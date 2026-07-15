@@ -1,5 +1,6 @@
 # Exact grandfathered public declarations that still lack substantive docs.
 # Remove an entry in the same commit that documents its declaration.
+src/context.mbt	Context
 src/context.mbt	Context::equal
 src/context.mbt	Context::get_group_target
 src/context.mbt	Context::get_source
@@ -120,10 +121,7 @@ src/context_state.mbt	Context::set_miter_limit
 src/context_state.mbt	Context::set_operator
 src/context_state.mbt	Context::set_operator_raw
 src/context_state.mbt	Context::set_tolerance
-src/core/glyph/glyph.mbt	Glyph
-src/core/glyph/glyph.mbt	Glyph::components
-src/core/glyph/glyph.mbt	Glyph::new
-src/core/glyph/glyph.mbt	field_arrays
+src/device.mbt	Device
 src/device.mbt	Device::acquire
 src/device.mbt	Device::equal
 src/device.mbt	Device::finish
@@ -143,6 +141,7 @@ src/device.mbt	Device::with_finished
 src/device.mbt	Surface::script
 src/device.mbt	Surface::script_for_target
 src/device.mbt	Surface::script_raw
+src/font_face.mbt	FontFace
 src/font_face.mbt	FontFace::equal
 src/font_face.mbt	FontFace::get_family
 src/font_face.mbt	FontFace::get_slant
@@ -153,6 +152,7 @@ src/font_face.mbt	FontFace::hash
 src/font_face.mbt	FontFace::status
 src/font_face.mbt	FontFace::toy
 src/font_face.mbt	FontFace::toy_raw
+src/font_options.mbt	FontOptions
 src/font_options.mbt	FontOptions::copy
 src/font_options.mbt	FontOptions::equal
 src/font_options.mbt	FontOptions::get_antialias
@@ -185,6 +185,7 @@ src/font_options.mbt	FontOptions::set_subpixel_order
 src/font_options.mbt	FontOptions::set_subpixel_order_raw
 src/font_options.mbt	FontOptions::set_variations
 src/font_options.mbt	FontOptions::status
+src/image_data.mbt	ImageData
 src/image_data.mbt	ImageData::copy
 src/image_data.mbt	ImageData::get
 src/image_data.mbt	ImageData::length
@@ -202,6 +203,7 @@ src/image_surface.mbt	Surface::image
 src/image_surface.mbt	Surface::image_for_data
 src/image_surface.mbt	Surface::image_for_data_raw
 src/image_surface.mbt	Surface::image_raw
+src/mapped_image_surface.mbt	MappedImageSurface
 src/mapped_image_surface.mbt	MappedImageSurface::copy_data
 src/mapped_image_surface.mbt	MappedImageSurface::flush
 src/mapped_image_surface.mbt	MappedImageSurface::get_format
@@ -214,30 +216,7 @@ src/mapped_image_surface.mbt	MappedImageSurface::unmap
 src/mapped_image_surface.mbt	MappedImageSurface::with_unmapped
 src/mapped_image_surface.mbt	Surface::map_to_image
 src/mapped_image_surface.mbt	Surface::unmap_image
-src/matrix.mbt	Matrix
-src/matrix.mbt	Matrix::at
-src/matrix.mbt	Matrix::component
-src/matrix.mbt	Matrix::components
-src/matrix.mbt	Matrix::init_rotate
-src/matrix.mbt	Matrix::invert
-src/matrix.mbt	Matrix::multiply
-src/matrix.mbt	Matrix::new
-src/matrix.mbt	Matrix::rotate
-src/matrix.mbt	Matrix::scale
-src/matrix.mbt	Matrix::transform_distance
-src/matrix.mbt	Matrix::transform_point
-src/matrix.mbt	Matrix::translate
-src/path.mbt	Path::equal
-src/path.mbt	Path::hash
-src/path.mbt	Path::iter
-src/path.mbt	Path::length
-src/path.mbt	Path::segments
-src/path.mbt	Path::status
-src/path.mbt	Path::to_string
-src/path.mbt	PathSegment
-src/path.mbt	PathSegment::components
-src/path.mbt	PathSegment::coordinates
-src/path.mbt	PathSegment::data_type
+src/pattern.mbt	Pattern
 src/pattern.mbt	Pattern::equal
 src/pattern.mbt	Pattern::for_surface
 src/pattern.mbt	Pattern::get_dither
@@ -332,6 +311,7 @@ src/recording_surface.mbt	Surface::recording
 src/recording_surface.mbt	Surface::recording_get_extents
 src/recording_surface.mbt	Surface::recording_ink_extents
 src/recording_surface.mbt	Surface::recording_raw
+src/region.mbt	Region
 src/region.mbt	Region::contains_point
 src/region.mbt	Region::contains_rectangle
 src/region.mbt	Region::copy
@@ -353,6 +333,7 @@ src/region.mbt	Region::union
 src/region.mbt	Region::union_rectangle
 src/region.mbt	Region::xor
 src/region.mbt	Region::xor_rectangle
+src/scaled_font.mbt	ScaledFont
 src/scaled_font.mbt	ScaledFont::equal
 src/scaled_font.mbt	ScaledFont::extents
 src/scaled_font.mbt	ScaledFont::get_ctm
@@ -367,6 +348,7 @@ src/scaled_font.mbt	ScaledFont::status
 src/scaled_font.mbt	ScaledFont::text_extents
 src/scaled_font.mbt	ScaledFont::text_to_glyphs
 src/scaled_font.mbt	ScaledFont::text_to_glyphs_only
+src/surface.mbt	Surface
 src/surface.mbt	Surface::create_for_rectangle
 src/surface.mbt	Surface::create_similar
 src/surface.mbt	Surface::create_similar_image
@@ -416,30 +398,3 @@ src/tee_surface.mbt	Surface::tee
 src/tee_surface.mbt	Surface::tee_add
 src/tee_surface.mbt	Surface::tee_index
 src/tee_surface.mbt	Surface::tee_remove
-src/value_types.mbt	FontExtents
-src/value_types.mbt	FontExtents::component
-src/value_types.mbt	FontExtents::components
-src/value_types.mbt	FontExtents::new
-src/value_types.mbt	Glyph
-src/value_types.mbt	Rectangle
-src/value_types.mbt	Rectangle::at
-src/value_types.mbt	Rectangle::component
-src/value_types.mbt	Rectangle::components
-src/value_types.mbt	Rectangle::new
-src/value_types.mbt	RectangleInt
-src/value_types.mbt	RectangleInt::component
-src/value_types.mbt	RectangleInt::components
-src/value_types.mbt	RectangleInt::new
-src/value_types.mbt	TextCluster
-src/value_types.mbt	TextCluster::at
-src/value_types.mbt	TextCluster::component
-src/value_types.mbt	TextCluster::components
-src/value_types.mbt	TextCluster::new
-src/value_types.mbt	TextExtents
-src/value_types.mbt	TextExtents::at
-src/value_types.mbt	TextExtents::component
-src/value_types.mbt	TextExtents::components
-src/value_types.mbt	TextExtents::new
-src/value_types.mbt	TextGlyphRun
-src/value_types.mbt	TextGlyphRun::components
-src/value_types.mbt	TextGlyphRun::new

@@ -13,7 +13,11 @@ import sys
 REPO_ROOT = pathlib.Path(__file__).resolve().parents[1]
 PACKAGE_ROOT = REPO_ROOT / "src"
 DEBT_LEDGER = REPO_ROOT / "scripts" / "public-docs-debt.txt"
-REEXPORTED_SOURCES = (PACKAGE_ROOT / "core" / "glyph" / "glyph.mbt",)
+PUBLISHED_SUPPORT_SOURCES = (
+    PACKAGE_ROOT / "core" / "constants" / "constants.mbt",
+    PACKAGE_ROOT / "core" / "glyph" / "glyph.mbt",
+    PACKAGE_ROOT / "native" / "native_anchor.mbt",
+)
 
 FUNCTION_RE = re.compile(
     r"^pub\s+fn(?:\[[^]]+\])?\s+"
@@ -21,7 +25,8 @@ FUNCTION_RE = re.compile(
 )
 VALUE_RE = re.compile(r"^pub\s+(?:const|let)\s+([A-Za-z_][A-Za-z0-9_]*)\b")
 TYPE_RE = re.compile(
-    r"^pub(?:\(all\))?\s+(?:enum|struct|type|suberror|trait)\s+"
+    r"^(?:(?:pub(?:\([A-Za-z_][A-Za-z0-9_]*\))?)\s+)?"
+    r"(?:enum|struct|type|suberror|trait)\s+"
     r"([A-Za-z_][A-Za-z0-9_]*)\b"
 )
 DEBT_ENTRY_RE = re.compile(
@@ -43,7 +48,7 @@ class PublicItem:
 
 
 def public_sources() -> list[pathlib.Path]:
-    return sorted(PACKAGE_ROOT.glob("*.mbt")) + list(REEXPORTED_SOURCES)
+    return sorted([*PACKAGE_ROOT.glob("*.mbt"), *PUBLISHED_SUPPORT_SOURCES])
 
 
 def declaration_symbol(line: str) -> str | None:

@@ -1,4 +1,9 @@
 ///|
+/// A pure affine transformation in Cairo component order.
+///
+/// Points are transformed as `x' = xx*x + xy*y + x0` and
+/// `y' = yx*x + yy*y + y0`. All transformation methods return new values;
+/// they never mutate the receiver as pycairo's corresponding methods do.
 pub struct Matrix {
   xx : Double
   yx : Double
@@ -9,6 +14,9 @@ pub struct Matrix {
 } derive(Eq, Debug)
 
 ///|
+/// Construct a matrix from `(xx, yx, xy, yy, x0, y0)` components.
+///
+/// Omitted components produce the identity matrix.
 pub fn Matrix::new(
   xx? : Double = 1.0,
   yx? : Double = 0.0,
@@ -21,6 +29,10 @@ pub fn Matrix::new(
 }
 
 ///|
+/// Construct a rotation by `radians` around the origin.
+///
+/// Positive angles rotate from the positive X axis toward positive Y, which
+/// appears clockwise with Cairo's default downward-pointing Y axis.
 pub fn Matrix::init_rotate(radians : Double) -> Matrix {
   let s = @math.sin(radians)
   let c = @math.cos(radians)
@@ -28,6 +40,7 @@ pub fn Matrix::init_rotate(radians : Double) -> Matrix {
 }
 
 ///|
+/// Return `(xx, yx, xy, yy, x0, y0)`.
 pub fn Matrix::components(
   self : Matrix,
 ) -> (Double, Double, Double, Double, Double, Double) {
@@ -35,6 +48,9 @@ pub fn Matrix::components(
 }
 
 ///|
+/// Return the component at index `0..5` in Cairo/pycairo order.
+///
+/// Raises `CairoInvalidArgument(InvalidIndex, _)` for any other index.
 pub fn Matrix::component(self : Matrix, index : Int) -> Double raise CairoError {
   match index {
     0 => self.xx
@@ -48,12 +64,18 @@ pub fn Matrix::component(self : Matrix, index : Int) -> Double raise CairoError 
 }
 
 ///|
+/// Index the `(xx, yx, xy, yy, x0, y0)` component sequence.
+///
+/// Raises `CairoInvalidArgument(InvalidIndex, _)` outside `0..5`.
 #alias("_[_]")
 pub fn Matrix::at(self : Matrix, index : Int) -> Double raise CairoError {
   self.component(index)
 }
 
 ///|
+/// Return a transform that first translates by `(tx, ty)`, then applies `self`.
+///
+/// The receiver is unchanged.
 pub fn Matrix::translate(self : Matrix, tx : Double, ty : Double) -> Matrix {
   {
     xx: self.xx,
@@ -66,11 +88,17 @@ pub fn Matrix::translate(self : Matrix, tx : Double, ty : Double) -> Matrix {
 }
 
 ///|
+/// Return a transform that first rotates by `radians`, then applies `self`.
+///
+/// The receiver is unchanged.
 pub fn Matrix::rotate(self : Matrix, radians : Double) -> Matrix {
   Matrix::init_rotate(radians).multiply(self)
 }
 
 ///|
+/// Return a transform that first scales by `(sx, sy)`, then applies `self`.
+///
+/// The receiver is unchanged.
 pub fn Matrix::scale(self : Matrix, sx : Double, sy : Double) -> Matrix {
   {
     xx: self.xx * sx,
@@ -83,6 +111,10 @@ pub fn Matrix::scale(self : Matrix, sx : Double, sy : Double) -> Matrix {
 }
 
 ///|
+/// Return the inverse affine transformation without changing `self`.
+///
+/// Raises `CairoInvalidArgument(InvalidMatrix, _)` when the matrix is
+/// degenerate and has no inverse.
 pub fn Matrix::invert(self : Matrix) -> Matrix raise CairoError {
   let det = self.xx * self.yy - self.yx * self.xy
   if det == 0.0 {
@@ -99,6 +131,9 @@ pub fn Matrix::invert(self : Matrix) -> Matrix raise CairoError {
 }
 
 ///|
+/// Compose `self` with `other`, applying `self` to coordinates first.
+///
+/// The `*` operator delegates to this method. Neither operand is mutated.
 pub fn Matrix::multiply(self : Matrix, other : Matrix) -> Matrix {
   {
     xx: self.xx * other.xx + self.yx * other.xy,
@@ -116,6 +151,7 @@ pub impl Mul for Matrix with fn mul(self, other) {
 }
 
 ///|
+/// Transform a point, including the matrix's translation components.
 pub fn Matrix::transform_point(
   self : Matrix,
   x : Double,
@@ -125,6 +161,7 @@ pub fn Matrix::transform_point(
 }
 
 ///|
+/// Transform a distance vector while ignoring translation.
 pub fn Matrix::transform_distance(
   self : Matrix,
   dx : Double,

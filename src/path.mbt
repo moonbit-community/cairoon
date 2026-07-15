@@ -1,4 +1,9 @@
 ///|
+/// A typed element of an owned Cairo path snapshot.
+///
+/// Move and line elements store their endpoint. Curve elements store the
+/// first control point, second control point, and endpoint in that order.
+/// Coordinates use the user space in effect when the path was copied.
 pub(all) enum PathSegment {
   PathSegmentMoveTo(Double, Double)
   PathSegmentLineTo(Double, Double)
@@ -7,6 +12,7 @@ pub(all) enum PathSegment {
 } derive(Eq, Debug)
 
 ///|
+/// Return the Cairo path-data discriminator for this segment.
 pub fn PathSegment::data_type(self : PathSegment) -> PathDataType {
   match self {
     PathSegmentMoveTo(_, _) => PathMoveTo
@@ -17,6 +23,10 @@ pub fn PathSegment::data_type(self : PathSegment) -> PathDataType {
 }
 
 ///|
+/// Return this segment's coordinates in Cairo order.
+///
+/// The new array contains two values for move/line, six for curve, and none
+/// for close-path.
 pub fn PathSegment::coordinates(self : PathSegment) -> Array[Double] {
   match self {
     PathSegmentMoveTo(x, y) | PathSegmentLineTo(x, y) => [x, y]
@@ -26,6 +36,7 @@ pub fn PathSegment::coordinates(self : PathSegment) -> Array[Double] {
 }
 
 ///|
+/// Return the segment discriminator and a newly allocated coordinate array.
 pub fn PathSegment::components(
   self : PathSegment,
 ) -> (PathDataType, Array[Double]) {
@@ -33,6 +44,11 @@ pub fn PathSegment::components(
 }
 
 ///|
+/// An owned, opaque snapshot of Cairo path data.
+///
+/// Paths come from `Context::copy_path`, `Context::copy_path_flat`, or another
+/// Cairo producer and cannot be directly constructed. A path remains valid
+/// independently of the context or pattern that produced it.
 struct Path(@path_impl.RawPath)
 
 ///|
@@ -73,16 +89,23 @@ fn path_data_type_from_raw(raw : Int) -> PathDataType raise CairoError {
 }
 
 ///|
+/// Return the status stored in this path without raising it.
 pub fn Path::status(self : Path) -> Status {
   path_status_from_raw(@path_impl.status_raw(self.to_raw()))
 }
 
 ///|
+/// Test whether two wrappers own the same Cairo path allocation.
+///
+/// This is identity equality, not geometric or segment-content equality.
 pub fn Path::equal(self : Path, other : Path) -> Bool {
   @path_impl.equal_raw(self.to_raw(), other.to_raw())
 }
 
 ///|
+/// Return an identity hash for the underlying Cairo path allocation.
+///
+/// The value is process-local and must not be persisted.
 pub fn Path::hash(self : Path) -> UInt64 {
   @path_impl.hash_raw(self.to_raw())
 }
@@ -108,6 +131,10 @@ pub impl Hash for Path with fn hash_combine(self, hasher) {
 }
 
 ///|
+/// Return the number of independent path segments.
+///
+/// Cairo may insert an explicit move segment after close-path; it counts as a
+/// segment. Raises the path's checked `CairoError` status if it is invalid.
 pub fn Path::length(self : Path) -> Int raise CairoError {
   let status = Ref(0)
   let count = @path_impl.num_segments_raw(self.to_raw(), status)
@@ -116,6 +143,9 @@ pub fn Path::length(self : Path) -> Int raise CairoError {
 }
 
 ///|
+/// Copy all path data into typed MoonBit segments.
+///
+/// Raises the path's checked `CairoError` status for invalid path data.
 pub fn Path::segments(self : Path) -> Array[PathSegment] raise CairoError {
   let status = Ref(0)
   let data_count = @path_impl.num_data_raw(self.to_raw(), status)
@@ -161,11 +191,19 @@ pub fn Path::segments(self : Path) -> Array[PathSegment] raise CairoError {
 }
 
 ///|
+/// Return an iterator over a copied, validated segment snapshot.
+///
+/// Constructing the iterator materializes the complete `segments()` array and
+/// can raise the same checked errors.
 pub fn Path::iter(self : Path) -> Iter[PathSegment] raise CairoError {
   self.segments().iter()
 }
 
 ///|
+/// Format segments in pycairo's newline-separated debug representation.
+///
+/// This representation is for diagnostics, not stable serialization. Raises
+/// the path's checked `CairoError` status for invalid data or allocation errors.
 pub fn Path::to_string(self : Path) -> String raise CairoError {
   let status = Ref(0)
   let bytes = @path_impl.to_string_raw(self.to_raw(), status)
