@@ -1,0 +1,225 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "CAIMEOX/cairoon/internal/context"
+
+import {
+  "CAIMEOX/cairoon/internal/font_face",
+  "CAIMEOX/cairoon/internal/font_options",
+  "CAIMEOX/cairoon/internal/path",
+  "CAIMEOX/cairoon/internal/pattern",
+  "CAIMEOX/cairoon/internal/scaled_font",
+  "moonbitlang/core/ref",
+}
+
+// Values
+pub fn append_path_raw(RawContext, @path.RawPath) -> Int
+
+pub fn arc_negative_raw(RawContext, Double, Double, Double, Double, Double) -> Int
+
+pub fn arc_raw(RawContext, Double, Double, Double, Double, Double) -> Int
+
+pub fn clip_extents_raw(RawContext, @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double]) -> Int
+
+pub fn clip_preserve_raw(RawContext) -> Int
+
+pub fn clip_raw(RawContext) -> Int
+
+pub fn close_path_raw(RawContext) -> Int
+
+pub fn copy_clip_rectangle_list_raw(RawContext, @ref.Ref[Int]) -> FixedArray[Double]
+
+pub fn copy_page_raw(RawContext) -> Int
+
+pub fn copy_path_flat_raw(RawContext, @ref.Ref[Int]) -> @path.RawPath
+
+pub fn copy_path_raw(RawContext, @ref.Ref[Int]) -> @path.RawPath
+
+pub fn curve_to_raw(RawContext, Double, Double, Double, Double, Double, Double) -> Int
+
+pub fn device_to_user_distance_raw(RawContext, Double, Double, @ref.Ref[Double], @ref.Ref[Double]) -> Int
+
+pub fn device_to_user_raw(RawContext, Double, Double, @ref.Ref[Double], @ref.Ref[Double]) -> Int
+
+pub fn equal_raw(RawContext, RawContext) -> Bool
+
+pub fn fill_extents_raw(RawContext, @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double]) -> Int
+
+pub fn fill_preserve_raw(RawContext) -> Int
+
+pub fn fill_raw(RawContext) -> Int
+
+pub fn font_extents_raw(RawContext, @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double]) -> Int
+
+pub fn get_antialias_raw(RawContext) -> Int
+
+pub fn get_current_point_raw(RawContext, @ref.Ref[Double], @ref.Ref[Double]) -> Int
+
+pub fn get_dash_count_raw(RawContext) -> Int
+
+pub fn get_dash_raw(RawContext, @ref.Ref[Double]) -> FixedArray[Double]
+
+pub fn get_fill_rule_raw(RawContext) -> Int
+
+pub fn get_font_face_raw(RawContext, @ref.Ref[Int]) -> @font_face.RawFontFace
+
+pub fn get_font_matrix_raw(RawContext, @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double]) -> Int
+
+pub fn get_font_options_raw(RawContext, @ref.Ref[Int]) -> @font_options.RawFontOptions
+
+pub fn get_hairline_raw(RawContext, @ref.Ref[Int]) -> Bool
+
+pub fn get_line_cap_raw(RawContext) -> Int
+
+pub fn get_line_join_raw(RawContext) -> Int
+
+pub fn get_line_width_raw(RawContext) -> Double
+
+pub fn get_matrix_raw(RawContext, @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double]) -> Int
+
+pub fn get_miter_limit_raw(RawContext) -> Double
+
+pub fn get_operator_raw(RawContext) -> Int
+
+pub fn get_scaled_font_raw(RawContext, @ref.Ref[Int]) -> @scaled_font.RawScaledFont
+
+pub fn get_source_raw(RawContext, @ref.Ref[Int]) -> @pattern.RawPattern
+
+pub fn get_tolerance_raw(RawContext) -> Double
+
+pub fn glyph_extents_raw(RawContext, FixedArray[UInt64], FixedArray[Double], FixedArray[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double]) -> Int
+
+pub fn glyph_path_raw(RawContext, FixedArray[UInt64], FixedArray[Double], FixedArray[Double]) -> Int
+
+pub fn has_current_point_raw(RawContext, @ref.Ref[Int]) -> Int
+
+pub fn hash_raw(RawContext) -> UInt64
+
+pub fn identity_matrix_raw(RawContext) -> Int
+
+pub fn in_clip_raw(RawContext, Double, Double, @ref.Ref[Int]) -> Int
+
+pub fn in_fill_raw(RawContext, Double, Double, @ref.Ref[Int]) -> Int
+
+pub fn in_stroke_raw(RawContext, Double, Double, @ref.Ref[Int]) -> Int
+
+pub fn line_to_raw(RawContext, Double, Double) -> Int
+
+pub fn mask_raw(RawContext, @pattern.RawPattern) -> Int
+
+pub fn move_to_raw(RawContext, Double, Double) -> Int
+
+pub fn new_path_raw(RawContext) -> Int
+
+pub fn new_sub_path_raw(RawContext) -> Int
+
+pub fn paint_raw(RawContext) -> Int
+
+pub fn paint_with_alpha_raw(RawContext, Double) -> Int
+
+pub fn path_extents_raw(RawContext, @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double]) -> Int
+
+pub fn pop_group_raw(RawContext, @ref.Ref[Int]) -> @pattern.RawPattern
+
+pub fn pop_group_to_source_raw(RawContext) -> Int
+
+pub fn push_group_raw(RawContext) -> Int
+
+pub fn push_group_with_content_raw(RawContext, Int) -> Int
+
+pub fn rectangle_raw(RawContext, Double, Double, Double, Double) -> Int
+
+pub fn rel_curve_to_raw(RawContext, Double, Double, Double, Double, Double, Double) -> Int
+
+pub fn rel_line_to_raw(RawContext, Double, Double) -> Int
+
+pub fn rel_move_to_raw(RawContext, Double, Double) -> Int
+
+pub fn reset_clip_raw(RawContext) -> Int
+
+pub fn restore_raw(RawContext) -> Int
+
+pub fn rotate_raw(RawContext, Double) -> Int
+
+pub fn save_raw(RawContext) -> Int
+
+pub fn scale_raw(RawContext, Double, Double) -> Int
+
+pub fn select_font_face_raw(RawContext, Bytes, Int, Int) -> Int
+
+pub fn set_antialias_raw(RawContext, Int) -> Int
+
+pub fn set_dash_raw(RawContext, FixedArray[Double], Double) -> Int
+
+pub fn set_fill_rule_raw(RawContext, Int) -> Int
+
+pub fn set_font_face_default_raw(RawContext) -> Int
+
+pub fn set_font_face_raw(RawContext, @font_face.RawFontFace) -> Int
+
+pub fn set_font_matrix_raw(RawContext, Double, Double, Double, Double, Double, Double) -> Int
+
+pub fn set_font_options_raw(RawContext, @font_options.RawFontOptions) -> Int
+
+pub fn set_font_size_raw(RawContext, Double) -> Int
+
+pub fn set_hairline_raw(RawContext, Bool) -> Int
+
+pub fn set_line_cap_raw(RawContext, Int) -> Int
+
+pub fn set_line_join_raw(RawContext, Int) -> Int
+
+pub fn set_line_width_raw(RawContext, Double) -> Int
+
+pub fn set_matrix_raw(RawContext, Double, Double, Double, Double, Double, Double) -> Int
+
+pub fn set_miter_limit_raw(RawContext, Double) -> Int
+
+pub fn set_operator_raw(RawContext, Int) -> Int
+
+pub fn set_scaled_font_raw(RawContext, @scaled_font.RawScaledFont) -> Int
+
+pub fn set_source_raw(RawContext, @pattern.RawPattern) -> Int
+
+pub fn set_source_rgb_raw(RawContext, Double, Double, Double) -> Int
+
+pub fn set_source_rgba_raw(RawContext, Double, Double, Double, Double) -> Int
+
+pub fn set_tolerance_raw(RawContext, Double) -> Int
+
+pub fn show_glyphs_raw(RawContext, FixedArray[UInt64], FixedArray[Double], FixedArray[Double]) -> Int
+
+pub fn show_page_raw(RawContext) -> Int
+
+pub fn show_text_raw(RawContext, Bytes) -> Int
+
+pub fn status_raw(RawContext) -> Int
+
+pub fn stroke_extents_raw(RawContext, @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double]) -> Int
+
+pub fn stroke_preserve_raw(RawContext) -> Int
+
+pub fn stroke_raw(RawContext) -> Int
+
+pub fn tag_begin_raw(RawContext, Bytes, Bytes) -> Int
+
+pub fn tag_end_raw(RawContext, Bytes) -> Int
+
+pub fn text_extents_raw(RawContext, Bytes, @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double]) -> Int
+
+pub fn text_path_raw(RawContext, Bytes) -> Int
+
+pub fn transform_raw(RawContext, Double, Double, Double, Double, Double, Double) -> Int
+
+pub fn translate_raw(RawContext, Double, Double) -> Int
+
+pub fn user_to_device_distance_raw(RawContext, Double, Double, @ref.Ref[Double], @ref.Ref[Double]) -> Int
+
+pub fn user_to_device_raw(RawContext, Double, Double, @ref.Ref[Double], @ref.Ref[Double]) -> Int
+
+// Errors
+
+// Types and methods
+type RawContext
+
+// Type aliases
+
+// Traits

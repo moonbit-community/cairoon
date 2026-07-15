@@ -3,13 +3,15 @@ pub fn Context::set_line_width(
   self : Context,
   width : Double,
 ) -> Unit raise CairoError {
-  check_status(context_set_line_width_ffi(self, width))
+  check_context_status_raw(
+    @context_impl.set_line_width_raw(self.to_raw(), width),
+  )
 }
 
 ///|
 pub fn Context::get_line_width(self : Context) -> Double raise CairoError {
-  check_status(context_status_ffi(self))
-  context_get_line_width_ffi(self)
+  check_context_status_raw(@context_impl.status_raw(self.to_raw()))
+  @context_impl.get_line_width_raw(self.to_raw())
 }
 
 ///|
@@ -17,14 +19,16 @@ pub fn Context::set_hairline(
   self : Context,
   set_hairline : Bool,
 ) -> Unit raise CairoError {
-  check_status(context_set_hairline_ffi(self, set_hairline))
+  check_context_status_raw(
+    @context_impl.set_hairline_raw(self.to_raw(), set_hairline),
+  )
 }
 
 ///|
 pub fn Context::get_hairline(self : Context) -> Bool raise CairoError {
-  let status = Ref(Success)
-  let hairline = context_get_hairline_ffi(self, status)
-  check_status(status.val)
+  let status = Ref(0)
+  let hairline = @context_impl.get_hairline_raw(self.to_raw(), status)
+  check_context_status_raw(status.val)
   hairline
 }
 
@@ -47,7 +51,7 @@ pub fn Context::set_line_cap(
   self : Context,
   cap : LineCap,
 ) -> Unit raise CairoError {
-  check_status(context_set_line_cap_ffi(self, cap))
+  check_status(context_set_line_cap_ffi(self.to_raw(), cap))
 }
 
 ///|
@@ -60,13 +64,13 @@ pub fn Context::set_line_cap_raw(
   self : Context,
   cap : Int,
 ) -> Unit raise CairoError {
-  check_status(context_set_line_cap_raw_ffi(self, cap))
+  check_context_status_raw(@context_impl.set_line_cap_raw(self.to_raw(), cap))
 }
 
 ///|
 pub fn Context::get_line_cap_raw(self : Context) -> Int raise CairoError {
-  check_status(context_status_ffi(self))
-  context_get_line_cap_raw_ffi(self)
+  check_context_status_raw(@context_impl.status_raw(self.to_raw()))
+  @context_impl.get_line_cap_raw(self.to_raw())
 }
 
 ///|
@@ -88,7 +92,7 @@ pub fn Context::set_line_join(
   self : Context,
   join : LineJoin,
 ) -> Unit raise CairoError {
-  check_status(context_set_line_join_ffi(self, join))
+  check_status(context_set_line_join_ffi(self.to_raw(), join))
 }
 
 ///|
@@ -101,13 +105,13 @@ pub fn Context::set_line_join_raw(
   self : Context,
   join : Int,
 ) -> Unit raise CairoError {
-  check_status(context_set_line_join_raw_ffi(self, join))
+  check_context_status_raw(@context_impl.set_line_join_raw(self.to_raw(), join))
 }
 
 ///|
 pub fn Context::get_line_join_raw(self : Context) -> Int raise CairoError {
-  check_status(context_status_ffi(self))
-  context_get_line_join_raw_ffi(self)
+  check_context_status_raw(@context_impl.status_raw(self.to_raw()))
+  @context_impl.get_line_join_raw(self.to_raw())
 }
 
 ///|
@@ -128,7 +132,7 @@ pub fn Context::set_fill_rule(
   self : Context,
   fill_rule : FillRule,
 ) -> Unit raise CairoError {
-  check_status(context_set_fill_rule_ffi(self, fill_rule))
+  check_status(context_set_fill_rule_ffi(self.to_raw(), fill_rule))
 }
 
 ///|
@@ -141,13 +145,15 @@ pub fn Context::set_fill_rule_raw(
   self : Context,
   fill_rule : Int,
 ) -> Unit raise CairoError {
-  check_status(context_set_fill_rule_raw_ffi(self, fill_rule))
+  check_context_status_raw(
+    @context_impl.set_fill_rule_raw(self.to_raw(), fill_rule),
+  )
 }
 
 ///|
 pub fn Context::get_fill_rule_raw(self : Context) -> Int raise CairoError {
-  check_status(context_status_ffi(self))
-  context_get_fill_rule_raw_ffi(self)
+  check_context_status_raw(@context_impl.status_raw(self.to_raw()))
+  @context_impl.get_fill_rule_raw(self.to_raw())
 }
 
 ///|
@@ -155,7 +161,7 @@ pub fn Context::set_operator(
   self : Context,
   operator : Operator,
 ) -> Unit raise CairoError {
-  check_status(context_set_operator_ffi(self, operator))
+  check_status(context_set_operator_ffi(self.to_raw(), operator))
 }
 
 ///|
@@ -208,13 +214,15 @@ pub fn Context::set_operator_raw(
   self : Context,
   operator : Int,
 ) -> Unit raise CairoError {
-  check_status(context_set_operator_raw_ffi(self, operator))
+  check_context_status_raw(
+    @context_impl.set_operator_raw(self.to_raw(), operator),
+  )
 }
 
 ///|
 pub fn Context::get_operator_raw(self : Context) -> Int raise CairoError {
-  check_status(context_status_ffi(self))
-  context_get_operator_raw_ffi(self)
+  check_context_status_raw(@context_impl.status_raw(self.to_raw()))
+  @context_impl.get_operator_raw(self.to_raw())
 }
 
 ///|
@@ -222,7 +230,7 @@ pub fn Context::set_antialias(
   self : Context,
   antialias : Antialias,
 ) -> Unit raise CairoError {
-  check_status(context_set_antialias_ffi(self, antialias))
+  check_status(context_set_antialias_ffi(self.to_raw(), antialias))
 }
 
 ///|
@@ -253,13 +261,15 @@ pub fn Context::set_antialias_raw(
   self : Context,
   antialias : Int,
 ) -> Unit raise CairoError {
-  check_status(context_set_antialias_raw_ffi(self, antialias))
+  check_context_status_raw(
+    @context_impl.set_antialias_raw(self.to_raw(), antialias),
+  )
 }
 
 ///|
 pub fn Context::get_antialias_raw(self : Context) -> Int raise CairoError {
-  check_status(context_status_ffi(self))
-  context_get_antialias_raw_ffi(self)
+  check_context_status_raw(@context_impl.status_raw(self.to_raw()))
+  @context_impl.get_antialias_raw(self.to_raw())
 }
 
 ///|
@@ -267,13 +277,15 @@ pub fn Context::set_tolerance(
   self : Context,
   tolerance : Double,
 ) -> Unit raise CairoError {
-  check_status(context_set_tolerance_ffi(self, tolerance))
+  check_context_status_raw(
+    @context_impl.set_tolerance_raw(self.to_raw(), tolerance),
+  )
 }
 
 ///|
 pub fn Context::get_tolerance(self : Context) -> Double raise CairoError {
-  check_status(context_status_ffi(self))
-  context_get_tolerance_ffi(self)
+  check_context_status_raw(@context_impl.status_raw(self.to_raw()))
+  @context_impl.get_tolerance_raw(self.to_raw())
 }
 
 ///|
@@ -281,13 +293,15 @@ pub fn Context::set_miter_limit(
   self : Context,
   limit : Double,
 ) -> Unit raise CairoError {
-  check_status(context_set_miter_limit_ffi(self, limit))
+  check_context_status_raw(
+    @context_impl.set_miter_limit_raw(self.to_raw(), limit),
+  )
 }
 
 ///|
 pub fn Context::get_miter_limit(self : Context) -> Double raise CairoError {
-  check_status(context_status_ffi(self))
-  context_get_miter_limit_ffi(self)
+  check_context_status_raw(@context_impl.status_raw(self.to_raw()))
+  @context_impl.get_miter_limit_raw(self.to_raw())
 }
 
 ///|
@@ -296,26 +310,28 @@ pub fn Context::set_dash(
   dashes : ArrayView[Double],
   offset? : Double = 0.0,
 ) -> Unit raise CairoError {
-  check_status(
-    context_set_dash_ffi(self, FixedArray::from_array(dashes), offset),
+  check_context_status_raw(
+    @context_impl.set_dash_raw(
+      self.to_raw(),
+      FixedArray::from_array(dashes),
+      offset,
+    ),
   )
 }
 
 ///|
 pub fn Context::get_dash_count(self : Context) -> Int raise CairoError {
-  check_status(context_status_ffi(self))
-  context_get_dash_count_ffi(self)
+  check_context_status_raw(@context_impl.status_raw(self.to_raw()))
+  @context_impl.get_dash_count_raw(self.to_raw())
 }
 
 ///|
 pub fn Context::get_dash(
   self : Context,
 ) -> (Array[Double], Double) raise CairoError {
-  check_status(context_status_ffi(self))
+  check_context_status_raw(@context_impl.status_raw(self.to_raw()))
   let offset = Ref(0.0)
-  let dashes = context_get_dash_ffi(self, offset)
-  check_status(context_status_ffi(self))
+  let dashes = @context_impl.get_dash_raw(self.to_raw(), offset)
+  check_context_status_raw(@context_impl.status_raw(self.to_raw()))
   (dashes.iter().collect(), offset.val)
 }
-
-///|

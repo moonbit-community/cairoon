@@ -4,7 +4,7 @@ pub fn Context::scale(
   sx : Double,
   sy : Double,
 ) -> Unit raise CairoError {
-  check_status(context_scale_ffi(self, sx, sy))
+  check_context_status_raw(@context_impl.scale_raw(self.to_raw(), sx, sy))
 }
 
 ///|
@@ -13,7 +13,7 @@ pub fn Context::translate(
   tx : Double,
   ty : Double,
 ) -> Unit raise CairoError {
-  check_status(context_translate_ffi(self, tx, ty))
+  check_context_status_raw(@context_impl.translate_raw(self.to_raw(), tx, ty))
 }
 
 ///|
@@ -21,7 +21,7 @@ pub fn Context::rotate(
   self : Context,
   radians : Double,
 ) -> Unit raise CairoError {
-  check_status(context_rotate_ffi(self, radians))
+  check_context_status_raw(@context_impl.rotate_raw(self.to_raw(), radians))
 }
 
 ///|
@@ -29,9 +29,9 @@ pub fn Context::transform(
   self : Context,
   matrix : Matrix,
 ) -> Unit raise CairoError {
-  check_status(
-    context_transform_ffi(
-      self,
+  check_context_status_raw(
+    @context_impl.transform_raw(
+      self.to_raw(),
       matrix.xx,
       matrix.yx,
       matrix.xy,
@@ -47,9 +47,9 @@ pub fn Context::set_matrix(
   self : Context,
   matrix : Matrix,
 ) -> Unit raise CairoError {
-  check_status(
-    context_set_matrix_ffi(
-      self,
+  check_context_status_raw(
+    @context_impl.set_matrix_raw(
+      self.to_raw(),
       matrix.xx,
       matrix.yx,
       matrix.xy,
@@ -69,7 +69,7 @@ fn matrix_from_context_output(
     Ref[Double],
     Ref[Double],
     Ref[Double],
-  ) -> Status,
+  ) -> Int,
 ) -> Matrix raise CairoError {
   let xx = Ref(0.0)
   let yx = Ref(0.0)
@@ -77,29 +77,29 @@ fn matrix_from_context_output(
   let yy = Ref(0.0)
   let x0 = Ref(0.0)
   let y0 = Ref(0.0)
-  check_status(f(xx, yx, xy, yy, x0, y0))
+  check_context_status_raw(f(xx, yx, xy, yy, x0, y0))
   Matrix::new(xx=xx.val, yx=yx.val, xy=xy.val, yy=yy.val, x0=x0.val, y0=y0.val)
 }
 
 ///|
 pub fn Context::get_matrix(self : Context) -> Matrix raise CairoError {
   matrix_from_context_output((xx, yx, xy, yy, x0, y0) => {
-    context_get_matrix_ffi(self, xx, yx, xy, yy, x0, y0)
+    @context_impl.get_matrix_raw(self.to_raw(), xx, yx, xy, yy, x0, y0)
   })
 }
 
 ///|
 pub fn Context::identity_matrix(self : Context) -> Unit raise CairoError {
-  check_status(context_identity_matrix_ffi(self))
+  check_context_status_raw(@context_impl.identity_matrix_raw(self.to_raw()))
 }
 
 ///|
 fn point_from_context_output(
-  f : (Ref[Double], Ref[Double]) -> Status,
+  f : (Ref[Double], Ref[Double]) -> Int,
 ) -> (Double, Double) raise CairoError {
   let x = Ref(0.0)
   let y = Ref(0.0)
-  check_status(f(x, y))
+  check_context_status_raw(f(x, y))
   (x.val, y.val)
 }
 
@@ -110,7 +110,7 @@ pub fn Context::user_to_device(
   y : Double,
 ) -> (Double, Double) raise CairoError {
   point_from_context_output((out_x, out_y) => {
-    context_user_to_device_ffi(self, x, y, out_x, out_y)
+    @context_impl.user_to_device_raw(self.to_raw(), x, y, out_x, out_y)
   })
 }
 
@@ -121,7 +121,13 @@ pub fn Context::user_to_device_distance(
   dy : Double,
 ) -> (Double, Double) raise CairoError {
   point_from_context_output((out_dx, out_dy) => {
-    context_user_to_device_distance_ffi(self, dx, dy, out_dx, out_dy)
+    @context_impl.user_to_device_distance_raw(
+      self.to_raw(),
+      dx,
+      dy,
+      out_dx,
+      out_dy,
+    )
   })
 }
 
@@ -132,7 +138,7 @@ pub fn Context::device_to_user(
   y : Double,
 ) -> (Double, Double) raise CairoError {
   point_from_context_output((out_x, out_y) => {
-    context_device_to_user_ffi(self, x, y, out_x, out_y)
+    @context_impl.device_to_user_raw(self.to_raw(), x, y, out_x, out_y)
   })
 }
 
@@ -143,8 +149,12 @@ pub fn Context::device_to_user_distance(
   dy : Double,
 ) -> (Double, Double) raise CairoError {
   point_from_context_output((out_dx, out_dy) => {
-    context_device_to_user_distance_ffi(self, dx, dy, out_dx, out_dy)
+    @context_impl.device_to_user_distance_raw(
+      self.to_raw(),
+      dx,
+      dy,
+      out_dx,
+      out_dy,
+    )
   })
 }
-
-///|

@@ -1,8 +1,33 @@
 ///|
+struct Context(@context_impl.RawContext)
+
+///|
+fn Context::from_raw(raw : @context_impl.RawContext) -> Context {
+  Context(raw)
+}
+
+///|
+fn Context::to_raw(self : Context) -> @context_impl.RawContext {
+  self.0
+}
+
+///|
+fn context_status_from_raw(raw : Int) -> Status {
+  status_from_raw(raw) catch {
+    _ => InvalidStatus
+  }
+}
+
+///|
+fn check_context_status_raw(raw : Int) -> Unit raise CairoError {
+  check_status(status_from_raw(raw))
+}
+
+///|
 pub fn Context::new(target : Surface) -> Context raise CairoError {
-  let ctx = context_create_ffi(target)
-  check_status(context_status_ffi(ctx))
-  ctx
+  let raw = context_create_ffi(target)
+  check_context_status_raw(@context_impl.status_raw(raw))
+  Context::from_raw(raw)
 }
 
 ///|
@@ -10,25 +35,25 @@ pub fn Context::new_for_mapped_image(
   target : MappedImageSurface,
 ) -> Context raise CairoError {
   let status = Ref(Success)
-  let ctx = context_create_for_mapped_image_ffi(target, status)
+  let raw = context_create_for_mapped_image_ffi(target, status)
   check_status(status.val)
-  check_status(context_status_ffi(ctx))
-  ctx
+  check_context_status_raw(@context_impl.status_raw(raw))
+  Context::from_raw(raw)
 }
 
 ///|
 pub fn Context::status(self : Context) -> Status {
-  context_status_ffi(self)
+  context_status_from_raw(@context_impl.status_raw(self.to_raw()))
 }
 
 ///|
 pub fn Context::equal(self : Context, other : Context) -> Bool {
-  context_equal_ffi(self, other)
+  @context_impl.equal_raw(self.to_raw(), other.to_raw())
 }
 
 ///|
 pub fn Context::hash(self : Context) -> UInt64 {
-  context_hash_ffi(self)
+  @context_impl.hash_raw(self.to_raw())
 }
 
 ///|
@@ -48,12 +73,12 @@ pub impl Hash for Context with fn hash_combine(self, hasher) {
 
 ///|
 pub fn Context::save(self : Context) -> Unit raise CairoError {
-  check_status(context_save_ffi(self))
+  check_context_status_raw(@context_impl.save_raw(self.to_raw()))
 }
 
 ///|
 pub fn Context::restore(self : Context) -> Unit raise CairoError {
-  check_status(context_restore_ffi(self))
+  check_context_status_raw(@context_impl.restore_raw(self.to_raw()))
 }
 
 ///|
@@ -62,9 +87,9 @@ pub fn Context::tag_begin(
   tag_name : String,
   attributes : String,
 ) -> Unit raise CairoError {
-  check_status(
-    context_tag_begin_ffi(
-      self,
+  check_context_status_raw(
+    @context_impl.tag_begin_raw(
+      self.to_raw(),
       checked_c_string_bytes(tag_name),
       checked_c_string_bytes(attributes),
     ),
@@ -76,36 +101,38 @@ pub fn Context::tag_end(
   self : Context,
   tag_name : String,
 ) -> Unit raise CairoError {
-  check_status(context_tag_end_ffi(self, checked_c_string_bytes(tag_name)))
+  check_context_status_raw(
+    @context_impl.tag_end_raw(self.to_raw(), checked_c_string_bytes(tag_name)),
+  )
 }
 
 ///|
 pub fn Context::get_target(self : Context) -> Surface raise CairoError {
   let status = Ref(Success)
-  let surface = context_get_target_ffi(self, status)
+  let surface = context_get_target_ffi(self.to_raw(), status)
   check_status(status.val)
   surface
 }
 
 ///|
 pub fn Context::get_source(self : Context) -> Pattern raise CairoError {
-  let status = Ref(Success)
-  let raw = context_get_source_ffi(self, status)
-  check_status(status.val)
+  let status = Ref(0)
+  let raw = @context_impl.get_source_raw(self.to_raw(), status)
+  check_context_status_raw(status.val)
   Pattern::from_raw(raw)
 }
 
 ///|
 pub fn Context::get_group_target(self : Context) -> Surface raise CairoError {
   let status = Ref(Success)
-  let surface = context_get_group_target_ffi(self, status)
+  let surface = context_get_group_target_ffi(self.to_raw(), status)
   check_status(status.val)
   surface
 }
 
 ///|
 pub fn Context::push_group(self : Context) -> Unit raise CairoError {
-  check_status(context_push_group_ffi(self))
+  check_context_status_raw(@context_impl.push_group_raw(self.to_raw()))
 }
 
 ///|
@@ -113,7 +140,7 @@ pub fn Context::push_group_with_content(
   self : Context,
   content : Content,
 ) -> Unit raise CairoError {
-  check_status(context_push_group_with_content_ffi(self, content))
+  check_status(context_push_group_with_content_ffi(self.to_raw(), content))
 }
 
 ///|
@@ -121,22 +148,23 @@ pub fn Context::push_group_with_content_raw(
   self : Context,
   content : Int,
 ) -> Unit raise CairoError {
-  check_status(
-    context_push_group_with_content_raw_ffi(self, checked_content_raw(content)),
+  check_context_status_raw(
+    @context_impl.push_group_with_content_raw(
+      self.to_raw(),
+      checked_content_raw(content),
+    ),
   )
 }
 
 ///|
 pub fn Context::pop_group(self : Context) -> Pattern raise CairoError {
-  let status = Ref(Success)
-  let raw = context_pop_group_ffi(self, status)
-  check_status(status.val)
+  let status = Ref(0)
+  let raw = @context_impl.pop_group_raw(self.to_raw(), status)
+  check_context_status_raw(status.val)
   Pattern::from_raw(raw)
 }
 
 ///|
 pub fn Context::pop_group_to_source(self : Context) -> Unit raise CairoError {
-  check_status(context_pop_group_to_source_ffi(self))
+  check_context_status_raw(@context_impl.pop_group_to_source_raw(self.to_raw()))
 }
-
-///|

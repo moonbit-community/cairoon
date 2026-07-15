@@ -6,6 +6,3 @@ type MappedImageSurface
 
 ///|
 type ImageData
-
-///|
-type Context

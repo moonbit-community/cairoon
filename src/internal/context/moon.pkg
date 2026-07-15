@@ -1,0 +1,25 @@
+import {
+  "CAIMEOX/cairoon/internal/font_face" @font_face_impl,
+  "CAIMEOX/cairoon/internal/font_options" @font_options_impl,
+  "CAIMEOX/cairoon/internal/path" @path_impl,
+  "CAIMEOX/cairoon/internal/pattern" @pattern_impl,
+  "CAIMEOX/cairoon/internal/scaled_font" @scaled_font_impl,
+  "CAIMEOX/cairoon/native",
+}
+
+options(
+  targets: {
+    "ffi.mbt": [ "native" ],
+    "ffi_clip_extents.mbt": [ "native" ],
+    "ffi_font_text.mbt": [ "native" ],
+    "ffi_matrix.mbt": [ "native" ],
+    "ffi_paint.mbt": [ "native" ],
+    "ffi_path.mbt": [ "native" ],
+    "ffi_state.mbt": [ "native" ],
+  },
+  link: {
+    "native": {
+      "cc-link-flags": "-L/opt/homebrew/Cellar/cairo/1.18.4/lib -lcairo",
+    },
+  },
+)

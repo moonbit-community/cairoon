@@ -4082,6 +4082,36 @@ suppression remains the pure-C-probe-verified vector-oracle case: exactly 16
 allocations/7424 bytes on Cairo 1.15.10 and 16 allocations/9344 bytes on Cairo
 1.18.4.
 
+The subsequent Context object-handle package extraction moved the sole
+`RawContext` GC handle and 102 non-facade externs into
+`src/internal/context`. Seven focused FFI files mirror the unchanged C split:
+12 core, 11 clip/extents, 18 font/text, 11 matrix, 12 paint, 17 path, and 21
+state declarations. The public root retains only 14 bridges whose signatures
+require facade-owned Surface, Content, or enum types, split 5/5/2/2 across
+core, state, font/text, and paint. Public `Context` is now a private
+single-field wrapper with no second finalizer. Constructors still return one
+owned raw handle and retain their target wrapper; target/group-target getters
+return referenced Surface wrappers, `get_source` returns a referenced
+`RawPattern`, `pop_group` returns an owned `RawPattern`, path copies return
+owned `RawPath`, and font getters preserve their copy/reference contracts. No
+C glue or native ABI changed.
+
+Context is producer-only at the child-package layer because valid construction
+requires facade-owned Surface wrappers, so no test-only raw constructor was
+added. The existing public Context, font, Path, Pattern, image/Surface,
+object-trait, lifetime, raster, and vector-oracle suites cover all real
+producers and cross-family consumers. The suite remains 775/775. Direct public
+implementation files fall from 61 to 58 and the exact public-root allowlist
+from 64 to 61; 378 source files, 43 production FFI files, and 82 Cairo-linked
+package configs pass their static gates. The public generated interface remains
+byte-for-byte unchanged at SHA-256
+`6c647f7e0c12188c36330a66681141a4449558884ce948d2c74e462a91b2f0f3`.
+The host gate, source and extracted 581-member publication consumers, and both
+exact Linux Cairo lanes pass. Every discovered package passes ASan/LSan; the
+only suppression remains the pure-C-probe-verified vector-oracle case, exactly
+16 allocations/7424 bytes on Cairo 1.15.10 and 16 allocations/9344 bytes on
+Cairo 1.18.4.
+
 Remaining reliability work is now narrower and should be tracked as evidence,
 not as an unstructured checklist:
 

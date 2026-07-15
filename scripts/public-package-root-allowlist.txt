@@ -13,12 +13,9 @@ device.mbt
 enums.mbt
 error.mbt
 ffi.mbt
-ffi_context_clip_extents.mbt
 ffi_context_core.mbt
 ffi_context_font_text.mbt
-ffi_context_matrix.mbt
 ffi_context_paint.mbt
-ffi_context_path.mbt
 ffi_context_state.mbt
 ffi_device.mbt
 ffi_image_data.mbt

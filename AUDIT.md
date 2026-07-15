@@ -19,7 +19,7 @@ Implemented in this workspace:
   pass all static gates and 775/775 native tests with the pinned MoonBit
   `0.10.4+4f2e8f7dc-nightly` compiler. In each lane, the source-checkout and
   extracted-publication-zip consumers also pass 1/1 independently; the
-  integrity-checked publication archive contains 568 members.
+  integrity-checked publication archive contains 581 members.
 - Linux ASan/LSan now runs every discovered MoonBit package in a separate
   process. An intentional-leak preflight proves LSan is active; the runner
   creates a temporary `MOON_TOOLCHAIN_ROOT` with an allocator-free shadow
@@ -303,9 +303,9 @@ Implemented in this workspace:
 - `src/internal/scaled_font` is the sixth facade-owned object seam. It owns the
   sole `RawScaledFont` external object, private `RawTextToGlyphs` result object,
   and all 18 constructor, identity, getter, matrix, extents, text conversion,
-  and result-accessor externs using raw `Int` status and flag values. Context
-  get/set bridges remain in public `ffi_context_font_text.mbt` but exchange
-  `RawScaledFont`; checked facade methods alone wrap or unwrap it. Public
+  and result-accessor externs using raw `Int` status and flag values. Internal
+  Context font/text functions exchange `RawScaledFont`; checked facade methods
+  alone wrap or unwrap it. Public
   `ScaledFont` still assembles typed matrices, extents, glyphs, clusters, and
   `TextGlyphRun` values and never exposes the raw result owner. Package-local
   raw identity/matrix/text-result tests plus external Font, Context, glyph,
@@ -321,6 +321,21 @@ Implemented in this workspace:
   raw identity/state/gradient/mesh tests plus external Pattern, Context,
   image/vector oracle, callback-owner/fuzz, value-stress, and finalizer tests
   cover behavior and ownership.
+- `src/internal/context` is the eighth facade-owned object seam and is
+  producer-only at the child layer. It owns the sole `RawContext` external
+  object and 102 non-facade externs, split into seven C-matched families with
+  counts 12/11/18/11/12/17/21. The public root retains exactly 14
+  Surface/Content/typed-enum bridges, split 5/5/2/2 across core, state,
+  font/text, and paint. Public `Context` remains an abstract single-field
+  wrapper with no second finalizer and retains all typed status/enum/value
+  conversion, string validation, traits, and `CairoError` mapping. Constructors
+  return one owned raw handle and retain their target wrapper; borrowed target,
+  group-target, source, and font returns preserve their Cairo reference/copy
+  contracts; `pop_group` and path copies preserve owned-return contracts. No C
+  glue or native ABI changed. Because valid construction requires facade-owned
+  Surface wrappers, no test-only raw constructor was added. Public Context,
+  cross-family, lifetime, oracle, and package-isolated ASan/LSan evidence covers
+  every real producer and consumer.
 - C FFI glue split by Cairo object family, following pycairo's
   `private.h` plus per-family C file architecture. GC-managed external objects
   currently cover `Surface`, `MappedImageSurface`, `ImageData`, `Context`,
@@ -349,20 +364,13 @@ Implemented in this workspace:
   Font C glue is split into `cairoon_font_options.c`,
   `cairoon_font_face.c`, `cairoon_scaled_font.c`, and
   `cairoon_scaled_font_oracle.c`.
-- MoonBit raw FFI declarations are beginning to follow the same family split:
-  `ffi.mbt` keeps object type declarations and private native helper types, while
-  `ffi_context_clip_extents.mbt` owns raw `Context` clip/extents/hit-testing
-  extern declarations, `ffi_context_core.mbt` owns raw `Context` construction,
-  status, identity, save/restore, tag, target/source, and group extern
-  declarations,
-  `ffi_context_font_text.mbt` owns raw `Context` font/text/scaled-font extern
-  declarations, `ffi_context_matrix.mbt` owns raw `Context`
-  matrix/coordinate-conversion extern declarations, `ffi_context_path.mbt`
-  owns raw `Context` path construction/copy extern declarations,
-  `ffi_context_paint.mbt` owns raw `Context` source/painting/page extern
-  declarations,
-  `ffi_context_state.mbt` owns raw `Context` drawing-state/line-style/dash
-  extern declarations,
+- MoonBit raw FFI declarations follow the same family split. The sole
+  `RawContext` owner and 102 non-facade Context externs live in
+  `src/internal/context`, divided into 12 core, 11 clip/extents, 18 font/text,
+  11 matrix, 12 paint, 17 path, and 21 state declarations. The public root
+  retains exactly 14 bridges whose signatures require facade-owned types: five
+  Surface/Content core bridges, five typed state setters, two typed font/text
+  bridges, and two Surface paint bridges.
   `src/internal/scaled_font/{ffi,ffi_text_to_glyphs}.mbt` own
   `RawScaledFont`, private `RawTextToGlyphs`, and all 18 scaled-font/result
   extern declarations. `src/internal/pattern/{ffi,ffi_mesh}.mbt` own
@@ -382,11 +390,9 @@ Implemented in this workspace:
   extern declarations; and `ffi_pdf_surface.mbt`, `ffi_ps_surface.mbt`,
   `ffi_svg_surface.mbt`, and `ffi_tee_surface.mbt` own raw PDF surface,
   PostScript surface, SVG surface, and Tee surface extern declarations. Raw
-  Device, FontFace, FontOptions, Path, Pattern, Region, and ScaledFont extern
-  declarations plus their sole GC handles now live in `src/internal/device`,
-  `src/internal/font_face`, `src/internal/font_options`, `src/internal/path`,
-  `src/internal/pattern`, `src/internal/region`, and
-  `src/internal/scaled_font`, respectively. The
+  Context, Device, FontFace, FontOptions, Path, Pattern, Region, and ScaledFont
+  extern declarations plus their sole GC handles now live in their respective
+  `src/internal/<family>` packages. The
   private text-to-glyphs result owner also lives with ScaledFont. Raw PDF
   version helper externs have moved out of `ffi_pdf_surface.mbt` into
   `src/internal/pdf`; raw PostScript level helper externs have moved out of
@@ -746,8 +752,9 @@ The most recent full local verification passed on 2026-07-15:
   inventory, pycairo parity, reliability-ledger, vector-scene, native type,
   generated-interface, and 775/775 native test gates. The isolated consumer
   passed 1/1 against both the checkout and the integrity-tested, extracted
-  568-member publication zip. Host ASan was intentionally not duplicated in
-  this run.
+  581-member publication zip. Host ASan was intentionally not duplicated in
+  this run. Static gates checked 378 source files, 43 production FFI files, 82
+  Cairo-linked package configs, and an exact 61-entry public-root allowlist.
 - `./scripts/test-cairo-matrix.sh cairo-1.15.10` and
   `./scripts/test-cairo-matrix.sh cairo-1.18.4`: both exact Linux lanes passed
   the same source and publication-zip consumer tests at 1/1 each, all 775
@@ -755,7 +762,9 @@ The most recent full local verification passed on 2026-07-15:
   the pure-C-probe-verified vector-oracle suppression was used: 16
   allocations/7424 bytes on 1.15.10 and 16 allocations/9344 bytes on 1.18.4.
   The parity gate verified all 288 tests from all 20 pinned upstream files,
-  and the reliability ledger reported 1 explicit `Partial` row.
+  and the reliability ledger reported 1 explicit `Partial` row. The generated
+  public interface remains byte-for-byte unchanged at SHA-256
+  `6c647f7e0c12188c36330a66681141a4449558884ce948d2c74e462a91b2f0f3`.
 
 The final matrix replay exposed and closed one test-only PDF nondeterminism:
 under ASan, sequential file and stream surfaces could cross a wall-clock

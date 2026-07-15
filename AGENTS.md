@@ -168,6 +168,7 @@ MoonBit declarations to native:
 
 ```moonbit
 import {
+  "CAIMEOX/cairoon/internal/context" @context_impl,
   "CAIMEOX/cairoon/internal/device" @device_impl,
   "CAIMEOX/cairoon/internal/font_face" @font_face_impl,
   "CAIMEOX/cairoon/internal/font_options" @font_options_impl,
@@ -203,14 +204,14 @@ options(
 )
 ```
 
-Device, FontFace, FontOptions, Path, Pattern, Region, and ScaledFont are
+Context, Device, FontFace, FontOptions, Path, Pattern, Region, and ScaledFont are
 object-handle exceptions to the public-package FFI list. Their
 `src/internal/<family>/moon.pkg` files import `CAIMEOX/cairoon/native`,
 native-gate their own FFI files, and carry the same `pkg-config`-derived Cairo
 link flags as the public package. The public package imports them as
-`@device_impl`, `@font_face_impl`, `@font_options_impl`, `@path_impl`,
-`@pattern_impl`, `@region_impl`, and `@scaled_font_impl`; it must not redeclare
-their raw handle types or object-only family externs.
+`@context_impl`, `@device_impl`, `@font_face_impl`, `@font_options_impl`,
+`@path_impl`, `@pattern_impl`, `@region_impl`, and `@scaled_font_impl`; it must
+not redeclare their raw handle types or object-only family externs.
 
 The `src/native/moon.pkg` package owns all public C glue compilation. Its
 `native-stub` entries are plain filenames beside that package file, never paths
@@ -262,24 +263,19 @@ only the two SurfacePattern and three typed-enum setter bridges;
 bridges that call public exports in `cairoon_raster_source_pattern.c`;
 retained callback state, acquired-surface owner tracking, and Cairo
 acquire/release trampolines live in `cairoon_raster_source_callbacks.c`;
-`ffi_context_clip_extents.mbt` owns raw `Context` clip, extents, and
-hit-testing extern declarations that call `cairoon_context_clip_extents.c`;
-`ffi_context_core.mbt` owns raw `Context` construction, status, identity,
-save/restore, tag, target/source, and group extern declarations that call the
-core `cairoon_context.c` file;
-`ffi_context_font_text.mbt` owns raw `Context` font-options, font-face, toy-font
-selection, font-matrix, text, glyph, show-text-glyphs, and scaled-font extern
-declarations that call `cairoon_context_font_text.c`;
-`ffi_context_matrix.mbt` owns raw `Context` transform, current-transformation
-matrix, identity-matrix, and user/device coordinate-conversion extern
-declarations that call `cairoon_context_matrix.c`;
-`ffi_context_path.mbt` owns raw `Context` path construction, current-point,
-copy-path, and append-path extern declarations that call
-`cairoon_context_path.c`;
-`ffi_context_paint.mbt` owns raw `Context` source, paint, mask, fill, stroke,
-and page-operation extern declarations that call `cairoon_context_paint.c`;
-`ffi_context_state.mbt` owns raw `Context` drawing-state, line-style, and dash
-extern declarations that call `cairoon_context_state.c`;
+`src/internal/context` owns the sole `RawContext` external object and 102
+non-facade Context externs. Its FFI files must match the C split exactly:
+`ffi.mbt` owns 12 core declarations, `ffi_clip_extents.mbt` 11,
+`ffi_font_text.mbt` 18, `ffi_matrix.mbt` 11, `ffi_paint.mbt` 12,
+`ffi_path.mbt` 17, and `ffi_state.mbt` 21. The public package retains exactly
+14 Context bridges whose signatures require facade-owned types:
+`ffi_context_core.mbt` keeps five Surface/Content bridges,
+`ffi_context_state.mbt` five typed-enum setters,
+`ffi_context_font_text.mbt` two typed font/text-cluster bridges, and
+`ffi_context_paint.mbt` two Surface paint bridges. No other public-root Context
+extern is permitted. The child exchanges raw FontOptions, FontFace, Path,
+Pattern, and ScaledFont handles with their internal packages, exposes statuses
+and enum values only as `Int`, and must not import `CAIMEOX/cairoon`;
 `src/internal/device/ffi.mbt` owns `RawDevice` and the 13 Device-only
 constructor, identity, lifecycle, and script-state extern declarations that
 call `cairoon_device.c`; `ffi_device.mbt` retains only the five cross-family
@@ -316,15 +312,14 @@ mapped-image-surface extern declarations that call
 methods. `ffi_tee_surface.mbt` owns raw Tee surface extern declarations that
 call `cairoon_tee_surface.c`. `src/internal/font_face/ffi.mbt` owns the
 abstract `RawFontFace` external object and every declared FontFace-specific
-extern; Context bridge externs in the public package and the internal
-ScaledFont package may accept or return that raw handle, but must wrap or
-unwrap only in checked facade methods.
+extern; the internal Context and ScaledFont packages may accept or return that
+raw handle, but only checked public facade methods may wrap or unwrap it.
 The child interface uses `Int` for statuses, slants, and weights and must not
 import `CAIMEOX/cairoon`. `src/internal/font_options/ffi.mbt` owns the
 abstract `RawFontOptions` external object and every FontOptions-specific extern;
-Context and Surface bridge externs in the public package plus the internal
-ScaledFont package may accept or return that raw handle, but must wrap or
-unwrap only in checked facade methods.
+the internal Context and ScaledFont packages plus public Surface bridge externs
+may accept or return that raw handle, but only checked facade methods may wrap
+or unwrap it.
 The child interface uses `Int` for statuses and enum values and must not import
 `CAIMEOX/cairoon`. `src/internal/region/ffi.mbt` owns the abstract
 `RawRegion` external object and every Region extern that calls
@@ -372,6 +367,19 @@ two SurfacePattern bridges and three facade-enum setter bridges, while
 include `Surface`, `RectangleInt`, `Content`, or MoonBit closures. Context
 source/group/mask bridges may return or borrow `RawPattern`; only checked
 facade methods may wrap or unwrap it.
+`src/internal/context` owns the abstract `RawContext` external object and all
+102 Context externs that do not require a facade-owned `Surface`, `Content`,
+typed enum, or callback-adjacent value. Its seven FFI and seven wrapper files
+must preserve the core, clip/extents, font/text, matrix, paint, path, and state
+C-family split; no catch-all Context file may be added. Public `context*.mbt`
+files retain the abstract single-field `Context` wrapper, typed enum/status and
+value conversion, string validation, traits, and every `CairoError` mapping.
+The four public `ffi_context_*.mbt` bridge files may exchange `RawContext`, but
+only checked facade methods may wrap or unwrap it. The child has no valid
+production constructor independent of facade-owned Surface wrappers, so it is
+producer-only: do not add a test-only raw constructor or C export. Validate it
+through every real Context constructor, producer/consumer path, status failure,
+source-scope lifetime case, and package-isolated ASan/LSan run.
 
 Do not add public wrappers to `ffi_*.mbt`; these files are private native FFI
 plumbing only. Public MoonBit APIs stay in focused wrapper files such as
@@ -595,7 +603,7 @@ ownership first, then expose convenience APIs.
 
 | Cairo concept | MoonBit representation | Ownership rule |
 |---|---|---|
-| `cairo_t *` | `type Context` | External object; finalizer calls `cairo_destroy`. |
+| `cairo_t *` | Public `type Context` wrapping internal `RawContext` | `RawContext` is the sole external object and its finalizer calls `cairo_destroy`; `Context` holds exactly one strong reference and has no second finalizer. |
 | `cairo_surface_t *` | `type Surface` | External object; finalizer calls `cairo_surface_destroy`. |
 | Image/PDF/SVG/PS/Recording/Tee surfaces | Constructors and checked methods returning/accepting `Surface` | Do not create a second MoonBit owner for the same `cairo_surface_t *`. |
 | `cairo_pattern_t *` | Public `type Pattern` wrapping internal `RawPattern` | `RawPattern` is the sole external object and its finalizer calls `cairo_pattern_destroy`; `Pattern` holds exactly one strong reference and has no second finalizer. |
@@ -674,9 +682,19 @@ Concrete requirements:
   to `NULL`.
 - Public `finish` methods call Cairo's `*_finish` but must not clear the stored
   pointer. The finalizer still owns and destroys the resource.
-- `Context` created from a `Surface` must keep the target surface alive. Store
-  the MoonBit `Surface` object inside the `Context` external payload and retain
-  it with `moonbit_incref`; release it in the context finalizer.
+- Every Context constructor returns one newly owned `RawContext`. The native
+  payload must keep its facade-owned target `Surface` or `MappedImageSurface`
+  wrapper alive with `moonbit_incref` and release it in the `RawContext`
+  finalizer. Public `Context` is only a strong single-field wrapper around that
+  raw owner and has no independent finalizer.
+- `Context::get_target` and `Context::get_group_target` receive borrowed Cairo
+  surfaces; their public C bridges must create referenced `Surface` wrappers
+  and retain the correct MoonBit base. `Context::get_source` receives a borrowed
+  pattern and must call `cairo_pattern_reference` before returning
+  `RawPattern`; `Context::pop_group` already receives an owned pattern and must
+  not add a reference. Font-options, font-face, and scaled-font getters must
+  preserve their existing copy/reference contracts, while setters borrow raw
+  handles only for the synchronous call.
 - A `Pattern` created from a `Surface`, and any object whose C resource may
   borrow another Cairo resource, must retain the base MoonBit object in the
   same way.
@@ -739,7 +757,7 @@ Use these annotation defaults:
 
   ```moonbit
   #borrow(ctx)
-  extern "C" fn context_paint_ffi(ctx : Context) -> Int = "cairoon_context_paint"
+  extern "C" fn context_paint_ffi(ctx : RawContext) -> Int = "cairoon_context_paint"
   ```
 
 - Borrow pure input buffers only if Cairo does not store the pointer after the

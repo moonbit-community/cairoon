@@ -2,9 +2,9 @@
 pub fn Context::get_font_options(
   self : Context,
 ) -> FontOptions raise CairoError {
-  let status = Ref(Success)
-  let raw = context_get_font_options_ffi(self, status)
-  check_status(status.val)
+  let status = Ref(0)
+  let raw = @context_impl.get_font_options_raw(self.to_raw(), status)
+  check_context_status_raw(status.val)
   FontOptions::from_raw(raw)
 }
 
@@ -13,14 +13,16 @@ pub fn Context::set_font_options(
   self : Context,
   options : FontOptions,
 ) -> Unit raise CairoError {
-  check_status(context_set_font_options_ffi(self, options.to_raw()))
+  check_context_status_raw(
+    @context_impl.set_font_options_raw(self.to_raw(), options.to_raw()),
+  )
 }
 
 ///|
 pub fn Context::get_font_face(self : Context) -> FontFace raise CairoError {
-  let status = Ref(Success)
-  let raw = context_get_font_face_ffi(self, status)
-  check_status(status.val)
+  let status = Ref(0)
+  let raw = @context_impl.get_font_face_raw(self.to_raw(), status)
+  check_context_status_raw(status.val)
   FontFace::from_raw(raw)
 }
 
@@ -30,8 +32,14 @@ pub fn Context::set_font_face(
   font_face : FontFace?,
 ) -> Unit raise CairoError {
   match font_face {
-    None => check_status(context_set_font_face_default_ffi(self))
-    Some(face) => check_status(context_set_font_face_ffi(self, face.to_raw()))
+    None =>
+      check_context_status_raw(
+        @context_impl.set_font_face_default_raw(self.to_raw()),
+      )
+    Some(face) =>
+      check_context_status_raw(
+        @context_impl.set_font_face_raw(self.to_raw(), face.to_raw()),
+      )
   }
 }
 
@@ -44,7 +52,9 @@ pub fn Context::select_font_face(
 ) -> Unit raise CairoError {
   let bytes = @utf8.encode(family)
   check_no_embedded_nul(bytes)
-  check_status(context_select_font_face_ffi(self, bytes, slant, weight))
+  check_status(
+    context_select_font_face_ffi(self.to_raw(), bytes, slant, weight),
+  )
 }
 
 ///|
@@ -56,7 +66,9 @@ pub fn Context::select_font_face_raw(
 ) -> Unit raise CairoError {
   let bytes = @utf8.encode(family)
   check_no_embedded_nul(bytes)
-  check_status(context_select_font_face_raw_ffi(self, bytes, slant, weight))
+  check_context_status_raw(
+    @context_impl.select_font_face_raw(self.to_raw(), bytes, slant, weight),
+  )
 }
 
 ///|
@@ -64,9 +76,9 @@ pub fn Context::set_font_matrix(
   self : Context,
   matrix : Matrix,
 ) -> Unit raise CairoError {
-  check_status(
-    context_set_font_matrix_ffi(
-      self,
+  check_context_status_raw(
+    @context_impl.set_font_matrix_raw(
+      self.to_raw(),
       matrix.xx,
       matrix.yx,
       matrix.xy,
@@ -80,7 +92,7 @@ pub fn Context::set_font_matrix(
 ///|
 pub fn Context::get_font_matrix(self : Context) -> Matrix raise CairoError {
   matrix_from_context_output((xx, yx, xy, yy, x0, y0) => {
-    context_get_font_matrix_ffi(self, xx, yx, xy, yy, x0, y0)
+    @context_impl.get_font_matrix_raw(self.to_raw(), xx, yx, xy, yy, x0, y0)
   })
 }
 
@@ -89,7 +101,7 @@ pub fn Context::set_font_size(
   self : Context,
   size : Double,
 ) -> Unit raise CairoError {
-  check_status(context_set_font_size_ffi(self, size))
+  check_context_status_raw(@context_impl.set_font_size_raw(self.to_raw(), size))
 }
 
 ///|
@@ -101,8 +113,15 @@ pub fn Context::font_extents(self : Context) -> FontExtents raise CairoError {
     max_x_advance,
     max_y_advance,
   ) => {
-    context_font_extents_ffi(
-      self, ascent, descent, height, max_x_advance, max_y_advance,
+    context_status_from_raw(
+      @context_impl.font_extents_raw(
+        self.to_raw(),
+        ascent,
+        descent,
+        height,
+        max_x_advance,
+        max_y_advance,
+      ),
     )
   })
 }
@@ -112,7 +131,9 @@ pub fn Context::show_text(
   self : Context,
   text : String,
 ) -> Unit raise CairoError {
-  check_status(context_show_text_ffi(self, checked_c_string_bytes(text)))
+  check_context_status_raw(
+    @context_impl.show_text_raw(self.to_raw(), checked_c_string_bytes(text)),
+  )
 }
 
 ///|
@@ -129,8 +150,17 @@ pub fn Context::text_extents(
     x_advance,
     y_advance,
   ) => {
-    context_text_extents_ffi(
-      self, bytes, x_bearing, y_bearing, width, height, x_advance, y_advance,
+    context_status_from_raw(
+      @context_impl.text_extents_raw(
+        self.to_raw(),
+        bytes,
+        x_bearing,
+        y_bearing,
+        width,
+        height,
+        x_advance,
+        y_advance,
+      ),
     )
   })
 }
@@ -140,7 +170,9 @@ pub fn Context::text_path(
   self : Context,
   text : String,
 ) -> Unit raise CairoError {
-  check_status(context_text_path_ffi(self, checked_c_string_bytes(text)))
+  check_context_status_raw(
+    @context_impl.text_path_raw(self.to_raw(), checked_c_string_bytes(text)),
+  )
 }
 
 ///|
@@ -157,8 +189,19 @@ pub fn Context::glyph_extents(
     x_advance,
     y_advance,
   ) => {
-    context_glyph_extents_ffi(
-      self, indices, xs, ys, x_bearing, y_bearing, width, height, x_advance, y_advance,
+    context_status_from_raw(
+      @context_impl.glyph_extents_raw(
+        self.to_raw(),
+        indices,
+        xs,
+        ys,
+        x_bearing,
+        y_bearing,
+        width,
+        height,
+        x_advance,
+        y_advance,
+      ),
     )
   })
 }
@@ -169,7 +212,9 @@ pub fn Context::glyph_path(
   glyphs : ArrayView[Glyph],
 ) -> Unit raise CairoError {
   let (indices, xs, ys) = @glyph.field_arrays(glyphs)
-  check_status(context_glyph_path_ffi(self, indices, xs, ys))
+  check_context_status_raw(
+    @context_impl.glyph_path_raw(self.to_raw(), indices, xs, ys),
+  )
 }
 
 ///|
@@ -178,7 +223,9 @@ pub fn Context::show_glyphs(
   glyphs : ArrayView[Glyph],
 ) -> Unit raise CairoError {
   let (indices, xs, ys) = @glyph.field_arrays(glyphs)
-  check_status(context_show_glyphs_ffi(self, indices, xs, ys))
+  check_context_status_raw(
+    @context_impl.show_glyphs_raw(self.to_raw(), indices, xs, ys),
+  )
 }
 
 ///|
@@ -195,7 +242,7 @@ pub fn Context::show_text_glyphs(
   )
   check_status(
     context_show_text_glyphs_ffi(
-      self,
+      self.to_raw(),
       checked_c_string_bytes(text),
       indices,
       xs,
@@ -209,9 +256,9 @@ pub fn Context::show_text_glyphs(
 
 ///|
 pub fn Context::get_scaled_font(self : Context) -> ScaledFont raise CairoError {
-  let status = Ref(Success)
-  let raw = context_get_scaled_font_ffi(self, status)
-  check_status(status.val)
+  let status = Ref(0)
+  let raw = @context_impl.get_scaled_font_raw(self.to_raw(), status)
+  check_context_status_raw(status.val)
   ScaledFont::from_raw(raw)
 }
 
@@ -220,7 +267,9 @@ pub fn Context::set_scaled_font(
   self : Context,
   scaled_font : ScaledFont,
 ) -> Unit raise CairoError {
-  check_status(context_set_scaled_font_ffi(self, scaled_font.to_raw()))
+  check_context_status_raw(
+    @context_impl.set_scaled_font_raw(self.to_raw(), scaled_font.to_raw()),
+  )
 }
 
 ///|

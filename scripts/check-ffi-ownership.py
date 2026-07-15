@@ -12,7 +12,6 @@ REPO_ROOT = pathlib.Path(__file__).resolve().parents[1]
 PACKAGE_ROOT = REPO_ROOT / "src"
 TEST_PACKAGE_ROOT = PACKAGE_ROOT / "tests"
 OBJECT_TYPES = {
-    "Context",
     "Device",
     "FontFace",
     "FontOptions",
@@ -24,6 +23,7 @@ OBJECT_TYPES = {
     "Surface",
 }
 RAW_OBJECT_TYPES = {
+    "RawContext",
     "RawDevice",
     "RawFontFace",
     "RawFontOptions",

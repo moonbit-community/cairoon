@@ -5,7 +5,9 @@ pub fn Context::set_source_rgb(
   green : Double,
   blue : Double,
 ) -> Unit raise CairoError {
-  check_status(context_set_source_rgb_ffi(self, red, green, blue))
+  check_context_status_raw(
+    @context_impl.set_source_rgb_raw(self.to_raw(), red, green, blue),
+  )
 }
 
 ///|
@@ -16,7 +18,9 @@ pub fn Context::set_source_rgba(
   blue : Double,
   alpha : Double,
 ) -> Unit raise CairoError {
-  check_status(context_set_source_rgba_ffi(self, red, green, blue, alpha))
+  check_context_status_raw(
+    @context_impl.set_source_rgba_raw(self.to_raw(), red, green, blue, alpha),
+  )
 }
 
 ///|
@@ -24,7 +28,9 @@ pub fn Context::set_source(
   self : Context,
   pattern : Pattern,
 ) -> Unit raise CairoError {
-  check_status(context_set_source_ffi(self, pattern.to_raw()))
+  check_context_status_raw(
+    @context_impl.set_source_raw(self.to_raw(), pattern.to_raw()),
+  )
 }
 
 ///|
@@ -34,12 +40,12 @@ pub fn Context::set_source_surface(
   x? : Double = 0.0,
   y? : Double = 0.0,
 ) -> Unit raise CairoError {
-  check_status(context_set_source_surface_ffi(self, surface, x, y))
+  check_status(context_set_source_surface_ffi(self.to_raw(), surface, x, y))
 }
 
 ///|
 pub fn Context::paint(self : Context) -> Unit raise CairoError {
-  check_status(context_paint_ffi(self))
+  check_context_status_raw(@context_impl.paint_raw(self.to_raw()))
 }
 
 ///|
@@ -47,7 +53,9 @@ pub fn Context::paint_with_alpha(
   self : Context,
   alpha : Double,
 ) -> Unit raise CairoError {
-  check_status(context_paint_with_alpha_ffi(self, alpha))
+  check_context_status_raw(
+    @context_impl.paint_with_alpha_raw(self.to_raw(), alpha),
+  )
 }
 
 ///|
@@ -55,7 +63,9 @@ pub fn Context::mask(
   self : Context,
   pattern : Pattern,
 ) -> Unit raise CairoError {
-  check_status(context_mask_ffi(self, pattern.to_raw()))
+  check_context_status_raw(
+    @context_impl.mask_raw(self.to_raw(), pattern.to_raw()),
+  )
 }
 
 ///|
@@ -65,35 +75,35 @@ pub fn Context::mask_surface(
   x? : Double = 0.0,
   y? : Double = 0.0,
 ) -> Unit raise CairoError {
-  check_status(context_mask_surface_ffi(self, surface, x, y))
+  check_status(context_mask_surface_ffi(self.to_raw(), surface, x, y))
 }
 
 ///|
 pub fn Context::fill(self : Context) -> Unit raise CairoError {
-  check_status(context_fill_ffi(self))
+  check_context_status_raw(@context_impl.fill_raw(self.to_raw()))
 }
 
 ///|
 pub fn Context::fill_preserve(self : Context) -> Unit raise CairoError {
-  check_status(context_fill_preserve_ffi(self))
+  check_context_status_raw(@context_impl.fill_preserve_raw(self.to_raw()))
 }
 
 ///|
 pub fn Context::stroke(self : Context) -> Unit raise CairoError {
-  check_status(context_stroke_ffi(self))
+  check_context_status_raw(@context_impl.stroke_raw(self.to_raw()))
 }
 
 ///|
 pub fn Context::stroke_preserve(self : Context) -> Unit raise CairoError {
-  check_status(context_stroke_preserve_ffi(self))
+  check_context_status_raw(@context_impl.stroke_preserve_raw(self.to_raw()))
 }
 
 ///|
 pub fn Context::copy_page(self : Context) -> Unit raise CairoError {
-  check_status(context_copy_page_ffi(self))
+  check_context_status_raw(@context_impl.copy_page_raw(self.to_raw()))
 }
 
 ///|
 pub fn Context::show_page(self : Context) -> Unit raise CairoError {
-  check_status(context_show_page_ffi(self))
+  check_context_status_raw(@context_impl.show_page_raw(self.to_raw()))
 }

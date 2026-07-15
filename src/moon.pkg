@@ -2,6 +2,7 @@ import {
   "CAIMEOX/cairoon/core/constants" @constants_impl,
   "CAIMEOX/cairoon/core/glyph",
   "CAIMEOX/cairoon/internal/cstring" @cstring_impl,
+  "CAIMEOX/cairoon/internal/context" @context_impl,
   "CAIMEOX/cairoon/internal/device" @device_impl,
   "CAIMEOX/cairoon/internal/font_face" @font_face_impl,
   "CAIMEOX/cairoon/internal/font_options" @font_options_impl,
@@ -32,12 +33,9 @@ warnings = "+unnecessary_annotation"
 options(
   targets: {
     "ffi.mbt": [ "native" ],
-    "ffi_context_clip_extents.mbt": [ "native" ],
     "ffi_context_core.mbt": [ "native" ],
     "ffi_context_font_text.mbt": [ "native" ],
-    "ffi_context_matrix.mbt": [ "native" ],
     "ffi_context_paint.mbt": [ "native" ],
-    "ffi_context_path.mbt": [ "native" ],
     "ffi_context_state.mbt": [ "native" ],
     "ffi_device.mbt": [ "native" ],
     "ffi_image_data.mbt": [ "native" ],
