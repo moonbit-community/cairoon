@@ -159,11 +159,11 @@ extern "C" fn context_show_text_glyphs_ffi(
 extern "C" fn context_get_scaled_font_ffi(
   ctx : Context,
   status : Ref[Status],
-) -> ScaledFont = "cairoon_context_get_scaled_font"
+) -> @scaled_font_impl.RawScaledFont = "cairoon_context_get_scaled_font"
 
 ///|
 #borrow(ctx, scaled_font)
 extern "C" fn context_set_scaled_font_ffi(
   ctx : Context,
-  scaled_font : ScaledFont,
+  scaled_font : @scaled_font_impl.RawScaledFont,
 ) -> Status = "cairoon_context_set_scaled_font"

@@ -4038,6 +4038,25 @@ ASan/LSan; only the pure-C-probe-verified vector-oracle suppression is used,
 covering exactly 16 allocations/7424 bytes on Cairo 1.15.10 and 16
 allocations/9344 bytes on Cairo 1.18.4.
 
+The subsequent ScaledFont object-handle package extraction moved the sole
+`RawScaledFont` GC handle and all 18 ScaledFont and text-to-glyph raw externs
+into `src/internal/scaled_font`, split across its core and temporary-result FFI
+files. Its private `RawTextToGlyphs` result remains the sole owner of Cairo's
+temporary glyph and cluster arrays; the public facade validates dimensions and
+copies every glyph and cluster value before that result can be finalized.
+Context get/set bridges now exchange `RawScaledFont` beneath the unchanged
+public wrapper, with borrowed returns referenced by the native bridge. Two
+package-local identity, owner, matrix, and text-to-glyph tests raise the suite
+to 772/772. The root implementation count falls from 64 to 62 files and the
+grandfathered public-root allowlist from 67 to 65, while the generated public
+interface hash remains unchanged. The complete host gate and targeted host
+ASan packages pass; both exact Linux Cairo lanes pass every discovered package
+under ASan/LSan. Both downstream consumer paths pass 1/1, the
+integrity-checked publication archive contains 561 members, and the only
+suppression remains the pure-C-probe-verified vector-oracle case: exactly 16
+allocations/7424 bytes on Cairo 1.15.10 and 16 allocations/9344 bytes on Cairo
+1.18.4.
+
 Remaining reliability work is now narrower and should be tracked as evidence,
 not as an unstructured checklist:
 

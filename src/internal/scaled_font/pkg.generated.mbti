@@ -1,0 +1,56 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "CAIMEOX/cairoon/internal/scaled_font"
+
+import {
+  "CAIMEOX/cairoon/internal/font_face",
+  "CAIMEOX/cairoon/internal/font_options",
+  "moonbitlang/core/ref",
+}
+
+// Values
+pub fn create_raw(@font_face.RawFontFace, Double, Double, Double, Double, Double, Double, Double, Double, Double, Double, Double, Double, @font_options.RawFontOptions) -> RawScaledFont
+
+pub fn equal_raw(RawScaledFont, RawScaledFont) -> Bool
+
+pub fn extents_raw(RawScaledFont, @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double]) -> Int
+
+pub fn get_ctm_raw(RawScaledFont, @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double]) -> Int
+
+pub fn get_font_face_raw(RawScaledFont, @ref.Ref[Int]) -> @font_face.RawFontFace
+
+pub fn get_font_matrix_raw(RawScaledFont, @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double]) -> Int
+
+pub fn get_font_options_raw(RawScaledFont, @ref.Ref[Int]) -> @font_options.RawFontOptions
+
+pub fn get_scale_matrix_raw(RawScaledFont, @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double]) -> Int
+
+pub fn glyph_extents_raw(RawScaledFont, FixedArray[UInt64], FixedArray[Double], FixedArray[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double]) -> Int
+
+pub fn hash_raw(RawScaledFont) -> UInt64
+
+pub fn status_raw(RawScaledFont) -> Int
+
+pub fn text_extents_raw(RawScaledFont, Bytes, @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double]) -> Int
+
+pub fn text_to_glyphs_clusters_raw(RawTextToGlyphs) -> FixedArray[Int]
+
+pub fn text_to_glyphs_flags_raw(RawTextToGlyphs) -> Int
+
+pub fn text_to_glyphs_indices_raw(RawTextToGlyphs) -> FixedArray[UInt64]
+
+pub fn text_to_glyphs_positions_raw(RawTextToGlyphs) -> FixedArray[Double]
+
+pub fn text_to_glyphs_raw(RawScaledFont, Double, Double, Bytes) -> RawTextToGlyphs
+
+pub fn text_to_glyphs_status_raw(RawTextToGlyphs) -> Int
+
+// Errors
+
+// Types and methods
+type RawScaledFont
+
+type RawTextToGlyphs
+
+// Type aliases
+
+// Traits

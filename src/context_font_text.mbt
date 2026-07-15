@@ -210,9 +210,9 @@ pub fn Context::show_text_glyphs(
 ///|
 pub fn Context::get_scaled_font(self : Context) -> ScaledFont raise CairoError {
   let status = Ref(Success)
-  let scaled_font = context_get_scaled_font_ffi(self, status)
+  let raw = context_get_scaled_font_ffi(self, status)
   check_status(status.val)
-  scaled_font
+  ScaledFont::from_raw(raw)
 }
 
 ///|
@@ -220,7 +220,7 @@ pub fn Context::set_scaled_font(
   self : Context,
   scaled_font : ScaledFont,
 ) -> Unit raise CairoError {
-  check_status(context_set_scaled_font_ffi(self, scaled_font))
+  check_status(context_set_scaled_font_ffi(self, scaled_font.to_raw()))
 }
 
 ///|

@@ -23,7 +23,6 @@ OBJECT_TYPES = {
     "Region",
     "ScaledFont",
     "Surface",
-    "TextToGlyphsNative",
 }
 RAW_OBJECT_TYPES = {
     "RawDevice",
@@ -31,6 +30,8 @@ RAW_OBJECT_TYPES = {
     "RawFontOptions",
     "RawPath",
     "RawRegion",
+    "RawScaledFont",
+    "RawTextToGlyphs",
 }
 
 

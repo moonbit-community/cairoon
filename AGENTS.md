@@ -173,6 +173,7 @@ import {
   "CAIMEOX/cairoon/internal/font_options" @font_options_impl,
   "CAIMEOX/cairoon/internal/path" @path_impl,
   "CAIMEOX/cairoon/internal/region" @region_impl,
+  "CAIMEOX/cairoon/internal/scaled_font" @scaled_font_impl,
   "CAIMEOX/cairoon/native",
 }
 
@@ -197,20 +198,19 @@ options(
     "ffi_surface_png.mbt": ["native"],
     "ffi_surface_state.mbt": ["native"],
     "ffi_svg_surface.mbt": ["native"],
-    "ffi_tee_surface.mbt": ["native"],
-    "ffi_scaled_font.mbt": ["native"],
-    "ffi_text_to_glyphs.mbt": ["native"]
+    "ffi_tee_surface.mbt": ["native"]
   },
 )
 ```
 
-Device, FontFace, FontOptions, Path, and Region are object-handle exceptions to the
-public-package FFI list. Their `src/internal/<family>/moon.pkg` files import
-`CAIMEOX/cairoon/native`, native-gate their own `ffi.mbt`, and carry the same
-`pkg-config`-derived Cairo link flags as the public package. The public package
-imports them as `@device_impl`, `@font_face_impl`, `@font_options_impl`,
-`@path_impl`, and `@region_impl`; it must not redeclare their raw handle types
-or family externs.
+Device, FontFace, FontOptions, Path, Region, and ScaledFont are object-handle
+exceptions to the public-package FFI list. Their
+`src/internal/<family>/moon.pkg` files import `CAIMEOX/cairoon/native`,
+native-gate their own FFI files, and carry the same `pkg-config`-derived Cairo
+link flags as the public package. The public package imports them as
+`@device_impl`, `@font_face_impl`, `@font_options_impl`, `@path_impl`,
+`@region_impl`, and `@scaled_font_impl`; it must not redeclare their raw handle
+types or family externs.
 
 The `src/native/moon.pkg` package owns all public C glue compilation. Its
 `native-stub` entries are plain filenames beside that package file, never paths
@@ -248,10 +248,11 @@ file to `moon.pkg` `targets` with
 `cairoon_font_face.c`; `src/internal/font_options/ffi.mbt` owns
 `RawFontOptions` and the FontOptions-specific extern declarations that call
 `cairoon_font_options.c`;
-`ffi_scaled_font.mbt` owns raw `ScaledFont`
-extern declarations that call `cairoon_scaled_font.c`;
-`ffi_text_to_glyphs.mbt` owns raw text-to-glyphs result extern declarations
-that call `cairoon_glyph.c`;
+`src/internal/scaled_font/ffi.mbt` owns `RawScaledFont` and the 12 constructor,
+identity, getter, matrix, and extents externs that call
+`cairoon_scaled_font.c`; its `ffi_text_to_glyphs.mbt` owns
+`RawTextToGlyphs`, the scaled-font conversion extern, and the five result
+accessors that call `cairoon_scaled_font.c` or `cairoon_glyph.c`;
 `ffi_pattern.mbt` owns raw base/surface/solid/gradient `Pattern` extern
 declarations that call `cairoon_pattern.c`; `ffi_pattern_mesh.mbt` owns raw
 mesh-pattern extern declarations that call `cairoon_mesh_pattern.c`;
@@ -313,13 +314,15 @@ mapped-image-surface extern declarations that call
 methods. `ffi_tee_surface.mbt` owns raw Tee surface extern declarations that
 call `cairoon_tee_surface.c`. `src/internal/font_face/ffi.mbt` owns the
 abstract `RawFontFace` external object and every declared FontFace-specific
-extern; Context and ScaledFont externs in the public package may accept or
-return that raw handle, but must wrap or unwrap only in checked facade methods.
+extern; Context bridge externs in the public package and the internal
+ScaledFont package may accept or return that raw handle, but must wrap or
+unwrap only in checked facade methods.
 The child interface uses `Int` for statuses, slants, and weights and must not
 import `CAIMEOX/cairoon`. `src/internal/font_options/ffi.mbt` owns the
 abstract `RawFontOptions` external object and every FontOptions-specific extern;
-Context, Surface, and ScaledFont externs in the public package may accept or
-return that raw handle, but must wrap or unwrap only in checked facade methods.
+Context and Surface bridge externs in the public package plus the internal
+ScaledFont package may accept or return that raw handle, but must wrap or
+unwrap only in checked facade methods.
 The child interface uses `Int` for statuses and enum values and must not import
 `CAIMEOX/cairoon`. `src/internal/region/ffi.mbt` owns the abstract
 `RawRegion` external object and every Region extern that calls
@@ -346,6 +349,15 @@ cross-family externs in public `ffi_device.mbt` may borrow or return
 wrap that handle. The child stream constructor owns the writer closure, copies
 each call-scoped chunk before invoking it, and relies on the native stream
 state to release the closure exactly once.
+`src/internal/scaled_font` owns the abstract `RawScaledFont` and private
+`RawTextToGlyphs` external objects plus all 18 ScaledFont/result externs. Its
+child interface uses `Int` for Cairo statuses and text-cluster flags and must
+not import `CAIMEOX/cairoon`. Public `scaled_font.mbt` retains the abstract
+single-field `ScaledFont` wrapper, typed status/flag conversion, Matrix,
+FontExtents, TextExtents, Glyph, TextCluster, and TextGlyphRun assembly, string
+validation, traits, and all `CairoError` mapping. Context get/set bridge externs
+may return or borrow `RawScaledFont`, but only checked facade methods may wrap
+or unwrap it. No `RawTextToGlyphs` value may escape the facade as public API.
 
 Do not add public wrappers to `ffi_*.mbt`; these files are private native FFI
 plumbing only. Public MoonBit APIs stay in focused wrapper files such as
@@ -575,7 +587,8 @@ ownership first, then expose convenience APIs.
 | `cairo_pattern_t *` | `type Pattern` | External object; finalizer calls `cairo_pattern_destroy`. |
 | Solid/surface/gradient/mesh/raster-source patterns | Constructors and checked methods returning/accepting `Pattern` | Do not duplicate pattern ownership for subtypes. |
 | `cairo_font_face_t *` | Public `type FontFace` wrapping internal `RawFontFace` | `RawFontFace` is the sole external object and its finalizer calls `cairo_font_face_destroy`; `FontFace` holds exactly one strong reference and has no second finalizer. |
-| `cairo_scaled_font_t *` | `type ScaledFont` | External object; finalizer calls `cairo_scaled_font_destroy`. |
+| `cairo_scaled_font_t *` | Public `type ScaledFont` wrapping internal `RawScaledFont` | `RawScaledFont` is the sole external object and its finalizer calls `cairo_scaled_font_destroy`; `ScaledFont` holds exactly one strong reference and has no second finalizer. |
+| `cairo_scaled_font_text_to_glyphs` result | Internal `RawTextToGlyphs` | Private external object; its finalizer frees Cairo glyph and cluster arrays exactly once. Public APIs copy all fields into pure MoonBit values before the raw result becomes unreachable. |
 | `cairo_font_options_t *` | Public `type FontOptions` wrapping internal `RawFontOptions` | `RawFontOptions` is the sole external object and its finalizer calls `cairo_font_options_destroy`; `FontOptions` holds exactly one strong reference and has no second finalizer. |
 | `cairo_region_t *` | Public `type Region` wrapping internal `RawRegion` | `RawRegion` is the sole external object and its finalizer calls `cairo_region_destroy`; `Region` holds exactly one strong reference and has no second finalizer. |
 | `cairo_device_t *` | Public `type Device` wrapping internal `RawDevice` | `RawDevice` is the sole external object and its finalizer calls `cairo_device_destroy`; `Device` holds exactly one strong reference and has no second finalizer. |
@@ -671,6 +684,11 @@ Concrete requirements:
   or when the device is destroyed. The callback must copy its call-scoped
   `Bytes` chunk before invoking user code so a user-retained chunk remains
   valid after the native callback returns.
+- `ScaledFont::new` wraps the newly owned `cairo_scaled_font_t *` exactly once
+  as `RawScaledFont`. `Context::get_scaled_font` receives a borrowed Cairo
+  scaled font; the C bridge must call `cairo_scaled_font_reference` before
+  returning the sole raw owner. Context set only borrows `RawScaledFont` for
+  the call, after which Cairo owns any native reference it requires.
 - Temporary Cairo result containers such as `cairo_rectangle_list_t` must not
   cross the FFI boundary. The C stub must copy their primitive fields into a
   MoonBit-owned array, capture the Cairo status, destroy the Cairo container
@@ -683,10 +701,11 @@ Concrete requirements:
   borrow those arrays for one synchronous FFI call, and the C helper frees any
   temporary Cairo array before returning.
 - Cairo-allocated output arrays such as the result of
-  `cairo_scaled_font_text_to_glyphs` must be wrapped in an internal temporary
-  external object whose finalizer calls the matching Cairo free functions. The
-  public MoonBit wrapper must copy the arrays into pure values before exposing
-  them.
+  `cairo_scaled_font_text_to_glyphs` must be wrapped exactly once as internal
+  `RawTextToGlyphs`; its finalizer calls the matching Cairo free functions. The
+  public MoonBit wrapper must check the raw status and array dimensions, copy
+  the arrays into pure values, convert raw flags, and never expose the raw
+  result.
 - Mapped image surfaces require a dedicated payload containing the base surface
   and mapped surface. Its finalizer must call `cairo_surface_unmap_image(base,
   mapped)` if the mapping is still active. The base `Surface` object must be
