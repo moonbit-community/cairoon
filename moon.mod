@@ -4,7 +4,7 @@ version = "0.1.0"
 
 readme = "src/README.mbt.md"
 
-repository = ""
+repository = "https://github.com/moonbit-community/cairoon"
 
 license = "LGPL-2.1-only OR MPL-1.1"
 

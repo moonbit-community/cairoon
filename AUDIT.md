@@ -9,6 +9,31 @@ Implemented in this workspace:
   `scripts/configure-link-flags.sh` to refresh `src/moon.pkg`,
   `src/native/moon.pkg`, and external test package configs, plus
   `scripts/configure-link-flags.sh --check` in the local reliability gate.
+- Exact local release lanes for Cairo 1.15.10 and 1.18.4, built from pinned
+  source URLs and SHA-256 digests on a pinned Ubuntu base image. Both lanes
+  pass all static gates and 749/749 native tests with the pinned MoonBit
+  `0.10.4+4f2e8f7dc-nightly` compiler.
+- Linux ASan/LSan now runs every discovered MoonBit package in a separate
+  process. An intentional-leak preflight proves LSan is active; the runner
+  creates a temporary `MOON_TOOLCHAIN_ROOT` with an allocator-free shadow
+  runtime, leaving the installed MoonBit toolchain untouched.
+- The unsuppressed sanitizer pass found and fixed a real stream callback leak
+  in `src/native/cairoon_stream.c`: a fresh `moonbit_make_bytes` result already
+  owns its call-scoped reference and must not be incremented before passing it
+  to a borrowed `FuncRef` argument.
+- Cairo 1.15.10 and 1.18.4 both reproduce an SVG recording-surface snapshot
+  leak in a standalone C program that does not link cairoon. The probe must
+  report exactly two direct allocations with either the internal
+  `_cairo_recording_surface_snapshot` frame or the constrained stripped stack
+  described below before one LSan suppression can apply. It applies only to
+  `src/tests/oracle/vector_backend`. The 1.15.10 vector package reports 16
+  suppressed allocations/7424 bytes; 1.18.4 reports 16 allocations/9344
+  bytes. Every other package remains unsuppressed.
+- Ubuntu 24.04's stock Cairo 1.18.0 reproduces the same two 584-byte leaks but
+  strips the internal function name. In that case the pure-C stack must contain
+  `cairo_surface_destroy`, `cairo_pattern_destroy`, `cairo_restore`, and the
+  probe's `render_document` frame before a `cairo_restore` fallback is selected;
+  the vector run then enforces exactly 16 suppressions/9344 bytes.
 - Static raw FFI ownership linting through
   `scripts/check-ffi-ownership.py`, wired into `scripts/verify.sh`, so every
   non-primitive production `src/**/ffi*.mbt` parameter must be annotated with
@@ -3014,8 +3039,11 @@ Prior full verifies passed on 2026-07-02, 2026-07-03, 2026-07-04,
   those flags from the target platform's `pkg-config`, and the local gate
   checks for drift; a future publishing workflow may still want package-manager
   specific guidance for non-`pkg-config` Cairo installations.
-- The CI workflow runs native verify on Ubuntu and macOS plus an Ubuntu ASan
-  job. Release evidence still requires those jobs to pass for the release
-  commit. The current macOS LSan reports for toy-font, scaled-font, toy-text
-  rendering, glyph rendering/path, and `show_text_glyphs` remain an open
-  version-bounded policy item.
+- The CI workflow runs native verify on Ubuntu and macOS plus an Ubuntu
+  package-isolated ASan/LSan job. It no longer disables leak detection or
+  repeats the ordinary native gate in the sanitizer job. Release evidence
+  still requires those jobs to pass for the release commit; this checkout was
+  deliberately not pushed merely to trigger CI.
+- Linux is the authoritative LSan platform. macOS runs ASan, while exact leak
+  evidence comes from pinned Linux lanes whose intentional-leak preflight
+  proves the runtime can detect leaks.

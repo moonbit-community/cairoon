@@ -79,6 +79,9 @@ cairoon/
   PORTING_FROM_PYCAIRO.md
   moon.mod
   scripts/
+    matrix/
+      Dockerfile
+      run-lane.sh
     parity/
       api.json
       cmodule.json
@@ -100,8 +103,17 @@ cairoon/
       textcluster.json
       textextents.json
       typing.json
+    sanitizers/
+      lsan-cairo-recording-snapshot-stripped.supp
+      lsan-cairo-recording-snapshot.supp
+      policy.py
+      run.py
+      probes/
+        cairo_recording_snapshot_probe.c
     tests/
       test_pycairo_test_parity.py
+      test_sanitizer_policy.py
+    test-cairo-matrix.sh
   src/
     moon.pkg
     README.mbt.md
@@ -333,6 +345,7 @@ MoonBit package shape without weakening the public interface.
 | Black-box tests | `src/tests/<family>/` | Import `CAIMEOX/cairoon`; assert only public behavior. Any package that imports cairoon must carry Cairo `cc-link-flags`, because native link flags are not propagated to external test executables. |
 | White-box oracles | `src/tests/oracle/<family>/` plus shared C support in `src/tests/oracle/native/` | Import `CAIMEOX/cairoon` for the public API and declare test-only direct-C oracle externs locally; public binding wrappers must never import oracle packages. Test-only C symbols are provided by the oracle-native support package, not `src/moon.pkg`. |
 | Documentation | `src/docs/`, `src/README.mbt.md`, and repository `docs/` | Narrative docs live outside source packages; the public package README stays at `src/README.mbt.md` for `moon.mod`, and family executable reference docs live in the external `src/docs` package so they compile like downstream user code through `CAIMEOX/cairoon`. |
+| Release verification tooling | `scripts/matrix/` and `scripts/sanitizers/` | Pinned Cairo build lanes and sanitizer policy stay outside MoonBit packages. Standalone C diagnostics live only in `scripts/sanitizers/probes/`, end in `_probe.c`, compile directly with `pkg-config`, and must not be referenced by any `native-stub` list. |
 
 Do not split a family across packages until the type names, method call syntax,
 generated `.mbti`, and `moon test --target native` behavior are proven in a
@@ -485,6 +498,10 @@ before MoonBit compilation. The layout check proves:
   C source/header files live beside `src/tests/oracle/native/moon.pkg`, and any
   future nested C source/header files live beside the `moon.pkg` that owns
   them;
+- the only C files outside a MoonBit native-stub package are standalone
+  diagnostics directly under `scripts/sanitizers/probes/` with `_probe.c`
+  names; these probes are compiled by release tooling, not shipped or linked
+  into cairoon;
 - `PROJECT_LAYOUT.md`, `scripts/root-layout-allowlist.txt`, and
   `scripts/public-package-root-allowlist.txt` exist.
 

@@ -9,13 +9,15 @@ public interface, audit files, and reliability gate in sync.
 Required:
 
 - MoonBit toolchain with native target support.
-- Cairo 1.18 or newer development headers and library.
+- Cairo 1.15.10 or newer development headers and library. Cairo 1.18.4 is the
+  recommended production version and the upper pinned release lane.
 - `pkg-config` that can resolve `cairo`.
 - Python 3 for static FFI ownership and API-inventory linting.
 
 Optional but recommended:
 
-- An ASan-capable `clang`; on macOS, Homebrew LLVM is preferred.
+- An ASan-capable `clang`; Linux is the authoritative LeakSanitizer platform,
+  while Homebrew LLVM is preferred for macOS AddressSanitizer runs.
 
 ## Fresh Checkout Setup
 
@@ -107,13 +109,33 @@ The gate runs formatting, link-flag drift checks, static FFI ownership linting,
 top-level pycairo API inventory linting, all 20 pinned pycairo test-file
 families (288 tests), native type checking, targeted
 image/scaled-font/vector/pattern oracle tests, the full native test suite,
-`moon info --target native`, and targeted ASan tests when an ASan-capable
-`clang` is available. A detected pycairo checkout must have exactly one ledger
-for every `tests/test_*.py` source file.
+`moon info --target native`, and package-isolated ASan/LSan tests when an
+ASan-capable `clang` is available. A detected pycairo checkout must have
+exactly one ledger for every `tests/test_*.py` source file.
 
-Set `CAIROON_VERIFY_ASAN=0` only when intentionally skipping the targeted ASan
+Set `CAIROON_VERIFY_ASAN=0` only when intentionally skipping the sanitizer
 portion. Set `CAIROON_ASAN_CC` and `CAIROON_ASAN_AR` to force the compiler pair
-used by that targeted sanitizer pass without changing the ordinary native gate.
+used by that sanitizer pass without changing the ordinary native gate. Do not
+set `ASAN_OPTIONS=detect_leaks=0` on Linux release evidence.
+
+Run the exact local Cairo compatibility lanes before release:
+
+```sh
+./scripts/test-cairo-matrix.sh cairo-1.15.10
+./scripts/test-cairo-matrix.sh cairo-1.18.4
+```
+
+Each lane builds Cairo from a pinned URL and SHA-256 in an isolated Docker
+image, copies the checkout into disposable storage, checks all 749 MoonBit
+tests, and runs each MoonBit package separately under ASan/LSan. Cairo's known
+SVG recording-snapshot leak is accepted only after
+`scripts/sanitizers/probes/cairo_recording_snapshot_probe.c` reproduces the
+exact two-allocation pure-C signature without suppressions. The resulting
+single-frame suppression is enabled only for
+`src/tests/oracle/vector_backend`; every other package remains unsuppressed.
+Source builds match `_cairo_recording_surface_snapshot`; stripped distro builds
+use `cairo_restore`, with the vector package required to report exactly 16
+suppressed allocations and the byte count predicted by the probe.
 
 ## Release Checklist
 
@@ -129,17 +151,20 @@ used by that targeted sanitizer pass without changing the ordinary native gate.
    and verification state.
 7. Confirm new public APIs have executable docs in the appropriate
    `*.mbt.md` reference file.
-8. Commit the release state and tag it from a clean worktree.
+8. Run both pinned Cairo matrix lanes and record their exact versions and test
+   counts in `AUDIT.md`.
+9. Run a downstream consumer smoke test from a separate MoonBit module.
+10. Commit the release state and tag it from a clean worktree.
 
 ## CI Guidance
 
 The repository ships `.github/workflows/ci.yml`. It runs:
 
 - Native verification on `ubuntu-latest` and `macos-latest` with ASan disabled.
-- A dedicated Ubuntu ASan job with `CAIROON_ASAN_CC=clang`,
-  `CAIROON_ASAN_AR=llvm-ar`, and leak detection disabled, matching the local
-  targeted sanitizer gate while leaving the ordinary full native gate on the
-  default compiler.
+- A dedicated Ubuntu job that invokes `scripts/sanitizers/run.py` directly
+  with `CAIROON_ASAN_CC=clang`, `CAIROON_ASAN_AR=llvm-ar`, and Linux leak
+  detection enabled. It does not repeat the ordinary full native gate, which
+  keeps CI usage bounded.
 
 Custom CI should install Cairo and `pkg-config`, then run:
 
@@ -158,4 +183,6 @@ run the ASan job separately on an image that provides `clang` plus Cairo.
   with package targets instead.
 - Keep C stubs split by Cairo API family. Test-only C helpers belong in
   `cairoon_test_*.c`, not in the runtime stub files.
+- Standalone sanitizer probes belong in `scripts/sanitizers/probes/`, must end
+  in `_probe.c`, and must never appear in a MoonBit `native-stub` list.
 - Keep `pkg.generated.mbti` committed so reviewers can audit public API changes.

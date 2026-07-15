@@ -76,9 +76,9 @@ Evaluate each slice with this scorecard:
 | FFI boundary safety | Production raw `src/**/ffi*.mbt` declarations are native-gated in their owning `moon.pkg`, mark every non-primitive C FFI parameter with `#borrow` or `#owned`, and `scripts/check-project-layout.py` plus `scripts/check-ffi-ownership.py` pass | Strong for current raw externs, including internal helper packages; both lints run in the local and CI verify gate |
 | Behavioral parity | pycairo-derived black-box cases or direct C Cairo primitive oracles cover normal and invalid inputs | Strong for image, context, path, font, pattern, region, surface/device, and backend helpers already listed in the inventory; all 288 tests from all 20 upstream test files are pinned and mapped to 197 family-local MoonBit runtime anchors, 291 required generated static API anchors, 29 deliberately absent signatures, 4 explicit inventory decisions, and 1 mandatory static verify gate |
 | Rendering parity | Deterministic image pixels or normalized PDF/PS/SVG bytes match direct C Cairo output | Strong for the portable migration scope. Scene 66 closes Cairo 1.18's finite tag-attribute contract across URI, multi-rectangle, destination, page-position, external-file, content, and content-reference cases; it joins the enumerated image and vector fixtures with file/stream/direct-C comparisons and stable positive or negative backend markers |
-| Lifetime safety | External-object ownership, borrowed returns, callback retention, and error exits run under ASan/LSan or stress tests | Strong for targeted local gates; macOS LSan remains intentionally disabled for known toy-font/glyph leak reports |
+| Lifetime safety | External-object ownership, borrowed returns, callback retention, and error exits run under ASan/LSan or stress tests | Strong for the current portable scope: Linux runs every MoonBit package in a separate ASan/LSan process; the only suppression is a pure-C-probe-verified Cairo recording-snapshot function in the vector oracle package, while all other packages remain unsuppressed |
 | Callback safety | C-held MoonBit callbacks and callback arguments are retained across the callback invocation and released deterministically | Strong for stream writers/readers and raster-source callbacks covered by current stress/fuzz tests |
-| Portability | Required backends pass on each supported platform, or unsupported APIs have explicit `Decision` rows | Partial until the shipped CI workflow has passing native, oracle, and sanitizer runs across the release platform matrix |
+| Portability | Required backends pass on each supported platform, or unsupported APIs have explicit `Decision` rows | Strong local evidence at the exact Cairo 1.15.10 compatibility floor and recommended 1.18.4 release, plus the host lane; still Partial until the release commit's shipped Ubuntu/macOS CI jobs pass |
 | Documentation | Public behavior has executable reference examples where practical | Strong for current migrated families; keep this synchronized with public API additions |
 
 The practical release rule is simple: a feature can be trusted when its
@@ -169,13 +169,19 @@ record the threshold beside the test.
 
 ### Tier 3: Memory And Lifetime Tests
 
-Run ASan/LSan after every C stub or finalizer change:
+Run the repository-owned ASan/LSan gate after every C stub, callback, or
+finalizer change:
 
 ```sh
-python3 /Users/caimeo/.codex/skills/moonbit/moonbit-c-binding/scripts/run-asan.py \
-  --repo-root /Users/caimeo/code/pycairo/cairoon \
-  --pkg src/moon.pkg
+CAIROON_SANITIZER_LEAKS=on python3 ./scripts/sanitizers/run.py
 ```
+
+On Linux, the runner first proves LeakSanitizer can detect an intentional
+allocation, then runs every discovered MoonBit package in a separate process.
+`scripts/sanitizers/probes/cairo_recording_snapshot_probe.c` is compiled and
+executed without suppressions. If and only if its exact two-allocation upstream
+Cairo signature is observed, a one-function suppression is used for
+`src/tests/oracle/vector_backend`; no other package receives a suppression.
 
 For public C glue ownership changes, the local gate must also compile the
 native-stub package itself with `moon test src/native --target native -v`; the
@@ -236,6 +242,17 @@ The current local gate is executable as:
 ./scripts/verify.sh
 ```
 
+Release candidates additionally run both pinned Linux Cairo lanes:
+
+```sh
+./scripts/test-cairo-matrix.sh cairo-1.15.10
+./scripts/test-cairo-matrix.sh cairo-1.18.4
+```
+
+These lanes pin the Ubuntu base image, MoonBit toolchain, Cairo source URL,
+and Cairo archive SHA-256. The checkout is mounted read-only and tested from a
+disposable copy, so platform link-flag configuration cannot modify host files.
+
 It runs `moon fmt --check`, the checker unit tests under `scripts/tests`,
 `scripts/check-project-layout.py`,
 `scripts/check-source-size-budget.py`, `scripts/configure-link-flags.sh --check`,
@@ -292,16 +309,19 @@ support packages under `src/core/constants`, `src/core/glyph`,
 `src/tests/oracle/image`, `src/tests/oracle/pattern_raster`, and
 `src/tests/oracle/vector_backend`, the full native test suite with
 `moon test --target native --deny-warn`,
-`moon info --target native`, and targeted ASan builds for all external test
-packages when an ASan-capable `clang` is available. The public package root no
+`moon info --target native`, and package-isolated ASan/LSan builds for every
+discovered package when an ASan-capable `clang` is available. The public package root no
 longer has a separate targeted `*_wbtest.mbt` list; those tests have been
 converted into external oracle packages discovered by `scripts/verify.sh`.
-Before the targeted ASan pass, `scripts/verify.sh` runs `moon clean` so a
-compiler switch or Homebrew/Xcode clang update cannot reuse object files with
-stale sanitizer runtime paths.
-Set `CAIROON_VERIFY_ASAN=0` to skip the targeted ASan portion intentionally.
+Before the sanitizer pass, the runner executes `moon clean` so a compiler
+switch or Homebrew/Xcode clang update cannot reuse object files with stale
+sanitizer runtime paths. It creates a temporary `MOON_TOOLCHAIN_ROOT` whose
+bundled allocator object is replaced in the shadow copy only; the user's
+MoonBit installation is never modified. The instrumented build is cleaned
+afterward.
+Set `CAIROON_VERIFY_ASAN=0` to skip the sanitizer portion intentionally.
 Set `CAIROON_ASAN_CC` and `CAIROON_ASAN_AR` to choose the compiler pair for that
-targeted sanitizer pass without changing the ordinary full native gate.
+sanitizer pass without changing the ordinary full native gate.
 
 ## Current Status
 
@@ -3891,6 +3911,39 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, 2026-07-
   plus every configured clang/ASan package and reduces the reliability ledger
   to one explicit `Partial` row.
 
+A 2026-07-15 release-reliability pass replaced the old leak-disabled ASan
+policy with a Linux package-isolated ASan/LSan runner. Its intentional-leak
+preflight proves LSan is active, and a temporary `MOON_TOOLCHAIN_ROOT` lets
+ASan own allocation without modifying the installed MoonBit runtime. The first
+unsuppressed pass found and fixed one
+real cairoon leak: stream write callbacks gave a freshly allocated MoonBit
+`Bytes` value an extra C-side reference even though `FuncRef` arguments are
+borrowed. Focused stream tests then passed 15/15, and the full native suite is
+now 749/749 after separating PDF, PS, and SVG grouped-glyph oracle cases.
+
+The exact Linux release evidence is:
+
+- Cairo 1.15.10, archive SHA-256
+  `62ca226134cf2f1fd114bea06f8b374eb37f35d8e22487eaa54d5e9428958392`:
+  all static gates and 749/749 native tests pass; all discovered MoonBit
+  packages pass ASan/LSan independently. The pure-C SVG probe reports exactly
+  two 464-byte `_cairo_recording_surface_snapshot` allocations. Only the
+  226-test vector-oracle package uses the verified suppression, accounting for
+  16 allocations and 7424 bytes; every other package runs unsuppressed.
+- Cairo 1.18.4, archive SHA-256
+  `445ed8208a6e4823de1226a74ca319d3600e83f6369f99b14265006599c32ccb`:
+  749/749 native tests pass and all discovered MoonBit packages pass ASan/LSan
+  independently. The same pure-C probe reports exactly two 584-byte upstream
+  allocations. The vector-oracle package accounts for 16 suppressed
+  allocations and 9344 bytes; every other package runs unsuppressed.
+- The script gate has 44 Python unit tests in total, including 16 dedicated
+  sanitizer-policy tests. An unknown probe exit code, allocation count,
+  indirect leak, or stack signature is a hard failure rather than an expanded
+  suppression.
+  On stripped Ubuntu Cairo libraries, the probe selects a `cairo_restore`
+  fallback and the runner additionally requires exactly 16 suppressions and
+  the probe-predicted byte count.
+
 Remaining reliability work is now narrower and should be tracked as evidence,
 not as an unstructured checklist:
 
@@ -3903,9 +3956,9 @@ not as an unstructured checklist:
 - Keep the CI workflow green and expand it as the supported release platform
   matrix grows; generated-interface review, differential oracles, and sanitizer
   gates should be required before release.
-- Resolve the known macOS LSan reports for toy-font, scaled-font, toy-text,
-  glyph rendering/path, and `show_text_glyphs`, or document a Cairo/upstream
-  suppression with version bounds.
+- Keep Linux as the authoritative LSan platform. macOS still runs ASan, but
+  release leak evidence comes from the pinned Linux lanes where LSan support
+  is preflighted instead of inferred.
 - Close the remaining `Partial` row in `API_INVENTORY.md` by adding the
   missing evidence or converting out-of-scope API families to explicit
   `Decision` rows.

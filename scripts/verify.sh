@@ -54,17 +54,6 @@ run_external_test_packages() {
   done
 }
 
-resolve_executable() {
-  local candidate="$1"
-  if [[ "$candidate" == */* ]]; then
-    if [[ -x "$candidate" ]]; then
-      printf '%s\n' "$candidate"
-    fi
-  else
-    command -v "$candidate" 2>/dev/null || true
-  fi
-}
-
 run moon fmt --check
 run python3 -m unittest discover -s scripts/tests -p 'test_*.py'
 run python3 ./scripts/check-project-layout.py
@@ -84,33 +73,5 @@ run moon info --target native
 
 asan_mode="${CAIROON_VERIFY_ASAN:-auto}"
 if [[ "$asan_mode" != "0" ]]; then
-  clang_path=""
-  if [[ -n "${CAIROON_ASAN_CC:-}" ]]; then
-    clang_path="$(resolve_executable "$CAIROON_ASAN_CC")"
-  elif [[ -n "${MOON_CC:-}" ]]; then
-    clang_path="$(resolve_executable "$MOON_CC")"
-  fi
-  if [[ -z "$clang_path" && -x /opt/homebrew/opt/llvm/bin/clang ]]; then
-    clang_path=/opt/homebrew/opt/llvm/bin/clang
-  fi
-
-  if [[ -n "$clang_path" ]]; then
-    asan_options="${ASAN_OPTIONS:-detect_leaks=0:fast_unwind_on_malloc=0}"
-    moon_ar="${CAIROON_ASAN_AR:-${MOON_AR:-/usr/bin/ar}}"
-    if [[ -n "${CAIROON_ASAN_AR:-${MOON_AR:-}}" ]]; then
-      resolved_moon_ar="$(resolve_executable "$moon_ar")"
-      if [[ -n "$resolved_moon_ar" ]]; then
-        moon_ar="$resolved_moon_ar"
-      fi
-    fi
-    # Moon's native cache can retain compiler-runtime paths from an older clang.
-    # Rebuild ASan packages from a clean cache after switching MOON_CC.
-    run moon clean
-    run_external_test_packages env \
-      "MOON_CC=$clang_path" \
-      "MOON_AR=$moon_ar" \
-      "ASAN_OPTIONS=$asan_options"
-  else
-    printf '\nSkipping targeted ASan: set CAIROON_ASAN_CC or MOON_CC to an ASan-capable clang, or set CAIROON_VERIFY_ASAN=0 to silence this message.\n'
-  fi
+  run python3 ./scripts/sanitizers/run.py
 fi

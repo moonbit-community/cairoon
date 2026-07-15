@@ -124,14 +124,27 @@ test "tagged show_text_glyphs vector scene matches direct cairo C oracle" {
 }
 
 ///|
-test "grouped glyph tag multi-page scene matches direct cairo C oracle" {
-  for kind in 0..<3 {
-    let ext = vector_output_extension(kind)
-    let cairoon_path = "/tmp/cairoon_vector_grouped_glyph_tag_\{kind}.\{ext}"
-    let oracle_path = "/tmp/cairoon_vector_grouped_glyph_tag_\{kind}_oracle.\{ext}"
-    render_vector_oracle_scene(kind, 30, cairoon_path)
-    expect_vector_oracle_match(kind, 30, cairoon_path, oracle_path)
-  }
+fn expect_grouped_glyph_tag_oracle(kind : Int) -> Unit raise {
+  let ext = vector_output_extension(kind)
+  let cairoon_path = "/tmp/cairoon_vector_grouped_glyph_tag_\{kind}.\{ext}"
+  let oracle_path = "/tmp/cairoon_vector_grouped_glyph_tag_\{kind}_oracle.\{ext}"
+  render_vector_oracle_scene(kind, 30, cairoon_path)
+  expect_vector_oracle_match(kind, 30, cairoon_path, oracle_path)
+}
+
+///|
+test "pdf grouped glyph tag multi-page scene matches direct cairo C oracle" {
+  expect_grouped_glyph_tag_oracle(0)
+}
+
+///|
+test "ps grouped glyph tag multi-page scene matches direct cairo C oracle" {
+  expect_grouped_glyph_tag_oracle(1)
+}
+
+///|
+test "svg grouped glyph tag multi-page scene matches direct cairo C oracle" {
+  expect_grouped_glyph_tag_oracle(2)
 }
 
 ///|

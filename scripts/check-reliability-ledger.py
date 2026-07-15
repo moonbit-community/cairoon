@@ -14,6 +14,8 @@ API_INVENTORY = REPO_ROOT / "API_INVENTORY.md"
 TESTING = REPO_ROOT / "TESTING.md"
 VERIFY = REPO_ROOT / "scripts" / "verify.sh"
 CI = REPO_ROOT / ".github" / "workflows" / "ci.yml"
+MATRIX = REPO_ROOT / "scripts" / "test-cairo-matrix.sh"
+SANITIZER = REPO_ROOT / "scripts" / "sanitizers" / "run.py"
 
 STATUSES = {"Done", "Partial", "Decision", "Todo"}
 PARTIAL_GAP_MARKERS = (
@@ -51,6 +53,7 @@ VERIFY_COMMANDS = (
     "moon check --target native",
     "moon test --target native",
     "moon info --target native",
+    "python3 ./scripts/sanitizers/run.py",
 )
 
 
@@ -133,6 +136,9 @@ def check_testing_doc() -> list[str]:
         "For the full-product claim, there must be no `Todo` or `Partial` rows left",
         "reliable partial binding rather than a complete pycairo migration",
         "scripts/check-reliability-ledger.py",
+        "./scripts/test-cairo-matrix.sh cairo-1.15.10",
+        "./scripts/test-cairo-matrix.sh cairo-1.18.4",
+        "scripts/sanitizers/probes/cairo_recording_snapshot_probe.c",
     )
     for phrase in required_phrases:
         if re.sub(r"\s+", " ", phrase) not in normalized_text:
@@ -157,12 +163,46 @@ def check_ci_gate() -> list[str]:
         "CAIROON_VERIFY_ASAN",
         "CAIROON_ASAN_CC: clang",
         "CAIROON_ASAN_AR: llvm-ar",
+        "CAIROON_SANITIZER_LEAKS: \"on\"",
+        "python3 ./scripts/sanitizers/run.py",
         "ubuntu-latest",
         "macos-latest",
     )
     for marker in required:
         if marker not in text:
             errors.append(f"{CI}: CI reliability workflow is missing {marker!r}")
+    if "detect_leaks=0" in text:
+        errors.append(f"{CI}: Linux sanitizer CI must not disable LeakSanitizer")
+    return errors
+
+
+def check_local_matrix() -> list[str]:
+    matrix_text = MATRIX.read_text(encoding="utf-8")
+    lane_text = (
+        REPO_ROOT / "scripts" / "matrix" / "run-lane.sh"
+    ).read_text(encoding="utf-8")
+    sanitizer_text = SANITIZER.read_text(encoding="utf-8")
+    errors: list[str] = []
+    matrix_markers = (
+        "cairo-1.15.10",
+        "cairo-1.18.4",
+        "CAIROON_SANITIZER_LEAKS=on",
+    )
+    for marker in matrix_markers:
+        if marker not in matrix_text and marker not in lane_text:
+            errors.append(f"{MATRIX}: local release matrix is missing {marker!r}")
+
+    sanitizer_markers = (
+        "compiler_preflight",
+        "probe_recording_snapshot_leak",
+        "RECORDING_SNAPSHOT_PACKAGES",
+        "discover_packages",
+        "MOON_TOOLCHAIN_ROOT",
+        "validate_suppression_usage",
+    )
+    for marker in sanitizer_markers:
+        if marker not in sanitizer_text:
+            errors.append(f"{SANITIZER}: sanitizer gate is missing {marker!r}")
     return errors
 
 
@@ -172,6 +212,7 @@ def main() -> int:
     errors.extend(check_testing_doc())
     errors.extend(check_verify_gate())
     errors.extend(check_ci_gate())
+    errors.extend(check_local_matrix())
     if errors:
         for error in errors:
             print(error, file=sys.stderr)

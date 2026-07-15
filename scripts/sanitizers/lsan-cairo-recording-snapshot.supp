@@ -1,0 +1,2 @@
+# Verified first by probes/cairo_recording_snapshot_probe.c without suppressions.
+leak:_cairo_recording_surface_snapshot

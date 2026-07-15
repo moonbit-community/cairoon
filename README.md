@@ -3,11 +3,10 @@
 cairoon is a native MoonBit binding for the
 [Cairo graphics library](https://cairographics.org/).
 
-This project is temporarily unstable. The current version is useful for
-experimentation and for light Cairo-dependent MoonBit projects, but the public
-API, package layout, native link configuration, and release process may still
-change before a stable release. Treat published versions before `1.0` as beta
-releases and pin them deliberately.
+**cairoon is temporarily unstable.** The current `0.x` series is intended for
+experimentation and light Cairo-dependent MoonBit projects. The public API,
+package layout, native link configuration, and release process may change
+before `1.0`; pin the exact cairoon version or commit in downstream projects.
 
 cairoon is inspired by pycairo: it tries to stay close to Cairo's C API, while
 using MoonBit-native value types, checked `CairoError` suberrors, explicit
@@ -16,12 +15,17 @@ stream callbacks, and GC-managed external objects for Cairo handles.
 ## Requirements
 
 - MoonBit with native target support.
-- Cairo 1.18 or newer development headers and library.
+- Cairo 1.15.10 or newer development headers and library. Cairo 1.18.4 is the
+  recommended production version.
 - `pkg-config` that can resolve `cairo`.
 - Python 3 for the repository verification scripts.
 
 cairoon is native-only. It does not currently target WebAssembly or JavaScript
 backends because the binding depends on Cairo C FFI.
+
+The local release matrix compiles against exact Cairo 1.15.10 and 1.18.4
+sources. APIs introduced after the lower bound are compile-time feature-gated;
+availability still depends on the Cairo library installed by the consumer.
 
 ## Quick Start
 
@@ -97,13 +101,18 @@ fn draw_example() -> Unit raise @cairoon.CairoError {
 
 ## Current Stability
 
-cairoon is reliable for the migrated slices that are marked `Done` in
-`API_INVENTORY.md` and pass `./scripts/verify.sh` on your target platform. It
-is not yet a stable release. The portable API and pinned pycairo test-source
-rows are closed, including Cairo 1.18's finite tag-attribute contract. The
-remaining beta risk is release evidence: passing the supported-platform CI and
-sanitizer matrix, plus resolving or version-bounding the documented macOS Cairo
-font-stack LeakSanitizer reports.
+cairoon is suitable for light native use when the required inventory rows are
+marked `Done`, the downstream consumer smoke test passes, and the project is
+pinned. It is not yet a stable or complete pycairo replacement. The portable
+API and all 20 pinned pycairo test-source families are covered, but one global
+test/release-evidence row remains `Partial`, platform-specific backends are out
+of scope, and no source-compatibility promise exists before `1.0`.
+
+Linux ASan/LSan runs each MoonBit package in a separate process. Cairo 1.15.10
+and 1.18.4 both have a reproducible SVG recording-surface snapshot leak in
+upstream Cairo. The gate first reproduces it with a standalone pure-C program,
+then applies a one-function LSan suppression only to the vector-oracle package;
+all other packages remain unsuppressed. This does not change runtime behavior.
 
 Platform-specific Xlib, XCB, and Win32 surfaces are outside the first portable
 scope. Python-specific pycairo APIs such as `CAPI`, `get_include()`, Python
@@ -139,10 +148,17 @@ release:
 
 The gate checks formatting, Cairo link-flag drift, project layout, FFI
 ownership annotations, API inventory coverage, the reliability ledger, native
-type checking, all 20 pinned pycairo test-file families (288 tests), full
-MoonBit tests, executable docs, direct C Cairo oracle tests, `moon info`, and
-targeted ASan runs when an ASan-capable compiler is available. The parity gate
+type checking, all 20 pinned pycairo test-file families (288 upstream tests),
+749 MoonBit tests, executable docs, direct C Cairo oracle tests, `moon info`,
+and ASan/LSan when an ASan-capable compiler is available. The parity gate
 rejects an unclaimed or multiply claimed upstream `tests/test_*.py` file.
+
+Before a release candidate, run both pinned Linux compatibility lanes locally:
+
+```sh
+./scripts/test-cairo-matrix.sh cairo-1.15.10
+./scripts/test-cairo-matrix.sh cairo-1.18.4
+```
 
 ## License
 

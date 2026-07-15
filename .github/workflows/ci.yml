@@ -11,7 +11,7 @@ permissions:
   contents: read
 
 env:
-  MOONBIT_INSTALL_VERSION: latest
+  MOONBIT_INSTALL_VERSION: 0.10.4+4f2e8f7dc-nightly
 
 jobs:
   native:
@@ -72,7 +72,7 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y pkg-config libcairo2-dev clang llvm build-essential
+          sudo apt-get install -y pkg-config libcairo2-dev libfontconfig1-dev clang llvm build-essential
 
       - name: Install MoonBit
         run: |
@@ -91,9 +91,9 @@ jobs:
       - name: Configure native link flags
         run: scripts/configure-link-flags.sh
 
-      - name: Run ASan reliability gate
+      - name: Run ASan and LSan package gate
         env:
           CAIROON_ASAN_CC: clang
           CAIROON_ASAN_AR: llvm-ar
-          ASAN_OPTIONS: detect_leaks=0:fast_unwind_on_malloc=0
-        run: ./scripts/verify.sh
+          CAIROON_SANITIZER_LEAKS: "on"
+        run: python3 ./scripts/sanitizers/run.py

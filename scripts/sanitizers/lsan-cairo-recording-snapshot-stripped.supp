@@ -1,0 +1,2 @@
+# Ubuntu strips Cairo's internal frame; the probe and post-run count guard this fallback.
+leak:cairo_restore

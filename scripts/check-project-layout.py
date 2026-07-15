@@ -19,6 +19,7 @@ SOURCE_SUFFIXES = (".mbt.md", ".mbti", ".mbt", ".c", ".h")
 PACKAGE_CONFIG_NAMES = {"moon.pkg"}
 NATIVE_PACKAGE_DIR = PACKAGE_ROOT / "native"
 NATIVE_PACKAGE_CONFIG = NATIVE_PACKAGE_DIR / "moon.pkg"
+SANITIZER_PROBE_ROOT = REPO_ROOT / "scripts" / "sanitizers" / "probes"
 NATIVE_TARGETS = {"native"}
 CAIRO_LINK_IMPORTS = ('"CAIMEOX/cairoon"', '"CAIMEOX/cairoon/native"')
 COUNTED_PACKAGE_ROOTS = (
@@ -383,6 +384,8 @@ def check_nested_c_files() -> list[str]:
         if path.suffix not in {".c", ".h"}:
             continue
         if ".git" in path.parts or "_build" in path.parts:
+            continue
+        if path.parent == SANITIZER_PROBE_ROOT and path.name.endswith("_probe.c"):
             continue
         owner_config = path.parent / "moon.pkg"
         if not owner_config.exists():
