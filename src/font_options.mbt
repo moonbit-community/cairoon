@@ -1,4 +1,11 @@
 ///|
+/// Owned, mutable options that control how Cairo renders fonts.
+///
+/// Assigning this wrapper shares the same option object; use `copy()` for an
+/// independently mutable snapshot. MoonBit destroys the underlying Cairo
+/// object when its final wrapper becomes unreachable. Equality and `hash()`
+/// are content-based, but no generic `Hash` implementation is provided because
+/// setters and `merge()` can change that content.
 struct FontOptions(@font_options_impl.RawFontOptions)
 
 ///|
@@ -26,6 +33,9 @@ fn check_font_options_status_raw(raw : Int) -> Unit raise CairoError {
 }
 
 ///|
+/// Create an owned options object with every setting at its Cairo default.
+///
+/// Raises `CairoMemoryError(NoMemory, _)` if Cairo cannot allocate it.
 pub fn FontOptions::new() -> FontOptions raise CairoError {
   let raw = @font_options_impl.create_raw()
   check_font_options_status_raw(@font_options_impl.status_raw(raw))
@@ -33,11 +43,19 @@ pub fn FontOptions::new() -> FontOptions raise CairoError {
 }
 
 ///|
+/// Return the status stored in this options object without raising it.
+///
+/// Public constructors and mutators check their status before returning, so
+/// `Success` is expected for values obtained through the public API.
 pub fn FontOptions::status(self : FontOptions) -> Status {
   font_options_status_from_raw(@font_options_impl.status_raw(self.to_raw()))
 }
 
 ///|
+/// Copy every current option into a new, independently mutable object.
+///
+/// Later mutations of either object do not affect the other. Raises the
+/// source status or `CairoMemoryError(NoMemory, _)` if copying fails.
 pub fn FontOptions::copy(self : FontOptions) -> FontOptions raise CairoError {
   let status = Ref(0)
   let raw = @font_options_impl.copy_raw(self.to_raw(), status)
@@ -47,6 +65,12 @@ pub fn FontOptions::copy(self : FontOptions) -> FontOptions raise CairoError {
 }
 
 ///|
+/// Merge non-default fields from `other` into this object in place.
+///
+/// A non-default value in `other` replaces this object's value; default fields
+/// leave the corresponding destination fields unchanged. `other` is neither
+/// retained nor mutated. Raises the checked status of either object or of the
+/// resulting destination.
 pub fn FontOptions::merge(
   self : FontOptions,
   other : FontOptions,
@@ -57,11 +81,19 @@ pub fn FontOptions::merge(
 }
 
 ///|
+/// Return whether every option field in two objects has the same value.
+///
+/// This is content equality rather than allocation identity. Cairo reports
+/// unequal if either object is in an error state.
 pub fn FontOptions::equal(self : FontOptions, other : FontOptions) -> Bool {
   @font_options_impl.equal_raw(self.to_raw(), other.to_raw())
 }
 
 ///|
+/// Return Cairo's content hash for the current option fields.
+///
+/// Equal options produce matching hashes. Any setter or `merge()` may change
+/// this value, so do not persist it or use a mutable object as a hash-table key.
 pub fn FontOptions::hash(self : FontOptions) -> UInt64 {
   @font_options_impl.hash_raw(self.to_raw())
 }
@@ -85,6 +117,10 @@ fn antialias_to_raw(antialias : Antialias) -> Int {
 }
 
 ///|
+/// Return the typed antialiasing mode used for text rendering.
+///
+/// Raises the object's checked status, or
+/// `CairoInvalidArgument(InvalidStatus, _)` for an unknown raw enum value.
 pub fn FontOptions::get_antialias(
   self : FontOptions,
 ) -> Antialias raise CairoError {
@@ -92,6 +128,10 @@ pub fn FontOptions::get_antialias(
 }
 
 ///|
+/// Return the exact Cairo C integer for the antialiasing mode.
+///
+/// Unknown values remain observable for pycairo C-int compatibility. Raises
+/// the object's checked `CairoError` status before reading the value.
 pub fn FontOptions::get_antialias_raw(
   self : FontOptions,
 ) -> Int raise CairoError {
@@ -100,6 +140,9 @@ pub fn FontOptions::get_antialias_raw(
 }
 
 ///|
+/// Set the typed antialiasing mode used when Cairo renders text.
+///
+/// Mutates this object and raises its checked `CairoError` status on failure.
 pub fn FontOptions::set_antialias(
   self : FontOptions,
   antialias : Antialias,
@@ -113,6 +156,11 @@ pub fn FontOptions::set_antialias(
 }
 
 ///|
+/// Set the antialiasing mode from an unvalidated Cairo C integer.
+///
+/// This pycairo compatibility entry point preserves unknown values; a later
+/// typed getter rejects them with `CairoInvalidArgument(InvalidStatus, _)`.
+/// Raises the object's checked status on failure.
 pub fn FontOptions::set_antialias_raw(
   self : FontOptions,
   antialias : Int,
@@ -150,6 +198,10 @@ fn subpixel_order_to_raw(subpixel_order : SubpixelOrder) -> Int {
 }
 
 ///|
+/// Return the typed color-element order used for subpixel antialiasing.
+///
+/// Raises the object's checked status, or
+/// `CairoInvalidArgument(InvalidStatus, _)` for an unknown raw enum value.
 pub fn FontOptions::get_subpixel_order(
   self : FontOptions,
 ) -> SubpixelOrder raise CairoError {
@@ -157,6 +209,10 @@ pub fn FontOptions::get_subpixel_order(
 }
 
 ///|
+/// Return the exact Cairo C integer for the subpixel order.
+///
+/// Unknown values remain observable for pycairo C-int compatibility. Raises
+/// the object's checked `CairoError` status before reading the value.
 pub fn FontOptions::get_subpixel_order_raw(
   self : FontOptions,
 ) -> Int raise CairoError {
@@ -165,6 +221,9 @@ pub fn FontOptions::get_subpixel_order_raw(
 }
 
 ///|
+/// Set the typed color-element order used with `AntialiasSubpixel`.
+///
+/// Mutates this object and raises its checked `CairoError` status on failure.
 pub fn FontOptions::set_subpixel_order(
   self : FontOptions,
   subpixel_order : SubpixelOrder,
@@ -178,6 +237,11 @@ pub fn FontOptions::set_subpixel_order(
 }
 
 ///|
+/// Set the subpixel order from an unvalidated Cairo C integer.
+///
+/// This pycairo compatibility entry point preserves unknown values; a later
+/// typed getter rejects them with `CairoInvalidArgument(InvalidStatus, _)`.
+/// Raises the object's checked status on failure.
 pub fn FontOptions::set_subpixel_order_raw(
   self : FontOptions,
   subpixel_order : Int,
@@ -215,6 +279,10 @@ fn hint_style_to_raw(hint_style : HintStyle) -> Int {
 }
 
 ///|
+/// Return the typed strength of font-outline pixel-grid fitting.
+///
+/// Raises the object's checked status, or
+/// `CairoInvalidArgument(InvalidStatus, _)` for an unknown raw enum value.
 pub fn FontOptions::get_hint_style(
   self : FontOptions,
 ) -> HintStyle raise CairoError {
@@ -222,6 +290,10 @@ pub fn FontOptions::get_hint_style(
 }
 
 ///|
+/// Return the exact Cairo C integer for the outline hint style.
+///
+/// Unknown values remain observable for pycairo C-int compatibility. Raises
+/// the object's checked `CairoError` status before reading the value.
 pub fn FontOptions::get_hint_style_raw(
   self : FontOptions,
 ) -> Int raise CairoError {
@@ -230,6 +302,9 @@ pub fn FontOptions::get_hint_style_raw(
 }
 
 ///|
+/// Set how strongly Cairo fits font outlines to the device pixel grid.
+///
+/// Mutates this object and raises its checked `CairoError` status on failure.
 pub fn FontOptions::set_hint_style(
   self : FontOptions,
   hint_style : HintStyle,
@@ -243,6 +318,11 @@ pub fn FontOptions::set_hint_style(
 }
 
 ///|
+/// Set the outline hint style from an unvalidated Cairo C integer.
+///
+/// This pycairo compatibility entry point preserves unknown values; a later
+/// typed getter rejects them with `CairoInvalidArgument(InvalidStatus, _)`.
+/// Raises the object's checked status on failure.
 pub fn FontOptions::set_hint_style_raw(
   self : FontOptions,
   hint_style : Int,
@@ -276,6 +356,10 @@ fn hint_metrics_to_raw(hint_metrics : HintMetrics) -> Int {
 }
 
 ///|
+/// Return the typed font-metrics hinting mode.
+///
+/// Raises the object's checked status, or
+/// `CairoInvalidArgument(InvalidStatus, _)` for an unknown raw enum value.
 pub fn FontOptions::get_hint_metrics(
   self : FontOptions,
 ) -> HintMetrics raise CairoError {
@@ -283,6 +367,10 @@ pub fn FontOptions::get_hint_metrics(
 }
 
 ///|
+/// Return the exact Cairo C integer for the metrics hinting mode.
+///
+/// Unknown values remain observable for pycairo C-int compatibility. Raises
+/// the object's checked `CairoError` status before reading the value.
 pub fn FontOptions::get_hint_metrics_raw(
   self : FontOptions,
 ) -> Int raise CairoError {
@@ -291,6 +379,9 @@ pub fn FontOptions::get_hint_metrics_raw(
 }
 
 ///|
+/// Set whether Cairo quantizes font metrics to integer device units.
+///
+/// Mutates this object and raises its checked `CairoError` status on failure.
 pub fn FontOptions::set_hint_metrics(
   self : FontOptions,
   hint_metrics : HintMetrics,
@@ -304,6 +395,11 @@ pub fn FontOptions::set_hint_metrics(
 }
 
 ///|
+/// Set the metrics hinting mode from an unvalidated Cairo C integer.
+///
+/// This pycairo compatibility entry point preserves unknown values; a later
+/// typed getter rejects them with `CairoInvalidArgument(InvalidStatus, _)`.
+/// Raises the object's checked status on failure.
 pub fn FontOptions::set_hint_metrics_raw(
   self : FontOptions,
   hint_metrics : Int,
@@ -321,6 +417,11 @@ fn check_no_embedded_nul(bytes : Bytes) -> Unit raise CairoError {
 }
 
 ///|
+/// Return a MoonBit copy of the OpenType variation settings, or `None`.
+///
+/// Requires Cairo 1.16 or newer; older versions raise
+/// `CairoError(InvalidStatus, _)`. The returned string is independent of the
+/// options object's internal storage.
 pub fn FontOptions::get_variations(
   self : FontOptions,
 ) -> String? raise CairoError {
@@ -340,6 +441,12 @@ pub fn FontOptions::get_variations(
 }
 
 ///|
+/// Set or clear OpenType variation-axis assignments.
+///
+/// `Some` accepts a comma-separated CSS-like string such as
+/// `"wght=200,wdth=140.5"`; `None` clears all assignments. Embedded NUL bytes
+/// raise `CairoInvalidArgument(InvalidString, _)` without mutation. Requires
+/// Cairo 1.16 or newer; older versions raise `CairoError(InvalidStatus, _)`.
 pub fn FontOptions::set_variations(
   self : FontOptions,
   variations : String?,
@@ -360,6 +467,11 @@ pub fn FontOptions::set_variations(
 }
 
 ///|
+/// Return the typed policy for rendering color-font glyphs.
+///
+/// Requires Cairo 1.18 or newer; older versions raise
+/// `CairoError(InvalidStatus, _)`. An unknown raw value raises
+/// `CairoInvalidArgument(InvalidStatus, _)`.
 pub fn FontOptions::get_color_mode(
   self : FontOptions,
 ) -> ColorMode raise CairoError {
@@ -390,6 +502,10 @@ fn color_mode_to_raw(color_mode : ColorMode) -> Int {
 }
 
 ///|
+/// Return the exact Cairo C integer for the color-font mode.
+///
+/// Unknown values remain observable for pycairo C-int compatibility. Requires
+/// Cairo 1.18 or newer; older versions raise `CairoError(InvalidStatus, _)`.
 pub fn FontOptions::get_color_mode_raw(
   self : FontOptions,
 ) -> Int raise CairoError {
@@ -400,6 +516,10 @@ pub fn FontOptions::get_color_mode_raw(
 }
 
 ///|
+/// Set the typed policy for rendering color glyphs or outline glyphs.
+///
+/// Requires Cairo 1.18 or newer; older versions raise
+/// `CairoError(InvalidStatus, _)` without mutating this object.
 pub fn FontOptions::set_color_mode(
   self : FontOptions,
   color_mode : ColorMode,
@@ -413,6 +533,11 @@ pub fn FontOptions::set_color_mode(
 }
 
 ///|
+/// Set the color-font mode from an unvalidated Cairo C integer.
+///
+/// On Cairo 1.18 or newer, unknown values remain visible through the raw
+/// getter and are rejected by the typed getter. Older versions raise
+/// `CairoError(InvalidStatus, _)` without mutating this object.
 pub fn FontOptions::set_color_mode_raw(
   self : FontOptions,
   color_mode : Int,
@@ -423,6 +548,10 @@ pub fn FontOptions::set_color_mode_raw(
 }
 
 ///|
+/// Return the selected unsigned OpenType CPAL palette index.
+///
+/// New objects return `COLOR_PALETTE_DEFAULT`. Requires Cairo 1.18 or newer;
+/// older versions raise `CairoError(InvalidStatus, _)`.
 pub fn FontOptions::get_color_palette(
   self : FontOptions,
 ) -> UInt raise CairoError {
@@ -433,6 +562,11 @@ pub fn FontOptions::get_color_palette(
 }
 
 ///|
+/// Select an unsigned OpenType CPAL palette index.
+///
+/// Cairo falls back to the default palette when the selected index is invalid;
+/// custom color overrides remain in effect across palette changes. Requires
+/// Cairo 1.18 or newer, otherwise raises `CairoError(InvalidStatus, _)`.
 pub fn FontOptions::set_color_palette(
   self : FontOptions,
   palette_index : UInt,
@@ -443,6 +577,11 @@ pub fn FontOptions::set_color_palette(
 }
 
 ///|
+/// Configure an RGBA override for OpenType palette entry `index`.
+///
+/// Components are passed directly to Cairo. The override is independent of
+/// the selected palette and survives later `set_color_palette` calls. Requires
+/// Cairo 1.18 or newer, otherwise raises `CairoError(InvalidStatus, _)`.
 pub fn FontOptions::set_custom_palette_color(
   self : FontOptions,
   index : UInt,
@@ -464,6 +603,12 @@ pub fn FontOptions::set_custom_palette_color(
 }
 
 ///|
+/// Return the configured custom RGBA override for palette entry `index`.
+///
+/// This reads only explicit overrides, not a font's underlying palette.
+/// Raises `CairoInvalidArgument(InvalidIndex, _)` when no override exists.
+/// Requires Cairo 1.18 or newer; older versions instead raise
+/// `CairoError(InvalidStatus, _)`.
 pub fn FontOptions::get_custom_palette_color(
   self : FontOptions,
   index : UInt,

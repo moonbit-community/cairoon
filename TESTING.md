@@ -79,7 +79,7 @@ Evaluate each slice with this scorecard:
 | Lifetime safety | External-object ownership, borrowed returns, callback retention, and error exits run under ASan/LSan or stress tests | Strong for the current portable scope: Linux runs every MoonBit package in a separate ASan/LSan process; the only suppression is a pure-C-probe-verified Cairo recording-snapshot function in the vector oracle package, while all other packages remain unsuppressed |
 | Callback safety | C-held MoonBit callbacks and callback arguments are retained across the callback invocation and released deterministically | Strong for stream writers/readers and raster-source callbacks covered by current stress/fuzz tests |
 | Portability | Required backends pass on each supported platform, or unsupported APIs have explicit `Decision` rows | Strong local evidence at the exact Cairo 1.15.10 compatibility floor and recommended 1.18.4 release, plus the host lane; still Partial until the release commit's shipped Ubuntu/macOS CI jobs pass |
-| Documentation | Public declarations have substantive MoonBit `///` comments, family workflows have executable examples where practical, and `scripts/check-public-docs.py` reports zero debt | Partial: executable family notes exist and 203 foundational, pure geometry/value, published-support, and Region declarations are documented, but the corrected exact grandfather ledger still contains 376 of 579 public declarations; new undocumented APIs and ledger drift fail the gate |
+| Documentation | Public declarations have substantive MoonBit `///` comments, family workflows have executable examples where practical, and `scripts/check-public-docs.py` reports zero debt | Partial: executable family notes exist and 236 foundational, pure geometry/value, published-support, Region, and FontOptions declarations are documented, but the corrected exact grandfather ledger still contains 343 of 579 public declarations; new undocumented APIs and ledger drift fail the gate |
 | Downstream consumption | A separately named MoonBit module resolves the versioned local dependency, imports only `CAIMEOX/cairoon`, supplies its own native Cairo link flags, renders through the public API against both checkout and extracted publication zip, and stays outside that archive | Strong local evidence through `integration/consumer` and `scripts/check-downstream-consumer.sh`; the zip is integrity-tested and recompiled in a fresh temporary workspace, while release CI must run the same `verify.sh` gate |
 
 The practical release rule is simple: a feature can be trusted when its
@@ -4205,9 +4205,11 @@ Path, Rectangle, TextCluster, TextExtents, TextGlyphRun, FontExtents, and Glyph
 declarations, including the previously omitted abstract `Path` type. The 42
 support constants and native link anchor add another 43 documented
 declarations. The Region slice adds all 22 owned-object, construction, query,
-copy, translation, and boolean-operation declarations. The remaining 376
-declarations are named exactly in `scripts/public-docs-debt.txt`; that ledger
-may shrink but may not grow.
+copy, translation, and boolean-operation declarations. The FontOptions slice
+adds all 33 ownership, copy/merge, rendering-state, raw-enum compatibility,
+variation, and color-palette declarations. The remaining 343 declarations are
+named exactly in `scripts/public-docs-debt.txt`; that ledger may shrink but may
+not grow.
 
 `scripts/check-public-docs.py` fails for a new undocumented declaration, a
 missing debt entry, a stale entry after documentation is added, duplicate or
