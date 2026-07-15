@@ -14,7 +14,10 @@ source-like files. The current public MoonBit package lives in `src/`;
 external black-box tests live in `src/tests/*`, public C stubs live in the
 `src/native/` native-stub package, test-only C oracles live in
 `src/tests/oracle/native/`, and executable family reference docs live in the
-external `src/docs/` package. The public package root is now frozen by
+external `src/docs/` package. An independently named downstream module lives
+under `integration/consumer`; `integration/moon.work` resolves the local
+cairoon dependency without folding that fixture into the published module.
+The public package root is now frozen by
 `scripts/public-package-root-allowlist.txt`: the existing direct `src/` files
 are grandfathered migration debt, and new implementation or test files must go
 into a MoonBit subpackage unless the layout plan is deliberately revised in the
@@ -78,6 +81,14 @@ cairoon/
   PACKAGING.md
   PORTING_FROM_PYCAIRO.md
   moon.mod
+  integration/
+    moon.work
+    consumer/
+      moon.mod
+      src/
+        smoke/
+          moon.pkg
+          consumer_smoke_test.mbt
   scripts/
     matrix/
       Dockerfile
@@ -345,6 +356,7 @@ MoonBit package shape without weakening the public interface.
 | Black-box tests | `src/tests/<family>/` | Import `CAIMEOX/cairoon`; assert only public behavior. Any package that imports cairoon must carry Cairo `cc-link-flags`, because native link flags are not propagated to external test executables. |
 | White-box oracles | `src/tests/oracle/<family>/` plus shared C support in `src/tests/oracle/native/` | Import `CAIMEOX/cairoon` for the public API and declare test-only direct-C oracle externs locally; public binding wrappers must never import oracle packages. Test-only C symbols are provided by the oracle-native support package, not `src/moon.pkg`. |
 | Documentation | `src/docs/`, `src/README.mbt.md`, and repository `docs/` | Narrative docs live outside source packages; the public package README stays at `src/README.mbt.md` for `moon.mod`, and family executable reference docs live in the external `src/docs` package so they compile like downstream user code through `CAIMEOX/cairoon`. |
+| Downstream integration | `integration/moon.work` and `integration/consumer/` | The consumer must remain a separately named MoonBit module with a versioned dependency on `CAIMEOX/cairoon`; its test package imports only the public package, carries platform Cairo link flags, and proves native drawing/readback. Root `moon.mod` must exclude `integration/` from publication. |
 | Release verification tooling | `scripts/matrix/` and `scripts/sanitizers/` | Pinned Cairo build lanes and sanitizer policy stay outside MoonBit packages. Standalone C diagnostics live only in `scripts/sanitizers/probes/`, end in `_probe.c`, compile directly with `pkg-config`, and must not be referenced by any `native-stub` list. |
 
 Do not split a family across packages until the type names, method call syntax,

@@ -10,7 +10,11 @@ import sys
 REPO_ROOT = pathlib.Path(__file__).resolve().parents[1]
 MAX_SOURCE_LINES = 900
 SOURCE_SUFFIXES = (".mbt", ".mbt.md", ".c", ".h", ".py", ".sh")
-SEARCH_ROOTS = (REPO_ROOT / "src", REPO_ROOT / "scripts")
+SEARCH_ROOTS = (
+    REPO_ROOT / "src",
+    REPO_ROOT / "scripts",
+    REPO_ROOT / "integration" / "consumer" / "src",
+)
 
 
 def is_checked_source(path: pathlib.Path) -> bool:

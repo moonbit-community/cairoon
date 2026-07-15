@@ -6,6 +6,7 @@ cd "$repo_root"
 public_package_config="$repo_root/src/moon.pkg"
 native_package_config="$repo_root/src/native/moon.pkg"
 package_root="$repo_root/src"
+consumer_package_root="$repo_root/integration/consumer/src"
 constants_file="$repo_root/src/core/constants/constants.mbt"
 feature_const_names=(
   HAS_ATSUI_FONT
@@ -282,7 +283,12 @@ has_native_stub() {
 }
 
 collect_dependent_configs() {
-  find "$package_root" -name moon.pkg -type f -print | sort | while IFS= read -r config; do
+  local roots=("$package_root")
+  if [[ -d "$consumer_package_root" ]]; then
+    roots+=("$consumer_package_root")
+  fi
+
+  find "${roots[@]}" -name moon.pkg -type f -print | sort | while IFS= read -r config; do
     if [[ "$config" == "$public_package_config" ||
           "$config" == "$native_package_config" ]]; then
       continue

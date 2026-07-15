@@ -38,6 +38,7 @@ SCORECARD_DIMENSIONS = (
     "Callback safety",
     "Portability",
     "Documentation",
+    "Downstream consumption",
 )
 VERIFY_COMMANDS = (
     "moon fmt --check",
@@ -51,6 +52,7 @@ VERIFY_COMMANDS = (
     "python3 ./scripts/check-reliability-ledger.py",
     "python3 ./scripts/check-vector-backend-scenes.py",
     "moon check --target native",
+    "./scripts/check-downstream-consumer.sh",
     "moon test --target native",
     "moon info --target native",
     "python3 ./scripts/sanitizers/run.py",

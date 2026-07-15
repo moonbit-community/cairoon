@@ -15,6 +15,13 @@ ALLOWLIST = REPO_ROOT / "scripts" / "root-layout-allowlist.txt"
 PUBLIC_ROOT_ALLOWLIST = REPO_ROOT / "scripts" / "public-package-root-allowlist.txt"
 LAYOUT_DOC = REPO_ROOT / "PROJECT_LAYOUT.md"
 MOON_MOD = REPO_ROOT / "moon.mod"
+INTEGRATION_ROOT = REPO_ROOT / "integration"
+INTEGRATION_WORKSPACE = INTEGRATION_ROOT / "moon.work"
+CONSUMER_ROOT = INTEGRATION_ROOT / "consumer"
+CONSUMER_MODULE = CONSUMER_ROOT / "moon.mod"
+CONSUMER_PACKAGE = CONSUMER_ROOT / "src" / "smoke"
+CONSUMER_PACKAGE_CONFIG = CONSUMER_PACKAGE / "moon.pkg"
+CONSUMER_TEST = CONSUMER_PACKAGE / "consumer_smoke_test.mbt"
 SOURCE_SUFFIXES = (".mbt.md", ".mbti", ".mbt", ".c", ".h")
 PACKAGE_CONFIG_NAMES = {"moon.pkg"}
 NATIVE_PACKAGE_DIR = PACKAGE_ROOT / "native"
@@ -115,6 +122,93 @@ def check_source_root() -> list[str]:
         errors.append('moon.mod: missing source = "src"')
     if 'readme = "src/README.mbt.md"' not in moon_mod:
         errors.append('moon.mod: readme must point at src/README.mbt.md')
+    exclude_match = re.search(
+        r"exclude\s*:\s*\[(?P<entries>[^\]]*)\]", moon_mod, re.DOTALL
+    )
+    if exclude_match is None or '"integration"' not in exclude_match.group(
+        "entries"
+    ):
+        errors.append(
+            'moon.mod: publishing must exclude the integration consumer fixture'
+        )
+    return errors
+
+
+def check_integration_fixture() -> list[str]:
+    errors: list[str] = []
+    required_files = (
+        INTEGRATION_WORKSPACE,
+        CONSUMER_MODULE,
+        CONSUMER_PACKAGE_CONFIG,
+        CONSUMER_TEST,
+    )
+    for path in required_files:
+        if not path.exists():
+            errors.append(
+                f"{path.relative_to(REPO_ROOT)}: missing downstream consumer fixture file"
+            )
+    if errors:
+        return errors
+
+    workspace = INTEGRATION_WORKSPACE.read_text(encoding="utf-8")
+    workspace_members = set(re.findall(r'"([^"]+)"', workspace))
+    if workspace_members != {"..", "./consumer"}:
+        errors.append(
+            "integration/moon.work: members must be exactly the relative "
+            "cairoon root and isolated consumer module"
+        )
+
+    root_module = MOON_MOD.read_text(encoding="utf-8")
+    version_match = re.search(r'^version\s*=\s*"([^"]+)"', root_module, re.MULTILINE)
+    if version_match is None:
+        errors.append("moon.mod: missing module version for consumer dependency check")
+        expected_dependency = None
+    else:
+        expected_dependency = (
+            f'"CAIMEOX/cairoon@{version_match.group(1)}"'
+        )
+
+    consumer_module = CONSUMER_MODULE.read_text(encoding="utf-8")
+    module_markers = (
+        'name = "cairoon-integration/consumer"',
+        'preferred_target = "native"',
+        'source = "src"',
+    )
+    for marker in module_markers:
+        if marker not in consumer_module:
+            errors.append(
+                f"integration/consumer/moon.mod: missing required marker {marker!r}"
+            )
+    if expected_dependency is not None and expected_dependency not in consumer_module:
+        errors.append(
+            "integration/consumer/moon.mod: cairoon dependency version must "
+            f"match the root module ({expected_dependency})"
+        )
+
+    consumer_package = CONSUMER_PACKAGE_CONFIG.read_text(encoding="utf-8")
+    if '"CAIMEOX/cairoon"' not in consumer_package:
+        errors.append(
+            "integration/consumer/src/smoke/moon.pkg: must import the public "
+            "CAIMEOX/cairoon package"
+        )
+    cairoon_imports = set(
+        re.findall(r'"(CAIMEOX/cairoon[^"]*)"', consumer_package)
+    )
+    if cairoon_imports != {"CAIMEOX/cairoon"}:
+        errors.append(
+            "integration/consumer/src/smoke/moon.pkg: must use only the public "
+            "CAIMEOX/cairoon package, not implementation subpackages"
+        )
+    if 'for "test"' not in consumer_package:
+        errors.append(
+            "integration/consumer/src/smoke/moon.pkg: the fixture import must "
+            "remain test-scoped"
+        )
+    if '"cc-link-flags"' not in consumer_package:
+        errors.append(
+            "integration/consumer/src/smoke/moon.pkg: native consumer tests "
+            "must carry Cairo cc-link-flags"
+        )
     return errors
 
 
@@ -383,7 +477,7 @@ def check_nested_c_files() -> list[str]:
             continue
         if path.suffix not in {".c", ".h"}:
             continue
-        if ".git" in path.parts or "_build" in path.parts:
+        if any(part in {".git", ".mooncakes", "_build"} for part in path.parts):
             continue
         if path.parent == SANITIZER_PROBE_ROOT and path.name.endswith("_probe.c"):
             continue
@@ -458,6 +552,7 @@ def main() -> int:
     errors.extend(check_root_freeze(root_allowed))
     errors.extend(check_public_package_root_freeze(public_root_allowed))
     errors.extend(check_source_root())
+    errors.extend(check_integration_fixture())
     errors.extend(check_native_package())
     errors.extend(check_layout_counters())
     errors.extend(check_nested_packages())

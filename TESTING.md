@@ -65,7 +65,7 @@ The current test set is sufficient to protect the migrated slices that are
 listed as `Done` in `API_INVENTORY.md`, provided `./scripts/verify.sh` passes
 on the target platform. It is not sufficient to claim a complete pycairo
 migration because one row is intentionally still `Partial`, and because
-some reliability evidence is local/manual rather than continuous CI evidence.
+local release evidence still needs confirmation from the shipped CI jobs.
 
 Evaluate each slice with this scorecard:
 
@@ -80,6 +80,7 @@ Evaluate each slice with this scorecard:
 | Callback safety | C-held MoonBit callbacks and callback arguments are retained across the callback invocation and released deterministically | Strong for stream writers/readers and raster-source callbacks covered by current stress/fuzz tests |
 | Portability | Required backends pass on each supported platform, or unsupported APIs have explicit `Decision` rows | Strong local evidence at the exact Cairo 1.15.10 compatibility floor and recommended 1.18.4 release, plus the host lane; still Partial until the release commit's shipped Ubuntu/macOS CI jobs pass |
 | Documentation | Public behavior has executable reference examples where practical | Strong for current migrated families; keep this synchronized with public API additions |
+| Downstream consumption | A separately named MoonBit module resolves the versioned local dependency, imports only `CAIMEOX/cairoon`, supplies its own native Cairo link flags, renders through the public API, and stays outside the publication archive | Strong local evidence through `integration/consumer` and `scripts/check-downstream-consumer.sh`; release CI must run the same `verify.sh` gate |
 
 The practical release rule is simple: a feature can be trusted when its
 inventory row is `Done`, its reference docs are executable where practical,
@@ -105,6 +106,7 @@ python3 cairoon/scripts/check-ffi-ownership.py
 python3 cairoon/scripts/check-reliability-ledger.py
 python3 cairoon/scripts/check-vector-backend-scenes.py
 moon -C cairoon check --target native --deny-warn
+./cairoon/scripts/check-downstream-consumer.sh
 moon -C cairoon info --target native
 ```
 
@@ -260,7 +262,9 @@ It runs `moon fmt --check`, the checker unit tests under `scripts/tests`,
 `scripts/check-pycairo-test-parity.py`,
 `scripts/check-reliability-ledger.py`,
 `scripts/check-vector-backend-scenes.py`, native
-`moon check --target native --deny-warn`, the `src/native` native-stub package,
+`moon check --target native --deny-warn`, the isolated
+`integration/consumer` module's public import/link/render smoke test and
+publication-archive exclusion check, the `src/native` native-stub package,
 extracted external
 test packages under
 `src/tests/api/version` (version helpers),
@@ -3943,6 +3947,10 @@ The exact Linux release evidence is:
   On stripped Ubuntu Cairo libraries, the probe selects a `cairo_restore`
   fallback and the runner additionally requires exactly 16 suppressions and
   the probe-predicted byte count.
+
+After the downstream fixture was added on 2026-07-15, the full host
+`./scripts/verify.sh` gate passed again: 749/749 repository MoonBit tests, 1/1
+isolated consumer tests, and every discovered package under host ASan.
 
 Remaining reliability work is now narrower and should be tracked as evidence,
 not as an unstructured checklist:

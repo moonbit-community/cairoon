@@ -39,7 +39,22 @@ changes only when intentionally refreshing the package for the release host.
 Before relying on a local checkout from another MoonBit project, verify both
 module resolution and native Cairo linking from the consumer package.
 
-For a local workspace:
+The repository carries an isolated consumer module under
+`integration/consumer` and joins it to cairoon only through
+`integration/moon.work`. Run the executable gate with:
+
+```sh
+./scripts/check-downstream-consumer.sh
+```
+
+The gate checks formatting and native compilation only for the consumer smoke
+package, renders and reads back a 2x2 image through the published API, and
+verifies that `moon package --list` excludes the entire integration fixture.
+`scripts/configure-link-flags.sh` updates the fixture's platform-specific Cairo
+link flags together with every repository test package.
+
+To reproduce the same structure in another project, create a local workspace
+that contains both modules:
 
 ```sh
 moon work init
@@ -87,7 +102,8 @@ test "consumer can draw through cairoon" {
 }
 ```
 
-Run the consumer package itself:
+Run that consumer package itself. In this repository the equivalent package is
+`integration/consumer/src/smoke`:
 
 ```sh
 moon test . --target native --deny-warn -v
@@ -107,7 +123,8 @@ Use:
 
 The gate runs formatting, link-flag drift checks, static FFI ownership linting,
 top-level pycairo API inventory linting, all 20 pinned pycairo test-file
-families (288 tests), native type checking, targeted
+families (288 tests), the isolated downstream import/link/render test and
+publication-archive exclusion check, native type checking, targeted
 image/scaled-font/vector/pattern oracle tests, the full native test suite,
 `moon info --target native`, and package-isolated ASan/LSan tests when an
 ASan-capable `clang` is available. A detected pycairo checkout must have
@@ -153,7 +170,8 @@ suppressed allocations and the byte count predicted by the probe.
    `*.mbt.md` reference file.
 8. Run both pinned Cairo matrix lanes and record their exact versions and test
    counts in `AUDIT.md`.
-9. Run a downstream consumer smoke test from a separate MoonBit module.
+9. Run `./scripts/check-downstream-consumer.sh`; it must pass from the separate
+   fixture module and keep `integration/` out of the publication archive.
 10. Commit the release state and tag it from a clean worktree.
 
 ## CI Guidance
@@ -186,3 +204,5 @@ run the ASan job separately on an image that provides `clang` plus Cairo.
 - Standalone sanitizer probes belong in `scripts/sanitizers/probes/`, must end
   in `_probe.c`, and must never appear in a MoonBit `native-stub` list.
 - Keep `pkg.generated.mbti` committed so reviewers can audit public API changes.
+- Keep `integration/` excluded from publication; it is a local workspace and
+  consumer contract test, not part of the distributed module.

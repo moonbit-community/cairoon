@@ -19,3 +19,7 @@ source = "src"
 import {
   "moonbitlang/x@0.4.45",
 }
+
+options(
+  exclude: [ "integration" ],
+)

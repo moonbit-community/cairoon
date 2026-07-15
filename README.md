@@ -35,6 +35,7 @@ For a local checkout:
 scripts/configure-link-flags.sh
 moon check --target native
 moon test --target native
+./scripts/check-downstream-consumer.sh
 ```
 
 `moon.pkg` files store concrete native compiler and linker flags for the local
@@ -102,9 +103,9 @@ fn draw_example() -> Unit raise @cairoon.CairoError {
 ## Current Stability
 
 cairoon is suitable for light native use when the required inventory rows are
-marked `Done`, the downstream consumer smoke test passes, and the project is
-pinned. It is not yet a stable or complete pycairo replacement. The portable
-API and all 20 pinned pycairo test-source families are covered, but one global
+marked `Done`, the automated downstream consumer smoke test passes, and the
+project is pinned. It is not yet a stable or complete pycairo replacement. The
+portable API and all 20 pinned pycairo test-source families are covered, but one global
 test/release-evidence row remains `Partial`, platform-specific backends are out
 of scope, and no source-compatibility promise exists before `1.0`.
 
@@ -149,9 +150,11 @@ release:
 The gate checks formatting, Cairo link-flag drift, project layout, FFI
 ownership annotations, API inventory coverage, the reliability ledger, native
 type checking, all 20 pinned pycairo test-file families (288 upstream tests),
-749 MoonBit tests, executable docs, direct C Cairo oracle tests, `moon info`,
-and ASan/LSan when an ASan-capable compiler is available. The parity gate
-rejects an unclaimed or multiply claimed upstream `tests/test_*.py` file.
+749 in-module MoonBit tests, one isolated downstream-module import/link/render
+test, publication-archive isolation, executable docs, direct C Cairo oracle
+tests, `moon info`, and ASan/LSan when an ASan-capable compiler is available.
+The parity gate rejects an unclaimed or multiply claimed upstream
+`tests/test_*.py` file.
 
 Before a release candidate, run both pinned Linux compatibility lanes locally:
 

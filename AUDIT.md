@@ -3014,6 +3014,18 @@ Prior full verifies passed on 2026-07-02, 2026-07-03, 2026-07-04,
   and destination tags, and Document/Part/Sect/list/table/figure/paragraph
   structure tags while the PS/SVG paths prove those tags remain backend-inert.
 
+## Downstream Consumer Evidence
+
+The 2026-07-15 local release gate now includes a separately named MoonBit
+consumer module under `integration/consumer`. Its versioned dependency is
+resolved through `integration/moon.work`, while its test package imports only
+`CAIMEOX/cairoon` and carries its own Cairo link flags. The smoke test creates
+an ARGB32 surface, paints through `Context`, reads pixels back through the
+public API, and passed 1/1 tests. `moon package --list` also confirms that root
+module metadata excludes the integration fixture from the release archive.
+The enclosing `./scripts/verify.sh` run passed 749/749 repository tests and
+every package-isolated host ASan invocation.
+
 ## Known Gaps
 
 - Current tests are strong enough for the `Done` inventory rows when

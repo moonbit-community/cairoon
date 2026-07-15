@@ -55,6 +55,11 @@ After wiring the package, run a consumer-only smoke test with:
 moon test . --target native --deny-warn -v
 ```
 
+This repository includes that setup as an executable example. From the
+cairoon checkout, `./scripts/check-downstream-consumer.sh` verifies local
+workspace resolution, native linking, rendering/readback, and publication
+exclusion using `integration/consumer`.
+
 Plain `moon test --target native` from a workspace can run every workspace
 member, including cairoon's full test suite. Use that when you want full local
 verification, not just consumer integration.

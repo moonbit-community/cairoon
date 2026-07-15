@@ -65,6 +65,7 @@ run python3 ./scripts/check-pycairo-test-parity.py
 run python3 ./scripts/check-reliability-ledger.py
 run python3 ./scripts/check-vector-backend-scenes.py
 run moon check --target native --deny-warn
+run ./scripts/check-downstream-consumer.sh
 run_support_packages
 run_external_test_packages
 
