@@ -168,6 +168,7 @@ MoonBit declarations to native:
 
 ```moonbit
 import {
+  "CAIMEOX/cairoon/internal/region" @region_impl,
   "CAIMEOX/cairoon/native",
 }
 
@@ -197,11 +198,16 @@ options(
     "ffi_svg_surface.mbt": ["native"],
     "ffi_tee_surface.mbt": ["native"],
     "ffi_scaled_font.mbt": ["native"],
-    "ffi_text_to_glyphs.mbt": ["native"],
-    "ffi_region.mbt": ["native"]
+    "ffi_text_to_glyphs.mbt": ["native"]
   },
 )
 ```
+
+Region is the object-handle exception to the public-package FFI list.
+`src/internal/region/moon.pkg` imports `CAIMEOX/cairoon/native`, native-gates
+its own `ffi.mbt`, and carries the same `pkg-config`-derived Cairo link flags as
+the public package. The public package imports it as `@region_impl`; it must not
+redeclare `RawRegion` or any Region extern.
 
 The `src/native/moon.pkg` package owns all public C glue compilation. Its
 `native-stub` entries are plain filenames beside that package file, never paths
@@ -295,8 +301,12 @@ mapped-image-surface extern declarations that call
 `cairoon_svg_surface.c`; raw SVG version query/string helpers belong to
 `src/internal/svg` because their public facade can stay as `SVGVersion`
 methods. `ffi_tee_surface.mbt` owns raw Tee surface extern declarations that
-call `cairoon_tee_surface.c`; and `ffi_region.mbt` owns raw `Region` extern
-declarations that call `cairoon_region.c`.
+call `cairoon_tee_surface.c`. `src/internal/region/ffi.mbt` owns the abstract
+`RawRegion` external object and every Region extern that calls
+`cairoon_region.c`; its public child-package functions expose status and
+overlap values only as `Int` and must not import `CAIMEOX/cairoon`. The public
+`region.mbt` facade owns the abstract `Region` wrapper, converts those raw
+values to `Status` and `RegionOverlap`, and maps failures to `CairoError`.
 
 Do not add public wrappers to `ffi_*.mbt`; these files are private native FFI
 plumbing only. Public MoonBit APIs stay in focused wrapper files such as
@@ -522,7 +532,7 @@ ownership first, then expose convenience APIs.
 | `cairo_font_face_t *` | `type FontFace` | External object; finalizer calls `cairo_font_face_destroy`. |
 | `cairo_scaled_font_t *` | `type ScaledFont` | External object; finalizer calls `cairo_scaled_font_destroy`. |
 | `cairo_font_options_t *` | `type FontOptions` | External object; finalizer calls `cairo_font_options_destroy`. |
-| `cairo_region_t *` | `type Region` | External object; finalizer calls `cairo_region_destroy`. |
+| `cairo_region_t *` | Public `type Region` wrapping internal `RawRegion` | `RawRegion` is the sole external object and its finalizer calls `cairo_region_destroy`; `Region` holds exactly one strong reference and has no second finalizer. |
 | `cairo_device_t *` | `type Device` | External object; finalizer calls `cairo_device_destroy`. |
 | `cairo_path_t *` | `type Path` | External object; finalizer calls `cairo_path_destroy`. |
 | `cairo_matrix_t` | Pure MoonBit value, e.g. `struct Matrix { xx : Double, yx : Double, xy : Double, yy : Double, x0 : Double, y0 : Double }` | No external finalizer. C stubs convert to/from fields. |

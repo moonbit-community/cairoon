@@ -33,7 +33,6 @@ ffi_pattern_raster_source.mbt
 ffi_pdf_surface.mbt
 ffi_ps_surface.mbt
 ffi_recording_surface.mbt
-ffi_region.mbt
 ffi_scaled_font.mbt
 ffi_surface.mbt
 ffi_surface_font_options.mbt

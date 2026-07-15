@@ -29,7 +29,4 @@ type ScaledFont
 type Path
 
 ///|
-type Region
-
-///|
 priv type TextToGlyphsNative

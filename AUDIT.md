@@ -16,9 +16,10 @@ Implemented in this workspace:
   `scripts/configure-link-flags.sh --check` in the local reliability gate.
 - Exact local release lanes for Cairo 1.15.10 and 1.18.4, built from pinned
   source URLs and SHA-256 digests on a pinned Ubuntu base image. Both lanes
-  pass all static gates and 761/761 native tests with the pinned MoonBit
+  pass all static gates and 763/763 native tests with the pinned MoonBit
   `0.10.4+4f2e8f7dc-nightly` compiler. In each lane, the source-checkout and
-  extracted-publication-zip consumers also pass 1/1 independently.
+  extracted-publication-zip consumers also pass 1/1 independently; the
+  integrity-checked publication archive contains 540 members.
 - Linux ASan/LSan now runs every discovered MoonBit package in a separate
   process. An intentional-leak preflight proves LSan is active; the runner
   creates a temporary `MOON_TOOLCHAIN_ROOT` with an allocator-free shadow
@@ -246,6 +247,15 @@ Implemented in this workspace:
   typed/raw version string methods, and all `Surface::svg*` object wrappers.
   Package-local and surface black-box tests prove SVG version helpers still
   work through the facade.
+- `src/internal/region` is the first facade-owned object implementation seam.
+  It owns the GC-managed raw Region handle, all 21 Region extern wrappers, and
+  package-local raw geometry/status tests. Its interface deliberately exposes
+  Cairo status and overlap values only as `Int`, so it neither imports the
+  facade nor duplicates `Status`, `RegionOverlap`, or `CairoError`. Public
+  `src/region.mbt` remains the owner of the abstract `Region` wrapper, all
+  published methods, enum conversion, and error mapping. The generated public
+  interface is unchanged; external core/parity tests and finalizer/value
+  lifetime tests cover behavior and ownership through `CAIMEOX/cairoon`.
 - C FFI glue split by Cairo object family, following pycairo's
   `private.h` plus per-family C file architecture. GC-managed external objects
   currently cover `Surface`, `MappedImageSurface`, `ImageData`, `Context`,
@@ -306,9 +316,10 @@ Implemented in this workspace:
   `ffi_surface_png.mbt`, and `ffi_surface_state.mbt` own raw image, mapped
   image, recording, base, font-options, MIME, PNG, and state/page surface
   extern declarations; and `ffi_path.mbt`, `ffi_pdf_surface.mbt`,
-  `ffi_ps_surface.mbt`, `ffi_svg_surface.mbt`, `ffi_tee_surface.mbt`, and
-  `ffi_region.mbt` own raw `Path`, PDF surface, PostScript surface, SVG
-  surface, Tee surface, and `Region` extern declarations. Raw PDF version
+  `ffi_ps_surface.mbt`, `ffi_svg_surface.mbt`, and `ffi_tee_surface.mbt` own raw
+  `Path`, PDF surface, PostScript surface, SVG surface, and Tee surface extern
+  declarations. Raw Region extern declarations and the raw GC handle now live
+  in `src/internal/region`. Raw PDF version
   helper externs have moved out of `ffi_pdf_surface.mbt` into
   `src/internal/pdf`; raw PostScript level helper externs have moved out of
   `ffi_ps_surface.mbt` into `src/internal/ps`; raw SVG version helper externs
@@ -665,12 +676,13 @@ The most recent full local verification passed on 2026-07-15:
 - `CAIROON_VERIFY_ASAN=0 ./scripts/verify.sh`: passed formatting,
   project-layout, source-size, link-flag, FFI ownership, portable API
   inventory, pycairo parity, reliability-ledger, vector-scene, native type,
-  generated-interface, and 761/761 native test gates. The isolated consumer
+  generated-interface, and 763/763 native test gates. The isolated consumer
   passed 1/1 against both the checkout and the integrity-tested, extracted
-  publication zip. Host ASan was intentionally not duplicated in this run.
+  540-member publication zip. Host ASan was intentionally not duplicated in
+  this run.
 - `./scripts/test-cairo-matrix.sh cairo-1.15.10` and
   `./scripts/test-cairo-matrix.sh cairo-1.18.4`: both exact Linux lanes passed
-  the same source and publication-zip consumer tests at 1/1 each, all 761
+  the same source and publication-zip consumer tests at 1/1 each, all 763
   native tests, and every discovered MoonBit package under ASan/LSan. Only
   the pure-C-probe-verified vector-oracle suppression was used: 16
   allocations/7424 bytes on 1.15.10 and 16 allocations/9344 bytes on 1.18.4.
@@ -3045,7 +3057,7 @@ module metadata excludes the integration fixture from the release archive.
 The gate now additionally integrity-tests that exact zip, extracts it into a
 fresh temporary workspace, and reruns the same consumer test against the
 packaged module; the artifact path also passes 1/1. The host verify run passed
-761/761 repository tests with duplicate ASan disabled, while both exact Linux
+763/763 repository tests with duplicate ASan disabled, while both exact Linux
 Cairo lanes reran this gate and every package-isolated ASan/LSan invocation.
 
 ## Known Gaps

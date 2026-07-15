@@ -5,6 +5,7 @@ import {
   "CAIMEOX/cairoon/internal/format" @format_impl,
   "CAIMEOX/cairoon/internal/pdf" @pdf_impl,
   "CAIMEOX/cairoon/internal/ps" @ps_impl,
+  "CAIMEOX/cairoon/internal/region" @region_impl,
   "CAIMEOX/cairoon/internal/status" @status_impl,
   "CAIMEOX/cairoon/internal/stream" @stream_impl,
   "CAIMEOX/cairoon/internal/svg" @svg_impl,
@@ -54,7 +55,6 @@ options(
     "ffi_surface_state.mbt": [ "native" ],
     "ffi_svg_surface.mbt": [ "native" ],
     "ffi_tee_surface.mbt": [ "native" ],
-    "ffi_region.mbt": [ "native" ],
   },
   link: {
     "native": {

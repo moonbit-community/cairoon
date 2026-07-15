@@ -280,7 +280,7 @@ classification),
 support packages under `src/core/constants`, `src/core/glyph`,
 `src/internal/version`,
 `src/internal/format`, `src/internal/status`, `src/internal/pdf`,
-`src/internal/ps`, `src/internal/svg`,
+`src/internal/ps`, `src/internal/region`, `src/internal/svg`,
 `src/tests/matrix/core`, `src/tests/matrix/property`,
 `src/tests/matrix/pycairo`,
 `src/tests/region/core`,
@@ -3946,11 +3946,11 @@ retaining strict comparison for all other lines. A synthetic byte-pair
 assertion covers that rule. Both exact lanes then passed the full 761/761
 suite and every package under ASan/LSan.
 
-The exact Linux release evidence is:
+The exact Linux release evidence after the Region package extraction is:
 
 - Cairo 1.15.10, archive SHA-256
   `62ca226134cf2f1fd114bea06f8b374eb37f35d8e22487eaa54d5e9428958392`:
-  all static gates and 761/761 native tests pass; all discovered MoonBit
+  all static gates and 763/763 native tests pass; all discovered MoonBit
   packages pass ASan/LSan independently. The source-checkout and extracted
   publication-zip consumers each pass 1/1. The pure-C SVG probe reports
   exactly two 464-byte `_cairo_recording_surface_snapshot` allocations. Only
@@ -3958,7 +3958,7 @@ The exact Linux release evidence is:
   for 16 allocations and 7424 bytes; every other package runs unsuppressed.
 - Cairo 1.18.4, archive SHA-256
   `445ed8208a6e4823de1226a74ca319d3600e83f6369f99b14265006599c32ccb`:
-  761/761 native tests pass and all discovered MoonBit packages pass ASan/LSan
+  763/763 native tests pass and all discovered MoonBit packages pass ASan/LSan
   independently. The source-checkout and extracted publication-zip consumers
   each pass 1/1. The same pure-C probe reports exactly two 584-byte upstream
   allocations. The vector-oracle package accounts for 16 suppressed
@@ -3978,6 +3978,13 @@ isolated consumer test passed 1/1 against both source and extracted publication
 zip, with duplicate host ASan intentionally disabled for this run. Both exact
 Linux lanes above reran that gate and every discovered package under
 ASan/LSan.
+
+The subsequent Region object-handle package extraction moved the raw GC handle
+and all Region externs into `src/internal/region` while preserving the public
+facade interface. Two package-local raw-handle tests raise the current suite to
+763/763. The host gate, both exact Linux Cairo lanes, every package-isolated
+ASan/LSan run, both downstream consumer paths, and the integrity-checked
+540-member publication archive all pass after that extraction.
 
 Remaining reliability work is now narrower and should be tracked as evidence,
 not as an unstructured checklist:

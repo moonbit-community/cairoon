@@ -151,7 +151,7 @@ Run the exact local Cairo compatibility lanes before release:
 ```
 
 Each lane builds Cairo from a pinned URL and SHA-256 in an isolated Docker
-image, copies the checkout into disposable storage, checks all 761 MoonBit
+image, copies the checkout into disposable storage, checks all 763 MoonBit
 tests, and runs each MoonBit package separately under ASan/LSan. Cairo's known
 SVG recording-snapshot leak is accepted only after
 `scripts/sanitizers/probes/cairo_recording_snapshot_probe.c` reproduces the

@@ -1,0 +1,58 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "CAIMEOX/cairoon/internal/region"
+
+import {
+  "moonbitlang/core/ref",
+}
+
+// Values
+pub fn contains_point_raw(RawRegion, Int, Int) -> Bool
+
+pub fn contains_rectangle_raw(RawRegion, Int, Int, Int, Int) -> Int
+
+pub fn copy_raw(RawRegion) -> RawRegion
+
+pub fn create_raw() -> RawRegion
+
+pub fn create_rectangle_raw(Int, Int, Int, Int) -> RawRegion
+
+pub fn create_rectangles_raw(FixedArray[Int], FixedArray[Int], FixedArray[Int], FixedArray[Int], @ref.Ref[Int]) -> RawRegion
+
+pub fn equal_raw(RawRegion, RawRegion) -> Bool
+
+pub fn get_extents_raw(RawRegion, @ref.Ref[Int], @ref.Ref[Int], @ref.Ref[Int], @ref.Ref[Int]) -> Int
+
+pub fn get_rectangle_raw(RawRegion, Int, @ref.Ref[Int], @ref.Ref[Int], @ref.Ref[Int], @ref.Ref[Int]) -> Int
+
+pub fn intersect_raw(RawRegion, RawRegion) -> Int
+
+pub fn intersect_rectangle_raw(RawRegion, Int, Int, Int, Int) -> Int
+
+pub fn is_empty_raw(RawRegion) -> Bool
+
+pub fn num_rectangles_raw(RawRegion) -> Int
+
+pub fn status_raw(RawRegion) -> Int
+
+pub fn subtract_raw(RawRegion, RawRegion) -> Int
+
+pub fn subtract_rectangle_raw(RawRegion, Int, Int, Int, Int) -> Int
+
+pub fn translate_raw(RawRegion, Int, Int) -> Int
+
+pub fn union_raw(RawRegion, RawRegion) -> Int
+
+pub fn union_rectangle_raw(RawRegion, Int, Int, Int, Int) -> Int
+
+pub fn xor_raw(RawRegion, RawRegion) -> Int
+
+pub fn xor_rectangle_raw(RawRegion, Int, Int, Int, Int) -> Int
+
+// Errors
+
+// Types and methods
+type RawRegion
+
+// Type aliases
+
+// Traits
