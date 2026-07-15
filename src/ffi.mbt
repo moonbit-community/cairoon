@@ -17,9 +17,6 @@ type Context
 type Pattern
 
 ///|
-type FontFace
-
-///|
 type ScaledFont
 
 ///|

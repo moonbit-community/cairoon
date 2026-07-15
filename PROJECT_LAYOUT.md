@@ -27,13 +27,15 @@ exemptions: when a file moves out of the repository root or direct `src/`, the
 same commit must remove its allowlist entry so an identically named file cannot
 silently return later.
 
-- 66 `.mbt` implementation files directly in `src/`.
+- 65 `.mbt` implementation files directly in `src/`.
 - 1 `.mbt` implementation file and 1 package-local `*_test.mbt` file in
   `src/core/constants/`.
 - 1 `.mbt` implementation file and 1 package-local `*_test.mbt` file in
   `src/core/glyph/`.
 - 1 `.mbt` implementation file and 1 package-local `*_test.mbt` file in
   `src/internal/cstring/`.
+- 2 `.mbt` implementation files and 1 package-local `*_test.mbt` file in
+  `src/internal/font_face/`.
 - 2 `.mbt` implementation files and 1 package-local `*_test.mbt` file in
   `src/internal/font_options/`.
 - 2 `.mbt` implementation files and 1 package-local `*_test.mbt` file in
@@ -147,6 +149,11 @@ cairoon/
         moon.pkg
         cstring.mbt
         cstring_test.mbt
+      font_face/
+        moon.pkg
+        ffi.mbt
+        font_face.mbt
+        font_face_test.mbt
       font_options/
         moon.pkg
         ffi.mbt
@@ -365,7 +372,7 @@ MoonBit package shape without weakening the public interface.
 |---|---|---|
 | Public package | `src/` | Owns the stable `CAIMEOX/cairoon` interface and public external object types until a facade proof proves otherwise. |
 | Pure support packages | `src/core/` | May hold pure values/helpers only after their public names can be preserved or intentionally re-exported. `src/core/glyph` is the first accepted seam: the public package exposes `pub type Glyph = @glyph.Glyph`, owns `@glyph.field_arrays` for glyph-array marshaling preparation, and tests prove `@cairoon.Glyph::new`, field access, dot-method syntax, and glyph-array FFI paths still work through the facade. `src/core/constants` is the second accepted seam: it owns generated primitive Cairo constants, while the facade preserves `@cairoon.CAIRO_VERSION`, `@cairoon.HAS_*`, `@cairoon.MIME_TYPE_*`, tag constants, `PDF_OUTLINE_ROOT`, and `COLOR_PALETTE_DEFAULT` through `pub const` aliases. |
-| Internal implementation packages | `src/internal/<family>/` | May hold native-gated extern declarations and implementation helpers for public facade functions when the public `CAIMEOX/cairoon` API remains unchanged. `src/internal/version` owns the raw version externs and UTF-8 decoding while `src/version.mbt` remains a thin facade. `src/internal/format` owns the raw `cairo_format_stride_for_width` extern while `src/format.mbt` keeps the public `Format` enum, constructors, and methods. `src/internal/status` owns the raw status-message extern while `src/status.mbt` keeps the public `Status` enum and methods. `src/internal/pdf` owns raw PDF version query/string helpers while `src/pdf_surface.mbt` keeps `PDFVersion` constructors and PDF surface wrappers. `src/internal/ps` owns raw PostScript level query/string helpers while `src/ps_surface.mbt` keeps `PSLevel` constructors and PS surface wrappers. `src/internal/svg` owns raw SVG version query/string helpers while `src/svg_surface.mbt` keeps `SVGVersion` constructors and SVG surface wrappers. `src/internal/stream` owns pure callback chunk-copy helpers used by stream-writing facade wrappers. `src/internal/cstring` owns pure embedded-NUL scanning used by facade string validators. `src/internal/region` and `src/internal/font_options` are facade-owned object seams: each owns the sole GC-managed raw handle and family externs using raw `Int` statuses and enum values, while the public wrapper retains methods, enum conversion, and `CairoError` mapping. Cross-family Context/Surface/ScaledFont externs pass `RawFontOptions` directly and wrap it only after checking their output status. Any package that imports `CAIMEOX/cairoon/native` must carry Cairo `cc-link-flags` so package-local tests link independently. |
+| Internal implementation packages | `src/internal/<family>/` | May hold native-gated extern declarations and implementation helpers for public facade functions when the public `CAIMEOX/cairoon` API remains unchanged. `src/internal/version` owns the raw version externs and UTF-8 decoding while `src/version.mbt` remains a thin facade. `src/internal/format` owns the raw `cairo_format_stride_for_width` extern while `src/format.mbt` keeps the public `Format` enum, constructors, and methods. `src/internal/status` owns the raw status-message extern while `src/status.mbt` keeps the public `Status` enum and methods. `src/internal/pdf` owns raw PDF version query/string helpers while `src/pdf_surface.mbt` keeps `PDFVersion` constructors and PDF surface wrappers. `src/internal/ps` owns raw PostScript level query/string helpers while `src/ps_surface.mbt` keeps `PSLevel` constructors and PS surface wrappers. `src/internal/svg` owns raw SVG version query/string helpers while `src/svg_surface.mbt` keeps `SVGVersion` constructors and SVG surface wrappers. `src/internal/stream` owns pure callback chunk-copy helpers used by stream-writing facade wrappers. `src/internal/cstring` owns pure embedded-NUL scanning used by facade string validators. `src/internal/region`, `src/internal/font_options`, and `src/internal/font_face` are facade-owned object seams: each owns the sole GC-managed raw handle and family externs using raw `Int` statuses and enum values, while the public wrapper retains methods, enum conversion, and `CairoError` mapping. Cross-family Context/Surface/ScaledFont externs pass `RawFontOptions` directly; Context/ScaledFont externs pass `RawFontFace` directly. Checked facade methods alone wrap returned handles and unwrap arguments. Any package that imports `CAIMEOX/cairoon/native` must carry Cairo `cc-link-flags` so package-local tests link independently. |
 | Native stubs | `src/native/` | Owns public C glue compilation through `src/native/moon.pkg`. Every `.c` file beside that package file must be listed by bare filename in its `native-stub` list; `src/moon.pkg` imports `CAIMEOX/cairoon/native` and must not own `native-stub` entries. Headers in `src/native/` are private to those stubs. |
 | Black-box tests | `src/tests/<family>/` | Import `CAIMEOX/cairoon`; assert only public behavior. Any package that imports cairoon must carry Cairo `cc-link-flags`, because native link flags are not propagated to external test executables. |
 | White-box oracles | `src/tests/oracle/<family>/` plus shared C support in `src/tests/oracle/native/` | Import `CAIMEOX/cairoon` for the public API and declare test-only direct-C oracle externs locally; public binding wrappers must never import oracle packages. Test-only C symbols are provided by the oracle-native support package, not `src/moon.pkg`. |
@@ -467,7 +474,13 @@ Follow this order. Each step gets its own commit and must pass
    typed/raw enum conversion, string validation, and `CairoError` mapping.
    Package-local raw copy/merge/state tests, external font/context/lifetime
    tests, and generated-interface comparison must all pass before this pattern
-   is reused for another cross-family object.
+   is reused for another cross-family object. `src/internal/font_face` is the
+   third object-handle seam. It owns `RawFontFace` and all eight declared
+   FontFace-specific externs; Context and ScaledFont pass that raw handle below
+   the facade. Public `FontFace` retains string validation, typed/raw slant and
+   weight conversion, traits, and `CairoError` mapping. Package-local raw
+   status/accessor tests plus external FontFace, Context, ScaledFont, oracle,
+   and lifetime tests must pass before the seam is accepted.
 7. **Executable docs package split**: started. Keep `src/README.mbt.md` as the
    `moon.mod` readme and move family executable reference docs into
    `src/docs/`, which imports `CAIMEOX/cairoon` and carries Cairo link flags so

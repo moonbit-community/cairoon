@@ -1,7 +1,7 @@
 ///|
 #borrow(font_face, options)
 extern "C" fn scaled_font_create_ffi(
-  font_face : FontFace,
+  font_face : @font_face_impl.RawFontFace,
   font_xx : Double,
   font_yx : Double,
   font_xy : Double,
@@ -37,7 +37,7 @@ extern "C" fn scaled_font_hash_ffi(scaled_font : ScaledFont) -> UInt64 = "cairoo
 extern "C" fn scaled_font_get_font_face_ffi(
   scaled_font : ScaledFont,
   status : Ref[Status],
-) -> FontFace = "cairoon_scaled_font_get_font_face"
+) -> @font_face_impl.RawFontFace = "cairoon_scaled_font_get_font_face"
 
 ///|
 #borrow(scaled_font, status)

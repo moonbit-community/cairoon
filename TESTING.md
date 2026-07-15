@@ -279,7 +279,8 @@ classification),
 `src/tests/value/pycairo` (pycairo value parity),
 support packages under `src/core/constants`, `src/core/glyph`,
 `src/internal/version`,
-`src/internal/font_options`, `src/internal/format`, `src/internal/status`,
+`src/internal/font_face`, `src/internal/font_options`, `src/internal/format`,
+`src/internal/status`,
 `src/internal/pdf`,
 `src/internal/ps`, `src/internal/region`, `src/internal/svg`,
 `src/tests/matrix/core`, `src/tests/matrix/property`,
@@ -3947,11 +3948,11 @@ retaining strict comparison for all other lines. A synthetic byte-pair
 assertion covers that rule. Both exact lanes then passed the full 761/761
 suite and every package under ASan/LSan.
 
-The exact Linux release evidence after the FontOptions package extraction is:
+The exact Linux release evidence after the FontFace package extraction is:
 
 - Cairo 1.15.10, archive SHA-256
   `62ca226134cf2f1fd114bea06f8b374eb37f35d8e22487eaa54d5e9428958392`:
-  all static gates and 765/765 native tests pass; all discovered MoonBit
+  all static gates and 767/767 native tests pass; all discovered MoonBit
   packages pass ASan/LSan independently. The source-checkout and extracted
   publication-zip consumers each pass 1/1. The pure-C SVG probe reports
   exactly two 464-byte `_cairo_recording_surface_snapshot` allocations. Only
@@ -3959,7 +3960,7 @@ The exact Linux release evidence after the FontOptions package extraction is:
   for 16 allocations and 7424 bytes; every other package runs unsuppressed.
 - Cairo 1.18.4, archive SHA-256
   `445ed8208a6e4823de1226a74ca319d3600e83f6369f99b14265006599c32ccb`:
-  765/765 native tests pass and all discovered MoonBit packages pass ASan/LSan
+  767/767 native tests pass and all discovered MoonBit packages pass ASan/LSan
   independently. The source-checkout and extracted publication-zip consumers
   each pass 1/1. The same pure-C probe reports exactly two 584-byte upstream
   allocations. The vector-oracle package accounts for 16 suppressed
@@ -3995,6 +3996,15 @@ facade. Two package-local raw-handle tests raise the current suite to 765/765.
 The host gate and both exact Linux Cairo lanes pass every package under
 ASan/LSan, both downstream consumer paths pass 1/1, and the integrity-checked
 publication archive contains 544 members.
+
+The subsequent FontFace object-handle package extraction moved the sole raw GC
+handle and all eight declared FontFace-specific externs into
+`src/internal/font_face`. Context and ScaledFont cross-family paths now
+exchange `RawFontFace` beneath the unchanged public facade. Two package-local
+raw-handle tests raise the current suite to 767/767. The host gate and both
+exact Linux Cairo lanes pass every package under ASan/LSan, both downstream
+consumer paths pass 1/1, and the integrity-checked publication archive contains
+548 members.
 
 Remaining reliability work is now narrower and should be tracked as evidence,
 not as an unstructured checklist:

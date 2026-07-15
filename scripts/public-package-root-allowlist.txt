@@ -21,7 +21,6 @@ ffi_context_paint.mbt
 ffi_context_path.mbt
 ffi_context_state.mbt
 ffi_device.mbt
-ffi_font_face.mbt
 ffi_image_data.mbt
 ffi_image_surface.mbt
 ffi_mapped_image_surface.mbt

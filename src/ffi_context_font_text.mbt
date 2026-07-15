@@ -17,13 +17,13 @@ extern "C" fn context_set_font_options_ffi(
 extern "C" fn context_get_font_face_ffi(
   ctx : Context,
   status : Ref[Status],
-) -> FontFace = "cairoon_context_get_font_face"
+) -> @font_face_impl.RawFontFace = "cairoon_context_get_font_face"
 
 ///|
 #borrow(ctx, font_face)
 extern "C" fn context_set_font_face_ffi(
   ctx : Context,
-  font_face : FontFace,
+  font_face : @font_face_impl.RawFontFace,
 ) -> Status = "cairoon_context_set_font_face"
 
 ///|

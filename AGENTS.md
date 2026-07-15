@@ -168,6 +168,7 @@ MoonBit declarations to native:
 
 ```moonbit
 import {
+  "CAIMEOX/cairoon/internal/font_face" @font_face_impl,
   "CAIMEOX/cairoon/internal/font_options" @font_options_impl,
   "CAIMEOX/cairoon/internal/region" @region_impl,
   "CAIMEOX/cairoon/native",
@@ -179,7 +180,6 @@ options(
     "ffi_context_core.mbt": ["native"],
     "ffi_context_font_text.mbt": ["native"],
     "ffi_device.mbt": ["native"],
-    "ffi_font_face.mbt": ["native"],
     "ffi_image_data.mbt": ["native"],
     "ffi_image_surface.mbt": ["native"],
     "ffi_mapped_image_surface.mbt": ["native"],
@@ -203,12 +203,12 @@ options(
 )
 ```
 
-FontOptions and Region are object-handle exceptions to the public-package FFI
-list. Their `src/internal/<family>/moon.pkg` files import
+FontFace, FontOptions, and Region are object-handle exceptions to the
+public-package FFI list. Their `src/internal/<family>/moon.pkg` files import
 `CAIMEOX/cairoon/native`, native-gate their own `ffi.mbt`, and carry the same
 `pkg-config`-derived Cairo link flags as the public package. The public package
-imports them as `@font_options_impl` and `@region_impl`; it must not redeclare
-their raw handle types or family externs.
+imports them as `@font_face_impl`, `@font_options_impl`, and `@region_impl`; it
+must not redeclare their raw handle types or family externs.
 
 The `src/native/moon.pkg` package owns all public C glue compilation. Its
 `native-stub` entries are plain filenames beside that package file, never paths
@@ -241,10 +241,11 @@ helper types in `ffi.mbt`; move raw handles and module-level native helpers into
 `src/internal/<family>/` when the public facade can remain unchanged, and move
 larger families into files named `ffi_<family>.mbt`. Add every such public-root
 file to `moon.pkg` `targets` with
-`["native"]`. For example, `src/internal/font_options/ffi.mbt` owns
+`["native"]`. For example, `src/internal/font_face/ffi.mbt` owns
+`RawFontFace` and the toy-font-face/FontFace extern declarations that call
+`cairoon_font_face.c`; `src/internal/font_options/ffi.mbt` owns
 `RawFontOptions` and the FontOptions-specific extern declarations that call
-`cairoon_font_options.c`; `ffi_font_face.mbt` owns raw toy-font-face and
-`FontFace` extern declarations that call `cairoon_font_face.c`;
+`cairoon_font_options.c`;
 `ffi_scaled_font.mbt` owns raw `ScaledFont`
 extern declarations that call `cairoon_scaled_font.c`;
 `ffi_text_to_glyphs.mbt` owns raw text-to-glyphs result extern declarations
@@ -304,7 +305,12 @@ mapped-image-surface extern declarations that call
 `cairoon_svg_surface.c`; raw SVG version query/string helpers belong to
 `src/internal/svg` because their public facade can stay as `SVGVersion`
 methods. `ffi_tee_surface.mbt` owns raw Tee surface extern declarations that
-call `cairoon_tee_surface.c`. `src/internal/font_options/ffi.mbt` owns the
+call `cairoon_tee_surface.c`. `src/internal/font_face/ffi.mbt` owns the
+abstract `RawFontFace` external object and every declared FontFace-specific
+extern; Context and ScaledFont externs in the public package may accept or
+return that raw handle, but must wrap or unwrap only in checked facade methods.
+The child interface uses `Int` for statuses, slants, and weights and must not
+import `CAIMEOX/cairoon`. `src/internal/font_options/ffi.mbt` owns the
 abstract `RawFontOptions` external object and every FontOptions-specific extern;
 Context, Surface, and ScaledFont externs in the public package may accept or
 return that raw handle, but must wrap or unwrap only in checked facade methods.
@@ -537,7 +543,7 @@ ownership first, then expose convenience APIs.
 | Image/PDF/SVG/PS/Recording/Tee surfaces | Constructors and checked methods returning/accepting `Surface` | Do not create a second MoonBit owner for the same `cairo_surface_t *`. |
 | `cairo_pattern_t *` | `type Pattern` | External object; finalizer calls `cairo_pattern_destroy`. |
 | Solid/surface/gradient/mesh/raster-source patterns | Constructors and checked methods returning/accepting `Pattern` | Do not duplicate pattern ownership for subtypes. |
-| `cairo_font_face_t *` | `type FontFace` | External object; finalizer calls `cairo_font_face_destroy`. |
+| `cairo_font_face_t *` | Public `type FontFace` wrapping internal `RawFontFace` | `RawFontFace` is the sole external object and its finalizer calls `cairo_font_face_destroy`; `FontFace` holds exactly one strong reference and has no second finalizer. |
 | `cairo_scaled_font_t *` | `type ScaledFont` | External object; finalizer calls `cairo_scaled_font_destroy`. |
 | `cairo_font_options_t *` | Public `type FontOptions` wrapping internal `RawFontOptions` | `RawFontOptions` is the sole external object and its finalizer calls `cairo_font_options_destroy`; `FontOptions` holds exactly one strong reference and has no second finalizer. |
 | `cairo_region_t *` | Public `type Region` wrapping internal `RawRegion` | `RawRegion` is the sole external object and its finalizer calls `cairo_region_destroy`; `Region` holds exactly one strong reference and has no second finalizer. |

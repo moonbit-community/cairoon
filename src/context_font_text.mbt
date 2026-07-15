@@ -19,9 +19,9 @@ pub fn Context::set_font_options(
 ///|
 pub fn Context::get_font_face(self : Context) -> FontFace raise CairoError {
   let status = Ref(Success)
-  let font_face = context_get_font_face_ffi(self, status)
+  let raw = context_get_font_face_ffi(self, status)
   check_status(status.val)
-  font_face
+  FontFace::from_raw(raw)
 }
 
 ///|
@@ -31,7 +31,7 @@ pub fn Context::set_font_face(
 ) -> Unit raise CairoError {
   match font_face {
     None => check_status(context_set_font_face_default_ffi(self))
-    Some(face) => check_status(context_set_font_face_ffi(self, face))
+    Some(face) => check_status(context_set_font_face_ffi(self, face.to_raw()))
   }
 }
 

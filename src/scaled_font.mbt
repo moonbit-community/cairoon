@@ -8,7 +8,7 @@ pub fn ScaledFont::new(
   check_status(font_face.status())
   check_status(options.status())
   let scaled_font = scaled_font_create_ffi(
-    font_face,
+    font_face.to_raw(),
     font_matrix.xx,
     font_matrix.yx,
     font_matrix.xy,
@@ -62,9 +62,9 @@ pub fn ScaledFont::get_font_face(
   self : ScaledFont,
 ) -> FontFace raise CairoError {
   let status = Ref(Success)
-  let font_face = scaled_font_get_font_face_ffi(self, status)
+  let raw = scaled_font_get_font_face_ffi(self, status)
   check_status(status.val)
-  font_face
+  FontFace::from_raw(raw)
 }
 
 ///|

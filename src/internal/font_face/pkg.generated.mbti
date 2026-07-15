@@ -1,0 +1,32 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "CAIMEOX/cairoon/internal/font_face"
+
+import {
+  "moonbitlang/core/ref",
+}
+
+// Values
+pub fn equal_raw(RawFontFace, RawFontFace) -> Bool
+
+pub fn get_family_raw(RawFontFace, @ref.Ref[Int]) -> Bytes
+
+pub fn get_slant_raw(RawFontFace, @ref.Ref[Int]) -> Int
+
+pub fn get_weight_raw(RawFontFace, @ref.Ref[Int]) -> Int
+
+pub fn hash_raw(RawFontFace) -> UInt64
+
+pub fn status_raw(RawFontFace) -> Int
+
+pub fn toy_create_raw(Bytes, Int, Int) -> RawFontFace
+
+pub fn toy_create_value_raw(Bytes, Int, Int) -> RawFontFace
+
+// Errors
+
+// Types and methods
+type RawFontFace
+
+// Type aliases
+
+// Traits

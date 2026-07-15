@@ -1,4 +1,46 @@
 ///|
+struct FontFace(@font_face_impl.RawFontFace)
+
+///|
+fn FontFace::from_raw(raw : @font_face_impl.RawFontFace) -> FontFace {
+  FontFace(raw)
+}
+
+///|
+fn FontFace::to_raw(self : FontFace) -> @font_face_impl.RawFontFace {
+  self.0
+}
+
+///|
+fn font_face_status_from_raw(raw : Int) -> Status {
+  status_from_raw(raw) catch {
+    _ => InvalidStatus
+  }
+}
+
+///|
+fn check_font_face_status_raw(raw : Int) -> Unit raise CairoError {
+  check_status(status_from_raw(raw))
+}
+
+///|
+fn font_slant_to_raw(slant : FontSlant) -> Int {
+  match slant {
+    FontSlantNormal => 0
+    FontSlantItalic => 1
+    FontSlantOblique => 2
+  }
+}
+
+///|
+fn font_weight_to_raw(weight : FontWeight) -> Int {
+  match weight {
+    FontWeightNormal => 0
+    FontWeightBold => 1
+  }
+}
+
+///|
 pub fn FontFace::toy(
   family : String,
   slant? : FontSlant = FontSlantNormal,
@@ -6,9 +48,13 @@ pub fn FontFace::toy(
 ) -> FontFace raise CairoError {
   let bytes = @utf8.encode(family)
   check_no_embedded_nul(bytes)
-  let font_face = toy_font_face_create_ffi(bytes, slant, weight)
-  check_status(font_face_status_ffi(font_face))
-  font_face
+  let raw = @font_face_impl.toy_create_value_raw(
+    bytes,
+    font_slant_to_raw(slant),
+    font_weight_to_raw(weight),
+  )
+  check_font_face_status_raw(@font_face_impl.status_raw(raw))
+  FontFace::from_raw(raw)
 }
 
 ///|
@@ -19,24 +65,24 @@ pub fn FontFace::toy_raw(
 ) -> FontFace raise CairoError {
   let bytes = @utf8.encode(family)
   check_no_embedded_nul(bytes)
-  let font_face = toy_font_face_create_raw_ffi(bytes, slant, weight)
-  check_status(font_face_status_ffi(font_face))
-  font_face
+  let raw = @font_face_impl.toy_create_raw(bytes, slant, weight)
+  check_font_face_status_raw(@font_face_impl.status_raw(raw))
+  FontFace::from_raw(raw)
 }
 
 ///|
 pub fn FontFace::status(self : FontFace) -> Status {
-  font_face_status_ffi(self)
+  font_face_status_from_raw(@font_face_impl.status_raw(self.to_raw()))
 }
 
 ///|
 pub fn FontFace::equal(self : FontFace, other : FontFace) -> Bool {
-  font_face_equal_ffi(self, other)
+  @font_face_impl.equal_raw(self.to_raw(), other.to_raw())
 }
 
 ///|
 pub fn FontFace::hash(self : FontFace) -> UInt64 {
-  font_face_hash_ffi(self)
+  @font_face_impl.hash_raw(self.to_raw())
 }
 
 ///|
@@ -56,9 +102,9 @@ pub impl Hash for FontFace with fn hash_combine(self, hasher) {
 
 ///|
 pub fn FontFace::get_family(self : FontFace) -> String raise CairoError {
-  let status = Ref(Success)
-  let family = toy_font_face_get_family_ffi(self, status)
-  check_status(status.val)
+  let status = Ref(0)
+  let family = @font_face_impl.get_family_raw(self.to_raw(), status)
+  check_font_face_status_raw(status.val)
   @utf8.decode_lossy(family)
 }
 
@@ -96,9 +142,9 @@ pub fn FontFace::get_slant(self : FontFace) -> FontSlant raise CairoError {
 
 ///|
 pub fn FontFace::get_slant_raw(self : FontFace) -> Int raise CairoError {
-  let status = Ref(Success)
-  let slant = toy_font_face_get_slant_raw_ffi(self, status)
-  check_status(status.val)
+  let status = Ref(0)
+  let slant = @font_face_impl.get_slant_raw(self.to_raw(), status)
+  check_font_face_status_raw(status.val)
   slant
 }
 
@@ -109,8 +155,8 @@ pub fn FontFace::get_weight(self : FontFace) -> FontWeight raise CairoError {
 
 ///|
 pub fn FontFace::get_weight_raw(self : FontFace) -> Int raise CairoError {
-  let status = Ref(Success)
-  let weight = toy_font_face_get_weight_raw_ffi(self, status)
-  check_status(status.val)
+  let status = Ref(0)
+  let weight = @font_face_impl.get_weight_raw(self.to_raw(), status)
+  check_font_face_status_raw(status.val)
   weight
 }
