@@ -2,9 +2,6 @@
 type Surface
 
 ///|
-type Device
-
-///|
 type MappedImageSurface
 
 ///|

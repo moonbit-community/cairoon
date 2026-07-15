@@ -168,6 +168,7 @@ MoonBit declarations to native:
 
 ```moonbit
 import {
+  "CAIMEOX/cairoon/internal/device" @device_impl,
   "CAIMEOX/cairoon/internal/font_face" @font_face_impl,
   "CAIMEOX/cairoon/internal/font_options" @font_options_impl,
   "CAIMEOX/cairoon/internal/path" @path_impl,
@@ -203,12 +204,13 @@ options(
 )
 ```
 
-FontFace, FontOptions, Path, and Region are object-handle exceptions to the
+Device, FontFace, FontOptions, Path, and Region are object-handle exceptions to the
 public-package FFI list. Their `src/internal/<family>/moon.pkg` files import
 `CAIMEOX/cairoon/native`, native-gate their own `ffi.mbt`, and carry the same
 `pkg-config`-derived Cairo link flags as the public package. The public package
-imports them as `@font_face_impl`, `@font_options_impl`, `@path_impl`, and
-`@region_impl`; it must not redeclare their raw handle types or family externs.
+imports them as `@device_impl`, `@font_face_impl`, `@font_options_impl`,
+`@path_impl`, and `@region_impl`; it must not redeclare their raw handle types
+or family externs.
 
 The `src/native/moon.pkg` package owns all public C glue compilation. Its
 `native-stub` entries are plain filenames beside that package file, never paths
@@ -275,8 +277,11 @@ copy-path, and append-path extern declarations that call
 and page-operation extern declarations that call `cairoon_context_paint.c`;
 `ffi_context_state.mbt` owns raw `Context` drawing-state, line-style, and dash
 extern declarations that call `cairoon_context_state.c`;
-`ffi_device.mbt` owns raw `Device`, script-device, script-surface, and
-surface-get-device extern declarations that call `cairoon_device.c`;
+`src/internal/device/ffi.mbt` owns `RawDevice` and the 13 Device-only
+constructor, identity, lifecycle, and script-state extern declarations that
+call `cairoon_device.c`; `ffi_device.mbt` retains only the five cross-family
+recording-surface, script-surface, and surface-get-device bridge declarations,
+which exchange `RawDevice` with facade-owned `Surface`;
 `ffi_image_data.mbt` owns raw `ImageData` and image/mapped get-data extern
 declarations that call `cairoon_image_data.c`;
 `src/internal/path/ffi.mbt` owns `RawPath` and the Path-specific extern
@@ -330,6 +335,17 @@ child interface uses `Int` for Cairo statuses and path-data kinds and must not
 import `CAIMEOX/cairoon`. Public `path.mbt` retains the abstract single-field
 `Path` wrapper, `PathSegment`, `PathDataType` conversion, traits, UTF-8
 decoding, and all `CairoError` mapping.
+`src/internal/device/ffi.mbt` owns the abstract `RawDevice` external object and
+all 13 Device-only externs. Its child interface uses `Int` for statuses,
+`DeviceType`, `ScriptMode`, and stream callback results, and it must not import
+`CAIMEOX/cairoon`. Public `device.mbt` retains the abstract single-field
+`Device` wrapper, typed enum conversion, path/string validation, traits,
+scoped lifecycle helpers, and all `CairoError`/`CairoIOError` mapping. The five
+cross-family externs in public `ffi_device.mbt` may borrow or return
+`RawDevice`, but only checked `Device` or `Surface` facade methods may unwrap or
+wrap that handle. The child stream constructor owns the writer closure, copies
+each call-scoped chunk before invoking it, and relies on the native stream
+state to release the closure exactly once.
 
 Do not add public wrappers to `ffi_*.mbt`; these files are private native FFI
 plumbing only. Public MoonBit APIs stay in focused wrapper files such as
@@ -562,7 +578,7 @@ ownership first, then expose convenience APIs.
 | `cairo_scaled_font_t *` | `type ScaledFont` | External object; finalizer calls `cairo_scaled_font_destroy`. |
 | `cairo_font_options_t *` | Public `type FontOptions` wrapping internal `RawFontOptions` | `RawFontOptions` is the sole external object and its finalizer calls `cairo_font_options_destroy`; `FontOptions` holds exactly one strong reference and has no second finalizer. |
 | `cairo_region_t *` | Public `type Region` wrapping internal `RawRegion` | `RawRegion` is the sole external object and its finalizer calls `cairo_region_destroy`; `Region` holds exactly one strong reference and has no second finalizer. |
-| `cairo_device_t *` | `type Device` | External object; finalizer calls `cairo_device_destroy`. |
+| `cairo_device_t *` | Public `type Device` wrapping internal `RawDevice` | `RawDevice` is the sole external object and its finalizer calls `cairo_device_destroy`; `Device` holds exactly one strong reference and has no second finalizer. |
 | `cairo_path_t *` | Public `type Path` wrapping internal `RawPath` | `RawPath` is the sole external object and its finalizer calls `cairo_path_destroy`; `Path` holds exactly one strong reference and has no second finalizer. |
 | `cairo_matrix_t` | Pure MoonBit value, e.g. `struct Matrix { xx : Double, yx : Double, xy : Double, yy : Double, x0 : Double, y0 : Double }` | No external finalizer. C stubs convert to/from fields. |
 | `cairo_rectangle_t` | Pure MoonBit value with `Double` fields | No external finalizer. |
@@ -643,6 +659,18 @@ Concrete requirements:
   single-field wrapper around that raw owner. `Context::append_path` borrows
   the raw handle for the duration of the call; copied paths are independent
   and do not retain their source Context or Pattern.
+- `Device::script` and `Device::script_stream` return newly owned
+  `cairo_device_t *` values and must wrap them exactly once as `RawDevice`.
+  `Surface::get_device` receives a borrowed Cairo device; the C bridge must
+  call `cairo_device_reference` before returning the sole raw owner, and the
+  facade must wrap it exactly once. Script-surface bridges borrow `RawDevice`
+  only for the call; the resulting Cairo surface holds any native device
+  reference required by Cairo.
+- A script-stream writer closure crosses the call boundary and therefore must
+  be `#owned`. Native stream state releases it on every construction failure
+  or when the device is destroyed. The callback must copy its call-scoped
+  `Bytes` chunk before invoking user code so a user-retained chunk remains
+  valid after the native callback returns.
 - Temporary Cairo result containers such as `cairo_rectangle_list_t` must not
   cross the FFI boundary. The C stub must copy their primitive fields into a
   MoonBit-owned array, capture the Cairo status, destroy the Cairo container

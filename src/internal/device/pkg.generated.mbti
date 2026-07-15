@@ -1,0 +1,42 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "CAIMEOX/cairoon/internal/device"
+
+import {
+  "moonbitlang/core/ref",
+}
+
+// Values
+pub fn acquire_raw(RawDevice) -> Int
+
+pub fn equal_raw(RawDevice, RawDevice) -> Bool
+
+pub fn finish_raw(RawDevice) -> Int
+
+pub fn flush_raw(RawDevice) -> Int
+
+pub fn get_type_raw(RawDevice, @ref.Ref[Int]) -> Int
+
+pub fn hash_raw(RawDevice) -> UInt64
+
+pub fn release_raw(RawDevice) -> Int
+
+pub fn script_create_path_raw(Bytes, @ref.Ref[Int]) -> RawDevice
+
+pub fn script_create_stream_raw((Bytes) -> Int, @ref.Ref[Int]) -> RawDevice
+
+pub fn script_get_mode_raw(RawDevice, @ref.Ref[Int]) -> Int
+
+pub fn script_set_mode_raw(RawDevice, Int) -> Int
+
+pub fn script_write_comment_raw(RawDevice, Bytes) -> Int
+
+pub fn status_raw(RawDevice) -> Int
+
+// Errors
+
+// Types and methods
+type RawDevice
+
+// Type aliases
+
+// Traits

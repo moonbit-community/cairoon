@@ -25,6 +25,13 @@ OBJECT_TYPES = {
     "Surface",
     "TextToGlyphsNative",
 }
+RAW_OBJECT_TYPES = {
+    "RawDevice",
+    "RawFontFace",
+    "RawFontOptions",
+    "RawPath",
+    "RawRegion",
+}
 
 
 def split_top_level(text: str) -> list[str]:
@@ -90,7 +97,8 @@ def parse_params(signature: str) -> dict[str, str]:
 
 def requires_annotation(type_: str) -> bool:
     head = re.split(r"[\s\[\(]", type_, maxsplit=1)[0]
-    if head in OBJECT_TYPES:
+    base = head.rsplit(".", maxsplit=1)[-1]
+    if base in OBJECT_TYPES or base in RAW_OBJECT_TYPES:
         return True
     return (
         "Bytes" in type_

@@ -2,6 +2,7 @@ import {
   "CAIMEOX/cairoon/core/constants" @constants_impl,
   "CAIMEOX/cairoon/core/glyph",
   "CAIMEOX/cairoon/internal/cstring" @cstring_impl,
+  "CAIMEOX/cairoon/internal/device" @device_impl,
   "CAIMEOX/cairoon/internal/font_face" @font_face_impl,
   "CAIMEOX/cairoon/internal/font_options" @font_options_impl,
   "CAIMEOX/cairoon/internal/format" @format_impl,

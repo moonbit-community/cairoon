@@ -4021,6 +4021,23 @@ paths pass 1/1, and the integrity-checked publication archive contains 551
 members. Both exact Linux Cairo lanes pass every discovered package under
 ASan/LSan.
 
+The subsequent Device object-handle package extraction moved the sole raw GC
+handle and all 13 Device-only constructor, identity, lifecycle, type, and
+script-state externs into `src/internal/device`. The five recording/script
+Surface bridge externs remain in the facade package but now exchange
+`RawDevice` beneath the unchanged public wrapper. The child owns stream chunk
+copying before user retention, while native stream state still releases the
+`#owned` writer closure. Two package-local raw identity/state/lifecycle tests
+raise the current suite to 770/770. Targeted Device/ScriptSurface, stream,
+value, and finalizer packages pass; the public generated interface hash is
+unchanged, both downstream consumer paths pass 1/1, and the
+integrity-checked publication archive contains 556 members. The complete host
+gate passes, and the targeted ownership/lifetime packages also pass under host
+ASan. Both exact Linux Cairo lanes pass every discovered package under
+ASan/LSan; only the pure-C-probe-verified vector-oracle suppression is used,
+covering exactly 16 allocations/7424 bytes on Cairo 1.15.10 and 16
+allocations/9344 bytes on Cairo 1.18.4.
+
 Remaining reliability work is now narrower and should be tracked as evidence,
 not as an unstructured checklist:
 

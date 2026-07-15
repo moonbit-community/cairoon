@@ -16,10 +16,10 @@ Implemented in this workspace:
   `scripts/configure-link-flags.sh --check` in the local reliability gate.
 - Exact local release lanes for Cairo 1.15.10 and 1.18.4, built from pinned
   source URLs and SHA-256 digests on a pinned Ubuntu base image. Both lanes
-  pass all static gates and 768/768 native tests with the pinned MoonBit
+  pass all static gates and 770/770 native tests with the pinned MoonBit
   `0.10.4+4f2e8f7dc-nightly` compiler. In each lane, the source-checkout and
   extracted-publication-zip consumers also pass 1/1 independently; the
-  integrity-checked publication archive contains 551 members.
+  integrity-checked publication archive contains 556 members.
 - Linux ASan/LSan now runs every discovered MoonBit package in a separate
   process. An intentional-leak preflight proves LSan is active; the runner
   creates a temporary `MOON_TOOLCHAIN_ROOT` with an allocator-free shadow
@@ -287,6 +287,19 @@ Implemented in this workspace:
   Context, mesh Pattern, value-stress, and finalizer black-box tests cover both
   real producers, append consumption, error paths, source-scope independence,
   and sole-owner finalization.
+- `src/internal/device` is the fifth facade-owned object seam and the first
+  with a production constructor that transfers a MoonBit callback closure to
+  native state. It owns the sole `RawDevice` external object and all 13
+  Device-only constructor, identity, lifecycle, type, and script-state externs
+  using raw `Int` status and enum values. The five recording/script Surface
+  bridge externs remain in public `ffi_device.mbt` but exchange `RawDevice`;
+  checked `Device` and `Surface` facade methods alone wrap or unwrap it. The
+  child stream wrapper copies callback chunks before user code can retain them,
+  while the existing native stream state remains responsible for releasing the
+  `#owned` writer closure on failures and finalization. Package-local raw tests
+  cover identity, mode state, acquire/release, and finish behavior; external
+  Device/ScriptSurface, stream-retention, value-stress, and finalizer tests
+  cover the cross-family and callback ownership paths.
 - C FFI glue split by Cairo object family, following pycairo's
   `private.h` plus per-family C file architecture. GC-managed external objects
   currently cover `Surface`, `MappedImageSurface`, `ImageData`, `Context`,
@@ -336,8 +349,9 @@ Implemented in this workspace:
   `ffi_pattern_mesh.mbt` owns raw mesh-pattern extern declarations, and
   `ffi_pattern_raster_source.mbt` owns raw raster-source-pattern extern
   declarations backed by the public raster-source exports.
-  `ffi_device.mbt` owns raw `Device`, script-device, script-surface, and
-  surface-get-device extern declarations.
+  `src/internal/device/ffi.mbt` owns `RawDevice` and the 13 Device-only extern
+  declarations; `ffi_device.mbt` retains only five recording/script Surface
+  bridge declarations that exchange `RawDevice` with facade-owned `Surface`.
   `ffi_image_data.mbt` owns raw `ImageData` extern declarations;
   `ffi_image_surface.mbt`, `ffi_mapped_image_surface.mbt`,
   `ffi_recording_surface.mbt`, `ffi_surface.mbt`,
@@ -347,10 +361,10 @@ Implemented in this workspace:
   extern declarations; and `ffi_pdf_surface.mbt`, `ffi_ps_surface.mbt`,
   `ffi_svg_surface.mbt`, and `ffi_tee_surface.mbt` own raw PDF surface,
   PostScript surface, SVG surface, and Tee surface extern declarations. Raw
-  FontFace, FontOptions, Path, and Region extern declarations plus their sole
-  GC handles now live in `src/internal/font_face`,
-  `src/internal/font_options`, `src/internal/path`, and `src/internal/region`,
-  respectively. Raw PDF
+  Device, FontFace, FontOptions, Path, and Region extern declarations plus
+  their sole GC handles now live in `src/internal/device`,
+  `src/internal/font_face`, `src/internal/font_options`, `src/internal/path`,
+  and `src/internal/region`, respectively. Raw PDF
   version helper externs have moved out of `ffi_pdf_surface.mbt` into
   `src/internal/pdf`; raw PostScript level helper externs have moved out of
   `ffi_ps_surface.mbt` into `src/internal/ps`; raw SVG version helper externs
@@ -707,13 +721,13 @@ The most recent full local verification passed on 2026-07-15:
 - `CAIROON_VERIFY_ASAN=0 ./scripts/verify.sh`: passed formatting,
   project-layout, source-size, link-flag, FFI ownership, portable API
   inventory, pycairo parity, reliability-ledger, vector-scene, native type,
-  generated-interface, and 768/768 native test gates. The isolated consumer
+  generated-interface, and 770/770 native test gates. The isolated consumer
   passed 1/1 against both the checkout and the integrity-tested, extracted
-  551-member publication zip. Host ASan was intentionally not duplicated in
+  556-member publication zip. Host ASan was intentionally not duplicated in
   this run.
 - `./scripts/test-cairo-matrix.sh cairo-1.15.10` and
   `./scripts/test-cairo-matrix.sh cairo-1.18.4`: both exact Linux lanes passed
-  the same source and publication-zip consumer tests at 1/1 each, all 768
+  the same source and publication-zip consumer tests at 1/1 each, all 770
   native tests, and every discovered MoonBit package under ASan/LSan. Only
   the pure-C-probe-verified vector-oracle suppression was used: 16
   allocations/7424 bytes on 1.15.10 and 16 allocations/9344 bytes on 1.18.4.
@@ -3088,7 +3102,7 @@ module metadata excludes the integration fixture from the release archive.
 The gate now additionally integrity-tests that exact zip, extracts it into a
 fresh temporary workspace, and reruns the same consumer test against the
 packaged module; the artifact path also passes 1/1. The host verify run passed
-768/768 repository tests with duplicate ASan disabled, while both exact Linux
+770/770 repository tests with duplicate ASan disabled, while both exact Linux
 Cairo lanes reran this gate and every package-isolated ASan/LSan invocation.
 
 ## Known Gaps

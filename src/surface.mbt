@@ -168,8 +168,8 @@ pub fn Surface::get_device(self : Surface) -> Device? raise CairoError {
   if has_device.val == 0 {
     None
   } else {
-    check_status(device_status_ffi(device))
-    Some(device)
+    check_device_status_raw(@device_impl.status_raw(device))
+    Some(Device::from_raw(device))
   }
 }
 

@@ -1,40 +1,107 @@
 ///|
+struct Device(@device_impl.RawDevice)
+
+///|
+fn Device::from_raw(raw : @device_impl.RawDevice) -> Device {
+  Device(raw)
+}
+
+///|
+fn Device::to_raw(self : Device) -> @device_impl.RawDevice {
+  self.0
+}
+
+///|
+fn device_status_from_raw(raw : Int) -> Status {
+  status_from_raw(raw) catch {
+    _ => InvalidStatus
+  }
+}
+
+///|
+fn check_device_status_raw(raw : Int) -> Unit raise CairoError {
+  check_status(status_from_raw(raw))
+}
+
+///|
+fn device_type_from_raw(raw : Int) -> DeviceType raise CairoError {
+  match raw {
+    0 => DeviceTypeDrm
+    1 => DeviceTypeGl
+    2 => DeviceTypeScript
+    3 => DeviceTypeXcb
+    4 => DeviceTypeXlib
+    5 => DeviceTypeXml
+    6 => DeviceTypeCogl
+    7 => DeviceTypeWin32
+    _ =>
+      raise CairoInvalidArgument(
+        InvalidStatus,
+        "unknown cairo device type: \{raw}",
+      )
+  }
+}
+
+///|
+fn script_mode_to_raw(mode : ScriptMode) -> Int {
+  match mode {
+    ScriptModeAscii => 0
+    ScriptModeBinary => 1
+  }
+}
+
+///|
+fn script_mode_from_raw(raw : Int) -> ScriptMode raise CairoError {
+  match raw {
+    0 => ScriptModeAscii
+    1 => ScriptModeBinary
+    _ =>
+      raise CairoInvalidArgument(
+        InvalidStatus,
+        "unknown cairo script mode: \{raw}",
+      )
+  }
+}
+
+///|
 pub fn Device::script(path : String) -> Device raise CairoError {
-  let status = Ref(Success)
-  let device = script_device_create_ffi(checked_path_bytes(path), status)
-  check_status(status.val)
-  check_status(device_status_ffi(device))
-  device
+  let status = Ref(0)
+  let raw = @device_impl.script_create_path_raw(
+    checked_path_bytes(path),
+    status,
+  )
+  check_device_status_raw(status.val)
+  check_device_status_raw(@device_impl.status_raw(raw))
+  Device::from_raw(raw)
 }
 
 ///|
 pub fn Device::script_stream(
   writer : (Bytes) -> Status,
 ) -> Device raise CairoError {
-  let status = Ref(Success)
-  let device = script_device_create_for_stream_ffi(
-    fn(chunk, writer) { writer(@stream_impl.copy_chunk(chunk)) },
-    writer,
+  let status = Ref(0)
+  let raw = @device_impl.script_create_stream_raw(
+    fn(chunk) { writer(chunk).to_raw() },
     status,
   )
-  check_status(status.val)
-  check_status(device_status_ffi(device))
-  device
+  check_device_status_raw(status.val)
+  check_device_status_raw(@device_impl.status_raw(raw))
+  Device::from_raw(raw)
 }
 
 ///|
 pub fn Device::status(self : Device) -> Status {
-  device_status_ffi(self)
+  device_status_from_raw(@device_impl.status_raw(self.to_raw()))
 }
 
 ///|
 pub fn Device::equal(self : Device, other : Device) -> Bool {
-  device_equal_ffi(self, other)
+  @device_impl.equal_raw(self.to_raw(), other.to_raw())
 }
 
 ///|
 pub fn Device::hash(self : Device) -> UInt64 {
-  device_hash_ffi(self)
+  @device_impl.hash_raw(self.to_raw())
 }
 
 ///|
@@ -54,15 +121,15 @@ pub impl Hash for Device with fn hash_combine(self, hasher) {
 
 ///|
 pub fn Device::get_type(self : Device) -> DeviceType raise CairoError {
-  let status = Ref(Success)
-  let type_ = device_get_type_ffi(self, status)
-  check_status(status.val)
-  type_
+  let status = Ref(0)
+  let type_ = @device_impl.get_type_raw(self.to_raw(), status)
+  check_device_status_raw(status.val)
+  device_type_from_raw(type_)
 }
 
 ///|
 pub fn Device::finish(self : Device) -> Unit raise CairoError {
-  check_status(device_finish_ffi(self))
+  check_device_status_raw(@device_impl.finish_raw(self.to_raw()))
 }
 
 ///|
@@ -85,17 +152,17 @@ pub fn[T] Device::with_finished(
 
 ///|
 pub fn Device::flush(self : Device) -> Unit raise CairoError {
-  check_status(device_flush_ffi(self))
+  check_device_status_raw(@device_impl.flush_raw(self.to_raw()))
 }
 
 ///|
 pub fn Device::acquire(self : Device) -> Unit raise CairoError {
-  check_status(device_acquire_ffi(self))
+  check_device_status_raw(@device_impl.acquire_raw(self.to_raw()))
 }
 
 ///|
 pub fn Device::release(self : Device) -> Unit raise CairoError {
-  check_status(device_release_ffi(self))
+  check_device_status_raw(@device_impl.release_raw(self.to_raw()))
 }
 
 ///|
@@ -119,10 +186,10 @@ pub fn[T] Device::with_acquired(
 
 ///|
 pub fn Device::script_get_mode(self : Device) -> ScriptMode raise CairoError {
-  let status = Ref(Success)
-  let mode = script_device_get_mode_ffi(self, status)
-  check_status(status.val)
-  mode
+  let status = Ref(0)
+  let mode = @device_impl.script_get_mode_raw(self.to_raw(), status)
+  check_device_status_raw(status.val)
+  script_mode_from_raw(mode)
 }
 
 ///|
@@ -130,7 +197,9 @@ pub fn Device::script_set_mode(
   self : Device,
   mode : ScriptMode,
 ) -> Unit raise CairoError {
-  check_status(script_device_set_mode_ffi(self, mode))
+  check_device_status_raw(
+    @device_impl.script_set_mode_raw(self.to_raw(), script_mode_to_raw(mode)),
+  )
 }
 
 ///|
@@ -138,8 +207,11 @@ pub fn Device::script_write_comment(
   self : Device,
   comment : String,
 ) -> Unit raise CairoError {
-  check_status(
-    script_device_write_comment_ffi(self, checked_c_string_bytes(comment)),
+  check_device_status_raw(
+    @device_impl.script_write_comment_raw(
+      self.to_raw(),
+      checked_c_string_bytes(comment),
+    ),
   )
 }
 
@@ -148,7 +220,7 @@ pub fn Device::script_from_recording_surface(
   self : Device,
   surface : Surface,
 ) -> Unit raise CairoError {
-  check_status(script_device_from_recording_surface_ffi(self, surface))
+  check_status(script_device_from_recording_surface_ffi(self.to_raw(), surface))
 }
 
 ///|
@@ -160,7 +232,11 @@ pub fn Surface::script(
 ) -> Surface raise CairoError {
   let status = Ref(Success)
   let surface = script_surface_create_ffi(
-    device, content, width, height, status,
+    device.to_raw(),
+    content,
+    width,
+    height,
+    status,
   )
   check_status(status.val)
   check_status(surface_status_ffi(surface))
@@ -176,7 +252,7 @@ pub fn Surface::script_raw(
 ) -> Surface raise CairoError {
   let status = Ref(Success)
   let surface = script_surface_create_raw_ffi(
-    device,
+    device.to_raw(),
     checked_content_raw(content),
     width,
     height,
@@ -193,7 +269,11 @@ pub fn Surface::script_for_target(
   target : Surface,
 ) -> Surface raise CairoError {
   let status = Ref(Success)
-  let surface = script_surface_create_for_target_ffi(device, target, status)
+  let surface = script_surface_create_for_target_ffi(
+    device.to_raw(),
+    target,
+    status,
+  )
   check_status(status.val)
   check_status(surface_status_ffi(surface))
   surface

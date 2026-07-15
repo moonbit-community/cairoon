@@ -1,0 +1,17 @@
+import {
+  "CAIMEOX/cairoon/internal/stream" @stream_impl,
+  "CAIMEOX/cairoon/native",
+}
+
+import {
+  "moonbitlang/core/test",
+} for "test"
+
+options(
+  targets: { "ffi.mbt": [ "native" ] },
+  link: {
+    "native": {
+      "cc-link-flags": "-L/opt/homebrew/Cellar/cairo/1.18.4/lib -lcairo",
+    },
+  },
+)
