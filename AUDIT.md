@@ -3203,8 +3203,10 @@ construction, query, copy, translation, and boolean-operation declarations.
 FontOptions contributes all 33 ownership, copy/merge, rendering-state,
 raw-enum compatibility, variation, and color-palette declarations. Context
 drawing state contributes all 31 line, fill, operator, antialias, tolerance,
-miter, hairline, and dash declarations. The current exact baseline is therefore
-267 documented declarations and 312 grandfathered documentation-debt entries.
+miter, hairline, and dash declarations. Context core contributes all 18
+ownership, construction, identity, save/restore, target/source, group, and tag
+declarations. The current exact baseline is therefore 285 documented
+declarations and 294 grandfathered documentation-debt entries.
 
 `scripts/check-public-docs.py` parses the audited declaration forms and checks
 the sorted debt ledger in both directions: a new undocumented declaration,
