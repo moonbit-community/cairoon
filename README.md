@@ -151,8 +151,9 @@ The gate checks formatting, Cairo link-flag drift, project layout, FFI
 ownership annotations, API inventory coverage, the reliability ledger, native
 type checking, all 20 pinned pycairo test-file families (288 upstream tests),
 749 in-module MoonBit tests, one isolated downstream-module import/link/render
-test, publication-archive isolation, executable docs, direct C Cairo oracle
-tests, `moon info`, and ASan/LSan when an ASan-capable compiler is available.
+test against both the checkout and extracted publication zip,
+publication-archive isolation, executable docs, direct C Cairo oracle tests,
+`moon info`, and ASan/LSan when an ASan-capable compiler is available.
 The parity gate rejects an unclaimed or multiply claimed upstream
 `tests/test_*.py` file.
 

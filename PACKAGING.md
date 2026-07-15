@@ -48,10 +48,17 @@ The repository carries an isolated consumer module under
 ```
 
 The gate checks formatting and native compilation only for the consumer smoke
-package, renders and reads back a 2x2 image through the published API, and
-verifies that `moon package --list` excludes the entire integration fixture.
-`scripts/configure-link-flags.sh` updates the fixture's platform-specific Cairo
-link flags together with every repository test package.
+package and renders and reads back a 2x2 image through the published API. It
+runs that test twice: first against the source checkout through the committed
+`moon.work`, then against the exact zip emitted by `moon package --list` after
+extracting it into a fresh temporary workspace. The zip is integrity-tested,
+must exclude the entire integration fixture, and must contain everything
+needed to compile and link the public module. Temporary files are always
+removed. `scripts/check-publication-archive.py` checks every member's CRC,
+rejects unsafe paths, and inspects the actual zip names for `integration/`.
+`scripts/configure-link-flags.sh` updates the fixture's
+platform-specific Cairo link flags together with every repository test
+package.
 
 To reproduce the same structure in another project, create a local workspace
 that contains both modules:
@@ -123,8 +130,9 @@ Use:
 
 The gate runs formatting, link-flag drift checks, static FFI ownership linting,
 top-level pycairo API inventory linting, all 20 pinned pycairo test-file
-families (288 tests), the isolated downstream import/link/render test and
-publication-archive exclusion check, native type checking, targeted
+families (288 tests), the isolated downstream import/link/render test against
+both source and extracted publication zip, archive integrity and fixture
+exclusion checks, native type checking, targeted
 image/scaled-font/vector/pattern oracle tests, the full native test suite,
 `moon info --target native`, and package-isolated ASan/LSan tests when an
 ASan-capable `clang` is available. A detected pycairo checkout must have
@@ -170,8 +178,9 @@ suppressed allocations and the byte count predicted by the probe.
    `*.mbt.md` reference file.
 8. Run both pinned Cairo matrix lanes and record their exact versions and test
    counts in `AUDIT.md`.
-9. Run `./scripts/check-downstream-consumer.sh`; it must pass from the separate
-   fixture module and keep `integration/` out of the publication archive.
+9. Run `./scripts/check-downstream-consumer.sh`; it must pass against both the
+   source checkout and extracted publication zip, and keep `integration/` out
+   of the archive.
 10. Commit the release state and tag it from a clean worktree.
 
 ## CI Guidance

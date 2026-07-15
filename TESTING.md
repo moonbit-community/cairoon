@@ -80,7 +80,7 @@ Evaluate each slice with this scorecard:
 | Callback safety | C-held MoonBit callbacks and callback arguments are retained across the callback invocation and released deterministically | Strong for stream writers/readers and raster-source callbacks covered by current stress/fuzz tests |
 | Portability | Required backends pass on each supported platform, or unsupported APIs have explicit `Decision` rows | Strong local evidence at the exact Cairo 1.15.10 compatibility floor and recommended 1.18.4 release, plus the host lane; still Partial until the release commit's shipped Ubuntu/macOS CI jobs pass |
 | Documentation | Public behavior has executable reference examples where practical | Strong for current migrated families; keep this synchronized with public API additions |
-| Downstream consumption | A separately named MoonBit module resolves the versioned local dependency, imports only `CAIMEOX/cairoon`, supplies its own native Cairo link flags, renders through the public API, and stays outside the publication archive | Strong local evidence through `integration/consumer` and `scripts/check-downstream-consumer.sh`; release CI must run the same `verify.sh` gate |
+| Downstream consumption | A separately named MoonBit module resolves the versioned local dependency, imports only `CAIMEOX/cairoon`, supplies its own native Cairo link flags, renders through the public API against both checkout and extracted publication zip, and stays outside that archive | Strong local evidence through `integration/consumer` and `scripts/check-downstream-consumer.sh`; the zip is integrity-tested and recompiled in a fresh temporary workspace, while release CI must run the same `verify.sh` gate |
 
 The practical release rule is simple: a feature can be trusted when its
 inventory row is `Done`, its reference docs are executable where practical,
@@ -263,8 +263,9 @@ It runs `moon fmt --check`, the checker unit tests under `scripts/tests`,
 `scripts/check-reliability-ledger.py`,
 `scripts/check-vector-backend-scenes.py`, native
 `moon check --target native --deny-warn`, the isolated
-`integration/consumer` module's public import/link/render smoke test and
-publication-archive exclusion check, the `src/native` native-stub package,
+`integration/consumer` module's public import/link/render smoke test against
+both checkout and extracted publication zip, archive integrity and fixture
+exclusion checks, the `src/native` native-stub package,
 extracted external
 test packages under
 `src/tests/api/version` (version helpers),
@@ -3930,27 +3931,33 @@ The exact Linux release evidence is:
 - Cairo 1.15.10, archive SHA-256
   `62ca226134cf2f1fd114bea06f8b374eb37f35d8e22487eaa54d5e9428958392`:
   all static gates and 749/749 native tests pass; all discovered MoonBit
-  packages pass ASan/LSan independently. The pure-C SVG probe reports exactly
-  two 464-byte `_cairo_recording_surface_snapshot` allocations. Only the
-  226-test vector-oracle package uses the verified suppression, accounting for
-  16 allocations and 7424 bytes; every other package runs unsuppressed.
+  packages pass ASan/LSan independently. The source-checkout and extracted
+  publication-zip consumers each pass 1/1. The pure-C SVG probe reports
+  exactly two 464-byte `_cairo_recording_surface_snapshot` allocations. Only
+  the 226-test vector-oracle package uses the verified suppression, accounting
+  for 16 allocations and 7424 bytes; every other package runs unsuppressed.
 - Cairo 1.18.4, archive SHA-256
   `445ed8208a6e4823de1226a74ca319d3600e83f6369f99b14265006599c32ccb`:
   749/749 native tests pass and all discovered MoonBit packages pass ASan/LSan
-  independently. The same pure-C probe reports exactly two 584-byte upstream
+  independently. The source-checkout and extracted publication-zip consumers
+  each pass 1/1. The same pure-C probe reports exactly two 584-byte upstream
   allocations. The vector-oracle package accounts for 16 suppressed
   allocations and 9344 bytes; every other package runs unsuppressed.
-- The script gate has 44 Python unit tests in total, including 16 dedicated
-  sanitizer-policy tests. An unknown probe exit code, allocation count,
-  indirect leak, or stack signature is a hard failure rather than an expanded
-  suppression.
+- The script gate has 55 Python unit tests in total, including 16 dedicated
+  sanitizer-policy tests plus failure-path coverage for publication CRC,
+  member paths, integration exclusion, and every artifact-consumer command.
+  An unknown probe exit code, allocation count, indirect leak, or stack
+  signature is a hard failure rather than an expanded suppression.
   On stripped Ubuntu Cairo libraries, the probe selects a `cairo_restore`
   fallback and the runner additionally requires exactly 16 suppressions and
   the probe-predicted byte count.
 
 After the downstream fixture was added on 2026-07-15, the full host
-`./scripts/verify.sh` gate passed again: 749/749 repository MoonBit tests, 1/1
-isolated consumer tests, and every discovered package under host ASan.
+`./scripts/verify.sh` gate passed again: 749/749 repository MoonBit tests, the
+isolated consumer test passed 1/1 against both source and extracted publication
+zip, with duplicate host ASan intentionally disabled for this run. Both exact
+Linux lanes above reran that gate and every discovered package under
+ASan/LSan.
 
 Remaining reliability work is now narrower and should be tracked as evidence,
 not as an unstructured checklist:

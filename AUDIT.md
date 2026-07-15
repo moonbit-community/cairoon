@@ -12,7 +12,8 @@ Implemented in this workspace:
 - Exact local release lanes for Cairo 1.15.10 and 1.18.4, built from pinned
   source URLs and SHA-256 digests on a pinned Ubuntu base image. Both lanes
   pass all static gates and 749/749 native tests with the pinned MoonBit
-  `0.10.4+4f2e8f7dc-nightly` compiler.
+  `0.10.4+4f2e8f7dc-nightly` compiler. In each lane, the source-checkout and
+  extracted-publication-zip consumers also pass 1/1 independently.
 - Linux ASan/LSan now runs every discovered MoonBit package in a separate
   process. An intentional-leak preflight proves LSan is active; the runner
   creates a temporary `MOON_TOOLCHAIN_ROOT` with an allocator-free shadow
@@ -656,16 +657,20 @@ Implemented in this workspace:
 
 The most recent full local verification passed on 2026-07-15:
 
-- `./scripts/verify.sh`: passed formatting, project-layout, source-size,
-  link-flag, FFI ownership, portable API inventory, pycairo parity,
-  reliability-ledger, and vector-scene gates; native type checking; all
-  745/745 native tests; generated-interface review; and every configured
-  targeted ASan package with leak detection disabled under the documented
-  macOS policy. The parity gate verified all 288 tests from all 20 pinned
-  upstream test files against the parent pycairo source checkout, and the
-  reliability ledger reported 1 explicit `Partial` row. Scene 66's static
-  contract required all 10 Cairo 1.18 tag-attribute dimensions and all 5
-  runtime evidence tests.
+- `CAIROON_VERIFY_ASAN=0 ./scripts/verify.sh`: passed formatting,
+  project-layout, source-size, link-flag, FFI ownership, portable API
+  inventory, pycairo parity, reliability-ledger, vector-scene, native type,
+  generated-interface, and 749/749 native test gates. The isolated consumer
+  passed 1/1 against both the checkout and the integrity-tested, extracted
+  publication zip. Host ASan was intentionally not duplicated in this run.
+- `./scripts/test-cairo-matrix.sh cairo-1.15.10` and
+  `./scripts/test-cairo-matrix.sh cairo-1.18.4`: both exact Linux lanes passed
+  the same source and publication-zip consumer tests at 1/1 each, all 749
+  native tests, and every discovered MoonBit package under ASan/LSan. Only
+  the pure-C-probe-verified vector-oracle suppression was used: 16
+  allocations/7424 bytes on 1.15.10 and 16 allocations/9344 bytes on 1.18.4.
+  The parity gate verified all 288 tests from all 20 pinned upstream files,
+  and the reliability ledger reported 1 explicit `Partial` row.
 
 Prior full verifies passed on 2026-07-02, 2026-07-03, 2026-07-04,
 2026-07-05, and earlier 2026-07-06 slices. The most recent 2026-07-06 run:
@@ -3023,8 +3028,11 @@ resolved through `integration/moon.work`, while its test package imports only
 an ARGB32 surface, paints through `Context`, reads pixels back through the
 public API, and passed 1/1 tests. `moon package --list` also confirms that root
 module metadata excludes the integration fixture from the release archive.
-The enclosing `./scripts/verify.sh` run passed 749/749 repository tests and
-every package-isolated host ASan invocation.
+The gate now additionally integrity-tests that exact zip, extracts it into a
+fresh temporary workspace, and reruns the same consumer test against the
+packaged module; the artifact path also passes 1/1. The host verify run passed
+749/749 repository tests with duplicate ASan disabled, while both exact Linux
+Cairo lanes reran this gate and every package-isolated ASan/LSan invocation.
 
 ## Known Gaps
 

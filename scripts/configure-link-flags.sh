@@ -456,6 +456,9 @@ done < <(collect_dependent_configs)
 
 if command -v moon >/dev/null 2>&1; then
   moon fmt
+  if [[ -d "$consumer_package_root" ]]; then
+    moon -C "$repo_root/integration/consumer" fmt
+  fi
 else
   printf 'moon not found; run moon fmt after installing MoonBit.\n'
 fi

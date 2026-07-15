@@ -16,6 +16,7 @@ VERIFY = REPO_ROOT / "scripts" / "verify.sh"
 CI = REPO_ROOT / ".github" / "workflows" / "ci.yml"
 MATRIX = REPO_ROOT / "scripts" / "test-cairo-matrix.sh"
 SANITIZER = REPO_ROOT / "scripts" / "sanitizers" / "run.py"
+DOWNSTREAM_CONSUMER = REPO_ROOT / "scripts" / "check-downstream-consumer.sh"
 
 STATUSES = {"Done", "Partial", "Decision", "Todo"}
 PARTIAL_GAP_MARKERS = (
@@ -28,6 +29,28 @@ PARTIAL_GAP_MARKERS = (
     "partial",
     "manual",
     "until",
+)
+DOWNSTREAM_GATE_LINES = (
+    'if ! package_listing="$(moon package --list 2>&1)"; then',
+    'run python3 "$repo_root/scripts/check-publication-archive.py" "$archive_path"',
+    'run python3 -m zipfile -e "$archive_path" "$published_root"',
+    (
+        'artifact_workspace="$(mktemp -d '
+        '"${temp_root%/}/cairoon-package-consumer.XXXXXX")"'
+    ),
+    "trap cleanup EXIT",
+    "'  \"./published\",' \\",
+    "'  \"./consumer\",' \\",
+    'run moon -C "$artifact_consumer_root" fmt --check "$consumer_package"',
+    (
+        'run moon -C "$artifact_consumer_root" check "$consumer_package" '
+        "--target native --deny-warn"
+    ),
+    (
+        'run moon -C "$artifact_consumer_root" test "$consumer_package" '
+        "--target native --deny-warn -v"
+    ),
+    "printf 'Published archive passes the isolated consumer test.\\n'",
 )
 SCORECARD_DIMENSIONS = (
     "API surface",
@@ -157,6 +180,20 @@ def check_verify_gate() -> list[str]:
     return errors
 
 
+def check_downstream_consumer_gate() -> list[str]:
+    text = DOWNSTREAM_CONSUMER.read_text(encoding="utf-8")
+    active_lines = {
+        stripped
+        for line in text.splitlines()
+        if (stripped := line.strip()) and not stripped.startswith("#")
+    }
+    return [
+        f"{DOWNSTREAM_CONSUMER}: downstream gate is missing active line {line!r}"
+        for line in DOWNSTREAM_GATE_LINES
+        if line not in active_lines
+    ]
+
+
 def check_ci_gate() -> list[str]:
     text = CI.read_text(encoding="utf-8")
     errors: list[str] = []
@@ -213,6 +250,7 @@ def main() -> int:
     errors.extend(check_inventory())
     errors.extend(check_testing_doc())
     errors.extend(check_verify_gate())
+    errors.extend(check_downstream_consumer_gate())
     errors.extend(check_ci_gate())
     errors.extend(check_local_matrix())
     if errors:
