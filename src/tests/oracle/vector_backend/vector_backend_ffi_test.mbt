@@ -72,3 +72,11 @@ extern "C" fn test_vector_file_equals_bytes_ffi(
   filename : Bytes,
   bytes : Bytes,
 ) -> Bool = "cairoon_test_vector_file_equals_bytes"
+
+///|
+#borrow(left, right)
+extern "C" fn test_vector_bytes_equal_ffi(
+  kind : Int,
+  left : Bytes,
+  right : Bytes,
+) -> Bool = "cairoon_test_vector_bytes_equal"

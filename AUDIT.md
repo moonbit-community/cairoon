@@ -677,6 +677,15 @@ The most recent full local verification passed on 2026-07-15:
   The parity gate verified all 288 tests from all 20 pinned upstream files,
   and the reliability ledger reported 1 explicit `Partial` row.
 
+The final matrix replay exposed and closed one test-only PDF nondeterminism:
+under ASan, sequential file and stream surfaces could cross a wall-clock
+second and receive different Cairo-generated creation dates. Cairo 1.17.6+
+equivalence fixtures now set fixed creation and modification dates. The
+1.15.10 comparator ignores only the automatically generated
+`/CreationDate (D:...)` line and continues to compare every other PDF byte;
+a synthetic byte-pair assertion locks that normalization rule. Both exact
+Linux lanes above passed again after this fix.
+
 Prior full verifies passed on 2026-07-02, 2026-07-03, 2026-07-04,
 2026-07-05, and earlier 2026-07-06 slices. The most recent 2026-07-06 run:
 

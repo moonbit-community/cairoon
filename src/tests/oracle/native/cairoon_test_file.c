@@ -6,6 +6,7 @@
 #include <string.h>
 
 enum {
+  CAIROON_TEST_VECTOR_PDF = 0,
   CAIROON_TEST_VECTOR_PS = 1,
   CAIROON_TEST_VECTOR_SVG = 2
 };
@@ -69,6 +70,17 @@ static int cairoon_test_starts_with(
   const char *prefix) {
   size_t prefix_len = strlen(prefix);
   return len >= prefix_len && memcmp(data, prefix, prefix_len) == 0;
+}
+
+static int cairoon_test_starts_with_after_space(
+  const unsigned char *data,
+  size_t len,
+  const char *prefix) {
+  size_t pos = 0;
+  while (pos < len && (data[pos] == ' ' || data[pos] == '\t')) {
+    pos += 1;
+  }
+  return cairoon_test_starts_with(data + pos, len - pos, prefix);
 }
 
 static int cairoon_test_starts_with_at(
@@ -160,9 +172,15 @@ static int cairoon_test_next_normalized_line(
       *pos += 1;
     }
     size_t current_len = *pos - start;
-    if (
+    int is_default_pdf_creation_date =
+      kind == CAIROON_TEST_VECTOR_PDF &&
+      cairoon_test_starts_with_after_space(
+        data + start, current_len, "/CreationDate (D:");
+    int is_ps_creation_date =
       kind == CAIROON_TEST_VECTOR_PS &&
-      cairoon_test_starts_with(data + start, current_len, "%%CreationDate:")) {
+      cairoon_test_starts_with(
+        data + start, current_len, "%%CreationDate:");
+    if (is_default_pdf_creation_date || is_ps_creation_date) {
       continue;
     }
     *line = data + start;
@@ -179,7 +197,9 @@ static int cairoon_test_files_equal_normalized(
   if (kind == CAIROON_TEST_VECTOR_SVG) {
     return cairoon_test_files_equal_svg_normalized(left, right);
   }
-  if (kind != CAIROON_TEST_VECTOR_PS) {
+  if (
+    kind != CAIROON_TEST_VECTOR_PDF &&
+    kind != CAIROON_TEST_VECTOR_PS) {
     return left->len == right->len &&
       (left->len == 0 || memcmp(left->data, right->data, left->len) == 0);
   }
@@ -301,4 +321,20 @@ int32_t cairoon_test_vector_file_equals_bytes(
   int32_t equal = cairoon_test_files_equal_normalized(kind, &file, &memory);
   cairoon_test_free_file(&file);
   return equal;
+}
+
+MOONBIT_FFI_EXPORT
+int32_t cairoon_test_vector_bytes_equal(
+  int32_t kind,
+  moonbit_bytes_t left_bytes,
+  moonbit_bytes_t right_bytes) {
+  CairoonTestFile left = {
+    .data = (unsigned char *)left_bytes,
+    .len = (size_t)Moonbit_array_length(left_bytes)
+  };
+  CairoonTestFile right = {
+    .data = (unsigned char *)right_bytes,
+    .len = (size_t)Moonbit_array_length(right_bytes)
+  };
+  return cairoon_test_files_equal_normalized(kind, &left, &right);
 }

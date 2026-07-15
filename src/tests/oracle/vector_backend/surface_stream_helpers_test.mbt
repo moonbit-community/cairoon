@@ -9,6 +9,23 @@ fn stream_equivalence_extension(kind : Int) -> String {
 }
 
 ///|
+fn configure_stream_equivalence_pdf_surface(
+  surface : @cairoon.Surface,
+) -> Unit raise @cairoon.CairoError {
+  surface.pdf_restrict_to_version(@cairoon.PdfVersion1_4)
+  if @cairoon.CAIRO_VERSION >= 11706 {
+    surface.pdf_set_metadata(
+      @cairoon.PdfMetadataCreateDate,
+      fixed_pdf_metadata_date(),
+    )
+    surface.pdf_set_metadata(
+      @cairoon.PdfMetadataModDate,
+      fixed_pdf_metadata_date(),
+    )
+  }
+}
+
+///|
 fn make_stream_equivalence_file_surface(
   kind : Int,
   path : String,
@@ -16,7 +33,7 @@ fn make_stream_equivalence_file_surface(
   match kind {
     0 => {
       let surface = @cairoon.Surface::pdf(12.0, 12.0, path=Some(path))
-      surface.pdf_restrict_to_version(@cairoon.PdfVersion1_4)
+      configure_stream_equivalence_pdf_surface(surface)
       surface
     }
     1 => @cairoon.Surface::ps(12.0, 12.0, path=Some(path))
@@ -41,7 +58,7 @@ fn make_stream_equivalence_stream_surface(
         chunks.push(chunk)
         @cairoon.Success
       })
-      surface.pdf_restrict_to_version(@cairoon.PdfVersion1_4)
+      configure_stream_equivalence_pdf_surface(surface)
       surface
     }
     1 =>

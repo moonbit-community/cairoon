@@ -142,6 +142,30 @@ test "text vector stream output matches file output after normalization" {
 
 ///|
 test "non-text primitive vector scenes stream output matches file output after normalization" {
+  let pdf_default_date_left = @utf8.encode(
+    "%PDF-1.4\n   /CreationDate (D:20260102030405+00'00)\n%%EOF\n",
+  )
+  let pdf_default_date_right = @utf8.encode(
+    "%PDF-1.4\n   /CreationDate (D:20260715123456+08'00)\n%%EOF\n",
+  )
+  inspect(
+    test_vector_bytes_equal_ffi(
+      0, pdf_default_date_left, pdf_default_date_right,
+    ),
+    content="true",
+  )
+  let pdf_explicit_date_left = @utf8.encode(
+    "%PDF-1.4\n   /CreationDate (20260102030405+00'00')\n%%EOF\n",
+  )
+  let pdf_explicit_date_right = @utf8.encode(
+    "%PDF-1.4\n   /CreationDate (20260715123456+08'00')\n%%EOF\n",
+  )
+  inspect(
+    test_vector_bytes_equal_ffi(
+      0, pdf_explicit_date_left, pdf_explicit_date_right,
+    ),
+    content="false",
+  )
   for kind in 0..<3 {
     let ext = stream_equivalence_extension(kind)
     for scene in 0..<15 {
@@ -149,6 +173,11 @@ test "non-text primitive vector scenes stream output matches file output after n
         let path = "/tmp/cairoon_stream_primitive_vector_file_equivalence_\{kind}_\{scene}.\{ext}"
         let file_surface = make_stream_equivalence_file_surface(kind, path)
         render_stream_glyph_vector_scene(file_surface, scene)
+        if kind == 0 && @cairoon.CAIRO_VERSION >= 11706 {
+          expect_vector_output(path, [
+            "/CreationDate (20260102030405+00'00')", "/ModDate (20260102030405+00'00')",
+          ])
+        }
 
         let chunks : Array[Bytes] = []
         let stream_surface = make_stream_equivalence_stream_surface(

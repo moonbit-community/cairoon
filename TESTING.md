@@ -3936,6 +3936,16 @@ borrowed. Focused stream tests then passed 15/15. At that
 release-reliability slice, the full native suite was 749/749 after separating
 PDF, PS, and SVG grouped-glyph oracle cases.
 
+The final exact-matrix replay also caught a clock-bound PDF oracle flake:
+file and stream surfaces created on opposite sides of a wall-clock second
+received different default Cairo creation dates. Cairo 1.17.6+ equivalence
+fixtures now set fixed creation and modification dates. Cairo 1.15.10 does
+not reliably serialize those experimental metadata setters, so the PDF
+normalizer ignores only Cairo's automatic `/CreationDate (D:...)` line while
+retaining strict comparison for all other lines. A synthetic byte-pair
+assertion covers that rule. Both exact lanes then passed the full 761/761
+suite and every package under ASan/LSan.
+
 The exact Linux release evidence is:
 
 - Cairo 1.15.10, archive SHA-256
