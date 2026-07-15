@@ -4,17 +4,17 @@ pub fn Surface::pdf(
   height_in_points : Double,
   path? : String? = None,
 ) -> Surface raise CairoError {
-  let status = Ref(Success)
+  let status = Ref(0)
   let (has_filename, filename) = match path {
     None => (false, @utf8.encode(""))
     Some(path) => (true, checked_path_bytes(path))
   }
-  let surface = pdf_surface_create_ffi(
+  let raw = @surface_impl.pdf_create_raw(
     has_filename, filename, width_in_points, height_in_points, status,
   )
-  check_status(status.val)
-  check_status(surface_status_ffi(surface))
-  surface
+  check_surface_status_raw(status.val)
+  check_surface_status_raw(@surface_impl.status_raw(raw))
+  Surface::from_raw(raw)
 }
 
 ///|
@@ -24,7 +24,7 @@ pub fn Surface::pdf_stream(
   writer : (Bytes) -> Status,
 ) -> Surface raise CairoError {
   let status = Ref(Success)
-  let surface = pdf_surface_create_for_stream_ffi(
+  let raw = pdf_surface_create_for_stream_ffi(
     fn(chunk, writer) { writer(@stream_impl.copy_chunk(chunk)) },
     writer,
     width_in_points,
@@ -32,8 +32,8 @@ pub fn Surface::pdf_stream(
     status,
   )
   check_status(status.val)
-  check_status(surface_status_ffi(surface))
-  surface
+  check_surface_status_raw(@surface_impl.status_raw(raw))
+  Surface::from_raw(raw)
 }
 
 ///|
@@ -73,6 +73,19 @@ fn PDFVersion::to_raw(self : PDFVersion) -> Int {
     PdfVersion1_5 => 1
     PdfVersion1_6 => 2
     PdfVersion1_7 => 3
+  }
+}
+
+///|
+fn PDFMetadata::to_raw(self : PDFMetadata) -> Int {
+  match self {
+    PdfMetadataTitle => 0
+    PdfMetadataAuthor => 1
+    PdfMetadataSubject => 2
+    PdfMetadataKeywords => 3
+    PdfMetadataCreator => 4
+    PdfMetadataCreateDate => 5
+    PdfMetadataModDate => 6
   }
 }
 
@@ -157,7 +170,9 @@ pub fn Surface::pdf_restrict_to_version(
   self : Surface,
   version : PDFVersion,
 ) -> Unit raise CairoError {
-  check_status(pdf_surface_restrict_to_version_ffi(self, version))
+  check_surface_status_raw(
+    @surface_impl.pdf_restrict_to_version_raw(self.to_raw(), version.to_raw()),
+  )
 }
 
 ///|
@@ -165,7 +180,9 @@ pub fn Surface::pdf_restrict_to_version_raw(
   self : Surface,
   version : Int,
 ) -> Unit raise CairoError {
-  check_status(pdf_surface_restrict_to_version_raw_ffi(self, version))
+  check_surface_status_raw(
+    @surface_impl.pdf_restrict_to_version_raw(self.to_raw(), version),
+  )
 }
 
 ///|
@@ -174,8 +191,12 @@ pub fn Surface::pdf_set_size(
   width_in_points : Double,
   height_in_points : Double,
 ) -> Unit raise CairoError {
-  check_status(
-    pdf_surface_set_size_ffi(self, width_in_points, height_in_points),
+  check_surface_status_raw(
+    @surface_impl.pdf_set_size_raw(
+      self.to_raw(),
+      width_in_points,
+      height_in_points,
+    ),
   )
 }
 
@@ -185,8 +206,12 @@ pub fn Surface::pdf_set_metadata(
   metadata : PDFMetadata,
   value : String,
 ) -> Unit raise CairoError {
-  check_status(
-    pdf_surface_set_metadata_ffi(self, metadata, checked_c_string_bytes(value)),
+  check_surface_status_raw(
+    @surface_impl.pdf_set_metadata_raw(
+      self.to_raw(),
+      metadata.to_raw(),
+      checked_c_string_bytes(value),
+    ),
   )
 }
 
@@ -196,9 +221,9 @@ pub fn Surface::pdf_set_metadata_raw(
   metadata : Int,
   value : String,
 ) -> Unit raise CairoError {
-  check_status(
-    pdf_surface_set_metadata_raw_ffi(
-      self,
+  check_surface_status_raw(
+    @surface_impl.pdf_set_metadata_raw(
+      self.to_raw(),
       metadata,
       checked_c_string_bytes(value),
     ),
@@ -215,9 +240,9 @@ pub fn Surface::pdf_set_custom_metadata(
     None => (false, @utf8.encode(""))
     Some(value) => (true, checked_c_string_bytes(value))
   }
-  check_status(
-    pdf_surface_set_custom_metadata_ffi(
-      self,
+  check_surface_status_raw(
+    @surface_impl.pdf_set_custom_metadata_raw(
+      self.to_raw(),
       checked_c_string_bytes(name),
       has_value,
       bytes,
@@ -230,8 +255,11 @@ pub fn Surface::pdf_set_page_label(
   self : Surface,
   label : String,
 ) -> Unit raise CairoError {
-  check_status(
-    pdf_surface_set_page_label_ffi(self, checked_c_string_bytes(label)),
+  check_surface_status_raw(
+    @surface_impl.pdf_set_page_label_raw(
+      self.to_raw(),
+      checked_c_string_bytes(label),
+    ),
   )
 }
 
@@ -241,7 +269,9 @@ pub fn Surface::pdf_set_thumbnail_size(
   width : Int,
   height : Int,
 ) -> Unit raise CairoError {
-  check_status(pdf_surface_set_thumbnail_size_ffi(self, width, height))
+  check_surface_status_raw(
+    @surface_impl.pdf_set_thumbnail_size_raw(self.to_raw(), width, height),
+  )
 }
 
 ///|
@@ -268,16 +298,16 @@ pub fn Surface::pdf_add_outline_with_flags(
   link_attributes : String,
   flags : PDFOutlineFlagSet,
 ) -> Int raise CairoError {
-  let status = Ref(Success)
-  let id = pdf_surface_add_outline_bits_ffi(
-    self,
+  let status = Ref(0)
+  let id = @surface_impl.pdf_add_outline_bits_raw(
+    self.to_raw(),
     parent_id,
     checked_c_string_bytes(title),
     checked_c_string_bytes(link_attributes),
     flags.bits(),
     status,
   )
-  check_status(status.val)
+  check_surface_status_raw(status.val)
   id
 }
 
@@ -289,15 +319,15 @@ pub fn Surface::pdf_add_outline_raw(
   link_attributes : String,
   flags : Int,
 ) -> Int raise CairoError {
-  let status = Ref(Success)
-  let id = pdf_surface_add_outline_bits_ffi(
-    self,
+  let status = Ref(0)
+  let id = @surface_impl.pdf_add_outline_bits_raw(
+    self.to_raw(),
     parent_id,
     checked_c_string_bytes(title),
     checked_c_string_bytes(link_attributes),
     flags,
     status,
   )
-  check_status(status.val)
+  check_surface_status_raw(status.val)
   id
 }

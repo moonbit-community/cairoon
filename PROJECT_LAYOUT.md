@@ -27,18 +27,17 @@ exemptions: when a file moves out of the repository root or direct `src/`, the
 same commit must remove its allowlist entry so an identically named file cannot
 silently return later.
 
-- 58 `.mbt` implementation files directly in `src/`.
+- 46 `.mbt` implementation files directly in `src/`.
 - 1 `.mbt` implementation file and 1 package-local `*_test.mbt` file in
   `src/core/constants/`.
 - 1 `.mbt` implementation file and 1 package-local `*_test.mbt` file in
   `src/core/glyph/`.
 - 1 `.mbt` implementation file and 1 package-local `*_test.mbt` file in
   `src/internal/cstring/`.
-- 14 `.mbt` implementation files and 0 package-local `*_test.mbt` files in
-  `src/internal/context/`. Context is producer-only at this layer because its
-  valid constructors require facade-owned Surface wrappers; real public
-  Context, cross-family, lifetime, oracle, and sanitizer tests replace a
-  test-only raw constructor.
+- 14 `.mbt` implementation files and 1 package-local `*_test.mbt` file in
+  `src/internal/context/`. Context construction now consumes raw Surface or
+  MappedImageSurface handles from `src/internal/surface`, so package-local
+  tests exercise both constructors and the cross-family target/source paths.
 - 2 `.mbt` implementation files and 1 package-local `*_test.mbt` file in
   `src/internal/device/`.
 - 2 `.mbt` implementation files and 1 package-local `*_test.mbt` file in
@@ -66,6 +65,8 @@ silently return later.
   `src/internal/status/`.
 - 1 `.mbt` implementation file and 1 package-local `*_test.mbt` file in
   `src/internal/stream/`.
+- 26 `.mbt` implementation files and 1 package-local `*_test.mbt` file in
+  `src/internal/surface/`.
 - 2 `.mbt` implementation files and 1 package-local `*_test.mbt` file in
   `src/internal/svg/`.
 - 1 `.mbt` prelude file and 11 executable `.mbt.md` docs in `src/docs/`.
@@ -179,6 +180,7 @@ cairoon/
         paint.mbt
         path.mbt
         state.mbt
+        context_test.mbt
       device/
         moon.pkg
         ffi.mbt
@@ -242,6 +244,35 @@ cairoon/
         moon.pkg
         stream.mbt
         stream_test.mbt
+      surface/
+        moon.pkg
+        ffi.mbt
+        ffi_font_options.mbt
+        ffi_image.mbt
+        ffi_image_data.mbt
+        ffi_mapped_image.mbt
+        ffi_mime.mbt
+        ffi_pdf.mbt
+        ffi_png.mbt
+        ffi_ps.mbt
+        ffi_recording.mbt
+        ffi_state.mbt
+        ffi_svg.mbt
+        ffi_tee.mbt
+        surface.mbt
+        font_options.mbt
+        image.mbt
+        image_data.mbt
+        mapped_image.mbt
+        mime.mbt
+        pdf.mbt
+        png.mbt
+        ps.mbt
+        recording.mbt
+        state.mbt
+        svg.mbt
+        tee.mbt
+        surface_test.mbt
       svg/
         moon.pkg
         ffi.mbt

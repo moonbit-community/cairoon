@@ -3,13 +3,16 @@ pub fn Surface::recording(
   content : Content,
   extents? : Rectangle? = None,
 ) -> Surface raise CairoError {
-  let status = Ref(Success)
-  let surface = match extents {
+  let status = Ref(0)
+  let raw_content = content.to_raw()
+  let raw = match extents {
     None =>
-      recording_surface_create_ffi(content, false, 0.0, 0.0, 0.0, 0.0, status)
+      @surface_impl.recording_create_raw(
+        raw_content, false, 0.0, 0.0, 0.0, 0.0, status,
+      )
     Some(rect) =>
-      recording_surface_create_ffi(
-        content,
+      @surface_impl.recording_create_raw(
+        raw_content,
         true,
         rect.x,
         rect.y,
@@ -18,9 +21,9 @@ pub fn Surface::recording(
         status,
       )
   }
-  check_status(status.val)
-  check_status(surface_status_ffi(surface))
-  surface
+  check_surface_status_raw(status.val)
+  check_surface_status_raw(@surface_impl.status_raw(raw))
+  Surface::from_raw(raw)
 }
 
 ///|
@@ -28,15 +31,15 @@ pub fn Surface::recording_raw(
   content : Int,
   extents? : Rectangle? = None,
 ) -> Surface raise CairoError {
-  let status = Ref(Success)
+  let status = Ref(0)
   let checked_content = checked_content_raw(content)
-  let surface = match extents {
+  let raw = match extents {
     None =>
-      recording_surface_create_raw_ffi(
+      @surface_impl.recording_create_raw(
         checked_content, false, 0.0, 0.0, 0.0, 0.0, status,
       )
     Some(rect) =>
-      recording_surface_create_raw_ffi(
+      @surface_impl.recording_create_raw(
         checked_content,
         true,
         rect.x,
@@ -46,9 +49,9 @@ pub fn Surface::recording_raw(
         status,
       )
   }
-  check_status(status.val)
-  check_status(surface_status_ffi(surface))
-  surface
+  check_surface_status_raw(status.val)
+  check_surface_status_raw(@surface_impl.status_raw(raw))
+  Surface::from_raw(raw)
 }
 
 ///|
@@ -59,7 +62,15 @@ pub fn Surface::recording_ink_extents(
   let y0 = Ref(0.0)
   let width = Ref(0.0)
   let height = Ref(0.0)
-  check_status(recording_surface_ink_extents_ffi(self, x0, y0, width, height))
+  check_surface_status_raw(
+    @surface_impl.recording_ink_extents_raw(
+      self.to_raw(),
+      x0,
+      y0,
+      width,
+      height,
+    ),
+  )
   Rectangle::new(x0.val, y0.val, width.val, height.val)
 }
 
@@ -72,8 +83,15 @@ pub fn Surface::recording_get_extents(
   let y = Ref(0.0)
   let width = Ref(0.0)
   let height = Ref(0.0)
-  check_status(
-    recording_surface_get_extents_ffi(self, has_extents, x, y, width, height),
+  check_surface_status_raw(
+    @surface_impl.recording_get_extents_raw(
+      self.to_raw(),
+      has_extents,
+      x,
+      y,
+      width,
+      height,
+    ),
   )
   if has_extents.val == 0 {
     None

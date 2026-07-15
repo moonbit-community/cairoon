@@ -1,5 +1,6 @@
 import {
   "CAIMEOX/cairoon/internal/path" @path_impl,
+  "CAIMEOX/cairoon/internal/surface" @surface_impl,
   "CAIMEOX/cairoon/native",
 }
 

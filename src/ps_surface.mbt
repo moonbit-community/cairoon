@@ -4,17 +4,17 @@ pub fn Surface::ps(
   height_in_points : Double,
   path? : String? = None,
 ) -> Surface raise CairoError {
-  let status = Ref(Success)
+  let status = Ref(0)
   let (has_filename, filename) = match path {
     None => (false, @utf8.encode(""))
     Some(path) => (true, checked_path_bytes(path))
   }
-  let surface = ps_surface_create_ffi(
+  let raw = @surface_impl.ps_create_raw(
     has_filename, filename, width_in_points, height_in_points, status,
   )
-  check_status(status.val)
-  check_status(surface_status_ffi(surface))
-  surface
+  check_surface_status_raw(status.val)
+  check_surface_status_raw(@surface_impl.status_raw(raw))
+  Surface::from_raw(raw)
 }
 
 ///|
@@ -24,7 +24,7 @@ pub fn Surface::ps_stream(
   writer : (Bytes) -> Status,
 ) -> Surface raise CairoError {
   let status = Ref(Success)
-  let surface = ps_surface_create_for_stream_ffi(
+  let raw = ps_surface_create_for_stream_ffi(
     fn(chunk, writer) { writer(@stream_impl.copy_chunk(chunk)) },
     writer,
     width_in_points,
@@ -32,8 +32,8 @@ pub fn Surface::ps_stream(
     status,
   )
   check_status(status.val)
-  check_status(surface_status_ffi(surface))
-  surface
+  check_surface_status_raw(@surface_impl.status_raw(raw))
+  Surface::from_raw(raw)
 }
 
 ///|
@@ -92,7 +92,9 @@ pub fn Surface::ps_restrict_to_level(
   self : Surface,
   level : PSLevel,
 ) -> Unit raise CairoError {
-  check_status(ps_surface_restrict_to_level_ffi(self, level))
+  check_surface_status_raw(
+    @surface_impl.ps_restrict_to_level_raw(self.to_raw(), level.to_raw()),
+  )
 }
 
 ///|
@@ -100,20 +102,22 @@ pub fn Surface::ps_restrict_to_level_raw(
   self : Surface,
   level : Int,
 ) -> Unit raise CairoError {
-  check_status(ps_surface_restrict_to_level_raw_ffi(self, level))
+  check_surface_status_raw(
+    @surface_impl.ps_restrict_to_level_raw(self.to_raw(), level),
+  )
 }
 
 ///|
 pub fn Surface::ps_get_eps(self : Surface) -> Bool raise CairoError {
-  let status = Ref(Success)
-  let eps = ps_surface_get_eps_ffi(self, status)
-  check_status(status.val)
+  let status = Ref(0)
+  let eps = @surface_impl.ps_get_eps_raw(self.to_raw(), status)
+  check_surface_status_raw(status.val)
   eps
 }
 
 ///|
 pub fn Surface::ps_set_eps(self : Surface, eps : Bool) -> Unit raise CairoError {
-  check_status(ps_surface_set_eps_ffi(self, eps))
+  check_surface_status_raw(@surface_impl.ps_set_eps_raw(self.to_raw(), eps))
 }
 
 ///|
@@ -122,19 +126,27 @@ pub fn Surface::ps_set_size(
   width_in_points : Double,
   height_in_points : Double,
 ) -> Unit raise CairoError {
-  check_status(ps_surface_set_size_ffi(self, width_in_points, height_in_points))
+  check_surface_status_raw(
+    @surface_impl.ps_set_size_raw(
+      self.to_raw(),
+      width_in_points,
+      height_in_points,
+    ),
+  )
 }
 
 ///|
 pub fn Surface::ps_dsc_begin_setup(self : Surface) -> Unit raise CairoError {
-  check_status(ps_surface_dsc_begin_setup_ffi(self))
+  check_surface_status_raw(@surface_impl.ps_dsc_begin_setup_raw(self.to_raw()))
 }
 
 ///|
 pub fn Surface::ps_dsc_begin_page_setup(
   self : Surface,
 ) -> Unit raise CairoError {
-  check_status(ps_surface_dsc_begin_page_setup_ffi(self))
+  check_surface_status_raw(
+    @surface_impl.ps_dsc_begin_page_setup_raw(self.to_raw()),
+  )
 }
 
 ///|
@@ -142,7 +154,10 @@ pub fn Surface::ps_dsc_comment(
   self : Surface,
   comment : String,
 ) -> Unit raise CairoError {
-  check_status(
-    ps_surface_dsc_comment_ffi(self, checked_c_string_bytes(comment)),
+  check_surface_status_raw(
+    @surface_impl.ps_dsc_comment_raw(
+      self.to_raw(),
+      checked_c_string_bytes(comment),
+    ),
   )
 }

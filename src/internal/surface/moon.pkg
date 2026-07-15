@@ -1,0 +1,31 @@
+import {
+  "CAIMEOX/cairoon/internal/font_options" @font_options_impl,
+  "CAIMEOX/cairoon/native",
+}
+
+import {
+  "moonbitlang/core/test",
+} for "test"
+
+options(
+  targets: {
+    "ffi.mbt": [ "native" ],
+    "ffi_font_options.mbt": [ "native" ],
+    "ffi_image.mbt": [ "native" ],
+    "ffi_image_data.mbt": [ "native" ],
+    "ffi_mapped_image.mbt": [ "native" ],
+    "ffi_mime.mbt": [ "native" ],
+    "ffi_pdf.mbt": [ "native" ],
+    "ffi_png.mbt": [ "native" ],
+    "ffi_ps.mbt": [ "native" ],
+    "ffi_recording.mbt": [ "native" ],
+    "ffi_state.mbt": [ "native" ],
+    "ffi_svg.mbt": [ "native" ],
+    "ffi_tee.mbt": [ "native" ],
+  },
+  link: {
+    "native": {
+      "cc-link-flags": "-L/opt/homebrew/Cellar/cairo/1.18.4/lib -lcairo",
+    },
+  },
+)

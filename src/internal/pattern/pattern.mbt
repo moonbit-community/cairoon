@@ -4,6 +4,31 @@ fn ensure_native() -> Unit {
 }
 
 ///|
+pub fn create_for_surface_raw(surface : @surface_impl.RawSurface) -> RawPattern {
+  ensure_native()
+  pattern_create_for_surface_ffi(surface)
+}
+
+///|
+pub fn get_surface_raw(
+  pattern : RawPattern,
+  status : Ref[Int],
+) -> @surface_impl.RawSurface {
+  ensure_native()
+  pattern_get_surface_ffi(pattern, status)
+}
+
+///|
+pub fn create_raster_source_raw(
+  content : Int,
+  width : Int,
+  height : Int,
+) -> RawPattern {
+  ensure_native()
+  pattern_create_raster_source_ffi(content, width, height)
+}
+
+///|
 pub fn create_rgb_raw(
   red : Double,
   green : Double,

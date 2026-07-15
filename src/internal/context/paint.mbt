@@ -1,4 +1,26 @@
 ///|
+pub fn set_source_surface_raw(
+  ctx : RawContext,
+  surface : @surface_impl.RawSurface,
+  x : Double,
+  y : Double,
+) -> Int {
+  ensure_native()
+  context_set_source_surface_ffi(ctx, surface, x, y)
+}
+
+///|
+pub fn mask_surface_raw(
+  ctx : RawContext,
+  surface : @surface_impl.RawSurface,
+  x : Double,
+  y : Double,
+) -> Int {
+  ensure_native()
+  context_mask_surface_ffi(ctx, surface, x, y)
+}
+
+///|
 pub fn set_source_rgb_raw(
   ctx : RawContext,
   red : Double,

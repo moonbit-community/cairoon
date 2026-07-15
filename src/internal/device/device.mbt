@@ -4,6 +4,37 @@ fn ensure_native() -> Unit {
 }
 
 ///|
+pub fn script_from_recording_surface_raw(
+  device : RawDevice,
+  surface : @surface_impl.RawSurface,
+) -> Int {
+  ensure_native()
+  script_device_from_recording_surface_ffi(device, surface)
+}
+
+///|
+pub fn script_surface_create_raw(
+  device : RawDevice,
+  content : Int,
+  width : Double,
+  height : Double,
+  status : Ref[Int],
+) -> @surface_impl.RawSurface {
+  ensure_native()
+  script_surface_create_ffi(device, content, width, height, status)
+}
+
+///|
+pub fn script_surface_create_for_target_raw(
+  device : RawDevice,
+  target : @surface_impl.RawSurface,
+  status : Ref[Int],
+) -> @surface_impl.RawSurface {
+  ensure_native()
+  script_surface_create_for_target_ffi(device, target, status)
+}
+
+///|
 pub fn script_create_path_raw(filename : Bytes, status : Ref[Int]) -> RawDevice {
   ensure_native()
   script_device_create_ffi(filename, status)

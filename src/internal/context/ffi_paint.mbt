@@ -1,4 +1,22 @@
 ///|
+#borrow(ctx, surface)
+extern "C" fn context_set_source_surface_ffi(
+  ctx : RawContext,
+  surface : @surface_impl.RawSurface,
+  x : Double,
+  y : Double,
+) -> Int = "cairoon_context_set_source_surface"
+
+///|
+#borrow(ctx, surface)
+extern "C" fn context_mask_surface_ffi(
+  ctx : RawContext,
+  surface : @surface_impl.RawSurface,
+  x : Double,
+  y : Double,
+) -> Int = "cairoon_context_mask_surface"
+
+///|
 #borrow(ctx)
 extern "C" fn context_set_source_rgb_ffi(
   ctx : RawContext,

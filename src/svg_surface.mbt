@@ -4,17 +4,17 @@ pub fn Surface::svg(
   height_in_points : Double,
   path? : String? = None,
 ) -> Surface raise CairoError {
-  let status = Ref(Success)
+  let status = Ref(0)
   let (has_filename, filename) = match path {
     None => (false, @utf8.encode(""))
     Some(path) => (true, checked_path_bytes(path))
   }
-  let surface = svg_surface_create_ffi(
+  let raw = @surface_impl.svg_create_raw(
     has_filename, filename, width_in_points, height_in_points, status,
   )
-  check_status(status.val)
-  check_status(surface_status_ffi(surface))
-  surface
+  check_surface_status_raw(status.val)
+  check_surface_status_raw(@surface_impl.status_raw(raw))
+  Surface::from_raw(raw)
 }
 
 ///|
@@ -24,7 +24,7 @@ pub fn Surface::svg_stream(
   writer : (Bytes) -> Status,
 ) -> Surface raise CairoError {
   let status = Ref(Success)
-  let surface = svg_surface_create_for_stream_ffi(
+  let raw = svg_surface_create_for_stream_ffi(
     fn(chunk, writer) { writer(@stream_impl.copy_chunk(chunk)) },
     writer,
     width_in_points,
@@ -32,8 +32,8 @@ pub fn Surface::svg_stream(
     status,
   )
   check_status(status.val)
-  check_status(surface_status_ffi(surface))
-  surface
+  check_surface_status_raw(@surface_impl.status_raw(raw))
+  Surface::from_raw(raw)
 }
 
 ///|
@@ -109,11 +109,29 @@ fn svg_unit_from_raw(raw : Int) -> SVGUnit raise CairoError {
 }
 
 ///|
+fn SVGUnit::to_raw(self : SVGUnit) -> Int {
+  match self {
+    SvgUnitUser => 0
+    SvgUnitEm => 1
+    SvgUnitEx => 2
+    SvgUnitPx => 3
+    SvgUnitIn => 4
+    SvgUnitCm => 5
+    SvgUnitMm => 6
+    SvgUnitPt => 7
+    SvgUnitPc => 8
+    SvgUnitPercent => 9
+  }
+}
+
+///|
 pub fn Surface::svg_restrict_to_version(
   self : Surface,
   version : SVGVersion,
 ) -> Unit raise CairoError {
-  check_status(svg_surface_restrict_to_version_ffi(self, version))
+  check_surface_status_raw(
+    @surface_impl.svg_restrict_to_version_raw(self.to_raw(), version.to_raw()),
+  )
 }
 
 ///|
@@ -121,7 +139,9 @@ pub fn Surface::svg_restrict_to_version_raw(
   self : Surface,
   version : Int,
 ) -> Unit raise CairoError {
-  check_status(svg_surface_restrict_to_version_raw_ffi(self, version))
+  check_surface_status_raw(
+    @surface_impl.svg_restrict_to_version_raw(self.to_raw(), version),
+  )
 }
 
 ///|
@@ -135,9 +155,9 @@ pub fn Surface::svg_get_document_unit(
 pub fn Surface::svg_get_document_unit_raw(
   self : Surface,
 ) -> Int raise CairoError {
-  let status = Ref(Success)
-  let unit = svg_surface_get_document_unit_raw_ffi(self, status)
-  check_status(status.val)
+  let status = Ref(0)
+  let unit = @surface_impl.svg_get_document_unit_raw(self.to_raw(), status)
+  check_surface_status_raw(status.val)
   unit
 }
 
@@ -146,7 +166,9 @@ pub fn Surface::svg_set_document_unit(
   self : Surface,
   unit : SVGUnit,
 ) -> Unit raise CairoError {
-  check_status(svg_surface_set_document_unit_ffi(self, unit))
+  check_surface_status_raw(
+    @surface_impl.svg_set_document_unit_raw(self.to_raw(), unit.to_raw()),
+  )
 }
 
 ///|
@@ -154,5 +176,7 @@ pub fn Surface::svg_set_document_unit_raw(
   self : Surface,
   unit : Int,
 ) -> Unit raise CairoError {
-  check_status(svg_surface_set_document_unit_raw_ffi(self, unit))
+  check_surface_status_raw(
+    @surface_impl.svg_set_document_unit_raw(self.to_raw(), unit),
+  )
 }

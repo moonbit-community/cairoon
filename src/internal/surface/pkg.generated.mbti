@@ -1,0 +1,179 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "CAIMEOX/cairoon/internal/surface"
+
+import {
+  "CAIMEOX/cairoon/internal/font_options",
+  "moonbitlang/core/ref",
+}
+
+// Values
+pub fn clear_mime_data_raw(RawSurface, Bytes) -> Int
+
+pub fn copy_page_raw(RawSurface) -> Int
+
+pub fn create_for_rectangle_raw(RawSurface, Double, Double, Double, Double, @ref.Ref[Int]) -> RawSurface
+
+pub fn create_similar_image_raw(RawSurface, Int, Int, Int, @ref.Ref[Int]) -> RawSurface
+
+pub fn create_similar_raw(RawSurface, Int, Int, Int, @ref.Ref[Int]) -> RawSurface
+
+pub fn data_copy_raw(RawImageData, @ref.Ref[Int]) -> Bytes
+
+pub fn data_get_raw(RawImageData, Int, @ref.Ref[Int]) -> Byte
+
+pub fn data_length_raw(RawImageData) -> Int
+
+pub fn data_set_raw(RawImageData, Int, Byte) -> Int
+
+pub fn data_status_raw(RawImageData) -> Int
+
+pub fn equal_raw(RawSurface, RawSurface) -> Bool
+
+pub fn finish_raw(RawSurface) -> Int
+
+pub fn flush_raw(RawSurface) -> Int
+
+pub fn get_content_raw(RawSurface) -> Int
+
+pub fn get_device_offset_raw(RawSurface, @ref.Ref[Double], @ref.Ref[Double]) -> Int
+
+pub fn get_device_scale_raw(RawSurface, @ref.Ref[Double], @ref.Ref[Double]) -> Int
+
+pub fn get_fallback_resolution_raw(RawSurface, @ref.Ref[Double], @ref.Ref[Double]) -> Int
+
+pub fn get_font_options_raw(RawSurface, @ref.Ref[Int]) -> @font_options.RawFontOptions
+
+pub fn get_mime_data_raw(RawSurface, Bytes, @ref.Ref[Int], @ref.Ref[Int]) -> Bytes
+
+pub fn get_type_raw(RawSurface) -> Int
+
+pub fn has_show_text_glyphs_raw(RawSurface, @ref.Ref[Int]) -> Bool
+
+pub fn hash_raw(RawSurface) -> UInt64
+
+pub fn image_copy_data_raw(RawSurface, @ref.Ref[Int]) -> Bytes
+
+pub fn image_create_for_data_raw(FixedArray[Byte], Int, Int, Int, Int, @ref.Ref[Int]) -> RawSurface
+
+pub fn image_create_from_png_raw(Bytes, @ref.Ref[Int]) -> RawSurface
+
+pub fn image_create_raw(Int, Int, Int) -> RawSurface
+
+pub fn image_get_data_raw(RawSurface, @ref.Ref[Int]) -> RawImageData
+
+pub fn image_get_format_raw(RawSurface, @ref.Ref[Int]) -> Int
+
+pub fn image_get_height_raw(RawSurface, @ref.Ref[Int]) -> Int
+
+pub fn image_get_stride_raw(RawSurface, @ref.Ref[Int]) -> Int
+
+pub fn image_get_width_raw(RawSurface, @ref.Ref[Int]) -> Int
+
+pub fn map_to_image_raw(RawSurface, Bool, Int, Int, Int, Int, @ref.Ref[Int]) -> RawMappedImageSurface
+
+pub fn mapped_copy_data_raw(RawMappedImageSurface) -> Bytes
+
+pub fn mapped_flush_raw(RawMappedImageSurface) -> Int
+
+pub fn mapped_get_data_raw(RawMappedImageSurface, @ref.Ref[Int]) -> RawImageData
+
+pub fn mapped_get_format_raw(RawMappedImageSurface) -> Int
+
+pub fn mapped_get_height_raw(RawMappedImageSurface) -> Int
+
+pub fn mapped_get_stride_raw(RawMappedImageSurface) -> Int
+
+pub fn mapped_get_width_raw(RawMappedImageSurface) -> Int
+
+pub fn mapped_status_raw(RawMappedImageSurface) -> Int
+
+pub fn mapped_unmap_raw(RawMappedImageSurface) -> Int
+
+pub fn mark_dirty_raw(RawSurface) -> Int
+
+pub fn mark_dirty_rectangle_raw(RawSurface, Int, Int, Int, Int) -> Int
+
+pub fn pdf_add_outline_bits_raw(RawSurface, Int, Bytes, Bytes, Int, @ref.Ref[Int]) -> Int
+
+pub fn pdf_create_raw(Bool, Bytes, Double, Double, @ref.Ref[Int]) -> RawSurface
+
+pub fn pdf_restrict_to_version_raw(RawSurface, Int) -> Int
+
+pub fn pdf_set_custom_metadata_raw(RawSurface, Bytes, Bool, Bytes) -> Int
+
+pub fn pdf_set_metadata_raw(RawSurface, Int, Bytes) -> Int
+
+pub fn pdf_set_page_label_raw(RawSurface, Bytes) -> Int
+
+pub fn pdf_set_size_raw(RawSurface, Double, Double) -> Int
+
+pub fn pdf_set_thumbnail_size_raw(RawSurface, Int, Int) -> Int
+
+pub fn ps_create_raw(Bool, Bytes, Double, Double, @ref.Ref[Int]) -> RawSurface
+
+pub fn ps_dsc_begin_page_setup_raw(RawSurface) -> Int
+
+pub fn ps_dsc_begin_setup_raw(RawSurface) -> Int
+
+pub fn ps_dsc_comment_raw(RawSurface, Bytes) -> Int
+
+pub fn ps_get_eps_raw(RawSurface, @ref.Ref[Int]) -> Bool
+
+pub fn ps_restrict_to_level_raw(RawSurface, Int) -> Int
+
+pub fn ps_set_eps_raw(RawSurface, Bool) -> Int
+
+pub fn ps_set_size_raw(RawSurface, Double, Double) -> Int
+
+pub fn recording_create_raw(Int, Bool, Double, Double, Double, Double, @ref.Ref[Int]) -> RawSurface
+
+pub fn recording_get_extents_raw(RawSurface, @ref.Ref[Int], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double]) -> Int
+
+pub fn recording_ink_extents_raw(RawSurface, @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double]) -> Int
+
+pub fn set_device_offset_raw(RawSurface, Double, Double) -> Int
+
+pub fn set_device_scale_raw(RawSurface, Double, Double) -> Int
+
+pub fn set_fallback_resolution_raw(RawSurface, Double, Double) -> Int
+
+pub fn set_mime_data_raw(RawSurface, Bytes, Bytes) -> Int
+
+pub fn show_page_raw(RawSurface) -> Int
+
+pub fn status_raw(RawSurface) -> Int
+
+pub fn supports_mime_type_raw(RawSurface, Bytes, @ref.Ref[Int]) -> Bool
+
+pub fn svg_create_raw(Bool, Bytes, Double, Double, @ref.Ref[Int]) -> RawSurface
+
+pub fn svg_get_document_unit_raw(RawSurface, @ref.Ref[Int]) -> Int
+
+pub fn svg_restrict_to_version_raw(RawSurface, Int) -> Int
+
+pub fn svg_set_document_unit_raw(RawSurface, Int) -> Int
+
+pub fn tee_add_raw(RawSurface, RawSurface) -> Int
+
+pub fn tee_create_raw(RawSurface, @ref.Ref[Int]) -> RawSurface
+
+pub fn tee_index_raw(RawSurface, Int, @ref.Ref[Int]) -> RawSurface
+
+pub fn tee_remove_raw(RawSurface, RawSurface) -> Int
+
+pub fn unmap_image_raw(RawSurface, RawMappedImageSurface) -> Int
+
+pub fn write_to_png_raw(RawSurface, Bytes) -> Int
+
+// Errors
+
+// Types and methods
+type RawImageData
+
+type RawMappedImageSurface
+
+type RawSurface
+
+// Type aliases
+
+// Traits

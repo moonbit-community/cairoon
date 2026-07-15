@@ -4,8 +4,13 @@ import {
   "CAIMEOX/cairoon/internal/path" @path_impl,
   "CAIMEOX/cairoon/internal/pattern" @pattern_impl,
   "CAIMEOX/cairoon/internal/scaled_font" @scaled_font_impl,
+  "CAIMEOX/cairoon/internal/surface" @surface_impl,
   "CAIMEOX/cairoon/native",
 }
+
+import {
+  "moonbitlang/core/test",
+} for "test"
 
 options(
   targets: {

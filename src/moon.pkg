@@ -15,6 +15,7 @@ import {
   "CAIMEOX/cairoon/internal/scaled_font" @scaled_font_impl,
   "CAIMEOX/cairoon/internal/status" @status_impl,
   "CAIMEOX/cairoon/internal/stream" @stream_impl,
+  "CAIMEOX/cairoon/internal/surface" @surface_impl,
   "CAIMEOX/cairoon/internal/svg" @svg_impl,
   "CAIMEOX/cairoon/internal/version" @version_impl,
   "CAIMEOX/cairoon/native",
@@ -32,27 +33,15 @@ warnings = "+unnecessary_annotation"
 
 options(
   targets: {
-    "ffi.mbt": [ "native" ],
-    "ffi_context_core.mbt": [ "native" ],
     "ffi_context_font_text.mbt": [ "native" ],
-    "ffi_context_paint.mbt": [ "native" ],
     "ffi_context_state.mbt": [ "native" ],
     "ffi_device.mbt": [ "native" ],
-    "ffi_image_data.mbt": [ "native" ],
-    "ffi_image_surface.mbt": [ "native" ],
-    "ffi_mapped_image_surface.mbt": [ "native" ],
     "ffi_pattern.mbt": [ "native" ],
     "ffi_pattern_raster_source.mbt": [ "native" ],
     "ffi_pdf_surface.mbt": [ "native" ],
     "ffi_ps_surface.mbt": [ "native" ],
-    "ffi_recording_surface.mbt": [ "native" ],
-    "ffi_surface.mbt": [ "native" ],
-    "ffi_surface_font_options.mbt": [ "native" ],
-    "ffi_surface_mime.mbt": [ "native" ],
     "ffi_surface_png.mbt": [ "native" ],
-    "ffi_surface_state.mbt": [ "native" ],
     "ffi_svg_surface.mbt": [ "native" ],
-    "ffi_tee_surface.mbt": [ "native" ],
   },
   link: {
     "native": {

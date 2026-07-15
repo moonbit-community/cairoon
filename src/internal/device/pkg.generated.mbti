@@ -2,6 +2,7 @@
 package "CAIMEOX/cairoon/internal/device"
 
 import {
+  "CAIMEOX/cairoon/internal/surface",
   "moonbitlang/core/ref",
 }
 
@@ -24,9 +25,15 @@ pub fn script_create_path_raw(Bytes, @ref.Ref[Int]) -> RawDevice
 
 pub fn script_create_stream_raw((Bytes) -> Int, @ref.Ref[Int]) -> RawDevice
 
+pub fn script_from_recording_surface_raw(RawDevice, @surface.RawSurface) -> Int
+
 pub fn script_get_mode_raw(RawDevice, @ref.Ref[Int]) -> Int
 
 pub fn script_set_mode_raw(RawDevice, Int) -> Int
+
+pub fn script_surface_create_for_target_raw(RawDevice, @surface.RawSurface, @ref.Ref[Int]) -> @surface.RawSurface
+
+pub fn script_surface_create_raw(RawDevice, Int, Double, Double, @ref.Ref[Int]) -> @surface.RawSurface
 
 pub fn script_write_comment_raw(RawDevice, Bytes) -> Int
 

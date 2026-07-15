@@ -1,14 +1,32 @@
 ///|
+struct MappedImageSurface(@surface_impl.RawMappedImageSurface)
+
+///|
+fn MappedImageSurface::from_raw(
+  raw : @surface_impl.RawMappedImageSurface,
+) -> MappedImageSurface {
+  MappedImageSurface(raw)
+}
+
+///|
+fn MappedImageSurface::to_raw(
+  self : MappedImageSurface,
+) -> @surface_impl.RawMappedImageSurface {
+  self.0
+}
+
+///|
 pub fn Surface::map_to_image(
   self : Surface,
   extents? : RectangleInt? = None,
 ) -> MappedImageSurface raise CairoError {
-  let status = Ref(Success)
-  let mapped = match extents {
-    None => surface_map_to_image_ffi(self, false, 0, 0, 0, 0, status)
+  let status = Ref(0)
+  let raw = match extents {
+    None =>
+      @surface_impl.map_to_image_raw(self.to_raw(), false, 0, 0, 0, 0, status)
     Some(rect) =>
-      surface_map_to_image_ffi(
-        self,
+      @surface_impl.map_to_image_raw(
+        self.to_raw(),
         true,
         rect.x,
         rect.y,
@@ -17,9 +35,9 @@ pub fn Surface::map_to_image(
         status,
       )
   }
-  check_status(status.val)
-  check_status(mapped_image_surface_status_ffi(mapped))
-  mapped
+  check_surface_status_raw(status.val)
+  check_surface_status_raw(@surface_impl.mapped_status_raw(raw))
+  MappedImageSurface::from_raw(raw)
 }
 
 ///|
@@ -27,19 +45,21 @@ pub fn Surface::unmap_image(
   self : Surface,
   mapped : MappedImageSurface,
 ) -> Unit raise CairoError {
-  check_status(surface_unmap_image_ffi(self, mapped))
+  check_surface_status_raw(
+    @surface_impl.unmap_image_raw(self.to_raw(), mapped.to_raw()),
+  )
 }
 
 ///|
 pub fn MappedImageSurface::status(self : MappedImageSurface) -> Status {
-  mapped_image_surface_status_ffi(self)
+  surface_status_from_raw(@surface_impl.mapped_status_raw(self.to_raw()))
 }
 
 ///|
 pub fn MappedImageSurface::unmap(
   self : MappedImageSurface,
 ) -> Unit raise CairoError {
-  check_status(mapped_image_surface_unmap_ffi(self))
+  check_surface_status_raw(@surface_impl.mapped_unmap_raw(self.to_raw()))
 }
 
 ///|
@@ -64,31 +84,31 @@ pub fn[T] MappedImageSurface::with_unmapped(
 pub fn MappedImageSurface::flush(
   self : MappedImageSurface,
 ) -> Unit raise CairoError {
-  check_status(mapped_image_surface_flush_ffi(self))
+  check_surface_status_raw(@surface_impl.mapped_flush_raw(self.to_raw()))
 }
 
 ///|
 pub fn MappedImageSurface::get_width(
   self : MappedImageSurface,
 ) -> Int raise CairoError {
-  check_status(mapped_image_surface_status_ffi(self))
-  mapped_image_surface_get_width_ffi(self)
+  check_surface_status_raw(@surface_impl.mapped_status_raw(self.to_raw()))
+  @surface_impl.mapped_get_width_raw(self.to_raw())
 }
 
 ///|
 pub fn MappedImageSurface::get_height(
   self : MappedImageSurface,
 ) -> Int raise CairoError {
-  check_status(mapped_image_surface_status_ffi(self))
-  mapped_image_surface_get_height_ffi(self)
+  check_surface_status_raw(@surface_impl.mapped_status_raw(self.to_raw()))
+  @surface_impl.mapped_get_height_raw(self.to_raw())
 }
 
 ///|
 pub fn MappedImageSurface::get_stride(
   self : MappedImageSurface,
 ) -> Int raise CairoError {
-  check_status(mapped_image_surface_status_ffi(self))
-  mapped_image_surface_get_stride_ffi(self)
+  check_surface_status_raw(@surface_impl.mapped_status_raw(self.to_raw()))
+  @surface_impl.mapped_get_stride_raw(self.to_raw())
 }
 
 ///|
@@ -102,8 +122,8 @@ pub fn MappedImageSurface::get_format(
 pub fn MappedImageSurface::get_format_raw(
   self : MappedImageSurface,
 ) -> Int raise CairoError {
-  check_status(mapped_image_surface_status_ffi(self))
-  mapped_image_surface_get_format_raw_ffi(self)
+  check_surface_status_raw(@surface_impl.mapped_status_raw(self.to_raw()))
+  @surface_impl.mapped_get_format_raw(self.to_raw())
 }
 
 ///|
@@ -111,6 +131,6 @@ pub fn MappedImageSurface::copy_data(
   self : MappedImageSurface,
 ) -> Bytes raise CairoError {
   self.flush()
-  check_status(mapped_image_surface_status_ffi(self))
-  mapped_image_surface_copy_data_ffi(self)
+  check_surface_status_raw(@surface_impl.mapped_status_raw(self.to_raw()))
+  @surface_impl.mapped_copy_data_raw(self.to_raw())
 }

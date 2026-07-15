@@ -220,7 +220,12 @@ pub fn Device::script_from_recording_surface(
   self : Device,
   surface : Surface,
 ) -> Unit raise CairoError {
-  check_status(script_device_from_recording_surface_ffi(self.to_raw(), surface))
+  check_device_status_raw(
+    @device_impl.script_from_recording_surface_raw(
+      self.to_raw(),
+      surface.to_raw(),
+    ),
+  )
 }
 
 ///|
@@ -230,17 +235,17 @@ pub fn Surface::script(
   width : Double,
   height : Double,
 ) -> Surface raise CairoError {
-  let status = Ref(Success)
-  let surface = script_surface_create_ffi(
+  let status = Ref(0)
+  let raw = @device_impl.script_surface_create_raw(
     device.to_raw(),
-    content,
+    content.to_raw(),
     width,
     height,
     status,
   )
-  check_status(status.val)
-  check_status(surface_status_ffi(surface))
-  surface
+  check_device_status_raw(status.val)
+  check_surface_status_raw(@surface_impl.status_raw(raw))
+  Surface::from_raw(raw)
 }
 
 ///|
@@ -250,17 +255,17 @@ pub fn Surface::script_raw(
   width : Double,
   height : Double,
 ) -> Surface raise CairoError {
-  let status = Ref(Success)
-  let surface = script_surface_create_raw_ffi(
+  let status = Ref(0)
+  let raw = @device_impl.script_surface_create_raw(
     device.to_raw(),
     checked_content_raw(content),
     width,
     height,
     status,
   )
-  check_status(status.val)
-  check_status(surface_status_ffi(surface))
-  surface
+  check_device_status_raw(status.val)
+  check_surface_status_raw(@surface_impl.status_raw(raw))
+  Surface::from_raw(raw)
 }
 
 ///|
@@ -268,13 +273,13 @@ pub fn Surface::script_for_target(
   device : Device,
   target : Surface,
 ) -> Surface raise CairoError {
-  let status = Ref(Success)
-  let surface = script_surface_create_for_target_ffi(
+  let status = Ref(0)
+  let raw = @device_impl.script_surface_create_for_target_raw(
     device.to_raw(),
-    target,
+    target.to_raw(),
     status,
   )
-  check_status(status.val)
-  check_status(surface_status_ffi(surface))
-  surface
+  check_device_status_raw(status.val)
+  check_surface_status_raw(@surface_impl.status_raw(raw))
+  Surface::from_raw(raw)
 }

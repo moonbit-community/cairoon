@@ -40,7 +40,9 @@ pub fn Context::set_source_surface(
   x? : Double = 0.0,
   y? : Double = 0.0,
 ) -> Unit raise CairoError {
-  check_status(context_set_source_surface_ffi(self.to_raw(), surface, x, y))
+  check_context_status_raw(
+    @context_impl.set_source_surface_raw(self.to_raw(), surface.to_raw(), x, y),
+  )
 }
 
 ///|
@@ -75,7 +77,9 @@ pub fn Context::mask_surface(
   x? : Double = 0.0,
   y? : Double = 0.0,
 ) -> Unit raise CairoError {
-  check_status(context_mask_surface_ffi(self.to_raw(), surface, x, y))
+  check_context_status_raw(
+    @context_impl.mask_surface_raw(self.to_raw(), surface.to_raw(), x, y),
+  )
 }
 
 ///|

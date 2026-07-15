@@ -2,8 +2,8 @@
 pub fn Surface::get_font_options(
   self : Surface,
 ) -> FontOptions raise CairoError {
-  let status = Ref(Success)
-  let raw = surface_get_font_options_ffi(self, status)
-  check_status(status.val)
+  let status = Ref(0)
+  let raw = @surface_impl.get_font_options_raw(self.to_raw(), status)
+  check_surface_status_raw(status.val)
   FontOptions::from_raw(raw)
 }

@@ -44,3 +44,29 @@ test "raw script device reports acquire after finish" {
   inspect(status_raw(device), content="0")
   inspect(acquire_raw(device), content="37")
 }
+
+///|
+test "raw script device exchanges cross-package surface handles" {
+  let chunks : Array[Bytes] = []
+  let device = make_raw_script_device(chunks)
+  let status = Ref(-1)
+
+  let surface = script_surface_create_raw(device, 0x3000, 2.0, 3.0, status)
+  inspect(status.val, content="0")
+  inspect(@surface_impl.status_raw(surface), content="0")
+  inspect(@surface_impl.get_type_raw(surface), content="14")
+
+  let target = @surface_impl.image_create_raw(0, 2, 2)
+  let target_surface = script_surface_create_for_target_raw(
+    device, target, status,
+  )
+  inspect(status.val, content="0")
+  inspect(@surface_impl.status_raw(target_surface), content="0")
+  inspect(@surface_impl.get_type_raw(target_surface), content="14")
+
+  let recording = @surface_impl.recording_create_raw(
+    0x3000, false, 0.0, 0.0, 0.0, 0.0, status,
+  )
+  inspect(status.val, content="0")
+  inspect(script_from_recording_surface_raw(device, recording), content="0")
+}

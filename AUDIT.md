@@ -16,10 +16,10 @@ Implemented in this workspace:
   `scripts/configure-link-flags.sh --check` in the local reliability gate.
 - Exact local release lanes for Cairo 1.15.10 and 1.18.4, built from pinned
   source URLs and SHA-256 digests on a pinned Ubuntu base image. Both lanes
-  pass all static gates and 775/775 native tests with the pinned MoonBit
+  pass all static gates and 783/783 native tests with the pinned MoonBit
   `0.10.4+4f2e8f7dc-nightly` compiler. In each lane, the source-checkout and
   extracted-publication-zip consumers also pass 1/1 independently; the
-  integrity-checked publication archive contains 581 members.
+  integrity-checked publication archive contains 599 members.
 - Linux ASan/LSan now runs every discovered MoonBit package in a separate
   process. An intentional-leak preflight proves LSan is active; the runner
   creates a temporary `MOON_TOOLCHAIN_ROOT` with an allocator-free shadow
@@ -750,14 +750,14 @@ The most recent full local verification passed on 2026-07-15:
 - `CAIROON_VERIFY_ASAN=0 ./scripts/verify.sh`: passed formatting,
   project-layout, source-size, link-flag, FFI ownership, portable API
   inventory, pycairo parity, reliability-ledger, vector-scene, native type,
-  generated-interface, and 775/775 native test gates. The isolated consumer
+  generated-interface, and 783/783 native test gates. The isolated consumer
   passed 1/1 against both the checkout and the integrity-tested, extracted
-  581-member publication zip. Host ASan was intentionally not duplicated in
-  this run. Static gates checked 378 source files, 43 production FFI files, 82
-  Cairo-linked package configs, and an exact 61-entry public-root allowlist.
+  599-member publication zip. Host ASan was intentionally not duplicated in
+  this run. Static gates checked 394 source files, 44 production FFI files, 83
+  Cairo-linked package configs, and an exact 49-entry public-root allowlist.
 - `./scripts/test-cairo-matrix.sh cairo-1.15.10` and
   `./scripts/test-cairo-matrix.sh cairo-1.18.4`: both exact Linux lanes passed
-  the same source and publication-zip consumer tests at 1/1 each, all 775
+  the same source and publication-zip consumer tests at 1/1 each, all 783
   native tests, and every discovered MoonBit package under ASan/LSan. Only
   the pure-C-probe-verified vector-oracle suppression was used: 16
   allocations/7424 bytes on 1.15.10 and 16 allocations/9344 bytes on 1.18.4.
@@ -3122,6 +3122,31 @@ Prior full verifies passed on 2026-07-02, 2026-07-03, 2026-07-04,
   and destination tags, and Document/Part/Sect/list/table/figure/paragraph
   structure tags while the PS/SVG paths prove those tags remain backend-inert.
 
+## Surface Package Extraction
+
+The ninth object-handle seam moves `RawSurface`, `RawMappedImageSurface`, and
+`RawImageData` plus 79 raw externs into `src/internal/surface`, split across 13
+Cairo-family FFI files. The public facade retains five stream-callback bridges;
+typed enum methods convert to raw `Int` in MoonBit. Context, Pattern, and Device
+now exchange raw Surface handles in their child packages, yielding exact
+child/facade splits of 108/7, 38/10, and 16/1 externs respectively. The three
+public Surface-family wrappers remain private single-field owners with no
+independent finalizer.
+
+Four Surface package tests and four cross-package Context/Pattern/Device tests
+raise the full native suite to 783/783. The raw tests exercise every new
+producer/consumer boundary and the existing external suites continue to cover
+mapped/data owner invalidation, callback ABI, retained source/target lifetimes,
+backend subtype errors, and allocation/finalizer stress. Static review proves
+that the 357-symbol production C API set is identical to the parent commit and
+no C source changed. All 13 duplicate typed/raw declarations were removed; the
+FFI audit now rejects duplicate symbols as well as missing ownership
+annotations. `src/pkg.generated.mbti` is byte-for-byte unchanged at SHA-256
+`6c647f7e0c12188c36330a66681141a4449558884ce948d2c74e462a91b2f0f3`.
+The layout now contains 46 direct public implementation files, a 49-entry
+exact public-root allowlist, 394 source files, 44 production FFI files, and 83
+Cairo-linked package configs.
+
 ## Downstream Consumer Evidence
 
 The 2026-07-15 local release gate now includes a separately named MoonBit
@@ -3134,8 +3159,10 @@ module metadata excludes the integration fixture from the release archive.
 The gate now additionally integrity-tests that exact zip, extracts it into a
 fresh temporary workspace, and reruns the same consumer test against the
 packaged module; the artifact path also passes 1/1. The host verify run passed
-775/775 repository tests with duplicate ASan disabled, while both exact Linux
-Cairo lanes reran this gate and every package-isolated ASan/LSan invocation.
+783/783 repository tests with duplicate ASan disabled, while both exact Linux
+Cairo lanes reran this gate, all 783 tests, and every package-isolated
+ASan/LSan invocation. The publication archive contained 599 members in all
+three release-gate runs.
 
 ## Known Gaps
 

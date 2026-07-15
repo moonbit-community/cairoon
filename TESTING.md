@@ -4112,6 +4112,40 @@ only suppression remains the pure-C-probe-verified vector-oracle case, exactly
 16 allocations/7424 bytes on Cairo 1.15.10 and 16 allocations/9344 bytes on
 Cairo 1.18.4.
 
+The subsequent Surface object-handle package extraction moved the sole
+`RawSurface`, `RawMappedImageSurface`, and `RawImageData` GC handles plus all
+79 object-only externs into `src/internal/surface`. Thirteen focused FFI files
+mirror Cairo's base, state/page, image, mapped-image, image-data, PNG, MIME,
+font-options, recording, PDF, PS, SVG, and Tee families. The public package
+retains five bridges whose signatures require MoonBit stream callbacks. Typed
+facade methods convert enums to raw `Int` and call the child package instead of
+redeclaring a C symbol. Public `Surface`, `MappedImageSurface`, and `ImageData`
+are private single-field wrappers with no second finalizer.
+
+Context now owns 108 raw externs and retains 7 facade bridges; Pattern owns 38
+raw externs and retains 10 facade callback/enum bridges; Device owns 16 raw
+externs and retains 1 facade bridge. Their child packages exchange Surface
+raw handles directly. Four Surface package tests plus four cross-package
+Context/Pattern/Device tests raise the complete native suite from 775 to
+783 tests. They cover raw identity/state, mapped-image and mutable-view owner
+edges, MIME/font-options/recording/Tee composition, no-output PDF/PS/SVG state,
+both Context constructors and target/source paths, SurfacePattern and raw
+raster construction, and all script-device Surface paths.
+
+The migration changes no C glue and preserves the exact 357-symbol production
+C API set. All 13 duplicate typed/raw declarations were removed, and the FFI
+audit rejects future duplicate symbols. The public generated interface remains
+byte-for-byte unchanged at SHA-256
+`6c647f7e0c12188c36330a66681141a4449558884ce948d2c74e462a91b2f0f3`.
+Direct public implementation files fall from 58 to 46 and the exact
+public-root allowlist from 61 to 49; the source tree now has 44 production FFI
+files and 83 Cairo-linked package configs. Full host and exact Cairo matrix
+results are recorded in `AUDIT.md` after each release-candidate replay. The
+current Cairo 1.15.10 and 1.18.4 lanes both pass 783/783 plus every
+package-isolated ASan/LSan invocation; the only suppression is the standalone
+C-probe-verified recording-snapshot leak, at 16 allocations/7424 bytes and 16
+allocations/9344 bytes respectively.
+
 Remaining reliability work is now narrower and should be tracked as evidence,
 not as an unstructured checklist:
 

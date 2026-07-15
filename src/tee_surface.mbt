@@ -1,10 +1,10 @@
 ///|
 pub fn Surface::tee(primary : Surface) -> Surface raise CairoError {
-  let status = Ref(Success)
-  let surface = tee_surface_create_ffi(primary, status)
-  check_status(status.val)
-  check_status(surface_status_ffi(surface))
-  surface
+  let status = Ref(0)
+  let raw = @surface_impl.tee_create_raw(primary.to_raw(), status)
+  check_surface_status_raw(status.val)
+  check_surface_status_raw(@surface_impl.status_raw(raw))
+  Surface::from_raw(raw)
 }
 
 ///|
@@ -12,7 +12,9 @@ pub fn Surface::tee_add(
   self : Surface,
   target : Surface,
 ) -> Unit raise CairoError {
-  check_status(tee_surface_add_ffi(self, target))
+  check_surface_status_raw(
+    @surface_impl.tee_add_raw(self.to_raw(), target.to_raw()),
+  )
 }
 
 ///|
@@ -20,7 +22,9 @@ pub fn Surface::tee_remove(
   self : Surface,
   target : Surface,
 ) -> Unit raise CairoError {
-  check_status(tee_surface_remove_ffi(self, target))
+  check_surface_status_raw(
+    @surface_impl.tee_remove_raw(self.to_raw(), target.to_raw()),
+  )
 }
 
 ///|
@@ -28,9 +32,9 @@ pub fn Surface::tee_index(
   self : Surface,
   index : Int,
 ) -> Surface raise CairoError {
-  let status = Ref(Success)
-  let surface = tee_surface_index_ffi(self, index, status)
-  check_status(status.val)
-  check_status(surface_status_ffi(surface))
-  surface
+  let status = Ref(0)
+  let raw = @surface_impl.tee_index_raw(self.to_raw(), index, status)
+  check_surface_status_raw(status.val)
+  check_surface_status_raw(@surface_impl.status_raw(raw))
+  Surface::from_raw(raw)
 }

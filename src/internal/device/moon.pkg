@@ -1,5 +1,6 @@
 import {
   "CAIMEOX/cairoon/internal/stream" @stream_impl,
+  "CAIMEOX/cairoon/internal/surface" @surface_impl,
   "CAIMEOX/cairoon/native",
 }
 

@@ -4,9 +4,9 @@ pub fn Surface::image(
   width : Int,
   height : Int,
 ) -> Surface raise CairoError {
-  let surface = image_surface_create_ffi(format, width, height)
-  check_status(surface_status_ffi(surface))
-  surface
+  let raw = @surface_impl.image_create_raw(format.to_raw(), width, height)
+  check_surface_status_raw(@surface_impl.status_raw(raw))
+  Surface::from_raw(raw)
 }
 
 ///|
@@ -15,9 +15,9 @@ pub fn Surface::image_raw(
   width : Int,
   height : Int,
 ) -> Surface raise CairoError {
-  let surface = image_surface_create_raw_ffi(format, width, height)
-  check_status(surface_status_ffi(surface))
-  surface
+  let raw = @surface_impl.image_create_raw(format, width, height)
+  check_surface_status_raw(@surface_impl.status_raw(raw))
+  Surface::from_raw(raw)
 }
 
 ///|
@@ -28,13 +28,18 @@ pub fn Surface::image_for_data(
   height : Int,
   stride? : Int = Format::stride_for_width(format, width),
 ) -> Surface raise CairoError {
-  let status = Ref(Success)
-  let surface = image_surface_create_for_data_ffi(
-    data, format, width, height, stride, status,
+  let status = Ref(0)
+  let raw = @surface_impl.image_create_for_data_raw(
+    data,
+    format.to_raw(),
+    width,
+    height,
+    stride,
+    status,
   )
-  check_status(status.val)
-  check_status(surface_status_ffi(surface))
-  surface
+  check_surface_status_raw(status.val)
+  check_surface_status_raw(@surface_impl.status_raw(raw))
+  Surface::from_raw(raw)
 }
 
 ///|
@@ -55,36 +60,36 @@ pub fn Surface::image_for_data_raw(
       calculated
     }
   }
-  let status = Ref(Success)
-  let surface = image_surface_create_for_data_raw_ffi(
+  let status = Ref(0)
+  let raw = @surface_impl.image_create_for_data_raw(
     data, format, width, height, actual_stride, status,
   )
-  check_status(status.val)
-  check_status(surface_status_ffi(surface))
-  surface
+  check_surface_status_raw(status.val)
+  check_surface_status_raw(@surface_impl.status_raw(raw))
+  Surface::from_raw(raw)
 }
 
 ///|
 pub fn Surface::get_width(self : Surface) -> Int raise CairoError {
-  let status = Ref(Success)
-  let width = image_surface_get_width_ffi(self, status)
-  check_status(status.val)
+  let status = Ref(0)
+  let width = @surface_impl.image_get_width_raw(self.to_raw(), status)
+  check_surface_status_raw(status.val)
   width
 }
 
 ///|
 pub fn Surface::get_height(self : Surface) -> Int raise CairoError {
-  let status = Ref(Success)
-  let height = image_surface_get_height_ffi(self, status)
-  check_status(status.val)
+  let status = Ref(0)
+  let height = @surface_impl.image_get_height_raw(self.to_raw(), status)
+  check_surface_status_raw(status.val)
   height
 }
 
 ///|
 pub fn Surface::get_stride(self : Surface) -> Int raise CairoError {
-  let status = Ref(Success)
-  let stride = image_surface_get_stride_ffi(self, status)
-  check_status(status.val)
+  let status = Ref(0)
+  let stride = @surface_impl.image_get_stride_raw(self.to_raw(), status)
+  check_surface_status_raw(status.val)
   stride
 }
 
@@ -95,16 +100,16 @@ pub fn Surface::get_format(self : Surface) -> Format raise CairoError {
 
 ///|
 pub fn Surface::get_format_raw(self : Surface) -> Int raise CairoError {
-  let status = Ref(Success)
-  let format = image_surface_get_format_raw_ffi(self, status)
-  check_status(status.val)
+  let status = Ref(0)
+  let format = @surface_impl.image_get_format_raw(self.to_raw(), status)
+  check_surface_status_raw(status.val)
   format
 }
 
 ///|
 pub fn Surface::copy_data(self : Surface) -> Bytes raise CairoError {
-  let status = Ref(Success)
-  let bytes = image_surface_copy_data_ffi(self, status)
-  check_status(status.val)
+  let status = Ref(0)
+  let bytes = @surface_impl.image_copy_data_raw(self.to_raw(), status)
+  check_surface_status_raw(status.val)
   bytes
 }

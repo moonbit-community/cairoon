@@ -4,7 +4,11 @@ pub fn Pattern::raster_source(
   width : Int,
   height : Int,
 ) -> Pattern raise CairoError {
-  let raw = pattern_create_raster_source_ffi(content, width, height)
+  let raw = @pattern_impl.create_raster_source_raw(
+    content.to_raw(),
+    width,
+    height,
+  )
   check_pattern_status_raw(@pattern_impl.status_raw(raw))
   Pattern::from_raw(raw)
 }
@@ -15,7 +19,7 @@ pub fn Pattern::raster_source_raw(
   width : Int,
   height : Int,
 ) -> Pattern raise CairoError {
-  let raw = pattern_create_raster_source_raw_ffi(
+  let raw = @pattern_impl.create_raster_source_raw(
     checked_content_raw(content),
     width,
     height,

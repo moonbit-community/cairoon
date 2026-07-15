@@ -48,17 +48,17 @@ pub fn Pattern::solid_rgba(
 
 ///|
 pub fn Pattern::for_surface(surface : Surface) -> Pattern raise CairoError {
-  let raw = pattern_create_for_surface_ffi(surface)
+  let raw = @pattern_impl.create_for_surface_raw(surface.to_raw())
   check_pattern_status_raw(@pattern_impl.status_raw(raw))
   Pattern::from_raw(raw)
 }
 
 ///|
 pub fn Pattern::get_surface(self : Pattern) -> Surface raise CairoError {
-  let status = Ref(Success)
-  let surface = pattern_get_surface_ffi(self.to_raw(), status)
-  check_status(status.val)
-  surface
+  let status = Ref(0)
+  let raw = @pattern_impl.get_surface_raw(self.to_raw(), status)
+  check_pattern_status_raw(status.val)
+  Surface::from_raw(raw)
 }
 
 ///|

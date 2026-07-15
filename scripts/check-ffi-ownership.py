@@ -15,8 +15,6 @@ OBJECT_TYPES = {
     "Device",
     "FontFace",
     "FontOptions",
-    "ImageData",
-    "MappedImageSurface",
     "Path",
     "Region",
     "ScaledFont",
@@ -27,10 +25,13 @@ RAW_OBJECT_TYPES = {
     "RawDevice",
     "RawFontFace",
     "RawFontOptions",
+    "RawImageData",
+    "RawMappedImageSurface",
     "RawPath",
     "RawPattern",
     "RawRegion",
     "RawScaledFont",
+    "RawSurface",
     "RawTextToGlyphs",
 }
 
@@ -166,6 +167,22 @@ def check_file(path: pathlib.Path) -> list[str]:
     return errors
 
 
+def extern_symbols(path: pathlib.Path) -> list[tuple[str, int]]:
+    lines = path.read_text(encoding="utf-8").splitlines()
+    symbols: list[tuple[str, int]] = []
+    index = 0
+    while index < len(lines):
+        if 'extern "C" fn' not in lines[index]:
+            index += 1
+            continue
+        signature, end = collect_extern(lines, index)
+        match = re.search(r'=\s*"([^"]+)"', signature)
+        if match is not None:
+            symbols.append((match.group(1), index + 1))
+        index = end + 1
+    return symbols
+
+
 def iter_production_ffi_files() -> list[pathlib.Path]:
     return [
         path
@@ -177,13 +194,25 @@ def iter_production_ffi_files() -> list[pathlib.Path]:
 def main() -> int:
     errors: list[str] = []
     files = iter_production_ffi_files()
+    declarations: dict[str, list[str]] = {}
     for path in files:
         errors.extend(check_file(path))
+        for symbol, line_no in extern_symbols(path):
+            declarations.setdefault(symbol, []).append(f"{path}:{line_no}")
+    for symbol, locations in sorted(declarations.items()):
+        if len(locations) > 1:
+            errors.append(
+                f"C symbol '{symbol}' is declared more than once: "
+                + ", ".join(locations)
+            )
     if errors:
         for error in errors:
             print(error, file=sys.stderr)
         return 1
-    print(f"FFI ownership annotations ok in {len(files)} production files")
+    print(
+        "FFI ownership annotations and C symbol uniqueness ok in "
+        f"{len(files)} production files"
+    )
     return 0
 
 

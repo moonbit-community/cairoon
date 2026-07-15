@@ -25,7 +25,7 @@ fn check_context_status_raw(raw : Int) -> Unit raise CairoError {
 
 ///|
 pub fn Context::new(target : Surface) -> Context raise CairoError {
-  let raw = context_create_ffi(target)
+  let raw = @context_impl.create_raw(target.to_raw())
   check_context_status_raw(@context_impl.status_raw(raw))
   Context::from_raw(raw)
 }
@@ -34,9 +34,9 @@ pub fn Context::new(target : Surface) -> Context raise CairoError {
 pub fn Context::new_for_mapped_image(
   target : MappedImageSurface,
 ) -> Context raise CairoError {
-  let status = Ref(Success)
-  let raw = context_create_for_mapped_image_ffi(target, status)
-  check_status(status.val)
+  let status = Ref(0)
+  let raw = @context_impl.create_for_mapped_image_raw(target.to_raw(), status)
+  check_context_status_raw(status.val)
   check_context_status_raw(@context_impl.status_raw(raw))
   Context::from_raw(raw)
 }
@@ -108,10 +108,10 @@ pub fn Context::tag_end(
 
 ///|
 pub fn Context::get_target(self : Context) -> Surface raise CairoError {
-  let status = Ref(Success)
-  let surface = context_get_target_ffi(self.to_raw(), status)
-  check_status(status.val)
-  surface
+  let status = Ref(0)
+  let raw = @context_impl.get_target_raw(self.to_raw(), status)
+  check_context_status_raw(status.val)
+  Surface::from_raw(raw)
 }
 
 ///|
@@ -124,10 +124,10 @@ pub fn Context::get_source(self : Context) -> Pattern raise CairoError {
 
 ///|
 pub fn Context::get_group_target(self : Context) -> Surface raise CairoError {
-  let status = Ref(Success)
-  let surface = context_get_group_target_ffi(self.to_raw(), status)
-  check_status(status.val)
-  surface
+  let status = Ref(0)
+  let raw = @context_impl.get_group_target_raw(self.to_raw(), status)
+  check_context_status_raw(status.val)
+  Surface::from_raw(raw)
 }
 
 ///|
@@ -140,7 +140,9 @@ pub fn Context::push_group_with_content(
   self : Context,
   content : Content,
 ) -> Unit raise CairoError {
-  check_status(context_push_group_with_content_ffi(self.to_raw(), content))
+  check_context_status_raw(
+    @context_impl.push_group_with_content_raw(self.to_raw(), content.to_raw()),
+  )
 }
 
 ///|

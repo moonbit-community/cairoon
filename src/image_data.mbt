@@ -1,39 +1,52 @@
 ///|
+struct ImageData(@surface_impl.RawImageData)
+
+///|
+fn ImageData::from_raw(raw : @surface_impl.RawImageData) -> ImageData {
+  ImageData(raw)
+}
+
+///|
+fn ImageData::to_raw(self : ImageData) -> @surface_impl.RawImageData {
+  self.0
+}
+
+///|
 pub fn Surface::get_data(self : Surface) -> ImageData raise CairoError {
-  let status = Ref(Success)
-  let data = image_surface_get_data_ffi(self, status)
-  check_status(status.val)
-  check_status(image_data_status_ffi(data))
-  data
+  let status = Ref(0)
+  let raw = @surface_impl.image_get_data_raw(self.to_raw(), status)
+  check_surface_status_raw(status.val)
+  check_surface_status_raw(@surface_impl.data_status_raw(raw))
+  ImageData::from_raw(raw)
 }
 
 ///|
 pub fn MappedImageSurface::get_data(
   self : MappedImageSurface,
 ) -> ImageData raise CairoError {
-  let status = Ref(Success)
-  let data = mapped_image_surface_get_data_ffi(self, status)
-  check_status(status.val)
-  check_status(image_data_status_ffi(data))
-  data
+  let status = Ref(0)
+  let raw = @surface_impl.mapped_get_data_raw(self.to_raw(), status)
+  check_surface_status_raw(status.val)
+  check_surface_status_raw(@surface_impl.data_status_raw(raw))
+  ImageData::from_raw(raw)
 }
 
 ///|
 pub fn ImageData::status(self : ImageData) -> Status {
-  image_data_status_ffi(self)
+  surface_status_from_raw(@surface_impl.data_status_raw(self.to_raw()))
 }
 
 ///|
 pub fn ImageData::length(self : ImageData) -> Int raise CairoError {
-  check_status(image_data_status_ffi(self))
-  image_data_length_ffi(self)
+  check_surface_status_raw(@surface_impl.data_status_raw(self.to_raw()))
+  @surface_impl.data_length_raw(self.to_raw())
 }
 
 ///|
 pub fn ImageData::get(self : ImageData, index : Int) -> Byte raise CairoError {
-  let status = Ref(Success)
-  let value = image_data_get_ffi(self, index, status)
-  check_status(status.val)
+  let status = Ref(0)
+  let value = @surface_impl.data_get_raw(self.to_raw(), index, status)
+  check_surface_status_raw(status.val)
   value
 }
 
@@ -43,13 +56,15 @@ pub fn ImageData::set(
   index : Int,
   value : Byte,
 ) -> Unit raise CairoError {
-  check_status(image_data_set_ffi(self, index, value))
+  check_surface_status_raw(
+    @surface_impl.data_set_raw(self.to_raw(), index, value),
+  )
 }
 
 ///|
 pub fn ImageData::copy(self : ImageData) -> Bytes raise CairoError {
-  let status = Ref(Success)
-  let bytes = image_data_copy_ffi(self, status)
-  check_status(status.val)
+  let status = Ref(0)
+  let bytes = @surface_impl.data_copy_raw(self.to_raw(), status)
+  check_surface_status_raw(status.val)
   bytes
 }

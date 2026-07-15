@@ -1,4 +1,65 @@
 ///|
+struct Surface(@surface_impl.RawSurface)
+
+///|
+fn Surface::from_raw(raw : @surface_impl.RawSurface) -> Surface {
+  Surface(raw)
+}
+
+///|
+fn Surface::to_raw(self : Surface) -> @surface_impl.RawSurface {
+  self.0
+}
+
+///|
+fn surface_status_from_raw(raw : Int) -> Status {
+  status_from_raw(raw) catch {
+    _ => InvalidStatus
+  }
+}
+
+///|
+fn check_surface_status_raw(raw : Int) -> Unit raise CairoError {
+  check_status(status_from_raw(raw))
+}
+
+///|
+fn surface_type_from_raw(raw : Int) -> SurfaceType raise CairoError {
+  match raw {
+    0 => SurfaceTypeImage
+    1 => SurfaceTypePdf
+    2 => SurfaceTypePs
+    3 => SurfaceTypeXlib
+    4 => SurfaceTypeXcb
+    5 => SurfaceTypeGlitz
+    6 => SurfaceTypeQuartz
+    7 => SurfaceTypeWin32
+    8 => SurfaceTypeBeos
+    9 => SurfaceTypeDirectfb
+    10 => SurfaceTypeSvg
+    11 => SurfaceTypeOs2
+    12 => SurfaceTypeWin32Printing
+    13 => SurfaceTypeQuartzImage
+    14 => SurfaceTypeScript
+    15 => SurfaceTypeQt
+    16 => SurfaceTypeRecording
+    17 => SurfaceTypeVg
+    18 => SurfaceTypeGl
+    19 => SurfaceTypeDrm
+    20 => SurfaceTypeTee
+    21 => SurfaceTypeXml
+    22 => SurfaceTypeSkia
+    23 => SurfaceTypeSubsurface
+    24 => SurfaceTypeCogl
+    _ =>
+      raise CairoInvalidArgument(
+        InvalidStatus,
+        "unknown cairo surface type: \{raw}",
+      )
+  }
+}
+
+///|
 fn checked_c_string_bytes(value : String) -> Bytes raise CairoError {
   let bytes = @utf8.encode(value)
   check_no_embedded_nul(bytes)
@@ -17,11 +78,17 @@ pub fn Surface::create_similar(
   width : Int,
   height : Int,
 ) -> Surface raise CairoError {
-  let status = Ref(Success)
-  let surface = surface_create_similar_ffi(self, content, width, height, status)
-  check_status(status.val)
-  check_status(surface_status_ffi(surface))
-  surface
+  let status = Ref(0)
+  let raw = @surface_impl.create_similar_raw(
+    self.to_raw(),
+    content.to_raw(),
+    width,
+    height,
+    status,
+  )
+  check_surface_status_raw(status.val)
+  check_surface_status_raw(@surface_impl.status_raw(raw))
+  Surface::from_raw(raw)
 }
 
 ///|
@@ -31,17 +98,17 @@ pub fn Surface::create_similar_raw(
   width : Int,
   height : Int,
 ) -> Surface raise CairoError {
-  let status = Ref(Success)
-  let surface = surface_create_similar_raw_ffi(
-    self,
+  let status = Ref(0)
+  let raw = @surface_impl.create_similar_raw(
+    self.to_raw(),
     checked_content_raw(content),
     width,
     height,
     status,
   )
-  check_status(status.val)
-  check_status(surface_status_ffi(surface))
-  surface
+  check_surface_status_raw(status.val)
+  check_surface_status_raw(@surface_impl.status_raw(raw))
+  Surface::from_raw(raw)
 }
 
 ///|
@@ -51,13 +118,17 @@ pub fn Surface::create_similar_image(
   width : Int,
   height : Int,
 ) -> Surface raise CairoError {
-  let status = Ref(Success)
-  let surface = surface_create_similar_image_ffi(
-    self, format, width, height, status,
+  let status = Ref(0)
+  let raw = @surface_impl.create_similar_image_raw(
+    self.to_raw(),
+    format.to_raw(),
+    width,
+    height,
+    status,
   )
-  check_status(status.val)
-  check_status(surface_status_ffi(surface))
-  surface
+  check_surface_status_raw(status.val)
+  check_surface_status_raw(@surface_impl.status_raw(raw))
+  Surface::from_raw(raw)
 }
 
 ///|
@@ -67,13 +138,17 @@ pub fn Surface::create_similar_image_raw(
   width : Int,
   height : Int,
 ) -> Surface raise CairoError {
-  let status = Ref(Success)
-  let surface = surface_create_similar_image_raw_ffi(
-    self, format, width, height, status,
+  let status = Ref(0)
+  let raw = @surface_impl.create_similar_image_raw(
+    self.to_raw(),
+    format,
+    width,
+    height,
+    status,
   )
-  check_status(status.val)
-  check_status(surface_status_ffi(surface))
-  surface
+  check_surface_status_raw(status.val)
+  check_surface_status_raw(@surface_impl.status_raw(raw))
+  Surface::from_raw(raw)
 }
 
 ///|
@@ -84,28 +159,33 @@ pub fn Surface::create_for_rectangle(
   width : Double,
   height : Double,
 ) -> Surface raise CairoError {
-  let status = Ref(Success)
-  let surface = surface_create_for_rectangle_ffi(
-    self, x, y, width, height, status,
+  let status = Ref(0)
+  let raw = @surface_impl.create_for_rectangle_raw(
+    self.to_raw(),
+    x,
+    y,
+    width,
+    height,
+    status,
   )
-  check_status(status.val)
-  check_status(surface_status_ffi(surface))
-  surface
+  check_surface_status_raw(status.val)
+  check_surface_status_raw(@surface_impl.status_raw(raw))
+  Surface::from_raw(raw)
 }
 
 ///|
 pub fn Surface::status(self : Surface) -> Status {
-  surface_status_ffi(self)
+  surface_status_from_raw(@surface_impl.status_raw(self.to_raw()))
 }
 
 ///|
 pub fn Surface::equal(self : Surface, other : Surface) -> Bool {
-  surface_equal_ffi(self, other)
+  @surface_impl.equal_raw(self.to_raw(), other.to_raw())
 }
 
 ///|
 pub fn Surface::hash(self : Surface) -> UInt64 {
-  surface_hash_ffi(self)
+  @surface_impl.hash_raw(self.to_raw())
 }
 
 ///|
@@ -135,6 +215,15 @@ fn content_from_raw(raw : Int) -> Content raise CairoError {
 }
 
 ///|
+fn Content::to_raw(self : Content) -> Int {
+  match self {
+    ContentColor => 0x1000
+    ContentAlpha => 0x2000
+    ContentColorAlpha => 0x3000
+  }
+}
+
+///|
 fn checked_content_raw(raw : Int) -> Int raise CairoError {
   match raw {
     0x1000 | 0x2000 | 0x3000 => raw
@@ -149,21 +238,21 @@ pub fn Surface::get_content(self : Surface) -> Content raise CairoError {
 
 ///|
 pub fn Surface::get_content_raw(self : Surface) -> Int raise CairoError {
-  check_status(surface_status_ffi(self))
-  surface_get_content_raw_ffi(self)
+  check_surface_status_raw(@surface_impl.status_raw(self.to_raw()))
+  @surface_impl.get_content_raw(self.to_raw())
 }
 
 ///|
 pub fn Surface::get_type(self : Surface) -> SurfaceType raise CairoError {
-  check_status(surface_status_ffi(self))
-  surface_get_type_ffi(self)
+  check_surface_status_raw(@surface_impl.status_raw(self.to_raw()))
+  surface_type_from_raw(@surface_impl.get_type_raw(self.to_raw()))
 }
 
 ///|
 pub fn Surface::get_device(self : Surface) -> Device? raise CairoError {
   let has_device = Ref(0)
   let status = Ref(Success)
-  let device = surface_get_device_ffi(self, has_device, status)
+  let device = surface_get_device_ffi(self.to_raw(), has_device, status)
   check_status(status.val)
   if has_device.val == 0 {
     None
@@ -175,7 +264,7 @@ pub fn Surface::get_device(self : Surface) -> Device? raise CairoError {
 
 ///|
 pub fn Surface::finish(self : Surface) -> Unit raise CairoError {
-  check_status(surface_finish_ffi(self))
+  check_surface_status_raw(@surface_impl.finish_raw(self.to_raw()))
 }
 
 ///|

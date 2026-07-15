@@ -2,6 +2,31 @@
 type RawDevice
 
 ///|
+#borrow(device, surface)
+extern "C" fn script_device_from_recording_surface_ffi(
+  device : RawDevice,
+  surface : @surface_impl.RawSurface,
+) -> Int = "cairoon_script_device_from_recording_surface"
+
+///|
+#borrow(device, status)
+extern "C" fn script_surface_create_ffi(
+  device : RawDevice,
+  content : Int,
+  width : Double,
+  height : Double,
+  status : Ref[Int],
+) -> @surface_impl.RawSurface = "cairoon_script_surface_create"
+
+///|
+#borrow(device, target, status)
+extern "C" fn script_surface_create_for_target_ffi(
+  device : RawDevice,
+  target : @surface_impl.RawSurface,
+  status : Ref[Int],
+) -> @surface_impl.RawSurface = "cairoon_script_surface_create_for_target"
+
+///|
 #borrow(filename, status)
 extern "C" fn script_device_create_ffi(
   filename : Bytes,

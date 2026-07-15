@@ -14,6 +14,12 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 
 ## Recent Audit Deltas
 
+- 2026-07-15: The Surface object seam moves `RawSurface`,
+  `RawMappedImageSurface`, `RawImageData`, and 79 raw externs into
+  `src/internal/surface`; Context, Pattern, and Device child packages exchange
+  those handles directly. Eight package-local boundary tests bring the native
+  suite to 783 while the public generated interface and 357-symbol production
+  C API set remain unchanged. The FFI gate rejects duplicate C declarations.
 - 2026-07-15: The executable reference package now has dedicated enum,
   status/version/error, and pure-value documents in addition to the eight
   object-family references. All 11 files compile as downstream black-box

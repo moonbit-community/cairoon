@@ -2,6 +2,26 @@
 type RawPattern
 
 ///|
+#borrow(surface)
+extern "C" fn pattern_create_for_surface_ffi(
+  surface : @surface_impl.RawSurface,
+) -> RawPattern = "cairoon_pattern_create_for_surface"
+
+///|
+#borrow(pattern, status)
+extern "C" fn pattern_get_surface_ffi(
+  pattern : RawPattern,
+  status : Ref[Int],
+) -> @surface_impl.RawSurface = "cairoon_pattern_get_surface"
+
+///|
+extern "C" fn pattern_create_raster_source_ffi(
+  content : Int,
+  width : Int,
+  height : Int,
+) -> RawPattern = "cairoon_pattern_create_raster_source"
+
+///|
 extern "C" fn pattern_create_rgb_ffi(
   red : Double,
   green : Double,

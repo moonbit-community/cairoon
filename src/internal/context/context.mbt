@@ -4,6 +4,39 @@ fn ensure_native() -> Unit {
 }
 
 ///|
+pub fn create_raw(surface : @surface_impl.RawSurface) -> RawContext {
+  ensure_native()
+  context_create_ffi(surface)
+}
+
+///|
+pub fn create_for_mapped_image_raw(
+  surface : @surface_impl.RawMappedImageSurface,
+  status : Ref[Int],
+) -> RawContext {
+  ensure_native()
+  context_create_for_mapped_image_ffi(surface, status)
+}
+
+///|
+pub fn get_target_raw(
+  ctx : RawContext,
+  status : Ref[Int],
+) -> @surface_impl.RawSurface {
+  ensure_native()
+  context_get_target_ffi(ctx, status)
+}
+
+///|
+pub fn get_group_target_raw(
+  ctx : RawContext,
+  status : Ref[Int],
+) -> @surface_impl.RawSurface {
+  ensure_native()
+  context_get_group_target_ffi(ctx, status)
+}
+
+///|
 pub fn status_raw(ctx : RawContext) -> Int {
   ensure_native()
   context_status_ffi(ctx)

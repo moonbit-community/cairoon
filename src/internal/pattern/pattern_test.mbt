@@ -36,6 +36,20 @@ test "raw pattern preserves identity, state, and matrix" {
 }
 
 ///|
+test "raw surface and raster patterns cross the package boundary" {
+  let surface = @surface_impl.image_create_raw(0, 2, 2)
+  let pattern = create_for_surface_raw(surface)
+  inspect(status_raw(pattern), content="0")
+  let status = Ref(-1)
+  let returned = get_surface_raw(pattern, status)
+  inspect(status.val, content="0")
+  inspect(@surface_impl.equal_raw(returned, surface), content="true")
+
+  let raster = create_raster_source_raw(0x3000, 2, 3)
+  inspect(status_raw(raster), content="0")
+}
+
+///|
 test "raw gradient pattern exposes stops and geometry" {
   let linear = create_linear_raw(1.0, 2.0, 4.0, 5.0)
   inspect(status_raw(linear), content="0")

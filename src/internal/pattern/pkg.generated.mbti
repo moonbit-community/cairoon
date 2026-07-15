@@ -3,6 +3,7 @@ package "CAIMEOX/cairoon/internal/pattern"
 
 import {
   "CAIMEOX/cairoon/internal/path",
+  "CAIMEOX/cairoon/internal/surface",
   "moonbitlang/core/ref",
 }
 
@@ -11,11 +12,15 @@ pub fn add_color_stop_rgb_raw(RawPattern, Double, Double, Double, Double) -> Int
 
 pub fn add_color_stop_rgba_raw(RawPattern, Double, Double, Double, Double, Double) -> Int
 
+pub fn create_for_surface_raw(@surface.RawSurface) -> RawPattern
+
 pub fn create_linear_raw(Double, Double, Double, Double) -> RawPattern
 
 pub fn create_mesh_raw() -> RawPattern
 
 pub fn create_radial_raw(Double, Double, Double, Double, Double, Double) -> RawPattern
+
+pub fn create_raster_source_raw(Int, Int, Int) -> RawPattern
 
 pub fn create_rgb_raw(Double, Double, Double) -> RawPattern
 
@@ -40,6 +45,8 @@ pub fn get_matrix_raw(RawPattern, @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[D
 pub fn get_radial_circles_raw(RawPattern, @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double]) -> Int
 
 pub fn get_rgba_raw(RawPattern, @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double]) -> Int
+
+pub fn get_surface_raw(RawPattern, @ref.Ref[Int]) -> @surface.RawSurface
 
 pub fn hash_raw(RawPattern) -> UInt64
 
