@@ -80,7 +80,7 @@ extern "C" fn mesh_pattern_get_path_ffi(
   pattern : Pattern,
   patch_num : Int,
   status : Ref[Status],
-) -> Path = "cairoon_mesh_pattern_get_path"
+) -> @path_impl.RawPath = "cairoon_mesh_pattern_get_path"
 
 ///|
 #borrow(pattern, x, y)

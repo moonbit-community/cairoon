@@ -19,6 +19,24 @@ fn expect_mesh_invalid_index(
 }
 
 ///|
+fn mesh_path_from_local_pattern() -> @cairoon.Path raise @cairoon.CairoError {
+  let pattern = @cairoon.Pattern::mesh()
+  pattern.mesh_begin_patch()
+  pattern.mesh_move_to(0.0, 0.0)
+  pattern.mesh_line_to(1.0, 0.0)
+  pattern.mesh_line_to(0.0, 1.0)
+  pattern.mesh_end_patch()
+  pattern.mesh_get_path(0)
+}
+
+///|
+test "mesh path survives source pattern scope" {
+  let path = mesh_path_from_local_pattern()
+  inspect(path.length(), content="5")
+  inspect(path.to_string().contains("curve_to"), content="true")
+}
+
+///|
 test "mesh pattern builds coons patch and exposes path color and points" {
   let pattern = @cairoon.Pattern::mesh()
   inspect(pattern.mesh_get_patch_count(), content="0")

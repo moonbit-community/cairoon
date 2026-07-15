@@ -20,7 +20,4 @@ type Pattern
 type ScaledFont
 
 ///|
-type Path
-
-///|
 priv type TextToGlyphsNative

@@ -1,0 +1,30 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "CAIMEOX/cairoon/internal/path"
+
+import {
+  "moonbitlang/core/ref",
+}
+
+// Values
+pub fn equal_raw(RawPath, RawPath) -> Bool
+
+pub fn get_data_raw(RawPath, Int, @ref.Ref[Int], @ref.Ref[Int], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double]) -> Int
+
+pub fn hash_raw(RawPath) -> UInt64
+
+pub fn num_data_raw(RawPath, @ref.Ref[Int]) -> Int
+
+pub fn num_segments_raw(RawPath, @ref.Ref[Int]) -> Int
+
+pub fn status_raw(RawPath) -> Int
+
+pub fn to_string_raw(RawPath, @ref.Ref[Int]) -> Bytes
+
+// Errors
+
+// Types and methods
+type RawPath
+
+// Type aliases
+
+// Traits

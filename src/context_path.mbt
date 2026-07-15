@@ -126,18 +126,18 @@ pub fn Context::has_current_point(self : Context) -> Bool raise CairoError {
 
 ///|
 pub fn Context::copy_path(self : Context) -> Path raise CairoError {
-  let status = Ref(Success)
-  let path = context_copy_path_ffi(self, status)
-  check_status(status.val)
-  path
+  let status = Ref(0)
+  let raw = context_copy_path_ffi(self, status)
+  check_path_status_raw(status.val)
+  Path::from_raw(raw)
 }
 
 ///|
 pub fn Context::copy_path_flat(self : Context) -> Path raise CairoError {
-  let status = Ref(Success)
-  let path = context_copy_path_flat_ffi(self, status)
-  check_status(status.val)
-  path
+  let status = Ref(0)
+  let raw = context_copy_path_flat_ffi(self, status)
+  check_path_status_raw(status.val)
+  Path::from_raw(raw)
 }
 
 ///|
@@ -145,7 +145,7 @@ pub fn Context::append_path(
   self : Context,
   path : Path,
 ) -> Unit raise CairoError {
-  check_status(context_append_path_ffi(self, path))
+  check_status(context_append_path_ffi(self, path.to_raw()))
 }
 
 ///|

@@ -282,7 +282,8 @@ support packages under `src/core/constants`, `src/core/glyph`,
 `src/internal/font_face`, `src/internal/font_options`, `src/internal/format`,
 `src/internal/status`,
 `src/internal/pdf`,
-`src/internal/ps`, `src/internal/region`, `src/internal/svg`,
+`src/internal/path`, `src/internal/ps`, `src/internal/region`,
+`src/internal/svg`,
 `src/tests/matrix/core`, `src/tests/matrix/property`,
 `src/tests/matrix/pycairo`,
 `src/tests/region/core`,
@@ -4005,6 +4006,20 @@ raw-handle tests raise the current suite to 767/767. The host gate and both
 exact Linux Cairo lanes pass every package under ASan/LSan, both downstream
 consumer paths pass 1/1, and the integrity-checked publication archive contains
 548 members.
+
+The subsequent Path object-handle package extraction moved the sole raw GC
+handle and all seven Path-specific externs into `src/internal/path`. Context
+copy/append paths and mesh Pattern get-path now exchange `RawPath` beneath the
+unchanged public facade. The child has no production constructor, so it does
+not introduce a test-only C ABI merely to create a package-local fixture.
+Instead, the existing Context/Path/mesh/lifetime suites plus one new test that
+uses a mesh-produced Path after its source Pattern scope ends cover both real
+producers, append consumption, status errors, segment parsing, identity, and
+finalization. The current suite is 768/768; the public generated interface is
+unchanged, all five targeted host ASan packages pass, both downstream consumer
+paths pass 1/1, and the integrity-checked publication archive contains 551
+members. Both exact Linux Cairo lanes pass every discovered package under
+ASan/LSan.
 
 Remaining reliability work is now narrower and should be tracked as evidence,
 not as an unstructured checklist:

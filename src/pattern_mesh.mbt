@@ -98,10 +98,10 @@ pub fn Pattern::mesh_get_path(
   patch_num : Int,
 ) -> Path raise CairoError {
   let status = Ref(Success)
-  let path = mesh_pattern_get_path_ffi(self, patch_num, status)
+  let raw = mesh_pattern_get_path_ffi(self, patch_num, status)
   check_status(status.val)
-  check_status(path.status())
-  path
+  check_path_status_raw(@path_impl.status_raw(raw))
+  Path::from_raw(raw)
 }
 
 ///|

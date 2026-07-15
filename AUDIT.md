@@ -16,10 +16,10 @@ Implemented in this workspace:
   `scripts/configure-link-flags.sh --check` in the local reliability gate.
 - Exact local release lanes for Cairo 1.15.10 and 1.18.4, built from pinned
   source URLs and SHA-256 digests on a pinned Ubuntu base image. Both lanes
-  pass all static gates and 767/767 native tests with the pinned MoonBit
+  pass all static gates and 768/768 native tests with the pinned MoonBit
   `0.10.4+4f2e8f7dc-nightly` compiler. In each lane, the source-checkout and
   extracted-publication-zip consumers also pass 1/1 independently; the
-  integrity-checked publication archive contains 548 members.
+  integrity-checked publication archive contains 551 members.
 - Linux ASan/LSan now runs every discovered MoonBit package in a separate
   process. An intentional-leak preflight proves LSan is active; the runner
   creates a temporary `MOON_TOOLCHAIN_ROOT` with an allocator-free shadow
@@ -276,6 +276,17 @@ Implemented in this workspace:
   owns string validation, typed/raw enum conversion, traits, and `CairoError`
   mapping. Its generated public interface is unchanged, while FontFace,
   Context, ScaledFont, oracle, and lifetime tests cover cross-family ownership.
+- `src/internal/path` is the fourth facade-owned object seam and the first
+  producer-only child package. It owns the sole `RawPath` external object and
+  all seven Path-specific externs using raw `Int` status and path-data values.
+  Context copy/append and mesh Pattern get-path FFI exchange `RawPath` below
+  the facade; checked public methods alone wrap returned handles and unwrap
+  append arguments. Public `Path` retains segments, enum conversion, traits,
+  string decoding, and `CairoError` mapping, and its generated interface is
+  unchanged. The child deliberately has no test-only constructor: Path,
+  Context, mesh Pattern, value-stress, and finalizer black-box tests cover both
+  real producers, append consumption, error paths, source-scope independence,
+  and sole-owner finalization.
 - C FFI glue split by Cairo object family, following pycairo's
   `private.h` plus per-family C file architecture. GC-managed external objects
   currently cover `Surface`, `MappedImageSurface`, `ImageData`, `Context`,
@@ -333,12 +344,13 @@ Implemented in this workspace:
   `ffi_surface_font_options.mbt`, `ffi_surface_mime.mbt`,
   `ffi_surface_png.mbt`, and `ffi_surface_state.mbt` own raw image, mapped
   image, recording, base, font-options, MIME, PNG, and state/page surface
-  extern declarations; and `ffi_path.mbt`, `ffi_pdf_surface.mbt`,
-  `ffi_ps_surface.mbt`, `ffi_svg_surface.mbt`, and `ffi_tee_surface.mbt` own raw
-  `Path`, PDF surface, PostScript surface, SVG surface, and Tee surface extern
-  declarations. Raw FontFace, FontOptions, and Region extern declarations plus
-  their sole GC handles now live in `src/internal/font_face`,
-  `src/internal/font_options`, and `src/internal/region`, respectively. Raw PDF
+  extern declarations; and `ffi_pdf_surface.mbt`, `ffi_ps_surface.mbt`,
+  `ffi_svg_surface.mbt`, and `ffi_tee_surface.mbt` own raw PDF surface,
+  PostScript surface, SVG surface, and Tee surface extern declarations. Raw
+  FontFace, FontOptions, Path, and Region extern declarations plus their sole
+  GC handles now live in `src/internal/font_face`,
+  `src/internal/font_options`, `src/internal/path`, and `src/internal/region`,
+  respectively. Raw PDF
   version helper externs have moved out of `ffi_pdf_surface.mbt` into
   `src/internal/pdf`; raw PostScript level helper externs have moved out of
   `ffi_ps_surface.mbt` into `src/internal/ps`; raw SVG version helper externs
@@ -695,13 +707,13 @@ The most recent full local verification passed on 2026-07-15:
 - `CAIROON_VERIFY_ASAN=0 ./scripts/verify.sh`: passed formatting,
   project-layout, source-size, link-flag, FFI ownership, portable API
   inventory, pycairo parity, reliability-ledger, vector-scene, native type,
-  generated-interface, and 767/767 native test gates. The isolated consumer
+  generated-interface, and 768/768 native test gates. The isolated consumer
   passed 1/1 against both the checkout and the integrity-tested, extracted
-  548-member publication zip. Host ASan was intentionally not duplicated in
+  551-member publication zip. Host ASan was intentionally not duplicated in
   this run.
 - `./scripts/test-cairo-matrix.sh cairo-1.15.10` and
   `./scripts/test-cairo-matrix.sh cairo-1.18.4`: both exact Linux lanes passed
-  the same source and publication-zip consumer tests at 1/1 each, all 767
+  the same source and publication-zip consumer tests at 1/1 each, all 768
   native tests, and every discovered MoonBit package under ASan/LSan. Only
   the pure-C-probe-verified vector-oracle suppression was used: 16
   allocations/7424 bytes on 1.15.10 and 16 allocations/9344 bytes on 1.18.4.
@@ -3076,7 +3088,7 @@ module metadata excludes the integration fixture from the release archive.
 The gate now additionally integrity-tests that exact zip, extracts it into a
 fresh temporary workspace, and reruns the same consumer test against the
 packaged module; the artifact path also passes 1/1. The host verify run passed
-767/767 repository tests with duplicate ASan disabled, while both exact Linux
+768/768 repository tests with duplicate ASan disabled, while both exact Linux
 Cairo lanes reran this gate and every package-isolated ASan/LSan invocation.
 
 ## Known Gaps

@@ -170,6 +170,7 @@ MoonBit declarations to native:
 import {
   "CAIMEOX/cairoon/internal/font_face" @font_face_impl,
   "CAIMEOX/cairoon/internal/font_options" @font_options_impl,
+  "CAIMEOX/cairoon/internal/path" @path_impl,
   "CAIMEOX/cairoon/internal/region" @region_impl,
   "CAIMEOX/cairoon/native",
 }
@@ -186,7 +187,6 @@ options(
     "ffi_pattern.mbt": ["native"],
     "ffi_pattern_mesh.mbt": ["native"],
     "ffi_pattern_raster_source.mbt": ["native"],
-    "ffi_path.mbt": ["native"],
     "ffi_pdf_surface.mbt": ["native"],
     "ffi_ps_surface.mbt": ["native"],
     "ffi_recording_surface.mbt": ["native"],
@@ -203,12 +203,12 @@ options(
 )
 ```
 
-FontFace, FontOptions, and Region are object-handle exceptions to the
+FontFace, FontOptions, Path, and Region are object-handle exceptions to the
 public-package FFI list. Their `src/internal/<family>/moon.pkg` files import
 `CAIMEOX/cairoon/native`, native-gate their own `ffi.mbt`, and carry the same
 `pkg-config`-derived Cairo link flags as the public package. The public package
-imports them as `@font_face_impl`, `@font_options_impl`, and `@region_impl`; it
-must not redeclare their raw handle types or family externs.
+imports them as `@font_face_impl`, `@font_options_impl`, `@path_impl`, and
+`@region_impl`; it must not redeclare their raw handle types or family externs.
 
 The `src/native/moon.pkg` package owns all public C glue compilation. Its
 `native-stub` entries are plain filenames beside that package file, never paths
@@ -279,7 +279,8 @@ extern declarations that call `cairoon_context_state.c`;
 surface-get-device extern declarations that call `cairoon_device.c`;
 `ffi_image_data.mbt` owns raw `ImageData` and image/mapped get-data extern
 declarations that call `cairoon_image_data.c`;
-`ffi_path.mbt` owns raw `Path` extern declarations that call `cairoon_path.c`;
+`src/internal/path/ffi.mbt` owns `RawPath` and the Path-specific extern
+declarations that call `cairoon_path.c`;
 `ffi_pdf_surface.mbt` owns raw PDF surface extern declarations that call
 `cairoon_pdf_surface.c`; raw PDF version query/string helpers belong to
 `src/internal/pdf` because their public facade can stay as `PDFVersion`
@@ -321,6 +322,14 @@ The child interface uses `Int` for statuses and enum values and must not import
 overlap values only as `Int` and must not import `CAIMEOX/cairoon`. The public
 `region.mbt` facade owns the abstract `Region` wrapper, converts those raw
 values to `Status` and `RegionOverlap`, and maps failures to `CairoError`.
+`src/internal/path/ffi.mbt` owns the abstract `RawPath` external object and all
+seven Path-specific externs. Context copy-path and mesh get-path externs return
+`RawPath`, while append-path accepts a borrowed `RawPath`; only checked facade
+methods may wrap those returned handles or unwrap public `Path` arguments. The
+child interface uses `Int` for Cairo statuses and path-data kinds and must not
+import `CAIMEOX/cairoon`. Public `path.mbt` retains the abstract single-field
+`Path` wrapper, `PathSegment`, `PathDataType` conversion, traits, UTF-8
+decoding, and all `CairoError` mapping.
 
 Do not add public wrappers to `ffi_*.mbt`; these files are private native FFI
 plumbing only. Public MoonBit APIs stay in focused wrapper files such as
@@ -461,9 +470,15 @@ embedded-NUL byte scanning, while `check_no_embedded_nul` and the
 `CairoInvalidArgument(InvalidString, _)` mapping stay in the facade. Keep enum
 constructors in the facade unless a compatibility proof shows that
 `@cairoon.<Constructor>` syntax survives. Any internal package that imports
-`CAIMEOX/cairoon/native` must carry Cairo `cc-link-flags` and package-local
-tests so `moon test src/internal/<family> --target native` links
-independently.
+`CAIMEOX/cairoon/native` must carry Cairo `cc-link-flags`, and
+`moon test src/internal/<family> --target native` must link independently. A
+child package that can construct a valid value through its own production API
+must have package-local tests. A producer-only handle package such as
+`src/internal/path`, whose valid values can only come from facade-owned Context
+or Pattern APIs, must not add a test-only constructor or C export merely to
+manufacture a local fixture. Instead, external black-box tests must cover every
+real producer and consumer, output and object status errors, use after the
+source object's scope ends, and finalizer/allocation stress under ASan/LSan.
 
 Do not move a type whose methods raise `CairoError` into a subpackage until the
 error/status family has its own proven non-cyclic package seam. A child package
@@ -548,7 +563,7 @@ ownership first, then expose convenience APIs.
 | `cairo_font_options_t *` | Public `type FontOptions` wrapping internal `RawFontOptions` | `RawFontOptions` is the sole external object and its finalizer calls `cairo_font_options_destroy`; `FontOptions` holds exactly one strong reference and has no second finalizer. |
 | `cairo_region_t *` | Public `type Region` wrapping internal `RawRegion` | `RawRegion` is the sole external object and its finalizer calls `cairo_region_destroy`; `Region` holds exactly one strong reference and has no second finalizer. |
 | `cairo_device_t *` | `type Device` | External object; finalizer calls `cairo_device_destroy`. |
-| `cairo_path_t *` | `type Path` | External object; finalizer calls `cairo_path_destroy`. |
+| `cairo_path_t *` | Public `type Path` wrapping internal `RawPath` | `RawPath` is the sole external object and its finalizer calls `cairo_path_destroy`; `Path` holds exactly one strong reference and has no second finalizer. |
 | `cairo_matrix_t` | Pure MoonBit value, e.g. `struct Matrix { xx : Double, yx : Double, xy : Double, yy : Double, x0 : Double, y0 : Double }` | No external finalizer. C stubs convert to/from fields. |
 | `cairo_rectangle_t` | Pure MoonBit value with `Double` fields | No external finalizer. |
 | `cairo_rectangle_int_t` | Pure MoonBit value with `Int` fields | No external finalizer. |
@@ -622,6 +637,12 @@ Concrete requirements:
 - A `Pattern` created from a `Surface`, and any object whose C resource may
   borrow another Cairo resource, must retain the base MoonBit object in the
   same way.
+- `Context::copy_path`, `Context::copy_path_flat`, and
+  `Pattern::mesh_get_path` return newly owned `cairo_path_t *` values and must
+  wrap them exactly once as `RawPath`. A public `Path` is only a strong
+  single-field wrapper around that raw owner. `Context::append_path` borrows
+  the raw handle for the duration of the call; copied paths are independent
+  and do not retain their source Context or Pattern.
 - Temporary Cairo result containers such as `cairo_rectangle_list_t` must not
   cross the FFI boundary. The C stub must copy their primitive fields into a
   MoonBit-owned array, capture the Cairo status, destroy the Cairo container

@@ -117,16 +117,19 @@ extern "C" fn context_has_current_point_ffi(
 #borrow(ctx, status)
 extern "C" fn context_copy_path_ffi(
   ctx : Context,
-  status : Ref[Status],
-) -> Path = "cairoon_context_copy_path"
+  status : Ref[Int],
+) -> @path_impl.RawPath = "cairoon_context_copy_path"
 
 ///|
 #borrow(ctx, status)
 extern "C" fn context_copy_path_flat_ffi(
   ctx : Context,
-  status : Ref[Status],
-) -> Path = "cairoon_context_copy_path_flat"
+  status : Ref[Int],
+) -> @path_impl.RawPath = "cairoon_context_copy_path_flat"
 
 ///|
 #borrow(ctx, path)
-extern "C" fn context_append_path_ffi(ctx : Context, path : Path) -> Status = "cairoon_context_append_path"
+extern "C" fn context_append_path_ffi(
+  ctx : Context,
+  path : @path_impl.RawPath,
+) -> Status = "cairoon_context_append_path"
