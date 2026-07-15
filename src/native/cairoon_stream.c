@@ -106,7 +106,7 @@ cairo_status_t cairoon_stream_write(
     memcpy(bytes, data, (size_t)length);
   }
 
-  moonbit_incref(bytes);
+  // FuncRef arguments are borrowed; this temporary owns the call-scoped ref.
   if (state->arg != NULL) {
     moonbit_incref(state->arg);
   }

@@ -35,6 +35,42 @@ test "raster source acquire-only releases retained owner after paint" {
 }
 
 ///|
+test "raster source ignored target wrapper is released after callback" {
+  let source = make_raster_owner_color_source(0)
+  let pattern = @cairoon.Pattern::raster_source(
+    @cairoon.ContentColorAlpha,
+    3,
+    3,
+  )
+  pattern.raster_set_acquire(fn(_, _) { source })
+
+  let control = @cairoon.Surface::image(@cairoon.Argb32, 3, 3)
+  let control_ctx = @cairoon.Context::new(control)
+  control_ctx.set_source_rgb(0.0, 0.0, 0.0)
+  control_ctx.paint()
+  control_ctx.set_source_rgb(1.0, 1.0, 1.0)
+  control_ctx.paint()
+  control_ctx.set_source_rgb(0.0, 0.0, 0.0)
+  control_ctx.paint()
+
+  let target = @cairoon.Surface::image(@cairoon.Argb32, 3, 3)
+  let ctx = @cairoon.Context::new(target)
+  ctx.set_source_rgb(0.0, 0.0, 0.0)
+  ctx.paint()
+  ctx.set_source(pattern)
+  ctx.paint()
+  ctx.set_source_rgb(0.0, 0.0, 0.0)
+  ctx.paint()
+  let before = test_surface_reference_count_ffi(control)
+  let after = test_surface_reference_count_ffi(target)
+  if after != before {
+    @test.fail(
+      "ignored raster target wrapper changed Cairo references: before=\{before}, after=\{after}",
+    )
+  }
+}
+
+///|
 fn make_raster_owner_color_source(
   color : Int,
 ) -> @cairoon.Surface raise @cairoon.CairoError {

@@ -147,8 +147,8 @@ static cairo_surface_t *cairoon_raster_source_acquire(
     return NULL;
   }
 
+  // FuncRef arguments are borrowed; this wrapper owns the call-scoped ref.
   CairoonSurface *target_wrapper = cairoon_surface_wrap_borrowed(target);
-  moonbit_incref(target_wrapper);
   if (state->acquire_arg != NULL) {
     moonbit_incref(state->acquire_arg);
   }
