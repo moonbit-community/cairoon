@@ -123,6 +123,12 @@ of the MoonBit API.
 ## Documentation
 
 - `src/README.mbt.md`: executable package overview and smoke examples.
+- `src/docs/status_and_version.mbt.md`: Cairo versions, feature constants,
+  statuses, and checked suberror mapping.
+- `src/docs/enums.mbt.md`: typed enum families, raw compatibility boundaries,
+  and state round trips.
+- `src/docs/value_types.mbt.md`: rectangles, glyphs, text clusters, and
+  extents.
 - `src/docs/matrix.mbt.md`: affine transforms.
 - `src/docs/surface.mbt.md`: image surfaces, PNG, MIME, mapped images, and surface
   errors.
@@ -150,7 +156,7 @@ release:
 The gate checks formatting, Cairo link-flag drift, project layout, FFI
 ownership annotations, API inventory coverage, the reliability ledger, native
 type checking, all 20 pinned pycairo test-file families (288 upstream tests),
-749 in-module MoonBit tests, one isolated downstream-module import/link/render
+761 in-module MoonBit tests, one isolated downstream-module import/link/render
 test against both the checkout and extracted publication zip,
 publication-archive isolation, executable docs, direct C Cairo oracle tests,
 `moon info`, and ASan/LSan when an ASan-capable compiler is available.

@@ -9,17 +9,35 @@ import {
 // Values
 pub const CAIRO_VERSION : Int = 11804
 
+pub const CAIRO_VERSION_MAJOR : Int = 1
+
+pub const CAIRO_VERSION_MICRO : Int = 4
+
+pub const CAIRO_VERSION_MINOR : Int = 18
+
+pub const CAIRO_VERSION_STRING : String = "1.18.4"
+
 pub const COLOR_PALETTE_DEFAULT : UInt = 0
 
 pub const HAS_IMAGE_SURFACE : Bool = true
 
 pub const MIME_TYPE_JPEG : String = "image/jpeg"
 
+pub const MIME_TYPE_PNG : String = "image/png"
+
 pub const PDF_OUTLINE_ROOT : Int = 0
+
+pub const TAG_CONTENT : String = "cairo.content"
 
 pub const TAG_DEST : String = "cairo.dest"
 
+pub const TAG_LINK : String = "Link"
+
 pub fn cairo_version() -> Int
+
+pub fn cairo_version_string() -> String
+
+pub fn check_status(@cairoon.Status) -> Unit raise @cairoon.CairoError
 
 pub fn[T] run_cairo(() -> T raise @cairoon.CairoError) -> Result[T, @cairoon.CairoError]
 

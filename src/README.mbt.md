@@ -76,11 +76,12 @@ test "README quick start draws a curve" {
 
 ## Current Stability
 
-cairoon is reliable for the migrated slices that are marked `Done` in
-`API_INVENTORY.md` and pass `./scripts/verify.sh` on your target platform. It
-is not yet a full pycairo migration. The main remaining beta areas are broad
-PDF/PS/SVG tag and metadata combinations, broader method-by-method context and
-pattern parity, raster-source platform fuzzing, and release-platform coverage.
+cairoon is suitable for light native use when the required inventory rows are
+marked `Done`, `./scripts/check-downstream-consumer.sh` passes, and the exact
+version or commit is pinned. The portable API and all 20 pinned pycairo test
+families are covered. The remaining global `Partial` row records shipped
+release-platform evidence rather than an unimplemented portable API family;
+there is still no source-compatibility promise before `1.0`.
 
 Platform-specific Xlib, XCB, and Win32 surfaces are outside the first portable
 scope. Python-specific pycairo APIs such as `CAPI`, `get_include()`, Python
@@ -89,18 +90,28 @@ of the MoonBit API.
 
 ## Documentation
 
-Additional executable reference notes are split by API family. Start with
-`src/docs/matrix.mbt.md` for pure-value affine transforms,
-`src/docs/surface.mbt.md` for image surfaces, buffer-backed data, mapped
-images, PNG/MIME helpers, and checked surface errors,
-`src/docs/backend_surfaces.mbt.md` for PDF/PS/SVG, recording, tee, and script
-backends, `src/docs/context.mbt.md` for drawing state, transforms, paths,
-clips, groups, text, and checked context errors, `src/docs/font.mbt.md` for
-FontOptions, FontFace, ScaledFont, text-to-glyphs, and checked font errors,
-`src/docs/path.mbt.md` for typed path segments and path ownership,
-`src/docs/pattern.mbt.md` for solid/surface/gradient/mesh and raster-source
-patterns, and `src/docs/region.mbt.md` for Region construction, rectangle
-queries, boolean operations, and checked error mapping.
+Additional executable reference notes are split by API family:
+
+- `src/docs/status_and_version.mbt.md`: Cairo versions, feature constants,
+  status diagnostics, and checked suberrors.
+- `src/docs/enums.mbt.md`: typed enum families and raw compatibility
+  boundaries.
+- `src/docs/value_types.mbt.md`: rectangles, glyphs, text clusters, and
+  extents.
+- `src/docs/matrix.mbt.md`: pure-value affine transforms.
+- `src/docs/surface.mbt.md`: image surfaces, buffer-backed data, mapped
+  images, PNG/MIME helpers, and checked surface errors.
+- `src/docs/backend_surfaces.mbt.md`: PDF/PS/SVG, recording, tee, and script
+  backends.
+- `src/docs/context.mbt.md`: drawing state, transforms, paths, clips, groups,
+  text, and checked context errors.
+- `src/docs/font.mbt.md`: FontOptions, FontFace, ScaledFont, text-to-glyphs,
+  and checked font errors.
+- `src/docs/path.mbt.md`: typed path segments and path ownership.
+- `src/docs/pattern.mbt.md`: solid, surface, gradient, mesh, and raster-source
+  patterns.
+- `src/docs/region.mbt.md`: Region construction, rectangle queries, boolean
+  operations, and checked error mapping.
 
 Packaging, CI, and release rules live in the repository `PACKAGING.md`.
 pycairo migration notes live in `PORTING_FROM_PYCAIRO.md`.

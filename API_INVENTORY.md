@@ -14,6 +14,13 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 
 ## Recent Audit Deltas
 
+- 2026-07-15: The executable reference package now has dedicated enum,
+  status/version/error, and pure-value documents in addition to the eight
+  object-family references. All 11 files compile as downstream black-box
+  documentation tests. `scripts/check-project-layout.py` requires the complete
+  set, a level-one title, at least one executable `mbt check` block, and an
+  exact index entry in both repository and package READMEs; eight focused
+  layout tests lock the passing contract and seven failure paths.
 - 2026-07-15: Scene 66 closes the finite Cairo 1.18 Tags and Links matrix:
   URI and explicit multi-rectangle links, named and page-position links,
   external-file links, internal and extent-derived destinations, and
@@ -296,6 +303,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 
 | Slice | Status | Notes |
 |---|---|---|
+| Foundational executable reference documentation | Done | Adds focused `src/docs/enums.mbt.md`, `src/docs/status_and_version.mbt.md`, and `src/docs/value_types.mbt.md` references for typed/raw enum boundaries, compile/runtime versions, feature constants, `Status` diagnostics, all four `CairoError` mappings, rectangles, glyphs, clusters, runs, and extents. The external docs package now passes 63/63 tests, while the layout gate and eight focused tests prevent required, executable, or indexed documentation from disappearing. |
 | Raster-source callback transition closure | Done | Adds a six-state, 36-edge exhaustive callback replacement matrix in `src/tests/oracle/pattern_raster`, executing both the replaced and replacement states while checking callback shape, stale callback tokens, successful and failed paint behavior, static/dynamic source pixels, and C-side retained-surface owner counts; the automatically discovered package runs in native and targeted ASan verification |
 | Warning-free native verify gate | Done | Removes reserved-keyword `extend` parameter names from Pattern public/raw FFI wrappers without changing generated public signatures, and upgrades `scripts/verify.sh` so native check, support-package tests, extracted black-box/oracle tests, the full native suite, and targeted clang/ASan test-package runs use `--deny-warn`; the GitHub failure at `e644b9a` was an older PDF tag stream equality oracle, already stabilized locally by PDF marker-based stream tests and PS/SVG-only byte equivalence |
 | Top-level and portable method inventory parity | Done | Extends `scripts/check-api-inventory.py` in `scripts/verify.sh`; the script parses parent `cairo/__init__.pyi`, requires every public top-level pycairo class/function to have an implementation or explicit product-decision anchor in this inventory, and requires every portable pycairo class method in the first-product scope to have a public MoonBit API anchor in `src/pkg.generated.mbti` |

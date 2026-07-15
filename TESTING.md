@@ -3916,6 +3916,15 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, 2026-07-
   plus every configured clang/ASan package and reduces the reliability ledger
   to one explicit `Partial` row.
 
+A later foundational-documentation slice adds focused executable references
+for enums, status/version/errors, and pure value types. The external
+`src/docs` package now passes 63/63 tests and the full native suite passes
+761/761. `scripts/check-project-layout.py` requires all 11 reference files,
+at least one executable `mbt check` block in each, and exact index entries in
+both READMEs. Eight focused layout tests raise the Python checker suite to 63
+tests and lock one passing case plus seven missing, untitled, malformed,
+narrative-only, or incorrectly indexed failure paths.
+
 A 2026-07-15 release-reliability pass replaced the old leak-disabled ASan
 policy with a Linux package-isolated ASan/LSan runner. Its intentional-leak
 preflight proves LSan is active, and a temporary `MOON_TOOLCHAIN_ROOT` lets
@@ -3923,14 +3932,15 @@ ASan own allocation without modifying the installed MoonBit runtime. The first
 unsuppressed pass found and fixed one
 real cairoon leak: stream write callbacks gave a freshly allocated MoonBit
 `Bytes` value an extra C-side reference even though `FuncRef` arguments are
-borrowed. Focused stream tests then passed 15/15, and the full native suite is
-now 749/749 after separating PDF, PS, and SVG grouped-glyph oracle cases.
+borrowed. Focused stream tests then passed 15/15. At that
+release-reliability slice, the full native suite was 749/749 after separating
+PDF, PS, and SVG grouped-glyph oracle cases.
 
 The exact Linux release evidence is:
 
 - Cairo 1.15.10, archive SHA-256
   `62ca226134cf2f1fd114bea06f8b374eb37f35d8e22487eaa54d5e9428958392`:
-  all static gates and 749/749 native tests pass; all discovered MoonBit
+  all static gates and 761/761 native tests pass; all discovered MoonBit
   packages pass ASan/LSan independently. The source-checkout and extracted
   publication-zip consumers each pass 1/1. The pure-C SVG probe reports
   exactly two 464-byte `_cairo_recording_surface_snapshot` allocations. Only
@@ -3938,12 +3948,12 @@ The exact Linux release evidence is:
   for 16 allocations and 7424 bytes; every other package runs unsuppressed.
 - Cairo 1.18.4, archive SHA-256
   `445ed8208a6e4823de1226a74ca319d3600e83f6369f99b14265006599c32ccb`:
-  749/749 native tests pass and all discovered MoonBit packages pass ASan/LSan
+  761/761 native tests pass and all discovered MoonBit packages pass ASan/LSan
   independently. The source-checkout and extracted publication-zip consumers
   each pass 1/1. The same pure-C probe reports exactly two 584-byte upstream
   allocations. The vector-oracle package accounts for 16 suppressed
   allocations and 9344 bytes; every other package runs unsuppressed.
-- The script gate has 55 Python unit tests in total, including 16 dedicated
+- The script gate has 63 Python unit tests in total, including 16 dedicated
   sanitizer-policy tests plus failure-path coverage for publication CRC,
   member paths, integration exclusion, and every artifact-consumer command.
   An unknown probe exit code, allocation count, indirect leak, or stack
@@ -3953,7 +3963,7 @@ The exact Linux release evidence is:
   the probe-predicted byte count.
 
 After the downstream fixture was added on 2026-07-15, the full host
-`./scripts/verify.sh` gate passed again: 749/749 repository MoonBit tests, the
+`./scripts/verify.sh` gate passed again: 761/761 repository MoonBit tests, the
 isolated consumer test passed 1/1 against both source and extracted publication
 zip, with duplicate host ASan intentionally disabled for this run. Both exact
 Linux lanes above reran that gate and every discovered package under

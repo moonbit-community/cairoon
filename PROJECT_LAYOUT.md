@@ -48,7 +48,7 @@ silently return later.
   `src/internal/stream/`.
 - 2 `.mbt` implementation files and 1 package-local `*_test.mbt` file in
   `src/internal/svg/`.
-- 1 `.mbt` prelude file and 8 executable `.mbt.md` docs in `src/docs/`.
+- 1 `.mbt` prelude file and 11 executable `.mbt.md` docs in `src/docs/`.
 - 1 native-package MoonBit anchor file in `src/native/`.
 - 132 `*_test.mbt` files under `src/tests/`, including black-box and oracle
   packages.

@@ -11,6 +11,9 @@ import sys
 REPO_ROOT = pathlib.Path(__file__).resolve().parents[1]
 PACKAGE_ROOT = REPO_ROOT / "src"
 TEST_PACKAGE_ROOT = PACKAGE_ROOT / "tests"
+DOC_PACKAGE_DIR = PACKAGE_ROOT / "docs"
+ROOT_README = REPO_ROOT / "README.md"
+PUBLIC_README = PACKAGE_ROOT / "README.mbt.md"
 ALLOWLIST = REPO_ROOT / "scripts" / "root-layout-allowlist.txt"
 PUBLIC_ROOT_ALLOWLIST = REPO_ROOT / "scripts" / "public-package-root-allowlist.txt"
 LAYOUT_DOC = REPO_ROOT / "PROJECT_LAYOUT.md"
@@ -33,6 +36,26 @@ COUNTED_PACKAGE_ROOTS = (
     PACKAGE_ROOT / "core",
     PACKAGE_ROOT / "internal",
 )
+REQUIRED_REFERENCE_DOCS = frozenset(
+    {
+        "backend_surfaces.mbt.md",
+        "context.mbt.md",
+        "enums.mbt.md",
+        "font.mbt.md",
+        "matrix.mbt.md",
+        "path.mbt.md",
+        "pattern.mbt.md",
+        "region.mbt.md",
+        "status_and_version.mbt.md",
+        "surface.mbt.md",
+        "value_types.mbt.md",
+    }
+)
+EXECUTABLE_MBT_CHECK_BLOCK = re.compile(
+    r"^```mbt[ \t]+check[ \t]*\r?\n(?P<body>.*?)^```[ \t]*$",
+    re.MULTILINE | re.DOTALL,
+)
+REFERENCE_DOC_INDEX_ENTRY = re.compile(r"`(?P<path>src/docs/[^`\s]+\.mbt\.md)`")
 
 
 def is_source_like(path: pathlib.Path) -> bool:
@@ -131,6 +154,76 @@ def check_source_root() -> list[str]:
         errors.append(
             'moon.mod: publishing must exclude the integration consumer fixture'
         )
+    return errors
+
+
+def markdown_level_two_section(text: str, title: str) -> str | None:
+    heading = re.search(
+        rf"^##[ \t]+{re.escape(title)}[ \t]*$", text, re.MULTILINE
+    )
+    if heading is None:
+        return None
+    remainder = text[heading.end() :]
+    next_heading = re.search(r"^##(?:[ \t]+|$)", remainder, re.MULTILINE)
+    if next_heading is None:
+        return remainder
+    return remainder[: next_heading.start()]
+
+
+def check_reference_docs() -> list[str]:
+    errors: list[str] = []
+    if not DOC_PACKAGE_DIR.is_dir():
+        return [f"{DOC_PACKAGE_DIR}: missing executable reference package"]
+
+    for support_name in ("moon.pkg", "prelude.mbt"):
+        support_path = DOC_PACKAGE_DIR / support_name
+        if not support_path.is_file():
+            errors.append(f"{support_path}: missing documentation package support file")
+
+    docs = {
+        path.name: path
+        for path in DOC_PACKAGE_DIR.glob("*.mbt.md")
+        if path.is_file()
+    }
+    for name in sorted(REQUIRED_REFERENCE_DOCS - docs.keys()):
+        errors.append(f"{DOC_PACKAGE_DIR / name}: missing required reference document")
+
+    readmes = ((ROOT_README, "repository"), (PUBLIC_README, "public package"))
+    readme_indexes: dict[pathlib.Path, set[str]] = {}
+    for path, label in readmes:
+        if path.is_file():
+            text = path.read_text(encoding="utf-8")
+            section = markdown_level_two_section(text, "Documentation")
+            if section is None:
+                errors.append(
+                    f"{path}: {label} README is missing a Documentation section"
+                )
+            else:
+                readme_indexes[path] = {
+                    match.group("path")
+                    for match in REFERENCE_DOC_INDEX_ENTRY.finditer(section)
+                }
+        else:
+            errors.append(f"{path}: missing {label} README documentation index")
+
+    for name, path in sorted(docs.items()):
+        text = path.read_text(encoding="utf-8")
+        if re.search(r"^#\s+\S", text, re.MULTILINE) is None:
+            errors.append(f"{path}: reference document must have a level-one title")
+        executable_blocks = EXECUTABLE_MBT_CHECK_BLOCK.finditer(text)
+        if not any(match.group("body").strip() for match in executable_blocks):
+            errors.append(f"{path}: reference document must contain executable mbt check")
+        relative_path = f"src/docs/{name}"
+        marker = f"`{relative_path}`"
+        for readme_path, label in readmes:
+            if (
+                readme_path in readme_indexes
+                and relative_path not in readme_indexes[readme_path]
+            ):
+                errors.append(
+                    f"{readme_path}: {label} documentation index is missing {marker}"
+                )
+
     return errors
 
 
@@ -396,6 +489,18 @@ def check_layout_counters() -> list[str]:
             {"count": count_files(PACKAGE_ROOT, "*.mbt")},
         )
     )
+    errors.extend(
+        require_layout_count(
+            text,
+            "executable reference package",
+            r"- (?P<prelude>\d+) `\.mbt` prelude file and "
+            r"(?P<docs>\d+) executable `\.mbt\.md` docs in `src/docs/`\.",
+            {
+                "prelude": count_files(DOC_PACKAGE_DIR, "*.mbt"),
+                "docs": count_files(DOC_PACKAGE_DIR, "*.mbt.md"),
+            },
+        )
+    )
 
     for rel_path in checked_package_count_paths():
         package_dir = REPO_ROOT / rel_path
@@ -552,6 +657,7 @@ def main() -> int:
     errors.extend(check_root_freeze(root_allowed))
     errors.extend(check_public_package_root_freeze(public_root_allowed))
     errors.extend(check_source_root())
+    errors.extend(check_reference_docs())
     errors.extend(check_integration_fixture())
     errors.extend(check_native_package())
     errors.extend(check_layout_counters())
