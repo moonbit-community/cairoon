@@ -1,16 +1,5 @@
 # Exact grandfathered public declarations that still lack substantive docs.
 # Remove an entry in the same commit that documents its declaration.
-src/context_clip_extents.mbt	Context::clip
-src/context_clip_extents.mbt	Context::clip_extents
-src/context_clip_extents.mbt	Context::clip_preserve
-src/context_clip_extents.mbt	Context::copy_clip_rectangle_list
-src/context_clip_extents.mbt	Context::fill_extents
-src/context_clip_extents.mbt	Context::in_clip
-src/context_clip_extents.mbt	Context::in_fill
-src/context_clip_extents.mbt	Context::in_stroke
-src/context_clip_extents.mbt	Context::path_extents
-src/context_clip_extents.mbt	Context::reset_clip
-src/context_clip_extents.mbt	Context::stroke_extents
 src/context_font_text.mbt	Context::font_extents
 src/context_font_text.mbt	Context::get_font_face
 src/context_font_text.mbt	Context::get_font_matrix

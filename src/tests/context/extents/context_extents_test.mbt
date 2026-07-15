@@ -66,6 +66,19 @@ test "context fill and stroke hit testing follows current path" {
   inspect(ctx.in_fill(0.0, 0.0), content="false")
   inspect(ctx.in_stroke(2.0, 3.0), content="true")
   inspect(ctx.in_stroke(4.0, 6.0), content="false")
+
+  let clipped_ctx = @cairoon.Context::new(context_extents_surface())
+  clipped_ctx.rectangle(0.0, 0.0, 2.0, 2.0)
+  clipped_ctx.clip()
+  clipped_ctx.rectangle(10.0, 10.0, 4.0, 4.0)
+  inspect(clipped_ctx.in_clip(11.0, 11.0), content="false")
+  inspect(clipped_ctx.in_fill(11.0, 11.0), content="true")
+  inspect(clipped_ctx.in_stroke(10.0, 12.0), content="true")
+  assert_context_extents_close(
+    clipped_ctx.fill_extents(),
+    (10.0, 10.0, 14.0, 14.0),
+  )
+  inspect(clipped_ctx.copy_path().length() > 0, content="true")
 }
 
 ///|

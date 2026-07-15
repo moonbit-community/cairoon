@@ -35,6 +35,13 @@ test "context clip extents in_clip and reset_clip" {
   inspect(ctx.in_clip(3.0, 4.0), content="true")
   inspect(ctx.in_clip(0.0, 0.0), content="false")
 
+  ctx.save()
+  ctx.rectangle(3.0, 4.0, 2.0, 3.0)
+  ctx.clip()
+  assert_clip_extents_close(ctx.clip_extents(), (3.0, 4.0, 5.0, 7.0))
+  ctx.restore()
+  assert_clip_extents_close(ctx.clip_extents(), (2.0, 3.0, 7.0, 10.0))
+
   ctx.reset_clip()
   assert_clip_extents_close(ctx.clip_extents(), (0.0, 0.0, 20.0, 20.0))
   inspect(ctx.in_clip(10.0, 10.0), content="true")
@@ -48,6 +55,7 @@ test "context empty path clip matches pycairo in_clip behavior" {
   inspect(ctx.in_clip(50.0, 50.0), content="true")
   ctx.clip()
   inspect(ctx.in_clip(50.0, 50.0), content="false")
+  inspect(ctx.copy_clip_rectangle_list().length(), content="0")
   ctx.reset_clip()
   inspect(ctx.in_clip(50.0, 50.0), content="true")
 }
