@@ -3198,8 +3198,10 @@ Foundational errors, statuses, enums, formats, and versions account for 82
 documented declarations. Matrix, Path, Rectangle, TextCluster, TextExtents,
 TextGlyphRun, FontExtents, and Glyph documentation adds 56, including the
 abstract `Path` type. The 42 support-package constants and one native anchor
-are now documented as well. The current exact baseline is therefore 181
-documented declarations and 398 grandfathered documentation-debt entries.
+are now documented as well. Region contributes all 22 owned-object,
+construction, query, copy, translation, and boolean-operation declarations.
+The current exact baseline is therefore 203 documented declarations and 376
+grandfathered documentation-debt entries.
 
 `scripts/check-public-docs.py` parses the audited declaration forms and checks
 the sorted debt ledger in both directions: a new undocumented declaration,
