@@ -172,6 +172,7 @@ import {
   "CAIMEOX/cairoon/internal/font_face" @font_face_impl,
   "CAIMEOX/cairoon/internal/font_options" @font_options_impl,
   "CAIMEOX/cairoon/internal/path" @path_impl,
+  "CAIMEOX/cairoon/internal/pattern" @pattern_impl,
   "CAIMEOX/cairoon/internal/region" @region_impl,
   "CAIMEOX/cairoon/internal/scaled_font" @scaled_font_impl,
   "CAIMEOX/cairoon/native",
@@ -187,7 +188,6 @@ options(
     "ffi_image_surface.mbt": ["native"],
     "ffi_mapped_image_surface.mbt": ["native"],
     "ffi_pattern.mbt": ["native"],
-    "ffi_pattern_mesh.mbt": ["native"],
     "ffi_pattern_raster_source.mbt": ["native"],
     "ffi_pdf_surface.mbt": ["native"],
     "ffi_ps_surface.mbt": ["native"],
@@ -203,14 +203,14 @@ options(
 )
 ```
 
-Device, FontFace, FontOptions, Path, Region, and ScaledFont are object-handle
-exceptions to the public-package FFI list. Their
+Device, FontFace, FontOptions, Path, Pattern, Region, and ScaledFont are
+object-handle exceptions to the public-package FFI list. Their
 `src/internal/<family>/moon.pkg` files import `CAIMEOX/cairoon/native`,
 native-gate their own FFI files, and carry the same `pkg-config`-derived Cairo
 link flags as the public package. The public package imports them as
 `@device_impl`, `@font_face_impl`, `@font_options_impl`, `@path_impl`,
-`@region_impl`, and `@scaled_font_impl`; it must not redeclare their raw handle
-types or family externs.
+`@pattern_impl`, `@region_impl`, and `@scaled_font_impl`; it must not redeclare
+their raw handle types or object-only family externs.
 
 The `src/native/moon.pkg` package owns all public C glue compilation. Its
 `native-stub` entries are plain filenames beside that package file, never paths
@@ -253,11 +253,13 @@ identity, getter, matrix, and extents externs that call
 `cairoon_scaled_font.c`; its `ffi_text_to_glyphs.mbt` owns
 `RawTextToGlyphs`, the scaled-font conversion extern, and the five result
 accessors that call `cairoon_scaled_font.c` or `cairoon_glyph.c`;
-`ffi_pattern.mbt` owns raw base/surface/solid/gradient `Pattern` extern
-declarations that call `cairoon_pattern.c`; `ffi_pattern_mesh.mbt` owns raw
-mesh-pattern extern declarations that call `cairoon_mesh_pattern.c`;
-`ffi_pattern_raster_source.mbt` owns raw raster-source-pattern extern
-declarations that call public exports in `cairoon_raster_source_pattern.c`;
+`src/internal/pattern/ffi.mbt` owns `RawPattern` and the 22 constructor,
+identity, common-state, matrix, solid, and gradient externs that do not depend
+on facade types; its `ffi_mesh.mbt` owns all 13 mesh-pattern externs and
+exchanges `RawPath` with `src/internal/path`; public `ffi_pattern.mbt` retains
+only the two SurfacePattern and three typed-enum setter bridges;
+`ffi_pattern_raster_source.mbt` retains the nine facade callback/content
+bridges that call public exports in `cairoon_raster_source_pattern.c`;
 retained callback state, acquired-surface owner tracking, and Cairo
 acquire/release trampolines live in `cairoon_raster_source_callbacks.c`;
 `ffi_context_clip_extents.mbt` owns raw `Context` clip, extents, and
@@ -358,6 +360,18 @@ FontExtents, TextExtents, Glyph, TextCluster, and TextGlyphRun assembly, string
 validation, traits, and all `CairoError` mapping. Context get/set bridge externs
 may return or borrow `RawScaledFont`, but only checked facade methods may wrap
 or unwrap it. No `RawTextToGlyphs` value may escape the facade as public API.
+`src/internal/pattern` owns the abstract `RawPattern` external object and all
+35 object-only solid, gradient, common-state, and mesh externs. Its child
+interface uses `Int` for Cairo statuses and raw enum values, imports
+`src/internal/path` for mesh path returns, and must not import
+`CAIMEOX/cairoon`. Public `pattern.mbt` retains the abstract single-field
+`Pattern` wrapper, typed enum/status conversion, Matrix/value assembly,
+traits, and all `CairoError` mapping. Public `ffi_pattern.mbt` keeps only the
+two SurfacePattern bridges and three facade-enum setter bridges, while
+`ffi_pattern_raster_source.mbt` keeps the callback/content bridges whose types
+include `Surface`, `RectangleInt`, `Content`, or MoonBit closures. Context
+source/group/mask bridges may return or borrow `RawPattern`; only checked
+facade methods may wrap or unwrap it.
 
 Do not add public wrappers to `ffi_*.mbt`; these files are private native FFI
 plumbing only. Public MoonBit APIs stay in focused wrapper files such as
@@ -584,8 +598,8 @@ ownership first, then expose convenience APIs.
 | `cairo_t *` | `type Context` | External object; finalizer calls `cairo_destroy`. |
 | `cairo_surface_t *` | `type Surface` | External object; finalizer calls `cairo_surface_destroy`. |
 | Image/PDF/SVG/PS/Recording/Tee surfaces | Constructors and checked methods returning/accepting `Surface` | Do not create a second MoonBit owner for the same `cairo_surface_t *`. |
-| `cairo_pattern_t *` | `type Pattern` | External object; finalizer calls `cairo_pattern_destroy`. |
-| Solid/surface/gradient/mesh/raster-source patterns | Constructors and checked methods returning/accepting `Pattern` | Do not duplicate pattern ownership for subtypes. |
+| `cairo_pattern_t *` | Public `type Pattern` wrapping internal `RawPattern` | `RawPattern` is the sole external object and its finalizer calls `cairo_pattern_destroy`; `Pattern` holds exactly one strong reference and has no second finalizer. |
+| Solid/surface/gradient/mesh/raster-source patterns | Constructors and checked methods returning/accepting `Pattern` | Do not duplicate pattern ownership for subtypes; cross-family bridges exchange `RawPattern` beneath the facade. |
 | `cairo_font_face_t *` | Public `type FontFace` wrapping internal `RawFontFace` | `RawFontFace` is the sole external object and its finalizer calls `cairo_font_face_destroy`; `FontFace` holds exactly one strong reference and has no second finalizer. |
 | `cairo_scaled_font_t *` | Public `type ScaledFont` wrapping internal `RawScaledFont` | `RawScaledFont` is the sole external object and its finalizer calls `cairo_scaled_font_destroy`; `ScaledFont` holds exactly one strong reference and has no second finalizer. |
 | `cairo_scaled_font_text_to_glyphs` result | Internal `RawTextToGlyphs` | Private external object; its finalizer frees Cairo glyph and cluster arrays exactly once. Public APIs copy all fields into pure MoonBit values before the raw result becomes unreachable. |
@@ -666,6 +680,12 @@ Concrete requirements:
 - A `Pattern` created from a `Surface`, and any object whose C resource may
   borrow another Cairo resource, must retain the base MoonBit object in the
   same way.
+- Every Pattern constructor wraps one newly owned `cairo_pattern_t *` exactly
+  once as `RawPattern`. `Context::get_source` receives a borrowed Cairo
+  pattern and the C bridge must call `cairo_pattern_reference`; `pop_group`
+  returns an owned pattern. Context source/mask calls borrow `RawPattern` only
+  for the call. A public `Pattern` is only a strong single-field wrapper around
+  the raw owner and has no independent finalizer.
 - `Context::copy_path`, `Context::copy_path_flat`, and
   `Pattern::mesh_get_path` return newly owned `cairo_path_t *` values and must
   wrap them exactly once as `RawPath`. A public `Path` is only a strong

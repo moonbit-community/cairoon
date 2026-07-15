@@ -1,12 +1,37 @@
 ///|
+struct Pattern(@pattern_impl.RawPattern)
+
+///|
+fn Pattern::from_raw(raw : @pattern_impl.RawPattern) -> Pattern {
+  Pattern(raw)
+}
+
+///|
+fn Pattern::to_raw(self : Pattern) -> @pattern_impl.RawPattern {
+  self.0
+}
+
+///|
+fn pattern_status_from_raw(raw : Int) -> Status {
+  status_from_raw(raw) catch {
+    _ => InvalidStatus
+  }
+}
+
+///|
+fn check_pattern_status_raw(raw : Int) -> Unit raise CairoError {
+  check_status(status_from_raw(raw))
+}
+
+///|
 pub fn Pattern::solid_rgb(
   red : Double,
   green : Double,
   blue : Double,
 ) -> Pattern raise CairoError {
-  let pattern = pattern_create_rgb_ffi(red, green, blue)
-  check_status(pattern_status_ffi(pattern))
-  pattern
+  let raw = @pattern_impl.create_rgb_raw(red, green, blue)
+  check_pattern_status_raw(@pattern_impl.status_raw(raw))
+  Pattern::from_raw(raw)
 }
 
 ///|
@@ -16,39 +41,39 @@ pub fn Pattern::solid_rgba(
   blue : Double,
   alpha : Double,
 ) -> Pattern raise CairoError {
-  let pattern = pattern_create_rgba_ffi(red, green, blue, alpha)
-  check_status(pattern_status_ffi(pattern))
-  pattern
+  let raw = @pattern_impl.create_rgba_raw(red, green, blue, alpha)
+  check_pattern_status_raw(@pattern_impl.status_raw(raw))
+  Pattern::from_raw(raw)
 }
 
 ///|
 pub fn Pattern::for_surface(surface : Surface) -> Pattern raise CairoError {
-  let pattern = pattern_create_for_surface_ffi(surface)
-  check_status(pattern_status_ffi(pattern))
-  pattern
+  let raw = pattern_create_for_surface_ffi(surface)
+  check_pattern_status_raw(@pattern_impl.status_raw(raw))
+  Pattern::from_raw(raw)
 }
 
 ///|
 pub fn Pattern::get_surface(self : Pattern) -> Surface raise CairoError {
   let status = Ref(Success)
-  let surface = pattern_get_surface_ffi(self, status)
+  let surface = pattern_get_surface_ffi(self.to_raw(), status)
   check_status(status.val)
   surface
 }
 
 ///|
 pub fn Pattern::status(self : Pattern) -> Status {
-  pattern_status_ffi(self)
+  pattern_status_from_raw(@pattern_impl.status_raw(self.to_raw()))
 }
 
 ///|
 pub fn Pattern::equal(self : Pattern, other : Pattern) -> Bool {
-  pattern_equal_ffi(self, other)
+  @pattern_impl.equal_raw(self.to_raw(), other.to_raw())
 }
 
 ///|
 pub fn Pattern::hash(self : Pattern) -> UInt64 {
-  pattern_hash_ffi(self)
+  @pattern_impl.hash_raw(self.to_raw())
 }
 
 ///|
@@ -115,13 +140,13 @@ pub fn Pattern::set_extend(
   self : Pattern,
   extend_mode : Extend,
 ) -> Unit raise CairoError {
-  check_status(pattern_set_extend_ffi(self, extend_mode))
+  check_status(pattern_set_extend_ffi(self.to_raw(), extend_mode))
 }
 
 ///|
 pub fn Pattern::get_extend_raw(self : Pattern) -> Int raise CairoError {
-  check_status(pattern_status_ffi(self))
-  pattern_get_extend_raw_ffi(self)
+  check_pattern_status_raw(@pattern_impl.status_raw(self.to_raw()))
+  @pattern_impl.get_extend_raw(self.to_raw())
 }
 
 ///|
@@ -129,7 +154,9 @@ pub fn Pattern::set_extend_raw(
   self : Pattern,
   extend_mode : Int,
 ) -> Unit raise CairoError {
-  check_status(pattern_set_extend_raw_ffi(self, extend_mode))
+  check_pattern_status_raw(
+    @pattern_impl.set_extend_raw(self.to_raw(), extend_mode),
+  )
 }
 
 ///|
@@ -142,13 +169,13 @@ pub fn Pattern::set_filter(
   self : Pattern,
   filter : Filter,
 ) -> Unit raise CairoError {
-  check_status(pattern_set_filter_ffi(self, filter))
+  check_status(pattern_set_filter_ffi(self.to_raw(), filter))
 }
 
 ///|
 pub fn Pattern::get_filter_raw(self : Pattern) -> Int raise CairoError {
-  check_status(pattern_status_ffi(self))
-  pattern_get_filter_raw_ffi(self)
+  check_pattern_status_raw(@pattern_impl.status_raw(self.to_raw()))
+  @pattern_impl.get_filter_raw(self.to_raw())
 }
 
 ///|
@@ -156,7 +183,7 @@ pub fn Pattern::set_filter_raw(
   self : Pattern,
   filter : Int,
 ) -> Unit raise CairoError {
-  check_status(pattern_set_filter_raw_ffi(self, filter))
+  check_pattern_status_raw(@pattern_impl.set_filter_raw(self.to_raw(), filter))
 }
 
 ///|
@@ -169,14 +196,14 @@ pub fn Pattern::set_dither(
   self : Pattern,
   dither : Dither,
 ) -> Unit raise CairoError {
-  check_status(pattern_set_dither_ffi(self, dither))
+  check_status(pattern_set_dither_ffi(self.to_raw(), dither))
 }
 
 ///|
 pub fn Pattern::get_dither_raw(self : Pattern) -> Int raise CairoError {
-  let status = Ref(Success)
-  let dither = pattern_get_dither_raw_ffi(self, status)
-  check_status(status.val)
+  let status = Ref(0)
+  let dither = @pattern_impl.get_dither_raw(self.to_raw(), status)
+  check_pattern_status_raw(status.val)
   dither
 }
 
@@ -185,7 +212,7 @@ pub fn Pattern::set_dither_raw(
   self : Pattern,
   dither : Int,
 ) -> Unit raise CairoError {
-  check_status(pattern_set_dither_raw_ffi(self, dither))
+  check_pattern_status_raw(@pattern_impl.set_dither_raw(self.to_raw(), dither))
 }
 
 ///|
@@ -196,7 +223,9 @@ pub fn Pattern::get_matrix(self : Pattern) -> Matrix raise CairoError {
   let yy = Ref(0.0)
   let x0 = Ref(0.0)
   let y0 = Ref(0.0)
-  check_status(pattern_get_matrix_ffi(self, xx, yx, xy, yy, x0, y0))
+  check_pattern_status_raw(
+    @pattern_impl.get_matrix_raw(self.to_raw(), xx, yx, xy, yy, x0, y0),
+  )
   Matrix::new(xx=xx.val, yx=yx.val, xy=xy.val, yy=yy.val, x0=x0.val, y0=y0.val)
 }
 
@@ -205,9 +234,9 @@ pub fn Pattern::set_matrix(
   self : Pattern,
   matrix : Matrix,
 ) -> Unit raise CairoError {
-  check_status(
-    pattern_set_matrix_ffi(
-      self,
+  check_pattern_status_raw(
+    @pattern_impl.set_matrix_raw(
+      self.to_raw(),
       matrix.xx,
       matrix.yx,
       matrix.xy,
@@ -226,6 +255,8 @@ pub fn Pattern::get_rgba(
   let green = Ref(0.0)
   let blue = Ref(0.0)
   let alpha = Ref(0.0)
-  check_status(pattern_get_rgba_ffi(self, red, green, blue, alpha))
+  check_pattern_status_raw(
+    @pattern_impl.get_rgba_raw(self.to_raw(), red, green, blue, alpha),
+  )
   (red.val, green.val, blue.val, alpha.val)
 }

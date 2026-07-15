@@ -9,6 +9,3 @@ type ImageData
 
 ///|
 type Context
-
-///|
-type Pattern

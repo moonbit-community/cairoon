@@ -90,9 +90,9 @@ pub fn Context::get_target(self : Context) -> Surface raise CairoError {
 ///|
 pub fn Context::get_source(self : Context) -> Pattern raise CairoError {
   let status = Ref(Success)
-  let pattern = context_get_source_ffi(self, status)
+  let raw = context_get_source_ffi(self, status)
   check_status(status.val)
-  pattern
+  Pattern::from_raw(raw)
 }
 
 ///|
@@ -129,9 +129,9 @@ pub fn Context::push_group_with_content_raw(
 ///|
 pub fn Context::pop_group(self : Context) -> Pattern raise CairoError {
   let status = Ref(Success)
-  let pattern = context_pop_group_ffi(self, status)
+  let raw = context_pop_group_ffi(self, status)
   check_status(status.val)
-  pattern
+  Pattern::from_raw(raw)
 }
 
 ///|

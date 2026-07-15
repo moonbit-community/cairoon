@@ -53,7 +53,7 @@ extern "C" fn context_tag_end_ffi(ctx : Context, tag_name : Bytes) -> Status = "
 extern "C" fn context_get_source_ffi(
   ctx : Context,
   status : Ref[Status],
-) -> Pattern = "cairoon_context_get_source"
+) -> @pattern_impl.RawPattern = "cairoon_context_get_source"
 
 ///|
 #borrow(ctx, status)
@@ -85,7 +85,7 @@ extern "C" fn context_push_group_with_content_raw_ffi(
 extern "C" fn context_pop_group_ffi(
   ctx : Context,
   status : Ref[Status],
-) -> Pattern = "cairoon_context_pop_group"
+) -> @pattern_impl.RawPattern = "cairoon_context_pop_group"
 
 ///|
 #borrow(ctx)

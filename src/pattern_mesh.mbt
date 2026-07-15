@@ -1,18 +1,18 @@
 ///|
 pub fn Pattern::mesh() -> Pattern raise CairoError {
-  let pattern = pattern_create_mesh_ffi()
-  check_status(pattern_status_ffi(pattern))
-  pattern
+  let raw = @pattern_impl.create_mesh_raw()
+  check_pattern_status_raw(@pattern_impl.status_raw(raw))
+  Pattern::from_raw(raw)
 }
 
 ///|
 pub fn Pattern::mesh_begin_patch(self : Pattern) -> Unit raise CairoError {
-  check_status(mesh_pattern_begin_patch_ffi(self))
+  check_pattern_status_raw(@pattern_impl.mesh_begin_patch_raw(self.to_raw()))
 }
 
 ///|
 pub fn Pattern::mesh_end_patch(self : Pattern) -> Unit raise CairoError {
-  check_status(mesh_pattern_end_patch_ffi(self))
+  check_pattern_status_raw(@pattern_impl.mesh_end_patch_raw(self.to_raw()))
 }
 
 ///|
@@ -21,7 +21,7 @@ pub fn Pattern::mesh_move_to(
   x : Double,
   y : Double,
 ) -> Unit raise CairoError {
-  check_status(mesh_pattern_move_to_ffi(self, x, y))
+  check_pattern_status_raw(@pattern_impl.mesh_move_to_raw(self.to_raw(), x, y))
 }
 
 ///|
@@ -30,7 +30,7 @@ pub fn Pattern::mesh_line_to(
   x : Double,
   y : Double,
 ) -> Unit raise CairoError {
-  check_status(mesh_pattern_line_to_ffi(self, x, y))
+  check_pattern_status_raw(@pattern_impl.mesh_line_to_raw(self.to_raw(), x, y))
 }
 
 ///|
@@ -43,7 +43,9 @@ pub fn Pattern::mesh_curve_to(
   x3 : Double,
   y3 : Double,
 ) -> Unit raise CairoError {
-  check_status(mesh_pattern_curve_to_ffi(self, x1, y1, x2, y2, x3, y3))
+  check_pattern_status_raw(
+    @pattern_impl.mesh_curve_to_raw(self.to_raw(), x1, y1, x2, y2, x3, y3),
+  )
 }
 
 ///|
@@ -53,7 +55,9 @@ pub fn Pattern::mesh_set_control_point(
   x : Double,
   y : Double,
 ) -> Unit raise CairoError {
-  check_status(mesh_pattern_set_control_point_ffi(self, point_num, x, y))
+  check_pattern_status_raw(
+    @pattern_impl.mesh_set_control_point_raw(self.to_raw(), point_num, x, y),
+  )
 }
 
 ///|
@@ -64,8 +68,14 @@ pub fn Pattern::mesh_set_corner_color_rgb(
   green : Double,
   blue : Double,
 ) -> Unit raise CairoError {
-  check_status(
-    mesh_pattern_set_corner_color_rgb_ffi(self, corner_num, red, green, blue),
+  check_pattern_status_raw(
+    @pattern_impl.mesh_set_corner_color_rgb_raw(
+      self.to_raw(),
+      corner_num,
+      red,
+      green,
+      blue,
+    ),
   )
 }
 
@@ -78,9 +88,14 @@ pub fn Pattern::mesh_set_corner_color_rgba(
   blue : Double,
   alpha : Double,
 ) -> Unit raise CairoError {
-  check_status(
-    mesh_pattern_set_corner_color_rgba_ffi(
-      self, corner_num, red, green, blue, alpha,
+  check_pattern_status_raw(
+    @pattern_impl.mesh_set_corner_color_rgba_raw(
+      self.to_raw(),
+      corner_num,
+      red,
+      green,
+      blue,
+      alpha,
     ),
   )
 }
@@ -88,7 +103,9 @@ pub fn Pattern::mesh_set_corner_color_rgba(
 ///|
 pub fn Pattern::mesh_get_patch_count(self : Pattern) -> Int raise CairoError {
   let count = Ref(0)
-  check_status(mesh_pattern_get_patch_count_ffi(self, count))
+  check_pattern_status_raw(
+    @pattern_impl.mesh_get_patch_count_raw(self.to_raw(), count),
+  )
   count.val
 }
 
@@ -97,9 +114,9 @@ pub fn Pattern::mesh_get_path(
   self : Pattern,
   patch_num : Int,
 ) -> Path raise CairoError {
-  let status = Ref(Success)
-  let raw = mesh_pattern_get_path_ffi(self, patch_num, status)
-  check_status(status.val)
+  let status = Ref(0)
+  let raw = @pattern_impl.mesh_get_path_raw(self.to_raw(), patch_num, status)
+  check_pattern_status_raw(status.val)
   check_path_status_raw(@path_impl.status_raw(raw))
   Path::from_raw(raw)
 }
@@ -112,8 +129,14 @@ pub fn Pattern::mesh_get_control_point(
 ) -> (Double, Double) raise CairoError {
   let x = Ref(0.0)
   let y = Ref(0.0)
-  check_status(
-    mesh_pattern_get_control_point_ffi(self, patch_num, point_num, x, y),
+  check_pattern_status_raw(
+    @pattern_impl.mesh_get_control_point_raw(
+      self.to_raw(),
+      patch_num,
+      point_num,
+      x,
+      y,
+    ),
   )
   (x.val, y.val)
 }
@@ -128,9 +151,15 @@ pub fn Pattern::mesh_get_corner_color_rgba(
   let green = Ref(0.0)
   let blue = Ref(0.0)
   let alpha = Ref(0.0)
-  check_status(
-    mesh_pattern_get_corner_color_rgba_ffi(
-      self, patch_num, corner_num, red, green, blue, alpha,
+  check_pattern_status_raw(
+    @pattern_impl.mesh_get_corner_color_rgba_raw(
+      self.to_raw(),
+      patch_num,
+      corner_num,
+      red,
+      green,
+      blue,
+      alpha,
     ),
   )
   (red.val, green.val, blue.val, alpha.val)

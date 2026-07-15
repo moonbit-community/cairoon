@@ -24,7 +24,7 @@ pub fn Context::set_source(
   self : Context,
   pattern : Pattern,
 ) -> Unit raise CairoError {
-  check_status(context_set_source_ffi(self, pattern))
+  check_status(context_set_source_ffi(self, pattern.to_raw()))
 }
 
 ///|
@@ -55,7 +55,7 @@ pub fn Context::mask(
   self : Context,
   pattern : Pattern,
 ) -> Unit raise CairoError {
-  check_status(context_mask_ffi(self, pattern))
+  check_status(context_mask_ffi(self, pattern.to_raw()))
 }
 
 ///|

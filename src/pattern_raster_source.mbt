@@ -4,9 +4,9 @@ pub fn Pattern::raster_source(
   width : Int,
   height : Int,
 ) -> Pattern raise CairoError {
-  let pattern = pattern_create_raster_source_ffi(content, width, height)
-  check_status(pattern_status_ffi(pattern))
-  pattern
+  let raw = pattern_create_raster_source_ffi(content, width, height)
+  check_pattern_status_raw(@pattern_impl.status_raw(raw))
+  Pattern::from_raw(raw)
 }
 
 ///|
@@ -15,13 +15,13 @@ pub fn Pattern::raster_source_raw(
   width : Int,
   height : Int,
 ) -> Pattern raise CairoError {
-  let pattern = pattern_create_raster_source_raw_ffi(
+  let raw = pattern_create_raster_source_raw_ffi(
     checked_content_raw(content),
     width,
     height,
   )
-  check_status(pattern_status_ffi(pattern))
-  pattern
+  check_pattern_status_raw(@pattern_impl.status_raw(raw))
+  Pattern::from_raw(raw)
 }
 
 ///|
@@ -57,7 +57,11 @@ pub fn Pattern::raster_set_callbacks(
         None => self.raster_clear_acquire()
         Some(acquire) =>
           check_status(
-            raster_source_pattern_set_acquire_ffi(self, call_acquire, acquire),
+            raster_source_pattern_set_acquire_ffi(
+              self.to_raw(),
+              call_acquire,
+              acquire,
+            ),
           )
       }
     Some(release) => {
@@ -70,12 +74,20 @@ pub fn Pattern::raster_set_callbacks(
       match acquire {
         None =>
           check_status(
-            raster_source_pattern_set_release_ffi(self, call_release, release),
+            raster_source_pattern_set_release_ffi(
+              self.to_raw(),
+              call_release,
+              release,
+            ),
           )
         Some(acquire) =>
           check_status(
             raster_source_pattern_set_acquire_with_release_ffi(
-              self, call_acquire, acquire, call_release, release,
+              self.to_raw(),
+              call_acquire,
+              acquire,
+              call_release,
+              release,
             ),
           )
       }
@@ -91,7 +103,10 @@ pub fn Pattern::raster_get_callbacks(
   let has_release = Ref(0)
   let status = Ref(Success)
   let _ = raster_source_pattern_has_callbacks_ffi(
-    self, has_acquire, has_release, status,
+    self.to_raw(),
+    has_acquire,
+    has_release,
+    status,
   )
   check_status(status.val)
   let acquire = if has_acquire.val == 0 {
@@ -99,7 +114,8 @@ pub fn Pattern::raster_get_callbacks(
   } else {
     let acquire_status = Ref(Success)
     let acquire = raster_source_pattern_get_acquire_callback_ffi(
-      self, acquire_status,
+      self.to_raw(),
+      acquire_status,
     )
     check_status(acquire_status.val)
     Some(acquire)
@@ -109,7 +125,8 @@ pub fn Pattern::raster_get_callbacks(
   } else {
     let release_status = Ref(Success)
     let release = raster_source_pattern_get_release_callback_ffi(
-      self, release_status,
+      self.to_raw(),
+      release_status,
     )
     check_status(release_status.val)
     Some(release)
@@ -124,7 +141,7 @@ pub fn Pattern::raster_clear_callbacks(self : Pattern) -> Unit raise CairoError 
 
 ///|
 pub fn Pattern::raster_clear_acquire(self : Pattern) -> Unit raise CairoError {
-  check_status(raster_source_pattern_clear_acquire_ffi(self))
+  check_status(raster_source_pattern_clear_acquire_ffi(self.to_raw()))
 }
 
 ///|

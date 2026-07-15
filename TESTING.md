@@ -4057,6 +4057,31 @@ suppression remains the pure-C-probe-verified vector-oracle case: exactly 16
 allocations/7424 bytes on Cairo 1.15.10 and 16 allocations/9344 bytes on Cairo
 1.18.4.
 
+The subsequent Pattern object-handle package extraction moved the sole
+`RawPattern` GC handle and 35 object-only externs into
+`src/internal/pattern`, split into core/common/gradient and mesh FFI files.
+The public facade retains only five SurfacePattern and typed-enum bridges plus
+nine raster callback/content bridges; Context source, group, and mask bridges
+now exchange `RawPattern` beneath the unchanged abstract `Pattern` wrapper.
+The wrapper has no second finalizer. Owned constructors and `pop_group`,
+referenced borrowed returns from `get_source` and `get_surface`, borrowed
+set/mask arguments, retained SurfacePattern bases, raster callback closures,
+and owned mesh `RawPath` results preserve their prior ownership contracts.
+No C glue or native ABI changed.
+
+Three package-local identity/state, gradient, and mesh tests raise the suite to
+775/775. The root implementation count falls from 62 to 61 files and the
+grandfathered public-root allowlist from 65 to 64. The generated public
+interface remains byte-for-byte unchanged at SHA-256
+`6c647f7e0c12188c36330a66681141a4449558884ce948d2c74e462a91b2f0f3`.
+The complete host gate and targeted Pattern, Context, lifetime, raster, and
+oracle packages pass under host ASan. Both exact Linux Cairo lanes pass every
+discovered package under ASan/LSan, both downstream consumer paths pass 1/1,
+and the integrity-checked publication archive contains 568 members. The only
+suppression remains the pure-C-probe-verified vector-oracle case: exactly 16
+allocations/7424 bytes on Cairo 1.15.10 and 16 allocations/9344 bytes on Cairo
+1.18.4.
+
 Remaining reliability work is now narrower and should be tracked as evidence,
 not as an unstructured checklist:
 

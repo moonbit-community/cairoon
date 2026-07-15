@@ -21,7 +21,7 @@ extern "C" fn context_set_source_rgba_ffi(
 #borrow(ctx, pattern)
 extern "C" fn context_set_source_ffi(
   ctx : Context,
-  pattern : Pattern,
+  pattern : @pattern_impl.RawPattern,
 ) -> Status = "cairoon_context_set_source"
 
 ///|
@@ -46,7 +46,10 @@ extern "C" fn context_paint_with_alpha_ffi(
 
 ///|
 #borrow(ctx, pattern)
-extern "C" fn context_mask_ffi(ctx : Context, pattern : Pattern) -> Status = "cairoon_context_mask"
+extern "C" fn context_mask_ffi(
+  ctx : Context,
+  pattern : @pattern_impl.RawPattern,
+) -> Status = "cairoon_context_mask"
 
 ///|
 #borrow(ctx, surface)

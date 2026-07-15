@@ -16,10 +16,10 @@ Implemented in this workspace:
   `scripts/configure-link-flags.sh --check` in the local reliability gate.
 - Exact local release lanes for Cairo 1.15.10 and 1.18.4, built from pinned
   source URLs and SHA-256 digests on a pinned Ubuntu base image. Both lanes
-  pass all static gates and 772/772 native tests with the pinned MoonBit
+  pass all static gates and 775/775 native tests with the pinned MoonBit
   `0.10.4+4f2e8f7dc-nightly` compiler. In each lane, the source-checkout and
   extracted-publication-zip consumers also pass 1/1 independently; the
-  integrity-checked publication archive contains 561 members.
+  integrity-checked publication archive contains 568 members.
 - Linux ASan/LSan now runs every discovered MoonBit package in a separate
   process. An intentional-leak preflight proves LSan is active; the runner
   creates a temporary `MOON_TOOLCHAIN_ROOT` with an allocator-free shadow
@@ -310,6 +310,17 @@ Implemented in this workspace:
   `TextGlyphRun` values and never exposes the raw result owner. Package-local
   raw identity/matrix/text-result tests plus external Font, Context, glyph,
   oracle, value-stress, and finalizer tests cover behavior and ownership.
+- `src/internal/pattern` is the seventh facade-owned object seam. It owns the
+  sole `RawPattern` external object and 35 object-only core, solid, gradient,
+  common-state, and mesh externs using raw `Int` status and enum values. Public
+  `ffi_pattern.mbt` retains two SurfacePattern and three typed-enum bridges;
+  `ffi_pattern_raster_source.mbt` retains nine callback/content bridges, and
+  Context source/group/mask bridges exchange `RawPattern`. Public `Pattern`
+  remains an abstract single-field wrapper and owns typed conversion, value
+  assembly, callback APIs, traits, and `CairoError` mapping. Three package-local
+  raw identity/state/gradient/mesh tests plus external Pattern, Context,
+  image/vector oracle, callback-owner/fuzz, value-stress, and finalizer tests
+  cover behavior and ownership.
 - C FFI glue split by Cairo object family, following pycairo's
   `private.h` plus per-family C file architecture. GC-managed external objects
   currently cover `Surface`, `MappedImageSurface`, `ImageData`, `Context`,
@@ -354,11 +365,11 @@ Implemented in this workspace:
   extern declarations,
   `src/internal/scaled_font/{ffi,ffi_text_to_glyphs}.mbt` own
   `RawScaledFont`, private `RawTextToGlyphs`, and all 18 scaled-font/result
-  extern declarations. `ffi_pattern.mbt` owns raw
-  base/surface/solid/gradient `Pattern` extern declarations,
-  `ffi_pattern_mesh.mbt` owns raw mesh-pattern extern declarations, and
-  `ffi_pattern_raster_source.mbt` owns raw raster-source-pattern extern
-  declarations backed by the public raster-source exports.
+  extern declarations. `src/internal/pattern/{ffi,ffi_mesh}.mbt` own
+  `RawPattern` and 35 object-only core/solid/gradient/mesh extern declarations;
+  public `ffi_pattern.mbt` retains five SurfacePattern/typed-enum bridges, and
+  `ffi_pattern_raster_source.mbt` retains nine callback/content bridge externs
+  backed by the public raster-source exports.
   `src/internal/device/ffi.mbt` owns `RawDevice` and the 13 Device-only extern
   declarations; `ffi_device.mbt` retains only five recording/script Surface
   bridge declarations that exchange `RawDevice` with facade-owned `Surface`.
@@ -371,10 +382,11 @@ Implemented in this workspace:
   extern declarations; and `ffi_pdf_surface.mbt`, `ffi_ps_surface.mbt`,
   `ffi_svg_surface.mbt`, and `ffi_tee_surface.mbt` own raw PDF surface,
   PostScript surface, SVG surface, and Tee surface extern declarations. Raw
-  Device, FontFace, FontOptions, Path, Region, and ScaledFont extern
+  Device, FontFace, FontOptions, Path, Pattern, Region, and ScaledFont extern
   declarations plus their sole GC handles now live in `src/internal/device`,
   `src/internal/font_face`, `src/internal/font_options`, `src/internal/path`,
-  `src/internal/region`, and `src/internal/scaled_font`, respectively. The
+  `src/internal/pattern`, `src/internal/region`, and
+  `src/internal/scaled_font`, respectively. The
   private text-to-glyphs result owner also lives with ScaledFont. Raw PDF
   version helper externs have moved out of `ffi_pdf_surface.mbt` into
   `src/internal/pdf`; raw PostScript level helper externs have moved out of
@@ -732,13 +744,13 @@ The most recent full local verification passed on 2026-07-15:
 - `CAIROON_VERIFY_ASAN=0 ./scripts/verify.sh`: passed formatting,
   project-layout, source-size, link-flag, FFI ownership, portable API
   inventory, pycairo parity, reliability-ledger, vector-scene, native type,
-  generated-interface, and 772/772 native test gates. The isolated consumer
+  generated-interface, and 775/775 native test gates. The isolated consumer
   passed 1/1 against both the checkout and the integrity-tested, extracted
-  561-member publication zip. Host ASan was intentionally not duplicated in
+  568-member publication zip. Host ASan was intentionally not duplicated in
   this run.
 - `./scripts/test-cairo-matrix.sh cairo-1.15.10` and
   `./scripts/test-cairo-matrix.sh cairo-1.18.4`: both exact Linux lanes passed
-  the same source and publication-zip consumer tests at 1/1 each, all 772
+  the same source and publication-zip consumer tests at 1/1 each, all 775
   native tests, and every discovered MoonBit package under ASan/LSan. Only
   the pure-C-probe-verified vector-oracle suppression was used: 16
   allocations/7424 bytes on 1.15.10 and 16 allocations/9344 bytes on 1.18.4.
@@ -3113,7 +3125,7 @@ module metadata excludes the integration fixture from the release archive.
 The gate now additionally integrity-tests that exact zip, extracts it into a
 fresh temporary workspace, and reruns the same consumer test against the
 packaged module; the artifact path also passes 1/1. The host verify run passed
-772/772 repository tests with duplicate ASan disabled, while both exact Linux
+775/775 repository tests with duplicate ASan disabled, while both exact Linux
 Cairo lanes reran this gate and every package-isolated ASan/LSan invocation.
 
 ## Known Gaps
