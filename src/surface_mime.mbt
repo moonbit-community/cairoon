@@ -1,4 +1,11 @@
 ///|
+/// Attach or remove alternate encoded image data for a MIME type.
+///
+/// `Some(data)` copies every byte into Cairo-owned storage; later MoonBit
+/// mutation cannot change it. `None` removes the entry. The MIME string is
+/// UTF-8 encoded and embedded NUL raises
+/// `CairoInvalidArgument(InvalidString, _)`. Replacement, allocation, and
+/// finished-surface failures use the checked `CairoError` hierarchy.
 pub fn Surface::set_mime_data(
   self : Surface,
   mime_type : String,
@@ -18,6 +25,12 @@ pub fn Surface::set_mime_data(
 }
 
 ///|
+/// Copy attached bytes for `mime_type`, or return `None` when absent.
+///
+/// Each successful result is newly MoonBit-owned and remains valid after the
+/// surface changes or is destroyed. The MIME string must not contain embedded
+/// NUL. Invalid strings and failed or finished surfaces raise checked
+/// `CairoError`.
 pub fn Surface::get_mime_data(
   self : Surface,
   mime_type : String,
@@ -39,6 +52,12 @@ pub fn Surface::get_mime_data(
 }
 
 ///|
+/// Return whether this surface backend can consume `mime_type` directly.
+///
+/// Support is backend-specific, for example PDF may embed JPEG data while an
+/// image surface commonly reports no such output capability. The UTF-8 MIME
+/// string must not contain NUL. Invalid strings and surface failures raise
+/// checked `CairoError`.
 pub fn Surface::supports_mime_type(
   self : Surface,
   mime_type : String,

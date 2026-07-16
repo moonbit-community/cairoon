@@ -16,10 +16,10 @@ Implemented in this workspace:
   `scripts/configure-link-flags.sh --check` in the local reliability gate.
 - Exact local release lanes for Cairo 1.15.10 and 1.18.4, built from pinned
   source URLs and SHA-256 digests on a pinned Ubuntu base image. Both lanes
-  pass all static gates and 783/783 native tests with the pinned MoonBit
+  pass all static gates and 792/792 native tests with the pinned MoonBit
   `0.10.4+4f2e8f7dc-nightly` compiler. In each lane, the source-checkout and
   extracted-publication-zip consumers also pass 1/1 independently; the
-  integrity-checked publication archive contains 599 members.
+  integrity-checked publication archive contains 600 members.
 - Linux ASan/LSan now runs every discovered MoonBit package in a separate
   process. An intentional-leak preflight proves LSan is active; the runner
   creates a temporary `MOON_TOOLCHAIN_ROOT` with an allocator-free shadow
@@ -3276,6 +3276,55 @@ pure-C-probe-confirmed recording snapshot: 16 allocations/7424 bytes and 16
 allocations/9344 bytes respectively. The 348 local native symbols plus two
 direct libcairo symbols remain unchanged; no public API was added or removed.
 
+## Surface Lifecycle And Documentation Audit
+
+The 2026-07-16 Surface audit covers all 35 public declarations across
+`surface.mbt`, `surface_state.mbt`, `surface_font_options.mbt`,
+`surface_mime.mbt`, and `surface_png.mbt`. Their substantive `///` contracts
+now specify native and parent ownership, pointer identity, caller-buffer
+retention, typed/raw boundaries, coordinate units, status diagnostics,
+terminal finish behavior, flush/dirty synchronization, page operations,
+independent FontOptions snapshots, MIME data copies, and PNG path/stream error
+mapping. The public-documentation baseline is now 507 of 579 with 72 exact debt
+entries.
+
+Comparison with Cairo 1.18.4's `cairo_surface_finish` implementation and
+pycairo's Surface cleanup path exposed two errors in cairoon. First,
+`cairoon_surface_finish` returned a sticky status before calling
+`cairo_surface_finish`, so backend cleanup and release of a retained
+`image_for_data` buffer could be skipped. Second, `Surface::with_finished`
+called checked cleanup after a closure error, allowing cleanup's sticky status
+to replace the original exception. Native finish now captures the original
+status, always calls Cairo finish and retained-data release for a valid handle,
+then reports the original status before any cleanup status. The scoped helper
+uses raw best-effort cleanup on its error path and checked finish on success.
+
+The ownership lint now fixes the complete native status/cleanup skeleton,
+rejecting non-null early returns, pre-release control transfer, conditional or
+reordered cleanup, misplaced status capture, and incorrect
+original/marker/finish/data precedence. It also rejects conditional or checked
+cleanup on the scoped error path, cleanup after re-raise, and unchecked or
+conditional success cleanup.
+Six focused checker tests exercise its passing and failing forms. A test-only
+public-Cairo probe creates a defined sticky `InvalidMatrix` with an invalid
+fallback resolution and proves that explicit finish still clears the retained
+caller-buffer slot. A PDF stream regression
+creates sticky `WriteError` and proves that `with_finished` preserves the
+closure's later `InvalidString`. The focused packages pass 8/8 and 16/16 in
+ordinary and package-isolated ASan/LSan runs on exact Cairo 1.15.10 and 1.18.4.
+The complete native suite now contains 792 tests.
+
+The complete local release matrix passes on exact Linux Cairo 1.15.10 and
+1.18.4: 792/792 native tests, both checkout and extracted-publication consumers
+at 1/1, integrity checks for all 600 archive members, and every package under
+ASan/LSan. The only suppression is independently reproduced by the pure-C
+recording-snapshot probe and remains isolated to the vector oracle package: 16
+allocations/7424 bytes on Cairo 1.15.10 and 16 allocations/9344 bytes on Cairo
+1.18.4. The 348 local native symbols plus two direct libcairo symbols remain
+unchanged. After removing `moon info`'s blank-line-only generated-file churn,
+`src/pkg.generated.mbti` remains byte-for-byte unchanged at SHA-256
+`6c647f7e0c12188c36330a66681141a4449558884ce948d2c74e462a91b2f0f3`.
+
 ## Downstream Consumer Evidence
 
 The 2026-07-15 local release gate now includes a separately named MoonBit
@@ -3291,8 +3340,10 @@ packaged module; the artifact path also passes 1/1. The final host verify run
 passed 784/784 repository tests with duplicate ASan disabled, while both exact
 Linux Cairo lanes reran this gate, all 784 tests, and every package-isolated
 ASan/LSan invocation. The publication archive contained 595 members in all
-three runtime release-gate runs; the documentation-audit replay contains 598
-members after adding the checker, its tests, and the exact debt ledger.
+three runtime release-gate runs; the latest Surface lifecycle replay contains
+600 members after adding its dedicated C oracle and cleanup-guard tests, and
+includes both checkout and extracted-publication consumer runs on exact Cairo
+1.15.10 and 1.18.4.
 
 ## Known Gaps
 

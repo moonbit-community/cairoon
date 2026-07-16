@@ -76,7 +76,7 @@ silently return later.
 - 0 white-box `*_wbtest.mbt` files in `src/`.
 - 34 public C implementation files owned by `src/native/moon.pkg`.
 - 1 public C header in `src/native/`.
-- 48 oracle C implementation files in `src/tests/oracle/native/`.
+- 49 oracle C implementation files in `src/tests/oracle/native/`.
 - 2 oracle C headers in `src/tests/oracle/native/`.
 - 1 executable `.mbt.md` doc in `src/`.
 

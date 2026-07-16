@@ -11,6 +11,12 @@ extern "C" fn image_surface_has_data_user_data_ffi(
 ) -> Bool = "cairoon_test_image_surface_has_data_user_data"
 
 ///|
+#borrow(surface)
+extern "C" fn surface_poison_with_invalid_fallback_ffi(
+  surface : @cairoon.Surface,
+) -> Int = "cairoon_test_surface_poison_with_invalid_fallback"
+
+///|
 fn set_argb32_pixel(
   data : FixedArray[Byte],
   stride : Int,
@@ -76,6 +82,28 @@ test "pycairo image surface create_for_data releases retained buffer on finish" 
   }
   data[0] = b'\xff'
   inspect(data[0].to_int(), content="255")
+}
+
+///|
+test "surface finish releases retained data after a sticky cairo error" {
+  let data : FixedArray[Byte] = FixedArray::make(4, b'\x00')
+  let surface = @cairoon.Surface::image_for_data(
+    data,
+    @cairoon.Argb32,
+    1,
+    1,
+    stride=4,
+  )
+  ignore(@oracle_native.oracle_native_anchor())
+  inspect(image_surface_has_data_user_data_ffi(surface), content="true")
+  inspect(surface_poison_with_invalid_fallback_ffi(surface), content="5")
+  debug_inspect(surface.status(), content="InvalidMatrix")
+
+  match @cairoon.run_cairo(() => surface.finish()) {
+    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidMatrix, _)) => ()
+    _ => @test.fail("expected sticky InvalidMatrix from finish")
+  }
+  inspect(image_surface_has_data_user_data_ffi(surface), content="false")
 }
 
 ///|

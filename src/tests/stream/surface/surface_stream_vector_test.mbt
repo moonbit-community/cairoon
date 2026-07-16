@@ -60,3 +60,26 @@ test "stream writer invalid status maps to write error" {
     expect_vector_stream_write_error(kind, @cairoon.LastStatus)
   }
 }
+
+///|
+test "surface with_finished preserves closure error after sticky stream error" {
+  let surface = @cairoon.Surface::pdf_stream(10.0, 10.0, fn(_) {
+    @cairoon.WriteError
+  })
+  let saw_write_error = Ref(false)
+  let result = @cairoon.run_cairo(() => {
+    surface.with_finished(() => {
+      match @cairoon.run_cairo(() => surface.show_page()) {
+        Err(@cairoon.CairoIOError(@cairoon.WriteError, _)) =>
+          saw_write_error.val = true
+        _ => ()
+      }
+      surface.pdf_set_page_label("bad\u{0}label")
+    })
+  })
+  inspect(saw_write_error.val, content="true")
+  match result {
+    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidString, _)) => ()
+    _ => @test.fail("expected original InvalidString closure error")
+  }
+}

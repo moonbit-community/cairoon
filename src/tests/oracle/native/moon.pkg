@@ -13,6 +13,7 @@ options(
     "cairoon_test_pattern_operator_scenes.c",
     "cairoon_test_pattern_special_scenes.c",
     "cairoon_test_image.c",
+    "cairoon_test_surface.c",
     "cairoon_test_raster_source.c",
     "cairoon_test_file.c",
     "cairoon_test_vector.c",

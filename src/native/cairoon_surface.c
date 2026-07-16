@@ -141,23 +141,23 @@ cairo_status_t cairoon_surface_finish(CairoonSurface *surface) {
   if (surface == NULL || surface->ptr == NULL) {
     return CAIRO_STATUS_NULL_POINTER;
   }
-  cairo_status_t status = cairo_surface_status(surface->ptr);
-  if (status != CAIRO_STATUS_SUCCESS) {
-    return status;
-  }
-  if (cairoon_surface_is_finished(surface->ptr)) {
-    return CAIRO_STATUS_SUCCESS;
-  }
-  status = cairo_surface_set_user_data(
-    surface->ptr,
-    &cairoon_surface_finished_key,
-    (void *)&cairoon_surface_finished_sentinel,
-    NULL);
-  if (status != CAIRO_STATUS_SUCCESS) {
-    return status;
+  cairo_status_t original_status = cairo_surface_status(surface->ptr);
+  cairo_status_t marker_status = CAIRO_STATUS_SUCCESS;
+  if (!cairoon_surface_is_finished(surface->ptr)) {
+    marker_status = cairo_surface_set_user_data(
+      surface->ptr,
+      &cairoon_surface_finished_key,
+      (void *)&cairoon_surface_finished_sentinel,
+      NULL);
   }
   cairo_surface_finish(surface->ptr);
-  status = cairo_surface_status(surface->ptr);
+  cairo_status_t finish_status = cairo_surface_status(surface->ptr);
   cairo_status_t data_status = cairoon_image_surface_release_data(surface->ptr);
-  return status == CAIRO_STATUS_SUCCESS ? data_status : status;
+  if (original_status != CAIRO_STATUS_SUCCESS) {
+    return original_status;
+  }
+  if (marker_status != CAIRO_STATUS_SUCCESS) {
+    return marker_status;
+  }
+  return finish_status == CAIRO_STATUS_SUCCESS ? data_status : finish_status;
 }
