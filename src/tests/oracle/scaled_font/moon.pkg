@@ -1,5 +1,6 @@
 import {
   "CAIMEOX/cairoon",
+  "CAIMEOX/cairoon/internal/scaled_font" @scaled_font_impl,
   "CAIMEOX/cairoon/tests/oracle/native",
   "moonbitlang/core/encoding/utf8",
   "moonbitlang/core/test",

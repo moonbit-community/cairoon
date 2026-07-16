@@ -8,6 +8,7 @@ extern "C" fn scaled_font_text_to_glyphs_ffi(
   x : Double,
   y : Double,
   text : Bytes,
+  with_clusters : Bool,
 ) -> RawTextToGlyphs = "cairoon_scaled_font_text_to_glyphs"
 
 ///|
@@ -35,3 +36,7 @@ extern "C" fn text_to_glyphs_clusters_ffi(
 ///|
 #borrow(result)
 extern "C" fn text_to_glyphs_flags_ffi(result : RawTextToGlyphs) -> Int = "cairoon_text_to_glyphs_flags"
+
+///|
+#borrow(result)
+extern "C" fn text_to_glyphs_release_ffi(result : RawTextToGlyphs) -> Unit = "cairoon_text_to_glyphs_release"

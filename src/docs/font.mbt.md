@@ -183,8 +183,12 @@ test "font docs: surface and context font options" {
 
 ## Scaled Fonts
 
-`ScaledFont` owns a `cairo_scaled_font_t *`. The scale matrix is the Cairo
-combination of the font matrix and CTM with translation removed.
+`ScaledFont` owns a `cairo_scaled_font_t *`. The font matrix and CTM may be
+degenerate, including a zero-size font; only matrices with a non-finite
+determinant fail with `CairoInvalidArgument(InvalidMatrix, _)`. Cairo ignores
+CTM translation when creating a scaled font. The returned CTM therefore has
+zero translation, and the scale matrix is Cairo's combination of the font
+matrix and that translation-free CTM.
 
 ```mbt check
 ///|
@@ -222,10 +226,11 @@ test "font docs: scaled font matrices and metrics" {
 
 `ScaledFont::text_to_glyphs` returns copied pure MoonBit values: glyphs,
 clusters, and cluster flags. `text_to_glyphs_only` maps pycairo's
-`with_clusters=False` behavior. `TextCluster` and `TextExtents` support checked
-pycairo-order indexing. A `Glyph` keeps its heterogeneous
-`(UInt64, Double, Double)` components; use fields or destructuring instead of
-coercing its index and coordinates to one type.
+`with_clusters=False` behavior by passing null cluster outputs to Cairo, so it
+does not compute, allocate, or discard a cluster mapping. `TextCluster` and
+`TextExtents` support checked pycairo-order indexing. A `Glyph` keeps its
+heterogeneous `(UInt64, Double, Double)` components; use fields or destructuring
+instead of coercing its index and coordinates to one type.
 
 ```mbt check
 ///|

@@ -111,8 +111,11 @@ static void cairoon_region_finalize(void *self) {
   }
 }
 
-static void cairoon_text_to_glyphs_finalize(void *self) {
-  CairoonTextToGlyphs *result = (CairoonTextToGlyphs *)self;
+MOONBIT_FFI_EXPORT
+void cairoon_text_to_glyphs_release(CairoonTextToGlyphs *result) {
+  if (result == NULL) {
+    return;
+  }
   if (result->glyphs != NULL) {
     cairo_glyph_free(result->glyphs);
     result->glyphs = NULL;
@@ -121,6 +124,13 @@ static void cairoon_text_to_glyphs_finalize(void *self) {
     cairo_text_cluster_free(result->clusters);
     result->clusters = NULL;
   }
+  result->num_glyphs = 0;
+  result->num_clusters = 0;
+  result->flags = (cairo_text_cluster_flags_t)0;
+}
+
+static void cairoon_text_to_glyphs_finalize(void *self) {
+  cairoon_text_to_glyphs_release((CairoonTextToGlyphs *)self);
 }
 
 CairoonSurface *cairoon_surface_wrap_owned_with_base(

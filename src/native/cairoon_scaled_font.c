@@ -18,8 +18,8 @@ CairoonScaledFont *cairoon_scaled_font_create(
   double ctm_x0,
   double ctm_y0,
   CairoonFontOptions *options) {
-  if (cairoon_font_face_status(font_face) != CAIRO_STATUS_SUCCESS ||
-      cairoon_font_options_status(options) != CAIRO_STATUS_SUCCESS) {
+  if (font_face == NULL || font_face->ptr == NULL || options == NULL ||
+      options->ptr == NULL) {
     return cairoon_scaled_font_wrap_owned(NULL);
   }
   cairo_matrix_t font_matrix;
@@ -254,7 +254,8 @@ CairoonTextToGlyphs *cairoon_scaled_font_text_to_glyphs(
   CairoonScaledFont *scaled_font,
   double x,
   double y,
-  moonbit_bytes_t text) {
+  moonbit_bytes_t text,
+  int32_t with_clusters) {
   cairo_status_t status = cairoon_scaled_font_status(scaled_font);
   if (status != CAIRO_STATUS_SUCCESS) {
     return cairoon_text_to_glyphs_wrap_owned(
@@ -278,9 +279,9 @@ CairoonTextToGlyphs *cairoon_scaled_font_text_to_glyphs(
     -1,
     &glyphs,
     &num_glyphs,
-    &clusters,
-    &num_clusters,
-    &flags);
+    with_clusters ? &clusters : NULL,
+    with_clusters ? &num_clusters : NULL,
+    with_clusters ? &flags : NULL);
   return cairoon_text_to_glyphs_wrap_owned(
     status, glyphs, (int32_t)num_glyphs, clusters, (int32_t)num_clusters, flags);
 }

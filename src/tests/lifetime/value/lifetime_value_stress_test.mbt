@@ -57,6 +57,8 @@ fn lifetime_stress_value_wrappers(index : Int) -> Unit raise {
   let returned_options = scaled_font.get_font_options()
   let _ = scaled_font.extents()
   let _ = scaled_font.text_extents("ffi")
+  let text_run = scaled_font.text_to_glyphs(0.0, 0.0, "ffi lifetime")
+  let glyphs_only = scaled_font.text_to_glyphs_only(0.0, 0.0, "ffi lifetime")
 
   let solid = @cairoon.Pattern::solid_rgba(0.25, 0.5, 0.75, 1.0)
   let gradient = @cairoon.Pattern::linear(0.0, 0.0, 4.0, 0.0)
@@ -105,6 +107,8 @@ fn lifetime_stress_value_wrappers(index : Int) -> Unit raise {
     inspect(face.get_family(), content="serif")
     inspect(returned_face.get_family(), content="serif")
     debug_inspect(returned_options.get_antialias(), content="AntialiasGray")
+    inspect(text_run.glyphs.length() > 0, content="true")
+    inspect(glyphs_only.length() == text_run.glyphs.length(), content="true")
     debug_inspect(solid.get_rgba(), content="(0.25, 0.5, 0.75, 1)")
     inspect(gradient.get_color_stop_count(), content="2")
     inspect(mesh.mesh_get_patch_count(), content="1")

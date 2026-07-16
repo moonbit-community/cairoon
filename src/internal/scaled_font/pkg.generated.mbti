@@ -40,7 +40,9 @@ pub fn text_to_glyphs_indices_raw(RawTextToGlyphs) -> FixedArray[UInt64]
 
 pub fn text_to_glyphs_positions_raw(RawTextToGlyphs) -> FixedArray[Double]
 
-pub fn text_to_glyphs_raw(RawScaledFont, Double, Double, Bytes) -> RawTextToGlyphs
+pub fn text_to_glyphs_raw(RawScaledFont, Double, Double, Bytes, Bool) -> RawTextToGlyphs
+
+pub fn text_to_glyphs_release_raw(RawTextToGlyphs) -> Unit
 
 pub fn text_to_glyphs_status_raw(RawTextToGlyphs) -> Int
 

@@ -4,39 +4,6 @@ fn init {
 }
 
 ///|
-type TextToGlyphsNative
-
-///|
-#borrow(result)
-extern "C" fn text_to_glyphs_status_ffi(
-  result : TextToGlyphsNative,
-) -> @cairoon.Status = "cairoon_text_to_glyphs_status"
-
-///|
-#borrow(result)
-extern "C" fn text_to_glyphs_indices_ffi(
-  result : TextToGlyphsNative,
-) -> FixedArray[UInt64] = "cairoon_text_to_glyphs_indices"
-
-///|
-#borrow(result)
-extern "C" fn text_to_glyphs_positions_ffi(
-  result : TextToGlyphsNative,
-) -> FixedArray[Double] = "cairoon_text_to_glyphs_positions"
-
-///|
-#borrow(result)
-extern "C" fn text_to_glyphs_clusters_ffi(
-  result : TextToGlyphsNative,
-) -> FixedArray[Int] = "cairoon_text_to_glyphs_clusters"
-
-///|
-#borrow(result)
-extern "C" fn text_to_glyphs_flags_ffi(
-  result : TextToGlyphsNative,
-) -> @cairoon.TextClusterFlags = "cairoon_text_to_glyphs_flags"
-
-///|
 #borrow(text)
 extern "C" fn test_scaled_font_extents_oracle_ffi(
   kind : Int,
@@ -45,19 +12,66 @@ extern "C" fn test_scaled_font_extents_oracle_ffi(
 
 ///|
 #borrow(text)
-extern "C" fn test_scaled_font_text_to_glyphs_oracle_ffi(
+extern "C" fn test_scaled_font_text_to_glyphs_status_oracle_ffi(
   x : Double,
   y : Double,
   text : Bytes,
-) -> TextToGlyphsNative = "cairoon_test_scaled_font_text_to_glyphs_oracle"
+) -> @cairoon.Status = "cairoon_test_scaled_font_text_to_glyphs_status_oracle"
 
 ///|
-fn text_glyph_run_from_native(
-  result : TextToGlyphsNative,
+#borrow(text)
+extern "C" fn test_scaled_font_text_to_glyphs_indices_oracle_ffi(
+  x : Double,
+  y : Double,
+  text : Bytes,
+) -> FixedArray[UInt64] = "cairoon_test_scaled_font_text_to_glyphs_indices_oracle"
+
+///|
+#borrow(text)
+extern "C" fn test_scaled_font_text_to_glyphs_positions_oracle_ffi(
+  x : Double,
+  y : Double,
+  text : Bytes,
+) -> FixedArray[Double] = "cairoon_test_scaled_font_text_to_glyphs_positions_oracle"
+
+///|
+#borrow(text)
+extern "C" fn test_scaled_font_text_to_glyphs_clusters_oracle_ffi(
+  x : Double,
+  y : Double,
+  text : Bytes,
+) -> FixedArray[Int] = "cairoon_test_scaled_font_text_to_glyphs_clusters_oracle"
+
+///|
+#borrow(text)
+extern "C" fn test_scaled_font_text_to_glyphs_flags_oracle_ffi(
+  x : Double,
+  y : Double,
+  text : Bytes,
+) -> @cairoon.TextClusterFlags = "cairoon_test_scaled_font_text_to_glyphs_flags_oracle"
+
+///|
+extern "C" fn test_scaled_font_cluster_probe_create_ffi() -> @scaled_font_impl.RawScaledFont = "cairoon_test_scaled_font_cluster_probe_create"
+
+///|
+#borrow(scaled_font)
+extern "C" fn test_scaled_font_cluster_probe_observation_ffi(
+  scaled_font : @scaled_font_impl.RawScaledFont,
+) -> Int = "cairoon_test_scaled_font_cluster_probe_observation"
+
+///|
+fn text_glyph_run_from_oracle(
+  x : Double,
+  y : Double,
+  text : Bytes,
 ) -> @cairoon.TextGlyphRun raise @cairoon.CairoError {
-  @cairoon.check_status(text_to_glyphs_status_ffi(result))
-  let indices = text_to_glyphs_indices_ffi(result)
-  let positions = text_to_glyphs_positions_ffi(result)
+  @cairoon.check_status(
+    test_scaled_font_text_to_glyphs_status_oracle_ffi(x, y, text),
+  )
+  let indices = test_scaled_font_text_to_glyphs_indices_oracle_ffi(x, y, text)
+  let positions = test_scaled_font_text_to_glyphs_positions_oracle_ffi(
+    x, y, text,
+  )
   if positions.length() != indices.length() * 2 {
     @cairoon.check_status(@cairoon.InvalidSize)
   }
@@ -70,7 +84,9 @@ fn text_glyph_run_from_native(
     )
   })
 
-  let cluster_values = text_to_glyphs_clusters_ffi(result)
+  let cluster_values = test_scaled_font_text_to_glyphs_clusters_oracle_ffi(
+    x, y, text,
+  )
   if cluster_values.length() % 2 != 0 {
     @cairoon.check_status(@cairoon.InvalidSize)
   }
@@ -81,7 +97,11 @@ fn text_glyph_run_from_native(
       cluster_values[offset + 1],
     )
   })
-  @cairoon.TextGlyphRun::new(glyphs, clusters, text_to_glyphs_flags_ffi(result))
+  @cairoon.TextGlyphRun::new(
+    glyphs,
+    clusters,
+    test_scaled_font_text_to_glyphs_flags_oracle_ffi(x, y, text),
+  )
 }
 
 ///|
@@ -201,10 +221,24 @@ fn scaled_font_oracle_expect_text_to_glyphs(
 ) -> Unit raise {
   scaled_font_oracle_expect_run(
     scaled_font.text_to_glyphs(x, y, text),
-    text_glyph_run_from_native(
-      test_scaled_font_text_to_glyphs_oracle_ffi(x, y, @utf8.encode(text)),
-    ),
+    text_glyph_run_from_oracle(x, y, @utf8.encode(text)),
   )
+}
+
+///|
+fn scaled_font_oracle_expect_cluster_widths(
+  run : @cairoon.TextGlyphRun,
+  expected : ArrayView[Int],
+) -> Unit raise {
+  if run.clusters.length() != expected.length() {
+    @test.fail("scaled-font oracle text-cluster width count mismatch")
+  }
+  let total = Ref(0)
+  for index in 0..<expected.length() {
+    inspect(run.clusters[index].num_bytes == expected[index], content="true")
+    total.val += run.clusters[index].num_bytes
+  }
+  inspect(total.val > 0, content="true")
 }
 
 ///|
@@ -254,4 +288,55 @@ test "scaled font text_to_glyphs matches direct cairo C oracle" {
     scaled_font, -8.0, 3.0, "\u{0645}\u{0631}\u{062d}\u{0628}\u{0627}",
   )
   scaled_font_oracle_expect_text_to_glyphs(scaled_font, 7.0, 2.0, "\u{1f642}")
+}
+
+///|
+test "scaled font clusters count UTF-8 bytes" {
+  let scaled_font = scaled_font_oracle_make_font()
+  scaled_font_oracle_expect_cluster_widths(
+    scaled_font.text_to_glyphs(0.0, 0.0, "\u{00e9}"),
+    [2],
+  )
+  scaled_font_oracle_expect_cluster_widths(
+    scaled_font.text_to_glyphs(0.0, 0.0, "\u{4e2d}\u{6587}"),
+    [3, 3],
+  )
+  scaled_font_oracle_expect_cluster_widths(
+    scaled_font.text_to_glyphs(0.0, 0.0, "\u{1f642}"),
+    [4],
+  )
+}
+
+///|
+test "scaled font glyph-only conversion omits native cluster outputs" {
+  let scaled_font = test_scaled_font_cluster_probe_create_ffi()
+  inspect(@scaled_font_impl.status_raw(scaled_font), content="0")
+
+  let clustered = @scaled_font_impl.text_to_glyphs_raw(
+    scaled_font, 0.0, 0.0, b"probe", true,
+  )
+  inspect(@scaled_font_impl.text_to_glyphs_status_raw(clustered), content="0")
+  inspect(
+    test_scaled_font_cluster_probe_observation_ffi(scaled_font),
+    content="0",
+  )
+  inspect(
+    @scaled_font_impl.text_to_glyphs_clusters_raw(clustered).length(),
+    content="2",
+  )
+  @scaled_font_impl.text_to_glyphs_release_raw(clustered)
+
+  let glyph_only = @scaled_font_impl.text_to_glyphs_raw(
+    scaled_font, 0.0, 0.0, b"probe", false,
+  )
+  inspect(@scaled_font_impl.text_to_glyphs_status_raw(glyph_only), content="0")
+  inspect(
+    test_scaled_font_cluster_probe_observation_ffi(scaled_font),
+    content="1",
+  )
+  inspect(
+    @scaled_font_impl.text_to_glyphs_clusters_raw(glyph_only).length(),
+    content="0",
+  )
+  @scaled_font_impl.text_to_glyphs_release_raw(glyph_only)
 }

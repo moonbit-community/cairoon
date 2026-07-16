@@ -16,7 +16,7 @@ Implemented in this workspace:
   `scripts/configure-link-flags.sh --check` in the local reliability gate.
 - Exact local release lanes for Cairo 1.15.10 and 1.18.4, built from pinned
   source URLs and SHA-256 digests on a pinned Ubuntu base image. Both lanes
-  pass all static gates and 792/792 native tests with the pinned MoonBit
+  pass all static gates and 796/796 native tests with the pinned MoonBit
   `0.10.4+4f2e8f7dc-nightly` compiler. In each lane, the source-checkout and
   extracted-publication-zip consumers also pass 1/1 independently; the
   integrity-checked publication archive contains 600 members.
@@ -3322,6 +3322,50 @@ recording-snapshot probe and remains isolated to the vector oracle package: 16
 allocations/7424 bytes on Cairo 1.15.10 and 16 allocations/9344 bytes on Cairo
 1.18.4. The 348 local native symbols plus two direct libcairo symbols remain
 unchanged. After removing `moon info`'s blank-line-only generated-file churn,
+`src/pkg.generated.mbti` remains byte-for-byte unchanged at SHA-256
+`6c647f7e0c12188c36330a66681141a4449558884ce948d2c74e462a91b2f0f3`.
+
+## ScaledFont Lifecycle And Documentation Audit
+
+The 2026-07-16 ScaledFont audit covers all 15 public declarations in
+`scaled_font.mbt`. Their substantive `///` contracts now specify the owning
+`cairo_scaled_font_t` reference, identity equality/hash, independently owned
+FontFace and FontOptions returns, font/CTM/scale matrix coordinate rules,
+degenerate versus non-finite matrix behavior, user-space metrics, UTF-8 byte
+clusters, glyph index width, result ownership, embedded-NUL validation, and
+checked error mapping. The public-documentation baseline is now 522 of 579
+with 57 exact debt entries.
+
+Comparison with pycairo's `PycairoScaledFont_TextToGlyphs` and Cairo 1.18.4
+exposed three reliability gaps. First, glyph-only conversion requested and
+discarded clusters instead of passing null cluster outputs, so it could perform
+extra work and surface cluster-only allocation or backend failures. Second,
+the raw constructor collapsed an erroneous but non-null FontFace or FontOptions
+to `NullPointer` rather than preserving its Cairo status. Third, copied glyph
+and cluster arrays remained allocated until GC finalized the temporary result.
+The native bridge now accepts an explicit cluster mode, forwards non-null
+inputs to Cairo even when they carry an error status, and provides an
+idempotent release used on both successful and raised MoonBit decode paths;
+the external-object finalizer remains a fallback.
+
+The direct-C oracle no longer returns the production result wrapper or calls
+production accessors. Each oracle accessor invokes Cairo independently, copies
+the requested fields into a MoonBit array, and immediately frees the Cairo
+arrays. A test-only user font records whether all three optional cluster output
+arguments are null, proving the glyph-only ABI at runtime. Further regressions
+cover raw `InvalidSlant` preservation, repeated release, zero font/CTM
+matrices, non-finite determinants, embedded NUL in all three text methods,
+2/3/4-byte UTF-8 clusters, and 1000 iterations of both conversion modes.
+
+The complete local release matrix passes on exact Linux Cairo 1.15.10 and
+1.18.4: 796/796 native tests, both checkout and extracted-publication consumers
+at 1/1, integrity checks for all 600 archive members, and every package under
+ASan/LSan. Focused ScaledFont packages pass 3/3, 9/9, and 4/4 in ordinary and
+sanitized runs; the 1000-iteration lifetime package passes 1/1. The only
+suppression remains the independently reproduced recording-snapshot leak in
+the vector oracle package: 16 allocations/7424 bytes on Cairo 1.15.10 and 16
+allocations/9344 bytes on Cairo 1.18.4. The production boundary now contains
+349 local native symbols plus two direct libcairo symbols. The public
 `src/pkg.generated.mbti` remains byte-for-byte unchanged at SHA-256
 `6c647f7e0c12188c36330a66681141a4449558884ce948d2c74e462a91b2f0f3`.
 

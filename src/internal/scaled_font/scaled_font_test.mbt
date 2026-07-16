@@ -48,6 +48,17 @@ test "raw scaled font preserves identity, owners, and matrices" {
 }
 
 ///|
+test "raw scaled font preserves invalid font face status" {
+  let face = @font_face_impl.toy_create_raw(b"serif", 42, 0)
+  inspect(@font_face_impl.status_raw(face), content="30")
+  let options = @font_options_impl.create_raw()
+  let scaled_font = create_raw(
+    face, 12.0, 0.0, 0.0, 12.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, options,
+  )
+  inspect(status_raw(scaled_font), content="30")
+}
+
+///|
 test "raw scaled font copies text-to-glyph arrays" {
   let scaled_font = make_raw_scaled_font()
   let x_bearing = Ref(0.0)
@@ -64,7 +75,7 @@ test "raw scaled font copies text-to-glyph arrays" {
   )
   inspect(x_advance.val > 0.0, content="true")
 
-  let result = text_to_glyphs_raw(scaled_font, 1.0, 2.0, b"Hi")
+  let result = text_to_glyphs_raw(scaled_font, 1.0, 2.0, b"Hi", true)
   inspect(text_to_glyphs_status_raw(result), content="0")
   let indices = text_to_glyphs_indices_raw(result)
   let positions = text_to_glyphs_positions_raw(result)
@@ -73,4 +84,15 @@ test "raw scaled font copies text-to-glyph arrays" {
   inspect(positions.length() == indices.length() * 2, content="true")
   inspect(clusters.length() % 2, content="0")
   inspect(text_to_glyphs_flags_raw(result), content="0")
+  text_to_glyphs_release_raw(result)
+  inspect(text_to_glyphs_indices_raw(result).length(), content="0")
+  inspect(text_to_glyphs_clusters_raw(result).length(), content="0")
+  text_to_glyphs_release_raw(result)
+
+  let glyph_only = text_to_glyphs_raw(scaled_font, 1.0, 2.0, b"Hi", false)
+  inspect(text_to_glyphs_status_raw(glyph_only), content="0")
+  inspect(text_to_glyphs_indices_raw(glyph_only) == indices, content="true")
+  inspect(text_to_glyphs_clusters_raw(glyph_only).length(), content="0")
+  inspect(text_to_glyphs_flags_raw(glyph_only), content="0")
+  text_to_glyphs_release_raw(glyph_only)
 }

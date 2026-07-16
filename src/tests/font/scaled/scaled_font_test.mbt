@@ -30,6 +30,16 @@ fn expect_scaled_font_invalid_string(
 }
 
 ///|
+fn expect_scaled_font_invalid_matrix(
+  result : Result[@cairoon.ScaledFont, @cairoon.CairoError],
+) -> Unit raise {
+  match result {
+    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidMatrix, _)) => ()
+    _ => @test.fail("expected InvalidMatrix")
+  }
+}
+
+///|
 fn make_scaled_font() -> @cairoon.ScaledFont raise @cairoon.CairoError {
   let face = @cairoon.FontFace::toy("serif", weight=@cairoon.FontWeightBold)
   let options = @cairoon.FontOptions::new()
@@ -49,6 +59,34 @@ fn returned_scaled_font_parts_from_local_parent() -> (
 ) raise @cairoon.CairoError {
   let scaled_font = make_scaled_font()
   (scaled_font.get_font_face(), scaled_font.get_font_options())
+}
+
+///|
+test "scaled font accepts degenerate matrices and rejects non-finite matrices" {
+  let face = @cairoon.FontFace::toy("serif")
+  let options = @cairoon.FontOptions::new()
+  let zero = @cairoon.Matrix::new(xx=0.0, yy=0.0)
+  let identity = @cairoon.Matrix::new()
+
+  let zero_font = @cairoon.ScaledFont::new(face, zero, identity, options)
+  inspect(zero_font.status().is_success(), content="true")
+  assert_scaled_matrix_close(zero_font.get_font_matrix(), zero)
+
+  let zero_ctm = @cairoon.ScaledFont::new(face, identity, zero, options)
+  inspect(zero_ctm.status().is_success(), content="true")
+  assert_scaled_matrix_close(zero_ctm.get_ctm(), zero)
+
+  let non_finite = @cairoon.Matrix::new(xx=@double.infinity, yy=1.0)
+  expect_scaled_font_invalid_matrix(
+    @cairoon.run_cairo(() => {
+      @cairoon.ScaledFont::new(face, non_finite, identity, options)
+    }),
+  )
+  expect_scaled_font_invalid_matrix(
+    @cairoon.run_cairo(() => {
+      @cairoon.ScaledFont::new(face, identity, non_finite, options)
+    }),
+  )
 }
 
 ///|
@@ -131,11 +169,23 @@ test "scaled font metrics and text extents are checked values" {
 }
 
 ///|
-test "scaled font text_extents validates embedded nul strings" {
+test "scaled font text APIs validate embedded nul strings" {
   let scaled_font = make_scaled_font()
   expect_scaled_font_invalid_string(
     @cairoon.run_cairo(() => {
       let _ = scaled_font.text_extents("bad\u{0}text")
+      ()
+    }),
+  )
+  expect_scaled_font_invalid_string(
+    @cairoon.run_cairo(() => {
+      let _ = scaled_font.text_to_glyphs(0.0, 0.0, "bad\u{0}text")
+      ()
+    }),
+  )
+  expect_scaled_font_invalid_string(
+    @cairoon.run_cairo(() => {
+      let _ = scaled_font.text_to_glyphs_only(0.0, 0.0, "bad\u{0}text")
       ()
     }),
   )

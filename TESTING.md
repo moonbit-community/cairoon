@@ -79,7 +79,7 @@ Evaluate each slice with this scorecard:
 | Lifetime safety | External-object ownership, borrowed returns, callback retention, and error exits run under ASan/LSan or stress tests | Strong for the current portable scope: Linux runs every MoonBit package in a separate ASan/LSan process; the only suppression is a pure-C-probe-verified Cairo recording-snapshot function in the vector oracle package, while all other packages remain unsuppressed |
 | Callback safety | C-held MoonBit callbacks and callback arguments are retained across the callback invocation and released deterministically | Strong for stream writers/readers and raster-source callbacks covered by current stress/fuzz tests; reentrant raster registration changes are deferred until the old acquire/release pairs finish, with ASan and retained-owner regressions for clear from both callback directions |
 | Portability | Required backends pass on each supported platform, or unsupported APIs have explicit `Decision` rows | Strong local evidence at the exact Cairo 1.15.10 compatibility floor and recommended 1.18.4 release, plus the host lane; still Partial until the release commit's shipped Ubuntu/macOS CI jobs pass |
-| Documentation | Public declarations have substantive MoonBit `///` comments, family workflows have executable examples where practical, and `scripts/check-public-docs.py` reports zero debt | Partial: executable family notes exist and 507 foundational, pure geometry/value, published-support, Region, FontOptions, FontFace, Device/script, ImageData/ImageSurface/MappedImageSurface, complete Context, complete Pattern, and complete base Surface declarations are documented, but the corrected exact grandfather ledger still contains 72 of 579 public declarations; new undocumented APIs and ledger drift fail the gate |
+| Documentation | Public declarations have substantive MoonBit `///` comments, family workflows have executable examples where practical, and `scripts/check-public-docs.py` reports zero debt | Partial: executable family notes exist and 522 foundational, pure geometry/value, published-support, Region, FontOptions, FontFace, ScaledFont, Device/script, ImageData/ImageSurface/MappedImageSurface, complete Context, complete Pattern, and complete base Surface declarations are documented, but the corrected exact grandfather ledger still contains 57 of 579 public declarations; new undocumented APIs and ledger drift fail the gate |
 | Downstream consumption | A separately named MoonBit module resolves the versioned local dependency, imports only `CAIMEOX/cairoon`, supplies its own native Cairo link flags, renders through the public API against both checkout and extracted publication zip, and stays outside that archive | Strong local evidence through `integration/consumer` and `scripts/check-downstream-consumer.sh`; the zip is integrity-tested and recompiled in a fresh temporary workspace, while release CI must run the same `verify.sh` gate |
 
 The practical release rule is simple: a feature can be trusted when its
@@ -4262,8 +4262,14 @@ checked cleanup could replace the closure error in `with_finished`. Native
 finish now always performs backend and retained-data cleanup before returning
 the original sticky status; the scoped helper performs best-effort raw cleanup
 before re-raising the closure error. Static order guards and two black-box
-regressions cover both failures. The remaining 72 declarations are named
-exactly in
+regressions cover both failures. The ScaledFont slice adds all 15 ownership,
+identity, matrix, metric, text, glyph, cluster, and checked-error contracts. Its
+audit corrected glyph-only conversion to omit native cluster outputs, preserved
+input-object status through raw construction, made native result release
+deterministic and idempotent, and replaced a self-referential oracle with
+independent direct-C copies. Focused matrix, UTF-8 byte-width, NUL, user-font
+callback, raw-status, release, and 1000-iteration lifetime regressions cover
+those contracts. The remaining 57 declarations are named exactly in
 `scripts/public-docs-debt.txt`; that ledger may shrink but may not grow.
 
 `scripts/check-public-docs.py` fails for a new undocumented declaration, a
@@ -4285,6 +4291,28 @@ ASan/LSan. The sole suppression remains the pure-C-probe-confirmed recording
 snapshot: 16 allocations/7424 bytes on Cairo 1.15.10 and 16 allocations/9344
 bytes on Cairo 1.18.4. `src/pkg.generated.mbti` remains byte-for-byte unchanged
 at SHA-256
+`6c647f7e0c12188c36330a66681141a4449558884ce948d2c74e462a91b2f0f3`.
+
+The subsequent ScaledFont lifecycle and documentation replay adds substantive
+contracts for all 15 declarations and raises documentation coverage to 522 of
+579 with 57 exact debt entries. It corrects glyph-only conversion to pass null
+cluster outputs, preserves non-null input error objects through raw
+construction, and immediately releases copied native glyph/cluster arrays on
+success and checked-error paths with an idempotent finalizer fallback. The
+direct-C oracle now owns independent copy/free paths, and a test-only user-font
+callback observes both clustered and null-cluster calls at the actual C ABI.
+
+Focused ordinary and package-isolated ASan/LSan runs pass 3/3 for internal
+ScaledFont ownership/status/release, 9/9 for public matrices/lifetimes/errors,
+4/4 for independent C oracle and UTF-8/null-output behavior, and 1/1 for the
+1000-iteration value-wrapper stress package. The full exact Linux Cairo
+1.15.10 and 1.18.4 lanes each pass 796/796, both 1/1 downstream consumer paths,
+publication-archive integrity for 600 members, and every package under
+ASan/LSan. The sole suppression remains the pure-C-probe-confirmed recording
+snapshot: 16 allocations/7424 bytes on Cairo 1.15.10 and 16 allocations/9344
+bytes on Cairo 1.18.4. The production FFI boundary contains 349 local symbols
+plus two direct libcairo symbols, while `src/pkg.generated.mbti` remains
+byte-for-byte unchanged at SHA-256
 `6c647f7e0c12188c36330a66681141a4449558884ce948d2c74e462a91b2f0f3`.
 
 Remaining reliability work is now narrower and should be tracked as evidence,
