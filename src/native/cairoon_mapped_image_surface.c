@@ -41,46 +41,56 @@ cairo_status_t cairoon_mapped_image_surface_status(
   return cairo_surface_status(surface->mapped);
 }
 
-MOONBIT_FFI_EXPORT
-cairo_status_t cairoon_surface_unmap_image(
-  CairoonSurface *surface,
-  CairoonMappedImageSurface *mapped) {
-  cairo_status_t status = cairoon_surface_status(surface);
-  if (status != CAIRO_STATUS_SUCCESS) {
-    return status;
+static cairo_status_t cairoon_mapped_image_surface_unmap_internal(
+  CairoonMappedImageSurface *mapped,
+  cairo_surface_t *expected_base) {
+  if (mapped == NULL || mapped->base == NULL || mapped->mapped == NULL) {
+    return CAIRO_STATUS_SURFACE_FINISHED;
   }
-  status = cairoon_mapped_image_surface_status(mapped);
-  if (status != CAIRO_STATUS_SUCCESS) {
-    return status;
-  }
-  if (mapped->base != surface->ptr) {
+
+  cairo_surface_t *base = mapped->base;
+  cairo_surface_t *image = mapped->mapped;
+  if (expected_base != NULL && expected_base != base) {
     return CAIRO_STATUS_SURFACE_TYPE_MISMATCH;
   }
-  cairo_surface_unmap_image(surface->ptr, mapped->mapped);
+
+  cairo_status_t base_status = mapped->base_object == NULL
+    ? cairo_surface_status(base)
+    : cairoon_surface_status((CairoonSurface *)mapped->base_object);
+  cairo_status_t image_status = cairo_surface_status(image);
+  cairo_surface_unmap_image(base, image);
+  cairo_status_t unmap_status = cairo_surface_status(base);
+
   mapped->base = NULL;
   mapped->mapped = NULL;
   if (mapped->base_object != NULL) {
     moonbit_decref(mapped->base_object);
     mapped->base_object = NULL;
   }
-  return cairo_surface_status(surface->ptr);
+
+  if (base_status != CAIRO_STATUS_SUCCESS) {
+    return base_status;
+  }
+  if (image_status != CAIRO_STATUS_SUCCESS) {
+    return image_status;
+  }
+  return unmap_status;
+}
+
+MOONBIT_FFI_EXPORT
+cairo_status_t cairoon_surface_unmap_image(
+  CairoonSurface *surface,
+  CairoonMappedImageSurface *mapped) {
+  if (surface == NULL || surface->ptr == NULL) {
+    return CAIRO_STATUS_NULL_POINTER;
+  }
+  return cairoon_mapped_image_surface_unmap_internal(mapped, surface->ptr);
 }
 
 MOONBIT_FFI_EXPORT
 cairo_status_t cairoon_mapped_image_surface_unmap(
   CairoonMappedImageSurface *mapped) {
-  cairo_status_t status = cairoon_mapped_image_surface_status(mapped);
-  if (status != CAIRO_STATUS_SUCCESS) {
-    return status;
-  }
-  cairo_surface_unmap_image(mapped->base, mapped->mapped);
-  if (mapped->base_object != NULL) {
-    moonbit_decref(mapped->base_object);
-    mapped->base_object = NULL;
-  }
-  mapped->base = NULL;
-  mapped->mapped = NULL;
-  return CAIRO_STATUS_SUCCESS;
+  return cairoon_mapped_image_surface_unmap_internal(mapped, NULL);
 }
 
 MOONBIT_FFI_EXPORT
