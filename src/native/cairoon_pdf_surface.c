@@ -19,6 +19,20 @@ static cairo_status_t cairoon_pdf_surface_require(CairoonSurface *surface) {
 #endif
 }
 
+#if CAIRO_HAS_PDF_SURFACE
+static int cairoon_pdf_version_is_supported(int32_t version) {
+  const cairo_pdf_version_t *versions = NULL;
+  int num_versions = 0;
+  cairo_pdf_get_versions(&versions, &num_versions);
+  for (int index = 0; index < num_versions; index++) {
+    if ((int32_t)versions[index] == version) {
+      return 1;
+    }
+  }
+  return 0;
+}
+#endif
+
 MOONBIT_FFI_EXPORT
 CairoonSurface *cairoon_pdf_surface_create(
   int32_t has_filename,
@@ -173,6 +187,9 @@ cairo_status_t cairoon_pdf_surface_restrict_to_version(
   if (status != CAIRO_STATUS_SUCCESS) {
     return status;
   }
+  if (!cairoon_pdf_version_is_supported(version)) {
+    return CAIRO_STATUS_INVALID_STATUS;
+  }
   cairo_pdf_surface_restrict_to_version(
     surface->ptr,
     (cairo_pdf_version_t)version);
@@ -216,6 +233,10 @@ cairo_status_t cairoon_pdf_surface_set_metadata(
   }
   if (value == NULL) {
     return CAIRO_STATUS_NULL_POINTER;
+  }
+  if (metadata < (int32_t)CAIRO_PDF_METADATA_TITLE ||
+      metadata > (int32_t)CAIRO_PDF_METADATA_MOD_DATE) {
+    return CAIRO_STATUS_INVALID_STATUS;
   }
   cairo_pdf_surface_set_metadata(
     surface->ptr,

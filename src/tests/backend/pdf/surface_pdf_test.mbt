@@ -21,6 +21,17 @@ fn expect_pdf_surface_finished(
 }
 
 ///|
+fn expect_pdf_invalid_status(
+  result : Result[Unit, @cairoon.CairoError],
+) -> Unit raise {
+  inspect(result is Err(_), content="true")
+  match result {
+    Err(@cairoon.CairoError(@cairoon.InvalidStatus, _)) => ()
+    _ => @test.fail("expected InvalidStatus")
+  }
+}
+
+///|
 test "pdf version helpers expose cairo-supported versions" {
   let versions = @cairoon.PDFVersion::supported()
   let version : @cairoon.PDFVersion = @cairoon.PdfVersion1_4
@@ -32,6 +43,54 @@ test "pdf version helpers expose cairo-supported versions" {
     Err(@cairoon.CairoError(@cairoon.InvalidStatus, _)) => ()
     _ => @test.fail("expected InvalidStatus for invalid raw PDF version")
   }
+  match @cairoon.run_cairo(() => @cairoon.PDFVersion::to_string_raw(99)) {
+    Err(@cairoon.CairoError(@cairoon.InvalidStatus, _)) => ()
+    _ => @test.fail("expected InvalidStatus for unknown raw PDF version")
+  }
+  if versions.any(item => item == @cairoon.PdfVersion1_7) {
+    inspect(@cairoon.PdfVersion1_7.to_string().contains("PDF"), content="true")
+  } else {
+    match @cairoon.run_cairo(() => @cairoon.PdfVersion1_7.to_string()) {
+      Err(@cairoon.CairoError(@cairoon.InvalidStatus, _)) => ()
+      _ => @test.fail("expected PDF 1.7 to require linked Cairo support")
+    }
+  }
+}
+
+///|
+test "pdf raw version restriction rejects unsupported C integers" {
+  let surface = @cairoon.Surface::pdf(10.0, 10.0)
+  expect_pdf_invalid_status(
+    @cairoon.run_cairo(() => surface.pdf_restrict_to_version_raw(-1)),
+  )
+  expect_pdf_invalid_status(
+    @cairoon.run_cairo(() => surface.pdf_restrict_to_version_raw(99)),
+  )
+  surface.pdf_restrict_to_version(@cairoon.PdfVersion1_4)
+  let versions = @cairoon.PDFVersion::supported()
+  if versions.any(item => item == @cairoon.PdfVersion1_7) {
+    surface.pdf_restrict_to_version(@cairoon.PdfVersion1_7)
+  } else {
+    expect_pdf_invalid_status(
+      @cairoon.run_cairo(() => {
+        surface.pdf_restrict_to_version(@cairoon.PdfVersion1_7)
+      }),
+    )
+  }
+  surface.finish()
+}
+
+///|
+test "pdf raw metadata rejects unknown ids without poisoning the surface" {
+  let surface = @cairoon.Surface::pdf(10.0, 10.0)
+  expect_pdf_invalid_status(
+    @cairoon.run_cairo(() => surface.pdf_set_metadata_raw(-1, "invalid")),
+  )
+  expect_pdf_invalid_status(
+    @cairoon.run_cairo(() => surface.pdf_set_metadata_raw(7, "invalid")),
+  )
+  surface.pdf_set_metadata(@cairoon.PdfMetadataTitle, "valid after errors")
+  surface.finish()
 }
 
 ///|
@@ -40,10 +99,17 @@ test "pdf surface exposes pycairo-compatible raw C-int backend enums" {
   surface.pdf_restrict_to_version_raw(0)
   surface.pdf_set_metadata_raw(4, "cairoon raw creator")
   let flags = @cairoon.PDFOutlineFlagSet::from_bits(0x03)
+  inspect(
+    @cairoon.PDFOutlineFlagSet::of(@cairoon.PdfOutlineOpen).bits(),
+    content="1",
+  )
   inspect(flags.bits(), content="3")
   inspect(flags.contains(@cairoon.PdfOutlineOpen), content="true")
   inspect(flags.contains(@cairoon.PdfOutlineBold), content="true")
   inspect(flags.contains(@cairoon.PdfOutlineItalic), content="false")
+  let raw_unknown = @cairoon.PDFOutlineFlagSet::from_bits(0x21)
+  inspect(raw_unknown.bits(), content="33")
+  inspect(raw_unknown.contains(@cairoon.PdfOutlineOpen), content="true")
   let outline_id = surface.pdf_add_outline_raw(
     @cairoon.PDF_OUTLINE_ROOT,
     "raw chapter",
@@ -252,6 +318,10 @@ test "pdf surface filename constructor renders and finishes" {
 
   let surface = @cairoon.Surface::pdf(10.0, 10.0, path=Some(path))
   surface.pdf_set_metadata(@cairoon.PdfMetadataCreator, "cairoon")
+  if @cairoon.CAIRO_VERSION >= 11706 {
+    surface.pdf_set_custom_metadata("Scratch", Some("drop-me"))
+    surface.pdf_set_custom_metadata("Scratch", Some(""))
+  }
   let ctx = @cairoon.Context::new(surface)
   ctx.set_source_rgb(0.0, 0.0, 1.0)
   ctx.paint()
@@ -263,6 +333,11 @@ test "pdf surface filename constructor renders and finishes" {
   inspect(output[1].to_int(), content="80")
   inspect(output[2].to_int(), content="68")
   inspect(output[3].to_int(), content="70")
+  if @cairoon.CAIRO_VERSION >= 11706 {
+    let pdf_text = @utf8.decode_lossy(output)
+    inspect(pdf_text.contains("/Scratch"), content="false")
+    inspect(pdf_text.contains("drop-me"), content="false")
+  }
   @fs.remove_file(path)
 }
 

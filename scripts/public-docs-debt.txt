@@ -1,27 +1,2 @@
 # Exact grandfathered public declarations that still lack substantive docs.
 # Remove an entry in the same commit that documents its declaration.
-src/pdf_surface.mbt	PDFOutlineFlagSet
-src/pdf_surface.mbt	PDFOutlineFlagSet::add
-src/pdf_surface.mbt	PDFOutlineFlagSet::bits
-src/pdf_surface.mbt	PDFOutlineFlagSet::combine
-src/pdf_surface.mbt	PDFOutlineFlagSet::contains
-src/pdf_surface.mbt	PDFOutlineFlagSet::from_bits
-src/pdf_surface.mbt	PDFOutlineFlagSet::none
-src/pdf_surface.mbt	PDFOutlineFlagSet::of
-src/pdf_surface.mbt	PDFOutlineFlags::bits
-src/pdf_surface.mbt	PDFVersion::supported
-src/pdf_surface.mbt	PDFVersion::to_string
-src/pdf_surface.mbt	PDFVersion::to_string_raw
-src/pdf_surface.mbt	Surface::pdf
-src/pdf_surface.mbt	Surface::pdf_add_outline
-src/pdf_surface.mbt	Surface::pdf_add_outline_raw
-src/pdf_surface.mbt	Surface::pdf_add_outline_with_flags
-src/pdf_surface.mbt	Surface::pdf_restrict_to_version
-src/pdf_surface.mbt	Surface::pdf_restrict_to_version_raw
-src/pdf_surface.mbt	Surface::pdf_set_custom_metadata
-src/pdf_surface.mbt	Surface::pdf_set_metadata
-src/pdf_surface.mbt	Surface::pdf_set_metadata_raw
-src/pdf_surface.mbt	Surface::pdf_set_page_label
-src/pdf_surface.mbt	Surface::pdf_set_size
-src/pdf_surface.mbt	Surface::pdf_set_thumbnail_size
-src/pdf_surface.mbt	Surface::pdf_stream

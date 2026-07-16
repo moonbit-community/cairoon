@@ -83,9 +83,12 @@ test "backend docs: stream writer errors raise CairoIOError" {
 PDF-specific methods include version restriction, metadata, custom metadata,
 page labels, thumbnails, and outlines. Prefer typed `PDFVersion`,
 `PDFMetadata`, and `PDFOutlineFlagSet` values in new MoonBit code; explicit
-`*_raw` helpers mirror pycairo's C-int parsing for ported code that already
-stores backend enum or flag values as integers. Custom metadata requires Cairo
-1.17.6; older supported versions raise `CairoError(InvalidStatus, _)`.
+`*_raw` helpers accept pycairo's C integers for ported code. Version ids must be
+returned by `PDFVersion::supported()`, metadata ids must be in `0..=6`, and
+unknown values raise `CairoError(InvalidStatus, _)` before the state-changing
+Cairo setter is called. Outline flag bits are preserved exactly, but only mask
+`0x07` is portable. Custom metadata requires Cairo 1.17.6; older supported
+versions raise `CairoError(InvalidStatus, _)`.
 
 ```mbt check
 ///|
@@ -94,16 +97,31 @@ test "backend docs: PDF metadata page labels and outlines" {
   inspect(PDFVersion::supported().any(item => item == version), content="true")
   inspect(version.to_string().contains("PDF"), content="true")
   inspect(PDFVersion::to_string_raw(0).contains("PDF"), content="true")
+  match run_cairo(() => PDFVersion::to_string_raw(99)) {
+    Err(CairoError(InvalidStatus, _)) => ()
+    _ => @test.fail("expected an unknown PDF version error")
+  }
 
   let surface = Surface::pdf(24.0, 24.0)
   debug_inspect(surface.get_type(), content="SurfaceTypePdf")
+  match run_cairo(() => surface.pdf_restrict_to_version_raw(99)) {
+    Err(CairoError(InvalidStatus, _)) => ()
+    _ => @test.fail("expected an unsupported PDF restriction error")
+  }
   surface.pdf_restrict_to_version(version)
   surface.pdf_restrict_to_version_raw(0)
   surface.pdf_set_size(30.0, 30.0)
   surface.pdf_set_metadata(PdfMetadataTitle, "cairoon backend docs")
+  surface.pdf_set_metadata(PdfMetadataCreateDate, "2026-01-02T03:04:05Z")
+  match run_cairo(() => surface.pdf_set_metadata_raw(7, "unknown")) {
+    Err(CairoError(InvalidStatus, _)) => ()
+    _ => @test.fail("expected an unknown PDF metadata error")
+  }
   surface.pdf_set_metadata_raw(4, "cairoon backend docs raw creator")
   if CAIRO_VERSION >= 11706 {
     surface.pdf_set_custom_metadata("cairoon-key", Some("cairoon-value"))
+    surface.pdf_set_custom_metadata("cairoon-key", Some(""))
+    surface.pdf_set_custom_metadata("cairoon-key", Some("replacement"))
     surface.pdf_set_custom_metadata("cairoon-key", None)
   } else {
     match
@@ -116,11 +134,15 @@ test "backend docs: PDF metadata page labels and outlines" {
   }
   surface.pdf_set_page_label("page one")
   surface.pdf_set_thumbnail_size(2, 2)
+  surface.pdf_set_thumbnail_size(0, 2)
+  surface.pdf_set_thumbnail_size(2, 2)
 
   let flags = PDFOutlineFlagSet::none().add(PdfOutlineOpen).add(PdfOutlineBold)
+  let single_flag = PDFOutlineFlagSet::of(PdfOutlineItalic)
   let raw_flags = PDFOutlineFlagSet::from_bits(0x03)
   inspect(flags.contains(PdfOutlineOpen), content="true")
   inspect(flags.contains(PdfOutlineItalic), content="false")
+  inspect(single_flag.bits(), content="4")
   inspect(raw_flags.bits(), content="3")
 
   let outline_id = surface.pdf_add_outline_with_flags(
@@ -137,6 +159,13 @@ test "backend docs: PDF metadata page labels and outlines" {
     raw_flags.bits(),
   )
   inspect(raw_outline_id > outline_id, content="true")
+  let typed_outline_id = surface.pdf_add_outline(
+    raw_outline_id,
+    "typed detail",
+    "page=1 pos=[3 3]",
+    PdfOutlineItalic,
+  )
+  inspect(typed_outline_id > raw_outline_id, content="true")
   backend_docs_paint_blue_and_finish(surface)
 }
 ```
