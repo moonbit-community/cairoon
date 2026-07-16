@@ -187,10 +187,22 @@ test "backend docs: PS level EPS DSC and SVG document units" {
 
 ## Recording And Tee Surfaces
 
-Recording surfaces store drawing operations for replay. `Surface::recording_raw`
-mirrors pycairo's C-int `Content` constructor argument. Tee surfaces fan out
-drawing to a primary surface and any added targets while retaining the MoonBit
-wrappers needed by the underlying Cairo surface graph.
+Recording surfaces snapshot the paths, patterns, and other Cairo state needed
+to replay high-level drawing operations. Optional extents are expressed in
+recording-surface pixels; omitting them creates an unbounded recording.
+`Surface::recording_raw` mirrors pycairo's C-int `Content` constructor argument.
+The configured extents remain queryable after `finish`, while ink measurement
+follows cairoon's terminal-surface rule and raises `SurfaceFinished`. Recording
+surfaces require Cairo 1.10 or newer.
+
+Tee surfaces fan drawing out to a primary surface and all added replicas. The
+primary is always index zero and supplies queried surface properties. Cairoon
+retains primary and replica wrappers while the tee needs them; an indexed
+result owns an independent native reference and survives later removal. An
+invalid removal poisons the tee with Cairo's sticky `InvalidIndex`; self-add or
+self-remove is rejected with `InvalidStatus` to avoid an ownership cycle. Tee
+surfaces require a Cairo build with `CAIRO_HAS_TEE_SURFACE` (Cairo 1.10 or
+newer).
 
 ```mbt check
 ///|
@@ -241,8 +253,22 @@ test "backend docs: recording replay and tee fanout" {
   tee_ctx.paint()
   backend_docs_expect_pixel(primary.copy_data(), [0, 255, 0, 255])
   backend_docs_expect_pixel(target.copy_data(), [0, 255, 0, 255])
-  backend_docs_expect_pixel(tee.tee_index(1).copy_data(), [0, 255, 0, 255])
+  let indexed_target = tee.tee_index(1)
+  backend_docs_expect_pixel(indexed_target.copy_data(), [0, 255, 0, 255])
   tee.tee_remove(target)
+  backend_docs_expect_pixel(indexed_target.copy_data(), [0, 255, 0, 255])
+
+  recording.finish()
+  match recording.recording_get_extents() {
+    Some(rect) => debug_inspect(rect.components(), content="(0, 0, 1, 1)")
+    None => @test.fail("expected recording extents after finish")
+  }
+
+  tee.finish()
+  match run_cairo(() => tee.tee_index(0)) {
+    Err(CairoError(SurfaceFinished, _)) => ()
+    _ => @test.fail("expected finished tee error")
+  }
 }
 ```
 

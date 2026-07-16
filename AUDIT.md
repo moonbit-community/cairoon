@@ -3369,6 +3369,55 @@ allocations/9344 bytes on Cairo 1.18.4. The production boundary now contains
 `src/pkg.generated.mbti` remains byte-for-byte unchanged at SHA-256
 `6c647f7e0c12188c36330a66681141a4449558884ce948d2c74e462a91b2f0f3`.
 
+## RecordingSurface And TeeSurface Lifecycle And Documentation Audit
+
+The 2026-07-16 audit covers all 8 public declarations in
+`recording_surface.mbt` and `tee_surface.mbt`. Their substantive `///` contracts
+now specify the sole native Surface owner, Cairo's recording-operation
+snapshots, bounded pixel coordinates, typed/raw content values, replay and ink
+extents, primary/replica MoonBit retention, independent indexed references,
+duplicate/removal behavior, and checked finished/type/index errors. The public
+documentation baseline is now 530 of 579 with 49 exact debt entries.
+
+Comparison with Cairo 1.15.10 and 1.18.4 exposed one status-fidelity defect.
+The Tee-specific receiver check inspected native status and type but ignored
+cairoon's explicit finish marker. If `tee_index` was the first method called
+after `finish`, Cairo attempted to create a `SurfaceFinished` error surface;
+because that status has no dedicated static nil surface, the returned status
+degraded to `NoMemory`. All Tee methods now use the shared Surface type
+precondition, preserving `SurfaceFinished` before entering Cairo. Recording's
+intentional exception remains explicit: configured extents mirror pycairo and
+can be read after finish, while ink measurement follows cairoon's terminal
+Surface policy.
+
+Two new Tee tests prove that an independently referenced indexed target remains
+usable after removal and after the target, tee, and backing arrays leave their
+creator scope, and that index/add/remove all preserve `SurfaceFinished`.
+Existing error coverage now also proves absent-target removal raises and stores
+sticky `InvalidIndex`. Recording coverage pins the post-finish extents/ink
+distinction. Focused Recording and Tee packages pass 5/5 and 6/6 in ordinary
+and package-isolated ASan/LSan runs on both exact Cairo versions; the executable
+documentation package passes 63/63.
+
+The complete local release matrix passes on exact Linux Cairo 1.15.10 and
+1.18.4: 798/798 native tests, both checkout and extracted-publication consumers
+at 1/1, integrity checks for all 600 archive members, and every package under
+ASan/LSan. The only suppression is independently reproduced by the pure-C
+recording-snapshot probe and remains isolated to the vector oracle package: 16
+allocations/7424 bytes on Cairo 1.15.10 and 16 allocations/9344 bytes on Cairo
+1.18.4. The production boundary remains 349 local native symbols plus two
+direct libcairo symbols. The public `src/pkg.generated.mbti` remains
+byte-for-byte unchanged at SHA-256
+`6c647f7e0c12188c36330a66681141a4449558884ce948d2c74e462a91b2f0f3`.
+
+The failing remote workflow run 28795446888 was inspected without rerunning or
+pushing. Its only failed job was Ubuntu ASan, where the old PDF wide multi-page
+tag stream test compared normalized file and stream bytes and returned false;
+ordinary Ubuntu and macOS jobs passed. The unpushed local history already
+contains commit `715aaa6`, which limits exact byte equivalence to PS/SVG and
+checks stable PDF structure markers instead. The matching wide-scene filter
+passes 4/4 under local ASan, including the formerly failing PDF stream case.
+
 ## Downstream Consumer Evidence
 
 The 2026-07-15 local release gate now includes a separately named MoonBit

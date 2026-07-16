@@ -79,7 +79,7 @@ Evaluate each slice with this scorecard:
 | Lifetime safety | External-object ownership, borrowed returns, callback retention, and error exits run under ASan/LSan or stress tests | Strong for the current portable scope: Linux runs every MoonBit package in a separate ASan/LSan process; the only suppression is a pure-C-probe-verified Cairo recording-snapshot function in the vector oracle package, while all other packages remain unsuppressed |
 | Callback safety | C-held MoonBit callbacks and callback arguments are retained across the callback invocation and released deterministically | Strong for stream writers/readers and raster-source callbacks covered by current stress/fuzz tests; reentrant raster registration changes are deferred until the old acquire/release pairs finish, with ASan and retained-owner regressions for clear from both callback directions |
 | Portability | Required backends pass on each supported platform, or unsupported APIs have explicit `Decision` rows | Strong local evidence at the exact Cairo 1.15.10 compatibility floor and recommended 1.18.4 release, plus the host lane; still Partial until the release commit's shipped Ubuntu/macOS CI jobs pass |
-| Documentation | Public declarations have substantive MoonBit `///` comments, family workflows have executable examples where practical, and `scripts/check-public-docs.py` reports zero debt | Partial: executable family notes exist and 522 foundational, pure geometry/value, published-support, Region, FontOptions, FontFace, ScaledFont, Device/script, ImageData/ImageSurface/MappedImageSurface, complete Context, complete Pattern, and complete base Surface declarations are documented, but the corrected exact grandfather ledger still contains 57 of 579 public declarations; new undocumented APIs and ledger drift fail the gate |
+| Documentation | Public declarations have substantive MoonBit `///` comments, family workflows have executable examples where practical, and `scripts/check-public-docs.py` reports zero debt | Partial: executable family notes exist and 530 foundational, pure geometry/value, published-support, Region, FontOptions, FontFace, ScaledFont, Device/script, ImageData/ImageSurface/MappedImageSurface, complete Context, complete Pattern, complete base Surface, RecordingSurface, and TeeSurface declarations are documented, but the corrected exact grandfather ledger still contains 49 of 579 public declarations; new undocumented APIs and ledger drift fail the gate |
 | Downstream consumption | A separately named MoonBit module resolves the versioned local dependency, imports only `CAIMEOX/cairoon`, supplies its own native Cairo link flags, renders through the public API against both checkout and extracted publication zip, and stays outside that archive | Strong local evidence through `integration/consumer` and `scripts/check-downstream-consumer.sh`; the zip is integrity-tested and recompiled in a fresh temporary workspace, while release CI must run the same `verify.sh` gate |
 
 The practical release rule is simple: a feature can be trusted when its
@@ -415,7 +415,8 @@ show-text-glyphs support checks with finished-status coverage, invalid-size
 error mapping for similar and rectangular child
 surface construction, MIME constants, MIME data storage/query/clear support including
 image/PDF/PS/SVG MIME support matrices, PDF JPEG MIME passthrough with direct C oracle coverage, PDF thumbnail direct C oracle coverage, pycairo-style PDF thumbnail resize/reset and post-finish error parity, and
-RecordingSurface constructor/extents/ink-extents plus replay, mapped image
+RecordingSurface constructor/extents/ink-extents plus replay and explicit
+post-finish extents-versus-ink behavior, mapped image
 surface mapping/unmapping, PDFSurface filename/no-output/stream constructor,
 version helpers, version restriction, size, metadata, custom metadata,
 page-label, thumbnail reset, and single-flag and combined-flag outline helpers,
@@ -447,7 +448,8 @@ finish/flush/acquire/release, scoped acquire/finish, file/stream script devices,
 pycairo-derived context-manager, cmp/hash, image-surface `get_device`,
 script mode/comment, and recording replay fixtures, `Surface::get_device`,
 `Surface::script`, and
-`Surface::script_for_target`, TeeSurface mirrored drawing and target indexing,
+`Surface::script_for_target`, TeeSurface mirrored drawing, owner retention,
+independent target indexing, sticky removal errors, and finished status,
 exhaustive `Status`/`CairoError` classification, retained-owner lifetime
 stress tests, external value-wrapper allocation stress for `Path`, `Region`,
 the font stack, solid/gradient/mesh `Pattern`, recording/similar/Tee
@@ -4313,6 +4315,37 @@ snapshot: 16 allocations/7424 bytes on Cairo 1.15.10 and 16 allocations/9344
 bytes on Cairo 1.18.4. The production FFI boundary contains 349 local symbols
 plus two direct libcairo symbols, while `src/pkg.generated.mbti` remains
 byte-for-byte unchanged at SHA-256
+`6c647f7e0c12188c36330a66681141a4449558884ce948d2c74e462a91b2f0f3`.
+
+The subsequent RecordingSurface and TeeSurface lifecycle/documentation replay
+adds substantive contracts for all 8 declarations and raises documentation
+coverage to 530 of 579 with 49 exact debt entries. Recording docs pin Cairo's
+operation snapshots, optional pixel extents, raw content values, replay
+coordinates, and the deliberate post-finish distinction: configured extents
+remain readable like pycairo, while ink measurement follows cairoon's terminal
+surface policy. Tee docs pin the primary and replica owner edges, duplicate and
+removal behavior, independent indexed results, and all checked index/status
+cases.
+
+The native audit found that `tee_index` as the first operation after `finish`
+could bypass cairoon's finished marker. Cairo then represented
+`SurfaceFinished` with an unsupported nil error surface whose status degraded
+to `NoMemory`. Tee subtype validation now uses the shared checked Surface
+precondition before all operations. Regressions prove independent indexed
+target lifetime after removal and creator-scope exit, exact finished status for
+index/add/remove, absent-target sticky `InvalidIndex`, and recording
+post-finish behavior. Focused Recording and Tee packages pass 5/5 and 6/6 in
+ordinary and package-isolated ASan/LSan runs on both exact Cairo versions; the
+executable docs package passes 63/63.
+
+The full exact Linux Cairo 1.15.10 and 1.18.4 lanes each pass 798/798, both 1/1
+downstream consumer paths, publication-archive integrity for 600 members, and
+every package under ASan/LSan. The sole suppression remains the independently
+reproduced recording-snapshot leak in the vector oracle package: 16
+allocations/7424 bytes on Cairo 1.15.10 and 16 allocations/9344 bytes on Cairo
+1.18.4. The production FFI boundary remains 349 local symbols plus two direct
+libcairo symbols, and `src/pkg.generated.mbti` remains byte-for-byte unchanged
+at SHA-256
 `6c647f7e0c12188c36330a66681141a4449558884ce948d2c74e462a91b2f0f3`.
 
 Remaining reliability work is now narrower and should be tracked as evidence,

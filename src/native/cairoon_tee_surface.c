@@ -35,19 +35,10 @@ static void cairoon_tee_targets_destroy(void *data) {
 }
 
 static cairo_status_t cairoon_tee_surface_status(CairoonSurface *surface) {
-  if (surface == NULL || surface->ptr == NULL) {
-    return CAIRO_STATUS_NULL_POINTER;
-  }
-  cairo_status_t status = cairo_surface_status(surface->ptr);
-  if (status != CAIRO_STATUS_SUCCESS) {
-    return status;
-  }
 #if CAIRO_HAS_TEE_SURFACE
-  if (cairo_surface_get_type(surface->ptr) != CAIRO_SURFACE_TYPE_TEE) {
-    return CAIRO_STATUS_SURFACE_TYPE_MISMATCH;
-  }
-  return CAIRO_STATUS_SUCCESS;
+  return cairoon_surface_require_type(surface, CAIRO_SURFACE_TYPE_TEE);
 #else
+  (void)surface;
   return CAIRO_STATUS_INVALID_STATUS;
 #endif
 }

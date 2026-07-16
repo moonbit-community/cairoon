@@ -1,4 +1,13 @@
 ///|
+/// Create an owning recording surface for replayable drawing operations.
+///
+/// Cairo snapshots the paths, patterns, and other native state needed by each
+/// recorded operation, so temporary drawing arguments need not outlive the
+/// call that records them. `None` creates an unbounded surface; `Some(rect)`
+/// supplies finite extents in Cairo recording-surface pixels. This requires
+/// Cairo recording-surface support (Cairo 1.10 or newer); an unavailable
+/// backend raises `CairoError(InvalidStatus, _)`, while allocation and native
+/// failures raise their checked `CairoError` values.
 pub fn Surface::recording(
   content : Content,
   extents? : Rectangle? = None,
@@ -27,6 +36,12 @@ pub fn Surface::recording(
 }
 
 ///|
+/// Create a recording surface from a pycairo-compatible `cairo_content_t` int.
+///
+/// This has the same ownership, snapshot, and optional pixel-extents contract
+/// as `Surface::recording`. Known Cairo values such as `0x1000`, `0x2000`, and
+/// `0x3000` are accepted; any other value raises
+/// `CairoInvalidArgument(InvalidContent, _)` before entering Cairo.
 pub fn Surface::recording_raw(
   content : Int,
   extents? : Rectangle? = None,
@@ -55,6 +70,12 @@ pub fn Surface::recording_raw(
 }
 
 ///|
+/// Measure the bounding box of ink produced by the recorded operations.
+///
+/// The returned rectangle is `(x0, y0, width, height)` in recording-surface
+/// coordinates and can size a replay target. A non-recording receiver raises
+/// `CairoError(SurfaceTypeMismatch, _)`; an explicitly finished receiver raises
+/// `CairoError(SurfaceFinished, _)` under cairoon's terminal-surface policy.
 pub fn Surface::recording_ink_extents(
   self : Surface,
 ) -> Rectangle raise CairoError {
@@ -75,6 +96,12 @@ pub fn Surface::recording_ink_extents(
 }
 
 ///|
+/// Return the finite extents supplied at construction, or `None` if unbounded.
+///
+/// A bounded result preserves the original floating-point rectangle rather
+/// than Cairo's internal integer analysis bounds. Matching pycairo, this
+/// read-only query remains available after `finish`; a different surface type
+/// or a sticky native error raises the corresponding checked `CairoError`.
 pub fn Surface::recording_get_extents(
   self : Surface,
 ) -> Rectangle? raise CairoError {

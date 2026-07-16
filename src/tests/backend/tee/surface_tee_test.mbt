@@ -40,6 +40,39 @@ fn tee_with_local_target() -> @cairoon.Surface raise @cairoon.CairoError {
 }
 
 ///|
+fn indexed_target_after_local_tee_remove() -> @cairoon.Surface raise @cairoon.CairoError {
+  let primary_data : FixedArray[Byte] = FixedArray::make(4, b'\x00')
+  let target_data : FixedArray[Byte] = FixedArray::make(4, b'\x00')
+  let primary = @cairoon.Surface::image_for_data(
+    primary_data,
+    @cairoon.Argb32,
+    1,
+    1,
+  )
+  let target = @cairoon.Surface::image_for_data(
+    target_data,
+    @cairoon.Argb32,
+    1,
+    1,
+  )
+  let tee = @cairoon.Surface::tee(primary)
+  tee.tee_add(target)
+  let indexed = tee.tee_index(1)
+  tee.tee_remove(target)
+  indexed
+}
+
+///|
+fn[T] expect_tee_surface_finished(
+  result : Result[T, @cairoon.CairoError],
+) -> Unit raise {
+  match result {
+    Err(@cairoon.CairoError(@cairoon.SurfaceFinished, _)) => ()
+    _ => @test.fail("expected SurfaceFinished")
+  }
+}
+
+///|
 test "tee surface mirrors drawing to primary and added target" {
   let primary = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
   let target = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
@@ -70,6 +103,26 @@ test "tee surface retains primary and added target wrappers" {
   paint_tee(tee, 0.0, 0.0, 1.0)
   inspect_tee_pixel(tee.tee_index(0).copy_data(), [255, 0, 0, 255])
   inspect_tee_pixel(tee.tee_index(1).copy_data(), [255, 0, 0, 255])
+}
+
+///|
+test "tee indexed target survives removal and owner scopes" {
+  let indexed = indexed_target_after_local_tee_remove()
+  paint_tee(indexed, 0.0, 0.0, 1.0)
+  inspect_tee_pixel(indexed.copy_data(), [255, 0, 0, 255])
+}
+
+///|
+test "tee methods preserve surface-finished status" {
+  let primary = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let target = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let tee = @cairoon.Surface::tee(primary)
+  tee.tee_add(target)
+  tee.finish()
+
+  expect_tee_surface_finished(@cairoon.run_cairo(() => tee.tee_index(0)))
+  expect_tee_surface_finished(@cairoon.run_cairo(() => tee.tee_add(target)))
+  expect_tee_surface_finished(@cairoon.run_cairo(() => tee.tee_remove(target)))
 }
 
 ///|
@@ -125,5 +178,17 @@ test "tee methods map subtype and index errors" {
   match self_remove {
     Err(@cairoon.CairoError(@cairoon.InvalidStatus, _)) => ()
     _ => @test.fail("expected InvalidStatus for tee self-remove")
+  }
+
+  let absent_tee = @cairoon.Surface::tee(image)
+  let absent_remove = @cairoon.run_cairo(() => absent_tee.tee_remove(other))
+  match absent_remove {
+    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidIndex, _)) => ()
+    _ => @test.fail("expected InvalidIndex for absent tee target")
+  }
+  let sticky_index = @cairoon.run_cairo(() => absent_tee.tee_index(0))
+  match sticky_index {
+    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidIndex, _)) => ()
+    _ => @test.fail("expected sticky InvalidIndex after absent removal")
   }
 }

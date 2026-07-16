@@ -62,6 +62,12 @@ test "pycairo recording surface get_extents after finish fixture" {
     Some(rect) => debug_inspect(rect.components(), content="(1, 2, 3, 4)")
     None => @test.fail("expected recording surface extents after finish")
   }
+
+  let ink_extents = @cairoon.run_cairo(() => bounded.recording_ink_extents())
+  match ink_extents {
+    Err(@cairoon.CairoError(@cairoon.SurfaceFinished, _)) => ()
+    _ => @test.fail("expected SurfaceFinished for recording ink extents")
+  }
 }
 
 ///|

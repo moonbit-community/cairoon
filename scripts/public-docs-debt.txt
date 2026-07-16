@@ -38,10 +38,6 @@ src/ps_surface.mbt	Surface::ps_restrict_to_level_raw
 src/ps_surface.mbt	Surface::ps_set_eps
 src/ps_surface.mbt	Surface::ps_set_size
 src/ps_surface.mbt	Surface::ps_stream
-src/recording_surface.mbt	Surface::recording
-src/recording_surface.mbt	Surface::recording_get_extents
-src/recording_surface.mbt	Surface::recording_ink_extents
-src/recording_surface.mbt	Surface::recording_raw
 src/svg_surface.mbt	SVGVersion::supported
 src/svg_surface.mbt	SVGVersion::to_string
 src/svg_surface.mbt	SVGVersion::to_string_raw
@@ -53,7 +49,3 @@ src/svg_surface.mbt	Surface::svg_restrict_to_version_raw
 src/svg_surface.mbt	Surface::svg_set_document_unit
 src/svg_surface.mbt	Surface::svg_set_document_unit_raw
 src/svg_surface.mbt	Surface::svg_stream
-src/tee_surface.mbt	Surface::tee
-src/tee_surface.mbt	Surface::tee_add
-src/tee_surface.mbt	Surface::tee_index
-src/tee_surface.mbt	Surface::tee_remove
