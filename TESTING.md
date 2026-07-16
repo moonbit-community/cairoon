@@ -79,7 +79,7 @@ Evaluate each slice with this scorecard:
 | Lifetime safety | External-object ownership, borrowed returns, callback retention, and error exits run under ASan/LSan or stress tests | Strong for the current portable scope: Linux runs every MoonBit package in a separate ASan/LSan process; stream constructors retain callback state until partial native producers are destroyed on failure, and the only suppression is a pure-C-probe-verified Cairo recording-snapshot function in the vector oracle package while all other packages remain unsuppressed |
 | Callback safety | C-held MoonBit callbacks and callback arguments are retained across the callback invocation and released deterministically | Strong for stream writers/readers and raster-source callbacks covered by current stress/fuzz tests; reentrant raster registration changes are deferred until the old acquire/release pairs finish, with ASan and retained-owner regressions for clear from both callback directions |
 | Portability | Required backends pass on each supported platform, or unsupported APIs have explicit `Decision` rows | Strong local evidence at the exact Cairo 1.15.10 compatibility floor and recommended 1.18.4 release, plus the host lane; still Partial until the release commit's shipped Ubuntu/macOS CI jobs pass |
-| Documentation | Public declarations have substantive MoonBit `///` comments, family workflows have executable examples where practical, and `scripts/check-public-docs.py` reports zero debt | Partial: executable family notes exist and 541 foundational, pure geometry/value, published-support, Region, FontOptions, FontFace, ScaledFont, Device/script, ImageData/ImageSurface/MappedImageSurface, complete Context, complete Pattern, complete base Surface, RecordingSurface, TeeSurface, and complete SVG declarations are documented, but the corrected exact grandfather ledger still contains 38 of 579 public declarations; new undocumented APIs and ledger drift fail the gate |
+| Documentation | Public declarations have substantive MoonBit `///` comments, family workflows have executable examples where practical, and `scripts/check-public-docs.py` reports zero debt | Partial: executable family notes exist and 554 foundational, pure geometry/value, published-support, Region, FontOptions, FontFace, ScaledFont, Device/script, ImageData/ImageSurface/MappedImageSurface, complete Context, complete Pattern, complete base Surface, RecordingSurface, TeeSurface, SVG, and PostScript declarations are documented, but the corrected exact grandfather ledger still contains 25 of 579 public declarations; new undocumented APIs and ledger drift fail the gate |
 | Downstream consumption | A separately named MoonBit module resolves the versioned local dependency, imports only `CAIMEOX/cairoon`, supplies its own native Cairo link flags, renders through the public API against both checkout and extracted publication zip, and stays outside that archive | Strong local evidence through `integration/consumer` and `scripts/check-downstream-consumer.sh`; the zip is integrity-tested and recompiled in a fresh temporary workspace, while release CI must run the same `verify.sh` gate |
 
 The practical release rule is simple: a feature can be trusted when its
@@ -4388,6 +4388,31 @@ recording snapshot: 16 allocations/7424 bytes on Cairo 1.15.10 and 16
 allocations/9344 bytes on Cairo 1.18.4. Documentation reaches 541 of 579 with
 38 exact debt entries; public interface SHA-256 remains
 `6c647f7e0c12188c36330a66681141a4449558884ce948d2c74e462a91b2f0f3`.
+
+The subsequent PostScript contract/documentation replay covers all 13 public
+declarations. Constructors specify point-sized, per-page output and file or
+retained-writer ownership. Level helpers specify copied results, the
+before-drawing restriction rule, valid typed/raw values, and the exact tested
+`99` raw no-op boundary. EPS docs pin pre-page timing and the single-page
+requirement; page-size docs pin current/subsequent-page behavior after
+`show_page` or `copy_page`. DSC docs make Header, Setup, and PageSetup
+transitions explicit and specify percent prefix, 255 UTF-8 byte, newline, NUL,
+sticky-error, and Cairo-generated-comment constraints.
+
+The focused 8/8 package adds a native pre-Cairo range guard plus `-1`/`99`
+level-string errors, emitted Level 2 output after raw restriction sentinel `99`,
+output-position proof that an out-of-order Setup call does not rewind
+PageSetup, default/true EPS state plus an `EPSF` file marker, accepted 255 byte
+and rejected 256 byte DSC comments, missing-percent rejection, and NUL mapping.
+The executable example now places `%%Title` in Header before changing to
+Setup/PageSetup. PS and docs packages pass 8/8 and 63/63 normally and under
+package-isolated ASan/LSan on exact Linux Cairo 1.15.10 and 1.18.4. The full
+lanes each pass 798/798, 90/90 script tests, both 1/1 consumers, archive
+integrity for 602 members, and every package under ASan/LSan. The sole
+suppression remains the pure-C-probe-confirmed recording snapshot: 16
+allocations/7424 bytes on Cairo 1.15.10 and 16 allocations/9344 bytes on Cairo
+1.18.4. Documentation reaches 554 of 579 with 25 exact debt entries; no public
+signature or production FFI symbol changed.
 
 Remaining reliability work is now narrower and should be tracked as evidence,
 not as an unstructured checklist:

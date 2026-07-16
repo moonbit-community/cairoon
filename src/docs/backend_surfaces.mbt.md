@@ -143,15 +143,21 @@ test "backend docs: PDF metadata page labels and outlines" {
 
 ## PostScript And SVG Settings
 
-PS exposes level restriction, EPS mode, page sizing, and DSC comments. SVG
-surfaces use point-sized pages, must be version-restricted before drawing, and
-can label the root width/height with a document unit without rescaling drawing
-coordinates. Document-unit APIs require cairoon's Cairo 1.15.10 compatibility
-floor or Cairo 1.16 and newer. Historical defaults vary between user units and
-points, so portable output sets the unit explicitly. As with PDF, raw helpers
-preserve pycairo-compatible integer enum paths. The tested positive sentinel
-`99` is a no-op on exact Cairo 1.15.10 and 1.18.4; other out-of-range SVG
-restriction/unit integers are unsupported.
+PS pages are point-sized. Restrict the language level before document drawing,
+set EPS mode before drawing the current page, and change page size only before
+that page begins. EPS output must remain single-page. DSC comments move from
+Header to Setup to PageSetup; comments must begin with `%`, fit in 255 UTF-8
+bytes, and contain no newline. The tested raw level sentinel `99` is a no-op on
+exact Cairo 1.15.10 and 1.18.4; other out-of-range levels are unsupported.
+
+SVG surfaces also use point-sized pages, must be version-restricted before
+drawing, and can label the root width/height with a document unit without
+rescaling drawing coordinates. Document-unit APIs require cairoon's Cairo
+1.15.10 compatibility floor or Cairo 1.16 and newer. Historical defaults vary
+between user units and points, so portable output sets the unit explicitly. As
+with PDF, raw helpers preserve pycairo-compatible integer enum paths. The tested
+positive sentinel `99` is a no-op on exact Cairo 1.15.10 and 1.18.4; other
+out-of-range SVG restriction/unit integers are unsupported.
 
 ```mbt check
 ///|
@@ -163,13 +169,16 @@ test "backend docs: PS level EPS DSC and SVG document units" {
 
   let ps = Surface::ps(24.0, 24.0)
   debug_inspect(ps.get_type(), content="SurfaceTypePs")
+  ps.ps_restrict_to_level_raw(99)
+  debug_inspect(ps.status(), content="Success")
   ps.ps_restrict_to_level(PsLevel2)
   ps.ps_restrict_to_level_raw(0)
   ps.ps_set_eps(true)
   inspect(ps.ps_get_eps(), content="true")
   ps.ps_set_size(30.0, 30.0)
-  ps.ps_dsc_begin_setup()
   ps.ps_dsc_comment("%%Title: cairoon backend docs")
+  ps.ps_dsc_begin_setup()
+  ps.ps_dsc_comment("%%IncludeFeature: *MediaColor White")
   ps.ps_dsc_begin_page_setup()
   ps.ps_dsc_comment("%%IncludeFeature: *PageSize A4")
   backend_docs_paint_blue_and_finish(ps)

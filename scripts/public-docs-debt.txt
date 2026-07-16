@@ -25,16 +25,3 @@ src/pdf_surface.mbt	Surface::pdf_set_page_label
 src/pdf_surface.mbt	Surface::pdf_set_size
 src/pdf_surface.mbt	Surface::pdf_set_thumbnail_size
 src/pdf_surface.mbt	Surface::pdf_stream
-src/ps_surface.mbt	PSLevel::supported
-src/ps_surface.mbt	PSLevel::to_string
-src/ps_surface.mbt	PSLevel::to_string_raw
-src/ps_surface.mbt	Surface::ps
-src/ps_surface.mbt	Surface::ps_dsc_begin_page_setup
-src/ps_surface.mbt	Surface::ps_dsc_begin_setup
-src/ps_surface.mbt	Surface::ps_dsc_comment
-src/ps_surface.mbt	Surface::ps_get_eps
-src/ps_surface.mbt	Surface::ps_restrict_to_level
-src/ps_surface.mbt	Surface::ps_restrict_to_level_raw
-src/ps_surface.mbt	Surface::ps_set_eps
-src/ps_surface.mbt	Surface::ps_set_size
-src/ps_surface.mbt	Surface::ps_stream

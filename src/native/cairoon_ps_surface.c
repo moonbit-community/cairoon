@@ -147,6 +147,12 @@ moonbit_bytes_t cairoon_ps_level_to_string(
   cairo_status_t *status_out) {
   *status_out = CAIRO_STATUS_SUCCESS;
 #if CAIRO_HAS_PS_SURFACE
+  if (
+    level < (int32_t)CAIRO_PS_LEVEL_2 ||
+    level > (int32_t)CAIRO_PS_LEVEL_3) {
+    *status_out = CAIRO_STATUS_INVALID_STATUS;
+    return moonbit_make_bytes(0, 0);
+  }
   const char *str = cairo_ps_level_to_string((cairo_ps_level_t)level);
   if (str == NULL) {
     *status_out = CAIRO_STATUS_INVALID_STATUS;

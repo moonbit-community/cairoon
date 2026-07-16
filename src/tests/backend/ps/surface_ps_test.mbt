@@ -21,6 +21,48 @@ fn expect_ps_surface_finished(
 }
 
 ///|
+fn ps_dsc_comment_with_byte_length(length : Int) -> String {
+  let builder = StringBuilder()
+  builder.write_string("%")
+  for _ in 1..<length {
+    builder.write_string("x")
+  }
+  builder.to_string()
+}
+
+///|
+fn expect_invalid_ps_dsc_comment(comment : String) -> Unit raise {
+  let surface = @cairoon.Surface::ps(10.0, 10.0)
+  match @cairoon.run_cairo(() => surface.ps_dsc_comment(comment)) {
+    Err(@cairoon.CairoError(@cairoon.InvalidDscComment, _)) => ()
+    _ => @test.fail("expected InvalidDscComment")
+  }
+}
+
+///|
+fn ps_bytes_find(haystack : Bytes, needle : Bytes) -> Int {
+  if needle.length() == 0 {
+    return 0
+  }
+  if needle.length() > haystack.length() {
+    return -1
+  }
+  let last = haystack.length() - needle.length()
+  for start in 0..<=last {
+    let mut matched = true
+    for offset in 0..<needle.length() {
+      if haystack[start + offset] != needle[offset] {
+        matched = false
+      }
+    }
+    if matched {
+      return start
+    }
+  }
+  -1
+}
+
+///|
 test "ps level helpers expose cairo-supported levels" {
   let levels = @cairoon.PSLevel::supported()
   let level : @cairoon.PSLevel = @cairoon.PsLevel3
@@ -28,17 +70,30 @@ test "ps level helpers expose cairo-supported levels" {
   inspect(levels.any(item => item == level), content="true")
   inspect(level.to_string().contains("PS"), content="true")
   inspect(@cairoon.PSLevel::to_string_raw(0).contains("PS"), content="true")
-  match @cairoon.run_cairo(() => @cairoon.PSLevel::to_string_raw(99)) {
-    Err(@cairoon.CairoError(@cairoon.InvalidStatus, _)) => ()
-    _ => @test.fail("expected InvalidStatus for invalid raw PS level")
+  for invalid in [-1, 99] {
+    match @cairoon.run_cairo(() => @cairoon.PSLevel::to_string_raw(invalid)) {
+      Err(@cairoon.CairoError(@cairoon.InvalidStatus, _)) => ()
+      _ => @test.fail("expected InvalidStatus for invalid raw PS level")
+    }
   }
 }
 
 ///|
 test "ps surface exposes pycairo-compatible raw C-int backend enums" {
-  let surface = @cairoon.Surface::ps(10.0, 10.0)
+  let path = "/tmp/cairoon_ps_raw_level.ps"
+  if @fs.path_exists(path) {
+    @fs.remove_file(path)
+  }
+  let surface = @cairoon.Surface::ps(10.0, 10.0, path=Some(path))
   surface.ps_restrict_to_level_raw(0)
+  surface.ps_restrict_to_level_raw(99)
+  debug_inspect(surface.status(), content="Success")
+  let ctx = @cairoon.Context::new(surface)
+  ctx.paint()
   surface.finish()
+  let output = @fs.read_file_to_string(path)
+  inspect(output.contains("%%LanguageLevel: 2"), content="true")
+  @fs.remove_file(path)
   expect_ps_surface_finished(
     @cairoon.run_cairo(() => surface.ps_restrict_to_level_raw(1)),
   )
@@ -48,7 +103,7 @@ test "ps surface exposes pycairo-compatible raw C-int backend enums" {
 test "ps surface no-output constructor exposes eps size dsc and level APIs" {
   let surface = @cairoon.Surface::ps(10.0, 10.0)
   debug_inspect(surface.get_type(), content="SurfaceTypePs")
-  inspect(surface.ps_get_eps() || !surface.ps_get_eps(), content="true")
+  inspect(surface.ps_get_eps(), content="false")
   surface.ps_set_eps(true)
   inspect(surface.ps_get_eps(), content="true")
   surface.ps_restrict_to_level(@cairoon.PsLevel2)
@@ -88,19 +143,55 @@ test "ps surface no-output constructor exposes eps size dsc and level APIs" {
 
 ///|
 test "pycairo ps surface dsc setup order fixture" {
-  let surface = @cairoon.Surface::ps(10.0, 10.0)
+  let path = "/tmp/cairoon_ps_dsc_order.ps"
+  if @fs.path_exists(path) {
+    @fs.remove_file(path)
+  }
+  let surface = @cairoon.Surface::ps(10.0, 10.0, path=Some(path))
   surface.ps_dsc_begin_page_setup()
+  surface.ps_dsc_comment("%%CairoonPageFirst: one")
   surface.ps_dsc_begin_setup()
+  surface.ps_dsc_comment("%%CairoonPageSecond: two")
+  let ctx = @cairoon.Context::new(surface)
+  ctx.paint()
   inspect(surface.status().is_success(), content="true")
+  surface.finish()
+
+  let output = @fs.read_file_to_bytes(path)
+  let begin_page_setup = ps_bytes_find(output, @utf8.encode("%%BeginPageSetup"))
+  let first = ps_bytes_find(output, @utf8.encode("%%CairoonPageFirst: one"))
+  let second = ps_bytes_find(output, @utf8.encode("%%CairoonPageSecond: two"))
+  let end_page_setup = ps_bytes_find(output, @utf8.encode("%%EndPageSetup"))
+  inspect(begin_page_setup >= 0, content="true")
+  inspect(begin_page_setup < first, content="true")
+  inspect(first < second, content="true")
+  inspect(second < end_page_setup, content="true")
+  @fs.remove_file(path)
 }
 
 ///|
 test "ps surface validates dsc comments and path strings" {
-  let surface = @cairoon.Surface::ps(10.0, 10.0)
-  let invalid_comment = @cairoon.run_cairo(() => surface.ps_dsc_comment(""))
-  match invalid_comment {
-    Err(@cairoon.CairoError(@cairoon.InvalidDscComment, _)) => ()
-    _ => @test.fail("expected InvalidDscComment")
+  let boundary = @cairoon.Surface::ps(10.0, 10.0)
+  boundary.ps_dsc_comment(ps_dsc_comment_with_byte_length(255))
+  debug_inspect(boundary.status(), content="Success")
+  boundary.finish()
+
+  for
+    invalid in [
+      "",
+      "Title: missing percent",
+      ps_dsc_comment_with_byte_length(256),
+    ] {
+    expect_invalid_ps_dsc_comment(invalid)
+  }
+
+  let invalid_comment_string = @cairoon.Surface::ps(10.0, 10.0)
+  match
+    @cairoon.run_cairo(() => {
+      invalid_comment_string.ps_dsc_comment("%%Title: bad\u{0}comment")
+    }) {
+    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidString, _)) => ()
+    _ => @test.fail("expected InvalidString for PS DSC comment")
   }
 
   let invalid_path = "/tmp/cairoon\u{0}bad.ps"
@@ -122,6 +213,7 @@ test "ps surface filename constructor renders and finishes" {
   }
 
   let surface = @cairoon.Surface::ps(10.0, 10.0, path=Some(path))
+  surface.ps_set_eps(true)
   let ctx = @cairoon.Context::new(surface)
   ctx.set_source_rgb(0.0, 0.0, 1.0)
   ctx.paint()
@@ -130,6 +222,7 @@ test "ps surface filename constructor renders and finishes" {
   let output = @fs.read_file_to_string(path)
   inspect(output.length() > 16, content="true")
   inspect(output.contains("%!PS"), content="true")
+  inspect(output.contains("EPSF"), content="true")
   @fs.remove_file(path)
 }
 

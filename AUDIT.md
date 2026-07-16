@@ -3473,6 +3473,37 @@ recording-snapshot leak: 16 allocations/7424 bytes on 1.15.10 and 16
 allocations/9344 bytes on 1.18.4. No public signature or production FFI symbol
 changed.
 
+## PostScript Surface Contract And Documentation Audit
+
+The 2026-07-16 PostScript audit completed substantive docs for all 13 public
+declarations. File/no-output/stream construction now records point units,
+multi-page sizing, writer retention, copied chunks, and finish-time errors.
+Level helpers specify copied returns and restriction-before-drawing. EPS and
+page-size methods specify current-page timing and EPS's single-page rule. DSC
+methods now define the one-way Header to Setup to PageSetup protocol, byte
+limits, prohibited newlines and Cairo-owned structural comments, sticky
+`InvalidDscComment`, NUL validation, and checked receiver errors.
+
+The executable backend example previously sent `%%Title` after entering Setup;
+it now emits the title in Header, then transitions through Setup and PageSetup.
+The pycairo-derived out-of-order transition fixture now locates both custom
+comments between generated `%%BeginPageSetup`/`%%EndPageSetup` markers, proving
+Cairo's non-rewinding behavior. A native range guard rejects negative level
+strings before Cairo can index its static table. Focused tests also cover
+invalid raw level strings at `-1` and `99`, retained Level 2 output after the
+exact `99` restriction no-op, ordinary/EPS state and `EPSF` output, 255/256 byte
+DSC boundaries, missing `%`, and embedded NUL. The first exact matrix correctly
+rejected an accidental test anchor rename; restoring the stable parity name
+made the full ledger pass.
+
+Exact Linux Cairo 1.15.10 and 1.18.4 each pass 8/8 PS tests, 63/63 executable
+docs, 798/798 native tests, 90/90 script tests, both 1/1 consumer paths, all 602
+publication members, and every package under ASan/LSan. The only suppression is
+the independently reproduced recording-snapshot leak: 16 allocations/7424
+bytes on 1.15.10 and 16 allocations/9344 bytes on 1.18.4. Documentation reaches
+554 of 579 with 25 exact debt entries. No public API or production FFI symbol
+changed.
+
 ## Downstream Consumer Evidence
 
 The 2026-07-15 local release gate now includes a separately named MoonBit
