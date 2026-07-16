@@ -213,6 +213,15 @@ test "font face context methods propagate cairo error" {
     Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidMatrix, _)) => ()
     _ => @test.fail("expected InvalidMatrix")
   }
+
+  let select_raw_result = @cairoon.run_cairo(() => {
+    ctx.select_font_face_raw("serif", slant=2, weight=1)
+  })
+  inspect(select_raw_result is Err(_), content="true")
+  match select_raw_result {
+    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidMatrix, _)) => ()
+    _ => @test.fail("expected InvalidMatrix")
+  }
 }
 
 ///|

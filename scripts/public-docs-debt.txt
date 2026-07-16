@@ -1,24 +1,5 @@
 # Exact grandfathered public declarations that still lack substantive docs.
 # Remove an entry in the same commit that documents its declaration.
-src/context_font_text.mbt	Context::font_extents
-src/context_font_text.mbt	Context::get_font_face
-src/context_font_text.mbt	Context::get_font_matrix
-src/context_font_text.mbt	Context::get_font_options
-src/context_font_text.mbt	Context::get_scaled_font
-src/context_font_text.mbt	Context::glyph_extents
-src/context_font_text.mbt	Context::glyph_path
-src/context_font_text.mbt	Context::select_font_face
-src/context_font_text.mbt	Context::select_font_face_raw
-src/context_font_text.mbt	Context::set_font_face
-src/context_font_text.mbt	Context::set_font_matrix
-src/context_font_text.mbt	Context::set_font_options
-src/context_font_text.mbt	Context::set_font_size
-src/context_font_text.mbt	Context::set_scaled_font
-src/context_font_text.mbt	Context::show_glyphs
-src/context_font_text.mbt	Context::show_text
-src/context_font_text.mbt	Context::show_text_glyphs
-src/context_font_text.mbt	Context::text_extents
-src/context_font_text.mbt	Context::text_path
 src/device.mbt	Device
 src/device.mbt	Device::acquire
 src/device.mbt	Device::equal

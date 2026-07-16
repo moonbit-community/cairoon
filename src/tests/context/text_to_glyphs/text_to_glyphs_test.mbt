@@ -119,6 +119,15 @@ test "text glyph APIs validate embedded nul strings" {
   expect_text_glyph_invalid_string(
     @cairoon.run_cairo(() => ctx.show_text_glyphs("bad\u{0}text", [], [])),
   )
+
+  let run = ctx.get_scaled_font().text_to_glyphs(0.0, 0.0, "a")
+  match
+    @cairoon.run_cairo(() => {
+      ctx.show_text_glyphs("a", run.glyphs, [@cairoon.TextCluster::new(0, 0)])
+    }) {
+    Err(@cairoon.CairoError(@cairoon.InvalidClusters, _)) => ()
+    _ => @test.fail("expected InvalidClusters")
+  }
 }
 
 ///|

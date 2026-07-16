@@ -215,6 +215,15 @@ test "context scaled font methods propagate cairo error" {
     _ => @test.fail("expected InvalidMatrix")
   }
 
+  let set_font_matrix_result = @cairoon.run_cairo(() => {
+    ctx.set_font_matrix(@cairoon.Matrix::new(xx=12.0, yy=12.0))
+  })
+  inspect(set_font_matrix_result is Err(_), content="true")
+  match set_font_matrix_result {
+    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidMatrix, _)) => ()
+    _ => @test.fail("expected InvalidMatrix")
+  }
+
   let set_size_result = @cairoon.run_cairo(() => ctx.set_font_size(12.0))
   inspect(set_size_result is Err(_), content="true")
   match set_size_result {

@@ -46,11 +46,15 @@ test "context show_glyphs renders without changing the path" {
   ctx.select_font_face("serif")
   ctx.set_font_size(12.0)
   let glyphs = [@cairoon.Glyph::new(0UL, 2.0, 12.0)]
+  ctx.move_to(1.0, 1.0)
+  ctx.line_to(3.0, 2.0)
+  let path_before = ctx.copy_path().to_string()
+  let point_before = ctx.get_current_point()
   ctx.set_source_rgb(1.0, 0.0, 0.0)
   ctx.show_glyphs(glyphs)
   inspect(has_nonzero_byte(surface.copy_data()), content="true")
-  inspect(ctx.has_current_point(), content="false")
-  inspect(ctx.copy_path().length(), content="0")
+  inspect(ctx.copy_path().to_string() == path_before, content="true")
+  inspect(ctx.get_current_point() == point_before, content="true")
 }
 
 ///|

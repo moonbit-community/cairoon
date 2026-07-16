@@ -3218,9 +3218,16 @@ page-emission declarations. Its seven-test black-box package now additionally
 locks color-component clamping, source-pattern user-space binding across later
 CTM changes, and checked sticky-error propagation through every public method;
 existing pixel, offset, preserve/consume, lifetime, and direct-C multi-page
-oracles cover the rest of the documented contract. The current exact baseline
-is therefore 338 documented declarations and 241 grandfathered
-documentation-debt entries.
+oracles cover the rest of the documented contract. The Context font/text/glyph
+slice contributes all 19 font-state, toy-text, explicit-glyph, cluster-aware
+text, extent, path, and scaled-font declarations. Existing black-box and
+direct-C oracles cover owning borrowed returns, copied FontOptions state,
+font/scaled-font round trips, UTF-8 and embedded-NUL handling, current-point and
+path behavior, empty and populated glyph arrays, multilingual shaping, and
+vector text metadata; the focused regression now also locks generic
+`CairoError(InvalidClusters, _)` mapping. All 121 Context declarations are now
+documented. The current exact baseline is therefore 357 documented
+declarations and 222 grandfathered documentation-debt entries.
 
 `scripts/check-public-docs.py` parses the audited declaration forms and checks
 the sorted debt ledger in both directions: a new undocumented declaration,

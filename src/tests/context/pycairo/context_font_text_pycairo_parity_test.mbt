@@ -35,9 +35,17 @@ test "context font options round trip mirrors pycairo fixture" {
   options.set_hint_style(@cairoon.HintStyleSlight)
 
   ctx.set_font_options(options)
+  options.set_antialias(@cairoon.AntialiasNone)
+  options.set_hint_style(@cairoon.HintStyleFull)
   let returned = ctx.get_font_options()
   debug_inspect(returned.get_antialias(), content="AntialiasGray")
   debug_inspect(returned.get_hint_style(), content="HintStyleSlight")
+
+  returned.set_antialias(@cairoon.AntialiasNone)
+  returned.set_hint_style(@cairoon.HintStyleFull)
+  let stable = ctx.get_font_options()
+  debug_inspect(stable.get_antialias(), content="AntialiasGray")
+  debug_inspect(stable.get_hint_style(), content="HintStyleSlight")
 }
 
 ///|
