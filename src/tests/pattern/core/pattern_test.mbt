@@ -64,6 +64,21 @@ test "pattern extend filter and matrix mirror cairo state" {
 }
 
 ///|
+test "pattern rejects a singular matrix with InvalidMatrix" {
+  let pattern = @cairoon.Pattern::solid_rgb(1.0, 0.0, 0.0)
+  let singular = @cairoon.Matrix::new(xx=1.0, yx=2.0, xy=2.0, yy=4.0)
+  let result = @cairoon.run_cairo(() => pattern.set_matrix(singular))
+  match result {
+    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidMatrix, _)) => ()
+    _ => @test.fail("expected InvalidMatrix")
+  }
+  match @cairoon.run_cairo(() => pattern.get_matrix()) {
+    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidMatrix, _)) => ()
+    _ => @test.fail("expected sticky InvalidMatrix status")
+  }
+}
+
+///|
 test "pattern raw extend mirrors pycairo c int passthrough" {
   let pattern = @cairoon.Pattern::solid_rgb(1.0, 0.0, 0.0)
   inspect(pattern.get_extend_raw(), content="3")

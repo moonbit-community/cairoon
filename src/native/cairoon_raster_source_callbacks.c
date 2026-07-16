@@ -8,6 +8,10 @@ struct CairoonRasterSourceState {
   void *acquire_arg;
   CairoonRasterSourceReleaseCallback release;
   void *release_arg;
+  struct CairoonRasterSourceState *pending_state;
+  int32_t has_pending_state;
+  int32_t active_acquisitions;
+  int32_t callback_depth;
 };
 
 typedef struct {
@@ -17,6 +21,23 @@ typedef struct {
 
 static const cairo_user_data_key_t cairoon_raster_source_state_key;
 static const cairo_user_data_key_t cairoon_raster_surface_owner_key;
+
+static cairo_status_t cairoon_raster_source_apply_pending_state(
+  cairo_pattern_t *pattern,
+  CairoonRasterSourceState *state);
+
+static void cairoon_raster_source_finish_acquire(
+  cairo_pattern_t *pattern,
+  CairoonRasterSourceState *state,
+  int32_t acquired) {
+  if (acquired != 0) {
+    state->active_acquisitions += 1;
+  }
+  state->callback_depth -= 1;
+  if (state->callback_depth == 0 && state->active_acquisitions == 0) {
+    (void)cairoon_raster_source_apply_pending_state(pattern, state);
+  }
+}
 
 static void cairoon_raster_surface_owner_destroy(void *owner_ptr) {
   CairoonRasterSurfaceOwner *owner =
@@ -44,6 +65,10 @@ static void cairoon_raster_source_state_destroy(void *state_ptr) {
   if (state->release_arg != NULL) {
     moonbit_decref(state->release_arg);
     state->release_arg = NULL;
+  }
+  if (state->pending_state != NULL) {
+    cairoon_raster_source_state_destroy(state->pending_state);
+    state->pending_state = NULL;
   }
   free(state);
 }
@@ -147,20 +172,27 @@ static cairo_surface_t *cairoon_raster_source_acquire(
     return NULL;
   }
 
+  CairoonRasterSourceAcquireCallback acquire = state->acquire;
+  void *acquire_arg = state->acquire_arg;
+  if (state->callback_depth == INT_MAX) {
+    return NULL;
+  }
+  state->callback_depth += 1;
+
   // FuncRef arguments are borrowed; this wrapper owns the call-scoped ref.
   CairoonSurface *target_wrapper = cairoon_surface_wrap_borrowed(target);
-  if (state->acquire_arg != NULL) {
-    moonbit_incref(state->acquire_arg);
+  if (acquire_arg != NULL) {
+    moonbit_incref(acquire_arg);
   }
-  CairoonSurface *source_wrapper = state->acquire(
+  CairoonSurface *source_wrapper = acquire(
     target_wrapper,
     extents->x,
     extents->y,
     extents->width,
     extents->height,
-    state->acquire_arg);
-  if (state->acquire_arg != NULL) {
-    moonbit_decref(state->acquire_arg);
+    acquire_arg);
+  if (acquire_arg != NULL) {
+    moonbit_decref(acquire_arg);
   }
   moonbit_decref(target_wrapper);
 
@@ -168,11 +200,19 @@ static cairo_surface_t *cairoon_raster_source_acquire(
     if (source_wrapper != NULL) {
       moonbit_decref(source_wrapper);
     }
+    cairoon_raster_source_finish_acquire(callback_pattern, state, 0);
     return NULL;
   }
 
   if (cairoon_surface_status(source_wrapper) != CAIRO_STATUS_SUCCESS) {
     moonbit_decref(source_wrapper);
+    cairoon_raster_source_finish_acquire(callback_pattern, state, 0);
+    return NULL;
+  }
+
+  if (state->active_acquisitions == INT_MAX) {
+    moonbit_decref(source_wrapper);
+    cairoon_raster_source_finish_acquire(callback_pattern, state, 0);
     return NULL;
   }
 
@@ -180,9 +220,11 @@ static cairo_surface_t *cairoon_raster_source_acquire(
   cairo_status_t status = cairoon_raster_surface_owner_retain(source_wrapper);
   if (status != CAIRO_STATUS_SUCCESS) {
     moonbit_decref(source_wrapper);
+    cairoon_raster_source_finish_acquire(callback_pattern, state, 0);
     return NULL;
   }
   cairo_surface_reference(source);
+  cairoon_raster_source_finish_acquire(callback_pattern, state, 1);
   return source;
 }
 
@@ -206,19 +248,77 @@ static void cairoon_raster_source_release(
     (CairoonRasterSurfaceOwner *)cairo_surface_get_user_data(
       surface,
       &cairoon_raster_surface_owner_key);
-  if (state != NULL && state->release != NULL && owner != NULL &&
-      owner->surface != NULL) {
-    moonbit_incref(owner->surface);
-    if (state->release_arg != NULL) {
-      moonbit_incref(state->release_arg);
+  CairoonRasterSourceReleaseCallback release =
+    state == NULL ? NULL : state->release;
+  void *release_arg = state == NULL ? NULL : state->release_arg;
+  CairoonSurface *owner_surface = owner == NULL ? NULL : owner->surface;
+  if (state != NULL) {
+    state->callback_depth += 1;
+  }
+  if (release != NULL && owner_surface != NULL) {
+    moonbit_incref(owner_surface);
+    if (release_arg != NULL) {
+      moonbit_incref(release_arg);
     }
-    state->release(owner->surface, state->release_arg);
-    if (state->release_arg != NULL) {
-      moonbit_decref(state->release_arg);
+    release(owner_surface, release_arg);
+    if (release_arg != NULL) {
+      moonbit_decref(release_arg);
     }
-    moonbit_decref(owner->surface);
+    moonbit_decref(owner_surface);
   }
   cairoon_raster_surface_owner_release(surface);
+  if (state != NULL) {
+    if (state->active_acquisitions > 0) {
+      state->active_acquisitions -= 1;
+    }
+    state->callback_depth -= 1;
+    if (state->callback_depth == 0 && state->active_acquisitions == 0) {
+      (void)cairoon_raster_source_apply_pending_state(
+        callback_pattern,
+        state);
+    }
+  }
+}
+
+static cairo_status_t cairoon_raster_source_install_state(
+  cairo_pattern_t *pattern,
+  CairoonRasterSourceState *state) {
+  cairo_status_t status = cairo_pattern_set_user_data(
+    pattern,
+    &cairoon_raster_source_state_key,
+    state,
+    state == NULL ? NULL : cairoon_raster_source_state_destroy);
+  if (status != CAIRO_STATUS_SUCCESS) {
+    cairoon_raster_source_state_destroy(state);
+    return status;
+  }
+
+  cairo_raster_source_pattern_set_callback_data(
+    pattern,
+    state == NULL ? NULL : pattern);
+  cairo_raster_source_pattern_set_acquire(
+    pattern,
+    state == NULL || state->acquire == NULL ? NULL :
+      cairoon_raster_source_acquire,
+    // Always release surfaces retained by acquire, even without a user release
+    // closure.
+    state == NULL || (state->acquire == NULL && state->release == NULL) ? NULL :
+      cairoon_raster_source_release);
+  return cairo_pattern_status(pattern);
+}
+
+static cairo_status_t cairoon_raster_source_apply_pending_state(
+  cairo_pattern_t *pattern,
+  CairoonRasterSourceState *state) {
+  if (state == NULL || state->has_pending_state == 0 ||
+      state->callback_depth != 0 || state->active_acquisitions != 0) {
+    return CAIRO_STATUS_SUCCESS;
+  }
+
+  CairoonRasterSourceState *pending_state = state->pending_state;
+  state->pending_state = NULL;
+  state->has_pending_state = 0;
+  return cairoon_raster_source_install_state(pattern, pending_state);
 }
 
 CairoonRasterSourceState *cairoon_raster_source_state_new(
@@ -256,6 +356,10 @@ CairoonRasterSourceState *cairoon_raster_source_state_new(
   state->acquire_arg = acquire_arg;
   state->release = release;
   state->release_arg = release_arg;
+  state->pending_state = NULL;
+  state->has_pending_state = 0;
+  state->active_acquisitions = 0;
+  state->callback_depth = 0;
   return state;
 }
 
@@ -268,28 +372,22 @@ cairo_status_t cairoon_raster_source_pattern_set_state(
     return status;
   }
 
-  status = cairo_pattern_set_user_data(
-    pattern->ptr,
-    &cairoon_raster_source_state_key,
-    state,
-    state == NULL ? NULL : cairoon_raster_source_state_destroy);
-  if (status != CAIRO_STATUS_SUCCESS) {
-    cairoon_raster_source_state_destroy(state);
-    return status;
+  CairoonRasterSourceState *current_state =
+    (CairoonRasterSourceState *)cairo_pattern_get_user_data(
+      pattern->ptr,
+      &cairoon_raster_source_state_key);
+  if (current_state != NULL &&
+      (current_state->callback_depth != 0 ||
+       current_state->active_acquisitions != 0)) {
+    if (current_state->pending_state != NULL) {
+      cairoon_raster_source_state_destroy(current_state->pending_state);
+    }
+    current_state->pending_state = state;
+    current_state->has_pending_state = 1;
+    return CAIRO_STATUS_SUCCESS;
   }
 
-  cairo_raster_source_pattern_set_callback_data(
-    pattern->ptr,
-    state == NULL ? NULL : pattern->ptr);
-  cairo_raster_source_pattern_set_acquire(
-    pattern->ptr,
-    state == NULL || state->acquire == NULL ? NULL :
-      cairoon_raster_source_acquire,
-    // Always release surfaces retained by acquire, even without a user release
-    // closure.
-    state == NULL || (state->acquire == NULL && state->release == NULL) ? NULL :
-      cairoon_raster_source_release);
-  return cairo_pattern_status(pattern->ptr);
+  return cairoon_raster_source_install_state(pattern->ptr, state);
 }
 
 CairoonRasterSourceState *cairoon_raster_source_pattern_get_state(

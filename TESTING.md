@@ -77,9 +77,9 @@ Evaluate each slice with this scorecard:
 | Behavioral parity | pycairo-derived black-box cases or direct C Cairo primitive oracles cover normal and invalid inputs | Strong for image, context, path, font, pattern, region, surface/device, and backend helpers already listed in the inventory; all 288 tests from all 20 upstream test files are pinned and mapped to 197 family-local MoonBit runtime anchors, 291 required generated static API anchors, 29 deliberately absent signatures, 4 explicit inventory decisions, and 1 mandatory static verify gate |
 | Rendering parity | Deterministic image pixels or normalized PDF/PS/SVG bytes match direct C Cairo output | Strong for the portable migration scope. Scene 66 closes Cairo 1.18's finite tag-attribute contract across URI, multi-rectangle, destination, page-position, external-file, content, and content-reference cases; it joins the enumerated image and vector fixtures with file/stream/direct-C comparisons and stable positive or negative backend markers |
 | Lifetime safety | External-object ownership, borrowed returns, callback retention, and error exits run under ASan/LSan or stress tests | Strong for the current portable scope: Linux runs every MoonBit package in a separate ASan/LSan process; the only suppression is a pure-C-probe-verified Cairo recording-snapshot function in the vector oracle package, while all other packages remain unsuppressed |
-| Callback safety | C-held MoonBit callbacks and callback arguments are retained across the callback invocation and released deterministically | Strong for stream writers/readers and raster-source callbacks covered by current stress/fuzz tests |
+| Callback safety | C-held MoonBit callbacks and callback arguments are retained across the callback invocation and released deterministically | Strong for stream writers/readers and raster-source callbacks covered by current stress/fuzz tests; reentrant raster registration changes are deferred until the old acquire/release pairs finish, with ASan and retained-owner regressions for clear from both callback directions |
 | Portability | Required backends pass on each supported platform, or unsupported APIs have explicit `Decision` rows | Strong local evidence at the exact Cairo 1.15.10 compatibility floor and recommended 1.18.4 release, plus the host lane; still Partial until the release commit's shipped Ubuntu/macOS CI jobs pass |
-| Documentation | Public declarations have substantive MoonBit `///` comments, family workflows have executable examples where practical, and `scripts/check-public-docs.py` reports zero debt | Partial: executable family notes exist and 419 foundational, pure geometry/value, published-support, Region, FontOptions, FontFace, Device/script, ImageData/ImageSurface/MappedImageSurface, and complete Context declarations are documented, but the corrected exact grandfather ledger still contains 160 of 579 public declarations; new undocumented APIs and ledger drift fail the gate |
+| Documentation | Public declarations have substantive MoonBit `///` comments, family workflows have executable examples where practical, and `scripts/check-public-docs.py` reports zero debt | Partial: executable family notes exist and 472 foundational, pure geometry/value, published-support, Region, FontOptions, FontFace, Device/script, ImageData/ImageSurface/MappedImageSurface, complete Context, and complete Pattern declarations are documented, but the corrected exact grandfather ledger still contains 107 of 579 public declarations; new undocumented APIs and ledger drift fail the gate |
 | Downstream consumption | A separately named MoonBit module resolves the versioned local dependency, imports only `CAIMEOX/cairoon`, supplies its own native Cairo link flags, renders through the public API against both checkout and extracted publication zip, and stays outside that archive | Strong local evidence through `integration/consumer` and `scripts/check-downstream-consumer.sh`; the zip is integrity-tested and recompiled in a fresh temporary workspace, while release CI must run the same `verify.sh` gate |
 
 The practical release rule is simple: a feature can be trusted when its
@@ -4247,8 +4247,15 @@ storage and release-on-finish, row padding, flush/dirty behavior, mapping
 restrictions, exact-once unmap, and closure-error precedence. The lifecycle
 audit replaced status-gated unmap with an always-cleaning native path and added
 static guards plus two black-box regressions; all five image packages pass
-33/33, including 9/9 for the mapped package under focused ASan. The remaining
-160 declarations are named exactly in
+33/33, including 9/9 for the mapped package under focused ASan. The Pattern
+slice adds all 53 ownership, identity, solid/surface state, typed/raw
+extend/filter/dither, matrix, gradient, mesh, and raster-source declarations.
+The lifecycle audit found a release-side use-after-free when a callback cleared
+its own retained state and an acquire-side risk of dropping the paired internal
+release. Native state replacement is now deferred until all acquisitions using
+the old pair finish. Three regressions cover release clear, acquire clear with
+zero retained owners, and sticky `InvalidMatrix`. The remaining 107
+declarations are named exactly in
 `scripts/public-docs-debt.txt`; that ledger may shrink but may not grow.
 
 `scripts/check-public-docs.py` fails for a new undocumented declaration, a
@@ -4256,10 +4263,10 @@ missing debt entry, a stale entry after documentation is added, duplicate or
 unsorted entries, and malformed ledger lines. Thirteen focused unit tests cover
 those parser and ledger invariants, including default-abstract versus `priv`
 types and the exact published-support scope, raising the script suite to 76/76.
-The mapped-image lifecycle and image-family documentation host replay covers
-392 source files and passes all 787
-native tests, both 1/1 downstream consumer paths, and publication-archive
-integrity for 598 members. `src/pkg.generated.mbti` remains byte-for-byte
+The Pattern lifecycle and documentation replay on exact Linux Cairo 1.15.10
+and 1.18.4 covers 392 source files and passes all 790 native tests, both 1/1
+downstream consumer paths, publication-archive integrity for 598 members, and
+every package under ASan/LSan. `src/pkg.generated.mbti` remains byte-for-byte
 unchanged at SHA-256
 `6c647f7e0c12188c36330a66681141a4449558884ce948d2c74e462a91b2f0f3`.
 The Device package passes 19/19 and the mapped-image package passes 9/9 under

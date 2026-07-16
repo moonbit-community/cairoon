@@ -1,4 +1,10 @@
 ///|
+/// An owned Cairo drawing source used by `Context::set_source` and masks.
+///
+/// A value owns one native pattern reference through its private raw handle;
+/// MoonBit finalization releases that reference. Solid, surface, gradient,
+/// mesh, and raster-source subtypes share this wrapper. Equality and hashing
+/// use native pointer identity, not rendered-value equality.
 struct Pattern(@pattern_impl.RawPattern)
 
 ///|
@@ -24,6 +30,11 @@ fn check_pattern_status_raw(raw : Int) -> Unit raise CairoError {
 }
 
 ///|
+/// Create an opaque solid-color pattern.
+///
+/// `red`, `green`, and `blue` are clamped to `[0.0, 1.0]`. The returned value
+/// owns its native pattern and raises the checked creation status, including
+/// allocation failure.
 pub fn Pattern::solid_rgb(
   red : Double,
   green : Double,
@@ -35,6 +46,10 @@ pub fn Pattern::solid_rgb(
 }
 
 ///|
+/// Create a solid-color pattern with explicit alpha.
+///
+/// All four components are clamped to `[0.0, 1.0]`. The returned value owns
+/// its native pattern and raises the checked creation status.
 pub fn Pattern::solid_rgba(
   red : Double,
   green : Double,
@@ -47,6 +62,11 @@ pub fn Pattern::solid_rgba(
 }
 
 ///|
+/// Create a pattern that samples `surface`.
+///
+/// The new pattern retains the source surface, including MoonBit-managed image
+/// data backing it, so the pattern remains usable after `surface` leaves scope.
+/// Raises either the source or newly created pattern status.
 pub fn Pattern::for_surface(surface : Surface) -> Pattern raise CairoError {
   let raw = @pattern_impl.create_for_surface_raw(surface.to_raw())
   check_pattern_status_raw(@pattern_impl.status_raw(raw))
@@ -54,6 +74,11 @@ pub fn Pattern::for_surface(surface : Surface) -> Pattern raise CairoError {
 }
 
 ///|
+/// Return the surface sampled by a surface pattern.
+///
+/// The result owns an independent Cairo surface reference and remains valid
+/// after this pattern leaves scope. Raises `PatternTypeMismatch` for any other
+/// pattern subtype and propagates an existing sticky pattern or surface error.
 pub fn Pattern::get_surface(self : Pattern) -> Surface raise CairoError {
   let status = Ref(0)
   let raw = @pattern_impl.get_surface_raw(self.to_raw(), status)
@@ -62,16 +87,28 @@ pub fn Pattern::get_surface(self : Pattern) -> Surface raise CairoError {
 }
 
 ///|
+/// Return this pattern's sticky Cairo status without raising.
+///
+/// Once Cairo records an error, later checked operations keep reporting it.
+/// An unrecognized native status is conservatively returned as `InvalidStatus`.
 pub fn Pattern::status(self : Pattern) -> Status {
   pattern_status_from_raw(@pattern_impl.status_raw(self.to_raw()))
 }
 
 ///|
+/// Test whether two wrappers refer to the same native Cairo pattern.
+///
+/// This is pointer identity; independently created patterns with equal colors
+/// or geometry compare unequal.
 pub fn Pattern::equal(self : Pattern, other : Pattern) -> Bool {
   @pattern_impl.equal_raw(self.to_raw(), other.to_raw())
 }
 
 ///|
+/// Return a stable hash of this native pattern's pointer identity.
+///
+/// It is consistent with `equal()` for the lifetime of the pattern and does
+/// not describe its mutable drawing state.
 pub fn Pattern::hash(self : Pattern) -> UInt64 {
   @pattern_impl.hash_raw(self.to_raw())
 }
@@ -164,11 +201,20 @@ fn dither_to_raw(dither : Dither) -> Int {
 }
 
 ///|
+/// Return how sampling behaves outside this pattern's intrinsic bounds.
+///
+/// Surface patterns default to `ExtendNone`; gradient patterns default to
+/// `Pad`. Raises a sticky pattern error or `InvalidStatus` if a prior raw setter
+/// stored a value unknown to the typed `Extend` enum.
 pub fn Pattern::get_extend(self : Pattern) -> Extend raise CairoError {
   extend_from_raw(self.get_extend_raw())
 }
 
 ///|
+/// Set how sampling behaves outside this pattern's intrinsic bounds.
+///
+/// The mode affects later uses of this mutable pattern. Raises the checked
+/// sticky pattern status.
 pub fn Pattern::set_extend(
   self : Pattern,
   extend_mode : Extend,
@@ -179,12 +225,21 @@ pub fn Pattern::set_extend(
 }
 
 ///|
+/// Return Cairo's integer extend value without typed-enum conversion.
+///
+/// Known values are `0` through `3`; an arbitrary value previously supplied to
+/// `set_extend_raw()` is returned unchanged. Raises an existing pattern error.
 pub fn Pattern::get_extend_raw(self : Pattern) -> Int raise CairoError {
   check_pattern_status_raw(@pattern_impl.status_raw(self.to_raw()))
   @pattern_impl.get_extend_raw(self.to_raw())
 }
 
 ///|
+/// Pass an integer extend value directly to Cairo for pycairo compatibility.
+///
+/// The value is intentionally not range-checked. Unknown values can be read by
+/// `get_extend_raw()`, while `get_extend()` raises `InvalidStatus` for them.
+/// Raises the checked sticky pattern status.
 pub fn Pattern::set_extend_raw(
   self : Pattern,
   extend_mode : Int,
@@ -195,11 +250,19 @@ pub fn Pattern::set_extend_raw(
 }
 
 ///|
+/// Return the sampling filter hint used when this pattern is rescaled.
+///
+/// New patterns normally use `Good`. Raises a sticky pattern error or
+/// `InvalidStatus` when a prior raw setter stored an unknown integer.
 pub fn Pattern::get_filter(self : Pattern) -> Filter raise CairoError {
   filter_from_raw(self.get_filter_raw())
 }
 
 ///|
+/// Set the quality/performance hint used to filter this pattern.
+///
+/// Cairo backends may choose an implementation compatible with the hint.
+/// Raises the checked sticky pattern status.
 pub fn Pattern::set_filter(
   self : Pattern,
   filter : Filter,
@@ -210,12 +273,20 @@ pub fn Pattern::set_filter(
 }
 
 ///|
+/// Return Cairo's integer filter hint without typed-enum conversion.
+///
+/// Known values are `0` through `5`; arbitrary values set through the raw API
+/// are preserved. Raises an existing sticky pattern error.
 pub fn Pattern::get_filter_raw(self : Pattern) -> Int raise CairoError {
   check_pattern_status_raw(@pattern_impl.status_raw(self.to_raw()))
   @pattern_impl.get_filter_raw(self.to_raw())
 }
 
 ///|
+/// Pass an integer filter hint directly to Cairo for pycairo compatibility.
+///
+/// The value is intentionally not range-checked. The typed getter later raises
+/// `InvalidStatus` if Cairo returns a value outside the `Filter` enum.
 pub fn Pattern::set_filter_raw(
   self : Pattern,
   filter : Int,
@@ -224,11 +295,20 @@ pub fn Pattern::set_filter_raw(
 }
 
 ///|
+/// Return this pattern's dithering hint.
+///
+/// Dithering is available with Cairo 1.18 or newer and is currently honored by
+/// pixman-backed rendering. Older runtimes raise `InvalidStatus`; an unknown
+/// raw value also raises `InvalidStatus` during typed conversion.
 pub fn Pattern::get_dither(self : Pattern) -> Dither raise CairoError {
   dither_from_raw(self.get_dither_raw())
 }
 
 ///|
+/// Set this pattern's dithering hint for later rendering.
+///
+/// Requires Cairo 1.18 or newer; older runtimes raise `InvalidStatus`. The hint
+/// does not guarantee that every backend performs dithering.
 pub fn Pattern::set_dither(
   self : Pattern,
   dither : Dither,
@@ -239,6 +319,10 @@ pub fn Pattern::set_dither(
 }
 
 ///|
+/// Return Cairo's raw integer dithering hint.
+///
+/// Requires Cairo 1.18 or newer and otherwise raises `InvalidStatus`. Values
+/// outside the typed enum are returned unchanged.
 pub fn Pattern::get_dither_raw(self : Pattern) -> Int raise CairoError {
   let status = Ref(0)
   let dither = @pattern_impl.get_dither_raw(self.to_raw(), status)
@@ -247,6 +331,10 @@ pub fn Pattern::get_dither_raw(self : Pattern) -> Int raise CairoError {
 }
 
 ///|
+/// Pass a dithering integer directly to Cairo for pycairo compatibility.
+///
+/// No enum range check is performed. Requires Cairo 1.18 or newer; older
+/// runtimes raise `InvalidStatus`, and the typed getter rejects unknown values.
 pub fn Pattern::set_dither_raw(
   self : Pattern,
   dither : Int,
@@ -255,6 +343,11 @@ pub fn Pattern::set_dither_raw(
 }
 
 ///|
+/// Return the affine transform from user space to pattern space.
+///
+/// New patterns start with identity. Because this direction is the inverse of
+/// the apparent pattern-to-user transform, scaling the matrix down makes the
+/// rendered pattern appear larger. Raises an existing sticky pattern error.
 pub fn Pattern::get_matrix(self : Pattern) -> Matrix raise CairoError {
   let xx = Ref(0.0)
   let yx = Ref(0.0)
@@ -269,6 +362,11 @@ pub fn Pattern::get_matrix(self : Pattern) -> Matrix raise CairoError {
 }
 
 ///|
+/// Set the affine transform from user space to pattern space.
+///
+/// `matrix` is copied; later changes to the value do not affect the pattern.
+/// A non-invertible matrix raises `CairoInvalidArgument(InvalidMatrix, _)` and
+/// leaves that error sticky on the pattern.
 pub fn Pattern::set_matrix(
   self : Pattern,
   matrix : Matrix,
@@ -287,6 +385,11 @@ pub fn Pattern::set_matrix(
 }
 
 ///|
+/// Return a solid pattern's unpremultiplied RGBA components.
+///
+/// Components are in `[0.0, 1.0]`; an RGB pattern reports alpha `1.0`. Raises
+/// `PatternTypeMismatch` for surface, gradient, mesh, or raster-source patterns
+/// and propagates any existing sticky pattern error.
 pub fn Pattern::get_rgba(
   self : Pattern,
 ) -> (Double, Double, Double, Double) raise CairoError {

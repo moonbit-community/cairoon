@@ -35,6 +35,38 @@ test "raster source acquire-only releases retained owner after paint" {
 }
 
 ///|
+test "raster source acquire callback can clear registration without leaking" {
+  let source = make_raster_owner_color_source(0)
+  let pattern = @cairoon.Pattern::raster_source(
+    @cairoon.ContentColorAlpha,
+    3,
+    3,
+  )
+  let acquire_calls = Ref(0)
+  let release_calls = Ref(0)
+  pattern.raster_set_acquire(
+    fn(_, _) {
+      acquire_calls.val += 1
+      try! pattern.raster_clear_callbacks()
+      source
+    },
+    release=Some(fn(_) { release_calls.val += 1 }),
+  )
+
+  let target = @cairoon.Surface::image(@cairoon.Argb32, 3, 3)
+  let ctx = @cairoon.Context::new(target)
+  ctx.set_source(pattern)
+  ctx.paint()
+
+  inspect(acquire_calls.val > 0, content="true")
+  inspect(release_calls.val, content="\{acquire_calls.val}")
+  inspect(test_raster_surface_owner_count_ffi(source), content="0")
+  let (acquire, release) = pattern.raster_get_callbacks()
+  inspect(acquire is None, content="true")
+  inspect(release is None, content="true")
+}
+
+///|
 test "raster source ignored target wrapper is released after callback" {
   let source = make_raster_owner_color_source(0)
   let pattern = @cairoon.Pattern::raster_source(

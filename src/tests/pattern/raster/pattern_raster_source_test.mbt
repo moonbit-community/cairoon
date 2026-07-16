@@ -68,6 +68,39 @@ test "raster source pattern paints from acquire callback" {
 }
 
 ///|
+test "raster source release callback can clear its registration" {
+  let source = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let pattern = @cairoon.Pattern::raster_source(
+    @cairoon.ContentColorAlpha,
+    1,
+    1,
+  )
+  let acquire_calls = Ref(0)
+  let release_calls = Ref(0)
+  pattern.raster_set_acquire(
+    fn(_, _) {
+      acquire_calls.val += 1
+      source
+    },
+    release=Some(fn(_) {
+      release_calls.val += 1
+      try! pattern.raster_clear_callbacks()
+    }),
+  )
+
+  let target = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let ctx = @cairoon.Context::new(target)
+  ctx.set_source(pattern)
+  ctx.paint()
+
+  inspect(acquire_calls.val > 0, content="true")
+  inspect(release_calls.val, content="1")
+  let (acquire, release) = pattern.raster_get_callbacks()
+  inspect(acquire is None, content="true")
+  inspect(release is None, content="true")
+}
+
+///|
 test "raster source acquire can draw into compatible extents surface" {
   let acquire_calls = Ref(0)
   let release_calls = Ref(0)

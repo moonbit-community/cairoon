@@ -1,4 +1,9 @@
 ///|
+/// Create an empty tensor-product mesh pattern.
+///
+/// Mesh patterns require Cairo 1.12 or newer. Define one or more complete
+/// patches before drawing; using a partially open patch produces
+/// `InvalidMeshConstruction`. The returned pattern is independently owned.
 pub fn Pattern::mesh() -> Pattern raise CairoError {
   let raw = @pattern_impl.create_mesh_raw()
   check_pattern_status_raw(@pattern_impl.status_raw(raw))
@@ -6,16 +11,33 @@ pub fn Pattern::mesh() -> Pattern raise CairoError {
 }
 
 ///|
+/// Begin a new patch in this mesh pattern.
+///
+/// Follow with one initial point, up to four sides, optional control points and
+/// corner colors, then `mesh_end_patch()`. Raises `PatternTypeMismatch` on a
+/// non-mesh or `InvalidMeshConstruction` if a patch is already open.
 pub fn Pattern::mesh_begin_patch(self : Pattern) -> Unit raise CairoError {
   check_pattern_status_raw(@pattern_impl.mesh_begin_patch_raw(self.to_raw()))
 }
 
 ///|
+/// Complete the current mesh patch.
+///
+/// Cairo closes fewer than four sides back to the first point and fills any
+/// remaining sides degenerately there. Corners introduced by that closing copy
+/// corner 0; other unset colors stay transparent black. Unspecified internal
+/// controls use Coons-patch defaults. Raises `InvalidMeshConstruction` if no
+/// usable patch is open.
 pub fn Pattern::mesh_end_patch(self : Pattern) -> Unit raise CairoError {
   check_pattern_status_raw(@pattern_impl.mesh_end_patch_raw(self.to_raw()))
 }
 
 ///|
+/// Define the first point of the open patch in pattern-space coordinates.
+///
+/// This point is corner 0 and becomes current. Raises `PatternTypeMismatch` on
+/// a non-mesh or `InvalidMeshConstruction` without an open patch or after a
+/// side has already been added.
 pub fn Pattern::mesh_move_to(
   self : Pattern,
   x : Double,
@@ -25,6 +47,11 @@ pub fn Pattern::mesh_move_to(
 }
 
 ///|
+/// Add a straight side to the open patch in pattern space.
+///
+/// With no current point this behaves like `mesh_move_to(x, y)`; otherwise the
+/// endpoint becomes current. Raises `InvalidMeshConstruction` without an open
+/// patch or after four sides, and `PatternTypeMismatch` on a non-mesh.
 pub fn Pattern::mesh_line_to(
   self : Pattern,
   x : Double,
@@ -34,6 +61,11 @@ pub fn Pattern::mesh_line_to(
 }
 
 ///|
+/// Add a cubic Bezier side to the open patch in pattern space.
+///
+/// `(x1, y1)` and `(x2, y2)` are controls and `(x3, y3)` becomes current. With
+/// no current point Cairo first moves to `(x1, y1)`. Raises
+/// `InvalidMeshConstruction` without an open patch or after four sides.
 pub fn Pattern::mesh_curve_to(
   self : Pattern,
   x1 : Double,
@@ -49,6 +81,11 @@ pub fn Pattern::mesh_curve_to(
 }
 
 ///|
+/// Set one internal control point of the open tensor-product patch.
+///
+/// `point_num` must be `0..3`; coordinates are in pattern space. Unspecified
+/// points retain their Coons-patch defaults. Raises `InvalidIndex`,
+/// `InvalidMeshConstruction`, `PatternTypeMismatch`, or another sticky status.
 pub fn Pattern::mesh_set_control_point(
   self : Pattern,
   point_num : Int,
@@ -61,6 +98,11 @@ pub fn Pattern::mesh_set_control_point(
 }
 
 ///|
+/// Set an opaque color for one corner of the open patch.
+///
+/// `corner_num` must be `0..3`; RGB components are clamped to `[0.0, 1.0]`.
+/// Unspecified corners default to transparent black before patch completion.
+/// Raises `InvalidIndex`, `InvalidMeshConstruction`, or `PatternTypeMismatch`.
 pub fn Pattern::mesh_set_corner_color_rgb(
   self : Pattern,
   corner_num : Int,
@@ -80,6 +122,11 @@ pub fn Pattern::mesh_set_corner_color_rgb(
 }
 
 ///|
+/// Set an RGBA color for one corner of the open patch.
+///
+/// `corner_num` must be `0..3`, and components are clamped to `[0.0, 1.0]`.
+/// Raises `InvalidIndex`, `InvalidMeshConstruction`, `PatternTypeMismatch`, or
+/// another sticky pattern status.
 pub fn Pattern::mesh_set_corner_color_rgba(
   self : Pattern,
   corner_num : Int,
@@ -101,6 +148,10 @@ pub fn Pattern::mesh_set_corner_color_rgba(
 }
 
 ///|
+/// Return the number of completed patches in this mesh.
+///
+/// The currently open patch is not a drawable completed patch. Raises
+/// `PatternTypeMismatch` on another subtype and propagates sticky errors.
 pub fn Pattern::mesh_get_patch_count(self : Pattern) -> Int raise CairoError {
   let count = Ref(0)
   check_pattern_status_raw(
@@ -110,6 +161,11 @@ pub fn Pattern::mesh_get_patch_count(self : Pattern) -> Int raise CairoError {
 }
 
 ///|
+/// Copy the boundary path of completed patch `patch_num`.
+///
+/// The returned `Path` owns an independent native snapshot and remains usable
+/// after this pattern leaves scope. Raises `InvalidIndex` for an unknown patch,
+/// `PatternTypeMismatch` for a non-mesh, or a path/allocation status.
 pub fn Pattern::mesh_get_path(
   self : Pattern,
   patch_num : Int,
@@ -122,6 +178,11 @@ pub fn Pattern::mesh_get_path(
 }
 
 ///|
+/// Return internal control point `point_num` of completed patch `patch_num`.
+///
+/// Both indices are zero-based and the control-point index must be `0..3`.
+/// Coordinates are in pattern space. Raises `InvalidIndex`,
+/// `PatternTypeMismatch`, or an existing sticky error.
 pub fn Pattern::mesh_get_control_point(
   self : Pattern,
   patch_num : Int,
@@ -142,6 +203,11 @@ pub fn Pattern::mesh_get_control_point(
 }
 
 ///|
+/// Return one completed patch corner as unpremultiplied RGBA.
+///
+/// `patch_num` is zero-based and `corner_num` must be `0..3`; components are in
+/// `[0.0, 1.0]`. Raises `InvalidIndex`, `PatternTypeMismatch`, or an existing
+/// sticky pattern error.
 pub fn Pattern::mesh_get_corner_color_rgba(
   self : Pattern,
   patch_num : Int,

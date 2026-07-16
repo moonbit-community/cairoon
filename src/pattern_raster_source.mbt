@@ -1,4 +1,10 @@
 ///|
+/// Create a callback-backed pixel source with typed content.
+///
+/// Raster-source patterns require Cairo 1.12 or newer. `width` and `height`
+/// are the non-negative maximum sample-area dimensions, not an allocated image.
+/// Register an acquire callback before drawing. Raises `InvalidSize`,
+/// `InvalidContent`, allocation failure, or another creation status.
 pub fn Pattern::raster_source(
   content : Content,
   width : Int,
@@ -14,6 +20,12 @@ pub fn Pattern::raster_source(
 }
 
 ///|
+/// Create a callback-backed pixel source from a Cairo content integer.
+///
+/// For pycairo compatibility, accepted values are exactly `0x1000` (color),
+/// `0x2000` (alpha), and `0x3000` (color plus alpha). Other values raise
+/// `CairoInvalidArgument(InvalidContent, _)` before C; dimensions and Cairo
+/// 1.12 requirements match `raster_source()`.
 pub fn Pattern::raster_source_raw(
   content : Int,
   width : Int,
@@ -29,6 +41,13 @@ pub fn Pattern::raster_source_raw(
 }
 
 ///|
+/// Install the mandatory raster acquire callback and optional release callback.
+///
+/// For each request, `acquire` receives the target and a pixel rectangle in
+/// sample space. Return a compatible surface covering that rectangle; use
+/// `target.create_similar_image()` and a device offset for a subregion. The
+/// binding retains the returned surface until Cairo releases the acquisition.
+/// Both closures are retained until replacement, clearing, or finalization.
 pub fn Pattern::raster_set_acquire(
   self : Pattern,
   acquire : (Surface, RectangleInt) -> Surface,
@@ -38,6 +57,20 @@ pub fn Pattern::raster_set_acquire(
 }
 
 ///|
+/// Replace this raster pattern's callback registration.
+///
+/// Callback types are non-raising: recoverable MoonBit errors must be handled
+/// inside the closure and must never unwind through Cairo. A finished or error
+/// surface returned by `acquire` is rejected and the drawing operation reports
+/// a Cairo error. `release`, when present, receives each successfully acquired
+/// surface before the binding drops its retained owner; internal cleanup still
+/// runs when no user release is registered.
+///
+/// Passing both options as `None` clears the registration. Release-only state
+/// is queryable but cannot supply pixels. Replacement requested from inside a
+/// callback is deferred until all acquisitions using the old pair are released,
+/// preserving closure and surface lifetimes. Raises `PatternTypeMismatch` on a
+/// non-raster pattern or another checked registration status.
 pub fn Pattern::raster_set_callbacks(
   self : Pattern,
   acquire? : ((Surface, RectangleInt) -> Surface)? = None,
@@ -100,6 +133,12 @@ pub fn Pattern::raster_set_callbacks(
 }
 
 ///|
+/// Return the currently effective acquire and release closures.
+///
+/// Returned closures are strong MoonBit references and may outlive a later
+/// replacement. During a callback-triggered deferred replacement, this reports
+/// the pair still serving outstanding acquisitions. Raises
+/// `PatternTypeMismatch` on a non-raster pattern or a sticky pattern error.
 pub fn Pattern::raster_get_callbacks(
   self : Pattern,
 ) -> (((Surface, RectangleInt) -> Surface)?, ((Surface) -> Unit)?) raise CairoError {
@@ -139,16 +178,30 @@ pub fn Pattern::raster_get_callbacks(
 }
 
 ///|
+/// Clear both raster callbacks and release their retained closures.
+///
+/// If called from acquire or release, clearing takes effect after every
+/// outstanding acquisition using the current pair has run internal cleanup.
+/// Raises `PatternTypeMismatch` on a non-raster pattern or a sticky error.
 pub fn Pattern::raster_clear_callbacks(self : Pattern) -> Unit raise CairoError {
   self.raster_clear_acquire()
 }
 
 ///|
+/// Clear the raster acquire/release pair.
+///
+/// This is the pycairo-compatible name for `raster_clear_callbacks()`. It uses
+/// the same deferred, reentrant-safe cleanup and raises the same checked errors.
 pub fn Pattern::raster_clear_acquire(self : Pattern) -> Unit raise CairoError {
   check_status(raster_source_pattern_clear_acquire_ffi(self.to_raw()))
 }
 
 ///|
+/// Return the acquire callback paired with its optional release callback.
+///
+/// Returns `None` when no acquire callback is effective, including release-only
+/// registration. The returned closures are strong references. Raises
+/// `PatternTypeMismatch` on a non-raster pattern or a sticky pattern error.
 pub fn Pattern::raster_get_acquire(
   self : Pattern,
 ) -> ((Surface, RectangleInt) -> Surface, ((Surface) -> Unit)?)? raise CairoError {

@@ -3244,6 +3244,38 @@ This documentation-only replay skipped duplicate host ASan; the unchanged
 runtime remains covered by the immediately preceding exact Cairo 1.15.10 and
 1.18.4 ordinary plus package-isolated ASan/LSan runs.
 
+## Pattern Lifecycle And Documentation Audit
+
+The 2026-07-16 Pattern audit covers all 53 public declarations across
+`pattern.mbt`, `pattern_gradient.mbt`, `pattern_mesh.mbt`, and
+`pattern_raster_source.mbt`. Their substantive `///` contracts now specify the
+single native owner, pointer-identity equality/hash, independently referenced
+Surface and Path returns, typed/raw enum behavior, user-to-pattern matrix
+direction, gradient stop clamping/order, mesh patch state and index errors,
+Cairo version boundaries, and raster callback closure/surface retention. The
+public-documentation baseline is now 472 of 579 with 107 exact debt entries.
+
+The native review found that a raster release closure could clear or replace
+its own registration. `cairo_pattern_set_user_data` then destroyed the active
+`CairoonRasterSourceState`, after which the release trampoline read
+`state->release_arg`, producing an ASan-confirmed heap use-after-free. Applying
+the same immediate mutation from acquire could also remove Cairo's internal
+release trampoline before it balanced the returned Surface owner. Callback
+state now tracks callback depth and outstanding successful acquisitions;
+replacement or clear is queued and applied only after the old acquire/release
+pair has finished. Call-scoped callback function and closure pointers are held
+in locals with explicit MoonBit references, and owner cleanup completes before
+the old state can be destroyed.
+
+Three black-box regressions pin release-side clear, acquire-side clear with a
+zero native owner count, and sticky `InvalidMatrix` after a singular pattern
+matrix. Exact Linux Cairo 1.15.10 and 1.18.4 each pass the complete 790/790
+native suite, both isolated downstream consumers, the 598-member publication
+archive, and every package under ASan/LSan. Their sole suppression remains the
+pure-C-probe-confirmed recording snapshot: 16 allocations/7424 bytes and 16
+allocations/9344 bytes respectively. The 348 local native symbols plus two
+direct libcairo symbols remain unchanged; no public API was added or removed.
+
 ## Downstream Consumer Evidence
 
 The 2026-07-15 local release gate now includes a separately named MoonBit
