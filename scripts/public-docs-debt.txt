@@ -1,16 +1,5 @@
 # Exact grandfathered public declarations that still lack substantive docs.
 # Remove an entry in the same commit that documents its declaration.
-src/font_face.mbt	FontFace
-src/font_face.mbt	FontFace::equal
-src/font_face.mbt	FontFace::get_family
-src/font_face.mbt	FontFace::get_slant
-src/font_face.mbt	FontFace::get_slant_raw
-src/font_face.mbt	FontFace::get_weight
-src/font_face.mbt	FontFace::get_weight_raw
-src/font_face.mbt	FontFace::hash
-src/font_face.mbt	FontFace::status
-src/font_face.mbt	FontFace::toy
-src/font_face.mbt	FontFace::toy_raw
 src/image_data.mbt	ImageData
 src/image_data.mbt	ImageData::copy
 src/image_data.mbt	ImageData::get
