@@ -1012,7 +1012,8 @@ Prior full verifies passed on 2026-07-02, 2026-07-03, 2026-07-04,
   error status, dash validation, raw C-int operator and drawing-state enum
   passthrough parity, CTM conversion, invalid-matrix propagation, pycairo
   polygon fill-extents coverage, stroke extents, clip-independent geometry
-  queries, and hit-testing.
+  queries, hit-testing, non-identity transform composition, CTM save/restore,
+  and singular set/scale/transform rejection.
 - `moon -C cairoon test src/tests/surface/{base,mime,pycairo,subsurface}
   --target native -v`: 26 black-box surface tests passed, covering base
   surface state, retained subsurface parents, MIME storage/support, and pycairo
@@ -3210,8 +3211,10 @@ ownership, construction, identity, save/restore, target/source, group, and tag
 declarations. Context paths contribute all 17 construction, current-point,
 copy, flatten, and append declarations. Context clipping/extents contribute all
 11 clip-state, rectangle-export, geometry-bound, and hit-test declarations. The
-current exact baseline is therefore 313 documented declarations and 266
-grandfathered documentation-debt entries.
+Context matrix slice contributes all 11 CTM composition, replacement, snapshot,
+and point/distance conversion declarations. The current exact baseline is
+therefore 324 documented declarations and 255 grandfathered documentation-debt
+entries.
 
 `scripts/check-public-docs.py` parses the audited declaration forms and checks
 the sorted debt ledger in both directions: a new undocumented declaration,

@@ -70,6 +70,16 @@ test "context translate scale rotate and transform update ctm" {
   let matrix = @cairoon.Matrix::new(xx=2.0, yy=3.0, x0=5.0, y0=7.0)
   ctx.transform(matrix)
   assert_ctx_matrix_close(ctx.get_matrix(), matrix)
+
+  ctx.identity_matrix()
+  ctx.translate(5.0, 7.0)
+  ctx.transform(@cairoon.Matrix::new(xx=2.0, yy=3.0))
+  let composed = @cairoon.Matrix::new(xx=2.0, yy=3.0, x0=5.0, y0=7.0)
+  assert_ctx_matrix_close(ctx.get_matrix(), composed)
+  ctx.save()
+  ctx.identity_matrix()
+  ctx.restore()
+  assert_ctx_matrix_close(ctx.get_matrix(), composed)
 }
 
 ///|
@@ -84,14 +94,29 @@ test "context user and device coordinate conversion follows ctm" {
 }
 
 ///|
-test "context set_matrix invalid matrix maps to cairo error" {
-  let ctx = @cairoon.Context::new(context_matrix_surface())
-  let result = @cairoon.run_cairo(() => {
-    ctx.set_matrix(@cairoon.Matrix::new(xx=0.0, yy=0.0))
+test "context matrix mutators reject non-invertible transforms" {
+  let set_ctx = @cairoon.Context::new(context_matrix_surface())
+  let set_result = @cairoon.run_cairo(() => {
+    set_ctx.set_matrix(@cairoon.Matrix::new(xx=0.0, yy=0.0))
   })
-  inspect(result is Err(_), content="true")
-  match result {
+  match set_result {
     Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidMatrix, _)) => ()
-    _ => @test.fail("expected InvalidMatrix")
+    _ => @test.fail("expected InvalidMatrix from set_matrix")
+  }
+
+  let scale_ctx = @cairoon.Context::new(context_matrix_surface())
+  let scale_result = @cairoon.run_cairo(() => scale_ctx.scale(0.0, 1.0))
+  match scale_result {
+    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidMatrix, _)) => ()
+    _ => @test.fail("expected InvalidMatrix from scale")
+  }
+
+  let transform_ctx = @cairoon.Context::new(context_matrix_surface())
+  let transform_result = @cairoon.run_cairo(() => {
+    transform_ctx.transform(@cairoon.Matrix::new(xx=0.0, yy=0.0))
+  })
+  match transform_result {
+    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidMatrix, _)) => ()
+    _ => @test.fail("expected InvalidMatrix from transform")
   }
 }

@@ -79,7 +79,7 @@ Evaluate each slice with this scorecard:
 | Lifetime safety | External-object ownership, borrowed returns, callback retention, and error exits run under ASan/LSan or stress tests | Strong for the current portable scope: Linux runs every MoonBit package in a separate ASan/LSan process; the only suppression is a pure-C-probe-verified Cairo recording-snapshot function in the vector oracle package, while all other packages remain unsuppressed |
 | Callback safety | C-held MoonBit callbacks and callback arguments are retained across the callback invocation and released deterministically | Strong for stream writers/readers and raster-source callbacks covered by current stress/fuzz tests |
 | Portability | Required backends pass on each supported platform, or unsupported APIs have explicit `Decision` rows | Strong local evidence at the exact Cairo 1.15.10 compatibility floor and recommended 1.18.4 release, plus the host lane; still Partial until the release commit's shipped Ubuntu/macOS CI jobs pass |
-| Documentation | Public declarations have substantive MoonBit `///` comments, family workflows have executable examples where practical, and `scripts/check-public-docs.py` reports zero debt | Partial: executable family notes exist and 313 foundational, pure geometry/value, published-support, Region, FontOptions, and Context core/path/clipping/extents/drawing-state declarations are documented, but the corrected exact grandfather ledger still contains 266 of 579 public declarations; new undocumented APIs and ledger drift fail the gate |
+| Documentation | Public declarations have substantive MoonBit `///` comments, family workflows have executable examples where practical, and `scripts/check-public-docs.py` reports zero debt | Partial: executable family notes exist and 324 foundational, pure geometry/value, published-support, Region, FontOptions, and Context core/path/clipping/extents/matrix/drawing-state declarations are documented, but the corrected exact grandfather ledger still contains 255 of 579 public declarations; new undocumented APIs and ledger drift fail the gate |
 | Downstream consumption | A separately named MoonBit module resolves the versioned local dependency, imports only `CAIMEOX/cairoon`, supplies its own native Cairo link flags, renders through the public API against both checkout and extracted publication zip, and stays outside that archive | Strong local evidence through `integration/consumer` and `scripts/check-downstream-consumer.sh`; the zip is integrity-tested and recompiled in a fresh temporary workspace, while release CI must run the same `verify.sh` gate |
 
 The practical release rule is simple: a feature can be trusted when its
@@ -829,7 +829,8 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, 2026-07-
 - `moon -C cairoon test src/tests/context/matrix --target native -v`: 4
   black-box Context matrix tests passed from a nested external package,
   covering get/set/identity, translate/scale/rotate/transform, user/device
-  coordinate conversions, and invalid-matrix error propagation.
+  coordinate conversions, non-identity transform composition, CTM
+  save/restore, and singular set/scale/transform error propagation.
 - `moon -C cairoon test src/tests/context/extents --target native -v`: 5
   black-box Context extents and hit-testing tests passed from a nested external
   package, covering fill/path/stroke extents, polygon fill-extents,
@@ -4216,8 +4217,9 @@ declarations. The Context core slice adds all 18 ownership, construction,
 identity, save/restore, target/source, group, and tag declarations. The Context
 path slice adds all 17 construction, current-point, copy, flatten, and append
 declarations. The Context clipping/extents slice adds all 11 clip-state,
-rectangle-export, geometry-bound, and hit-test declarations. The remaining 266
-declarations are named exactly in
+rectangle-export, geometry-bound, and hit-test declarations. The Context matrix
+slice adds all 11 CTM composition, replacement, snapshot, and point/distance
+conversion declarations. The remaining 255 declarations are named exactly in
 `scripts/public-docs-debt.txt`; that ledger may shrink but may not grow.
 
 `scripts/check-public-docs.py` fails for a new undocumented declaration, a

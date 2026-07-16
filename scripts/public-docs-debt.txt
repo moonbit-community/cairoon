@@ -19,17 +19,6 @@ src/context_font_text.mbt	Context::show_text
 src/context_font_text.mbt	Context::show_text_glyphs
 src/context_font_text.mbt	Context::text_extents
 src/context_font_text.mbt	Context::text_path
-src/context_matrix.mbt	Context::device_to_user
-src/context_matrix.mbt	Context::device_to_user_distance
-src/context_matrix.mbt	Context::get_matrix
-src/context_matrix.mbt	Context::identity_matrix
-src/context_matrix.mbt	Context::rotate
-src/context_matrix.mbt	Context::scale
-src/context_matrix.mbt	Context::set_matrix
-src/context_matrix.mbt	Context::transform
-src/context_matrix.mbt	Context::translate
-src/context_matrix.mbt	Context::user_to_device
-src/context_matrix.mbt	Context::user_to_device_distance
 src/context_paint.mbt	Context::copy_page
 src/context_paint.mbt	Context::fill
 src/context_paint.mbt	Context::fill_preserve
