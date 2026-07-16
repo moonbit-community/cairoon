@@ -45,6 +45,12 @@ test "context set_source_rgb and rgba round trip through get_source" {
 
   ctx.set_source_rgba(1.0, 1.0, 1.0, 0.5)
   debug_inspect(ctx.get_source().get_rgba(), content="(1, 1, 1, 0.5)")
+
+  ctx.set_source_rgb(-1.0, 0.5, 2.0)
+  debug_inspect(ctx.get_source().get_rgba(), content="(0, 0.5, 1, 1)")
+
+  ctx.set_source_rgba(2.0, -1.0, 0.25, 1.5)
+  debug_inspect(ctx.get_source().get_rgba(), content="(1, 0, 0.25, 1)")
 }
 
 ///|
@@ -97,6 +103,21 @@ test "context set_source_surface samples surface at user-space origin" {
   inspect(data[stride + 5].to_int(), content="0")
   inspect(data[stride + 6].to_int(), content="255")
   inspect(data[stride + 7].to_int(), content="255")
+
+  let locked_target = @cairoon.Surface::image(@cairoon.Argb32, 2, 1)
+  let locked_ctx = @cairoon.Context::new(locked_target)
+  locked_ctx.set_source(@cairoon.Pattern::for_surface(source))
+  locked_ctx.translate(1.0, 0.0)
+  locked_ctx.paint()
+  let locked_data = locked_target.copy_data()
+  inspect(locked_data[0].to_int(), content="0")
+  inspect(locked_data[1].to_int(), content="0")
+  inspect(locked_data[2].to_int(), content="255")
+  inspect(locked_data[3].to_int(), content="255")
+  inspect(locked_data[4].to_int(), content="0")
+  inspect(locked_data[5].to_int(), content="0")
+  inspect(locked_data[6].to_int(), content="0")
+  inspect(locked_data[7].to_int(), content="0")
 }
 
 ///|
@@ -142,6 +163,12 @@ test "context painting and page methods propagate cairo error" {
   expect_painting_invalid_matrix(
     @cairoon.run_cairo(() => ctx.set_source_rgb(1.0, 0.0, 0.0)),
   )
+  expect_painting_invalid_matrix(
+    @cairoon.run_cairo(() => ctx.set_source_rgba(1.0, 0.0, 0.0, 0.5)),
+  )
+  expect_painting_invalid_matrix(
+    @cairoon.run_cairo(() => ctx.set_source(pattern)),
+  )
   expect_painting_invalid_matrix(@cairoon.run_cairo(() => ctx.paint()))
   expect_painting_invalid_matrix(
     @cairoon.run_cairo(() => ctx.paint_with_alpha(0.5)),
@@ -153,7 +180,9 @@ test "context painting and page methods propagate cairo error" {
   expect_painting_invalid_matrix(
     @cairoon.run_cairo(() => ctx.set_source_surface(mask_surface)),
   )
+  expect_painting_invalid_matrix(@cairoon.run_cairo(() => ctx.fill()))
   expect_painting_invalid_matrix(@cairoon.run_cairo(() => ctx.fill_preserve()))
+  expect_painting_invalid_matrix(@cairoon.run_cairo(() => ctx.stroke()))
   expect_painting_invalid_matrix(
     @cairoon.run_cairo(() => ctx.stroke_preserve()),
   )

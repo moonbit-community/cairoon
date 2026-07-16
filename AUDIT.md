@@ -3212,9 +3212,15 @@ declarations. Context paths contribute all 17 construction, current-point,
 copy, flatten, and append declarations. Context clipping/extents contribute all
 11 clip-state, rectangle-export, geometry-bound, and hit-test declarations. The
 Context matrix slice contributes all 11 CTM composition, replacement, snapshot,
-and point/distance conversion declarations. The current exact baseline is
-therefore 324 documented declarations and 255 grandfathered documentation-debt
-entries.
+and point/distance conversion declarations. The Context source/painting/page
+slice contributes all 14 source installation, masking, paint, fill, stroke, and
+page-emission declarations. Its seven-test black-box package now additionally
+locks color-component clamping, source-pattern user-space binding across later
+CTM changes, and checked sticky-error propagation through every public method;
+existing pixel, offset, preserve/consume, lifetime, and direct-C multi-page
+oracles cover the rest of the documented contract. The current exact baseline
+is therefore 338 documented declarations and 241 grandfathered
+documentation-debt entries.
 
 `scripts/check-public-docs.py` parses the audited declaration forms and checks
 the sorted debt ledger in both directions: a new undocumented declaration,
