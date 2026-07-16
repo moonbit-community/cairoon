@@ -144,8 +144,14 @@ test "backend docs: PDF metadata page labels and outlines" {
 ## PostScript And SVG Settings
 
 PS exposes level restriction, EPS mode, page sizing, and DSC comments. SVG
-exposes version restriction and document units. As with PDF, raw helpers are
-reserved for pycairo-compatible integer enum migration paths.
+surfaces use point-sized pages, must be version-restricted before drawing, and
+can label the root width/height with a document unit without rescaling drawing
+coordinates. Document-unit APIs require cairoon's Cairo 1.15.10 compatibility
+floor or Cairo 1.16 and newer. Historical defaults vary between user units and
+points, so portable output sets the unit explicitly. As with PDF, raw helpers
+preserve pycairo-compatible integer enum paths. The tested positive sentinel
+`99` is a no-op on exact Cairo 1.15.10 and 1.18.4; other out-of-range SVG
+restriction/unit integers are unsupported.
 
 ```mbt check
 ///|
@@ -181,6 +187,10 @@ test "backend docs: PS level EPS DSC and SVG document units" {
   svg.svg_set_document_unit_raw(3)
   inspect(svg.svg_get_document_unit_raw(), content="3")
   debug_inspect(svg.svg_get_document_unit(), content="SvgUnitPx")
+  svg.svg_set_document_unit_raw(99)
+  inspect(svg.svg_get_document_unit_raw(), content="3")
+  svg.svg_restrict_to_version_raw(99)
+  debug_inspect(svg.status(), content="Success")
   backend_docs_paint_blue_and_finish(svg)
 }
 ```

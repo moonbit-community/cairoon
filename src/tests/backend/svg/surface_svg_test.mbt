@@ -28,9 +28,12 @@ test "svg version helpers expose cairo-supported versions" {
   inspect(versions.any(item => item == version), content="true")
   inspect(version.to_string().contains("SVG"), content="true")
   inspect(@cairoon.SVGVersion::to_string_raw(0).contains("SVG"), content="true")
-  match @cairoon.run_cairo(() => @cairoon.SVGVersion::to_string_raw(99)) {
-    Err(@cairoon.CairoError(@cairoon.InvalidStatus, _)) => ()
-    _ => @test.fail("expected InvalidStatus for invalid raw SVG version")
+  for invalid in [-1, 99] {
+    match
+      @cairoon.run_cairo(() => @cairoon.SVGVersion::to_string_raw(invalid)) {
+      Err(@cairoon.CairoError(@cairoon.InvalidStatus, _)) => ()
+      _ => @test.fail("expected InvalidStatus for invalid raw SVG version")
+    }
   }
 }
 
@@ -40,6 +43,10 @@ test "svg surface exposes pycairo-compatible raw C-int backend enums" {
   surface.svg_set_document_unit_raw(3)
   inspect(surface.svg_get_document_unit_raw(), content="3")
   debug_inspect(surface.svg_get_document_unit(), content="SvgUnitPx")
+  surface.svg_set_document_unit_raw(99)
+  inspect(surface.svg_get_document_unit_raw(), content="3")
+  surface.svg_restrict_to_version_raw(99)
+  debug_inspect(surface.status(), content="Success")
   surface.svg_restrict_to_version_raw(1)
   surface.finish()
   expect_svg_surface_finished(

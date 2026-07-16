@@ -1,4 +1,11 @@
 ///|
+/// Create an owning SVG surface with a page size measured in points.
+///
+/// One point is 1/72 inch. `None` creates a queryable/drawable no-output
+/// surface; `Some(path)` writes UTF-8 SVG to that file and rejects embedded NUL
+/// with `CairoInvalidArgument(InvalidString, _)`. Call `finish` to finalize the
+/// document and surface any write error. This requires Cairo's SVG backend
+/// (`CAIRO_HAS_SVG_SURFACE`, available since Cairo 1.2).
 pub fn Surface::svg(
   width_in_points : Double,
   height_in_points : Double,
@@ -18,6 +25,14 @@ pub fn Surface::svg(
 }
 
 ///|
+/// Create an owning SVG surface that sends encoded output to `writer`.
+///
+/// Width and height are points. Cairoon retains the writer until the Surface is
+/// collected and passes it independent `Bytes` chunks that remain valid after
+/// each callback. Return `Success` to continue; non-success statuses are raised
+/// by the drawing or `finish` operation, and invalid status integers become
+/// `CairoIOError(WriteError, _)`. Construction failures release the writer only
+/// after Cairo can no longer invoke it.
 pub fn Surface::svg_stream(
   width_in_points : Double,
   height_in_points : Double,
@@ -37,6 +52,11 @@ pub fn Surface::svg_stream(
 }
 
 ///|
+/// Return a fresh array of SVG versions supported by the linked Cairo build.
+///
+/// The result is copied from Cairo's static version table and can be mutated by
+/// the caller. An unavailable SVG backend raises
+/// `CairoError(InvalidStatus, _)`.
 pub fn SVGVersion::supported() -> Array[SVGVersion] raise CairoError {
   let status = Ref(0)
   let count = @svg_impl.get_version_count_raw(status)
@@ -51,6 +71,10 @@ pub fn SVGVersion::supported() -> Array[SVGVersion] raise CairoError {
 }
 
 ///|
+/// Return a copied Cairo display string for this SVG version.
+///
+/// The result does not borrow Cairo storage. Backend or conversion failures are
+/// reported as checked `CairoError` values.
 pub fn SVGVersion::to_string(self : SVGVersion) -> String raise CairoError {
   let status = Ref(0)
   let text = @svg_impl.version_to_string_raw(self.to_raw(), status)
@@ -59,6 +83,11 @@ pub fn SVGVersion::to_string(self : SVGVersion) -> String raise CairoError {
 }
 
 ///|
+/// Convert a pycairo-compatible `cairo_svg_version_t` integer to text.
+///
+/// Portable values are `0` (SVG 1.1) and `1` (SVG 1.2). Unknown positive or
+/// negative integers raise `CairoError(InvalidStatus, _)`; the returned string
+/// is copied into MoonBit-owned storage.
 pub fn SVGVersion::to_string_raw(version : Int) -> String raise CairoError {
   let status = Ref(0)
   let text = @svg_impl.version_to_string_raw(version, status)
@@ -125,6 +154,12 @@ fn SVGUnit::to_raw(self : SVGUnit) -> Int {
 }
 
 ///|
+/// Restrict this document to `version` before performing any drawing.
+///
+/// Cairo otherwise defaults to its backend version. Calling this after output
+/// has begun has backend-defined results, so set it immediately after
+/// construction. Finished and non-SVG surfaces raise `SurfaceFinished` and
+/// `SurfaceTypeMismatch` respectively.
 pub fn Surface::svg_restrict_to_version(
   self : Surface,
   version : SVGVersion,
@@ -135,6 +170,13 @@ pub fn Surface::svg_restrict_to_version(
 }
 
 ///|
+/// Restrict SVG output using an exact pycairo-compatible C integer.
+///
+/// Values `0` and `1` select SVG 1.1 and 1.2. The positive sentinel `99`
+/// crosses the raw ABI unchanged and is observed as a no-op on Cairo 1.15.10
+/// and 1.18.4. Other out-of-range values are unsupported; use the typed method
+/// unless preserving tested C-int behavior is required. The same timing and
+/// checked receiver errors apply.
 pub fn Surface::svg_restrict_to_version_raw(
   self : Surface,
   version : Int,
@@ -145,6 +187,12 @@ pub fn Surface::svg_restrict_to_version_raw(
 }
 
 ///|
+/// Return the unit used for the generated SVG root width and height.
+///
+/// This API is present at cairoon's Cairo 1.15.10 compatibility floor and in
+/// Cairo 1.16 or newer. Historical Cairo builds may default to `SvgUnitUser` or
+/// `SvgUnitPt`; call `svg_set_document_unit` for deterministic output.
+/// Finished and non-SVG receivers raise checked Surface errors.
 pub fn Surface::svg_get_document_unit(
   self : Surface,
 ) -> SVGUnit raise CairoError {
@@ -152,6 +200,11 @@ pub fn Surface::svg_get_document_unit(
 }
 
 ///|
+/// Return the exact `cairo_svg_unit_t` integer for this document.
+///
+/// Values `0` through `9` correspond to `SvgUnitUser` through
+/// `SvgUnitPercent`. The result follows the same version requirement and
+/// checked receiver behavior as `svg_get_document_unit`.
 pub fn Surface::svg_get_document_unit_raw(
   self : Surface,
 ) -> Int raise CairoError {
@@ -162,6 +215,12 @@ pub fn Surface::svg_get_document_unit_raw(
 }
 
 ///|
+/// Set the unit written on the SVG root width and height attributes.
+///
+/// This does not rescale drawing coordinates. Cairo permits the call before it
+/// generates the document, but setting it immediately after construction keeps
+/// intent unambiguous. The API requires Cairo 1.15.10/1.16 or newer; finished
+/// and non-SVG receivers raise checked Surface errors.
 pub fn Surface::svg_set_document_unit(
   self : Surface,
   unit : SVGUnit,
@@ -172,6 +231,13 @@ pub fn Surface::svg_set_document_unit(
 }
 
 ///|
+/// Set the document unit from an exact pycairo-compatible C integer.
+///
+/// Portable values are `0` through `9`. The positive sentinel `99` crosses the
+/// raw ABI unchanged and is observed as a no-op on Cairo 1.15.10 and 1.18.4;
+/// other out-of-range values are unsupported. Prefer the typed method for new
+/// code. Unit effects, version requirements, and checked receiver errors match
+/// `svg_set_document_unit`.
 pub fn Surface::svg_set_document_unit_raw(
   self : Surface,
   unit : Int,

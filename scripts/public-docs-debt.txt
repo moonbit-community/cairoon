@@ -38,14 +38,3 @@ src/ps_surface.mbt	Surface::ps_restrict_to_level_raw
 src/ps_surface.mbt	Surface::ps_set_eps
 src/ps_surface.mbt	Surface::ps_set_size
 src/ps_surface.mbt	Surface::ps_stream
-src/svg_surface.mbt	SVGVersion::supported
-src/svg_surface.mbt	SVGVersion::to_string
-src/svg_surface.mbt	SVGVersion::to_string_raw
-src/svg_surface.mbt	Surface::svg
-src/svg_surface.mbt	Surface::svg_get_document_unit
-src/svg_surface.mbt	Surface::svg_get_document_unit_raw
-src/svg_surface.mbt	Surface::svg_restrict_to_version
-src/svg_surface.mbt	Surface::svg_restrict_to_version_raw
-src/svg_surface.mbt	Surface::svg_set_document_unit
-src/svg_surface.mbt	Surface::svg_set_document_unit_raw
-src/svg_surface.mbt	Surface::svg_stream

@@ -3445,6 +3445,34 @@ and package-isolated ASan/LSan runs. Those dynamic tests cover callback lifetime
 but do not fault-inject Cairo's user-data allocation. No production FFI symbol
 or public MoonBit signature changed.
 
+## SVG Surface Contract And Documentation Audit
+
+The 2026-07-16 SVG audit completed substantive docs for all 11 public
+declarations. File and stream constructors specify point-sized pages, optional
+output, retained writer ownership, copied callback chunks, and finish-time
+error reporting. Version helpers specify copied arrays and strings plus exact
+raw invalid-value behavior. Restriction and document-unit methods now record
+the before-drawing timing rule, root-size-only unit effect, Cairo 1.15.10
+development-floor/1.16 stable API boundary, historical default-unit variance,
+and checked finished/subtype errors.
+
+The focused package now checks both negative and positive invalid raw version
+strings. It also proves the linked Cairo behavior intentionally exposed by raw
+methods: unknown unit `99` preserves the previously selected pixel unit, and
+unknown version restriction `99` is a no-op that leaves Surface status at
+`Success`. This evidence does not generalize to other out-of-range integers,
+which remain unsupported. Typed methods are exhaustive and are the portable
+default.
+
+`scripts/check-public-docs.py` reports 541 documented declarations and 38 exact
+debt entries. Exact Linux Cairo 1.15.10 and 1.18.4 each pass the 6/6 SVG package,
+63/63 executable docs, 798/798 complete native suite, 90/90 script checks, both
+1/1 downstream consumer paths, all 602 publication members, and every package
+under ASan/LSan. The sole suppression is the independently reproduced Cairo
+recording-snapshot leak: 16 allocations/7424 bytes on 1.15.10 and 16
+allocations/9344 bytes on 1.18.4. No public signature or production FFI symbol
+changed.
+
 ## Downstream Consumer Evidence
 
 The 2026-07-15 local release gate now includes a separately named MoonBit
