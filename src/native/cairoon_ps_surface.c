@@ -78,14 +78,22 @@ CairoonSurface *cairoon_ps_surface_create_for_stream(
     return cairoon_surface_wrap_owned(NULL);
   }
 
-  status = cairoon_stream_attach(surface, state);
+  status = cairo_surface_status(surface);
   if (status != CAIRO_STATUS_SUCCESS) {
     cairo_surface_destroy(surface);
+    cairoon_stream_state_destroy(state);
     *status_out = status;
     return cairoon_surface_wrap_owned(NULL);
   }
 
-  *status_out = cairo_surface_status(surface);
+  status = cairoon_stream_attach(surface, state);
+  if (status != CAIRO_STATUS_SUCCESS) {
+    cairo_surface_destroy(surface);
+    cairoon_stream_state_destroy(state);
+    *status_out = status;
+    return cairoon_surface_wrap_owned(NULL);
+  }
+
   return cairoon_surface_wrap_owned(surface);
 #else
   (void)callback;

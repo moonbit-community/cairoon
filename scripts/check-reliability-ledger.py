@@ -70,6 +70,7 @@ VERIFY_COMMANDS = (
     "python3 ./scripts/check-source-size-budget.py",
     "./scripts/configure-link-flags.sh --check",
     "python3 ./scripts/check-ffi-ownership.py",
+    "python3 ./scripts/check-stream-cleanup.py",
     "python3 ./scripts/check-api-inventory.py",
     "python3 ./scripts/check-public-docs.py",
     "python3 ./scripts/check-pycairo-test-parity.py",

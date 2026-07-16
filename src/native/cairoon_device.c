@@ -92,12 +92,14 @@ CairoonDevice *cairoon_script_device_create_for_stream(
   }
   *status_out = cairo_device_status(device);
   if (*status_out != CAIRO_STATUS_SUCCESS) {
+    cairo_device_destroy(device);
     cairoon_stream_state_destroy(state);
-    return cairoon_device_wrap_owned(device);
+    return cairoon_device_wrap_owned(NULL);
   }
   *status_out = cairoon_stream_attach_device(device, state);
   if (*status_out != CAIRO_STATUS_SUCCESS) {
     cairo_device_destroy(device);
+    cairoon_stream_state_destroy(state);
     return cairoon_device_wrap_owned(NULL);
   }
   return cairoon_device_wrap_owned(device);

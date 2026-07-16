@@ -14,6 +14,18 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 
 ## Recent Audit Deltas
 
+- 2026-07-16: Stream constructor failure ownership is now explicit and
+  executable. PDF/PS/SVG surfaces and ScriptDevice keep the owned writer state
+  alive until a partially constructed Cairo producer is destroyed, then release
+  it exactly once; the shared attach helpers consume state only after successful
+  user-data attachment. `scripts/check-stream-cleanup.py` statically pins the
+  successful transfer plus native-status and attachment-failure order for all
+  four constructors, with seven negative mutations and one passing baseline
+  raising the script suite to 90. On exact Cairo 1.15.10 and 1.18.4, stream
+  surfaces pass 16/16, ScriptDevice passes 19/19, and stream lifetime stress
+  passes 2/2 in both ordinary and package-isolated ASan/LSan runs. These dynamic
+  runs cover callback lifetime but do not inject Cairo allocator failure.
+  Production FFI symbols and public API remain unchanged.
 - 2026-07-16: All 8 RecordingSurface and TeeSurface declarations now document
   native and MoonBit owner edges, recording-space extents and snapshots,
   typed/raw content behavior, indexed-result ownership, sticky removal errors,

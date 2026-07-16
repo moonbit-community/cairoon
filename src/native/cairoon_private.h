@@ -132,6 +132,7 @@ cairo_status_t cairoon_stream_write(
   void *closure,
   const unsigned char *data,
   unsigned int length);
+/* Attach consumes state only on success; callers retain it on failure. */
 cairo_status_t cairoon_stream_attach(cairo_surface_t *surface, void *state);
 cairo_status_t cairoon_stream_attach_device(cairo_device_t *device, void *state);
 void cairoon_stream_state_destroy(void *state);

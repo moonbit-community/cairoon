@@ -3418,6 +3418,33 @@ contains commit `715aaa6`, which limits exact byte equivalence to PS/SVG and
 checks stable PDF structure markers instead. The matching wide-scene filter
 passes 4/4 under local ASan, including the formerly failing PDF stream case.
 
+## Stream Constructor Failure Ownership Audit
+
+The 2026-07-16 stream audit found a failure-order defect shared by PDF, PS, and
+SVG stream surfaces plus ScriptDevice. Their `#owned` writer state was passed to
+the new Cairo producer before it could be attached as user data. If attachment
+failed, `cairoon_stream_attach` released the state immediately and the caller
+then destroyed the producer. Backend destruction can still invoke its writer,
+so this rare allocation-failure path could call through freed MoonBit state.
+
+The attach helpers now consume state only on successful user-data attachment.
+All four constructors check native status before attachment. A native-status or
+attachment failure destroys the Surface/Device while the callback state is
+still valid, then releases that state exactly once and returns a null raw owner
+with the original status. Null native-construction failures still release state
+directly because no producer exists.
+
+`scripts/check-stream-cleanup.py` independently parses these five native files
+and statically pins successful ownership transfer plus failure cleanup order; it
+is separate from the already-large FFI checker. Seven negative mutations reject
+missing or malformed attachment, helper-side failure consumption, missing
+status cleanup, and reversed Surface/Device order; one passing baseline raises
+the script suite to 90/90. Both exact Linux Cairo 1.15.10 and 1.18.4 pass 16/16
+stream-surface, 19/19 ScriptDevice, and 2/2 stream-lifetime tests in ordinary
+and package-isolated ASan/LSan runs. Those dynamic tests cover callback lifetime
+but do not fault-inject Cairo's user-data allocation. No production FFI symbol
+or public MoonBit signature changed.
+
 ## Downstream Consumer Evidence
 
 The 2026-07-15 local release gate now includes a separately named MoonBit

@@ -73,10 +73,10 @@ Evaluate each slice with this scorecard:
 |---|---|---|
 | API surface | Public entries appear in `src/pkg.generated.mbti`; Python-only pycairo APIs are recorded as `Decision`; `scripts/check-api-inventory.py` passes against parent `cairo/__init__.pyi` | Strong for current portable APIs; all pycairo public top-level entries, top-level constants, and 255 portable class methods are mapped to public MoonBit API anchors or explicit product decisions |
 | Reliability ledger | `API_INVENTORY.md` statuses are `Done`, `Partial`, or `Decision`; every `Partial` row names its remaining gap; this scorecard and CI/verify gate are checked by `scripts/check-reliability-ledger.py` | Exact for current migrated slices; the two remaining `Partial` rows name public documentation debt and shipped release-platform evidence, and the full-product claim still requires both to reach `Done` or an explicit scope `Decision` |
-| FFI boundary safety | Production raw `src/**/ffi*.mbt` declarations are native-gated in their owning `moon.pkg`, mark every non-primitive C FFI parameter with `#borrow` or `#owned`, and `scripts/check-project-layout.py` plus `scripts/check-ffi-ownership.py` pass | Strong for current raw externs, including internal helper packages; the ownership gate also enforces Device, Surface, and mapped-image cleanup order plus scoped-error precedence, and both lints run in the local and CI verify gate |
+| FFI boundary safety | Production raw `src/**/ffi*.mbt` declarations are native-gated in their owning `moon.pkg`, mark every non-primitive C FFI parameter with `#borrow` or `#owned`, and `scripts/check-project-layout.py`, `scripts/check-ffi-ownership.py`, plus `scripts/check-stream-cleanup.py` pass | Strong for current raw externs, including internal helper packages; the ownership gates enforce Device, Surface, mapped-image, and stream-constructor cleanup order plus scoped-error precedence, and all lints run in the local and CI verify gate |
 | Behavioral parity | pycairo-derived black-box cases or direct C Cairo primitive oracles cover normal and invalid inputs | Strong for image, context, path, font, pattern, region, surface/device, and backend helpers already listed in the inventory; all 288 tests from all 20 upstream test files are pinned and mapped to 197 family-local MoonBit runtime anchors, 291 required generated static API anchors, 29 deliberately absent signatures, 4 explicit inventory decisions, and 1 mandatory static verify gate |
 | Rendering parity | Deterministic image pixels or normalized PDF/PS/SVG bytes match direct C Cairo output | Strong for the portable migration scope. Scene 66 closes Cairo 1.18's finite tag-attribute contract across URI, multi-rectangle, destination, page-position, external-file, content, and content-reference cases; it joins the enumerated image and vector fixtures with file/stream/direct-C comparisons and stable positive or negative backend markers |
-| Lifetime safety | External-object ownership, borrowed returns, callback retention, and error exits run under ASan/LSan or stress tests | Strong for the current portable scope: Linux runs every MoonBit package in a separate ASan/LSan process; the only suppression is a pure-C-probe-verified Cairo recording-snapshot function in the vector oracle package, while all other packages remain unsuppressed |
+| Lifetime safety | External-object ownership, borrowed returns, callback retention, and error exits run under ASan/LSan or stress tests | Strong for the current portable scope: Linux runs every MoonBit package in a separate ASan/LSan process; stream constructors retain callback state until partial native producers are destroyed on failure, and the only suppression is a pure-C-probe-verified Cairo recording-snapshot function in the vector oracle package while all other packages remain unsuppressed |
 | Callback safety | C-held MoonBit callbacks and callback arguments are retained across the callback invocation and released deterministically | Strong for stream writers/readers and raster-source callbacks covered by current stress/fuzz tests; reentrant raster registration changes are deferred until the old acquire/release pairs finish, with ASan and retained-owner regressions for clear from both callback directions |
 | Portability | Required backends pass on each supported platform, or unsupported APIs have explicit `Decision` rows | Strong local evidence at the exact Cairo 1.15.10 compatibility floor and recommended 1.18.4 release, plus the host lane; still Partial until the release commit's shipped Ubuntu/macOS CI jobs pass |
 | Documentation | Public declarations have substantive MoonBit `///` comments, family workflows have executable examples where practical, and `scripts/check-public-docs.py` reports zero debt | Partial: executable family notes exist and 530 foundational, pure geometry/value, published-support, Region, FontOptions, FontFace, ScaledFont, Device/script, ImageData/ImageSurface/MappedImageSurface, complete Context, complete Pattern, complete base Surface, RecordingSurface, and TeeSurface declarations are documented, but the corrected exact grandfather ledger still contains 49 of 579 public declarations; new undocumented APIs and ledger drift fail the gate |
@@ -4347,6 +4347,26 @@ allocations/7424 bytes on Cairo 1.15.10 and 16 allocations/9344 bytes on Cairo
 libcairo symbols, and `src/pkg.generated.mbti` remains byte-for-byte unchanged
 at SHA-256
 `6c647f7e0c12188c36330a66681141a4449558884ce948d2c74e462a91b2f0f3`.
+
+The subsequent stream-constructor ownership audit found that shared
+`cairoon_stream_attach` helpers released an owned callback state immediately
+when Cairo user-data attachment failed. PDF/PS/SVG and ScriptDevice callers then
+destroyed the partially constructed native producer, whose backend finalizer
+could still invoke the now-freed writer. Attachment helpers now consume state
+only on success. Every constructor checks native status before attachment and,
+on either status or attachment failure, destroys the native producer while the
+state is live before releasing that state exactly once.
+
+The dedicated `scripts/check-stream-cleanup.py` makes the required transfer and
+failure order a static release gate without enlarging the existing FFI checker.
+Seven negative mutations reject missing or malformed attachment, helper-side
+failure consumption, missing pre-attach status checks, and reversed Surface or
+Device cleanup; one passing baseline raises the script suite to 90/90. On exact
+Linux Cairo 1.15.10 and 1.18.4, stream surfaces pass 16/16, ScriptDevice passes
+19/19, and stream lifetime stress passes 2/2 in ordinary and package-isolated
+ASan/LSan runs. These dynamic tests cover callback lifetime but do not inject
+Cairo user-data allocation failure. Public API and the 349-local-plus-two-direct
+symbol production FFI boundary are unchanged.
 
 Remaining reliability work is now narrower and should be tracked as evidence,
 not as an unstructured checklist:
