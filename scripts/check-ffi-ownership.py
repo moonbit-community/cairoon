@@ -53,6 +53,10 @@ RAW_OBJECT_TYPES = {
     "RawSurface",
     "RawTextToGlyphs",
 }
+DEVICE_CLEANUP_CALLS = {
+    "cairoon_device_finish": "cairo_device_finish",
+    "cairoon_device_release": "cairo_device_release",
+}
 
 
 def split_top_level(text: str) -> list[str]:
@@ -224,8 +228,146 @@ def native_export_symbols() -> dict[str, list[str]]:
     return exports
 
 
+def braced_body(text: str, start: int) -> str | None:
+    depth = 0
+    for index in range(start, len(text)):
+        char = text[index]
+        if char == "{":
+            depth += 1
+        elif char == "}":
+            depth -= 1
+            if depth == 0:
+                return text[start + 1 : index]
+    return None
+
+
+def c_function_body(text: str, symbol: str) -> str | None:
+    match = re.search(rf"\b{re.escape(symbol)}\s*\([^{{]*\)\s*{{", text)
+    if match is None:
+        return None
+    return braced_body(text, text.find("{", match.start()))
+
+
+def mbt_method_body(text: str, symbol: str) -> str | None:
+    match = re.search(
+        rf"^\s*pub\s+fn(?:\[[^]]+\])?\s+{re.escape(symbol)}\s*\(",
+        text,
+        re.MULTILINE,
+    )
+    if match is None:
+        return None
+    start = text.find("{", match.end())
+    if start < 0:
+        return None
+    return braced_body(text, start)
+
+
+def check_device_cleanup_order() -> list[str]:
+    path = NATIVE_ROOT / "cairoon_device.c"
+    text = path.read_text(encoding="utf-8")
+    errors: list[str] = []
+    for wrapper, cleanup in DEVICE_CLEANUP_CALLS.items():
+        body = c_function_body(text, wrapper)
+        if body is None:
+            errors.append(f"{path}: cannot find complete body for '{wrapper}'")
+            continue
+        cleanup_match = re.search(
+            rf"\b{re.escape(cleanup)}\s*\(\s*device->ptr\s*\)\s*;", body
+        )
+        if cleanup_match is None:
+            errors.append(
+                f"{path}: '{wrapper}' must call {cleanup}(device->ptr)"
+            )
+            continue
+        before_cleanup = body[: cleanup_match.start()]
+        after_cleanup = body[cleanup_match.end() :]
+        if not re.search(
+            r"if\s*\(\s*device\s*==\s*NULL\s*\|\|\s*"
+            r"device->ptr\s*==\s*NULL\s*\)\s*\{\s*"
+            r"return\s+CAIRO_STATUS_NULL_POINTER\s*;\s*\}",
+            before_cleanup,
+        ):
+            errors.append(
+                f"{path}: '{wrapper}' must reject a null wrapper or pointer "
+                "before cleanup"
+            )
+        if len(re.findall(r"\breturn\b", before_cleanup)) != 1:
+            errors.append(
+                f"{path}: '{wrapper}' may only return for a null pointer "
+                "before cleanup"
+            )
+        if re.search(r"\bcairo(?:on)?_device_status\s*\(", before_cleanup):
+            errors.append(
+                f"{path}: '{wrapper}' must not let sticky device status skip "
+                f"{cleanup}(device->ptr)"
+            )
+        if not re.search(
+            r"return\s+cairo_device_status\s*\(\s*device->ptr\s*\)\s*;",
+            after_cleanup,
+        ):
+            errors.append(
+                f"{path}: '{wrapper}' must report device status after cleanup"
+            )
+    return errors
+
+
+def check_device_scope_cleanup() -> list[str]:
+    path = PACKAGE_ROOT / "device.mbt"
+    text = path.read_text(encoding="utf-8")
+    errors: list[str] = []
+    methods = {
+        "Device::with_acquired": ("release_raw", "release"),
+        "Device::with_finished": ("finish_raw", "finish"),
+    }
+    for method, (raw_cleanup, checked_cleanup) in methods.items():
+        body = mbt_method_body(text, method)
+        if body is None:
+            errors.append(f"{path}: cannot find complete body for '{method}'")
+            continue
+        parts = body.split("} noraise {", maxsplit=1)
+        if len(parts) != 2:
+            errors.append(f"{path}: '{method}' must have catch and noraise paths")
+            continue
+        error_path, success_path = parts
+        raw_match = re.search(
+            rf"let\s+_\s*=\s*@device_impl\.{raw_cleanup}\s*\(\s*"
+            r"self\.to_raw\s*\(\s*\)\s*\)",
+            error_path,
+        )
+        raise_match = re.search(r"\braise\s+err\b", error_path)
+        if raw_match is None:
+            errors.append(
+                f"{path}: '{method}' error path must attempt "
+                f"@device_impl.{raw_cleanup} and ignore cleanup status"
+            )
+        if re.search(
+            rf"\bself\.{checked_cleanup}\s*\(\s*\)", error_path
+        ):
+            errors.append(
+                f"{path}: '{method}' error path must not let checked "
+                f"{checked_cleanup} replace the closure error"
+            )
+        if raw_match is not None and (
+            raise_match is None or raw_match.start() > raise_match.start()
+        ):
+            errors.append(
+                f"{path}: '{method}' must attempt cleanup before re-raising "
+                "the closure error"
+            )
+        if not re.search(
+            rf"\bself\.{checked_cleanup}\s*\(\s*\)", success_path
+        ):
+            errors.append(
+                f"{path}: '{method}' success path must report checked "
+                f"{checked_cleanup} failures"
+            )
+    return errors
+
+
 def main() -> int:
     errors: list[str] = []
+    errors.extend(check_device_cleanup_order())
+    errors.extend(check_device_scope_cleanup())
     files = iter_production_ffi_files()
     declarations: dict[str, list[str]] = {}
     for path in files:

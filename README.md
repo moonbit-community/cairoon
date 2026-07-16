@@ -158,7 +158,7 @@ The gate checks formatting, Cairo link-flag drift, project layout, FFI
 ownership annotations, API inventory and public-documentation coverage, the
 reliability ledger, native type checking, all 20 pinned pycairo test-file
 families (288 upstream tests),
-784 in-module MoonBit tests, one isolated downstream-module import/link/render
+785 in-module MoonBit tests, one isolated downstream-module import/link/render
 test against both the checkout and extracted publication zip,
 publication-archive isolation, executable docs, direct C Cairo oracle tests,
 `moon info`, and ASan/LSan when an ASan-capable compiler is available.

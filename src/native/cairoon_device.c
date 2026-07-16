@@ -141,9 +141,8 @@ cairo_device_type_t cairoon_device_get_type(
 
 MOONBIT_FFI_EXPORT
 cairo_status_t cairoon_device_finish(CairoonDevice *device) {
-  cairo_status_t status = cairoon_device_status(device);
-  if (status != CAIRO_STATUS_SUCCESS) {
-    return status;
+  if (device == NULL || device->ptr == NULL) {
+    return CAIRO_STATUS_NULL_POINTER;
   }
   cairo_device_finish(device->ptr);
   return cairo_device_status(device->ptr);
@@ -170,9 +169,8 @@ cairo_status_t cairoon_device_acquire(CairoonDevice *device) {
 
 MOONBIT_FFI_EXPORT
 cairo_status_t cairoon_device_release(CairoonDevice *device) {
-  cairo_status_t status = cairoon_device_status(device);
-  if (status != CAIRO_STATUS_SUCCESS) {
-    return status;
+  if (device == NULL || device->ptr == NULL) {
+    return CAIRO_STATUS_NULL_POINTER;
   }
   cairo_device_release(device->ptr);
   return cairo_device_status(device->ptr);

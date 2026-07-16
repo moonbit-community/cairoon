@@ -153,6 +153,23 @@ test "script device with_finished finishes after success and cairo errors" {
 }
 
 ///|
+test "device with_acquired preserves closure errors and remains usable" {
+  let acquired = @cairoon.Device::script(
+    "/tmp/cairoon_script_device_acquired_error.cs",
+  )
+  expect_device_invalid_string(
+    @cairoon.run_cairo(() => {
+      acquired.with_acquired(() => {
+        acquired.script_write_comment("bad\u{0}comment")
+      })
+    }),
+  )
+  acquired.acquire()
+  acquired.release()
+  acquired.finish()
+}
+
+///|
 test "script stream device writes output chunks" {
   let chunks : Array[Bytes] = []
   let device = @cairoon.Device::script_stream(fn(chunk) {

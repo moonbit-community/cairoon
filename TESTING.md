@@ -73,13 +73,13 @@ Evaluate each slice with this scorecard:
 |---|---|---|
 | API surface | Public entries appear in `src/pkg.generated.mbti`; Python-only pycairo APIs are recorded as `Decision`; `scripts/check-api-inventory.py` passes against parent `cairo/__init__.pyi` | Strong for current portable APIs; all pycairo public top-level entries, top-level constants, and 255 portable class methods are mapped to public MoonBit API anchors or explicit product decisions |
 | Reliability ledger | `API_INVENTORY.md` statuses are `Done`, `Partial`, or `Decision`; every `Partial` row names its remaining gap; this scorecard and CI/verify gate are checked by `scripts/check-reliability-ledger.py` | Exact for current migrated slices; the two remaining `Partial` rows name public documentation debt and shipped release-platform evidence, and the full-product claim still requires both to reach `Done` or an explicit scope `Decision` |
-| FFI boundary safety | Production raw `src/**/ffi*.mbt` declarations are native-gated in their owning `moon.pkg`, mark every non-primitive C FFI parameter with `#borrow` or `#owned`, and `scripts/check-project-layout.py` plus `scripts/check-ffi-ownership.py` pass | Strong for current raw externs, including internal helper packages; both lints run in the local and CI verify gate |
+| FFI boundary safety | Production raw `src/**/ffi*.mbt` declarations are native-gated in their owning `moon.pkg`, mark every non-primitive C FFI parameter with `#borrow` or `#owned`, and `scripts/check-project-layout.py` plus `scripts/check-ffi-ownership.py` pass | Strong for current raw externs, including internal helper packages; the ownership gate also enforces Device cleanup order and scoped-error precedence, and both lints run in the local and CI verify gate |
 | Behavioral parity | pycairo-derived black-box cases or direct C Cairo primitive oracles cover normal and invalid inputs | Strong for image, context, path, font, pattern, region, surface/device, and backend helpers already listed in the inventory; all 288 tests from all 20 upstream test files are pinned and mapped to 197 family-local MoonBit runtime anchors, 291 required generated static API anchors, 29 deliberately absent signatures, 4 explicit inventory decisions, and 1 mandatory static verify gate |
 | Rendering parity | Deterministic image pixels or normalized PDF/PS/SVG bytes match direct C Cairo output | Strong for the portable migration scope. Scene 66 closes Cairo 1.18's finite tag-attribute contract across URI, multi-rectangle, destination, page-position, external-file, content, and content-reference cases; it joins the enumerated image and vector fixtures with file/stream/direct-C comparisons and stable positive or negative backend markers |
 | Lifetime safety | External-object ownership, borrowed returns, callback retention, and error exits run under ASan/LSan or stress tests | Strong for the current portable scope: Linux runs every MoonBit package in a separate ASan/LSan process; the only suppression is a pure-C-probe-verified Cairo recording-snapshot function in the vector oracle package, while all other packages remain unsuppressed |
 | Callback safety | C-held MoonBit callbacks and callback arguments are retained across the callback invocation and released deterministically | Strong for stream writers/readers and raster-source callbacks covered by current stress/fuzz tests |
 | Portability | Required backends pass on each supported platform, or unsupported APIs have explicit `Decision` rows | Strong local evidence at the exact Cairo 1.15.10 compatibility floor and recommended 1.18.4 release, plus the host lane; still Partial until the release commit's shipped Ubuntu/macOS CI jobs pass |
-| Documentation | Public declarations have substantive MoonBit `///` comments, family workflows have executable examples where practical, and `scripts/check-public-docs.py` reports zero debt | Partial: executable family notes exist and 357 foundational, pure geometry/value, published-support, Region, FontOptions, and complete Context declarations are documented, but the corrected exact grandfather ledger still contains 222 of 579 public declarations; new undocumented APIs and ledger drift fail the gate |
+| Documentation | Public declarations have substantive MoonBit `///` comments, family workflows have executable examples where practical, and `scripts/check-public-docs.py` reports zero debt | Partial: executable family notes exist and 377 foundational, pure geometry/value, published-support, Region, FontOptions, Device/script, and complete Context declarations are documented, but the corrected exact grandfather ledger still contains 202 of 579 public declarations; new undocumented APIs and ledger drift fail the gate |
 | Downstream consumption | A separately named MoonBit module resolves the versioned local dependency, imports only `CAIMEOX/cairoon`, supplies its own native Cairo link flags, renders through the public API against both checkout and extracted publication zip, and stays outside that archive | Strong local evidence through `integration/consumer` and `scripts/check-downstream-consumer.sh`; the zip is integrity-tested and recompiled in a fresh temporary workspace, while release CI must run the same `verify.sh` gate |
 
 The practical release rule is simple: a feature can be trusted when its
@@ -4232,7 +4232,13 @@ borrowed returns, isolated FontOptions copies, font/scaled-font round trips,
 UTF-8 and embedded-NUL handling, path/current-point behavior, empty and
 populated glyph arrays, multilingual shaping, vector text metadata, and exact
 `CairoError(InvalidClusters, _)` classification. All 121 Context declarations
-are now documented. The remaining 222 declarations are named exactly in
+are now documented. The Device/script slice adds all 20 ownership, identity,
+status/type, finish/flush, acquire/release, scoped cleanup, script mode/comment,
+recording replay, and script-surface declarations. Its lifecycle audit fixed
+native finish/release paths that could skip cleanup after sticky errors and
+made scoped error cleanup preserve the closure error; an executable static
+guard and a 19-test focused package, including ASan, pin those contracts. The
+remaining 202 declarations are named exactly in
 `scripts/public-docs-debt.txt`; that ledger may shrink but may not grow.
 
 `scripts/check-public-docs.py` fails for a new undocumented declaration, a
@@ -4240,15 +4246,16 @@ missing debt entry, a stale entry after documentation is added, duplicate or
 unsorted entries, and malformed ledger lines. Thirteen focused unit tests cover
 those parser and ledger invariants, including default-abstract versus `priv`
 types and the exact published-support scope, raising the script suite to 76/76.
-The documentation-only host replay
-covers 392 source files and passes all 784
+The Device lifecycle and documentation host replay
+covers 392 source files and passes all 785
 native tests, both 1/1 downstream consumer paths, and publication-archive
 integrity for 598 members. `src/pkg.generated.mbti` remains byte-for-byte
 unchanged at SHA-256
 `6c647f7e0c12188c36330a66681141a4449558884ce948d2c74e462a91b2f0f3`.
-Duplicate host ASan was disabled for this no-runtime-change replay; the exact
-Cairo 1.15.10 and 1.18.4 ordinary plus package-isolated ASan/LSan evidence from
-the immediately preceding runtime slice remains authoritative.
+The Device package passes 19/19 under focused host ASan; the full host replay
+disables duplicate ASan. Exact Cairo 1.15.10 and 1.18.4 ordinary plus
+package-isolated ASan/LSan evidence from the preceding release matrix remains
+authoritative for the unchanged broader binding.
 
 Remaining reliability work is now narrower and should be tracked as evidence,
 not as an unstructured checklist:
