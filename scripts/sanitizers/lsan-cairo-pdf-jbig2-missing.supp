@@ -1,0 +1,3 @@
+# Cairo PDF finish returns early for a missing JBIG2 global object.
+leak:_cairo_pdf_interchange_init
+leak:_cairo_paginated_surface_finish

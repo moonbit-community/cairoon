@@ -12,9 +12,12 @@ sys.path.insert(0, str(SANITIZER_DIR))
 from policy import asan_options, leak_detection_enabled, policy_description
 from run import (
     CLEANUP_SOURCE,
+    PDF_JBIG2_MISSING_PACKAGES,
+    PDF_JBIG2_MISSING_SUPPRESSION,
     RECORDING_SNAPSHOT_PACKAGES,
     RECORDING_SNAPSHOT_STRIPPED_SUPPRESSION,
     RECORDING_SNAPSHOT_SUPPRESSION,
+    classify_pdf_jbig2_missing_probe,
     classify_recording_snapshot_probe,
     create_compiler_wrapper,
     create_shadow_toolchain,
@@ -22,6 +25,7 @@ from run import (
     lsan_options,
     moon_test_command,
     normalize_package,
+    validate_pdf_jbig2_suppression_usage,
     validate_suppression_usage,
 )
 
@@ -111,6 +115,93 @@ class SanitizerPolicyTests(unittest.TestCase):
 
     def test_clean_recording_snapshot_probe_needs_no_suppression(self) -> None:
         self.assertIsNone(classify_recording_snapshot_probe(0, ""))
+
+    def test_clean_pdf_jbig2_probe_needs_status_sentinel(self) -> None:
+        sentinel = "CAIROON_PDF_JBIG2_STATUS=JBIG2_GLOBAL_MISSING\n"
+        self.assertIsNone(classify_pdf_jbig2_missing_probe(0, sentinel))
+        with self.assertRaisesRegex(RuntimeError, "status sentinel"):
+            classify_pdf_jbig2_missing_probe(0, "")
+
+    def test_pdf_jbig2_suppression_is_narrow(self) -> None:
+        self.assertEqual(
+            PDF_JBIG2_MISSING_PACKAGES,
+            frozenset({"src/tests/backend/pdf"}),
+        )
+        suppression_lines = [
+            line.strip()
+            for line in PDF_JBIG2_MISSING_SUPPRESSION.read_text(
+                encoding="ascii"
+            ).splitlines()
+            if line.strip() and not line.startswith("#")
+        ]
+        self.assertEqual(
+            suppression_lines,
+            [
+                "leak:_cairo_pdf_interchange_init",
+                "leak:_cairo_paginated_surface_finish",
+            ],
+        )
+
+    def test_known_pdf_jbig2_probe_signatures_are_accepted(self) -> None:
+        profiles = (
+            (
+                [304, 128, 20, 8, 344, 144],
+                [24, 8, 8],
+                988,
+                9,
+            ),
+            (
+                [304, 304, 304, 144, 20, 8, 344, 344, 344, 168],
+                [32, 24, 8, 4],
+                2352,
+                14,
+            ),
+        )
+        for interchange, paginated, total_bytes, total_count in profiles:
+            with self.subTest(total_bytes=total_bytes):
+                blocks = "".join(
+                    f"Direct leak of {size} byte(s) in 1 object(s) allocated from:\n"
+                    "    #1 0x0 in _cairo_pdf_interchange_init source.c\n"
+                    for size in interchange
+                )
+                blocks += "".join(
+                    f"Direct leak of {size} byte(s) in 1 object(s) allocated from:\n"
+                    "    #1 0x0 in _cairo_paginated_surface_finish source.c\n"
+                    for size in paginated
+                )
+                output = (
+                    "CAIROON_PDF_JBIG2_STATUS=JBIG2_GLOBAL_MISSING\n"
+                    "ERROR: LeakSanitizer: detected memory leaks\n"
+                    + blocks
+                    + f"SUMMARY: AddressSanitizer: {total_bytes} byte(s) leaked in "
+                    f"{total_count} allocation(s).\n"
+                )
+                leak = classify_pdf_jbig2_missing_probe(86, output)
+                self.assertIsNotNone(leak)
+                assert leak is not None
+                self.assertEqual(leak.total_bytes, total_bytes)
+                self.assertEqual(leak.total_allocations, total_count)
+
+    def test_unknown_pdf_jbig2_probe_signature_is_rejected(self) -> None:
+        output = (
+            "CAIROON_PDF_JBIG2_STATUS=JBIG2_GLOBAL_MISSING\n"
+            "ERROR: LeakSanitizer: detected memory leaks\n"
+            "Direct leak of 64 byte(s) in 1 object(s) allocated from:\n"
+            "    #1 0x0 in _cairo_pdf_interchange_init source.c\n"
+            "SUMMARY: AddressSanitizer: 64 byte(s) leaked in 1 allocation(s).\n"
+        )
+        with self.assertRaisesRegex(RuntimeError, "unknown sanitizer signature"):
+            classify_pdf_jbig2_missing_probe(86, output)
+
+    def test_pdf_jbig2_leak_without_status_sentinel_is_rejected(self) -> None:
+        output = (
+            "ERROR: LeakSanitizer: detected memory leaks\n"
+            "Direct leak of 304 byte(s) in 1 object(s) allocated from:\n"
+            "    #1 0x0 in _cairo_pdf_interchange_init source.c\n"
+            "SUMMARY: AddressSanitizer: 304 byte(s) leaked in 1 allocation(s).\n"
+        )
+        with self.assertRaisesRegex(RuntimeError, "status sentinel"):
+            classify_pdf_jbig2_missing_probe(86, output)
 
     def test_known_recording_snapshot_probe_signature_is_accepted(self) -> None:
         stack = (
@@ -225,6 +316,38 @@ class SanitizerPolicyTests(unittest.TestCase):
 
         with self.assertRaisesRegex(RuntimeError, "unexpected leak suppression"):
             validate_suppression_usage(output.replace("16", "17"), leak)
+
+    def test_pdf_jbig2_suppression_usage_matches_probe(self) -> None:
+        blocks = "".join(
+            f"Direct leak of {size} byte(s) in 1 object(s) allocated from:\n"
+            "    #1 0x0 in _cairo_pdf_interchange_init source.c\n"
+            for size in [304, 128, 20, 8, 344, 144]
+        )
+        blocks += "".join(
+            f"Direct leak of {size} byte(s) in 1 object(s) allocated from:\n"
+            "    #1 0x0 in _cairo_paginated_surface_finish source.c\n"
+            for size in [24, 8, 8]
+        )
+        probe_output = (
+            "CAIROON_PDF_JBIG2_STATUS=JBIG2_GLOBAL_MISSING\n"
+            "ERROR: LeakSanitizer: detected memory leaks\n"
+            + blocks
+            + "SUMMARY: AddressSanitizer: 988 byte(s) leaked in "
+            "9 allocation(s).\n"
+        )
+        leak = classify_pdf_jbig2_missing_probe(86, probe_output)
+        assert leak is not None
+        output = (
+            "-----------------------------------------------------\n"
+            "Suppressions used:\n"
+            "  count      bytes template\n"
+            "      6        948 _cairo_pdf_interchange_init\n"
+            "      3         40 _cairo_paginated_surface_finish\n"
+            "-----------------------------------------------------\n"
+        )
+        validate_pdf_jbig2_suppression_usage(output, leak)
+        with self.assertRaisesRegex(RuntimeError, "unexpected leak suppression"):
+            validate_pdf_jbig2_suppression_usage(output.replace("948", "949"), leak)
 
 
 if __name__ == "__main__":

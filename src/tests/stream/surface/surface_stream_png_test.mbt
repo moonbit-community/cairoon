@@ -104,3 +104,36 @@ test "png stream reader short read maps to cairo IO error" {
     _ => @test.fail("expected read failure from PNG stream reader")
   }
 }
+
+///|
+test "png stream reader maps corrupt image data to PngError" {
+  let input = make_png_bytes()
+  let corrupt = Bytes::makei(input.length(), fn(index) {
+    if index == 29 {
+      if input[index] == b'\x00' {
+        b'\x01'
+      } else {
+        b'\x00'
+      }
+    } else {
+      input[index]
+    }
+  })
+  let offset = Ref(0)
+  let result = @cairoon.run_cairo(() => {
+    let _ = @cairoon.Surface::image_from_png_stream(fn(length) {
+      let chunk = bytes_slice(corrupt, offset.val, length)
+      offset.val += length
+      chunk
+    })
+    ()
+  })
+  if @cairoon.CAIRO_VERSION >= 11600 {
+    match result {
+      Err(@cairoon.CairoIOError(@cairoon.PngError, _)) => ()
+      _ => @test.fail("expected PngError for a corrupt IHDR checksum")
+    }
+  } else {
+    inspect(result is Err(_), content="true")
+  }
+}

@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import pathlib
 import re
+import shlex
 import sys
 from collections.abc import Iterator
 
@@ -73,12 +74,13 @@ VERIFY_COMMANDS = (
     "python3 ./scripts/check-stream-cleanup.py",
     "python3 ./scripts/check-api-inventory.py",
     "python3 ./scripts/check-public-docs.py",
+    "python3 ./scripts/check-public-coverage.py",
     "python3 ./scripts/check-pycairo-test-parity.py",
     "python3 ./scripts/check-reliability-ledger.py",
     "python3 ./scripts/check-vector-backend-scenes.py",
-    "moon check --target native",
+    "moon check --target native --deny-warn",
     "./scripts/check-downstream-consumer.sh",
-    "moon test --target native",
+    "moon test --target native --deny-warn",
     "moon info --target native",
     "python3 ./scripts/sanitizers/run.py",
 )
@@ -164,9 +166,11 @@ def check_testing_doc() -> list[str]:
         "reliable partial binding rather than a complete pycairo migration",
         "scripts/check-reliability-ledger.py",
         "scripts/check-public-docs.py",
+        "scripts/check-public-coverage.py --analyze",
         "./scripts/test-cairo-matrix.sh cairo-1.15.10",
         "./scripts/test-cairo-matrix.sh cairo-1.18.4",
         "scripts/sanitizers/probes/cairo_recording_snapshot_probe.c",
+        "scripts/sanitizers/probes/cairo_pdf_jbig2_missing_probe.c",
     )
     for phrase in required_phrases:
         if re.sub(r"\s+", " ", phrase) not in normalized_text:
@@ -176,11 +180,25 @@ def check_testing_doc() -> list[str]:
 
 def check_verify_gate() -> list[str]:
     text = VERIFY.read_text(encoding="utf-8")
+    active_lines = shell_token_lines(text)
     errors: list[str] = []
     for command in VERIFY_COMMANDS:
-        if command not in text:
+        expected = ["run", *shlex.split(command)]
+        if expected not in active_lines:
             errors.append(f"{VERIFY}: verify gate no longer runs {command!r}")
     return errors
+
+
+def shell_token_lines(text: str) -> list[list[str]]:
+    lines: list[list[str]] = []
+    for line in text.splitlines():
+        try:
+            tokens = shlex.split(line, comments=True, posix=True)
+        except ValueError:
+            continue
+        if tokens:
+            lines.append(tokens)
+    return lines
 
 
 def check_downstream_consumer_gate() -> list[str]:
@@ -234,13 +252,22 @@ def check_local_matrix() -> list[str]:
         if marker not in matrix_text and marker not in lane_text:
             errors.append(f"{MATRIX}: local release matrix is missing {marker!r}")
 
+    coverage_command = "python3 ./scripts/check-public-coverage.py --analyze"
+    if shlex.split(coverage_command) not in shell_token_lines(lane_text):
+        errors.append(
+            f"{MATRIX}: pinned Cairo lanes must run {coverage_command!r}"
+        )
+
     sanitizer_markers = (
         "compiler_preflight",
         "probe_recording_snapshot_leak",
         "RECORDING_SNAPSHOT_PACKAGES",
+        "probe_pdf_jbig2_missing_leak",
+        "PDF_JBIG2_MISSING_PACKAGES",
         "discover_packages",
         "MOON_TOOLCHAIN_ROOT",
         "validate_suppression_usage",
+        "validate_pdf_jbig2_suppression_usage",
     )
     for marker in sanitizer_markers:
         if marker not in sanitizer_text:

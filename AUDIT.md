@@ -9,6 +9,15 @@ Implemented in this workspace:
   external docs package passes 63/63 tests, and the project-layout gate
   requires every reference to have an executable block and exact entries in
   both documentation indexes.
+- Public-package branch instrumentation is audited by
+  `scripts/check-public-coverage.py`: every portable reachable branch found by
+  the audit has a black-box test. The ledger has 53 stable source keys with
+  strict semver scopes and substantive reasons; instrumented analysis activates
+  50 exceptions on Cairo 1.15.10 and 43 on Cairo 1.18.4. The `--analyze` mode
+  selects the linked-version profile and rejects both newly uncovered lines and
+  stale exceptions. Real PDF/JBIG2 missing-global and PNG stream/file failures
+  cover the portable status paths rather than classifying them as platform
+  exceptions.
 - MoonBit native package initialization with `moon.mod` and `src/moon.pkg`.
 - System Cairo 1.18.4 linkage through `pkg-config`-derived flags, with
   `scripts/configure-link-flags.sh` to refresh `src/moon.pkg`,
@@ -16,12 +25,13 @@ Implemented in this workspace:
   `scripts/configure-link-flags.sh --check` in the local reliability gate.
 - Exact local release lanes for Cairo 1.15.10 and 1.18.4, built from pinned
   source URLs and SHA-256 digests on a pinned Ubuntu base image. Both lanes
-  pass all static gates, 800/800 native tests, 90/90 script tests, and 63/63
+  pass all static gates, 826/826 native tests, 116/116 script tests, and 63/63
   executable documentation tests with the pinned MoonBit
   `0.10.4+4f2e8f7dc-nightly` compiler. In each lane, the source-checkout and
   extracted-publication-zip consumers also pass 1/1 independently; the
-  integrity-checked publication archive contains 602 members, and every
-  discovered package passes ASan/LSan.
+  integrity-checked publication archive contains 619 members, and every
+  discovered package passes ASan/LSan. Each pinned lane also runs instrumented
+  public-facade coverage and requires the exact linked-version ledger profile.
 - Linux ASan/LSan now runs every discovered MoonBit package in a separate
   process. An intentional-leak preflight proves LSan is active; the runner
   creates a temporary `MOON_TOOLCHAIN_ROOT` with an allocator-free shadow
@@ -37,7 +47,14 @@ Implemented in this workspace:
   described below before one LSan suppression can apply. It applies only to
   `src/tests/oracle/vector_backend`. The 1.15.10 vector package reports 16
   suppressed allocations/7424 bytes; 1.18.4 reports 16 allocations/9344
-  bytes. Every other package remains unsuppressed.
+  bytes. No package other than the vector oracle uses this suppression.
+- Cairo 1.15.10 and 1.18.4 also reproduce the PDF missing-JBIG2-global finish
+  leak in a standalone C program. Only `src/tests/backend/pdf` receives the two
+  `_cairo_pdf_interchange_init`/`_cairo_paginated_surface_finish`
+  suppressions, and the runner requires exact use: 6 allocations/948 bytes plus
+  3/40 on 1.15.10, and 10/2284 plus 4/68 on 1.18.4. Any additional matching or
+  unsuppressed leak fails the package; all packages outside these two isolated
+  cases remain unsuppressed.
 - Ubuntu 24.04's stock Cairo 1.18.0 reproduces the same two 584-byte leaks but
   strips the internal function name. In that case the pure-C stack must contain
   `cairo_surface_destroy`, `cairo_pattern_destroy`, `cairo_restore`, and the

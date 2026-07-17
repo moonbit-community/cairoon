@@ -74,9 +74,9 @@ Evaluate each slice with this scorecard:
 | API surface | Public entries appear in `src/pkg.generated.mbti`; Python-only pycairo APIs are recorded as `Decision`; `scripts/check-api-inventory.py` passes against parent `cairo/__init__.pyi` | Strong for current portable APIs; all pycairo public top-level entries, top-level constants, and 255 portable class methods are mapped to public MoonBit API anchors or explicit product decisions |
 | Reliability ledger | `API_INVENTORY.md` statuses are `Done`, `Partial`, or `Decision`; every `Partial` row names its remaining gap; this scorecard and CI/verify gate are checked by `scripts/check-reliability-ledger.py` | Exact for current migrated slices; the one remaining `Partial` row names shipped release-platform evidence, and the full-product claim still requires it to reach `Done` or an explicit scope `Decision` |
 | FFI boundary safety | Production raw `src/**/ffi*.mbt` declarations are native-gated in their owning `moon.pkg`, mark every non-primitive C FFI parameter with `#borrow` or `#owned`, and `scripts/check-project-layout.py`, `scripts/check-ffi-ownership.py`, plus `scripts/check-stream-cleanup.py` pass | Strong for current raw externs, including internal helper packages; the ownership gates enforce Device, Surface, mapped-image, and stream-constructor cleanup order plus scoped-error precedence, and all lints run in the local and CI verify gate |
-| Behavioral parity | pycairo-derived black-box cases or direct C Cairo primitive oracles cover normal and invalid inputs | Strong for image, context, path, font, pattern, region, surface/device, and backend helpers already listed in the inventory; all 288 tests from all 20 upstream test files are pinned and mapped to 197 family-local MoonBit runtime anchors, 291 required generated static API anchors, 29 deliberately absent signatures, 4 explicit inventory decisions, and 1 mandatory static verify gate |
+| Behavioral parity | pycairo-derived black-box cases or direct C Cairo primitive oracles cover normal and invalid inputs | Strong for image, context, path, font, pattern, region, surface/device, and backend helpers already listed in the inventory; all 288 tests from all 20 upstream test files are pinned and mapped to 197 family-local MoonBit runtime anchors, 291 required generated static API anchors, 29 deliberately absent signatures, 4 explicit inventory decisions, and 1 mandatory static verify gate. The public-facade ledger has 53 stable source anchors with semver scopes; exact analysis activates 50 exceptions on Cairo 1.15.10 and 43 on Cairo 1.18.4, while every portable reachable branch found by the audit is covered. |
 | Rendering parity | Deterministic image pixels or normalized PDF/PS/SVG bytes match direct C Cairo output | Strong for the portable migration scope. Scene 66 closes Cairo 1.18's finite tag-attribute contract across URI, multi-rectangle, destination, page-position, external-file, content, and content-reference cases; it joins the enumerated image and vector fixtures with file/stream/direct-C comparisons and stable positive or negative backend markers |
-| Lifetime safety | External-object ownership, borrowed returns, callback retention, and error exits run under ASan/LSan or stress tests | Strong for the current portable scope: Linux runs every MoonBit package in a separate ASan/LSan process; stream constructors retain callback state until partial native producers are destroyed on failure, and the only suppression is a pure-C-probe-verified Cairo recording-snapshot function in the vector oracle package while all other packages remain unsuppressed |
+| Lifetime safety | External-object ownership, borrowed returns, callback retention, and error exits run under ASan/LSan or stress tests | Strong for the current portable scope: Linux runs every MoonBit package in a separate ASan/LSan process; stream constructors retain callback state until partial native producers are destroyed on failure. Two upstream Cairo paths have pure-C-probe-verified, exact-count suppressions isolated to the vector-oracle and PDF backend packages; every other package remains unsuppressed. |
 | Callback safety | C-held MoonBit callbacks and callback arguments are retained across the callback invocation and released deterministically | Strong for stream writers/readers and raster-source callbacks covered by current stress/fuzz tests; reentrant raster registration changes are deferred until the old acquire/release pairs finish, with ASan and retained-owner regressions for clear from both callback directions |
 | Portability | Required backends pass on each supported platform, or unsupported APIs have explicit `Decision` rows | Strong local evidence at the exact Cairo 1.15.10 compatibility floor and recommended 1.18.4 release, plus the host lane; still Partial until the release commit's shipped Ubuntu/macOS CI jobs pass |
 | Documentation | Public declarations have substantive MoonBit `///` comments, family workflows have executable examples where practical, and `scripts/check-public-docs.py` reports zero debt | Done: all 579 public declarations have substantive comments, the exact grandfather ledger is empty, executable downstream-style family notes include complete PDF/PS/SVG workflows, and new undocumented APIs or ledger drift fail the gate |
@@ -102,6 +102,7 @@ python3 cairoon/scripts/check-project-layout.py
 python3 cairoon/scripts/check-source-size-budget.py
 python3 cairoon/scripts/check-api-inventory.py
 python3 cairoon/scripts/check-public-docs.py
+python3 cairoon/scripts/check-public-coverage.py
 python3 cairoon/scripts/check-pycairo-test-parity.py
 python3 cairoon/scripts/check-ffi-ownership.py
 python3 cairoon/scripts/check-reliability-ledger.py
@@ -119,6 +120,18 @@ whenever the pycairo stub, public API, or inventory changes. Run
 `scripts/check-public-docs.py` whenever a public declaration or doc comment
 changes; its exact debt ledger must shrink in the same commit as newly added
 documentation and may never grow for a new API. Run
+`scripts/check-public-coverage.py` to validate that every exception still maps
+to the named MoonBit function and source branch. Before a release candidate or
+after public implementation/test changes, run
+`scripts/check-public-coverage.py --analyze`; it instruments every test package
+and fails on either a newly uncovered branch or a stale exception. It obtains
+the linked Cairo version from `pkg-config` and applies strict `cairo<semver` or
+`cairo>=semver` scopes. The 53 ledger anchors activate as 50 exceptions on
+Cairo 1.15.10 and 43 on Cairo 1.18.4; they are limited to linked-version
+boundaries, defensive native-value guards, backend-dependent output,
+native-result invariants, platform backends, and platform-only statuses. Run
+both pinned local matrix commands to reproduce those exact profiles; each lane
+invokes `--analyze` before its ordinary and sanitizer suites. Run
 `scripts/check-pycairo-test-parity.py` whenever a tracked pycairo test file,
 its family black-box tests, or a generated family signature changes. Each
 ledger pins the upstream source digest and maps every upstream test to runtime,
@@ -264,6 +277,7 @@ It runs `moon fmt --check`, the checker unit tests under `scripts/tests`,
 `scripts/check-source-size-budget.py`, `scripts/configure-link-flags.sh --check`,
 `scripts/check-ffi-ownership.py`, `scripts/check-api-inventory.py`,
 `scripts/check-public-docs.py`,
+`scripts/check-public-coverage.py`,
 `scripts/check-pycairo-test-parity.py`,
 `scripts/check-reliability-ledger.py`,
 `scripts/check-vector-backend-scenes.py`, native
@@ -4431,13 +4445,26 @@ covers empty-string custom metadata removal, one-dimension thumbnail disabling,
 and all three outline entry points; a file-output regression proves that
 empty-string removal emits neither the custom key nor its previous value.
 
-Exact Linux Cairo 1.15.10 and 1.18.4 each pass 800/800 native tests, 90/90
+The subsequent public-facade coverage audit adds exact PDF/JBIG2 missing-global
+status propagation, deterministic PNG decode errors through both stream and raw
+file-status paths, exact PDF/SVG version strings, script-backend proof of
+backward asymmetric UTF-8 text clusters, and linked-version setter coverage.
+Its semver-scoped ledger is checked statically and against instrumented runs on
+both pinned Cairo versions. The JBIG2 error is portable and executable, but its
+upstream Cairo finish path leaks after returning the required status; the
+standalone
+`scripts/sanitizers/probes/cairo_pdf_jbig2_missing_probe.c` must reproduce the
+exact signature before two suppressions can apply only to the PDF test package.
+
+Exact Linux Cairo 1.15.10 and 1.18.4 each pass 826/826 native tests, 116/116
 script tests, 63/63 executable docs, both 1/1 downstream consumers, publication
-archive integrity for 602 members, and every discovered package under
-ASan/LSan. The sole suppression remains the pure-C-probe-confirmed recording
-snapshot: 16 allocations/7424 bytes on Cairo 1.15.10 and 16 allocations/9344
-bytes on Cairo 1.18.4. Documentation reaches 579 of 579 declarations with zero
-debt, so the Documentation inventory row is Done. Public signatures and the
+archive integrity for 619 members, and every discovered package under
+ASan/LSan. The pure-C recording-snapshot probe still limits the vector package
+to 16 suppressions/7424 bytes on Cairo 1.15.10 and 16/9344 on Cairo 1.18.4.
+The pure-C PDF/JBIG2 probe limits the PDF package to two rows totaling 9
+allocations/988 bytes on 1.15.10 and 14/2352 on 1.18.4. Every other package is
+unsuppressed. Documentation reaches 579 of 579 declarations with zero debt, so
+the Documentation inventory row is Done. Public signatures and the
 349-local-plus-two-direct-symbol production FFI boundary remain unchanged.
 
 Remaining reliability work is now narrower and should be tracked as evidence,

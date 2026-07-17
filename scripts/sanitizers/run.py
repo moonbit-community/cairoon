@@ -42,6 +42,26 @@ RECORDING_SNAPSHOT_PACKAGES = frozenset(
 )
 RECORDING_SNAPSHOT_ALLOCATION_SIZES = frozenset({464, 584})
 RECORDING_SNAPSHOT_VECTOR_ALLOCATIONS = 16
+PDF_JBIG2_MISSING_PROBE = (
+    REPO_ROOT
+    / "scripts"
+    / "sanitizers"
+    / "probes"
+    / "cairo_pdf_jbig2_missing_probe.c"
+)
+PDF_JBIG2_MISSING_SUPPRESSION = (
+    REPO_ROOT / "scripts" / "sanitizers" / "lsan-cairo-pdf-jbig2-missing.supp"
+)
+PDF_JBIG2_MISSING_PACKAGES = frozenset({"src/tests/backend/pdf"})
+PDF_JBIG2_MISSING_STATUS_SENTINEL = (
+    "CAIROON_PDF_JBIG2_STATUS=JBIG2_GLOBAL_MISSING"
+)
+PDF_JBIG2_MISSING_PROFILES = frozenset(
+    {
+        (9, 988, 6, 948, 3, 40),
+        (14, 2352, 10, 2284, 4, 68),
+    }
+)
 CLEANUP_SOURCE = r"""
 #include <stdlib.h>
 
@@ -71,6 +91,16 @@ class RecordingSnapshotLeak:
     allocation_size: int
     suppression_template: str
     suppression_path: Path
+
+
+@dataclass(frozen=True)
+class PdfJbig2MissingLeak:
+    total_allocations: int
+    total_bytes: int
+    interchange_allocations: int
+    interchange_bytes: int
+    paginated_allocations: int
+    paginated_bytes: int
 
 
 def resolve_executable(candidate: str) -> str | None:
@@ -299,6 +329,130 @@ def probe_recording_snapshot_leak(
     return affected
 
 
+def classify_pdf_jbig2_missing_probe(
+    returncode: int,
+    output: str,
+) -> PdfJbig2MissingLeak | None:
+    if output.count(PDF_JBIG2_MISSING_STATUS_SENTINEL) != 1:
+        raise RuntimeError(
+            "standalone Cairo PDF JBIG2-missing probe did not emit exactly one "
+            f"expected status sentinel; exit={returncode}\n{output}"
+        )
+    if returncode == 0 and "LeakSanitizer" not in output:
+        return None
+
+    summary = re.search(
+        r"SUMMARY: AddressSanitizer: (?P<bytes>\d+) byte\(s\) leaked in "
+        r"(?P<count>\d+) allocation\(s\)\.",
+        output,
+    )
+    blocks = re.findall(
+        r"(?:Direct|Indirect) leak of (?P<bytes>\d+) byte\(s\) in "
+        r"(?P<count>\d+) object\(s\) allocated from:\n"
+        r"(?P<stack>.*?)(?=\n(?:Direct|Indirect) leak of |\nSUMMARY:)",
+        output,
+        flags=re.DOTALL,
+    )
+    interchange_allocations = 0
+    interchange_bytes = 0
+    paginated_allocations = 0
+    paginated_bytes = 0
+    unknown_stack = False
+    for size_text, count_text, stack in blocks:
+        size = int(size_text)
+        count = int(count_text)
+        if "in _cairo_pdf_interchange_init" in stack:
+            interchange_allocations += count
+            interchange_bytes += size * count
+        elif "in _cairo_paginated_surface_finish" in stack:
+            paginated_allocations += count
+            paginated_bytes += size * count
+        else:
+            unknown_stack = True
+
+    total_allocations = interchange_allocations + paginated_allocations
+    total_bytes = interchange_bytes + paginated_bytes
+    signature = (
+        total_allocations,
+        total_bytes,
+        interchange_allocations,
+        interchange_bytes,
+        paginated_allocations,
+        paginated_bytes,
+    )
+    expected = (
+        returncode == LSAN_EXIT_CODE
+        and "ERROR: LeakSanitizer: detected memory leaks" in output
+        and not unknown_stack
+        and bool(blocks)
+        and summary is not None
+        and int(summary.group("count")) == total_allocations
+        and int(summary.group("bytes")) == total_bytes
+        and signature in PDF_JBIG2_MISSING_PROFILES
+    )
+    if not expected:
+        raise RuntimeError(
+            "standalone Cairo PDF JBIG2-missing probe produced an unknown "
+            f"sanitizer signature; exit={returncode}\n{output}"
+        )
+    return PdfJbig2MissingLeak(*signature)
+
+
+def probe_pdf_jbig2_missing_leak(
+    compiler: str,
+    directory: Path,
+) -> PdfJbig2MissingLeak | None:
+    if not PDF_JBIG2_MISSING_PROBE.is_file():
+        raise RuntimeError(
+            f"standalone Cairo probe not found: {PDF_JBIG2_MISSING_PROBE}"
+        )
+    pkg_config = first_executable(["pkg-config"])
+    if pkg_config is None:
+        raise RuntimeError("pkg-config is required for the standalone Cairo probe")
+    flags = subprocess.run(
+        [pkg_config, "--cflags", "--libs", "cairo"],
+        check=True,
+        text=True,
+        stdout=subprocess.PIPE,
+    ).stdout
+    binary = directory / "cairo-pdf-jbig2-missing-probe"
+    run_checked(
+        [
+            compiler,
+            *COMPILE_FLAGS,
+            str(PDF_JBIG2_MISSING_PROBE),
+            "-o",
+            str(binary),
+            *shlex.split(flags),
+        ]
+    )
+    env = os.environ.copy()
+    env["ASAN_OPTIONS"] = asan_options(True)
+    env["LSAN_OPTIONS"] = lsan_options()
+    result = subprocess.run(
+        [str(binary)],
+        env=env,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+    )
+    affected = classify_pdf_jbig2_missing_probe(result.returncode, result.stdout)
+    if affected is not None:
+        print(
+            "Standalone C probe confirmed Cairo's PDF JBIG2-missing leak; "
+            "two exact suppressions will apply only to the PDF backend test "
+            "package.",
+            flush=True,
+        )
+    else:
+        print(
+            "Standalone Cairo PDF JBIG2-missing probe is clean; no related "
+            "suppression is active.",
+            flush=True,
+        )
+    return affected
+
+
 def create_cleanup_object(directory: Path, compiler: str) -> Path:
     source = directory / "sanitizer-cleanup.c"
     output = directory / "sanitizer-cleanup.o"
@@ -396,6 +550,39 @@ def validate_suppression_usage(
         )
 
 
+def validate_pdf_jbig2_suppression_usage(
+    output: str,
+    leak: PdfJbig2MissingLeak,
+) -> None:
+    table = re.search(
+        r"Suppressions used:\n\s*count\s+bytes\s+template\n"
+        r"(?P<rows>.*?)\n-+",
+        output,
+        flags=re.DOTALL,
+    )
+    rows = [] if table is None else re.findall(
+        r"^\s*(\d+)\s+(\d+)\s+(\S+)\s*$",
+        table.group("rows"),
+        flags=re.MULTILINE,
+    )
+    expected = {
+        "_cairo_pdf_interchange_init": (
+            str(leak.interchange_allocations),
+            str(leak.interchange_bytes),
+        ),
+        "_cairo_paginated_surface_finish": (
+            str(leak.paginated_allocations),
+            str(leak.paginated_bytes),
+        ),
+    }
+    actual = {template: (count, size) for count, size, template in rows}
+    if len(rows) != len(actual) or actual != expected:
+        raise RuntimeError(
+            "PDF backend used an unexpected leak suppression set; "
+            f"expected={expected!r}, actual={actual!r}\n{output}"
+        )
+
+
 def moon_test_command(
     moon: str,
     package: str | None,
@@ -446,6 +633,11 @@ def run_suite(
             if leaks_enabled
             else None
         )
+        pdf_jbig2_leak = (
+            probe_pdf_jbig2_missing_leak(compiler, work)
+            if leaks_enabled
+            else None
+        )
         cleanup_object = create_cleanup_object(work, compiler) if leaks_enabled else None
         wrapper = create_compiler_wrapper(work, compiler, cleanup_object)
         replacement = empty_allocator_object(compiler, work)
@@ -477,13 +669,26 @@ def run_suite(
             result = 0
             for target, target_filter in targets:
                 command_env = env.copy()
-                suppressed = (
+                recording_suppressed = (
                     snapshot_leak is not None
                     and target in RECORDING_SNAPSHOT_PACKAGES
                 )
-                if suppressed:
+                pdf_jbig2_suppressed = (
+                    pdf_jbig2_leak is not None
+                    and target in PDF_JBIG2_MISSING_PACKAGES
+                )
+                if recording_suppressed and pdf_jbig2_suppressed:
+                    raise RuntimeError(
+                        f"package {target!r} requested incompatible suppressions"
+                    )
+                suppressed = recording_suppressed or pdf_jbig2_suppressed
+                if recording_suppressed:
                     command_env["LSAN_OPTIONS"] = lsan_options(
                         snapshot_leak.suppression_path
+                    )
+                elif pdf_jbig2_suppressed:
+                    command_env["LSAN_OPTIONS"] = lsan_options(
+                        PDF_JBIG2_MISSING_SUPPRESSION
                     )
                 command = moon_test_command(
                     moon,
@@ -506,8 +711,21 @@ def run_suite(
                     )
                     print(completed.stdout, end="", flush=True)
                     result = completed.returncode
-                    if result == 0 and target_filter is None:
+                    if (
+                        result == 0
+                        and target_filter is None
+                        and recording_suppressed
+                    ):
                         validate_suppression_usage(completed.stdout, snapshot_leak)
+                    elif (
+                        result == 0
+                        and target_filter is None
+                        and pdf_jbig2_suppressed
+                    ):
+                        validate_pdf_jbig2_suppression_usage(
+                            completed.stdout,
+                            pdf_jbig2_leak,
+                        )
                 else:
                     result = subprocess.run(
                         command,

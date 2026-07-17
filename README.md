@@ -113,10 +113,13 @@ macOS native jobs plus the Ubuntu ASan/LSan job. Platform-specific backends
 remain out of scope, and no source-compatibility promise exists before `1.0`.
 
 Linux ASan/LSan runs each MoonBit package in a separate process. Cairo 1.15.10
-and 1.18.4 both have a reproducible SVG recording-surface snapshot leak in
-upstream Cairo. The gate first reproduces it with a standalone pure-C program,
-then applies a one-function LSan suppression only to the vector-oracle package;
-all other packages remain unsuppressed. This does not change runtime behavior.
+and 1.18.4 both have two reproducible upstream error-path leaks covered by this
+suite: an SVG recording-surface snapshot and PDF finalization after a missing
+JBIG2 global segment. Standalone pure-C probes must reproduce exact allocation
+signatures before the gate enables narrow LSan suppressions for only the vector
+oracle and PDF backend test packages. Suppression counts and bytes must match
+the probes exactly; every other package remains unsuppressed. This does not
+change runtime behavior.
 
 Platform-specific Xlib, XCB, and Win32 surfaces are outside the first portable
 scope. Python-specific pycairo APIs such as `CAPI`, `get_include()`, Python
@@ -158,8 +161,9 @@ release:
 
 The gate checks formatting, Cairo link-flag drift, project layout, FFI
 ownership annotations, API inventory and public-documentation coverage, the
-reliability ledger, native type checking, all 20 pinned pycairo test-file
-families (288 upstream tests), the complete in-module MoonBit native suite, one
+reliability and public-coverage ledgers, native type checking, all 20 pinned
+pycairo test-file families (288 upstream tests), the complete in-module MoonBit
+native suite, one
 isolated downstream-module import/link/render test against both the checkout
 and extracted publication zip, publication-archive isolation, executable docs,
 direct C Cairo oracle tests, `moon info`, and ASan/LSan when an ASan-capable
@@ -167,6 +171,19 @@ compiler is available. Exact counts for the current audited revision are
 recorded in `API_INVENTORY.md`, `AUDIT.md`, and `TESTING.md`.
 The parity gate rejects an unclaimed or multiply claimed upstream
 `tests/test_*.py` file.
+
+Run the instrumented public-package coverage audit after implementation or
+test changes and before a release candidate:
+
+```sh
+python3 ./scripts/check-public-coverage.py --analyze
+```
+
+It queries the linked Cairo version, selects exact semver-scoped exceptions,
+and rejects newly uncovered public-facade branches or stale exceptions. Every
+remaining linked-version, platform, native-invariant, and defensive branch
+requires an exact entry in `scripts/public-coverage-exceptions.tsv`. Both
+pinned local Cairo lanes below run this instrumented analysis automatically.
 
 Before a release candidate, run both pinned Linux compatibility lanes locally:
 

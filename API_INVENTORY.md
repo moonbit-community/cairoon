@@ -14,6 +14,22 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 
 ## Recent Audit Deltas
 
+- 2026-07-17: Public-facade branch coverage is now executable release
+  evidence. Twenty-six family-local black-box tests cover object
+  `Hash::hash_combine`, complete value component order, typed
+  pattern/font/content/image/PDF/SVG enums, raw unbounded recordings, raster
+  callback clearing, Region status, exact backward text-cluster script output,
+  deterministic PNG errors, and real PDF `Jbig2GlobalMissing` propagation. The
+  first audit reduced 85 uncovered lines and a Linux rerun closed a
+  host-dependent `Rgb16_565` gap. The final ledger has 53 stable
+  file/function/source anchors with strict semver scopes: instrumented analysis
+  activates 50 on Cairo 1.15.10 and 43 on 1.18.4, rejecting both unexpected
+  uncovered branches and stale exceptions. Exact Linux lanes each pass
+  826/826 native tests, 116/116 script tests, 63/63 executable docs, both
+  isolated consumers, all 619 publication members, and every discovered
+  package under ASan/LSan. Pure-C probes constrain Cairo's recording-snapshot
+  suppression to the vector package and its JBIG2-missing PDF finish
+  suppression to the PDF package with exact per-version counts and bytes.
 - 2026-07-16: All 25 PDF declarations now document point-sized file/no-output
   and retained-writer construction, runtime version support, immutable outline
   flag sets, restriction and page-size timing, standard/custom metadata,
@@ -466,6 +482,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 
 | Slice | Status | Notes |
 |---|---|---|
+| Public facade branch coverage | Done | Adds 26 family-local black-box tests for object `Hash::hash_combine`, value component ordering, typed pattern/font/surface/backend enums, raw unbounded recordings, raster callback clearing, Region status, backward text-cluster input, deterministic PNG errors, and PDF `Jbig2GlobalMissing`; the native suite contains 826 tests. Public-package instrumentation activates 50 intentional uncovered lines on Cairo 1.15.10 and 43 on Cairo 1.18.4, all stable-keyed in `scripts/public-coverage-exceptions.tsv` as linked-version boundaries, defensive native values, backend-dependent output, native-result invariants, platform backends, or platform-only statuses. `scripts/check-public-coverage.py` validates source anchors in the default gate, while `--analyze` reruns instrumentation and rejects both new uncovered lines and stale exceptions. |
 | Surface lifecycle and public API contract | Done | Documents all 35 base Surface declarations; makes backend finish and retained image-data release unconditional for valid pointers even after sticky errors; preserves closure errors after best-effort `with_finished` cleanup; adds executable native and MoonBit cleanup-order guards plus sticky-data-release and sticky-stream regressions; and passes 792/792 plus full package-isolated ASan/LSan on exact Linux Cairo 1.15.10 and 1.18.4 |
 | ScaledFont lifecycle and public API contract | Done | Documents all 15 ScaledFont declarations; preserves raw input-object errors, immediately and idempotently releases copied glyph/cluster arrays, implements true no-cluster conversion, replaces the shared-marshalling oracle with independent direct-C copies, adds a user-font null-output probe plus matrix/NUL/UTF-8/lifetime regressions, and passes 796/796 plus full package-isolated ASan/LSan on exact Linux Cairo 1.15.10 and 1.18.4 |
 | Pattern lifecycle and public API contract | Done | Documents all 53 Pattern declarations; defers reentrant raster callback replacement until outstanding acquire/release pairs finish; prevents release-side state UAF and acquire-side retained-owner leaks; adds release-clear, acquire-clear owner-balance, and singular-matrix regressions; and passes 790/790 plus full package-isolated ASan/LSan on exact Linux Cairo 1.15.10 and 1.18.4 |

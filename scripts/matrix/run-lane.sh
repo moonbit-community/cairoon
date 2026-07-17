@@ -30,6 +30,7 @@ printf 'Matrix lane: Linux, Cairo %s\n' "$actual_cairo"
 moon version --all
 moon update
 ./scripts/configure-link-flags.sh
+python3 ./scripts/check-public-coverage.py --analyze
 
 CAIROON_VERIFY_ASAN=1 \
 CAIROON_ASAN_CC=clang \

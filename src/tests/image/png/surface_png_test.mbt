@@ -27,3 +27,38 @@ test "image surface png file roundtrip and invalid paths" {
     _ => @test.fail("expected InvalidString for image_from_png")
   }
 }
+
+///|
+test "corrupt PNG file maps raw status to PngError" {
+  let valid_path = "/tmp/cairoon_png_valid_for_corruption.png"
+  let corrupt_path = "/tmp/cairoon_png_corrupt_crc.png"
+  let surface = @cairoon.Surface::image(@cairoon.Argb32, 2, 2)
+  surface.write_to_png(valid_path)
+  let input = @fs.read_file_to_bytes(valid_path)
+  let corrupt = Bytes::makei(input.length(), fn(index) {
+    if index == 29 {
+      if input[index] == b'\x00' {
+        b'\x01'
+      } else {
+        b'\x00'
+      }
+    } else {
+      input[index]
+    }
+  })
+  @fs.write_bytes_to_file(corrupt_path, corrupt)
+  let result = @cairoon.run_cairo(() => {
+    let _ = @cairoon.Surface::image_from_png(corrupt_path)
+    ()
+  })
+  if @cairoon.CAIRO_VERSION >= 11600 {
+    match result {
+      Err(@cairoon.CairoIOError(@cairoon.PngError, _)) => ()
+      _ => @test.fail("expected PngError for a corrupt PNG file")
+    }
+  } else {
+    inspect(result is Err(_), content="true")
+  }
+  @fs.remove_file(valid_path)
+  @fs.remove_file(corrupt_path)
+}

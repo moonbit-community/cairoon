@@ -77,5 +77,133 @@ class DownstreamConsumerGateTests(unittest.TestCase):
         self.assertTrue(self.check(commented=marker))
 
 
+class VerifyGateTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.checker = load_checker()
+        self.temp_dir = tempfile.TemporaryDirectory()
+        self.script = pathlib.Path(self.temp_dir.name) / "verify.sh"
+
+    def tearDown(self) -> None:
+        self.temp_dir.cleanup()
+
+    def test_missing_public_coverage_ledger_gate_fails(self) -> None:
+        marker = "python3 ./scripts/check-public-coverage.py"
+        self.assertIn(marker, self.checker.VERIFY_COMMANDS)
+        self.script.write_text(
+            "\n".join(
+                f"run {command}"
+                for command in self.checker.VERIFY_COMMANDS
+                if command != marker
+            ),
+            encoding="utf-8",
+        )
+        with mock.patch.object(self.checker, "VERIFY", self.script):
+            errors = self.checker.check_verify_gate()
+        self.assertTrue(any(marker in error for error in errors))
+
+    def test_commented_public_coverage_gate_fails(self) -> None:
+        marker = "python3 ./scripts/check-public-coverage.py"
+        self.script.write_text(
+            "\n".join(
+                f"# run {command}" if command == marker else f"run {command}"
+                for command in self.checker.VERIFY_COMMANDS
+            ),
+            encoding="utf-8",
+        )
+        with mock.patch.object(self.checker, "VERIFY", self.script):
+            errors = self.checker.check_verify_gate()
+        self.assertTrue(any(marker in error for error in errors))
+
+    def test_inline_comment_cannot_impersonate_public_coverage_gate(self) -> None:
+        marker = "python3 ./scripts/check-public-coverage.py"
+        self.script.write_text(
+            "\n".join(
+                f": # {command}" if command == marker else f"run {command}"
+                for command in self.checker.VERIFY_COMMANDS
+            ),
+            encoding="utf-8",
+        )
+        with mock.patch.object(self.checker, "VERIFY", self.script):
+            errors = self.checker.check_verify_gate()
+        self.assertTrue(any(marker in error for error in errors))
+
+    def test_failure_masking_cannot_impersonate_verify_gate(self) -> None:
+        marker = "python3 ./scripts/check-public-coverage.py"
+        self.script.write_text(
+            "\n".join(
+                f"run {command} || true"
+                if command == marker
+                else f"run {command}"
+                for command in self.checker.VERIFY_COMMANDS
+            ),
+            encoding="utf-8",
+        )
+        with mock.patch.object(self.checker, "VERIFY", self.script):
+            errors = self.checker.check_verify_gate()
+        self.assertTrue(any(marker in error for error in errors))
+
+
+class LocalMatrixGateTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.checker = load_checker()
+        self.temp_dir = tempfile.TemporaryDirectory()
+        self.root = pathlib.Path(self.temp_dir.name)
+        self.matrix = self.root / "scripts" / "test-cairo-matrix.sh"
+        self.lane = self.root / "scripts" / "matrix" / "run-lane.sh"
+        self.sanitizer = self.root / "scripts" / "sanitizers" / "run.py"
+        self.lane.parent.mkdir(parents=True)
+        self.sanitizer.parent.mkdir(parents=True)
+        self.matrix.write_text(
+            "cairo-1.15.10\ncairo-1.18.4\nCAIROON_SANITIZER_LEAKS=on\n",
+            encoding="utf-8",
+        )
+        self.sanitizer.write_text(
+            "\n".join(
+                [
+                    "compiler_preflight",
+                    "probe_recording_snapshot_leak",
+                    "RECORDING_SNAPSHOT_PACKAGES",
+                    "probe_pdf_jbig2_missing_leak",
+                    "PDF_JBIG2_MISSING_PACKAGES",
+                    "discover_packages",
+                    "MOON_TOOLCHAIN_ROOT",
+                    "validate_suppression_usage",
+                    "validate_pdf_jbig2_suppression_usage",
+                ]
+            ),
+            encoding="utf-8",
+        )
+
+    def tearDown(self) -> None:
+        self.temp_dir.cleanup()
+
+    def check(self, lane_text: str) -> list[str]:
+        self.lane.write_text(lane_text, encoding="utf-8")
+        with (
+            mock.patch.object(self.checker, "REPO_ROOT", self.root),
+            mock.patch.object(self.checker, "MATRIX", self.matrix),
+            mock.patch.object(self.checker, "SANITIZER", self.sanitizer),
+        ):
+            return self.checker.check_local_matrix()
+
+    def test_matrix_lane_requires_instrumented_public_coverage(self) -> None:
+        errors = self.check("./scripts/verify.sh\n")
+        self.assertTrue(any("--analyze" in error for error in errors))
+
+    def test_matrix_lane_accepts_active_instrumented_public_coverage(self) -> None:
+        errors = self.check(
+            "python3 ./scripts/check-public-coverage.py --analyze\n"
+            "./scripts/verify.sh\n"
+        )
+        self.assertEqual(errors, [])
+
+    def test_matrix_lane_rejects_commented_instrumented_coverage(self) -> None:
+        errors = self.check(
+            ": # python3 ./scripts/check-public-coverage.py --analyze\n"
+            "./scripts/verify.sh\n"
+        )
+        self.assertTrue(any("--analyze" in error for error in errors))
+
+
 if __name__ == "__main__":
     unittest.main()

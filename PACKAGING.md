@@ -156,12 +156,17 @@ native suite, and tests each MoonBit package separately under ASan/LSan. Exact
 counts for the audited release state are recorded in `AUDIT.md` and
 `TESTING.md`. Cairo's known SVG recording-snapshot leak is accepted only after
 `scripts/sanitizers/probes/cairo_recording_snapshot_probe.c` reproduces the
-exact two-allocation pure-C signature without suppressions. The resulting
-single-frame suppression is enabled only for
-`src/tests/oracle/vector_backend`; every other package remains unsuppressed.
-Source builds match `_cairo_recording_surface_snapshot`; stripped distro builds
-use `cairo_restore`, with the vector package required to report exactly 16
-suppressed allocations and the byte count predicted by the probe.
+exact two-allocation pure-C signature without suppressions. Its single-frame
+suppression is enabled only for `src/tests/oracle/vector_backend`; source
+builds match `_cairo_recording_surface_snapshot`, stripped distro builds use
+`cairo_restore`, and the package must report exactly 16 allocations with the
+byte count predicted by the probe. The reachable PDF/JBIG2 missing-global
+error path is likewise accepted only after
+`scripts/sanitizers/probes/cairo_pdf_jbig2_missing_probe.c` reproduces one of
+the two pinned Cairo-version signatures. Its two-template suppression applies
+only to `src/tests/backend/pdf`, and both suppression rows must exactly match
+the probe's allocation counts and bytes. All other packages remain
+unsuppressed.
 
 ## Release Checklist
 
