@@ -16,10 +16,12 @@ Implemented in this workspace:
   `scripts/configure-link-flags.sh --check` in the local reliability gate.
 - Exact local release lanes for Cairo 1.15.10 and 1.18.4, built from pinned
   source URLs and SHA-256 digests on a pinned Ubuntu base image. Both lanes
-  pass all static gates and 796/796 native tests with the pinned MoonBit
+  pass all static gates, 800/800 native tests, 90/90 script tests, and 63/63
+  executable documentation tests with the pinned MoonBit
   `0.10.4+4f2e8f7dc-nightly` compiler. In each lane, the source-checkout and
   extracted-publication-zip consumers also pass 1/1 independently; the
-  integrity-checked publication archive contains 600 members.
+  integrity-checked publication archive contains 602 members, and every
+  discovered package passes ASan/LSan.
 - Linux ASan/LSan now runs every discovered MoonBit package in a separate
   process. An intentional-leak preflight proves LSan is active; the runner
   creates a temporary `MOON_TOOLCHAIN_ROOT` with an allocator-free shadow
@@ -3528,11 +3530,12 @@ includes both checkout and extracted-publication consumer runs on exact Cairo
 
 - Current tests are strong enough for the `Done` inventory rows when
   `./scripts/verify.sh` passes on the target platform, but they are not enough
-  for a full pycairo migration claim. Full-product status still requires the
-  exact public-doc-comment debt ledger to reach zero and the release-evidence
-  `Partial` row to gain passing CI coverage for the native/oracle/sanitizer
-  gates on each supported release platform, or for genuinely unsupported scope
-  to become an explicit `Decision`.
+  for a full pycairo migration claim. The public documentation ledger is
+  already complete at 579/579 declarations with zero debt. Full-product status
+  still requires the release-evidence `Partial` row to gain passing CI coverage
+  for the Ubuntu and macOS native jobs plus the Ubuntu package-isolated
+  ASan/LSan job, or for genuinely unsupported scope to become an explicit
+  `Decision`.
 - Cairo 1.18's finite portable tag-attribute contract is closed by Scene 66:
   all 10 official Link/Dest/content/content-reference dimensions have
   MoonBit and direct-C evidence, invalid forms map to `TagError`, and
@@ -3555,6 +3558,8 @@ includes both checkout and extracted-publication consumer runs on exact Cairo
   repeats the ordinary native gate in the sanitizer job. Release evidence
   still requires those jobs to pass for the release commit; this checkout was
   deliberately not pushed merely to trigger CI.
-- Linux is the authoritative LSan platform. macOS runs ASan, while exact leak
-  evidence comes from pinned Linux lanes whose intentional-leak preflight
-  proves the runtime can detect leaks.
+- Linux is the authoritative LSan platform. macOS ASan is an optional local
+  gate; the shipped macOS CI job intentionally runs ordinary native verify with
+  duplicate ASan disabled. Exact leak evidence comes from the pinned Linux
+  lanes and Ubuntu sanitizer job, whose intentional-leak preflight proves the
+  runtime can detect leaks.

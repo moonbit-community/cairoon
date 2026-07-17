@@ -104,11 +104,13 @@ fn draw_example() -> Unit raise @cairoon.CairoError {
 
 cairoon is suitable for light native use when the required inventory rows are
 marked `Done`, the automated downstream consumer smoke test passes, and the
-project is pinned. It is not yet a stable or complete pycairo replacement. The
-portable API and all 20 pinned pycairo test-source families are covered, but
-public API doc comments and test/release evidence remain `Partial`,
-platform-specific backends are out of scope, and no source-compatibility
-promise exists before `1.0`.
+project is pinned. The complete portable API scope and all 20 pinned pycairo
+test-source families are covered, and all 579 published declarations have
+substantive API documentation. The sole global `Partial` inventory row is
+test/release-platform evidence: local verification is extensive, but the
+release commit still needs passing GitHub Actions evidence from the Ubuntu and
+macOS native jobs plus the Ubuntu ASan/LSan job. Platform-specific backends
+remain out of scope, and no source-compatibility promise exists before `1.0`.
 
 Linux ASan/LSan runs each MoonBit package in a separate process. Cairo 1.15.10
 and 1.18.4 both have a reproducible SVG recording-surface snapshot leak in
@@ -157,11 +159,12 @@ release:
 The gate checks formatting, Cairo link-flag drift, project layout, FFI
 ownership annotations, API inventory and public-documentation coverage, the
 reliability ledger, native type checking, all 20 pinned pycairo test-file
-families (288 upstream tests),
-796 in-module MoonBit tests, one isolated downstream-module import/link/render
-test against both the checkout and extracted publication zip,
-publication-archive isolation, executable docs, direct C Cairo oracle tests,
-`moon info`, and ASan/LSan when an ASan-capable compiler is available.
+families (288 upstream tests), the complete in-module MoonBit native suite, one
+isolated downstream-module import/link/render test against both the checkout
+and extracted publication zip, publication-archive isolation, executable docs,
+direct C Cairo oracle tests, `moon info`, and ASan/LSan when an ASan-capable
+compiler is available. Exact counts for the current audited revision are
+recorded in `API_INVENTORY.md`, `AUDIT.md`, and `TESTING.md`.
 The parity gate rejects an unclaimed or multiply claimed upstream
 `tests/test_*.py` file.
 

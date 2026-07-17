@@ -491,9 +491,10 @@ Follow this order. Each step gets its own commit and must pass
 2. **Source-root extraction**: completed. The current MoonBit package files
    live in `src/`, `moon.mod` sets `source = "src"`, scripts locate the
    package root explicitly, and `CAIMEOX/cairoon` remains the public package.
-3. **Black-box test extraction**: started. Move pure `*_test.mbt` files into
-   `src/tests/<family>/` packages that import `CAIMEOX/cairoon`; keep test names
-   and behavioral assertions unchanged.
+3. **Black-box test extraction**: completed. Public-behavior tests live in
+   `src/tests/<family>/` packages that import `CAIMEOX/cairoon`; no black-box
+   test remains directly in the public package or repository root, and the
+   layout gate prevents either location from regaining one.
 4. **Native-stub package extraction**: completed. Public C stubs live under
    `src/native/`, are compiled by `src/native/moon.pkg`, and are linked into
    the public facade through the `CAIMEOX/cairoon/native` package import.
@@ -628,10 +629,10 @@ Follow this order. Each step gets its own commit and must pass
    pattern, Surface, object-trait, lifetime, raster/vector oracle, unchanged
    generated-interface, downstream-consumer, and package-isolated ASan/LSan
    evidence must all pass before this seam is accepted.
-7. **Executable docs package split**: started. Keep `src/README.mbt.md` as the
-   `moon.mod` readme and move family executable reference docs into
-   `src/docs/`, which imports `CAIMEOX/cairoon` and carries Cairo link flags so
-   the examples are checked as downstream black-box code.
+7. **Executable docs package split**: completed. `src/README.mbt.md` remains the
+   `moon.mod` readme, while all eleven family executable reference documents
+   live in `src/docs/`, which imports `CAIMEOX/cairoon` and carries Cairo link
+   flags so the examples are checked as downstream black-box code.
 8. **Family package migration**: move one Cairo family per commit. C files,
    raw externs, and wrappers move together only when the public package seam is
    proven.

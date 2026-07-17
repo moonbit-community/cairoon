@@ -78,11 +78,13 @@ test "README quick start draws a curve" {
 
 cairoon is suitable for light native use when the required inventory rows are
 marked `Done`, `./scripts/check-downstream-consumer.sh` passes, and the exact
-version or commit is pinned. The portable API and all 20 pinned pycairo test
-families are covered. Two global `Partial` rows remain: the exact public API
-doc-comment ledger and shipped release-platform evidence. Neither represents
-an unimplemented portable API family, but both must close before a full-product
-claim; there is still no source-compatibility promise before `1.0`.
+version or commit is pinned. The complete portable API scope and all 20 pinned
+pycairo test families are covered, and all 579 published declarations have
+substantive API documentation. The sole global `Partial` row is shipped
+test/release-platform evidence: the release commit still needs passing Ubuntu
+and macOS native jobs plus the Ubuntu ASan/LSan job. It does not represent an
+unimplemented portable API family, but it must close before a full-product
+claim. There is still no source-compatibility promise before `1.0`.
 
 Platform-specific Xlib, XCB, and Win32 surfaces are outside the first portable
 scope. Python-specific pycairo APIs such as `CAPI`, `get_include()`, Python
