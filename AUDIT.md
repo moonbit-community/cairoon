@@ -25,11 +25,11 @@ Implemented in this workspace:
   `scripts/configure-link-flags.sh --check` in the local reliability gate.
 - Exact local release lanes for Cairo 1.15.10 and 1.18.4, built from pinned
   source URLs and SHA-256 digests on a pinned Ubuntu base image. Both lanes
-  pass all static gates, 826/826 native tests, 121/121 script tests, and 63/63
+  pass all static gates, 826/826 native tests, 132/132 script tests, and 63/63
   executable documentation tests with the pinned MoonBit
   `0.10.4+4f2e8f7dc-nightly` compiler. In each lane, the source-checkout and
   extracted-publication-zip consumers also pass 1/1 independently; the
-  integrity-checked publication archive contains 619 members, and every
+  integrity-checked publication archive contains 621 members, and every
   discovered package passes ASan/LSan/UBSan. Each pinned lane also runs
   instrumented public-facade coverage and requires the exact linked-version
   ledger profile.
@@ -99,7 +99,11 @@ Implemented in this workspace:
 - Static reliability-ledger linting through
   `scripts/check-reliability-ledger.py`, wired into `scripts/verify.sh`, so
   migration status rows use accepted statuses, `Partial` rows state remaining
-  gaps explicitly, the TESTING scorecard keeps its required dimensions, and CI
+  gaps explicitly, and the current Tests evidence stays below 1200 characters
+  while naming both pinned Cairo lanes, exact suite/archive/API counts, local
+  sanitizer coverage, and the shipped-CI gap. The checker derives the script
+  count from `unittest` discovery, scopes sanitizer policy to TESTING Tier 3,
+  scopes the package stability claim to its current section, and confirms CI
   continues to run native and ASan/LSan/UBSan verify gates.
 - Initial external black-box API package extraction under
   `src/tests/api/{version,enums,pycairo}`. Root-level `tests/` packages are
@@ -738,7 +742,8 @@ Implemented in this workspace:
   cross-run is not automated, but direct-C Cairo is the normative portable
   rendering oracle and all upstream pycairo tests are pinned by the parity
   ledger.
-- Gate 4 memory and lifetime: partial. Stub ownership follows the documented
+- Gate 4 memory and lifetime: strong local evidence for the portable scope.
+  Stub ownership follows the documented
   external-object pattern, and retained-owner stress now covers subsurfaces,
   data-backed surface patterns, data-backed raster-source acquire surfaces,
   mapped images, ImageData surface and
@@ -760,41 +765,49 @@ Implemented in this workspace:
   no release closure. Black-box raster-source tests also cover the pycairo
   acquire pattern that creates a compatible image from target/extents and
   applies the extents device offset.
-  The current font stack still exposes macOS
-  Cairo/Quartz/CoreText LeakSanitizer reports through toy-font,
-  scaled-font, toy-text rendering, glyph rendering/path, and
-  show-text-glyphs paths. These must be resolved or intentionally suppressed
-  before claiming this gate.
+  Both pinned Linux Cairo lanes run every discovered package in a separate
+  ASan/LSan/UBSan process. Intentional signed-overflow and leak probes prove the
+  runtimes are active, and the only suppressions are constrained by standalone
+  C reproductions and exact allocation counts. Earlier macOS
+  Cairo/Quartz/CoreText LeakSanitizer reports remain historical evidence, not
+  the current release blocker: Linux is the authoritative LSan/UBSan platform,
+  while the shipped macOS lane runs the ordinary native gate.
   Finalizer graph fuzz now covers multi-seed surface/context/pattern/font/path/
   region/mapped-image/raster-source/script-device owner graphs, error exits,
   callback clearing, and allocation pressure under ASan. Broader platform
-  coverage and stronger randomized finalizer/callback-edge coverage still
-  remain before claiming the full memory gate.
+  coverage and stronger randomized finalizer/callback-edge coverage remain
+  useful release depth. The product-level Tests row remains `Partial` until
+  the release commit has shipped Ubuntu/macOS evidence; this is not an open
+  local lifetime defect.
 
 ## Last Verified
 
-The most recent full local verification passed on 2026-07-15:
+The most recent full local verification passed on 2026-07-17:
 
-- `CAIROON_VERIFY_ASAN=0 ./scripts/verify.sh`: passed formatting,
-  project-layout, source-size, link-flag, FFI ownership, portable API
-  inventory, pycairo parity, reliability-ledger, vector-scene, native type,
-  generated-interface, and 783/783 native test gates. The isolated consumer
-  passed 1/1 against both the checkout and the integrity-tested, extracted
-  599-member publication zip. Host ASan was intentionally not duplicated in
-  this run. Static gates checked 394 source files, 44 production FFI files, 83
-  Cairo-linked package configs, and an exact 49-entry public-root allowlist.
+- `CAIROON_VERIFY_ASAN=0 ./scripts/verify.sh` passed 132/132 script tests,
+  826/826 native tests, 63/63 executable documentation tests, formatting,
+  project layout, source-size, link-flag, FFI ownership, API inventory,
+  pycairo parity, public documentation, reliability-ledger, vector-scene,
+  native type, and generated-interface gates. The isolated consumer passed
+  1/1 against both the checkout and the integrity-tested extracted
+  621-member publication zip. Host sanitizers were intentionally not
+  duplicated in this run.
 - `./scripts/test-cairo-matrix.sh cairo-1.15.10` and
-  `./scripts/test-cairo-matrix.sh cairo-1.18.4`: both exact Linux lanes passed
-  the same source and publication-zip consumer tests at 1/1 each, all 783
-  native tests, and every discovered MoonBit package under ASan/LSan. Only
-  the pure-C-probe-verified vector-oracle suppression was used: 16
-  allocations/7424 bytes on 1.15.10 and 16 allocations/9344 bytes on 1.18.4.
-  The parity gate verified all 288 tests from all 20 pinned upstream files,
-  and the reliability ledger reported 1 explicit `Partial` row. The generated
-  public interface remains byte-for-byte unchanged at SHA-256
-  `6c647f7e0c12188c36330a66681141a4449558884ce948d2c74e462a91b2f0f3`.
+  `./scripts/test-cairo-matrix.sh cairo-1.18.4` passed the same 132 script,
+  826 native, and 63 documentation tests, both 1/1 consumer paths, all 621
+  publication members, and every discovered package under ASan/LSan/UBSan.
+  Intentional signed-overflow and leak preflights passed in both lanes. The
+  constrained vector suppression accounted for 16 allocations/7424 bytes on
+  1.15.10 and 16/9344 on 1.18.4; the constrained PDF/JBIG2 suppressions
+  accounted for 9 allocations/988 bytes and 14/2352 respectively. Every other
+  package remained unsuppressed.
+- The parity ledger covers all 288 tests in 20 pinned pycairo families, public
+  documentation covers 579/579 declarations with zero debt, and the production
+  boundary remains 349 local FFI symbols plus two direct libcairo symbols.
+  No push or CI rerun was used to obtain this evidence, so the sole global
+  `Partial` remains shipped release-commit evidence.
 
-The final matrix replay exposed and closed one test-only PDF nondeterminism:
+An earlier matrix replay exposed and closed one test-only PDF nondeterminism:
 under ASan, sequential file and stream surfaces could cross a wall-clock
 second and receive different Cairo-generated creation dates. Cairo 1.17.6+
 equivalence fixtures now set fixed creation and modification dates. The

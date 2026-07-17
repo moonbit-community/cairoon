@@ -80,10 +80,15 @@ cairoon is suitable for light native use when the required inventory rows are
 marked `Done`, `./scripts/check-downstream-consumer.sh` passes, and the exact
 version or commit is pinned. The complete portable API scope and all 20 pinned
 pycairo test families are covered, and all 579 published declarations have
-substantive API documentation. The sole global `Partial` row is shipped
+substantive API documentation.
+
+Local release-candidate matrices on exact Cairo 1.15.10 and 1.18.4 pass 132/132
+script tests, 826/826 native tests, 63/63
+executable docs, both downstream consumers, all 621 publication members, and
+every package under ASan/LSan/UBSan. The sole global `Partial` row is shipped
 test/release-platform evidence: the release commit still needs passing Ubuntu
-and macOS native jobs plus the Ubuntu ASan/LSan job. It does not represent an
-unimplemented portable API family, but it must close before a full-product
+and macOS native jobs plus the Ubuntu ASan/LSan/UBSan job. It does not represent
+an unimplemented portable API family, but it must close before a full-product
 claim. There is still no source-compatibility promise before `1.0`.
 
 Platform-specific Xlib, XCB, and Win32 surfaces are outside the first portable

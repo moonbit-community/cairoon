@@ -189,19 +189,29 @@ record the threshold beside the test.
 
 ### Tier 3: Memory And Lifetime Tests
 
-Run the repository-owned ASan/LSan gate after every C stub, callback, or
+Run the repository-owned ASan/LSan/UBSan gate after every C stub, callback, or
 finalizer change:
 
 ```sh
 CAIROON_SANITIZER_LEAKS=on python3 ./scripts/sanitizers/run.py
 ```
 
-On Linux, the runner first proves LeakSanitizer can detect an intentional
-allocation, then runs every discovered MoonBit package in a separate process.
-`scripts/sanitizers/probes/cairo_recording_snapshot_probe.c` is compiled and
-executed without suppressions. If and only if its exact two-allocation upstream
-Cairo signature is observed, a one-function suppression is used for
-`src/tests/oracle/vector_backend`; no other package receives a suppression.
+On Linux, the runner executes a signed-overflow preflight and an
+intentional-leak preflight. It fails closed unless UBSan reports the intentional
+signed overflow and LSan reports the intentional allocation, then runs every
+discovered MoonBit package in a separate process.
+`scripts/sanitizers/probes/cairo_recording_snapshot_probe.c` and
+`scripts/sanitizers/probes/cairo_pdf_jbig2_missing_probe.c` are compiled and
+executed without suppressions. A suppression is allowed only when the relevant
+probe reproduces its pinned Cairo-version signature, only for the affected
+vector-oracle or PDF package, and only for the exact predicted rows and bytes.
+Every other package runs without a suppression.
+
+Clang's function sanitizer is disabled only on exactly four non-inlined helpers
+that dispatch already type-checked MoonBit `FuncRef` values. ASan, LSan, and all
+other UBSan checks remain active around those helpers. Any expansion of this
+exception requires a minimal reproducer, a dedicated checker test, and both
+pinned Cairo matrices.
 
 For public C glue ownership changes, the local gate must also compile the
 native-stub package itself with `moon test src/native --target native -v`; the
@@ -251,7 +261,8 @@ A release candidate must pass on all supported platforms:
 
 - `moon check --target native --deny-warn`
 - `moon test --target native --deny-warn`
-- ASan/LSan native test run
+- Package-isolated ASan/LSan/UBSan on the authoritative Linux lane; macOS
+  follows the platform policy below
 - Differential pycairo/C oracle suite
 - API inventory audit
 - generated `src/pkg.generated.mbti` review
@@ -337,10 +348,11 @@ support packages under `src/core/constants`, `src/core/glyph`,
 `src/tests/oracle/image`, `src/tests/oracle/pattern_raster`, and
 `src/tests/oracle/vector_backend`, the full native test suite with
 `moon test --target native --deny-warn`,
-`moon info --target native`, and package-isolated ASan/LSan builds for every
-discovered package when an ASan-capable `clang` is available. The public package root no
-longer has a separate targeted `*_wbtest.mbt` list; those tests have been
-converted into external oracle packages discovered by `scripts/verify.sh`.
+`moon info --target native`, and package-isolated ASan/LSan/UBSan builds for
+every discovered package when a sanitizer-capable `clang` is available. The
+public package root no longer has a separate targeted `*_wbtest.mbt` list;
+those tests have been converted into external oracle packages discovered by
+`scripts/verify.sh`.
 Before the sanitizer pass, the runner executes `moon clean` so a compiler
 switch or Homebrew/Xcode clang update cannot reuse object files with stale
 sanitizer runtime paths. It creates a temporary `MOON_TOOLCHAIN_ROOT` whose
@@ -4457,9 +4469,9 @@ standalone
 `scripts/sanitizers/probes/cairo_pdf_jbig2_missing_probe.c` must reproduce the
 exact signature before two suppressions can apply only to the PDF test package.
 
-Exact Linux Cairo 1.15.10 and 1.18.4 each pass 826/826 native tests, 121/121
+Exact Linux Cairo 1.15.10 and 1.18.4 each pass 826/826 native tests, 132/132
 script tests, 63/63 executable docs, both 1/1 downstream consumers, publication
-archive integrity for 619 members, and every discovered package under
+archive integrity for 621 members, and every discovered package under
 ASan/LSan/UBSan. The pure-C recording-snapshot probe still limits the vector
 package to 16 suppressions/7424 bytes on Cairo 1.15.10 and 16/9344 on Cairo
 1.18.4. The pure-C PDF/JBIG2 probe limits the PDF package to two rows totaling
@@ -4491,8 +4503,9 @@ not as an unstructured checklist:
 - Keep the CI workflow green and expand it as the supported release platform
   matrix grows; generated-interface review, differential oracles, and sanitizer
   gates should be required before release.
-- Keep Linux as the authoritative LSan/UBSan platform. macOS still runs
-  ASan/UBSan, but release leak and undefined-behavior evidence comes from the
+- Keep Linux as the authoritative LSan/UBSan platform. The shipped macOS job
+  runs the ordinary native gate; optional local macOS runs may enable
+  ASan/UBSan. Release leak and undefined-behavior evidence comes from the
   pinned Linux lanes where both runtimes are preflighted instead of inferred.
 - Close the remaining `Partial` Tests row in `API_INVENTORY.md` by obtaining
   shipped release-platform evidence without weakening unsupported scope into a
