@@ -782,7 +782,7 @@ because existing raster callback ABIs intentionally accept the
 pointer-transparent facade wrapper. The checker must reject duplicate C symbol
 declarations and exports, missing `MOONBIT_FFI_EXPORT` definitions, native
 exports with no production extern, and drift in the exact public-facade callback
-set. The 348 cairoon production externs and native exports must be a one-to-one
+set. The 349 cairoon production externs and native exports must be a one-to-one
 set; only `cairo_version` and `cairo_format_stride_for_width` may bind directly
 to libcairo. The public package root contains exactly 12 callback bridges in
 five files: seven raster-source callbacks, two PNG stream callbacks, and one
@@ -1037,6 +1037,12 @@ Use four gates. A feature is not migrated until it passes every applicable gate.
 
 Maintain a migration table derived from `cairo/__init__.pyi`.
 
+The derivation must remain executable outside the parent pycairo checkout.
+`scripts/api/pycairo-api-snapshot.json` pins the upstream commit, exact stub
+SHA-256, top-level APIs, class methods, constants, and enum aliases. The API
+checker must reject source/snapshot drift and report the same complete counts
+when the parent stub is absent from an extracted publication archive.
+
 Each public item is one of:
 
 - `Done`: implemented, tested, documented, and included in
@@ -1138,6 +1144,7 @@ A migrated API is done only when:
   variant.
 - Every publication archive contains `COPYING`, the complete LGPL-2.1 and
   MPL-1.1 texts declared by `moon.mod`, the package README/interface, and the
-  dependency pre-build script; duplicate, unsafe, corrupt, or integration
-  members fail `scripts/check-publication-archive.py`.
+  dependency pre-build script plus the pinned pycairo API snapshot; duplicate,
+  unsafe, corrupt, or integration members fail
+  `scripts/check-publication-archive.py`.
 - The API inventory marks the item as `Done` with a test reference.

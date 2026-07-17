@@ -3,13 +3,21 @@
 
 from __future__ import annotations
 
-import ast
+import argparse
 import pathlib
 import sys
 
 
+SCRIPT_ROOT = pathlib.Path(__file__).resolve().parent
+if str(SCRIPT_ROOT) not in sys.path:
+    sys.path.insert(0, str(SCRIPT_ROOT))
+
+from api.snapshot import load_pycairo_api, write_api_snapshot
+
+
 REPO_ROOT = pathlib.Path(__file__).resolve().parents[1]
 PYCAIRO_STUB = REPO_ROOT.parent / "cairo" / "__init__.pyi"
+PYCAIRO_API_SNAPSHOT = REPO_ROOT / "scripts" / "api" / "pycairo-api-snapshot.json"
 INVENTORY = REPO_ROOT / "API_INVENTORY.md"
 GENERATED_MBTI = REPO_ROOT / "src" / "pkg.generated.mbti"
 
@@ -504,128 +512,85 @@ def public_constant_api_anchors(name: str) -> tuple[str, ...]:
     return ()
 
 
-def is_enum_alias(value: ast.AST) -> bool:
-    return (
-        isinstance(value, ast.Attribute)
-        and isinstance(value.value, ast.Name)
-        and value.value.id in EXPECTED_ANCHORS
+def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--stub", type=pathlib.Path, default=PYCAIRO_STUB)
+    parser.add_argument(
+        "--snapshot", type=pathlib.Path, default=PYCAIRO_API_SNAPSHOT
     )
+    parser.add_argument("--inventory", type=pathlib.Path, default=INVENTORY)
+    parser.add_argument("--public-api", type=pathlib.Path, default=GENERATED_MBTI)
+    parser.add_argument("--update-snapshot", action="store_true")
+    parser.add_argument("--upstream-commit")
+    return parser.parse_args(argv)
 
 
-def public_top_level_names(stub_path: pathlib.Path) -> set[str]:
-    module = ast.parse(stub_path.read_text(encoding="utf-8"))
-    names = set()
-    for node in module.body:
-        if isinstance(node, (ast.ClassDef, ast.FunctionDef)) and not node.name.startswith("_"):
-            names.add(node.name)
-    return names
-
-
-def public_class_methods(stub_path: pathlib.Path) -> dict[str, set[str]]:
-    module = ast.parse(stub_path.read_text(encoding="utf-8"))
-    methods: dict[str, set[str]] = {}
-    for node in module.body:
-        if not isinstance(node, ast.ClassDef):
-            continue
-        public = {
-            item.name
-            for item in node.body
-            if isinstance(item, (ast.FunctionDef, ast.AsyncFunctionDef))
-            and not item.name.startswith("_")
-        }
-        if public:
-            methods[node.name] = public
-    return methods
-
-
-def public_top_level_constants(stub_path: pathlib.Path) -> tuple[set[str], set[str]]:
-    module = ast.parse(stub_path.read_text(encoding="utf-8"))
-    constants: set[str] = set()
-    enum_aliases: set[str] = set()
-    for node in module.body:
-        if isinstance(node, ast.AnnAssign) and isinstance(node.target, ast.Name):
-            name = node.target.id
-            if not name.startswith("_"):
-                constants.add(name)
-        elif isinstance(node, ast.Assign):
-            public_names = [
-                target.id
-                for target in node.targets
-                if isinstance(target, ast.Name) and not target.id.startswith("_")
-            ]
-            constants.update(public_names)
-            if is_enum_alias(node.value):
-                enum_aliases.update(public_names)
-    return constants, enum_aliases
-
-
-def pycairo_api_snapshot() -> tuple[set[str], dict[str, set[str]], set[str], set[str]]:
-    """Return the maintained pycairo API snapshot for standalone checkouts."""
-
-    return (
-        set(EXPECTED_ANCHORS),
-        {
-            class_name: set(method_anchors)
-            for class_name, method_anchors in PUBLIC_METHOD_ANCHORS.items()
-        },
-        set(),
-        set(),
-    )
-
-
-def load_pycairo_api(
-    stub_path: pathlib.Path,
-) -> tuple[set[str], dict[str, set[str]], set[str], set[str]]:
-    if stub_path.exists():
-        constants, enum_aliases = public_top_level_constants(stub_path)
-        return (
-            public_top_level_names(stub_path),
-            public_class_methods(stub_path),
-            constants,
-            enum_aliases,
+def main(argv: list[str] | None = None) -> int:
+    args = parse_args(argv)
+    if args.update_snapshot:
+        if args.upstream_commit is None:
+            print("--update-snapshot requires --upstream-commit", file=sys.stderr)
+            return 2
+        try:
+            shape = write_api_snapshot(args.stub, args.snapshot, args.upstream_commit)
+        except (OSError, SyntaxError, ValueError) as exc:
+            print(exc, file=sys.stderr)
+            return 1
+        names, methods, constants, _ = shape
+        print(
+            f"Wrote {args.snapshot} with {len(names)} top-level entries, "
+            f"{len(constants)} constants, and "
+            f"{sum(len(items) for items in methods.values())} class methods"
         )
-    return pycairo_api_snapshot()
-
-
-def main() -> int:
-    stub_names, stub_methods, stub_constants, enum_alias_constants = load_pycairo_api(
-        PYCAIRO_STUB
-    )
+        return 0
+    try:
+        stub_names, stub_methods, stub_constants, enum_alias_constants = (
+            load_pycairo_api(args.stub, args.snapshot)
+        )
+        inventory = args.inventory.read_text(encoding="utf-8")
+        public_api = args.public_api.read_text(encoding="utf-8")
+    except (OSError, SyntaxError, ValueError) as exc:
+        print(exc, file=sys.stderr)
+        return 1
+    source_label = args.stub if args.stub.is_file() else args.snapshot
     expected_names = set(EXPECTED_ANCHORS)
-    inventory = INVENTORY.read_text(encoding="utf-8")
-    public_api = GENERATED_MBTI.read_text(encoding="utf-8")
 
     errors: list[str] = []
     for name in sorted(stub_names - expected_names):
-        errors.append(f"{PYCAIRO_STUB}: public API '{name}' has no inventory mapping")
+        errors.append(f"{source_label}: public API '{name}' has no inventory mapping")
     for name in sorted(expected_names - stub_names):
-        errors.append(f"{INVENTORY}: inventory mapping for '{name}' is no longer in pycairo stub")
+        errors.append(
+            f"{args.inventory}: inventory mapping for '{name}' is no longer "
+            "in the pycairo API snapshot"
+        )
     for name in sorted(stub_names & expected_names):
         for anchor in EXPECTED_ANCHORS[name]:
             if anchor not in inventory:
                 errors.append(
-                    f"{INVENTORY}: anchor {anchor!r} for pycairo API '{name}' is missing"
+                    f"{args.inventory}: anchor {anchor!r} for pycairo API "
+                    f"'{name}' is missing"
                 )
     for class_name in sorted(set(PUBLIC_METHOD_ANCHORS) - set(stub_methods)):
-        errors.append(f"{PYCAIRO_STUB}: expected portable class '{class_name}' is missing")
+        errors.append(f"{source_label}: expected portable class '{class_name}' is missing")
     for class_name, method_anchors in sorted(PUBLIC_METHOD_ANCHORS.items()):
         actual_methods = stub_methods.get(class_name, set())
         expected_methods = set(method_anchors)
         for method in sorted(actual_methods - expected_methods):
             errors.append(
-                f"{PYCAIRO_STUB}: pycairo method '{class_name}.{method}' has no "
+                f"{source_label}: pycairo method '{class_name}.{method}' has no "
                 "portable method mapping"
             )
         for method in sorted(expected_methods - actual_methods):
             errors.append(
-                f"{INVENTORY}: portable method mapping '{class_name}.{method}' is "
+                f"{args.inventory}: portable method mapping "
+                f"'{class_name}.{method}' is "
                 "no longer in pycairo stub"
             )
         for method in sorted(actual_methods & expected_methods):
             for anchor in method_anchors[method]:
                 if anchor not in public_api:
                     errors.append(
-                        f"{GENERATED_MBTI}: public API anchor {anchor!r} for "
+                        f"{args.public_api}: public API anchor {anchor!r} for "
                         f"pycairo method '{class_name}.{method}' is missing"
                     )
     for name in sorted(stub_constants):
@@ -635,18 +600,20 @@ def main() -> int:
         if anchors is None and name in enum_alias_constants:
             anchors = LEGACY_ENUM_ALIAS_ANCHOR
         if anchors is None:
-            errors.append(f"{PYCAIRO_STUB}: public constant '{name}' has no inventory mapping")
+            errors.append(
+                f"{source_label}: public constant '{name}' has no inventory mapping"
+            )
             continue
         for anchor in anchors:
             if anchor not in inventory:
                 errors.append(
-                    f"{INVENTORY}: anchor {anchor!r} for pycairo constant "
+                    f"{args.inventory}: anchor {anchor!r} for pycairo constant "
                     f"'{name}' is missing"
                 )
         for public_anchor in public_constant_api_anchors(name):
             if public_anchor not in public_api:
                 errors.append(
-                    f"{GENERATED_MBTI}: public API anchor {public_anchor!r} "
+                    f"{args.public_api}: public API anchor {public_anchor!r} "
                     f"for pycairo constant or alias '{name}' is missing"
                 )
 

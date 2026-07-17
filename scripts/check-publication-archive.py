@@ -17,6 +17,7 @@ REQUIRED_MEMBERS = frozenset(
         "COPYING-MPL-1.1",
         "README.md",
         "moon.mod",
+        "scripts/api/pycairo-api-snapshot.json",
         "scripts/build/cairo_config.py",
         "src/README.mbt.md",
         "src/moon.pkg",
@@ -38,6 +39,10 @@ REQUIRED_TEXT_MARKERS = {
         "Version 1.1",
     ),
     "moon.mod": ('license = "LGPL-2.1-only OR MPL-1.1"',),
+    "scripts/api/pycairo-api-snapshot.json": (
+        '"schema_version": 1',
+        '"path": "cairo/__init__.pyi"',
+    ),
 }
 REQUIRED_SHA256 = {
     "COPYING-LGPL-2.1": (

@@ -196,21 +196,25 @@ unsuppressed.
 3. Confirm `COPYING`, `COPYING-LGPL-2.1`, and `COPYING-MPL-1.1` are present and
    match the SPDX expression in `moon.mod`; the publication validator must
    reject missing or mismatched legal metadata.
-4. Run `scripts/configure-cairo-constants.sh --check`, then confirm no
+4. Run `python3 scripts/check-api-inventory.py` with the parent pycairo checkout
+   present. If the pinned pycairo commit changes, regenerate
+   `scripts/api/pycairo-api-snapshot.json` deliberately and review its source
+   SHA, API sets, and product mappings before release.
+5. Run `scripts/configure-cairo-constants.sh --check`, then confirm no
    `moon.pkg` contains concrete Cairo paths or `cc-link-flags`.
-5. Run `./scripts/verify.sh`; the release cannot proceed if this fails.
-6. Run `git diff -- pkg.generated.mbti` after `moon info --target native`.
+6. Run `./scripts/verify.sh`; the release cannot proceed if this fails.
+7. Run `git diff -- pkg.generated.mbti` after `moon info --target native`.
    Public API changes must be intentional and documented.
-7. Update `API_INVENTORY.md`, `AUDIT.md`, and `TESTING.md` with the exact API
+8. Update `API_INVENTORY.md`, `AUDIT.md`, and `TESTING.md` with the exact API
    and verification state.
-8. Confirm new public APIs have executable docs in the appropriate
+9. Confirm new public APIs have executable docs in the appropriate
    `*.mbt.md` reference file.
-9. Run both pinned Cairo matrix lanes and record their exact versions and test
+10. Run both pinned Cairo matrix lanes and record their exact versions and test
    counts in `AUDIT.md`.
-10. Run `./scripts/check-downstream-consumer.sh`; it must pass against both the
+11. Run `./scripts/check-downstream-consumer.sh`; it must pass against both the
    source checkout and extracted publication zip, and keep `integration/` out
    of the archive.
-11. Commit the release state and tag it from a clean worktree.
+12. Commit the release state and tag it from a clean worktree.
 
 ## CI Guidance
 

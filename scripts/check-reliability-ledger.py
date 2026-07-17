@@ -50,7 +50,7 @@ TESTS_EVIDENCE_MARKERS = (
     "579/579 documented public declarations",
     "349-local-plus-two-direct production FFI boundary",
     "source and extracted consumers plus the unmodified cross-host archive consumer",
-    "626 publication members",
+    "629 publication members",
     "ASan/LSan/UBSan",
     "Remaining gap:",
     "release commit",
@@ -294,7 +294,7 @@ def expected_tests_evidence() -> str:
         "tests across 20 families, 579/579 documented public declarations, "
         "the 349-local-plus-two-direct production FFI boundary, source and "
         "extracted consumers plus the unmodified cross-host archive consumer, "
-        "all 626 publication members, and every "
+        "all 629 publication members, and every "
         "discovered package under ASan/LSan/UBSan. Remaining gap: the unpushed "
         "release commit lacks shipped GitHub evidence for Ubuntu and macOS "
         "native jobs plus the Ubuntu combined ASan/LSan/UBSan job. Do not "
@@ -309,7 +309,7 @@ def current_stability_markers() -> tuple[str, ...]:
             "Local release-candidate matrices on exact Cairo 1.15.10 and "
             f"1.18.4 pass {script_test_evidence_marker()}, 826/826 native "
             "tests, 63/63 executable docs, source and extracted consumers plus "
-            "the unmodified cross-host archive consumer, all 626 publication "
+            "the unmodified cross-host archive consumer, all 629 publication "
             "members, and every package under "
             "ASan/LSan/UBSan."
         ),
@@ -323,7 +323,7 @@ def expected_current_stability_evidence() -> str:
         "Local release-candidate matrices on exact Cairo 1.15.10 and 1.18.4 "
         f"pass {script_test_evidence_marker()}, 826/826 native tests, 63/63 "
         "executable docs, source and extracted consumers plus the unmodified "
-        "cross-host archive consumer, all 626 publication members, and every "
+        "cross-host archive consumer, all 629 publication members, and every "
         "package under ASan/LSan/UBSan. The sole global `Partial` row is "
         "shipped test/release-platform evidence: the release commit still needs "
         "passing Ubuntu and macOS native jobs plus the Ubuntu ASan/LSan/UBSan job. "

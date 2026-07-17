@@ -19,6 +19,9 @@ VALID_MEMBERS = {
     "COPYING-MPL-1.1": (REPO_ROOT / "COPYING-MPL-1.1").read_bytes(),
     "README.md": b"# example\n",
     "moon.mod": b'license = "LGPL-2.1-only OR MPL-1.1"\n',
+    "scripts/api/pycairo-api-snapshot.json": (
+        REPO_ROOT / "scripts" / "api" / "pycairo-api-snapshot.json"
+    ).read_bytes(),
     "scripts/build/cairo_config.py": b"# build config\n",
     "src/README.mbt.md": b"# example\n",
     "src/moon.pkg": b"",
@@ -107,6 +110,18 @@ class PublicationArchiveCheckerTests(unittest.TestCase):
         errors, _ = self.check()
 
         self.assertTrue(any("scripts/build/cairo_config.py" in error for error in errors), errors)
+
+    def test_missing_api_snapshot_fails(self) -> None:
+        members = dict(VALID_MEMBERS)
+        del members["scripts/api/pycairo-api-snapshot.json"]
+        self.write_archive(members, include_required=False)
+
+        errors, _ = self.check()
+
+        self.assertTrue(
+            any("scripts/api/pycairo-api-snapshot.json" in error for error in errors),
+            errors,
+        )
 
     def test_duplicate_canonical_member_fails(self) -> None:
         self.write_archive({})
