@@ -19,6 +19,10 @@ Implemented in this workspace:
   cover the portable status paths rather than classifying them as platform
   exceptions.
 - MoonBit native package initialization with `moon.mod` and `src/moon.pkg`.
+- Publication legal metadata now matches `moon.mod`: `COPYING` records the
+  dual-license grant and the archive carries the complete LGPL-2.1 and MPL-1.1
+  texts. The archive gate also requires the public README/interface and
+  dependency pre-build script, and rejects duplicate canonical members.
 - Portable system-Cairo configuration through `scripts/build/cairo_config.py`.
   MoonBit's pre-build protocol resolves Cairo 1.15.10 or newer via `pkg-config`,
   injects `${build.CAIRO_CFLAGS}` into the two native-stub packages, and
@@ -28,13 +32,13 @@ Implemented in this workspace:
   process failures, deterministic JSON, and environment redaction.
 - Exact local release lanes for Cairo 1.15.10 and 1.18.4, built from pinned
   source URLs and SHA-256 digests on a pinned Ubuntu base image. Both lanes
-  pass all static gates, 826/826 native tests, 148/148 script tests, and 63/63
+  pass all static gates, 826/826 native tests, 153/153 script tests, and 63/63
   executable documentation tests with the pinned MoonBit
   `0.10.4+4f2e8f7dc-nightly` compiler. In each lane, the source-checkout and
   extracted-publication-zip consumers also pass 1/1 independently. Each lane
   additionally consumes the same unmodified host-generated zip, so
   producer-specific include/library paths cannot be hidden by lane setup. The
-  integrity-checked publication archive contains 623 members, and every
+  integrity-checked publication archive contains 626 members, and every
   discovered package passes ASan/LSan/UBSan. Each pinned lane also runs
   instrumented public-facade coverage and requires the exact linked-version
   ledger profile.
@@ -790,19 +794,19 @@ Implemented in this workspace:
 
 The most recent full local verification passed on 2026-07-17:
 
-- `CAIROON_VERIFY_ASAN=0 ./scripts/verify.sh` passed 148/148 script tests,
+- `./scripts/verify.sh` passed 153/153 script tests,
   826/826 native tests, 63/63 executable documentation tests, formatting,
   project layout, source-size, Cairo build-protocol/generated-constant, FFI
   ownership, API inventory,
   pycairo parity, public documentation, reliability-ledger, vector-scene,
   native type, and generated-interface gates. The isolated consumer passed
   1/1 against both the checkout and the integrity-tested extracted
-  623-member publication zip. Host sanitizers were intentionally not
-  duplicated in this run.
+  626-member publication zip. Host ASan/UBSan passed every discovered package;
+  authoritative Linux LSan coverage is supplied by both exact-Cairo lanes.
 - `./scripts/test-cairo-matrix.sh cairo-1.15.10` and
-  `./scripts/test-cairo-matrix.sh cairo-1.18.4` passed the same 148 script,
+  `./scripts/test-cairo-matrix.sh cairo-1.18.4` passed the same 153 script,
   826 native, and 63 documentation tests, both 1/1 consumer paths, the
-  unmodified host-archive consumer, all 623 publication members, and every
+  unmodified host-archive consumer, all 626 publication members, and every
   discovered package under ASan/LSan/UBSan.
   Intentional signed-overflow and leak preflights passed in both lanes. The
   constrained vector suppression accounted for 16 allocations/7424 bytes on
@@ -3570,7 +3574,8 @@ fresh workspace, and reruns the consumer against the packaged module. The two
 exact Linux Cairo lanes additionally consume the same host-generated zip
 without rewriting its manifests or running the repository constants updater.
 This catches producer-specific include and library paths that source-copy lane
-setup would otherwise hide. The current archive has 623 members; source,
+setup would otherwise hide. The current 626-member archive also contains the
+declared dual-license notice and complete license texts; source,
 freshly extracted, and unmodified cross-host archive paths all pass against
 Cairo 1.15.10 and 1.18.4.
 

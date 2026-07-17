@@ -193,21 +193,24 @@ unsuppressed.
 1. Update `version` in `moon.mod`.
 2. Ensure `repository`, `license`, `keywords`, and `description` are correct in
    `moon.mod`.
-3. Run `scripts/configure-cairo-constants.sh --check`, then confirm no
+3. Confirm `COPYING`, `COPYING-LGPL-2.1`, and `COPYING-MPL-1.1` are present and
+   match the SPDX expression in `moon.mod`; the publication validator must
+   reject missing or mismatched legal metadata.
+4. Run `scripts/configure-cairo-constants.sh --check`, then confirm no
    `moon.pkg` contains concrete Cairo paths or `cc-link-flags`.
-4. Run `./scripts/verify.sh`; the release cannot proceed if this fails.
-5. Run `git diff -- pkg.generated.mbti` after `moon info --target native`.
+5. Run `./scripts/verify.sh`; the release cannot proceed if this fails.
+6. Run `git diff -- pkg.generated.mbti` after `moon info --target native`.
    Public API changes must be intentional and documented.
-6. Update `API_INVENTORY.md`, `AUDIT.md`, and `TESTING.md` with the exact API
+7. Update `API_INVENTORY.md`, `AUDIT.md`, and `TESTING.md` with the exact API
    and verification state.
-7. Confirm new public APIs have executable docs in the appropriate
+8. Confirm new public APIs have executable docs in the appropriate
    `*.mbt.md` reference file.
-8. Run both pinned Cairo matrix lanes and record their exact versions and test
+9. Run both pinned Cairo matrix lanes and record their exact versions and test
    counts in `AUDIT.md`.
-9. Run `./scripts/check-downstream-consumer.sh`; it must pass against both the
+10. Run `./scripts/check-downstream-consumer.sh`; it must pass against both the
    source checkout and extracted publication zip, and keep `integration/` out
    of the archive.
-10. Commit the release state and tag it from a clean worktree.
+11. Commit the release state and tag it from a clean worktree.
 
 ## CI Guidance
 

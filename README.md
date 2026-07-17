@@ -201,3 +201,6 @@ cairoon uses the same license expression as pycairo:
 ```text
 LGPL-2.1-only OR MPL-1.1
 ```
+
+The distribution includes the project notice in `COPYING` and the complete
+license texts in `COPYING-LGPL-2.1` and `COPYING-MPL-1.1`.

@@ -1136,4 +1136,8 @@ A migrated API is done only when:
   wrapping.
 - Every public failing operation raises `CairoError` or a documented suberror
   variant.
+- Every publication archive contains `COPYING`, the complete LGPL-2.1 and
+  MPL-1.1 texts declared by `moon.mod`, the package README/interface, and the
+  dependency pre-build script; duplicate, unsafe, corrupt, or integration
+  members fail `scripts/check-publication-archive.py`.
 - The API inventory marks the item as `Done` with a test reference.

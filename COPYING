@@ -1,0 +1,14 @@
+cairoon is free software.
+
+Every source file in cairoon is available to be redistributed and/or modified
+under the terms of either the GNU Lesser General Public License (LGPL) version
+2.1 or the Mozilla Public License (MPL) version 1.1. Portions derived from
+pycairo remain available under the same dual-license terms.
+
+See the following files in this directory for the precise terms and conditions
+of either license:
+
+	COPYING-LGPL-2.1
+	COPYING-MPL-1.1
+
+SPDX-License-Identifier: LGPL-2.1-only OR MPL-1.1

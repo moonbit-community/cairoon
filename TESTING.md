@@ -82,6 +82,7 @@ Evaluate each slice with this scorecard:
 | Portability | Required backends pass on each supported platform, or unsupported APIs have explicit `Decision` rows | Strong local evidence at the exact Cairo 1.15.10 compatibility floor and recommended 1.18.4 release, plus the host lane. Both Linux lanes consume the same unmodified host-generated zip through module-level `pkg-config` discovery; still Partial until the release commit's shipped Ubuntu/macOS CI jobs pass |
 | Documentation | Public declarations have substantive MoonBit `///` comments, family workflows have executable examples where practical, and `scripts/check-public-docs.py` reports zero debt | Done: all 579 public declarations have substantive comments, the exact grandfather ledger is empty, executable downstream-style family notes include complete PDF/PS/SVG workflows, and new undocumented APIs or ledger drift fail the gate |
 | Downstream consumption | A separately named MoonBit module resolves the versioned local dependency, imports only `CAIMEOX/cairoon`, carries no native flags, receives propagated Cairo linking, renders through the public API against checkout and extracted publication zip, and stays outside that archive | Strong local evidence through `integration/consumer` and `scripts/check-downstream-consumer.sh`; the zip is integrity-tested and recompiled in a fresh temporary workspace, and `--archive` mode recompiles the producer-host zip unchanged in both exact-Cairo lanes |
+| Publication integrity | The zip contains the declared dual-license notice and full texts, module metadata, package README/interface, and dependency pre-build script; canonical paths are unique, safe, CRC-valid, and exclude integration fixtures | Done locally: `scripts/check-publication-archive.py` checks all 626 members, and ten focused tests cover valid archives plus missing/incorrect license data, metadata mismatch, missing build support, duplicate names, unsafe paths, fixture leakage, emptiness, and corruption |
 
 The practical release rule is simple: a feature can be trusted when its
 inventory row is `Done`, its reference docs are executable where practical,
@@ -4471,10 +4472,10 @@ standalone
 `scripts/sanitizers/probes/cairo_pdf_jbig2_missing_probe.c` must reproduce the
 exact signature before two suppressions can apply only to the PDF test package.
 
-Exact Linux Cairo 1.15.10 and 1.18.4 each pass 826/826 native tests, 148/148
+Exact Linux Cairo 1.15.10 and 1.18.4 each pass 826/826 native tests, 153/153
 script tests, 63/63 executable docs, the source and extracted 1/1 downstream
 consumers, the same unmodified host-generated archive consumer, publication
-archive integrity for 623 members, and every discovered package under
+archive integrity for 626 members, and every discovered package under
 ASan/LSan/UBSan. The pure-C recording-snapshot probe still limits the vector
 package to 16 suppressions/7424 bytes on Cairo 1.15.10 and 16/9344 on Cairo
 1.18.4. The pure-C PDF/JBIG2 probe limits the PDF package to two rows totaling
