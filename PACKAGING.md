@@ -191,8 +191,9 @@ unsuppressed.
 ## Release Checklist
 
 1. Update `version` in `moon.mod`.
-2. Ensure `repository`, `license`, `keywords`, and `description` are correct in
-   `moon.mod`.
+2. Ensure `repository`, `license`, `keywords`, `description`,
+   `preferred_target = "native"`, and `supported_targets = "native"` are
+   correct in `moon.mod`.
 3. Confirm `COPYING`, `COPYING-LGPL-2.1`, and `COPYING-MPL-1.1` are present and
    match the SPDX expression in `moon.mod`; the publication validator must
    reject missing or mismatched legal metadata.
@@ -239,9 +240,13 @@ Cairo.
 
 ## Package Scope
 
-- `preferred_target = "native"` is intentional.
-- Do not add package-wide `supported-targets = ["native"]`; gate FFI-only files
-  with package targets instead.
+- `preferred_target = "native"` and `supported_targets = "native"` are
+  intentional module-level product metadata. Unsupported target checks must
+  stop cleanly at the module boundary instead of reporting missing symbols
+  from native-gated FFI files.
+- Keep raw FFI files native-gated in their owning packages even though the
+  module currently supports only native. File-level gates document the ABI
+  boundary and remain necessary if the product later gains another backend.
 - Keep C stubs split by Cairo API family. Test-only C helpers belong in
   `cairoon_test_*.c`, not in the runtime stub files.
 - Standalone sanitizer probes belong in `scripts/sanitizers/probes/`, must end

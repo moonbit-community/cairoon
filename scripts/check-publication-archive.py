@@ -38,7 +38,11 @@ REQUIRED_TEXT_MARKERS = {
         "MOZILLA PUBLIC LICENSE",
         "Version 1.1",
     ),
-    "moon.mod": ('license = "LGPL-2.1-only OR MPL-1.1"',),
+    "moon.mod": (
+        'license = "LGPL-2.1-only OR MPL-1.1"',
+        'preferred_target = "native"',
+        'supported_targets = "native"',
+    ),
     "scripts/api/pycairo-api-snapshot.json": (
         '"schema_version": 1',
         '"path": "cairo/__init__.pyi"',

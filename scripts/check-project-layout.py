@@ -138,6 +138,18 @@ def check_source_root() -> list[str]:
     if not (PACKAGE_ROOT / "pkg.generated.mbti").exists():
         errors.append("src/pkg.generated.mbti: missing generated public interface")
     moon_mod = MOON_MOD.read_text(encoding="utf-8") if MOON_MOD.exists() else ""
+    target_markers = (
+        ("preferred_target", 'preferred_target = "native"'),
+        ("supported_targets", 'supported_targets = "native"'),
+    )
+    for field, marker in target_markers:
+        if (
+            re.search(
+                rf"^{field}\s*=\s*\"native\"\s*$", moon_mod, re.MULTILINE
+            )
+            is None
+        ):
+            errors.append(f"moon.mod: missing {marker}")
     if 'source = "src"' not in moon_mod:
         errors.append('moon.mod: missing source = "src"')
     if 'readme = "src/README.mbt.md"' not in moon_mod:
@@ -262,6 +274,7 @@ def check_integration_fixture() -> list[str]:
     module_markers = (
         'name = "cairoon-integration/consumer"',
         'preferred_target = "native"',
+        'supported_targets = "native"',
         'source = "src"',
     )
     for marker in module_markers:

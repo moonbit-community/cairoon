@@ -22,6 +22,10 @@ The public package root is now frozen by
 are grandfathered migration debt, and new implementation or test files must go
 into a MoonBit subpackage unless the layout plan is deliberately revised in the
 same commit.
+The module metadata declares both `preferred_target = "native"` and
+`supported_targets = "native"`. This makes the native-only product boundary
+machine-readable and prevents unsupported target checks from descending into
+target-gated raw FFI packages and producing misleading missing-symbol errors.
 The root and public-package-root allowlists are exact ledgers, not open-ended
 exemptions: when a file moves out of the repository root or direct `src/`, the
 same commit must remove its allowlist entry so an identically named file cannot
@@ -677,6 +681,8 @@ before MoonBit compilation. The layout check proves:
   oracles and glue families are split deliberately instead of growing in place;
 - `src/moon.pkg`, `src/pkg.generated.mbti`, and `moon.mod source = "src"`
   are present;
+- `moon.mod` declares native as both the preferred and sole supported target,
+  matching the public README and native C FFI implementation;
 - repository-root `tests/` does not contain MoonBit packages or source-like
   files, because it is outside the package search path;
 - every non-root `src/**/moon.pkg` has an adjacent `pkg.generated.mbti`, so

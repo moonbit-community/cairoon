@@ -13,7 +13,8 @@ using MoonBit-native value types, checked `CairoError` suberrors, explicit
 stream callbacks, and GC-managed external objects for Cairo handles.
 
 The package is intentionally native-only while the binding depends on Cairo C
-FFI. WebAssembly and JavaScript backends are not supported.
+FFI. Module metadata declares native as the sole supported target;
+WebAssembly, WasmGC, JavaScript, and LLVM backends are not supported.
 
 ## Requirements
 
@@ -77,7 +78,7 @@ version or commit is pinned. The complete portable API scope and all 20 pinned
 pycairo test families are covered, and all 579 published declarations have
 substantive API documentation.
 
-Local release-candidate matrices on exact Cairo 1.15.10 and 1.18.4 pass 161/161
+Local release-candidate matrices on exact Cairo 1.15.10 and 1.18.4 pass 165/165
 script tests, 826/826 native tests, 63/63 executable docs, source and extracted
 consumers plus the unmodified cross-host archive consumer, all 629 publication
 members, and every package under ASan/LSan/UBSan. The sole global `Partial` row

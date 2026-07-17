@@ -20,8 +20,10 @@ stream callbacks, and GC-managed external objects for Cairo handles.
 - `pkg-config` that can resolve `cairo`.
 - Python 3 for cairoon's MoonBit pre-build configuration and repository checks.
 
-cairoon is native-only. It does not currently target WebAssembly or JavaScript
-backends because the binding depends on Cairo C FFI.
+cairoon is native-only. Its module metadata declares native as both the
+preferred and sole supported target, so WebAssembly, WasmGC, JavaScript, and
+LLVM builds stop at the module boundary instead of compiling partial FFI
+packages. The binding depends on Cairo C FFI.
 
 The local release matrix compiles against exact Cairo 1.15.10 and 1.18.4
 sources. APIs introduced after the lower bound are compile-time feature-gated;

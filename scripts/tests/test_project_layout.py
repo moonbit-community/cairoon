@@ -151,6 +151,66 @@ class ReferenceDocumentationLayoutTests(unittest.TestCase):
         )
 
 
+class SourceRootMetadataTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.checker = load_checker()
+        self.temp_dir = tempfile.TemporaryDirectory()
+        self.root = pathlib.Path(self.temp_dir.name)
+        self.source = self.root / "src"
+        self.source.mkdir()
+        (self.source / "moon.pkg").write_text("", encoding="utf-8")
+        (self.source / "pkg.generated.mbti").write_text("", encoding="utf-8")
+        self.moon_mod = self.root / "moon.mod"
+        self.write_module()
+
+    def tearDown(self) -> None:
+        self.temp_dir.cleanup()
+
+    def write_module(
+        self,
+        *,
+        preferred_target: bool = True,
+        supported_targets: bool = True,
+    ) -> None:
+        lines = [
+            'name = "CAIMEOX/cairoon"',
+            'readme = "src/README.mbt.md"',
+            'source = "src"',
+        ]
+        if preferred_target:
+            lines.append('preferred_target = "native"')
+        if supported_targets:
+            lines.append('supported_targets = "native"')
+        lines.append('options(exclude: [ "integration" ])')
+        self.moon_mod.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+    def check(self) -> list[str]:
+        with mock.patch.multiple(
+            self.checker,
+            REPO_ROOT=self.root,
+            PACKAGE_ROOT=self.source,
+            MOON_MOD=self.moon_mod,
+        ):
+            return self.checker.check_source_root()
+
+    def test_native_only_module_metadata_passes(self) -> None:
+        self.assertEqual(self.check(), [])
+
+    def test_missing_preferred_native_target_fails(self) -> None:
+        self.write_module(preferred_target=False)
+
+        errors = self.check()
+
+        self.assertTrue(any("preferred_target" in error for error in errors), errors)
+
+    def test_missing_supported_native_target_fails(self) -> None:
+        self.write_module(supported_targets=False)
+
+        errors = self.check()
+
+        self.assertTrue(any("supported_targets" in error for error in errors), errors)
+
+
 class NativeBuildConfigurationLayoutTests(unittest.TestCase):
     def setUp(self) -> None:
         self.checker = load_checker()

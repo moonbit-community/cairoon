@@ -8,8 +8,11 @@ the binding specification and implementation checklist.
 Before changing binding code, read the `moonbit-c-binding` skill. The relevant
 MoonBit rules are:
 
-- Native C FFI is the first supported target. The LLVM backend is not a target
-  for this binding until MoonBit documents FFI support for it.
+- Native C FFI is the only supported target for the `0.x` product. The module
+  must declare `preferred_target = "native"` and
+  `supported_targets = "native"`; the LLVM, Wasm, WasmGC, and JavaScript
+  backends are not targets until MoonBit documents a compatible Cairo FFI
+  path.
 - C resources owned by MoonBit must be represented by abstract MoonBit types
   backed by `moonbit_make_external_object`.
 - Every non-primitive FFI parameter must be annotated with `#borrow` or
@@ -157,10 +160,12 @@ cairoon/
   tests/
 ```
 
-The module config must prefer native builds:
+The module config must prefer native builds and reject unsupported backends
+before package checking reaches native-only declarations:
 
 ```moonbit
 preferred_target = "native"
+supported_targets = "native"
 ```
 
 The public package config must import the native-stub package and gate raw FFI

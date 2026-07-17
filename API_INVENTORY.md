@@ -14,6 +14,13 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 
 ## Recent Audit Deltas
 
+- 2026-07-17: The published module now encodes its actual native-only backend
+  contract with both `preferred_target = "native"` and
+  `supported_targets = "native"`. Unsupported Wasm, WasmGC, JavaScript, and
+  LLVM checks stop at the module boundary instead of emitting internal
+  native-FFI missing-symbol errors. Project-layout and publication-archive
+  regressions enforce the metadata, bringing the script suite to 165/165 while
+  the archive remains 629 members.
 - 2026-07-17: The API inventory is now self-contained in publication archives.
   `scripts/api/pycairo-api-snapshot.json` pins pycairo commit `80ea3348`, the
   exact `cairo/__init__.pyi` SHA-256, 67 public top-level entries, 259 total
@@ -516,7 +523,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 | Scaled fonts | Done | External object, constructor, matrices/options/font-face getters, returned font-face/options lifetime after the source scaled-font scope exits, sheared font/CTM scale-matrix combination coverage, font/text/glyph extents including embedded-NUL validation, empty, single/multi/spaced ASCII, precomposed/decomposed Latin, CJK, Arabic RTL, and emoji UTF-8 text-to-glyph string/coordinate cases with direct C Cairo oracle coverage, targeted normal/ASan gate coverage, executable Font reference docs for matrices/options/metrics/text-to-glyphs/errors, and Context get/set |
 | Python buffer protocol / NumPy / pygame adapters | Decision | Python's buffer protocol and optional NumPy/pygame object adapters are host-runtime integrations, not Cairo APIs. Cairoon exposes checked `FixedArray[Byte]`-backed image construction plus retained `ImageData` access; exact shared-storage, mutable pixel, byte-layout, lifetime, and bounds behavior is tested without adding Python package dependencies or an unsafe unscoped raw-pointer API |
 | Docs | Done | README smoke examples, AGENTS lifecycle/error specifications, package/release/porting guides, and executable family reference notes are present. `scripts/check-public-docs.py` proves substantive MoonBit `///` documentation for all 579 public declarations across the facade and intentionally published support packages, with zero entries in `scripts/public-docs-debt.txt`; executable downstream-style docs cover every API family, including complete PDF/PS/SVG backend workflows and checked errors. New undocumented APIs or ledger drift fail the local and CI verification gate |
-| Tests | Partial | Local portable-scope evidence is complete: exact Cairo 1.15.10 and Cairo 1.18.4 lanes pass 161/161 script tests, 826/826 native tests, 63/63 executable docs, 288 upstream pycairo tests across 20 families, 579/579 documented public declarations, the 349-local-plus-two-direct production FFI boundary, source and extracted consumers plus the unmodified cross-host archive consumer, all 629 publication members, and every discovered package under ASan/LSan/UBSan. Remaining gap: the unpushed release commit lacks shipped GitHub evidence for Ubuntu and macOS native jobs plus the Ubuntu combined ASan/LSan/UBSan job. Do not close this row until those exact jobs pass on the release commit; local evidence alone cannot close it. |
+| Tests | Partial | Local portable-scope evidence is complete: exact Cairo 1.15.10 and Cairo 1.18.4 lanes pass 165/165 script tests, 826/826 native tests, 63/63 executable docs, 288 upstream pycairo tests across 20 families, 579/579 documented public declarations, the 349-local-plus-two-direct production FFI boundary, source and extracted consumers plus the unmodified cross-host archive consumer, all 629 publication members, and every discovered package under ASan/LSan/UBSan. Remaining gap: the unpushed release commit lacks shipped GitHub evidence for Ubuntu and macOS native jobs plus the Ubuntu combined ASan/LSan/UBSan job. Do not close this row until those exact jobs pass on the release commit; local evidence alone cannot close it. |
 
 ## Recent Reliability Slices
 

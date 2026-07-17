@@ -14,6 +14,8 @@ description = "MoonBit native bindings for the Cairo graphics library."
 
 preferred_target = "native"
 
+supported_targets = "native"
+
 source = "src"
 
 import {

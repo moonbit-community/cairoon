@@ -18,7 +18,11 @@ VALID_MEMBERS = {
     "COPYING-LGPL-2.1": (REPO_ROOT / "COPYING-LGPL-2.1").read_bytes(),
     "COPYING-MPL-1.1": (REPO_ROOT / "COPYING-MPL-1.1").read_bytes(),
     "README.md": b"# example\n",
-    "moon.mod": b'license = "LGPL-2.1-only OR MPL-1.1"\n',
+    "moon.mod": (
+        b'license = "LGPL-2.1-only OR MPL-1.1"\n'
+        b'preferred_target = "native"\n'
+        b'supported_targets = "native"\n'
+    ),
     "scripts/api/pycairo-api-snapshot.json": (
         REPO_ROOT / "scripts" / "api" / "pycairo-api-snapshot.json"
     ).read_bytes(),
@@ -101,6 +105,20 @@ class PublicationArchiveCheckerTests(unittest.TestCase):
         errors, _ = self.check()
 
         self.assertTrue(any("LGPL-2.1-only OR MPL-1.1" in error for error in errors), errors)
+
+    def test_module_native_target_contract_is_required(self) -> None:
+        self.write_archive(
+            {
+                "moon.mod": (
+                    b'license = "LGPL-2.1-only OR MPL-1.1"\n'
+                    b'preferred_target = "native"\n'
+                )
+            }
+        )
+
+        errors, _ = self.check()
+
+        self.assertTrue(any("supported_targets" in error for error in errors), errors)
 
     def test_missing_prebuild_script_fails(self) -> None:
         members = dict(VALID_MEMBERS)
