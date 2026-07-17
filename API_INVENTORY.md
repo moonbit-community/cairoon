@@ -14,6 +14,19 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 
 ## Recent Audit Deltas
 
+- 2026-07-17: The package-isolated native safety gate now combines ASan, LSan,
+  and UBSan. A signed-overflow preflight fails closed unless UBSan reports the
+  intentional error; the existing intentional-leak preflight still proves
+  LSan. Linux exposed Clang `function`-sanitizer metadata incompatibility at
+  otherwise ABI-correct MoonBit `FuncRef` calls. The C typedefs remain exact,
+  while four non-inlined dispatch helpers alone disable that subcheck for
+  stream read/write and raster-source acquire/release. A script regression
+  pins exactly those four annotations and forbids global function-sanitizer
+  disablement. The script suite is 121/121; public API, native-test count,
+  documentation, and the 349-local-plus-two-direct production FFI boundary are
+  unchanged. Exact Cairo 1.15.10 and 1.18.4 lanes each pass 826/826 native
+  tests, 63/63 executable docs, both isolated consumers, all 619 publication
+  members, and every discovered package under ASan/LSan/UBSan.
 - 2026-07-17: Public-facade branch coverage is now executable release
   evidence. Twenty-six family-local black-box tests cover object
   `Hash::hash_combine`, complete value component order, typed
@@ -864,8 +877,8 @@ Detailed execution rules live in `TESTING.md`.
 - Production `src/**/ffi*.mbt` declarations must pass
   `scripts/check-ffi-ownership.py`; every non-primitive C FFI parameter must be
   covered by `#borrow` or `#owned`.
-- Every C-owned object must have an ASan/LSan run that exercises construction,
-  normal use, error paths, and finalization.
+- Every C-owned object must have an ASan/LSan/UBSan run that exercises
+  construction, normal use, error paths, callback dispatch, and finalization.
 - Public API changes must regenerate and review `src/pkg.generated.mbti`.
 - `scripts/check-downstream-consumer.sh` must prove that a separately named
   MoonBit module can resolve, link, and render through the public package while

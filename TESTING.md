@@ -48,9 +48,10 @@ applicable gates below pass.
    inputs, invalid arguments, and any cairo error states known from pycairo.
 4. Differential parity: pure values, enums, query methods, and deterministic
    rendering are compared against pycairo or a small C Cairo oracle.
-5. Lifetime safety: every external object path is exercised under
-   AddressSanitizer/LeakSanitizer, including normal finalization, explicit
-   `finish`/`flush`, retained base objects, and error exits.
+5. Lifetime and native safety: every external object path is exercised under
+   AddressSanitizer/LeakSanitizer/UndefinedBehaviorSanitizer, including normal
+   finalization, explicit `finish`/`flush`, retained base objects, callback
+   dispatch, and error exits.
 6. Documentation: README or reference examples compile and run as MoonBit
    tests when possible.
 7. Portability: backend-specific APIs are either tested on the required
@@ -76,7 +77,7 @@ Evaluate each slice with this scorecard:
 | FFI boundary safety | Production raw `src/**/ffi*.mbt` declarations are native-gated in their owning `moon.pkg`, mark every non-primitive C FFI parameter with `#borrow` or `#owned`, and `scripts/check-project-layout.py`, `scripts/check-ffi-ownership.py`, plus `scripts/check-stream-cleanup.py` pass | Strong for current raw externs, including internal helper packages; the ownership gates enforce Device, Surface, mapped-image, and stream-constructor cleanup order plus scoped-error precedence, and all lints run in the local and CI verify gate |
 | Behavioral parity | pycairo-derived black-box cases or direct C Cairo primitive oracles cover normal and invalid inputs | Strong for image, context, path, font, pattern, region, surface/device, and backend helpers already listed in the inventory; all 288 tests from all 20 upstream test files are pinned and mapped to 197 family-local MoonBit runtime anchors, 291 required generated static API anchors, 29 deliberately absent signatures, 4 explicit inventory decisions, and 1 mandatory static verify gate. The public-facade ledger has 53 stable source anchors with semver scopes; exact analysis activates 50 exceptions on Cairo 1.15.10 and 43 on Cairo 1.18.4, while every portable reachable branch found by the audit is covered. |
 | Rendering parity | Deterministic image pixels or normalized PDF/PS/SVG bytes match direct C Cairo output | Strong for the portable migration scope. Scene 66 closes Cairo 1.18's finite tag-attribute contract across URI, multi-rectangle, destination, page-position, external-file, content, and content-reference cases; it joins the enumerated image and vector fixtures with file/stream/direct-C comparisons and stable positive or negative backend markers |
-| Lifetime safety | External-object ownership, borrowed returns, callback retention, and error exits run under ASan/LSan or stress tests | Strong for the current portable scope: Linux runs every MoonBit package in a separate ASan/LSan process; stream constructors retain callback state until partial native producers are destroyed on failure. Two upstream Cairo paths have pure-C-probe-verified, exact-count suppressions isolated to the vector-oracle and PDF backend packages; every other package remains unsuppressed. |
+| Lifetime safety | External-object ownership, borrowed returns, callback retention, integer/pointer operations, and error exits run under ASan/LSan/UBSan or stress tests | Strong for the current portable scope: Linux runs every MoonBit package in a separate ASan/LSan/UBSan process; stream constructors retain callback state until partial native producers are destroyed on failure. Two upstream Cairo paths have pure-C-probe-verified, exact-count LSan suppressions isolated to the vector-oracle and PDF backend packages; every other package remains unsuppressed. |
 | Callback safety | C-held MoonBit callbacks and callback arguments are retained across the callback invocation and released deterministically | Strong for stream writers/readers and raster-source callbacks covered by current stress/fuzz tests; reentrant raster registration changes are deferred until the old acquire/release pairs finish, with ASan and retained-owner regressions for clear from both callback directions |
 | Portability | Required backends pass on each supported platform, or unsupported APIs have explicit `Decision` rows | Strong local evidence at the exact Cairo 1.15.10 compatibility floor and recommended 1.18.4 release, plus the host lane; still Partial until the release commit's shipped Ubuntu/macOS CI jobs pass |
 | Documentation | Public declarations have substantive MoonBit `///` comments, family workflows have executable examples where practical, and `scripts/check-public-docs.py` reports zero debt | Done: all 579 public declarations have substantive comments, the exact grandfather ledger is empty, executable downstream-style family notes include complete PDF/PS/SVG workflows, and new undocumented APIs or ledger drift fail the gate |
@@ -4456,16 +4457,27 @@ standalone
 `scripts/sanitizers/probes/cairo_pdf_jbig2_missing_probe.c` must reproduce the
 exact signature before two suppressions can apply only to the PDF test package.
 
-Exact Linux Cairo 1.15.10 and 1.18.4 each pass 826/826 native tests, 116/116
+Exact Linux Cairo 1.15.10 and 1.18.4 each pass 826/826 native tests, 121/121
 script tests, 63/63 executable docs, both 1/1 downstream consumers, publication
 archive integrity for 619 members, and every discovered package under
-ASan/LSan. The pure-C recording-snapshot probe still limits the vector package
-to 16 suppressions/7424 bytes on Cairo 1.15.10 and 16/9344 on Cairo 1.18.4.
-The pure-C PDF/JBIG2 probe limits the PDF package to two rows totaling 9
-allocations/988 bytes on 1.15.10 and 14/2352 on 1.18.4. Every other package is
-unsuppressed. Documentation reaches 579 of 579 declarations with zero debt, so
-the Documentation inventory row is Done. Public signatures and the
+ASan/LSan/UBSan. The pure-C recording-snapshot probe still limits the vector
+package to 16 suppressions/7424 bytes on Cairo 1.15.10 and 16/9344 on Cairo
+1.18.4. The pure-C PDF/JBIG2 probe limits the PDF package to two rows totaling
+9 allocations/988 bytes on 1.15.10 and 14/2352 on 1.18.4. Every other package
+is unsuppressed. Documentation reaches 579 of 579 declarations with zero debt,
+so the Documentation inventory row is Done. Public signatures and the
 349-local-plus-two-direct-symbol production FFI boundary remain unchanged.
+
+The sanitizer runner now compiles every native package with
+`-fsanitize=address,undefined` and sets fail-fast UBSan options with stack
+traces. Its signed-overflow preflight proves the undefined-behavior runtime is
+active before MoonBit tests begin. Linux function sanitization cannot compare
+Clang's call-site metadata with MoonBit-native `FuncRef` target metadata, so
+exact C callback typedefs alone produce false incompatible-function reports.
+Only four non-inlined dispatch helpers disable the `function` subcheck: stream
+read/write and raster-source acquire/release. A static regression requires
+exactly these four annotations and verifies the runner does not globally add
+`-fno-sanitize=function`; every other UBSan category remains enabled.
 
 Remaining reliability work is now narrower and should be tracked as evidence,
 not as an unstructured checklist:
@@ -4479,9 +4491,9 @@ not as an unstructured checklist:
 - Keep the CI workflow green and expand it as the supported release platform
   matrix grows; generated-interface review, differential oracles, and sanitizer
   gates should be required before release.
-- Keep Linux as the authoritative LSan platform. macOS still runs ASan, but
-  release leak evidence comes from the pinned Linux lanes where LSan support
-  is preflighted instead of inferred.
+- Keep Linux as the authoritative LSan/UBSan platform. macOS still runs
+  ASan/UBSan, but release leak and undefined-behavior evidence comes from the
+  pinned Linux lanes where both runtimes are preflighted instead of inferred.
 - Close the remaining `Partial` Tests row in `API_INVENTORY.md` by obtaining
   shipped release-platform evidence without weakening unsupported scope into a
   vague success claim.

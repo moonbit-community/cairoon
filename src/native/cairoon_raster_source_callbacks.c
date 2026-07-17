@@ -26,6 +26,26 @@ static cairo_status_t cairoon_raster_source_apply_pending_state(
   cairo_pattern_t *pattern,
   CairoonRasterSourceState *state);
 
+static CAIROON_MOONBIT_FUNCREF_DISPATCH CairoonSurface *
+cairoon_raster_source_call_acquire(
+  CairoonRasterSourceAcquireCallback acquire,
+  CairoonSurface *target,
+  int32_t x,
+  int32_t y,
+  int32_t width,
+  int32_t height,
+  void *arg) {
+  return acquire(target, x, y, width, height, arg);
+}
+
+static CAIROON_MOONBIT_FUNCREF_DISPATCH void
+cairoon_raster_source_call_release(
+  CairoonRasterSourceReleaseCallback release,
+  CairoonSurface *surface,
+  void *arg) {
+  release(surface, arg);
+}
+
 static void cairoon_raster_source_finish_acquire(
   cairo_pattern_t *pattern,
   CairoonRasterSourceState *state,
@@ -184,7 +204,8 @@ static cairo_surface_t *cairoon_raster_source_acquire(
   if (acquire_arg != NULL) {
     moonbit_incref(acquire_arg);
   }
-  CairoonSurface *source_wrapper = acquire(
+  CairoonSurface *source_wrapper = cairoon_raster_source_call_acquire(
+    acquire,
     target_wrapper,
     extents->x,
     extents->y,
@@ -260,7 +281,7 @@ static void cairoon_raster_source_release(
     if (release_arg != NULL) {
       moonbit_incref(release_arg);
     }
-    release(owner_surface, release_arg);
+    cairoon_raster_source_call_release(release, owner_surface, release_arg);
     if (release_arg != NULL) {
       moonbit_decref(release_arg);
     }

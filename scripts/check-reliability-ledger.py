@@ -260,6 +260,9 @@ def check_local_matrix() -> list[str]:
 
     sanitizer_markers = (
         "compiler_preflight",
+        "-fsanitize=address,undefined",
+        "UBSAN_OPTIONS",
+        "validate_ubsan_probe",
         "probe_recording_snapshot_leak",
         "RECORDING_SNAPSHOT_PACKAGES",
         "probe_pdf_jbig2_missing_leak",

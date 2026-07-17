@@ -18,6 +18,22 @@ typedef struct {
 
 static const cairo_user_data_key_t cairoon_stream_state_key;
 
+static CAIROON_MOONBIT_FUNCREF_DISPATCH int32_t
+cairoon_stream_call_write(
+  CairoonStreamWriteCallback callback,
+  moonbit_bytes_t data,
+  void *arg) {
+  return callback(data, arg);
+}
+
+static CAIROON_MOONBIT_FUNCREF_DISPATCH moonbit_bytes_t
+cairoon_stream_call_read(
+  CairoonStreamReadCallback callback,
+  int32_t length,
+  void *arg) {
+  return callback(length, arg);
+}
+
 void cairoon_stream_state_destroy(void *state_ptr) {
   CairoonStreamState *state = (CairoonStreamState *)state_ptr;
   if (state == NULL) {
@@ -110,7 +126,10 @@ cairo_status_t cairoon_stream_write(
   if (state->arg != NULL) {
     moonbit_incref(state->arg);
   }
-  cairo_status_t status = (cairo_status_t)state->callback(bytes, state->arg);
+  cairo_status_t status = (cairo_status_t)cairoon_stream_call_write(
+    state->callback,
+    bytes,
+    state->arg);
   if (state->arg != NULL) {
     moonbit_decref(state->arg);
   }
@@ -205,7 +224,10 @@ cairo_status_t cairoon_stream_read(
   if (state->arg != NULL) {
     moonbit_incref(state->arg);
   }
-  moonbit_bytes_t bytes = state->callback((int32_t)length, state->arg);
+  moonbit_bytes_t bytes = cairoon_stream_call_read(
+    state->callback,
+    (int32_t)length,
+    state->arg);
   if (state->arg != NULL) {
     moonbit_decref(state->arg);
   }

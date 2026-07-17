@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 import sys
 import tempfile
 import unittest
@@ -7,8 +8,11 @@ from pathlib import Path
 
 
 SANITIZER_DIR = Path(__file__).resolve().parents[1] / "sanitizers"
+REPO_ROOT = SANITIZER_DIR.parents[1]
 sys.path.insert(0, str(SANITIZER_DIR))
 
+import policy as sanitizer_policy
+import run as sanitizer_run
 from policy import asan_options, leak_detection_enabled, policy_description
 from run import (
     CLEANUP_SOURCE,
@@ -31,6 +35,102 @@ from run import (
 
 
 class SanitizerPolicyTests(unittest.TestCase):
+    def test_compile_flags_enable_address_and_undefined_sanitizers(self) -> None:
+        self.assertIn(
+            "-fsanitize=address,undefined",
+            sanitizer_run.COMPILE_FLAGS,
+        )
+        self.assertNotIn("-fno-sanitize=function", sanitizer_run.COMPILE_FLAGS)
+        runner_source = Path(sanitizer_run.__file__).read_text(encoding="utf-8")
+        self.assertNotIn("-fno-sanitize=function", runner_source)
+        for package in REPO_ROOT.rglob("moon.pkg"):
+            self.assertNotIn(
+                "-fno-sanitize=function",
+                package.read_text(encoding="utf-8"),
+                package,
+            )
+
+    def test_moonbit_funcref_function_check_exemption_is_narrow(self) -> None:
+        header = (REPO_ROOT / "src/native/cairoon_private.h").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn('no_sanitize("function"), noinline', header)
+
+        native_dir = REPO_ROOT / "src/native"
+        native_sources = list(native_dir.glob("*.c"))
+        helper_pattern = re.compile(
+            r"static\s+CAIROON_MOONBIT_FUNCREF_DISPATCH\s+"
+            r"[A-Za-z_][A-Za-z0-9_]*\s*\*?\s*"
+            r"(cairoon_[A-Za-z0-9_]+)\s*\(",
+            re.MULTILINE,
+        )
+        annotated_helpers = {
+            source.name: set(helper_pattern.findall(source.read_text(encoding="utf-8")))
+            for source in native_sources
+        }
+        self.assertEqual(
+            {name: helpers for name, helpers in annotated_helpers.items() if helpers},
+            {
+                "cairoon_raster_source_callbacks.c": {
+                    "cairoon_raster_source_call_acquire",
+                    "cairoon_raster_source_call_release",
+                },
+                "cairoon_stream.c": {
+                    "cairoon_stream_call_read",
+                    "cairoon_stream_call_write",
+                },
+            },
+        )
+        c_family_sources = [
+            source
+            for root in (REPO_ROOT / "src", REPO_ROOT / "scripts")
+            for source in root.rglob("*")
+            if source.suffix in {".c", ".h"}
+        ]
+        macro_uses = {
+            source.relative_to(REPO_ROOT).as_posix(): source.read_text(
+                encoding="utf-8"
+            ).count("CAIROON_MOONBIT_FUNCREF_DISPATCH")
+            for source in c_family_sources
+        }
+        self.assertEqual(
+            {name: count for name, count in macro_uses.items() if count},
+            {
+                "src/native/cairoon_private.h": 2,
+                "src/native/cairoon_raster_source_callbacks.c": 2,
+                "src/native/cairoon_stream.c": 2,
+            },
+        )
+
+        raw_attribute_uses = {
+            source.relative_to(REPO_ROOT).as_posix(): source.read_text(
+                encoding="utf-8"
+            ).count(
+                'no_sanitize("function")'
+            )
+            for source in c_family_sources
+        }
+        self.assertEqual(
+            {name: count for name, count in raw_attribute_uses.items() if count},
+            {"src/native/cairoon_private.h": 1},
+        )
+
+    def test_ubsan_options_stop_on_first_error_with_stacktrace(self) -> None:
+        options = sanitizer_policy.ubsan_options()
+        self.assertIn("halt_on_error=1", options)
+        self.assertIn("print_stacktrace=1", options)
+
+    def test_ubsan_preflight_requires_signed_overflow_detection(self) -> None:
+        sanitizer_run.validate_ubsan_probe(
+            1,
+            "probe.c:8:16: runtime error: signed integer overflow: "
+            "2147483647 + 1 cannot be represented in type 'int'\n",
+        )
+        for returncode, output in ((0, ""), (1, "unrelated failure")):
+            with self.subTest(returncode=returncode, output=output):
+                with self.assertRaisesRegex(RuntimeError, "UndefinedBehaviorSanitizer"):
+                    sanitizer_run.validate_ubsan_probe(returncode, output)
+
     def test_auto_enables_lsan_only_on_linux(self) -> None:
         self.assertTrue(leak_detection_enabled("auto", "Linux"))
         self.assertFalse(leak_detection_enabled("auto", "Darwin"))

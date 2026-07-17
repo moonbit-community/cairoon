@@ -97,8 +97,8 @@ fn draw_example() -> Unit raise @cairoon.CairoError {
   `text_to_glyphs`, and `show_text_glyphs`.
 - Executable MoonBit reference examples in `src/README.mbt.md` and
   `src/docs/*.mbt.md`.
-- Native and ASan verification gates with direct C Cairo oracle tests for the
-  migrated rendering slices.
+- Native and ASan/LSan/UBSan verification gates with direct C Cairo oracle
+  tests for the migrated rendering slices.
 
 ## Current Stability
 
@@ -109,17 +109,17 @@ test-source families are covered, and all 579 published declarations have
 substantive API documentation. The sole global `Partial` inventory row is
 test/release-platform evidence: local verification is extensive, but the
 release commit still needs passing GitHub Actions evidence from the Ubuntu and
-macOS native jobs plus the Ubuntu ASan/LSan job. Platform-specific backends
+macOS native jobs plus the Ubuntu ASan/LSan/UBSan job. Platform-specific backends
 remain out of scope, and no source-compatibility promise exists before `1.0`.
 
-Linux ASan/LSan runs each MoonBit package in a separate process. Cairo 1.15.10
-and 1.18.4 both have two reproducible upstream error-path leaks covered by this
-suite: an SVG recording-surface snapshot and PDF finalization after a missing
-JBIG2 global segment. Standalone pure-C probes must reproduce exact allocation
-signatures before the gate enables narrow LSan suppressions for only the vector
-oracle and PDF backend test packages. Suppression counts and bytes must match
-the probes exactly; every other package remains unsuppressed. This does not
-change runtime behavior.
+Linux ASan/LSan/UBSan runs each MoonBit package in a separate process. Cairo
+1.15.10 and 1.18.4 both have two reproducible upstream error-path leaks covered
+by this suite: an SVG recording-surface snapshot and PDF finalization after a
+missing JBIG2 global segment. Standalone pure-C probes must reproduce exact
+allocation signatures before the gate enables narrow LSan suppressions for
+only the vector oracle and PDF backend test packages. Suppression counts and
+bytes must match the probes exactly; every other package remains unsuppressed.
+This does not change runtime behavior.
 
 Platform-specific Xlib, XCB, and Win32 surfaces are outside the first portable
 scope. Python-specific pycairo APIs such as `CAPI`, `get_include()`, Python
@@ -166,8 +166,8 @@ pycairo test-file families (288 upstream tests), the complete in-module MoonBit
 native suite, one
 isolated downstream-module import/link/render test against both the checkout
 and extracted publication zip, publication-archive isolation, executable docs,
-direct C Cairo oracle tests, `moon info`, and ASan/LSan when an ASan-capable
-compiler is available. Exact counts for the current audited revision are
+direct C Cairo oracle tests, `moon info`, and ASan/LSan/UBSan when a
+sanitizer-capable compiler is available. Exact counts for the current audited revision are
 recorded in `API_INVENTORY.md`, `AUDIT.md`, and `TESTING.md`.
 The parity gate rejects an unclaimed or multiply claimed upstream
 `tests/test_*.py` file.

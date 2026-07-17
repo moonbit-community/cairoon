@@ -16,8 +16,9 @@ Required:
 
 Optional but recommended:
 
-- An ASan-capable `clang`; Linux is the authoritative LeakSanitizer platform,
-  while Homebrew LLVM is preferred for macOS AddressSanitizer runs.
+- A sanitizer-capable `clang`; Linux is the authoritative LeakSanitizer and
+  UndefinedBehaviorSanitizer platform, while Homebrew LLVM is preferred for
+  macOS AddressSanitizer/UndefinedBehaviorSanitizer runs.
 
 ## Fresh Checkout Setup
 
@@ -134,8 +135,8 @@ all 20 pinned pycairo test-file families (288 tests), the isolated downstream
 import/link/render test against both source and extracted publication zip,
 archive integrity and fixture exclusion checks, native type checking, targeted
 image/scaled-font/vector/pattern oracle tests, the full native test suite,
-`moon info --target native`, and package-isolated ASan/LSan tests when an
-ASan-capable `clang` is available. A detected pycairo checkout must have
+`moon info --target native`, and package-isolated ASan/LSan/UBSan tests when a
+sanitizer-capable `clang` is available. A detected pycairo checkout must have
 exactly one ledger for every `tests/test_*.py` source file.
 
 Set `CAIROON_VERIFY_ASAN=0` only when intentionally skipping the sanitizer
@@ -152,9 +153,17 @@ Run the exact local Cairo compatibility lanes before release:
 
 Each lane builds Cairo from a pinned URL and SHA-256 in an isolated Docker
 image, copies the checkout into disposable storage, runs the complete MoonBit
-native suite, and tests each MoonBit package separately under ASan/LSan. Exact
+native suite, and tests each MoonBit package separately under ASan/LSan/UBSan. Exact
 counts for the audited release state are recorded in `AUDIT.md` and
-`TESTING.md`. Cairo's known SVG recording-snapshot leak is accepted only after
+`TESTING.md`. The runner first proves UBSan is active with an intentional signed
+overflow and LSan is active with an intentional leak. Clang's `function`
+subcheck is disabled only in four non-inlined C helpers that dispatch already
+type-checked MoonBit `FuncRef` values: stream read/write and raster-source
+acquire/release. A script regression requires exactly those four annotations
+and forbids a global `-fno-sanitize=function`; every other UBSan check and call
+site remains instrumented.
+
+Cairo's known SVG recording-snapshot leak is accepted only after
 `scripts/sanitizers/probes/cairo_recording_snapshot_probe.c` reproduces the
 exact two-allocation pure-C signature without suppressions. Its single-frame
 suppression is enabled only for `src/tests/oracle/vector_backend`; source
@@ -196,8 +205,8 @@ The repository ships `.github/workflows/ci.yml`. It runs:
 - Native verification on `ubuntu-latest` and `macos-latest` with ASan disabled.
 - A dedicated Ubuntu job that invokes `scripts/sanitizers/run.py` directly
   with `CAIROON_ASAN_CC=clang`, `CAIROON_ASAN_AR=llvm-ar`, and Linux leak
-  detection enabled. It does not repeat the ordinary full native gate, which
-  keeps CI usage bounded.
+  detection enabled. It runs ASan, LSan, and UBSan without repeating the
+  ordinary full native gate, which keeps CI usage bounded.
 
 Custom CI should install Cairo and `pkg-config`, then run:
 
@@ -206,8 +215,9 @@ scripts/configure-link-flags.sh
 ./scripts/verify.sh
 ```
 
-If the CI image lacks an ASan-capable compiler, set `CAIROON_VERIFY_ASAN=0` and
-run the ASan job separately on an image that provides `clang` plus Cairo.
+If the CI image lacks a sanitizer-capable compiler, set `CAIROON_VERIFY_ASAN=0`
+and run the sanitizer job separately on an image that provides `clang` plus
+Cairo.
 
 ## Package Scope
 

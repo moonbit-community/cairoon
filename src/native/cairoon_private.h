@@ -81,6 +81,16 @@ typedef void (*CairoonRasterSourceReleaseCallback)(
   void *arg);
 typedef struct CairoonRasterSourceState CairoonRasterSourceState;
 
+// Clang cannot validate its function-sanitizer metadata against functions
+// emitted by MoonBit's native backend. Restrict this attribute to the tiny
+// helpers that dispatch an already type-checked FuncRef.
+#if defined(__clang__)
+#define CAIROON_MOONBIT_FUNCREF_DISPATCH \
+  __attribute__((no_sanitize("function"), noinline))
+#else
+#define CAIROON_MOONBIT_FUNCREF_DISPATCH
+#endif
+
 CairoonSurface *cairoon_surface_wrap_owned(cairo_surface_t *ptr);
 CairoonSurface *cairoon_surface_wrap_owned_with_base(
   cairo_surface_t *ptr,

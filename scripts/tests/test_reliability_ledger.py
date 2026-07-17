@@ -161,6 +161,9 @@ class LocalMatrixGateTests(unittest.TestCase):
             "\n".join(
                 [
                     "compiler_preflight",
+                    "-fsanitize=address,undefined",
+                    "UBSAN_OPTIONS",
+                    "validate_ubsan_probe",
                     "probe_recording_snapshot_leak",
                     "RECORDING_SNAPSHOT_PACKAGES",
                     "probe_pdf_jbig2_missing_leak",
@@ -203,6 +206,20 @@ class LocalMatrixGateTests(unittest.TestCase):
             "./scripts/verify.sh\n"
         )
         self.assertTrue(any("--analyze" in error for error in errors))
+
+    def test_matrix_lane_requires_undefined_behavior_preflight(self) -> None:
+        self.sanitizer.write_text(
+            self.sanitizer.read_text(encoding="utf-8").replace(
+                "validate_ubsan_probe\n",
+                "",
+            ),
+            encoding="utf-8",
+        )
+        errors = self.check(
+            "python3 ./scripts/check-public-coverage.py --analyze\n"
+            "./scripts/verify.sh\n"
+        )
+        self.assertTrue(any("validate_ubsan_probe" in error for error in errors))
 
 
 if __name__ == "__main__":

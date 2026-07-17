@@ -91,7 +91,7 @@ jobs:
       - name: Configure native link flags
         run: scripts/configure-link-flags.sh
 
-      - name: Run ASan and LSan package gate
+      - name: Run ASan, LSan, and UBSan package gate
         env:
           CAIROON_ASAN_CC: clang
           CAIROON_ASAN_AR: llvm-ar

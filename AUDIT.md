@@ -25,17 +25,26 @@ Implemented in this workspace:
   `scripts/configure-link-flags.sh --check` in the local reliability gate.
 - Exact local release lanes for Cairo 1.15.10 and 1.18.4, built from pinned
   source URLs and SHA-256 digests on a pinned Ubuntu base image. Both lanes
-  pass all static gates, 826/826 native tests, 116/116 script tests, and 63/63
+  pass all static gates, 826/826 native tests, 121/121 script tests, and 63/63
   executable documentation tests with the pinned MoonBit
   `0.10.4+4f2e8f7dc-nightly` compiler. In each lane, the source-checkout and
   extracted-publication-zip consumers also pass 1/1 independently; the
   integrity-checked publication archive contains 619 members, and every
-  discovered package passes ASan/LSan. Each pinned lane also runs instrumented
-  public-facade coverage and requires the exact linked-version ledger profile.
-- Linux ASan/LSan now runs every discovered MoonBit package in a separate
-  process. An intentional-leak preflight proves LSan is active; the runner
-  creates a temporary `MOON_TOOLCHAIN_ROOT` with an allocator-free shadow
-  runtime, leaving the installed MoonBit toolchain untouched.
+  discovered package passes ASan/LSan/UBSan. Each pinned lane also runs
+  instrumented public-facade coverage and requires the exact linked-version
+  ledger profile.
+- Linux ASan/LSan/UBSan now runs every discovered MoonBit package in a separate
+  process. Intentional signed-overflow and leak preflights prove UBSan and LSan
+  are active; the runner creates a temporary `MOON_TOOLCHAIN_ROOT` with an
+  allocator-free shadow runtime, leaving the installed MoonBit toolchain
+  untouched.
+- Clang's `function` subcheck cannot validate compiler-specific metadata on
+  MoonBit-native `FuncRef` targets even though the official ABI and emitted
+  calling convention match the C callback typedef. Exactly four non-inlined
+  C helpers disable only that subcheck while dispatching stream read/write and
+  raster-source acquire/release. Script tests require those four and no others,
+  and reject global `-fno-sanitize=function`; all surrounding C and all other
+  UBSan checks remain instrumented and fail-fast.
 - The unsuppressed sanitizer pass found and fixed a real stream callback leak
   in `src/native/cairoon_stream.c`: a fresh `moonbit_make_bytes` result already
   owns its call-scoped reference and must not be incremented before passing it
@@ -91,7 +100,7 @@ Implemented in this workspace:
   `scripts/check-reliability-ledger.py`, wired into `scripts/verify.sh`, so
   migration status rows use accepted statuses, `Partial` rows state remaining
   gaps explicitly, the TESTING scorecard keeps its required dimensions, and CI
-  continues to run native/ASan verify gates.
+  continues to run native and ASan/LSan/UBSan verify gates.
 - Initial external black-box API package extraction under
   `src/tests/api/{version,enums,pycairo}`. Root-level `tests/` packages are
   intentionally forbidden while `moon.mod source = "src"` keeps the public
@@ -3551,7 +3560,7 @@ includes both checkout and extracted-publication consumer runs on exact Cairo
   already complete at 579/579 declarations with zero debt. Full-product status
   still requires the release-evidence `Partial` row to gain passing CI coverage
   for the Ubuntu and macOS native jobs plus the Ubuntu package-isolated
-  ASan/LSan job, or for genuinely unsupported scope to become an explicit
+  ASan/LSan/UBSan job, or for genuinely unsupported scope to become an explicit
   `Decision`.
 - Cairo 1.18's finite portable tag-attribute contract is closed by Scene 66:
   all 10 official Link/Dest/content/content-reference dimensions have
@@ -3571,12 +3580,12 @@ includes both checkout and extracted-publication consumer runs on exact Cairo
   checks for drift; a future publishing workflow may still want package-manager
   specific guidance for non-`pkg-config` Cairo installations.
 - The CI workflow runs native verify on Ubuntu and macOS plus an Ubuntu
-  package-isolated ASan/LSan job. It no longer disables leak detection or
+  package-isolated ASan/LSan/UBSan job. It no longer disables leak detection or
   repeats the ordinary native gate in the sanitizer job. Release evidence
   still requires those jobs to pass for the release commit; this checkout was
   deliberately not pushed merely to trigger CI.
-- Linux is the authoritative LSan platform. macOS ASan is an optional local
-  gate; the shipped macOS CI job intentionally runs ordinary native verify with
-  duplicate ASan disabled. Exact leak evidence comes from the pinned Linux
-  lanes and Ubuntu sanitizer job, whose intentional-leak preflight proves the
-  runtime can detect leaks.
+- Linux is the authoritative LSan/UBSan platform. macOS ASan/UBSan is an
+  optional local gate; the shipped macOS CI job intentionally runs ordinary
+  native verify with duplicate sanitizer work disabled. Exact leak and
+  undefined-behavior evidence comes from the pinned Linux lanes and Ubuntu
+  sanitizer job, whose intentional preflights prove both runtimes are active.

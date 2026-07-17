@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run the complete native suite with real ASan/LSan instrumentation."""
+"""Run the native suite with real ASan, LSan, and UBSan instrumentation."""
 
 from __future__ import annotations
 
@@ -15,10 +15,20 @@ import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 
-from policy import LEAK_MODES, asan_options, leak_detection_enabled, policy_description
+from policy import (
+    LEAK_MODES,
+    asan_options,
+    leak_detection_enabled,
+    policy_description,
+    ubsan_options,
+)
 
 
-COMPILE_FLAGS = ("-g", "-fsanitize=address", "-fno-omit-frame-pointer")
+COMPILE_FLAGS = (
+    "-g",
+    "-fsanitize=address,undefined",
+    "-fno-omit-frame-pointer",
+)
 LSAN_EXIT_CODE = 86
 REPO_ROOT = Path(__file__).resolve().parents[2]
 RECORDING_SNAPSHOT_PROBE = (
@@ -130,7 +140,7 @@ def choose_compiler(requested: str | None, system: str) -> str:
     candidates.extend(["clang", "cc"])
     compiler = first_executable(candidates)
     if compiler is None:
-        raise RuntimeError("no ASan-capable C compiler found")
+        raise RuntimeError("no sanitizer-capable C compiler found")
     return compiler
 
 
@@ -166,6 +176,14 @@ def run_checked(command: list[str], **kwargs: object) -> None:
     subprocess.run(command, check=True, **kwargs)
 
 
+def validate_ubsan_probe(returncode: int, output: str) -> None:
+    if returncode == 0 or "runtime error: signed integer overflow" not in output:
+        raise RuntimeError(
+            "UndefinedBehaviorSanitizer preflight did not detect an intentional "
+            f"signed overflow; exit={returncode}\n{output}"
+        )
+
+
 def compiler_preflight(compiler: str, leaks_enabled: bool) -> None:
     with tempfile.TemporaryDirectory(prefix="cairoon-asan-probe-") as raw_dir:
         work = Path(raw_dir)
@@ -175,7 +193,38 @@ def compiler_preflight(compiler: str, leaks_enabled: bool) -> None:
         run_checked([compiler, *COMPILE_FLAGS, str(clean_source), "-o", str(clean_binary)])
         clean_env = os.environ.copy()
         clean_env["ASAN_OPTIONS"] = asan_options(False)
+        clean_env["UBSAN_OPTIONS"] = ubsan_options()
         run_checked([str(clean_binary)], env=clean_env)
+
+        undefined_source = work / "undefined.c"
+        undefined_binary = work / "undefined"
+        undefined_source.write_text(
+            "#include <limits.h>\n"
+            "int main(void) { volatile int value = INT_MAX; return value + 1; }\n",
+            encoding="ascii",
+        )
+        run_checked(
+            [
+                compiler,
+                *COMPILE_FLAGS,
+                str(undefined_source),
+                "-o",
+                str(undefined_binary),
+            ]
+        )
+        undefined_probe = subprocess.run(
+            [str(undefined_binary)],
+            env=clean_env,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+        )
+        validate_ubsan_probe(undefined_probe.returncode, undefined_probe.stdout)
+        print(
+            "UndefinedBehaviorSanitizer preflight detected the intentional "
+            "signed overflow.",
+            flush=True,
+        )
 
         if not leaks_enabled:
             return
@@ -305,6 +354,7 @@ def probe_recording_snapshot_leak(
     )
     env = os.environ.copy()
     env["ASAN_OPTIONS"] = asan_options(True)
+    env["UBSAN_OPTIONS"] = ubsan_options()
     env["LSAN_OPTIONS"] = lsan_options()
     result = subprocess.run(
         [str(binary)],
@@ -428,6 +478,7 @@ def probe_pdf_jbig2_missing_leak(
     )
     env = os.environ.copy()
     env["ASAN_OPTIONS"] = asan_options(True)
+    env["UBSAN_OPTIONS"] = ubsan_options()
     env["LSAN_OPTIONS"] = lsan_options()
     result = subprocess.run(
         [str(binary)],
@@ -647,6 +698,7 @@ def run_suite(
         env["MOON_AR"] = archiver
         env["MOON_TOOLCHAIN_ROOT"] = str(shadow_toolchain)
         env["ASAN_OPTIONS"] = asan_options(leaks_enabled)
+        env["UBSAN_OPTIONS"] = ubsan_options()
         if leaks_enabled:
             env["LSAN_OPTIONS"] = lsan_options()
         else:
@@ -743,9 +795,11 @@ def run_suite(
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Run cairoon's complete native test suite under ASan/LSan"
+        description=(
+            "Run cairoon's complete native test suite under ASan/LSan/UBSan"
+        )
     )
-    parser.add_argument("--cc", help="ASan-capable compiler")
+    parser.add_argument("--cc", help="sanitizer-capable compiler")
     parser.add_argument("--ar", help="native archiver")
     parser.add_argument("--package", help="run one package during local diagnosis")
     parser.add_argument(

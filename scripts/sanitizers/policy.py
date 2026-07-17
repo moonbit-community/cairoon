@@ -24,9 +24,16 @@ def asan_options(leaks_enabled: bool) -> str:
     )
 
 
+def ubsan_options() -> str:
+    return "halt_on_error=1:print_stacktrace=1"
+
+
 def policy_description(system: str, leaks_enabled: bool) -> str:
     if leaks_enabled:
-        return f"ASan and LSan enabled on {system}"
+        return f"ASan, LSan, and UBSan enabled on {system}"
     if system == "Darwin":
-        return "ASan enabled; LSan deferred to the authoritative Linux matrix"
-    return f"ASan enabled; LSan explicitly disabled on {system}"
+        return (
+            "ASan and UBSan enabled; LSan deferred to the authoritative "
+            "Linux matrix"
+        )
+    return f"ASan and UBSan enabled; LSan explicitly disabled on {system}"

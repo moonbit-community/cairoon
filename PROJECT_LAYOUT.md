@@ -459,13 +459,13 @@ MoonBit package shape without weakening the public interface.
 |---|---|---|
 | Public package | `src/` | Owns the stable `CAIMEOX/cairoon` interface and public external object types until a facade proof proves otherwise. |
 | Pure support packages | `src/core/` | May hold pure values/helpers only after their public names can be preserved or intentionally re-exported. `src/core/glyph` is the first accepted seam: the public package exposes `pub type Glyph = @glyph.Glyph`, owns `@glyph.field_arrays` for glyph-array marshaling preparation, and tests prove `@cairoon.Glyph::new`, field access, dot-method syntax, and glyph-array FFI paths still work through the facade. `src/core/constants` is the second accepted seam: it owns generated primitive Cairo constants, while the facade preserves `@cairoon.CAIRO_VERSION`, `@cairoon.HAS_*`, `@cairoon.MIME_TYPE_*`, tag constants, `PDF_OUTLINE_ROOT`, and `COLOR_PALETTE_DEFAULT` through `pub const` aliases. |
-| Internal implementation packages | `src/internal/<family>/` | May own native-gated externs and helpers when the public `CAIMEOX/cairoon` facade remains unchanged. Version, format, status, PDF, PS, SVG, stream, and C-string helpers keep public enums, errors, and object wrappers in the facade. Region, FontOptions, FontFace, Path, Device, ScaledFont, Pattern, Context, and Surface are facade-owned object seams: each child owns the sole GC-managed raw handle and uses raw `Int` status/enum values; checked public methods alone wrap or unwrap it. The ScaledFont child additionally owns private `RawTextToGlyphs`, whose arrays are copied into public pure values. Cross-family child calls exchange only raw handles. Context owns 109 externs across seven C-matched families, Device owns 17, Pattern owns 38, and Surface owns 79; the public root retains exactly 12 callback bridges in five files. Every native-importing child carries Cairo link flags and links independently. Producer-only children such as Path are tested through real external producers, not test-only C constructors. Callback-owning bridges such as Device streams and raster Pattern must prove owned-closure cleanup and retained-object safety under ASan/LSan. |
+| Internal implementation packages | `src/internal/<family>/` | May own native-gated externs and helpers when the public `CAIMEOX/cairoon` facade remains unchanged. Version, format, status, PDF, PS, SVG, stream, and C-string helpers keep public enums, errors, and object wrappers in the facade. Region, FontOptions, FontFace, Path, Device, ScaledFont, Pattern, Context, and Surface are facade-owned object seams: each child owns the sole GC-managed raw handle and uses raw `Int` status/enum values; checked public methods alone wrap or unwrap it. The ScaledFont child additionally owns private `RawTextToGlyphs`, whose arrays are copied into public pure values. Cross-family child calls exchange only raw handles. Context owns 109 externs across seven C-matched families, Device owns 17, Pattern owns 38, and Surface owns 79; the public root retains exactly 12 callback bridges in five files. Every native-importing child carries Cairo link flags and links independently. Producer-only children such as Path are tested through real external producers, not test-only C constructors. Callback-owning bridges such as Device streams and raster Pattern must prove owned-closure cleanup and retained-object safety under ASan/LSan/UBSan. |
 | Native stubs | `src/native/` | Owns public C glue compilation through `src/native/moon.pkg`. Every `.c` file beside that package file must be listed by bare filename in its `native-stub` list; `src/moon.pkg` imports `CAIMEOX/cairoon/native` and must not own `native-stub` entries. Headers in `src/native/` are private to those stubs. |
 | Black-box tests | `src/tests/<family>/` | Import `CAIMEOX/cairoon`; assert only public behavior. Any package that imports cairoon must carry Cairo `cc-link-flags`, because native link flags are not propagated to external test executables. |
 | White-box oracles | `src/tests/oracle/<family>/` plus shared C support in `src/tests/oracle/native/` | Import `CAIMEOX/cairoon` for the public API and declare test-only direct-C oracle externs locally; public binding wrappers must never import oracle packages. Test-only C symbols are provided by the oracle-native support package, not `src/moon.pkg`. |
 | Documentation | `src/docs/`, `src/README.mbt.md`, and repository `docs/` | Narrative docs live outside source packages; the public package README stays at `src/README.mbt.md` for `moon.mod`, and family executable reference docs live in the external `src/docs` package so they compile like downstream user code through `CAIMEOX/cairoon`. |
 | Downstream integration | `integration/moon.work` and `integration/consumer/` | The consumer must remain a separately named MoonBit module with a versioned dependency on `CAIMEOX/cairoon`; its test package imports only the public package, carries platform Cairo link flags, and proves native drawing/readback against both the source checkout and an extracted publication zip. Root `moon.mod` must exclude `integration/` from publication. |
-| Release verification tooling | `scripts/matrix/` and `scripts/sanitizers/` | Pinned Cairo build lanes and sanitizer policy stay outside MoonBit packages. Standalone C diagnostics live only in `scripts/sanitizers/probes/`, end in `_probe.c`, compile directly with `pkg-config`, and must not be referenced by any `native-stub` list. |
+| Release verification tooling | `scripts/matrix/` and `scripts/sanitizers/` | Pinned Cairo build lanes and ASan/LSan/UBSan policy stay outside MoonBit packages. Standalone C diagnostics live only in `scripts/sanitizers/probes/`, end in `_probe.c`, compile directly with `pkg-config`, and must not be referenced by any `native-stub` list. |
 
 Do not split a family across packages until the type names, method call syntax,
 generated `.mbti`, and `moon test --target native` behavior are proven in a
@@ -578,7 +578,7 @@ Follow this order. Each step gets its own commit and must pass
    production constructor, it deliberately has no package-local fixture API:
    Context, Path, mesh Pattern, and lifetime black-box tests must cover both
    producers, append consumption, status failures, source-scope independence,
-   and finalization under ASan/LSan. Generated public-interface comparison
+   and finalization under ASan/LSan/UBSan. Generated public-interface comparison
    must remain empty before this seam is accepted.
    `src/internal/device` is the fifth object-handle seam and the first whose
    production constructor transfers a MoonBit callback closure into native
@@ -592,7 +592,7 @@ Follow this order. Each step gets its own commit and must pass
    owner responsible for releasing the `#owned` writer closure. Package-local
    raw state/lifecycle tests, external Device/ScriptSurface and pycairo parity
    tests, stream-retention/finalizer stress, generated-interface comparison,
-   and package-isolated ASan/LSan must pass before this seam is accepted.
+   and package-isolated ASan/LSan/UBSan must pass before this seam is accepted.
    `src/internal/scaled_font` is the sixth object-handle seam and owns both the
    sole `RawScaledFont` owner and private `RawTextToGlyphs` result owner. Its
    two focused FFI files hold 18 raw constructor, identity, getter, matrix,
@@ -604,7 +604,7 @@ Follow this order. Each step gets its own commit and must pass
    families.
    Package-local raw identity/matrix/text-result tests, external font/context/
    glyph/oracle/lifetime tests, unchanged generated public interface, and
-   package-isolated ASan/LSan must pass before this seam is accepted.
+   package-isolated ASan/LSan/UBSan must pass before this seam is accepted.
    `src/internal/pattern` is the seventh object-handle seam. It owns the sole
    `RawPattern` owner and all 38 core/solid/gradient/mesh/SurfacePattern/raw
    raster-source externs in focused FFI files. Public `Pattern` remains an abstract
@@ -614,7 +614,7 @@ Follow this order. Each step gets its own commit and must pass
    while Context source/group/mask bridges exchange `RawPattern`. Three
    package-local raw identity/state/gradient/mesh tests, external Pattern,
    Context, image/vector oracle, callback-owner/fuzz, value/finalizer tests,
-   unchanged generated public interface, and package-isolated ASan/LSan must
+   unchanged generated public interface, and package-isolated ASan/LSan/UBSan must
    pass before this seam is accepted.
    `src/internal/context` is the eighth object-handle seam and the first split
    across all seven responsibilities of an existing C family. It owns the sole
@@ -627,7 +627,7 @@ Follow this order. Each step gets its own commit and must pass
    handles and must not gain a test-only C constructor. Package-local and
    external Context, font, path,
    pattern, Surface, object-trait, lifetime, raster/vector oracle, unchanged
-   generated-interface, downstream-consumer, and package-isolated ASan/LSan
+   generated-interface, downstream-consumer, and package-isolated ASan/LSan/UBSan
    evidence must all pass before this seam is accepted.
 7. **Executable docs package split**: completed. `src/README.mbt.md` remains the
    `moon.mod` readme, while all eleven family executable reference documents
