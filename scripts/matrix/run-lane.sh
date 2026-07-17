@@ -29,7 +29,8 @@ fi
 printf 'Matrix lane: Linux, Cairo %s\n' "$actual_cairo"
 moon version --all
 moon update
-./scripts/configure-link-flags.sh
+./scripts/check-downstream-consumer.sh --archive /artifact/cairoon.zip
+./scripts/configure-cairo-constants.sh
 python3 ./scripts/check-public-coverage.py --analyze
 
 CAIROON_VERIFY_ASAN=1 \

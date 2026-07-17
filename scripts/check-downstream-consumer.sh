@@ -5,6 +5,30 @@ repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 consumer_root="$repo_root/integration/consumer"
 consumer_package="src/smoke"
 artifact_workspace=""
+archive_path=""
+test_source=1
+
+usage() {
+  cat <<'USAGE'
+Usage: scripts/check-downstream-consumer.sh [--archive PATH]
+
+Without arguments, package the current checkout and test both source and archive
+consumers. With --archive, test that existing archive without reconfiguring it.
+USAGE
+}
+
+if [[ "$#" == 2 && "$1" == "--archive" ]]; then
+  archive_path="$2"
+  if [[ ! -f "$archive_path" ]]; then
+    printf 'error: publication archive does not exist: %s\n' "$archive_path" >&2
+    exit 1
+  fi
+  archive_path="$(cd "$(dirname "$archive_path")" && pwd)/$(basename "$archive_path")"
+  test_source=0
+elif [[ "$#" != 0 ]]; then
+  usage >&2
+  exit 2
+fi
 
 cleanup() {
   if [[ -n "$artifact_workspace" && -d "$artifact_workspace" ]]; then
@@ -21,33 +45,37 @@ run() {
 }
 
 cd "$repo_root"
-module_name="$(sed -nE 's/^name[[:space:]]*=[[:space:]]*"([^"]+)".*/\1/p' moon.mod | head -n 1)"
-module_version="$(sed -nE 's/^version[[:space:]]*=[[:space:]]*"([^"]+)".*/\1/p' moon.mod | head -n 1)"
-if [[ -z "$module_name" || -z "$module_version" ]]; then
-  printf 'error: could not read module name and version from moon.mod\n' >&2
-  exit 1
-fi
-archive_name="${module_name//\//-}-${module_version}.zip"
-archive_path="$repo_root/_build/publish/$archive_name"
+if [[ -z "$archive_path" ]]; then
+  module_name="$(sed -nE 's/^name[[:space:]]*=[[:space:]]*"([^"]+)".*/\1/p' moon.mod | head -n 1)"
+  module_version="$(sed -nE 's/^version[[:space:]]*=[[:space:]]*"([^"]+)".*/\1/p' moon.mod | head -n 1)"
+  if [[ -z "$module_name" || -z "$module_version" ]]; then
+    printf 'error: could not read module name and version from moon.mod\n' >&2
+    exit 1
+  fi
+  archive_name="${module_name//\//-}-${module_version}.zip"
+  archive_path="$repo_root/_build/publish/$archive_name"
 
-if ! package_listing="$(moon package --list 2>&1)"; then
-  printf '%s\n' "$package_listing" >&2
-  exit 1
-fi
-if grep -Eq '^(\./)?integration(/|$)' <<< "$package_listing"; then
-  printf 'error: integration fixture leaked into the publication archive\n' >&2
-  exit 1
+  if ! package_listing="$(moon package --list 2>&1)"; then
+    printf '%s\n' "$package_listing" >&2
+    exit 1
+  fi
+  if grep -Eq '^(\./)?integration(/|$)' <<< "$package_listing"; then
+    printf 'error: integration fixture leaked into the publication archive\n' >&2
+    exit 1
+  fi
 fi
 if [[ ! -f "$archive_path" ]]; then
-  printf 'error: moon package did not create %s\n' "$archive_path" >&2
+  printf 'error: publication archive does not exist: %s\n' "$archive_path" >&2
   exit 1
 fi
 run python3 "$repo_root/scripts/check-publication-archive.py" "$archive_path"
 printf 'Publication archive excludes the integration fixture.\n'
 
-run moon -C "$consumer_root" fmt --check "$consumer_package"
-run moon -C "$consumer_root" check "$consumer_package" --target native --deny-warn
-run moon -C "$consumer_root" test "$consumer_package" --target native --deny-warn -v
+if [[ "$test_source" == 1 ]]; then
+  run moon -C "$consumer_root" fmt --check "$consumer_package"
+  run moon -C "$consumer_root" check "$consumer_package" --target native --deny-warn
+  run moon -C "$consumer_root" test "$consumer_package" --target native --deny-warn -v
+fi
 
 temp_root="${TMPDIR:-/tmp}"
 artifact_workspace="$(mktemp -d "${temp_root%/}/cairoon-package-consumer.XXXXXX")"

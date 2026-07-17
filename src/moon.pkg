@@ -39,9 +39,4 @@ options(
     "ffi_surface_png.mbt": [ "native" ],
     "ffi_svg_surface.mbt": [ "native" ],
   },
-  link: {
-    "native": {
-      "cc-link-flags": "-L/opt/homebrew/Cellar/cairo/1.18.4/lib -lcairo",
-    },
-  },
 )

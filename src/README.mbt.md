@@ -18,22 +18,17 @@ FFI. WebAssembly and JavaScript backends are not supported.
 ## Requirements
 
 - MoonBit with native target support.
-- Cairo development headers and library.
+- Cairo 1.15.10 or newer development headers and library.
 - `pkg-config` that can resolve `cairo`.
-- Python 3 for the repository verification scripts.
+- Python 3 for native pre-build configuration and repository verification.
 
 ## Native Link Configuration
 
-`moon.pkg` stores concrete native link flags for the current Cairo installation.
-After installing Cairo and `pkg-config`, refresh those flags with:
-
-```sh
-scripts/configure-link-flags.sh
-```
-
-The local reliability gate runs `scripts/configure-link-flags.sh --check` so
-checked-in flags cannot silently drift away from `pkg-config --cflags --libs
-cairo`.
+`moon.mod` registers `scripts/build/cairo_config.py` with MoonBit's experimental
+pre-build config protocol. Native builds resolve this machine's Cairo compiler
+and linker flags through `pkg-config`; the native package propagates linking to
+all downstream packages, so consumers must not duplicate `cc-link-flags`.
+Because dependencies execute this script, use only trusted cairoon releases.
 
 ## Example
 
@@ -82,14 +77,21 @@ version or commit is pinned. The complete portable API scope and all 20 pinned
 pycairo test families are covered, and all 579 published declarations have
 substantive API documentation.
 
-Local release-candidate matrices on exact Cairo 1.15.10 and 1.18.4 pass 132/132
-script tests, 826/826 native tests, 63/63
-executable docs, both downstream consumers, all 621 publication members, and
-every package under ASan/LSan/UBSan. The sole global `Partial` row is shipped
-test/release-platform evidence: the release commit still needs passing Ubuntu
-and macOS native jobs plus the Ubuntu ASan/LSan/UBSan job. It does not represent
-an unimplemented portable API family, but it must close before a full-product
-claim. There is still no source-compatibility promise before `1.0`.
+Local release-candidate matrices on exact Cairo 1.15.10 and 1.18.4 pass 148/148
+script tests, 826/826 native tests, 63/63 executable docs, source and extracted
+consumers plus the unmodified cross-host archive consumer, all 623 publication
+members, and every package under ASan/LSan/UBSan. The sole global `Partial` row
+is shipped test/release-platform evidence: the release commit still needs
+passing Ubuntu and macOS native jobs plus the Ubuntu ASan/LSan/UBSan job. It
+does not represent an unimplemented portable API family, but it must close
+before a full-product claim. There is still no source-compatibility promise
+before `1.0`.
+
+The uppercase `CAIRO_VERSION*` and `HAS_*` constants are generated release
+source snapshots. When consuming the same source archive with different Cairo
+headers, use `cairo_version()` and `cairo_version_string()` for runtime version
+decisions. This build-tool limitation is part of the pre-`1.0` instability
+contract.
 
 Platform-specific Xlib, XCB, and Win32 surfaces are outside the first portable
 scope. Python-specific pycairo APIs such as `CAPI`, `get_include()`, Python
@@ -131,7 +133,7 @@ pycairo migration notes live in `PORTING_FROM_PYCAIRO.md`.
 test {
   inspect(cairo_version() > 0, content="true")
   inspect(cairo_version_string().contains("."), content="true")
-  inspect(CAIRO_VERSION == cairo_version(), content="true")
+  inspect(CAIRO_VERSION > 0, content="true")
   inspect(HAS_IMAGE_SURFACE, content="true")
   inspect(MIME_TYPE_JPEG, content="image/jpeg")
 }

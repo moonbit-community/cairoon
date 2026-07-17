@@ -1,97 +1,97 @@
 ///|
-/// The compile-time Cairo version encoded as `major * 10000 + minor * 100 + micro`.
+/// The release-source Cairo version encoded as `major * 10000 + minor * 100 + micro`.
 pub const CAIRO_VERSION : Int = @constants_impl.CAIRO_VERSION
 
 ///|
-/// The compile-time Cairo version in `major.minor.micro` form.
+/// The release-source Cairo version in `major.minor.micro` form.
 pub const CAIRO_VERSION_STRING : String = @constants_impl.CAIRO_VERSION_STRING
 
 ///|
-/// The compile-time Cairo major version.
+/// The release-source Cairo major version.
 pub const CAIRO_VERSION_MAJOR : Int = @constants_impl.CAIRO_VERSION_MAJOR
 
 ///|
-/// The compile-time Cairo minor version.
+/// The release-source Cairo minor version.
 pub const CAIRO_VERSION_MINOR : Int = @constants_impl.CAIRO_VERSION_MINOR
 
 ///|
-/// The compile-time Cairo micro version.
+/// The release-source Cairo micro version.
 pub const CAIRO_VERSION_MICRO : Int = @constants_impl.CAIRO_VERSION_MICRO
 
 ///|
-/// Whether the linked Cairo headers enable the legacy ATSUI font backend.
+/// Whether the release-source Cairo headers enable the legacy ATSUI font backend.
 pub const HAS_ATSUI_FONT : Bool = @constants_impl.HAS_ATSUI_FONT
 
 ///|
-/// Whether the linked Cairo headers enable the FreeType font backend.
+/// Whether the release-source Cairo headers enable the FreeType font backend.
 pub const HAS_FT_FONT : Bool = @constants_impl.HAS_FT_FONT
 
 ///|
-/// Whether the linked Cairo headers enable the legacy Glitz surface backend.
+/// Whether the release-source Cairo headers enable the legacy Glitz surface backend.
 pub const HAS_GLITZ_SURFACE : Bool = @constants_impl.HAS_GLITZ_SURFACE
 
 ///|
-/// Whether the linked Cairo headers enable image surfaces.
+/// Whether the release-source Cairo headers enable image surfaces.
 pub const HAS_IMAGE_SURFACE : Bool = @constants_impl.HAS_IMAGE_SURFACE
 
 ///|
-/// Whether the linked Cairo headers enable MIME data on surfaces.
+/// Whether the release-source Cairo headers enable MIME data on surfaces.
 pub const HAS_MIME_SURFACE : Bool = @constants_impl.HAS_MIME_SURFACE
 
 ///|
-/// Whether the linked Cairo headers enable PDF surfaces.
+/// Whether the release-source Cairo headers enable PDF surfaces.
 pub const HAS_PDF_SURFACE : Bool = @constants_impl.HAS_PDF_SURFACE
 
 ///|
-/// Whether the linked Cairo headers enable PNG read and write helpers.
+/// Whether the release-source Cairo headers enable PNG read and write helpers.
 pub const HAS_PNG_FUNCTIONS : Bool = @constants_impl.HAS_PNG_FUNCTIONS
 
 ///|
-/// Whether the linked Cairo headers enable PostScript surfaces.
+/// Whether the release-source Cairo headers enable PostScript surfaces.
 pub const HAS_PS_SURFACE : Bool = @constants_impl.HAS_PS_SURFACE
 
 ///|
-/// Whether the linked Cairo headers enable Quartz surfaces.
+/// Whether the release-source Cairo headers enable Quartz surfaces.
 pub const HAS_QUARTZ_SURFACE : Bool = @constants_impl.HAS_QUARTZ_SURFACE
 
 ///|
-/// Whether the linked Cairo headers enable recording surfaces.
+/// Whether the release-source Cairo headers enable recording surfaces.
 pub const HAS_RECORDING_SURFACE : Bool = @constants_impl.HAS_RECORDING_SURFACE
 
 ///|
-/// Whether the linked Cairo headers enable Cairo script surfaces.
+/// Whether the release-source Cairo headers enable Cairo script surfaces.
 pub const HAS_SCRIPT_SURFACE : Bool = @constants_impl.HAS_SCRIPT_SURFACE
 
 ///|
-/// Whether the linked Cairo headers enable SVG surfaces.
+/// Whether the release-source Cairo headers enable SVG surfaces.
 pub const HAS_SVG_SURFACE : Bool = @constants_impl.HAS_SVG_SURFACE
 
 ///|
-/// Whether the linked Cairo headers enable Tee surfaces.
+/// Whether the release-source Cairo headers enable Tee surfaces.
 pub const HAS_TEE_SURFACE : Bool = @constants_impl.HAS_TEE_SURFACE
 
 ///|
-/// Whether the linked Cairo headers enable user fonts.
+/// Whether the release-source Cairo headers enable user fonts.
 pub const HAS_USER_FONT : Bool = @constants_impl.HAS_USER_FONT
 
 ///|
-/// Whether the linked Cairo headers enable the Win32 font backend.
+/// Whether the release-source Cairo headers enable the Win32 font backend.
 pub const HAS_WIN32_FONT : Bool = @constants_impl.HAS_WIN32_FONT
 
 ///|
-/// Whether the linked Cairo headers enable Win32 surfaces.
+/// Whether the release-source Cairo headers enable Win32 surfaces.
 pub const HAS_WIN32_SURFACE : Bool = @constants_impl.HAS_WIN32_SURFACE
 
 ///|
-/// Whether the linked Cairo headers enable XCB surfaces.
+/// Whether the release-source Cairo headers enable XCB surfaces.
 pub const HAS_XCB_SURFACE : Bool = @constants_impl.HAS_XCB_SURFACE
 
 ///|
-/// Whether the linked Cairo headers enable Xlib surfaces.
+/// Whether the release-source Cairo headers enable Xlib surfaces.
 pub const HAS_XLIB_SURFACE : Bool = @constants_impl.HAS_XLIB_SURFACE
 
 ///|
-/// Whether the linked Cairo headers enable the DirectWrite font backend.
+/// Whether the release-source Cairo headers enable the DirectWrite font backend.
 pub const HAS_DWRITE_FONT : Bool = @constants_impl.HAS_DWRITE_FONT
 
 ///|

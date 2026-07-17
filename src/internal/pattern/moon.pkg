@@ -10,9 +10,4 @@ import {
 
 options(
   targets: { "ffi.mbt": [ "native" ], "ffi_mesh.mbt": [ "native" ] },
-  link: {
-    "native": {
-      "cc-link-flags": "-L/opt/homebrew/Cellar/cairo/1.18.4/lib -lcairo",
-    },
-  },
 )

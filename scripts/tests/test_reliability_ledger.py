@@ -58,6 +58,14 @@ class DownstreamConsumerGateTests(unittest.TestCase):
     def test_complete_artifact_gate_passes(self) -> None:
         self.assertEqual(self.check(), [])
 
+    def test_missing_existing_archive_mode_fails(self) -> None:
+        self.assertTrue(
+            self.check('if [[ "$#" == 2 && "$1" == "--archive" ]]; then')
+        )
+
+    def test_existing_archive_mode_must_skip_source_repackaging(self) -> None:
+        self.assertTrue(self.check("test_source=0"))
+
     def test_missing_artifact_fmt_fails(self) -> None:
         marker = 'run moon -C "$artifact_consumer_root" fmt --check "$consumer_package"'
         self.assertTrue(self.check(marker))
@@ -348,8 +356,9 @@ class CurrentReleaseEvidenceTests(unittest.TestCase):
         self.current_stability_evidence = (
             "Local release-candidate matrices on exact Cairo 1.15.10 and 1.18.4 "
             f"pass {self.script_test_marker}, 826/826 native tests, 63/63 executable "
-            "docs, both downstream consumers, all 621 publication members, and every "
-            "package under ASan/LSan/UBSan. The sole global `Partial` row is shipped "
+            "docs, source and extracted consumers plus the unmodified cross-host "
+            "archive consumer, all 623 publication members, and every package under "
+            "ASan/LSan/UBSan. The sole global `Partial` row is shipped "
             "test/release-platform evidence: the release commit still needs passing "
             "Ubuntu and macOS native jobs plus the Ubuntu ASan/LSan/UBSan job. It does "
             "not represent an unimplemented portable API family, but it must close "
@@ -371,8 +380,9 @@ class CurrentReleaseEvidenceTests(unittest.TestCase):
             f"Cairo 1.18.4 lanes pass {self.script_test_marker}, 826/826 native tests, "
             "63/63 executable docs, 288 upstream pycairo tests across 20 families, "
             "579/579 documented public declarations, the 349-local-plus-two-direct "
-            "production FFI boundary, both source and extracted consumers, all 621 "
-            "publication members, and every discovered package under "
+            "production FFI boundary, source and extracted consumers plus the "
+            "unmodified cross-host archive consumer, all 623 publication members, "
+            "and every discovered package under "
             "ASan/LSan/UBSan. Remaining gap: the unpushed release commit lacks "
             "shipped GitHub evidence for Ubuntu and macOS native jobs plus the Ubuntu "
             "combined ASan/LSan/UBSan job. Do not close this row until those exact "
@@ -621,7 +631,11 @@ class LocalMatrixGateTests(unittest.TestCase):
         self.lane.parent.mkdir(parents=True)
         self.sanitizer.parent.mkdir(parents=True)
         self.matrix.write_text(
-            "cairo-1.15.10\ncairo-1.18.4\nCAIROON_SANITIZER_LEAKS=on\n",
+            "cairo-1.15.10\n"
+            "cairo-1.18.4\n"
+            "CAIROON_SANITIZER_LEAKS=on\n"
+            "moon package --list\n"
+            "dst=/artifact/cairoon.zip,readonly\n",
             encoding="utf-8",
         )
         self.sanitizer.write_text(
@@ -657,11 +671,15 @@ class LocalMatrixGateTests(unittest.TestCase):
             return self.checker.check_local_matrix()
 
     def test_matrix_lane_requires_instrumented_public_coverage(self) -> None:
-        errors = self.check("./scripts/verify.sh\n")
+        errors = self.check(
+            "./scripts/check-downstream-consumer.sh --archive /artifact/cairoon.zip\n"
+            "./scripts/verify.sh\n"
+        )
         self.assertTrue(any("--analyze" in error for error in errors))
 
     def test_matrix_lane_accepts_active_instrumented_public_coverage(self) -> None:
         errors = self.check(
+            "./scripts/check-downstream-consumer.sh --archive /artifact/cairoon.zip\n"
             "python3 ./scripts/check-public-coverage.py --analyze\n"
             "./scripts/verify.sh\n"
         )
@@ -669,6 +687,7 @@ class LocalMatrixGateTests(unittest.TestCase):
 
     def test_matrix_lane_rejects_commented_instrumented_coverage(self) -> None:
         errors = self.check(
+            "./scripts/check-downstream-consumer.sh --archive /artifact/cairoon.zip\n"
             ": # python3 ./scripts/check-public-coverage.py --analyze\n"
             "./scripts/verify.sh\n"
         )
@@ -683,10 +702,18 @@ class LocalMatrixGateTests(unittest.TestCase):
             encoding="utf-8",
         )
         errors = self.check(
+            "./scripts/check-downstream-consumer.sh --archive /artifact/cairoon.zip\n"
             "python3 ./scripts/check-public-coverage.py --analyze\n"
             "./scripts/verify.sh\n"
         )
         self.assertTrue(any("validate_ubsan_probe" in error for error in errors))
+
+    def test_matrix_lane_requires_unmodified_archive_consumer(self) -> None:
+        errors = self.check(
+            "python3 ./scripts/check-public-coverage.py --analyze\n"
+            "./scripts/verify.sh\n"
+        )
+        self.assertTrue(any("--archive" in error for error in errors))
 
 
 if __name__ == "__main__":

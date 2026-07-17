@@ -151,5 +151,106 @@ class ReferenceDocumentationLayoutTests(unittest.TestCase):
         )
 
 
+class NativeBuildConfigurationLayoutTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.checker = load_checker()
+        self.temp_dir = tempfile.TemporaryDirectory()
+        self.root = pathlib.Path(self.temp_dir.name)
+        self.source = self.root / "src"
+        self.native = self.source / "native"
+        self.consumer = self.root / "integration" / "consumer" / "src" / "smoke"
+        self.build_script = self.root / "scripts" / "build" / "cairo_config.py"
+        self.native.mkdir(parents=True)
+        self.consumer.mkdir(parents=True)
+        self.build_script.parent.mkdir(parents=True)
+        self.build_script.write_text("# build protocol\n", encoding="utf-8")
+        self.moon_mod = self.root / "moon.mod"
+        self.moon_mod.write_text(
+            'name = "CAIMEOX/cairoon"\n'
+            'options("--moonbit-unstable-prebuild": '
+            '"scripts/build/cairo_config.py")\n',
+            encoding="utf-8",
+        )
+        self.write_stub_package(self.native)
+        (self.source / "plain").mkdir()
+        (self.source / "plain" / "moon.pkg").write_text("", encoding="utf-8")
+        (self.consumer / "moon.pkg").write_text(
+            'import { "CAIMEOX/cairoon" } for "test"\n',
+            encoding="utf-8",
+        )
+
+    def tearDown(self) -> None:
+        self.temp_dir.cleanup()
+
+    def write_stub_package(self, package: pathlib.Path, flags: str | None = None) -> None:
+        package.mkdir(parents=True, exist_ok=True)
+        if flags is None:
+            flags = "${build.CAIRO_CFLAGS}"
+        (package / "moon.pkg").write_text(
+            'options(\n'
+            '  "native-stub": [ "stub.c" ],\n'
+            '  link: {\n'
+            '    "native": {\n'
+            f'      "stub-cc-flags": "{flags}",\n'
+            '    },\n'
+            '  },\n'
+            ')\n',
+            encoding="utf-8",
+        )
+
+    def check(self) -> list[str]:
+        with mock.patch.multiple(
+            self.checker,
+            REPO_ROOT=self.root,
+            PACKAGE_ROOT=self.source,
+            MOON_MOD=self.moon_mod,
+            NATIVE_PACKAGE_CONFIG=self.native / "moon.pkg",
+            CAIRO_BUILD_SCRIPT=self.build_script,
+            CONSUMER_PACKAGE_CONFIG=self.consumer / "moon.pkg",
+        ):
+            return self.checker.check_native_build_configuration()
+
+    def test_central_build_configuration_passes(self) -> None:
+        self.assertEqual(self.check(), [])
+
+    def test_missing_module_prebuild_registration_fails(self) -> None:
+        self.moon_mod.write_text('name = "CAIMEOX/cairoon"\n', encoding="utf-8")
+
+        errors = self.check()
+
+        self.assertTrue(any("unstable-prebuild" in error for error in errors), errors)
+
+    def test_concrete_link_flags_in_any_package_fail(self) -> None:
+        (self.source / "plain" / "moon.pkg").write_text(
+            'options(link: { "native": { "cc-link-flags": "-lcairo" } })\n',
+            encoding="utf-8",
+        )
+
+        errors = self.check()
+
+        self.assertTrue(any("cc-link-flags" in error for error in errors), errors)
+
+    def test_native_stub_without_build_variable_fails(self) -> None:
+        self.write_stub_package(self.native, "-I/host/include/cairo")
+
+        errors = self.check()
+
+        self.assertTrue(any("CAIRO_CFLAGS" in error for error in errors), errors)
+
+    def test_consumer_must_not_repeat_cairo_link_flags(self) -> None:
+        (self.consumer / "moon.pkg").write_text(
+            'import { "CAIMEOX/cairoon" } for "test"\n'
+            'options(link: { "native": { "cc-link-flags": "-lcairo" } })\n',
+            encoding="utf-8",
+        )
+
+        errors = self.check()
+
+        self.assertTrue(
+            any("consumer" in error and "cc-link-flags" in error for error in errors),
+            errors,
+        )
+
+
 if __name__ == "__main__":
     unittest.main()

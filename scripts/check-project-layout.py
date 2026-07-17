@@ -29,9 +29,10 @@ SOURCE_SUFFIXES = (".mbt.md", ".mbti", ".mbt", ".c", ".h")
 PACKAGE_CONFIG_NAMES = {"moon.pkg"}
 NATIVE_PACKAGE_DIR = PACKAGE_ROOT / "native"
 NATIVE_PACKAGE_CONFIG = NATIVE_PACKAGE_DIR / "moon.pkg"
+CAIRO_BUILD_SCRIPT = REPO_ROOT / "scripts" / "build" / "cairo_config.py"
 SANITIZER_PROBE_ROOT = REPO_ROOT / "scripts" / "sanitizers" / "probes"
 NATIVE_TARGETS = {"native"}
-CAIRO_LINK_IMPORTS = ('"CAIMEOX/cairoon"', '"CAIMEOX/cairoon/native"')
+CAIRO_CFLAGS_VARIABLE = '"stub-cc-flags": "${build.CAIRO_CFLAGS}"'
 COUNTED_PACKAGE_ROOTS = (
     PACKAGE_ROOT / "core",
     PACKAGE_ROOT / "internal",
@@ -65,10 +66,6 @@ def is_source_like(path: pathlib.Path) -> bool:
 
 def is_public_root_file(path: pathlib.Path) -> bool:
     return is_source_like(path) or path.name in PACKAGE_CONFIG_NAMES
-
-
-def needs_cairo_link(text: str) -> bool:
-    return any(import_name in text for import_name in CAIRO_LINK_IMPORTS)
 
 
 def read_filename_allowlist(path: pathlib.Path, label: str) -> set[str]:
@@ -297,10 +294,11 @@ def check_integration_fixture() -> list[str]:
             "integration/consumer/src/smoke/moon.pkg: the fixture import must "
             "remain test-scoped"
         )
-    if '"cc-link-flags"' not in consumer_package:
+    if '"cc-link-flags"' in consumer_package:
         errors.append(
-            "integration/consumer/src/smoke/moon.pkg: native consumer tests "
-            "must carry Cairo cc-link-flags"
+            "integration/consumer/src/smoke/moon.pkg: consumer must rely on "
+            "cairoon's propagated native link configuration, not repeat "
+            "cc-link-flags"
         )
     return errors
 
@@ -323,6 +321,53 @@ def check_native_package() -> list[str]:
         )
     if not NATIVE_PACKAGE_CONFIG.exists():
         errors.append("src/native/moon.pkg: missing native-stub package config")
+    return errors
+
+
+def check_native_build_configuration() -> list[str]:
+    errors: list[str] = []
+    if not CAIRO_BUILD_SCRIPT.is_file():
+        errors.append(
+            f"{CAIRO_BUILD_SCRIPT.relative_to(REPO_ROOT)}: missing Cairo "
+            "pre-build configuration script"
+        )
+
+    moon_mod = MOON_MOD.read_text(encoding="utf-8") if MOON_MOD.exists() else ""
+    prebuild = re.search(
+        r'"--moonbit-unstable-prebuild"\s*:\s*'
+        r'"scripts/build/cairo_config\.py"',
+        moon_mod,
+    )
+    if prebuild is None:
+        errors.append(
+            "moon.mod: --moonbit-unstable-prebuild must point to "
+            "scripts/build/cairo_config.py"
+        )
+
+    configs = sorted(PACKAGE_ROOT.rglob("moon.pkg"))
+    if CONSUMER_PACKAGE_CONFIG.exists():
+        configs.append(CONSUMER_PACKAGE_CONFIG)
+    for path in configs:
+        text = path.read_text(encoding="utf-8")
+        try:
+            relative = path.relative_to(REPO_ROOT)
+        except ValueError:
+            relative = path
+        if '"cc-link-flags"' in text:
+            errors.append(
+                f"{relative}: cc-link-flags must come only from the module "
+                "Cairo build script"
+            )
+        if '"native-stub"' in text:
+            if CAIRO_CFLAGS_VARIABLE not in text:
+                errors.append(
+                    f"{relative}: native-stub packages must use "
+                    '"stub-cc-flags": "${build.CAIRO_CFLAGS}"'
+                )
+        elif '"stub-cc-flags"' in text:
+            errors.append(
+                f"{relative}: stub-cc-flags are forbidden without native-stub"
+            )
     return errors
 
 
@@ -350,11 +395,6 @@ def check_nested_packages() -> list[str]:
             errors.append(
                 f"{path.parent.relative_to(REPO_ROOT)}: missing "
                 "pkg.generated.mbti; run moon info --target native"
-            )
-        if needs_cairo_link(text) and '"cc-link-flags"' not in text:
-            errors.append(
-                f"{path.relative_to(REPO_ROOT)}: cairoon-dependent packages "
-                "must carry Cairo cc-link-flags"
             )
     return errors
 
@@ -660,6 +700,7 @@ def main() -> int:
     errors.extend(check_reference_docs())
     errors.extend(check_integration_fixture())
     errors.extend(check_native_package())
+    errors.extend(check_native_build_configuration())
     errors.extend(check_layout_counters())
     errors.extend(check_nested_packages())
     errors.extend(check_nested_c_files())

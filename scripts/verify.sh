@@ -58,7 +58,7 @@ run moon fmt --check
 run python3 -m unittest discover -s scripts/tests -p 'test_*.py'
 run python3 ./scripts/check-project-layout.py
 run python3 ./scripts/check-source-size-budget.py
-run ./scripts/configure-link-flags.sh --check
+run ./scripts/configure-cairo-constants.sh --check
 run python3 ./scripts/check-ffi-ownership.py
 run python3 ./scripts/check-stream-cleanup.py
 run python3 ./scripts/check-api-inventory.py

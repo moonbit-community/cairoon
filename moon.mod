@@ -21,5 +21,6 @@ import {
 }
 
 options(
+  "--moonbit-unstable-prebuild": "scripts/build/cairo_config.py",
   exclude: [ "integration" ],
 )

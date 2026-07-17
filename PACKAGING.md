@@ -12,7 +12,8 @@ Required:
 - Cairo 1.15.10 or newer development headers and library. Cairo 1.18.4 is the
   recommended production version and the upper pinned release lane.
 - `pkg-config` that can resolve `cairo`.
-- Python 3 for static FFI ownership and API-inventory linting.
+- Python 3 for MoonBit's Cairo pre-build configuration plus static FFI and
+  API-inventory linting.
 
 Optional but recommended:
 
@@ -25,15 +26,23 @@ Optional but recommended:
 From this directory:
 
 ```sh
-scripts/configure-link-flags.sh
 moon check --target native
 moon test --target native
 ```
 
-`moon.pkg` stores concrete native link flags because MoonBit native stubs need
-real compiler and linker flags. On another machine, run
-`scripts/configure-link-flags.sh` before local testing. Commit `moon.pkg` flag
-changes only when intentionally refreshing the package for the release host.
+`moon.mod` registers `scripts/build/cairo_config.py` through MoonBit's
+experimental pre-build config protocol. On every native build it resolves the
+local Cairo installation with `pkg-config`, supplies `${build.CAIRO_CFLAGS}` to
+the two packages that compile C stubs, and propagates linker flags from
+`CAIMEOX/cairoon/native` to all dependents. No `moon.pkg`, including a consumer,
+may store concrete Cairo paths or `cc-link-flags`.
+
+The pre-build script is included in the publication archive. It executes as
+trusted dependency code, invokes `pkg-config` without a shell, emits only the
+documented JSON protocol on stdout, and rejects Cairo older than 1.15.10. This
+experimental MoonBit dependency mechanism is part of cairoon's temporary
+instability contract and is covered by unit, extracted-archive, and exact-Cairo
+matrix tests.
 
 ## Downstream Consumer Smoke Test
 
@@ -57,9 +66,18 @@ must exclude the entire integration fixture, and must contain everything
 needed to compile and link the public module. Temporary files are always
 removed. `scripts/check-publication-archive.py` checks every member's CRC,
 rejects unsafe paths, and inspects the actual zip names for `integration/`.
-`scripts/configure-link-flags.sh` updates the fixture's
-platform-specific Cairo link flags together with every repository test
-package.
+The exact-Cairo Docker lanes pass the unmodified host-generated zip to
+`scripts/check-downstream-consumer.sh --archive PATH`, proving that no release
+artifact has captured the producer's include or library paths.
+
+The archive portability guarantee covers C-stub compilation, linking, and the
+runtime API. The uppercase `CAIRO_VERSION*` and `HAS_*` values are committed
+MoonBit constants generated in the release source tree; they are not rewritten
+inside a downstream dependency. When producer and consumer Cairo headers
+differ, downstream code must use `cairo_version()` or
+`cairo_version_string()` for runtime version decisions. Do not add a hidden
+source-mutating build step to disguise this limitation; revisit it only when
+MoonBit provides a documented dependency-safe generated-source mechanism.
 
 To reproduce the same structure in another project, create a local workspace
 that contains both modules:
@@ -77,26 +95,18 @@ import {
 }
 ```
 
-The consumer package that builds an executable or black-box tests must import
-cairoon in `moon.pkg` and carry native Cairo link flags. If only tests use the
-binding, keep the import test-scoped:
+The consumer package that builds an executable or black-box tests imports
+cairoon in `moon.pkg`. If only tests use the binding, keep the import
+test-scoped:
 
 ```moonbit
 import {
   "CAIMEOX/cairoon",
 } for "test"
-
-options(
-  link: {
-    "native": {
-      "cc-link-flags": "-lcairo",
-    },
-  },
-)
 ```
 
-Use the platform-specific `cc-link-flags` reported by `pkg-config --libs
-cairo` when `-lcairo` is not enough. A minimal black-box smoke test is:
+Do not repeat Cairo `cc-link-flags`; cairoon's native package propagates the
+platform-specific result. A minimal black-box smoke test is:
 
 ```moonbit
 ///|
@@ -129,7 +139,8 @@ Use:
 ./scripts/verify.sh
 ```
 
-The gate runs formatting, link-flag drift checks, static FFI ownership linting,
+The gate runs formatting, Cairo build-protocol and generated-constant checks,
+static FFI ownership linting,
 top-level pycairo API inventory linting, exact public doc-comment debt linting,
 all 20 pinned pycairo test-file families (288 tests), the isolated downstream
 import/link/render test against both source and extracted publication zip,
@@ -182,8 +193,8 @@ unsuppressed.
 1. Update `version` in `moon.mod`.
 2. Ensure `repository`, `license`, `keywords`, and `description` are correct in
    `moon.mod`.
-3. Run `scripts/configure-link-flags.sh` on the release host, then inspect the
-   `moon.pkg` link flags.
+3. Run `scripts/configure-cairo-constants.sh --check`, then confirm no
+   `moon.pkg` contains concrete Cairo paths or `cc-link-flags`.
 4. Run `./scripts/verify.sh`; the release cannot proceed if this fails.
 5. Run `git diff -- pkg.generated.mbti` after `moon info --target native`.
    Public API changes must be intentional and documented.
@@ -208,10 +219,10 @@ The repository ships `.github/workflows/ci.yml`. It runs:
   detection enabled. It runs ASan, LSan, and UBSan without repeating the
   ordinary full native gate, which keeps CI usage bounded.
 
-Custom CI should install Cairo and `pkg-config`, then run:
+Custom CI should install Cairo, `pkg-config`, and Python 3, then run:
 
 ```sh
-scripts/configure-link-flags.sh
+scripts/configure-cairo-constants.sh
 ./scripts/verify.sh
 ```
 

@@ -53,8 +53,8 @@ jobs:
           moon version
           pkg-config --modversion cairo
 
-      - name: Configure native link flags
-        run: scripts/configure-link-flags.sh
+      - name: Configure generated Cairo constants
+        run: scripts/configure-cairo-constants.sh
 
       - name: Run native reliability gate
         env:
@@ -88,8 +88,8 @@ jobs:
           clang --version
           pkg-config --modversion cairo
 
-      - name: Configure native link flags
-        run: scripts/configure-link-flags.sh
+      - name: Configure generated Cairo constants
+        run: scripts/configure-cairo-constants.sh
 
       - name: Run ASan, LSan, and UBSan package gate
         env:

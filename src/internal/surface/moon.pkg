@@ -23,9 +23,4 @@ options(
     "ffi_svg.mbt": [ "native" ],
     "ffi_tee.mbt": [ "native" ],
   },
-  link: {
-    "native": {
-      "cc-link-flags": "-L/opt/homebrew/Cellar/cairo/1.18.4/lib -lcairo",
-    },
-  },
 )

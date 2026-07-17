@@ -19,17 +19,22 @@ Implemented in this workspace:
   cover the portable status paths rather than classifying them as platform
   exceptions.
 - MoonBit native package initialization with `moon.mod` and `src/moon.pkg`.
-- System Cairo 1.18.4 linkage through `pkg-config`-derived flags, with
-  `scripts/configure-link-flags.sh` to refresh `src/moon.pkg`,
-  `src/native/moon.pkg`, and external test package configs, plus
-  `scripts/configure-link-flags.sh --check` in the local reliability gate.
+- Portable system-Cairo configuration through `scripts/build/cairo_config.py`.
+  MoonBit's pre-build protocol resolves Cairo 1.15.10 or newer via `pkg-config`,
+  injects `${build.CAIRO_CFLAGS}` into the two native-stub packages, and
+  propagates linker flags from `CAIMEOX/cairoon/native`. All 83 package and
+  consumer manifests are free of concrete host paths and repeated
+  `cc-link-flags`; eight focused protocol tests cover quoting, version floors,
+  process failures, deterministic JSON, and environment redaction.
 - Exact local release lanes for Cairo 1.15.10 and 1.18.4, built from pinned
   source URLs and SHA-256 digests on a pinned Ubuntu base image. Both lanes
-  pass all static gates, 826/826 native tests, 132/132 script tests, and 63/63
+  pass all static gates, 826/826 native tests, 148/148 script tests, and 63/63
   executable documentation tests with the pinned MoonBit
   `0.10.4+4f2e8f7dc-nightly` compiler. In each lane, the source-checkout and
-  extracted-publication-zip consumers also pass 1/1 independently; the
-  integrity-checked publication archive contains 621 members, and every
+  extracted-publication-zip consumers also pass 1/1 independently. Each lane
+  additionally consumes the same unmodified host-generated zip, so
+  producer-specific include/library paths cannot be hidden by lane setup. The
+  integrity-checked publication archive contains 623 members, and every
   discovered package passes ASan/LSan/UBSan. Each pinned lane also runs
   instrumented public-facade coverage and requires the exact linked-version
   ledger profile.
@@ -109,8 +114,9 @@ Implemented in this workspace:
   `src/tests/api/{version,enums,pycairo}`. Root-level `tests/` packages are
   intentionally forbidden while `moon.mod source = "src"` keeps the public
   import path as `CAIMEOX/cairoon`. External test packages that import cairoon
-  carry Cairo `cc-link-flags`, and `scripts/configure-link-flags.sh --check`
-  verifies those flags alongside the public and native package configs.
+  carry no Cairo flags; the native package's module-level link configuration
+  propagates to each independently linked test executable, and the layout gate
+  rejects regressions to package-local `cc-link-flags`.
 - The external API black-box packages cover version helpers, portable enum
   constructors, `Format::stride_for_width`, `FORMAT_INVALID`, and pycairo
   `test_api.py` smoke/lifetime fixtures. The pinned Enum ledger maps all 7
@@ -247,8 +253,8 @@ Implemented in this workspace:
   owns the raw Cairo version externs and UTF-8 decoding, while the public
   `src/version.mbt` facade preserves `@cairoon.cairo_version()` and
   `@cairoon.cairo_version_string()`. The package has a local native test and is
-  discovered by `scripts/verify.sh` with Cairo link flags maintained by
-  `scripts/configure-link-flags.sh`.
+  discovered by `scripts/verify.sh` with Cairo linking propagated from the
+  native package.
 - `src/internal/format` is the first enum-adjacent internal implementation
   package seam. It owns the raw `cairo_format_stride_for_width` extern, while
   public `src/format.mbt` keeps the `Format` enum constructors and typed/raw
@@ -784,18 +790,20 @@ Implemented in this workspace:
 
 The most recent full local verification passed on 2026-07-17:
 
-- `CAIROON_VERIFY_ASAN=0 ./scripts/verify.sh` passed 132/132 script tests,
+- `CAIROON_VERIFY_ASAN=0 ./scripts/verify.sh` passed 148/148 script tests,
   826/826 native tests, 63/63 executable documentation tests, formatting,
-  project layout, source-size, link-flag, FFI ownership, API inventory,
+  project layout, source-size, Cairo build-protocol/generated-constant, FFI
+  ownership, API inventory,
   pycairo parity, public documentation, reliability-ledger, vector-scene,
   native type, and generated-interface gates. The isolated consumer passed
   1/1 against both the checkout and the integrity-tested extracted
-  621-member publication zip. Host sanitizers were intentionally not
+  623-member publication zip. Host sanitizers were intentionally not
   duplicated in this run.
 - `./scripts/test-cairo-matrix.sh cairo-1.15.10` and
-  `./scripts/test-cairo-matrix.sh cairo-1.18.4` passed the same 132 script,
-  826 native, and 63 documentation tests, both 1/1 consumer paths, all 621
-  publication members, and every discovered package under ASan/LSan/UBSan.
+  `./scripts/test-cairo-matrix.sh cairo-1.18.4` passed the same 148 script,
+  826 native, and 63 documentation tests, both 1/1 consumer paths, the
+  unmodified host-archive consumer, all 623 publication members, and every
+  discovered package under ASan/LSan/UBSan.
   Intentional signed-overflow and leak preflights passed in both lanes. The
   constrained vector suppression accounted for 16 allocations/7424 bytes on
   1.15.10 and 16/9344 on 1.18.4; the constrained PDF/JBIG2 suppressions
@@ -821,7 +829,7 @@ Prior full verifies passed on 2026-07-02, 2026-07-03, 2026-07-04,
 
 - `./scripts/verify.sh`: passed. The local reliability gate ran
   `moon fmt --check`, `scripts/check-project-layout.py`,
-  `scripts/configure-link-flags.sh --check`, `scripts/check-ffi-ownership.py`,
+  the then-current link-flag check, `scripts/check-ffi-ownership.py`,
   `scripts/check-api-inventory.py`, `scripts/check-reliability-ledger.py`,
   native `moon check`, targeted image,
   ScaledFont oracle,
@@ -3547,23 +3555,24 @@ changed.
 
 ## Downstream Consumer Evidence
 
-The 2026-07-15 local release gate now includes a separately named MoonBit
-consumer module under `integration/consumer`. Its versioned dependency is
-resolved through `integration/moon.work`, while its test package imports only
-`CAIMEOX/cairoon` and carries its own Cairo link flags. The smoke test creates
-an ARGB32 surface, paints through `Context`, reads pixels back through the
-public API, and passed 1/1 tests. `moon package --list` also confirms that root
-module metadata excludes the integration fixture from the release archive.
-The gate now additionally integrity-tests that exact zip, extracts it into a
-fresh temporary workspace, and reruns the same consumer test against the
-packaged module; the artifact path also passes 1/1. The final host verify run
-passed 784/784 repository tests with duplicate ASan disabled, while both exact
-Linux Cairo lanes reran this gate, all 784 tests, and every package-isolated
-ASan/LSan invocation. The publication archive contained 595 members in all
-three runtime release-gate runs; the latest Surface lifecycle replay contains
-600 members after adding its dedicated C oracle and cleanup-guard tests, and
-includes both checkout and extracted-publication consumer runs on exact Cairo
-1.15.10 and 1.18.4.
+The local release gate includes a separately named MoonBit consumer module
+under `integration/consumer`. Its versioned dependency is resolved through
+`integration/moon.work`, while its test package imports only
+`CAIMEOX/cairoon` and carries no Cairo compiler or linker flags. MoonBit runs
+the trusted module pre-build script for the dependency, then propagates the
+native package's resolved linker flags to the consumer executable. The smoke
+test creates an ARGB32 surface, paints through `Context`, reads pixels through
+the public API, and passes 1/1.
+
+`moon package --list` confirms that the integration fixture is absent from the
+release archive. The gate integrity-checks that exact zip, extracts it into a
+fresh workspace, and reruns the consumer against the packaged module. The two
+exact Linux Cairo lanes additionally consume the same host-generated zip
+without rewriting its manifests or running the repository constants updater.
+This catches producer-specific include and library paths that source-copy lane
+setup would otherwise hide. The current archive has 623 members; source,
+freshly extracted, and unmodified cross-host archive paths all pass against
+Cairo 1.15.10 and 1.18.4.
 
 ## Known Gaps
 
@@ -3587,11 +3596,19 @@ includes both checkout and extracted-publication consumer runs on exact Cairo
 - `Surface::copy_data` still copies Cairo image data into MoonBit `Bytes`;
   `Surface::get_data` is the mutable image-surface view and intentionally
   retains the surface wrapper instead of exposing a raw pointer.
-- The package records concrete native link flags in `moon.pkg`, as required by
-  the current MoonBit package DSL. `scripts/configure-link-flags.sh` refreshes
-  those flags from the target platform's `pkg-config`, and the local gate
-  checks for drift; a future publishing workflow may still want package-manager
-  specific guidance for non-`pkg-config` Cairo installations.
+- Native configuration depends on MoonBit's explicitly experimental pre-build
+  protocol and executes trusted Python from the dependency. Its output is
+  narrow and tested, but the protocol may change before MoonBit stabilizes it;
+  cairoon therefore cannot promise build-system compatibility before `1.0`.
+  Consumers also need Python 3 and a `pkg-config`-discoverable Cairo install.
+- `CAIRO_VERSION*` and `HAS_*` are MoonBit `pub const` values generated in the
+  release source tree. An archive can now compile and link unchanged on another
+  host, but those uppercase constants remain the producer's header snapshot if
+  that host uses different Cairo headers. Use `cairo_version()` and
+  `cairo_version_string()` for runtime decisions. Making uppercase constants
+  consumer-generated would require an undocumented source-mutating pre-build
+  step or a future MoonBit generated-source facility, so this remains an
+  explicit pre-`1.0` limitation rather than hidden release evidence.
 - The CI workflow runs native verify on Ubuntu and macOS plus an Ubuntu
   package-isolated ASan/LSan/UBSan job. It no longer disables leak detection or
   repeats the ordinary native gate in the sanitizer job. Release evidence

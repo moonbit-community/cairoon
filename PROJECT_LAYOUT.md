@@ -459,12 +459,12 @@ MoonBit package shape without weakening the public interface.
 |---|---|---|
 | Public package | `src/` | Owns the stable `CAIMEOX/cairoon` interface and public external object types until a facade proof proves otherwise. |
 | Pure support packages | `src/core/` | May hold pure values/helpers only after their public names can be preserved or intentionally re-exported. `src/core/glyph` is the first accepted seam: the public package exposes `pub type Glyph = @glyph.Glyph`, owns `@glyph.field_arrays` for glyph-array marshaling preparation, and tests prove `@cairoon.Glyph::new`, field access, dot-method syntax, and glyph-array FFI paths still work through the facade. `src/core/constants` is the second accepted seam: it owns generated primitive Cairo constants, while the facade preserves `@cairoon.CAIRO_VERSION`, `@cairoon.HAS_*`, `@cairoon.MIME_TYPE_*`, tag constants, `PDF_OUTLINE_ROOT`, and `COLOR_PALETTE_DEFAULT` through `pub const` aliases. |
-| Internal implementation packages | `src/internal/<family>/` | May own native-gated externs and helpers when the public `CAIMEOX/cairoon` facade remains unchanged. Version, format, status, PDF, PS, SVG, stream, and C-string helpers keep public enums, errors, and object wrappers in the facade. Region, FontOptions, FontFace, Path, Device, ScaledFont, Pattern, Context, and Surface are facade-owned object seams: each child owns the sole GC-managed raw handle and uses raw `Int` status/enum values; checked public methods alone wrap or unwrap it. The ScaledFont child additionally owns private `RawTextToGlyphs`, whose arrays are copied into public pure values. Cross-family child calls exchange only raw handles. Context owns 109 externs across seven C-matched families, Device owns 17, Pattern owns 38, and Surface owns 79; the public root retains exactly 12 callback bridges in five files. Every native-importing child carries Cairo link flags and links independently. Producer-only children such as Path are tested through real external producers, not test-only C constructors. Callback-owning bridges such as Device streams and raster Pattern must prove owned-closure cleanup and retained-object safety under ASan/LSan/UBSan. |
-| Native stubs | `src/native/` | Owns public C glue compilation through `src/native/moon.pkg`. Every `.c` file beside that package file must be listed by bare filename in its `native-stub` list; `src/moon.pkg` imports `CAIMEOX/cairoon/native` and must not own `native-stub` entries. Headers in `src/native/` are private to those stubs. |
-| Black-box tests | `src/tests/<family>/` | Import `CAIMEOX/cairoon`; assert only public behavior. Any package that imports cairoon must carry Cairo `cc-link-flags`, because native link flags are not propagated to external test executables. |
+| Internal implementation packages | `src/internal/<family>/` | May own native-gated externs and helpers when the public `CAIMEOX/cairoon` facade remains unchanged. Version, format, status, PDF, PS, SVG, stream, and C-string helpers keep public enums, errors, and object wrappers in the facade. Region, FontOptions, FontFace, Path, Device, ScaledFont, Pattern, Context, and Surface are facade-owned object seams: each child owns the sole GC-managed raw handle and uses raw `Int` status/enum values; checked public methods alone wrap or unwrap it. The ScaledFont child additionally owns private `RawTextToGlyphs`, whose arrays are copied into public pure values. Cross-family child calls exchange only raw handles. Context owns 109 externs across seven C-matched families, Device owns 17, Pattern owns 38, and Surface owns 79; the public root retains exactly 12 callback bridges in five files. Native linking propagates from `CAIMEOX/cairoon/native`; no child repeats host flags, and each still links independently. Producer-only children such as Path are tested through real external producers, not test-only C constructors. Callback-owning bridges such as Device streams and raster Pattern must prove owned-closure cleanup and retained-object safety under ASan/LSan/UBSan. |
+| Native stubs | `src/native/` | Owns public C glue compilation through `src/native/moon.pkg`. Every `.c` file beside that package file must be listed by bare filename in its `native-stub` list; `src/moon.pkg` imports `CAIMEOX/cairoon/native` and must not own `native-stub` entries. Headers in `src/native/` are private to those stubs. Stub compilation uses `${build.CAIRO_CFLAGS}`, while the module build script propagates Cairo linking from this package. |
+| Black-box tests | `src/tests/<family>/` | Import `CAIMEOX/cairoon`; assert only public behavior. They must not repeat compiler or linker flags because `CAIMEOX/cairoon/native` propagates the native configuration. |
 | White-box oracles | `src/tests/oracle/<family>/` plus shared C support in `src/tests/oracle/native/` | Import `CAIMEOX/cairoon` for the public API and declare test-only direct-C oracle externs locally; public binding wrappers must never import oracle packages. Test-only C symbols are provided by the oracle-native support package, not `src/moon.pkg`. |
 | Documentation | `src/docs/`, `src/README.mbt.md`, and repository `docs/` | Narrative docs live outside source packages; the public package README stays at `src/README.mbt.md` for `moon.mod`, and family executable reference docs live in the external `src/docs` package so they compile like downstream user code through `CAIMEOX/cairoon`. |
-| Downstream integration | `integration/moon.work` and `integration/consumer/` | The consumer must remain a separately named MoonBit module with a versioned dependency on `CAIMEOX/cairoon`; its test package imports only the public package, carries platform Cairo link flags, and proves native drawing/readback against both the source checkout and an extracted publication zip. Root `moon.mod` must exclude `integration/` from publication. |
+| Downstream integration | `integration/moon.work` and `integration/consumer/` | The consumer must remain a separately named MoonBit module with a versioned dependency on `CAIMEOX/cairoon`; its test package imports only the public package, carries no Cairo flags, and proves propagated native drawing/readback against the source checkout, an extracted publication zip, and the same unmodified host archive inside both exact-Cairo Linux lanes. Root `moon.mod` must exclude `integration/` from publication. |
 | Release verification tooling | `scripts/matrix/` and `scripts/sanitizers/` | Pinned Cairo build lanes and ASan/LSan/UBSan policy stay outside MoonBit packages. Standalone C diagnostics live only in `scripts/sanitizers/probes/`, end in `_probe.c`, compile directly with `pkg-config`, and must not be referenced by any `native-stub` list. |
 
 Do not split a family across packages until the type names, method call syntax,
@@ -506,7 +506,7 @@ Follow this order. Each step gets its own commit and must pass
 6. **Family package probes**: started. Primitive Cairo constants now live in
    `src/core/constants`, while the public facade preserves the pycairo-style
    top-level constant names with `pub const` aliases and
-   `scripts/configure-link-flags.sh` updates the child package source of truth.
+   `scripts/configure-cairo-constants.sh` updates the child package source of truth.
    `Glyph` now lives in
    `src/core/glyph`, while the public facade exposes it with a type alias. This
    proves a pure value type can move into a support package while preserving
@@ -631,8 +631,8 @@ Follow this order. Each step gets its own commit and must pass
    evidence must all pass before this seam is accepted.
 7. **Executable docs package split**: completed. `src/README.mbt.md` remains the
    `moon.mod` readme, while all eleven family executable reference documents
-   live in `src/docs/`, which imports `CAIMEOX/cairoon` and carries Cairo link
-   flags so the examples are checked as downstream black-box code.
+   live in `src/docs/`, which imports `CAIMEOX/cairoon` and relies on propagated
+   Cairo linking so the examples are checked as downstream black-box code.
 8. **Family package migration**: move one Cairo family per commit. C files,
    raw externs, and wrappers move together only when the public package seam is
    proven.
@@ -684,9 +684,9 @@ before MoonBit compilation. The layout check proves:
 - every current `src/core/**/moon.pkg` and `src/internal/**/moon.pkg` package
   has an explicit `Current Layout` counter in this document, discovered from
   the package tree rather than a hand-maintained checker allowlist;
-- every child package that imports `CAIMEOX/cairoon` or
-  `CAIMEOX/cairoon/native` carries Cairo `cc-link-flags`, so both black-box
-  tests and internal native-gated implementation packages link independently;
+- `moon.mod` registers `scripts/build/cairo_config.py`, every native-stub
+  package uses `${build.CAIRO_CFLAGS}`, and no package or consumer stores
+  concrete Cairo paths or `cc-link-flags`;
 - the `Current Layout` file counts in this document match the actual package
   tree, so project-management evidence cannot silently drift as files are
   moved or new test/oracle slices are added;

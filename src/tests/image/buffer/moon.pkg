@@ -4,11 +4,3 @@ import {
   "moonbitlang/core/builtin",
   "moonbitlang/core/test",
 } for "test"
-
-options(
-  link: {
-    "native": {
-      "cc-link-flags": "-L/opt/homebrew/Cellar/cairo/1.18.4/lib -lcairo",
-    },
-  },
-)

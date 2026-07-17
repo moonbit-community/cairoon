@@ -49,8 +49,8 @@ TESTS_EVIDENCE_MARKERS = (
     "288 upstream pycairo tests across 20 families",
     "579/579 documented public declarations",
     "349-local-plus-two-direct production FFI boundary",
-    "source and extracted consumers",
-    "621 publication members",
+    "source and extracted consumers plus the unmodified cross-host archive consumer",
+    "623 publication members",
     "ASan/LSan/UBSan",
     "Remaining gap:",
     "release commit",
@@ -67,6 +67,9 @@ TIER_THREE_MARKERS = (
     "exactly four non-inlined helpers",
 )
 DOWNSTREAM_GATE_LINES = (
+    'if [[ "$#" == 2 && "$1" == "--archive" ]]; then',
+    'archive_path="$2"',
+    "test_source=0",
     'if ! package_listing="$(moon package --list 2>&1)"; then',
     'run python3 "$repo_root/scripts/check-publication-archive.py" "$archive_path"',
     'run python3 -m zipfile -e "$archive_path" "$published_root"',
@@ -104,7 +107,7 @@ VERIFY_COMMANDS = (
     "python3 -m unittest discover -s scripts/tests -p 'test_*.py'",
     "python3 ./scripts/check-project-layout.py",
     "python3 ./scripts/check-source-size-budget.py",
-    "./scripts/configure-link-flags.sh --check",
+    "./scripts/configure-cairo-constants.sh --check",
     "python3 ./scripts/check-ffi-ownership.py",
     "python3 ./scripts/check-stream-cleanup.py",
     "python3 ./scripts/check-api-inventory.py",
@@ -288,8 +291,9 @@ def expected_tests_evidence() -> str:
         f"Cairo 1.18.4 lanes pass {script_test_evidence_marker()}, "
         "826/826 native tests, 63/63 executable docs, 288 upstream pycairo "
         "tests across 20 families, 579/579 documented public declarations, "
-        "the 349-local-plus-two-direct production FFI boundary, both source "
-        "and extracted consumers, all 621 publication members, and every "
+        "the 349-local-plus-two-direct production FFI boundary, source and "
+        "extracted consumers plus the unmodified cross-host archive consumer, "
+        "all 623 publication members, and every "
         "discovered package under ASan/LSan/UBSan. Remaining gap: the unpushed "
         "release commit lacks shipped GitHub evidence for Ubuntu and macOS "
         "native jobs plus the Ubuntu combined ASan/LSan/UBSan job. Do not "
@@ -303,8 +307,9 @@ def current_stability_markers() -> tuple[str, ...]:
         (
             "Local release-candidate matrices on exact Cairo 1.15.10 and "
             f"1.18.4 pass {script_test_evidence_marker()}, 826/826 native "
-            "tests, 63/63 executable docs, both downstream consumers, all "
-            "621 publication members, and every package under "
+            "tests, 63/63 executable docs, source and extracted consumers plus "
+            "the unmodified cross-host archive consumer, all 623 publication "
+            "members, and every package under "
             "ASan/LSan/UBSan."
         ),
         "The sole global `Partial` row is shipped test/release-platform evidence",
@@ -316,8 +321,9 @@ def expected_current_stability_evidence() -> str:
     return (
         "Local release-candidate matrices on exact Cairo 1.15.10 and 1.18.4 "
         f"pass {script_test_evidence_marker()}, 826/826 native tests, 63/63 "
-        "executable docs, both downstream consumers, all 621 publication members, "
-        "and every package under ASan/LSan/UBSan. The sole global `Partial` row is "
+        "executable docs, source and extracted consumers plus the unmodified "
+        "cross-host archive consumer, all 623 publication members, and every "
+        "package under ASan/LSan/UBSan. The sole global `Partial` row is "
         "shipped test/release-platform evidence: the release commit still needs "
         "passing Ubuntu and macOS native jobs plus the Ubuntu ASan/LSan/UBSan job. "
         "It does not represent an unimplemented portable API family, but it must "
@@ -508,6 +514,8 @@ def check_local_matrix() -> list[str]:
         "cairo-1.15.10",
         "cairo-1.18.4",
         "CAIROON_SANITIZER_LEAKS=on",
+        "moon package --list",
+        "dst=/artifact/cairoon.zip,readonly",
     )
     for marker in matrix_markers:
         if marker not in matrix_text and marker not in lane_text:
@@ -517,6 +525,14 @@ def check_local_matrix() -> list[str]:
     if shlex.split(coverage_command) not in shell_token_lines(lane_text):
         errors.append(
             f"{MATRIX}: pinned Cairo lanes must run {coverage_command!r}"
+        )
+
+    archive_command = (
+        "./scripts/check-downstream-consumer.sh --archive /artifact/cairoon.zip"
+    )
+    if shlex.split(archive_command) not in shell_token_lines(lane_text):
+        errors.append(
+            f"{MATRIX}: pinned Cairo lanes must run {archive_command!r}"
         )
 
     sanitizer_markers = (

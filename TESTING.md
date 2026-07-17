@@ -79,9 +79,9 @@ Evaluate each slice with this scorecard:
 | Rendering parity | Deterministic image pixels or normalized PDF/PS/SVG bytes match direct C Cairo output | Strong for the portable migration scope. Scene 66 closes Cairo 1.18's finite tag-attribute contract across URI, multi-rectangle, destination, page-position, external-file, content, and content-reference cases; it joins the enumerated image and vector fixtures with file/stream/direct-C comparisons and stable positive or negative backend markers |
 | Lifetime safety | External-object ownership, borrowed returns, callback retention, integer/pointer operations, and error exits run under ASan/LSan/UBSan or stress tests | Strong for the current portable scope: Linux runs every MoonBit package in a separate ASan/LSan/UBSan process; stream constructors retain callback state until partial native producers are destroyed on failure. Two upstream Cairo paths have pure-C-probe-verified, exact-count LSan suppressions isolated to the vector-oracle and PDF backend packages; every other package remains unsuppressed. |
 | Callback safety | C-held MoonBit callbacks and callback arguments are retained across the callback invocation and released deterministically | Strong for stream writers/readers and raster-source callbacks covered by current stress/fuzz tests; reentrant raster registration changes are deferred until the old acquire/release pairs finish, with ASan and retained-owner regressions for clear from both callback directions |
-| Portability | Required backends pass on each supported platform, or unsupported APIs have explicit `Decision` rows | Strong local evidence at the exact Cairo 1.15.10 compatibility floor and recommended 1.18.4 release, plus the host lane; still Partial until the release commit's shipped Ubuntu/macOS CI jobs pass |
+| Portability | Required backends pass on each supported platform, or unsupported APIs have explicit `Decision` rows | Strong local evidence at the exact Cairo 1.15.10 compatibility floor and recommended 1.18.4 release, plus the host lane. Both Linux lanes consume the same unmodified host-generated zip through module-level `pkg-config` discovery; still Partial until the release commit's shipped Ubuntu/macOS CI jobs pass |
 | Documentation | Public declarations have substantive MoonBit `///` comments, family workflows have executable examples where practical, and `scripts/check-public-docs.py` reports zero debt | Done: all 579 public declarations have substantive comments, the exact grandfather ledger is empty, executable downstream-style family notes include complete PDF/PS/SVG workflows, and new undocumented APIs or ledger drift fail the gate |
-| Downstream consumption | A separately named MoonBit module resolves the versioned local dependency, imports only `CAIMEOX/cairoon`, supplies its own native Cairo link flags, renders through the public API against both checkout and extracted publication zip, and stays outside that archive | Strong local evidence through `integration/consumer` and `scripts/check-downstream-consumer.sh`; the zip is integrity-tested and recompiled in a fresh temporary workspace, while release CI must run the same `verify.sh` gate |
+| Downstream consumption | A separately named MoonBit module resolves the versioned local dependency, imports only `CAIMEOX/cairoon`, carries no native flags, receives propagated Cairo linking, renders through the public API against checkout and extracted publication zip, and stays outside that archive | Strong local evidence through `integration/consumer` and `scripts/check-downstream-consumer.sh`; the zip is integrity-tested and recompiled in a fresh temporary workspace, and `--archive` mode recompiles the producer-host zip unchanged in both exact-Cairo lanes |
 
 The practical release rule is simple: a feature can be trusted when its
 inventory row is `Done`, its reference docs are executable where practical,
@@ -97,7 +97,7 @@ Run these tiers in order while developing a slice.
 ### Tier 0: Interface And Build Checks
 
 ```sh
-cairoon/scripts/configure-link-flags.sh --check
+cairoon/scripts/configure-cairo-constants.sh --check
 python3 -m unittest discover -s cairoon/scripts/tests -p 'test_*.py'
 python3 cairoon/scripts/check-project-layout.py
 python3 cairoon/scripts/check-source-size-budget.py
@@ -115,8 +115,10 @@ moon -C cairoon info --target native
 
 Review `src/pkg.generated.mbti` after `moon info`. Public additions, `raise`
 annotations, and enum constructors must match the intended API.
-Run `scripts/configure-link-flags.sh --check` before native checks when the
-system Cairo installation may have changed. Run `scripts/check-api-inventory.py`
+Run `scripts/configure-cairo-constants.sh --check` before native checks when the
+system Cairo installation may have changed. The build-script and layout tests
+also reject concrete host paths or repeated Cairo linker flags. Run
+`scripts/check-api-inventory.py`
 whenever the pycairo stub, public API, or inventory changes. Run
 `scripts/check-public-docs.py` whenever a public declaration or doc comment
 changes; its exact debt ledger must shrink in the same commit as newly added
@@ -286,7 +288,7 @@ disposable copy, so platform link-flag configuration cannot modify host files.
 
 It runs `moon fmt --check`, the checker unit tests under `scripts/tests`,
 `scripts/check-project-layout.py`,
-`scripts/check-source-size-budget.py`, `scripts/configure-link-flags.sh --check`,
+`scripts/check-source-size-budget.py`, `scripts/configure-cairo-constants.sh --check`,
 `scripts/check-ffi-ownership.py`, `scripts/check-api-inventory.py`,
 `scripts/check-public-docs.py`,
 `scripts/check-public-coverage.py`,
@@ -565,7 +567,7 @@ matrices/metrics, text-to-glyphs, and checked font errors.
 Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, 2026-07-07, and 2026-07-08:
 
 - `./scripts/verify.sh`: passed. The local reliability gate ran
-  `moon fmt --check`, `scripts/configure-link-flags.sh --check`,
+  `moon fmt --check`, `scripts/configure-cairo-constants.sh --check`,
   `scripts/check-ffi-ownership.py`, `scripts/check-api-inventory.py`,
   `scripts/check-reliability-ledger.py`, native `moon check`, targeted image,
   ScaledFont oracle,
@@ -4469,9 +4471,10 @@ standalone
 `scripts/sanitizers/probes/cairo_pdf_jbig2_missing_probe.c` must reproduce the
 exact signature before two suppressions can apply only to the PDF test package.
 
-Exact Linux Cairo 1.15.10 and 1.18.4 each pass 826/826 native tests, 132/132
-script tests, 63/63 executable docs, both 1/1 downstream consumers, publication
-archive integrity for 621 members, and every discovered package under
+Exact Linux Cairo 1.15.10 and 1.18.4 each pass 826/826 native tests, 148/148
+script tests, 63/63 executable docs, the source and extracted 1/1 downstream
+consumers, the same unmodified host-generated archive consumer, publication
+archive integrity for 623 members, and every discovered package under
 ASan/LSan/UBSan. The pure-C recording-snapshot probe still limits the vector
 package to 16 suppressions/7424 bytes on Cairo 1.15.10 and 16/9344 on Cairo
 1.18.4. The pure-C PDF/JBIG2 probe limits the PDF package to two rows totaling

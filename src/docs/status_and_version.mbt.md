@@ -6,20 +6,22 @@ but users do not need to poll object status after each checked method.
 
 ## Compile-Time And Runtime Versions
 
-`CAIRO_VERSION*` constants describe the Cairo headers used when cairoon's link
-configuration was generated. `cairo_version()` and
-`cairo_version_string()` query the linked Cairo library at runtime. A release
-build should use matching headers and library versions.
+`CAIRO_VERSION*` constants are a snapshot of the Cairo headers used to prepare
+the cairoon release source. `cairo_version()` and `cairo_version_string()`
+query the consumer's linked Cairo library at runtime. They agree in a
+configured cairoon checkout, but an unchanged source archive built on another
+host can retain the producer snapshot. Use the runtime functions for feature
+decisions in downstream code.
 
 ```mbt check
 ///|
-test "status docs: compile-time and runtime versions agree" {
+test "status docs: compile-time and runtime versions are well formed" {
   let encoded = CAIRO_VERSION_MAJOR * 10000 +
     CAIRO_VERSION_MINOR * 100 +
     CAIRO_VERSION_MICRO
   inspect(CAIRO_VERSION == encoded, content="true")
-  inspect(cairo_version() == CAIRO_VERSION, content="true")
-  inspect(cairo_version_string() == CAIRO_VERSION_STRING, content="true")
+  inspect(cairo_version() > 0, content="true")
+  inspect(cairo_version_string().contains("."), content="true")
   inspect(CAIRO_VERSION_STRING.contains("."), content="true")
 }
 ```

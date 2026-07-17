@@ -3,10 +3,6 @@ set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$repo_root"
-public_package_config="$repo_root/src/moon.pkg"
-native_package_config="$repo_root/src/native/moon.pkg"
-package_root="$repo_root/src"
-consumer_package_root="$repo_root/integration/consumer/src"
 constants_file="$repo_root/src/core/constants/constants.mbt"
 feature_const_names=(
   HAS_ATSUI_FONT
@@ -33,8 +29,8 @@ feature_const_names=(
 usage() {
   cat <<'USAGE'
 Usage:
-  scripts/configure-link-flags.sh          # rewrite Cairo link flags from pkg-config
-  scripts/configure-link-flags.sh --check  # verify Cairo link flags match pkg-config
+  scripts/configure-cairo-constants.sh          # refresh generated Cairo constants
+  scripts/configure-cairo-constants.sh --check  # verify constants against pkg-config
 
 Set PKG_CONFIG=/path/to/pkg-config to use a non-default pkg-config.
 USAGE
@@ -87,8 +83,6 @@ if [[ "${#link_parts[@]}" == 0 ]]; then
   exit 1
 fi
 
-cc_flags="${cc_parts[*]}"
-link_flags="${link_parts[*]}"
 cairo_version_string="$("$pkg_config" --modversion cairo)"
 if [[ ! "$cairo_version_string" =~ ^([0-9]+)\.([0-9]+)\.([0-9]+) ]]; then
   printf 'error: could not parse cairo version from pkg-config: %s\n' \
@@ -234,12 +228,6 @@ escape_moon_string() {
 
 escaped_cairo_version_string="$(escape_moon_string "$cairo_version_string")"
 
-extract_field() {
-  local file="$1"
-  local key="$2"
-  sed -nE "s/.*\"${key}\": \"([^\"]*)\".*/\1/p" "$file" | head -n 1
-}
-
 extract_const_value() {
   local file="$1"
   local key="$2"
@@ -256,7 +244,7 @@ check_const_value() {
 error: src/core/constants/constants.mbt generated Cairo constant $key is out of sync with pkg-config.
 
 Run:
-  scripts/configure-link-flags.sh
+  scripts/configure-cairo-constants.sh
 
 Expected:
   $expected
@@ -265,36 +253,6 @@ Actual:
 EOF
     exit 1
   fi
-}
-
-relative_path() {
-  local file="$1"
-  printf '%s' "${file#"$repo_root"/}"
-}
-
-needs_cairo_link() {
-  local file="$1"
-  grep -Eq '"CAIMEOX/cairoon"|"CAIMEOX/cairoon/native"' "$file"
-}
-
-has_native_stub() {
-  local file="$1"
-  grep -q '"native-stub"' "$file"
-}
-
-collect_dependent_configs() {
-  local roots=("$package_root")
-  if [[ -d "$consumer_package_root" ]]; then
-    roots+=("$consumer_package_root")
-  fi
-
-  find "${roots[@]}" -name moon.pkg -type f -print | sort | while IFS= read -r config; do
-    if [[ "$config" == "$public_package_config" ||
-          "$config" == "$native_package_config" ]]; then
-      continue
-    fi
-    printf '%s\n' "$config"
-  done
 }
 
 if [[ "$mode" == "--check" ]]; then
@@ -307,95 +265,9 @@ if [[ "$mode" == "--check" ]]; then
     check_const_value "$key" "$(feature_value "$key")"
   done
 
-  actual_link_flags="$(extract_field "$public_package_config" cc-link-flags)"
-
-  if [[ "$actual_link_flags" != "$link_flags" ]]; then
-    cat >&2 <<EOF
-error: src/moon.pkg Cairo link flags are out of sync with pkg-config.
-
-Run:
-  scripts/configure-link-flags.sh
-
-Expected cc-link-flags:
-  $link_flags
-Actual cc-link-flags:
-  $actual_link_flags
-EOF
-    exit 1
-  fi
-
-  actual_stub_cc_flags="$(extract_field "$native_package_config" stub-cc-flags)"
-  actual_link_flags="$(extract_field "$native_package_config" cc-link-flags)"
-
-  if [[ "$actual_stub_cc_flags" != "$cc_flags" ||
-        "$actual_link_flags" != "$link_flags" ]]; then
-    cat >&2 <<EOF
-error: src/native/moon.pkg Cairo native flags are out of sync with pkg-config.
-
-Run:
-  scripts/configure-link-flags.sh
-
-Expected stub-cc-flags:
-  $cc_flags
-Actual stub-cc-flags:
-  $actual_stub_cc_flags
-
-Expected cc-link-flags:
-  $link_flags
-Actual cc-link-flags:
-  $actual_link_flags
-EOF
-    exit 1
-  fi
-
-  checked=2
-  while IFS= read -r config; do
-    if ! needs_cairo_link "$config"; then
-      continue
-    fi
-    actual_link_flags="$(extract_field "$config" cc-link-flags)"
-    if [[ "$actual_link_flags" != "$link_flags" ]]; then
-      rel="$(relative_path "$config")"
-      cat >&2 <<EOF
-error: $rel Cairo link flags are out of sync with pkg-config.
-
-Run:
-  scripts/configure-link-flags.sh
-
-Expected cc-link-flags:
-  $link_flags
-Actual cc-link-flags:
-  $actual_link_flags
-EOF
-      exit 1
-    fi
-    if has_native_stub "$config"; then
-      actual_stub_cc_flags="$(extract_field "$config" stub-cc-flags)"
-      if [[ "$actual_stub_cc_flags" != "$cc_flags" ]]; then
-        rel="$(relative_path "$config")"
-        cat >&2 <<EOF
-error: $rel Cairo stub compile flags are out of sync with pkg-config.
-
-Run:
-  scripts/configure-link-flags.sh
-
-Expected stub-cc-flags:
-  $cc_flags
-Actual stub-cc-flags:
-  $actual_stub_cc_flags
-EOF
-        exit 1
-      fi
-    fi
-    checked=$((checked + 1))
-  done < <(collect_dependent_configs)
-
-  printf 'Cairo link/stub flags match pkg-config in %s moon.pkg files.\n' "$checked"
+  printf 'Generated Cairo constants match pkg-config and local headers.\n'
   exit 0
 fi
-
-escaped_cc_flags="$(escape_moon_string "$cc_flags")"
-escaped_link_flags="$(escape_moon_string "$link_flags")"
 
 update_const_value() {
   local key="$1"
@@ -420,47 +292,12 @@ update_constants() {
   done
 }
 
-update_public_config() {
-  local file="$1"
-  CAIROON_LINK_FLAGS="$escaped_link_flags" perl -0pi -e \
-    's/"cc-link-flags": "[^"]*"/q("cc-link-flags": ") . $ENV{CAIROON_LINK_FLAGS} . q(")/ge' \
-    "$file"
-}
-
-update_native_config() {
-  local file="$1"
-  CAIROON_CC_FLAGS="$escaped_cc_flags" \
-  CAIROON_LINK_FLAGS="$escaped_link_flags" \
-  perl -0pi -e \
-    's/"stub-cc-flags": "[^"]*"/q("stub-cc-flags": ") . $ENV{CAIROON_CC_FLAGS} . q(")/ge;
-     s/"cc-link-flags": "[^"]*"/q("cc-link-flags": ") . $ENV{CAIROON_LINK_FLAGS} . q(")/ge' \
-    "$file"
-}
-
-update_dependent_config() {
-  local file="$1"
-  update_native_config "$file"
-}
-
 update_constants
-update_public_config "$public_package_config"
-update_native_config "$native_package_config"
-updated=2
-while IFS= read -r config; do
-  if ! needs_cairo_link "$config"; then
-    continue
-  fi
-  update_dependent_config "$config"
-  updated=$((updated + 1))
-done < <(collect_dependent_configs)
 
 if command -v moon >/dev/null 2>&1; then
-  moon fmt
-  if [[ -d "$consumer_package_root" ]]; then
-    moon -C "$repo_root/integration/consumer" fmt
-  fi
+  moon fmt src/core/constants
 else
-  printf 'moon not found; run moon fmt after installing MoonBit.\n'
+  printf 'moon not found; run moon fmt src/core/constants after installing MoonBit.\n'
 fi
 
-printf 'Updated Cairo link/stub flags from pkg-config in %s moon.pkg files.\n' "$updated"
+printf 'Updated generated Cairo constants from pkg-config and local headers.\n'

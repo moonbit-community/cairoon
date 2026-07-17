@@ -18,7 +18,7 @@ stream callbacks, and GC-managed external objects for Cairo handles.
 - Cairo 1.15.10 or newer development headers and library. Cairo 1.18.4 is the
   recommended production version.
 - `pkg-config` that can resolve `cairo`.
-- Python 3 for the repository verification scripts.
+- Python 3 for cairoon's MoonBit pre-build configuration and repository checks.
 
 cairoon is native-only. It does not currently target WebAssembly or JavaScript
 backends because the binding depends on Cairo C FFI.
@@ -32,32 +32,31 @@ availability still depends on the Cairo library installed by the consumer.
 For a local checkout:
 
 ```sh
-scripts/configure-link-flags.sh
 moon check --target native
 moon test --target native
 ./scripts/check-downstream-consumer.sh
 ```
 
-`moon.pkg` files store concrete native compiler and linker flags for the local
-Cairo installation. Run `scripts/configure-link-flags.sh` after installing or
-updating Cairo, and before testing on a new machine.
+`moon.mod` runs `scripts/build/cairo_config.py` before native builds. It asks
+`pkg-config` for this machine's Cairo headers and library, supplies C-stub flags
+to the native package, and propagates linker flags to downstream packages.
+This uses MoonBit's experimental pre-build config protocol, which is one reason
+the project remains unstable; depend only on trusted cairoon releases.
+
+`CAIRO_VERSION*` and `HAS_*` are generated release-source snapshots because
+MoonBit does not currently provide dependency-side generated MoonBit source.
+An unchanged archive can therefore retain the producer's constant values when
+compiled against different Cairo headers. Use `cairo_version()` and
+`cairo_version_string()` for runtime version decisions.
 
 When using cairoon from another MoonBit package, import `CAIMEOX/cairoon` in the
-consumer package's `moon.pkg` and make sure the consumer executable/test
-package also links Cairo:
+consumer package's `moon.pkg`. Do not repeat Cairo compiler or linker flags in
+the consumer; the native package propagates them:
 
 ```moonbit
 import {
   "CAIMEOX/cairoon",
 }
-
-options(
-  link: {
-    "native": {
-      "cc-link-flags": "-lcairo",
-    },
-  },
-)
 ```
 
 Example:
@@ -159,7 +158,8 @@ release:
 ./scripts/verify.sh
 ```
 
-The gate checks formatting, Cairo link-flag drift, project layout, FFI
+The gate checks formatting, generated Cairo-constant drift, the pre-build
+configuration protocol, project layout, FFI
 ownership annotations, API inventory and public-documentation coverage, the
 reliability and public-coverage ledgers, native type checking, all 20 pinned
 pycairo test-file families (288 upstream tests), the complete in-module MoonBit
@@ -184,6 +184,8 @@ and rejects newly uncovered public-facade branches or stale exceptions. Every
 remaining linked-version, platform, native-invariant, and defensive branch
 requires an exact entry in `scripts/public-coverage-exceptions.tsv`. Both
 pinned local Cairo lanes below run this instrumented analysis automatically.
+Each lane also consumes the same unmodified host-generated publication zip, so
+host-specific include or library paths cannot hide in a release artifact.
 
 Before a release candidate, run both pinned Linux compatibility lanes locally:
 

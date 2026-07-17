@@ -7,8 +7,8 @@ is complete. Use `API_INVENTORY.md` as the source of truth for coverage.
 ## Consumer Package Setup
 
 Unlike pycairo, cairoon is not loaded from a process-wide Python extension
-module. Every MoonBit executable or test package that imports cairoon must also
-link the native Cairo library.
+module. Cairo is resolved during MoonBit's native build through cairoon's
+module-level pre-build configuration.
 
 In `moon.mod`, declare the versioned dependency. For a local workspace checkout,
 the same version string is still required; `moon.work` chooses the local member
@@ -27,27 +27,20 @@ moon work init
 moon work use /path/to/cairoon /path/to/consumer
 ```
 
-In the package that uses cairoon, import `CAIMEOX/cairoon` and link Cairo. If
-only tests import cairoon, make the import test-scoped with `for "test"`.
+In the package that uses cairoon, import `CAIMEOX/cairoon`. If only tests import
+cairoon, make the import test-scoped with `for "test"`.
 
 ```moonbit
 import {
   "CAIMEOX/cairoon",
 } for "test"
-
-options(
-  link: {
-    "native": {
-      "cc-link-flags": "-lcairo",
-    },
-  },
-)
 ```
 
-For a checkout of this repository, run `scripts/configure-link-flags.sh` to
-write the platform-specific flags discovered from `pkg-config --libs cairo`.
-For downstream projects, keep equivalent Cairo link flags in the consuming
-package that builds the native executable or black-box tests.
+Do not add Cairo `cc-link-flags` to the consumer package. The trusted cairoon
+dependency runs `scripts/build/cairo_config.py`, resolves the local Cairo
+development package through `pkg-config`, and propagates native linking from
+`CAIMEOX/cairoon/native`. Python 3, `pkg-config`, and Cairo 1.15.10 or newer must
+therefore be available when the consumer builds.
 
 After wiring the package, run a consumer-only smoke test with:
 
