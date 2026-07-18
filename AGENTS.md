@@ -1074,6 +1074,12 @@ MoonBit reliability requirements and remaining work:
 - Explicit callback error-propagation tests.
 - Cross-platform CI across Linux and macOS, with Cairo 1.15.10 and a current
   Cairo 1.18.x build.
+- Keep CI capacity bounded without weakening release evidence. The workflow
+  must group runs by workflow and Git ref, cancel an older in-progress run only
+  when a newer run supersedes that same ref, and cap both native and sanitizer
+  jobs at 60 minutes. `scripts/check-reliability-ledger.py` and its negative
+  mutations must reject a broader concurrency group, disabled cancellation,
+  removed timeout, conditional gate, or failure masking.
 
 ## Reliability Evaluation Plan
 

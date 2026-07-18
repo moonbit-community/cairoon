@@ -3746,8 +3746,11 @@ Cairo 1.15.10 and 1.18.4.
   explicit pre-`1.0` limitation rather than hidden release evidence.
 - The CI workflow runs native verify on Ubuntu and macOS plus an Ubuntu
   package-isolated ASan/LSan/UBSan job. It no longer disables leak detection or
-  repeats the ordinary native gate in the sanitizer job. Release evidence
-  still requires those jobs to pass for the release commit; this checkout was
+  repeats the ordinary native gate in the sanitizer job. Runs are grouped by
+  workflow and Git ref, newer work cancels only a stale run for that same ref,
+  and both jobs have a 60-minute ceiling. The local workflow checker rejects
+  capacity-policy drift as well as failure masking. Release evidence still
+  requires those jobs to pass for the release commit; this checkout was
   deliberately not pushed merely to trigger CI.
 - Linux is the authoritative LSan/UBSan platform. macOS ASan/UBSan is an
   optional local gate; the shipped macOS CI job intentionally runs ordinary

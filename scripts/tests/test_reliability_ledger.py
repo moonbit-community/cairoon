@@ -193,6 +193,22 @@ class VerifyGateTests(unittest.TestCase):
     def test_ci_gate_rejects_job_and_gate_step_failure_masking(self) -> None:
         workflow = self.checker.CI.read_text(encoding="utf-8")
         self.assertEqual(self.check_ci(workflow), [])
+        concurrency_anchor = (
+            "concurrency:\n"
+            "  group: cairoon-${{ github.workflow }}-${{ github.ref }}\n"
+            "  cancel-in-progress: true\n"
+        )
+        native_timeout_anchor = (
+            "    runs-on: ${{ matrix.os }}\n"
+            "    timeout-minutes: 60\n"
+        )
+        asan_timeout_anchor = (
+            "    runs-on: ubuntu-latest\n"
+            "    timeout-minutes: 60\n"
+        )
+        self.assertEqual(workflow.count(concurrency_anchor), 1)
+        self.assertEqual(workflow.count(native_timeout_anchor), 1)
+        self.assertEqual(workflow.count(asan_timeout_anchor), 1)
         job_anchor = "    runs-on: ubuntu-latest\n"
         step_anchor = "      - name: Run ASan, LSan, and UBSan package gate\n"
         run_anchor = "        run: python3 ./scripts/sanitizers/run.py"
@@ -208,6 +224,32 @@ class VerifyGateTests(unittest.TestCase):
             "  MOONBIT_INSTALL_VERSION: 0.10.4+4f2e8f7dc-nightly\n"
         )
         mutations = (
+            (
+                "concurrency cancellation disabled",
+                concurrency_anchor,
+                concurrency_anchor.replace(
+                    "cancel-in-progress: true",
+                    "cancel-in-progress: false",
+                ),
+            ),
+            (
+                "concurrency group merges unrelated refs",
+                concurrency_anchor,
+                concurrency_anchor.replace(
+                    "cairoon-${{ github.workflow }}-${{ github.ref }}",
+                    "cairoon-${{ github.workflow }}",
+                ),
+            ),
+            (
+                "native timeout removed",
+                native_timeout_anchor,
+                "    runs-on: ${{ matrix.os }}\n",
+            ),
+            (
+                "sanitizer timeout removed",
+                asan_timeout_anchor,
+                "    runs-on: ubuntu-latest\n",
+            ),
             (
                 "workflow default shell masks failures",
                 jobs_anchor,

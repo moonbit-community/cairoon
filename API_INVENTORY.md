@@ -14,6 +14,14 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 
 ## Recent Audit Deltas
 
+- 2026-07-18: GitHub Actions capacity is now an executable reliability
+  contract. Runs are grouped by workflow and Git ref, stale work is cancelled
+  only when a newer run supersedes that same ref, and both native and sanitizer
+  jobs have a 60-minute ceiling. The static workflow parser and existing
+  negative-mutation suite reject disabled cancellation, a group that merges
+  unrelated refs, missing timeouts, failure masking, conditional gates, and
+  release-matrix drift. This saves hosted capacity without treating a cancelled
+  or merely local run as shipped release evidence.
 - 2026-07-18: Stream attachment-failure ownership now has dynamic fault
   injection in addition to the static cleanup gate. Shared Surface and Device
   helpers centralize all null-producer, native-status, and user-data attachment

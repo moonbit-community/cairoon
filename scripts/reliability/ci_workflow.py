@@ -8,10 +8,11 @@ import re
 
 JOB_SPECS = {
     "native": {
-        "keys": ("name", "runs-on", "strategy", "steps"),
+        "keys": ("name", "runs-on", "timeout-minutes", "strategy", "steps"),
         "job": (
             "name: native (${{ matrix.os }})",
             "runs-on: ${{ matrix.os }}",
+            "timeout-minutes: 60",
             "- ubuntu-latest",
             "- macos-latest",
         ),
@@ -24,10 +25,11 @@ JOB_SPECS = {
         "env_keys": ("CAIROON_VERIFY_ASAN",),
     },
     "asan": {
-        "keys": ("name", "runs-on", "steps"),
+        "keys": ("name", "runs-on", "timeout-minutes", "steps"),
         "job": (
             "name: asan (ubuntu)",
             "runs-on: ubuntu-latest",
+            "timeout-minutes: 60",
         ),
         "step": (
             "- name: Run ASan, LSan, and UBSan package gate",
@@ -113,7 +115,14 @@ def check_ci_workflow(text: str, source: pathlib.Path) -> list[str]:
 
 def check_workflow_shape(text: str, source: pathlib.Path) -> list[str]:
     errors = []
-    expected_root_keys = ("name", "on", "permissions", "env", "jobs")
+    expected_root_keys = (
+        "name",
+        "on",
+        "concurrency",
+        "permissions",
+        "env",
+        "jobs",
+    )
     if sorted(yaml_keys_at_indent(text, 0)) != sorted(expected_root_keys):
         errors.append(f"{source}: CI workflow must keep its canonical root keys")
 
@@ -136,6 +145,24 @@ def check_workflow_shape(text: str, source: pathlib.Path) -> list[str]:
             errors.append(
                 f"{source}: CI trigger {trigger_name!r} must be unconditional"
             )
+
+    concurrency = yaml_mapping_section(text, 0, "concurrency")
+    if sorted(yaml_keys_at_indent(concurrency, 2)) != [
+        "cancel-in-progress",
+        "group",
+    ]:
+        errors.append(
+            f"{source}: CI concurrency must contain only group and "
+            "cancel-in-progress"
+        )
+    if active_yaml_lines(concurrency) != {
+        "concurrency:",
+        "group: cairoon-${{ github.workflow }}-${{ github.ref }}",
+        "cancel-in-progress: true",
+    }:
+        errors.append(
+            f"{source}: CI concurrency must cancel stale runs for the same ref"
+        )
 
     global_env = yaml_mapping_section(text, 0, "env")
     if active_yaml_lines(global_env) != {
