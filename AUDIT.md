@@ -9,6 +9,19 @@ Implemented in this workspace:
   external docs package passes 63/63 tests, and the project-layout gate
   requires every reference to have an executable block and exact entries in
   both documentation indexes.
+- External-object lifetime evidence is now exact rather than inferred from a
+  broad sanitizer pass. `scripts/lifetime/owners.json` maps all 12 discovered
+  raw owners to one FFI declaration, structurally named native payload/finalizer,
+  complete release actions, and a top-level allocation anchor reached inside a
+  top-level 1000-iteration lifetime test.
+  `scripts/check-external-owners.py` independently discovers the declarations
+  and finalizers, verifies the allocator/finalizer/`sizeof` pairing, and fails
+  on missing, duplicate, stale, swapped, conditional, or unpackaged evidence.
+  Fourteen focused tests include thirteen negative regressions. A new
+  RasterSource black-box
+  test saves getter-returned acquire/release closures, replaces and clears the
+  registration, exits the Pattern/source scope, and then calls the saved pair,
+  directly proving the getter's strong-reference contract.
 - Public-package branch instrumentation is audited by
   `scripts/check-public-coverage.py`: every portable reachable branch found by
   the audit has a black-box test. The ledger has 53 stable source keys with
@@ -57,13 +70,13 @@ Implemented in this workspace:
   process failures, deterministic JSON, and environment redaction.
 - Exact local release lanes for Cairo 1.15.10 and 1.18.4, built from pinned
   source URLs and SHA-256 digests on a pinned Ubuntu base image. Both lanes
-  pass all static gates, 828/828 native tests, 165/165 script tests, and 63/63
+  pass all static gates, 829/829 native tests, 180/180 script tests, and 63/63
   executable documentation tests with the pinned MoonBit
   `0.10.4+4f2e8f7dc-nightly` compiler. In each lane, the source-checkout and
   extracted-publication-zip consumers also pass 1/1 independently. Each lane
   additionally consumes the same unmodified host-generated zip, so
   producer-specific include/library paths cannot be hidden by lane setup. The
-  integrity-checked publication archive contains 626 members, and every
+  integrity-checked publication archive contains 629 members, and every
   discovered package passes ASan/LSan/UBSan. Each pinned lane also runs
   instrumented public-facade coverage and requires the exact linked-version
   ledger profile.
@@ -819,19 +832,19 @@ Implemented in this workspace:
 
 The most recent full local verification passed on 2026-07-18:
 
-- `./scripts/verify.sh` passed 165/165 script tests,
-  828/828 native tests, 63/63 executable documentation tests, formatting,
+- `./scripts/verify.sh` passed 180/180 script tests,
+  829/829 native tests, 63/63 executable documentation tests, formatting,
   project layout, source-size, Cairo build-protocol/generated-constant, FFI
-  ownership, API inventory,
+  ownership, exact external-owner/finalizer/stress evidence, API inventory,
   pycairo parity, public documentation, reliability-ledger, vector-scene,
   native type, and generated-interface gates. The isolated consumer passed
   1/1 against both the checkout and the integrity-tested extracted
-  626-member publication zip. Host ASan/UBSan passed every discovered package;
+  629-member publication zip. Host ASan/UBSan passed every discovered package;
   authoritative Linux LSan coverage is supplied by both exact-Cairo lanes.
 - `./scripts/test-cairo-matrix.sh cairo-1.15.10` and
-  `./scripts/test-cairo-matrix.sh cairo-1.18.4` passed the same 165 script,
-  828 native, and 63 documentation tests, both 1/1 consumer paths, the
-  unmodified host-archive consumer, all 626 publication members, and every
+  `./scripts/test-cairo-matrix.sh cairo-1.18.4` passed the same 180 script,
+  829 native, and 63 documentation tests, both 1/1 consumer paths, the
+  unmodified host-archive consumer, all 629 publication members, and every
   discovered package under ASan/LSan/UBSan.
   Intentional signed-overflow and leak preflights passed in both lanes. The
   constrained vector suppression accounted for 16 allocations/7424 bytes on
@@ -3619,7 +3632,7 @@ fresh workspace, and reruns the consumer against the packaged module. The two
 exact Linux Cairo lanes additionally consume the same host-generated zip
 without rewriting its manifests or running the repository constants updater.
 This catches producer-specific include and library paths that source-copy lane
-setup would otherwise hide. The current 626-member archive also contains the
+setup would otherwise hide. The current 629-member archive also contains the
 declared dual-license notice and complete license texts; source,
 freshly extracted, and unmodified cross-host archive paths all pass against
 Cairo 1.15.10 and 1.18.4.

@@ -10,6 +10,7 @@ import sys
 import zipfile
 
 
+REPO_ROOT = pathlib.Path(__file__).resolve().parents[1]
 REQUIRED_MEMBERS = frozenset(
     {
         "COPYING",
@@ -19,6 +20,8 @@ REQUIRED_MEMBERS = frozenset(
         "moon.mod",
         "scripts/api/pycairo-api-snapshot.json",
         "scripts/build/cairo_config.py",
+        "scripts/check-external-owners.py",
+        "scripts/lifetime/owners.json",
         "src/README.mbt.md",
         "src/moon.pkg",
         "src/pkg.generated.mbti",
@@ -56,6 +59,12 @@ REQUIRED_SHA256 = {
         "53692a2ed6c6a2c6ec9b32dd0b820dfae91e0a1fcdf625ca9ed0bdf8705fcc4f"
     ),
 }
+SOURCE_IDENTICAL_MEMBERS = frozenset(
+    {
+        "scripts/check-external-owners.py",
+        "scripts/lifetime/owners.json",
+    }
+)
 
 
 def check_archive(path: pathlib.Path) -> tuple[list[str], int]:
@@ -114,6 +123,30 @@ def check_archive(path: pathlib.Path) -> tuple[list[str], int]:
                             f"{path}: required member {member_name!r} has SHA-256 "
                             f"{actual_digest}, expected {expected_digest}"
                         )
+
+            for member_name in SOURCE_IDENTICAL_MEMBERS:
+                member = canonical_members.get(member_name)
+                if member is None:
+                    continue
+                if member.is_dir():
+                    errors.append(
+                        f"{path}: required member {member_name!r} is a directory"
+                    )
+                    continue
+                try:
+                    archive_payload = archive.read(member)
+                    source_payload = (REPO_ROOT / member_name).read_bytes()
+                except (OSError, RuntimeError) as exc:
+                    errors.append(
+                        f"{path}: cannot compare required member "
+                        f"{member_name!r}: {exc}"
+                    )
+                    continue
+                if archive_payload != source_payload:
+                    errors.append(
+                        f"{path}: required member {member_name!r} does not match "
+                        "the verified source file"
+                    )
     except (OSError, RuntimeError, zipfile.BadZipFile) as exc:
         return [f"{path}: invalid publication archive: {exc}"], 0
 

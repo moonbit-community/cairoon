@@ -161,8 +161,9 @@ release:
 ```
 
 The gate checks formatting, generated Cairo-constant drift, the pre-build
-configuration protocol, project layout, FFI
-ownership annotations, API inventory and public-documentation coverage, the
+configuration protocol, project layout, FFI ownership annotations, the exact
+external-owner/finalizer/stress ledger, API inventory and public-documentation
+coverage, the
 reliability and public-coverage ledgers, native type checking, all 20 pinned
 pycairo test-file families (288 upstream tests), the complete in-module MoonBit
 native suite, one

@@ -645,6 +645,21 @@ If a future typed wrapper such as `ImageSurface` is added, it must be a pure
 MoonBit wrapper around one `Surface` owner. It must not own or finalize the
 same C pointer separately.
 
+`scripts/lifetime/owners.json` is the executable owner registry. It must contain
+exactly one row for every `Raw*` type declared by production `ffi*.mbt` files
+and exactly one row for every finalizer in `src/native/cairoon_objects.c`.
+The names are structural: `RawX` must map to `CairoonX` and the snake-case
+`cairoon_x_finalize`; aliases or exceptions are forbidden.
+Each row names the declaration file, C payload struct, finalizer, every release
+action, and a helper reached unconditionally inside a top-level loop of at
+least 1000 iterations in a `*_test.mbt` file beside its own
+`src/tests/lifetime/**/moon.pkg`. The helper's allocation anchor must also be a
+top-level executed expression, not a comment, literal, or conditional branch.
+Any new raw owner, moved declaration, changed allocator struct, changed release
+action, or replacement stress path must update the registry in the same commit.
+`scripts/check-external-owners.py` must reject missing, duplicate, and stale
+rows rather than inferring that a broad sanitizer run probably covered them.
+
 Subtype-specific surface methods, such as recording/PDF/SVG/PS helpers, must
 first check `cairo_surface_status`, then check `cairo_surface_get_type` in the C
 stub. A valid surface of the wrong subtype must return
@@ -1145,6 +1160,8 @@ A migrated API is done only when:
 - Every non-primitive parameter in production `src/**/ffi*.mbt` raw FFI files
   has an explicit `#borrow` or `#owned`.
 - Every Cairo-owned pointer has exactly one MoonBit external-object owner.
+- `scripts/check-external-owners.py` proves every raw owner has one native
+  finalizer and an allocation anchor reached by a 1000-iteration lifetime test.
 - Every borrowed Cairo return that escapes to MoonBit is referenced before
   wrapping.
 - Every public failing operation raises `CairoError` or a documented suberror

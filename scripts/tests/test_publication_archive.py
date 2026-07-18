@@ -27,6 +27,12 @@ VALID_MEMBERS = {
         REPO_ROOT / "scripts" / "api" / "pycairo-api-snapshot.json"
     ).read_bytes(),
     "scripts/build/cairo_config.py": b"# build config\n",
+    "scripts/check-external-owners.py": (
+        REPO_ROOT / "scripts" / "check-external-owners.py"
+    ).read_bytes(),
+    "scripts/lifetime/owners.json": (
+        REPO_ROOT / "scripts" / "lifetime" / "owners.json"
+    ).read_bytes(),
     "src/README.mbt.md": b"# example\n",
     "src/moon.pkg": b"",
     "src/pkg.generated.mbti": b"package example\n",
@@ -138,6 +144,36 @@ class PublicationArchiveCheckerTests(unittest.TestCase):
 
         self.assertTrue(
             any("scripts/api/pycairo-api-snapshot.json" in error for error in errors),
+            errors,
+        )
+
+    def test_external_owner_support_is_required_and_exact(self) -> None:
+        members = dict(VALID_MEMBERS)
+        del members["scripts/lifetime/owners.json"]
+        self.write_archive(members, include_required=False)
+
+        errors, _ = self.check()
+
+        self.assertTrue(
+            any("scripts/lifetime/owners.json" in error for error in errors),
+            errors,
+        )
+
+        self.write_archive({"scripts/lifetime/owners.json": b"{}\n"})
+
+        errors, _ = self.check()
+
+        self.assertTrue(
+            any("does not match the verified source file" in error for error in errors),
+            errors,
+        )
+
+        self.write_archive({"scripts/check-external-owners.py": b"# altered\n"})
+
+        errors, _ = self.check()
+
+        self.assertTrue(
+            any("does not match the verified source file" in error for error in errors),
             errors,
         )
 

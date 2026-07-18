@@ -47,6 +47,82 @@ test "raster source get_acquire returns current callbacks" {
 }
 
 ///|
+fn saved_raster_callbacks_from_local_pattern(
+  acquire_calls : Ref[Int],
+  release_calls : Ref[Int],
+  replacement_calls : Ref[Int],
+  target_width : Ref[Int],
+  extent_x : Ref[Int],
+  released_width : Ref[Int],
+) -> (
+  ((@cairoon.Surface, @cairoon.RectangleInt) -> @cairoon.Surface)?,
+  ((@cairoon.Surface) -> Unit)?,
+) raise @cairoon.CairoError {
+  let source = @cairoon.Surface::image(@cairoon.Argb32, 2, 1)
+  let replacement = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let pattern = @cairoon.Pattern::raster_source(
+    @cairoon.ContentColorAlpha,
+    2,
+    1,
+  )
+  pattern.raster_set_acquire(
+    fn(target, extents) {
+      acquire_calls.val += 1
+      target_width.val = try! target.get_width()
+      extent_x.val = extents.x
+      source
+    },
+    release=Some(fn(surface) {
+      release_calls.val += 1
+      released_width.val = try! surface.get_width()
+    }),
+  )
+  let saved = pattern.raster_get_callbacks()
+  pattern.raster_set_acquire(fn(_, _) {
+    replacement_calls.val += 1
+    replacement
+  })
+  pattern.raster_clear_callbacks()
+  saved
+}
+
+///|
+test "saved raster callbacks outlive replacement clear and local scopes" {
+  let acquire_calls = Ref(0)
+  let release_calls = Ref(0)
+  let replacement_calls = Ref(0)
+  let target_width = Ref(0)
+  let extent_x = Ref(0)
+  let released_width = Ref(0)
+  let (saved_acquire, saved_release) = saved_raster_callbacks_from_local_pattern(
+    acquire_calls, release_calls, replacement_calls, target_width, extent_x, released_width,
+  )
+
+  for index in 0..<64 {
+    ignore(Bytes::make(32 + index, b'\x5a'))
+  }
+  match (saved_acquire, saved_release) {
+    (Some(acquire), Some(release)) => {
+      let target = @cairoon.Surface::image(@cairoon.Argb32, 3, 2)
+      let acquired = acquire(
+        target,
+        @cairoon.RectangleInt::new(x=4, y=5, width=2, height=1),
+      )
+      inspect(acquired.get_width(), content="2")
+      inspect(acquired.get_height(), content="1")
+      release(acquired)
+    }
+    _ => @test.fail("expected saved acquire and release callbacks")
+  }
+  inspect(acquire_calls.val, content="1")
+  inspect(release_calls.val, content="1")
+  inspect(replacement_calls.val, content="0")
+  inspect(target_width.val, content="3")
+  inspect(extent_x.val, content="4")
+  inspect(released_width.val, content="2")
+}
+
+///|
 test "raster source get_acquire reports optional and cleared callbacks" {
   let source = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
   let pattern = @cairoon.Pattern::raster_source(

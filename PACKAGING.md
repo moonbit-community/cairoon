@@ -140,7 +140,7 @@ Use:
 ```
 
 The gate runs formatting, Cairo build-protocol and generated-constant checks,
-static FFI ownership linting,
+static FFI ownership linting, exact external-owner/finalizer/stress evidence,
 top-level pycairo API inventory linting, exact public doc-comment debt linting,
 all 20 pinned pycairo test-file families (288 tests), the isolated downstream
 import/link/render test against both source and extracted publication zip,
@@ -201,21 +201,25 @@ unsuppressed.
    present. If the pinned pycairo commit changes, regenerate
    `scripts/api/pycairo-api-snapshot.json` deliberately and review its source
    SHA, API sets, and product mappings before release.
-5. Run `scripts/configure-cairo-constants.sh --check`, then confirm no
+5. Run `python3 scripts/check-external-owners.py`; every discovered raw owner
+   must retain its structurally named C payload/finalizer, complete release
+   actions, and an unconditional top-level 1000-iteration lifetime-package
+   stress path in `scripts/lifetime/owners.json`.
+6. Run `scripts/configure-cairo-constants.sh --check`, then confirm no
    `moon.pkg` contains concrete Cairo paths or `cc-link-flags`.
-6. Run `./scripts/verify.sh`; the release cannot proceed if this fails.
-7. Run `git diff -- pkg.generated.mbti` after `moon info --target native`.
+7. Run `./scripts/verify.sh`; the release cannot proceed if this fails.
+8. Run `git diff -- pkg.generated.mbti` after `moon info --target native`.
    Public API changes must be intentional and documented.
-8. Update `API_INVENTORY.md`, `AUDIT.md`, and `TESTING.md` with the exact API
+9. Update `API_INVENTORY.md`, `AUDIT.md`, and `TESTING.md` with the exact API
    and verification state.
-9. Confirm new public APIs have executable docs in the appropriate
+10. Confirm new public APIs have executable docs in the appropriate
    `*.mbt.md` reference file.
-10. Run both pinned Cairo matrix lanes and record their exact versions and test
+11. Run both pinned Cairo matrix lanes and record their exact versions and test
    counts in `AUDIT.md`.
-11. Run `./scripts/check-downstream-consumer.sh`; it must pass against both the
+12. Run `./scripts/check-downstream-consumer.sh`; it must pass against both the
    source checkout and extracted publication zip, and keep `integration/` out
    of the archive.
-12. Commit the release state and tag it from a clean worktree.
+13. Commit the release state and tag it from a clean worktree.
 
 ## CI Guidance
 

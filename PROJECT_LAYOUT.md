@@ -119,6 +119,8 @@ cairoon/
           moon.pkg
           consumer_smoke_test.mbt
   scripts/
+    lifetime/
+      owners.json
     matrix/
       Dockerfile
       run-lane.sh
@@ -151,6 +153,7 @@ cairoon/
       probes/
         cairo_recording_snapshot_probe.c
     tests/
+      test_external_owners.py
       test_pycairo_test_parity.py
       test_sanitizer_policy.py
     test-cairo-matrix.sh
@@ -712,6 +715,11 @@ before MoonBit compilation. The layout check proves:
 - every production raw `src/**/ffi*.mbt` file outside `src/tests/` is listed
   in the adjacent `moon.pkg` `targets` map as native-only, and stale native
   target entries for moved raw FFI files are rejected;
+- `scripts/check-external-owners.py` independently discovers every raw owner
+  type and native finalizer, then requires the exact declaration, allocator,
+  structural owner naming, complete release-action list, and top-level
+  1000-iteration lifetime-package evidence recorded in
+  `scripts/lifetime/owners.json`;
 - every `.c` file under `src/native/` is referenced by `src/native/moon.pkg`
   `native-stub`, every `native-stub` entry is a bare filename beside its
   owning `moon.pkg`, headers stay with their owning native-stub package, oracle

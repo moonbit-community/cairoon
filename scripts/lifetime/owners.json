@@ -1,0 +1,166 @@
+{
+  "schema_version": 1,
+  "minimum_iterations": 1000,
+  "owners": [
+    {
+      "raw_type": "RawSurface",
+      "ffi_path": "src/internal/surface/ffi.mbt",
+      "c_struct": "CairoonSurface",
+      "finalizer": "cairoon_surface_finalize",
+      "release_anchors": [
+        "cairo_surface_destroy(surface->ptr);",
+        "moonbit_decref(surface->base);"
+      ],
+      "stress_path": "src/tests/lifetime/value/lifetime_value_stress_test.mbt",
+      "stress_test": "external value wrapper allocation stress",
+      "stress_helper": "lifetime_stress_value_wrappers",
+      "allocation_anchor": "@cairoon.Surface::image("
+    },
+    {
+      "raw_type": "RawDevice",
+      "ffi_path": "src/internal/device/ffi.mbt",
+      "c_struct": "CairoonDevice",
+      "finalizer": "cairoon_device_finalize",
+      "release_anchors": [
+        "cairo_device_destroy(device->ptr);"
+      ],
+      "stress_path": "src/tests/lifetime/value/lifetime_value_stress_test.mbt",
+      "stress_test": "external value wrapper allocation stress",
+      "stress_helper": "lifetime_stress_value_wrappers",
+      "allocation_anchor": "@cairoon.Device::script_stream("
+    },
+    {
+      "raw_type": "RawMappedImageSurface",
+      "ffi_path": "src/internal/surface/ffi_mapped_image.mbt",
+      "c_struct": "CairoonMappedImageSurface",
+      "finalizer": "cairoon_mapped_image_surface_finalize",
+      "release_anchors": [
+        "cairo_surface_unmap_image(surface->base, surface->mapped);",
+        "moonbit_decref(surface->base_object);"
+      ],
+      "stress_path": "src/tests/lifetime/image_data/lifetime_image_data_stress_test.mbt",
+      "stress_test": "image data view allocation stress",
+      "stress_helper": "lifetime_stress_image_data_views",
+      "allocation_anchor": "base.map_to_image()"
+    },
+    {
+      "raw_type": "RawImageData",
+      "ffi_path": "src/internal/surface/ffi_image_data.mbt",
+      "c_struct": "CairoonImageData",
+      "finalizer": "cairoon_image_data_finalize",
+      "release_anchors": [
+        "moonbit_decref(data->surface_object);"
+      ],
+      "stress_path": "src/tests/lifetime/image_data/lifetime_image_data_stress_test.mbt",
+      "stress_test": "image data view allocation stress",
+      "stress_helper": "lifetime_stress_image_data_views",
+      "allocation_anchor": ".get_data()"
+    },
+    {
+      "raw_type": "RawContext",
+      "ffi_path": "src/internal/context/ffi.mbt",
+      "c_struct": "CairoonContext",
+      "finalizer": "cairoon_context_finalize",
+      "release_anchors": [
+        "cairo_destroy(ctx->ptr);",
+        "moonbit_decref(ctx->target_surface);"
+      ],
+      "stress_path": "src/tests/lifetime/value/lifetime_value_stress_test.mbt",
+      "stress_test": "external value wrapper allocation stress",
+      "stress_helper": "lifetime_stress_value_wrappers",
+      "allocation_anchor": "@cairoon.Context::new("
+    },
+    {
+      "raw_type": "RawPath",
+      "ffi_path": "src/internal/path/ffi.mbt",
+      "c_struct": "CairoonPath",
+      "finalizer": "cairoon_path_finalize",
+      "release_anchors": [
+        "cairo_path_destroy(path->ptr);"
+      ],
+      "stress_path": "src/tests/lifetime/value/lifetime_value_stress_test.mbt",
+      "stress_test": "external value wrapper allocation stress",
+      "stress_helper": "lifetime_stress_value_wrappers",
+      "allocation_anchor": "ctx.copy_path()"
+    },
+    {
+      "raw_type": "RawPattern",
+      "ffi_path": "src/internal/pattern/ffi.mbt",
+      "c_struct": "CairoonPattern",
+      "finalizer": "cairoon_pattern_finalize",
+      "release_anchors": [
+        "cairo_pattern_destroy(pattern->ptr);",
+        "moonbit_decref(pattern->base);"
+      ],
+      "stress_path": "src/tests/lifetime/value/lifetime_value_stress_test.mbt",
+      "stress_test": "external value wrapper allocation stress",
+      "stress_helper": "lifetime_stress_value_wrappers",
+      "allocation_anchor": "@cairoon.Pattern::solid_rgba("
+    },
+    {
+      "raw_type": "RawFontOptions",
+      "ffi_path": "src/internal/font_options/ffi.mbt",
+      "c_struct": "CairoonFontOptions",
+      "finalizer": "cairoon_font_options_finalize",
+      "release_anchors": [
+        "cairo_font_options_destroy(options->ptr);"
+      ],
+      "stress_path": "src/tests/lifetime/value/lifetime_value_stress_test.mbt",
+      "stress_test": "external value wrapper allocation stress",
+      "stress_helper": "lifetime_stress_value_wrappers",
+      "allocation_anchor": "@cairoon.FontOptions::new()"
+    },
+    {
+      "raw_type": "RawFontFace",
+      "ffi_path": "src/internal/font_face/ffi.mbt",
+      "c_struct": "CairoonFontFace",
+      "finalizer": "cairoon_font_face_finalize",
+      "release_anchors": [
+        "cairo_font_face_destroy(font_face->ptr);"
+      ],
+      "stress_path": "src/tests/lifetime/value/lifetime_value_stress_test.mbt",
+      "stress_test": "external value wrapper allocation stress",
+      "stress_helper": "lifetime_stress_value_wrappers",
+      "allocation_anchor": "@cairoon.FontFace::toy("
+    },
+    {
+      "raw_type": "RawScaledFont",
+      "ffi_path": "src/internal/scaled_font/ffi.mbt",
+      "c_struct": "CairoonScaledFont",
+      "finalizer": "cairoon_scaled_font_finalize",
+      "release_anchors": [
+        "cairo_scaled_font_destroy(scaled_font->ptr);"
+      ],
+      "stress_path": "src/tests/lifetime/value/lifetime_value_stress_test.mbt",
+      "stress_test": "external value wrapper allocation stress",
+      "stress_helper": "lifetime_stress_value_wrappers",
+      "allocation_anchor": "lifetime_scaled_font_from_local_inputs()"
+    },
+    {
+      "raw_type": "RawRegion",
+      "ffi_path": "src/internal/region/ffi.mbt",
+      "c_struct": "CairoonRegion",
+      "finalizer": "cairoon_region_finalize",
+      "release_anchors": [
+        "cairo_region_destroy(region->ptr);"
+      ],
+      "stress_path": "src/tests/lifetime/value/lifetime_value_stress_test.mbt",
+      "stress_test": "external value wrapper allocation stress",
+      "stress_helper": "lifetime_stress_value_wrappers",
+      "allocation_anchor": "@cairoon.Region::from_rectangle("
+    },
+    {
+      "raw_type": "RawTextToGlyphs",
+      "ffi_path": "src/internal/scaled_font/ffi_text_to_glyphs.mbt",
+      "c_struct": "CairoonTextToGlyphs",
+      "finalizer": "cairoon_text_to_glyphs_finalize",
+      "release_anchors": [
+        "cairoon_text_to_glyphs_release((CairoonTextToGlyphs *)self);"
+      ],
+      "stress_path": "src/tests/lifetime/value/lifetime_value_stress_test.mbt",
+      "stress_test": "external value wrapper allocation stress",
+      "stress_helper": "lifetime_stress_value_wrappers",
+      "allocation_anchor": "scaled_font.text_to_glyphs("
+    }
+  ]
+}
