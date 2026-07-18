@@ -1,8 +1,8 @@
 ///|
 fn lifetime_scaled_font_from_local_inputs() -> @cairoon.ScaledFont raise @cairoon.CairoError {
-  let face = @cairoon.FontFace::toy("serif", weight=@cairoon.FontWeightBold)
+  let face = @cairoon.FontFace::toy("serif", weight=FontWeightBold)
   let options = @cairoon.FontOptions::new()
-  options.set_antialias(@cairoon.AntialiasGray)
+  options.set_antialias(AntialiasGray)
   @cairoon.ScaledFont::new(
     face,
     @cairoon.Matrix::new(xx=12.0, yy=12.0),
@@ -27,14 +27,12 @@ fn lifetime_mesh_pattern() -> @cairoon.Pattern raise @cairoon.CairoError {
 
 ///|
 fn lifetime_stress_value_wrappers(index : Int) -> Unit raise {
-  let surface = @cairoon.Surface::image(@cairoon.Argb32, 4, 4)
+  let surface = @cairoon.Surface::image(Argb32, 4, 4)
   let ctx = @cairoon.Context::new(surface)
   ctx.rectangle(0.0, 0.0, 2.0, 2.0)
   let path = ctx.copy_path()
   let flat_path = ctx.copy_path_flat()
-  let target_ctx = @cairoon.Context::new(
-    @cairoon.Surface::image(@cairoon.Argb32, 4, 4),
-  )
+  let target_ctx = @cairoon.Context::new(@cairoon.Surface::image(Argb32, 4, 4))
   target_ctx.append_path(path)
   target_ctx.append_path(flat_path)
 
@@ -47,11 +45,11 @@ fn lifetime_stress_value_wrappers(index : Int) -> Unit raise {
   )
 
   let options = @cairoon.FontOptions::new()
-  options.set_antialias(@cairoon.AntialiasGray)
+  options.set_antialias(AntialiasGray)
   let copied_options = options.copy()
   copied_options.merge(options)
 
-  let face = @cairoon.FontFace::toy("serif", weight=@cairoon.FontWeightBold)
+  let face = @cairoon.FontFace::toy("serif", weight=FontWeightBold)
   let scaled_font = lifetime_scaled_font_from_local_inputs()
   let returned_face = scaled_font.get_font_face()
   let returned_options = scaled_font.get_font_options()
@@ -69,14 +67,14 @@ fn lifetime_stress_value_wrappers(index : Int) -> Unit raise {
   let mesh_path = mesh.mesh_get_path(0)
 
   let recording = @cairoon.Surface::recording(
-    @cairoon.ContentColorAlpha,
+    ContentColorAlpha,
     extents=Some(@cairoon.Rectangle::new(0.0, 0.0, 4.0, 4.0)),
   )
   let recorder = @cairoon.Context::new(recording)
   recorder.rectangle(0.0, 0.0, 1.0, 1.0)
   recorder.fill()
-  let similar = surface.create_similar(@cairoon.ContentColorAlpha, 2, 2)
-  let similar_image = surface.create_similar_image(@cairoon.Argb32, 2, 2)
+  let similar = surface.create_similar(ContentColorAlpha, 2, 2)
+  let similar_image = surface.create_similar_image(Argb32, 2, 2)
   let tee = @cairoon.Surface::tee(similar)
   tee.tee_add(similar_image)
   let _ = tee.tee_index(0)
@@ -88,7 +86,7 @@ fn lifetime_stress_value_wrappers(index : Int) -> Unit raise {
     if chunk.length() > 0 {
       chunk_count.val += 1
     }
-    @cairoon.Success
+    Success
   })
   let device_type = device.get_type()
   device.script_write_comment("lifetime stress")

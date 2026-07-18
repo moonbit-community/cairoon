@@ -24,7 +24,7 @@ fn expect_scaled_font_invalid_string(
 ) -> Unit raise {
   inspect(result is Err(_), content="true")
   match result {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidString, _)) => ()
+    Err(CairoInvalidArgument(InvalidString, _)) => ()
     _ => @test.fail("expected InvalidString")
   }
 }
@@ -34,16 +34,16 @@ fn expect_scaled_font_invalid_matrix(
   result : Result[@cairoon.ScaledFont, @cairoon.CairoError],
 ) -> Unit raise {
   match result {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidMatrix, _)) => ()
+    Err(CairoInvalidArgument(InvalidMatrix, _)) => ()
     _ => @test.fail("expected InvalidMatrix")
   }
 }
 
 ///|
 fn make_scaled_font() -> @cairoon.ScaledFont raise @cairoon.CairoError {
-  let face = @cairoon.FontFace::toy("serif", weight=@cairoon.FontWeightBold)
+  let face = @cairoon.FontFace::toy("serif", weight=FontWeightBold)
   let options = @cairoon.FontOptions::new()
-  options.set_antialias(@cairoon.AntialiasGray)
+  options.set_antialias(AntialiasGray)
   @cairoon.ScaledFont::new(
     face,
     @cairoon.Matrix::new(xx=12.0, yy=12.0),
@@ -193,7 +193,7 @@ test "scaled font text APIs validate embedded nul strings" {
 
 ///|
 test "scaled font equality and hash follow cairo pointer identity" {
-  let surface = @cairoon.Surface::image(@cairoon.Rgb24, 4, 4)
+  let surface = @cairoon.Surface::image(Rgb24, 4, 4)
   let ctx = @cairoon.Context::new(surface)
   ctx.set_font_size(14.0)
   let first = ctx.get_scaled_font()
@@ -204,7 +204,7 @@ test "scaled font equality and hash follow cairo pointer identity" {
 
 ///|
 test "context font matrix size extents and scaled font round trip" {
-  let surface = @cairoon.Surface::image(@cairoon.Rgb24, 8, 8)
+  let surface = @cairoon.Surface::image(Rgb24, 8, 8)
   let ctx = @cairoon.Context::new(surface)
   ctx.set_font_size(42.0)
   assert_scaled_matrix_close(
@@ -246,9 +246,7 @@ test "context font matrix size extents and scaled font round trip" {
 
 ///|
 test "context scaled font methods propagate cairo error" {
-  let ctx = @cairoon.Context::new(
-    @cairoon.Surface::image(@cairoon.Argb32, 1, 1),
-  )
+  let ctx = @cairoon.Context::new(@cairoon.Surface::image(Argb32, 1, 1))
   let scaled_font = make_scaled_font()
   let set_matrix_result = @cairoon.run_cairo(() => {
     ctx.set_matrix(@cairoon.Matrix::new(xx=0.0, yy=0.0))
@@ -261,7 +259,7 @@ test "context scaled font methods propagate cairo error" {
   })
   inspect(get_matrix_result is Err(_), content="true")
   match get_matrix_result {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidMatrix, _)) => ()
+    Err(CairoInvalidArgument(InvalidMatrix, _)) => ()
     _ => @test.fail("expected InvalidMatrix")
   }
 
@@ -270,14 +268,14 @@ test "context scaled font methods propagate cairo error" {
   })
   inspect(set_font_matrix_result is Err(_), content="true")
   match set_font_matrix_result {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidMatrix, _)) => ()
+    Err(CairoInvalidArgument(InvalidMatrix, _)) => ()
     _ => @test.fail("expected InvalidMatrix")
   }
 
   let set_size_result = @cairoon.run_cairo(() => ctx.set_font_size(12.0))
   inspect(set_size_result is Err(_), content="true")
   match set_size_result {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidMatrix, _)) => ()
+    Err(CairoInvalidArgument(InvalidMatrix, _)) => ()
     _ => @test.fail("expected InvalidMatrix")
   }
 
@@ -287,7 +285,7 @@ test "context scaled font methods propagate cairo error" {
   })
   inspect(extents_result is Err(_), content="true")
   match extents_result {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidMatrix, _)) => ()
+    Err(CairoInvalidArgument(InvalidMatrix, _)) => ()
     _ => @test.fail("expected InvalidMatrix")
   }
 
@@ -297,7 +295,7 @@ test "context scaled font methods propagate cairo error" {
   })
   inspect(get_scaled_result is Err(_), content="true")
   match get_scaled_result {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidMatrix, _)) => ()
+    Err(CairoInvalidArgument(InvalidMatrix, _)) => ()
     _ => @test.fail("expected InvalidMatrix")
   }
 
@@ -306,7 +304,7 @@ test "context scaled font methods propagate cairo error" {
   })
   inspect(set_scaled_result is Err(_), content="true")
   match set_scaled_result {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidMatrix, _)) => ()
+    Err(CairoInvalidArgument(InvalidMatrix, _)) => ()
     _ => @test.fail("expected InvalidMatrix")
   }
 }

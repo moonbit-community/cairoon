@@ -2,24 +2,18 @@
 fn render_pdf_page_operation_document_feature_surface(
   surface : @cairoon.Surface,
 ) -> (Int, Int) raise @cairoon.CairoError {
-  surface.pdf_restrict_to_version(@cairoon.PdfVersion1_4)
-  surface.pdf_set_metadata(@cairoon.PdfMetadataTitle, "Cairoon Page Ops")
-  surface.pdf_set_metadata(@cairoon.PdfMetadataCreator, "cairoon page ops test")
-  surface.pdf_set_metadata(
-    @cairoon.PdfMetadataCreateDate,
-    fixed_pdf_metadata_date(),
-  )
-  surface.pdf_set_metadata(
-    @cairoon.PdfMetadataModDate,
-    fixed_pdf_metadata_date(),
-  )
+  surface.pdf_restrict_to_version(PdfVersion1_4)
+  surface.pdf_set_metadata(PdfMetadataTitle, "Cairoon Page Ops")
+  surface.pdf_set_metadata(PdfMetadataCreator, "cairoon page ops test")
+  surface.pdf_set_metadata(PdfMetadataCreateDate, fixed_pdf_metadata_date())
+  surface.pdf_set_metadata(PdfMetadataModDate, fixed_pdf_metadata_date())
   set_pdf_custom_metadata_if_supported(surface, "Case", Some("copy-show"))
   surface.pdf_set_page_label("copy-intro")
   let intro_id = surface.pdf_add_outline_with_flags(
     @cairoon.PDF_OUTLINE_ROOT,
     "copy intro",
     "page=1 pos=[10 20]",
-    @cairoon.PDFOutlineFlagSet::of(@cairoon.PdfOutlineOpen),
+    @cairoon.PDFOutlineFlagSet::of(PdfOutlineOpen),
   )
   let ctx = @cairoon.Context::new(surface)
   ctx.select_font_face("serif")
@@ -39,7 +33,7 @@ fn render_pdf_page_operation_document_feature_surface(
     @cairoon.PDF_OUTLINE_ROOT,
     "copy details",
     "page=2 pos=[10 60]",
-    @cairoon.PDFOutlineFlagSet::of(@cairoon.PdfOutlineItalic),
+    @cairoon.PDFOutlineFlagSet::of(PdfOutlineItalic),
   )
   ctx.set_source_rgb(0.8, 0.0, 0.0)
   ctx.tag_begin(@cairoon.TAG_DEST, "name='page-op-dest' x=10 y=60")

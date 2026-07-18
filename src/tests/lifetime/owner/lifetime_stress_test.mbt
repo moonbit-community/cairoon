@@ -1,13 +1,13 @@
 ///|
 fn lifetime_child_from_local_parent() -> @cairoon.Surface raise @cairoon.CairoError {
-  let parent = @cairoon.Surface::image(@cairoon.Argb32, 4, 4)
+  let parent = @cairoon.Surface::image(Argb32, 4, 4)
   parent.create_for_rectangle(1.0, 1.0, 2.0, 2.0)
 }
 
 ///|
 fn lifetime_pattern_from_data_surface() -> @cairoon.Pattern raise @cairoon.CairoError {
   let data : FixedArray[Byte] = FixedArray::make(4, b'\x00')
-  let source = @cairoon.Surface::image_for_data(data, @cairoon.Argb32, 1, 1)
+  let source = @cairoon.Surface::image_for_data(data, Argb32, 1, 1)
   let source_ctx = @cairoon.Context::new(source)
   source_ctx.set_source_rgba(0.0, 0.0, 1.0, 1.0)
   source_ctx.paint()
@@ -17,22 +17,18 @@ fn lifetime_pattern_from_data_surface() -> @cairoon.Pattern raise @cairoon.Cairo
 ///|
 fn lifetime_raster_pattern_from_data_surface() -> @cairoon.Pattern raise @cairoon.CairoError {
   let data : FixedArray[Byte] = FixedArray::make(4, b'\x00')
-  let source = @cairoon.Surface::image_for_data(data, @cairoon.Argb32, 1, 1)
+  let source = @cairoon.Surface::image_for_data(data, Argb32, 1, 1)
   let source_ctx = @cairoon.Context::new(source)
   source_ctx.set_source_rgba(0.0, 0.0, 1.0, 1.0)
   source_ctx.paint()
-  let pattern = @cairoon.Pattern::raster_source(
-    @cairoon.ContentColorAlpha,
-    1,
-    1,
-  )
+  let pattern = @cairoon.Pattern::raster_source(ContentColorAlpha, 1, 1)
   pattern.raster_set_acquire(fn(_, _) { source })
   pattern
 }
 
 ///|
 fn lifetime_mapped_from_local_base() -> @cairoon.MappedImageSurface raise @cairoon.CairoError {
-  let base = @cairoon.Surface::image(@cairoon.Rgb24, 1, 1)
+  let base = @cairoon.Surface::image(Rgb24, 1, 1)
   base.map_to_image()
 }
 
@@ -66,7 +62,7 @@ fn expect_lifetime_mapped_finished(
 ) -> Unit raise {
   inspect(result is Err(_), content="true")
   match result {
-    Err(@cairoon.CairoError(@cairoon.SurfaceFinished, _)) => ()
+    Err(CairoError(SurfaceFinished, _)) => ()
     _ => @test.fail("expected SurfaceFinished")
   }
 }
@@ -114,7 +110,7 @@ test "retained cairo owner graph allocation stress" {
     }
 
     let pattern = lifetime_pattern_from_data_surface()
-    let target = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+    let target = @cairoon.Surface::image(Argb32, 1, 1)
     let target_ctx = @cairoon.Context::new(target)
     target_ctx.set_source(pattern)
     target_ctx.paint()
@@ -123,7 +119,7 @@ test "retained cairo owner graph allocation stress" {
     }
 
     let raster_pattern = lifetime_raster_pattern_from_data_surface()
-    let raster_target = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+    let raster_target = @cairoon.Surface::image(Argb32, 1, 1)
     let raster_ctx = @cairoon.Context::new(raster_target)
     raster_ctx.set_source(raster_pattern)
     raster_ctx.paint()

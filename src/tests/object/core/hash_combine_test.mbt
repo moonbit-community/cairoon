@@ -7,10 +7,10 @@ fn[T : Hash] expect_hash_combine_matches_hash(value : T) -> Unit raise {
 
 ///|
 test "external object hash_combine agrees with hash" {
-  let surface = @cairoon.Surface::image(@cairoon.Argb32, 4, 4)
+  let surface = @cairoon.Surface::image(Argb32, 4, 4)
   let ctx = @cairoon.Context::new(surface)
   let pattern = @cairoon.Pattern::solid_rgb(0.25, 0.5, 0.75)
-  let device = @cairoon.Device::script_stream(_bytes => @cairoon.Success)
+  let device = @cairoon.Device::script_stream(_bytes => Success)
   ctx.select_font_face("serif")
   let font_face = ctx.get_font_face()
   let scaled_font = ctx.get_scaled_font()

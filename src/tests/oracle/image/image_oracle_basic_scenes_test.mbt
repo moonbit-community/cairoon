@@ -94,13 +94,13 @@ fn draw_image_oracle_basic_scene(
       ctx.show_text_glyphs("a", run.glyphs, run.clusters, flags=run.flags)
     }
     13 => {
-      let source = @cairoon.Surface::image(@cairoon.Argb32, 2, 2)
+      let source = @cairoon.Surface::image(Argb32, 2, 2)
       paint_image_oracle_quad_surface(source)
       ctx.set_source_surface(source, x=7.0, y=6.0)
       ctx.paint()
     }
     14 => {
-      let mask = @cairoon.Surface::image(@cairoon.Argb32, 2, 2)
+      let mask = @cairoon.Surface::image(Argb32, 2, 2)
       let mask_ctx = @cairoon.Context::new(mask)
       mask_ctx.set_source_rgba(1.0, 1.0, 1.0, 1.0)
       mask_ctx.rectangle(0.0, 0.0, 1.0, 1.0)
@@ -115,19 +115,15 @@ fn draw_image_oracle_basic_scene(
       ctx.mask_surface(mask, x=7.0, y=6.0)
     }
     15 => {
-      let source = @cairoon.Surface::image(@cairoon.Argb32, 2, 2)
+      let source = @cairoon.Surface::image(Argb32, 2, 2)
       paint_image_oracle_quad_surface(source)
-      let pattern = @cairoon.Pattern::raster_source(
-        @cairoon.ContentColorAlpha,
-        2,
-        2,
-      )
+      let pattern = @cairoon.Pattern::raster_source(ContentColorAlpha, 2, 2)
       pattern.raster_set_acquire(
         fn(_, _) { source },
         release=Some(fn(_) { () }),
       )
-      pattern.set_extend(@cairoon.Repeat)
-      pattern.set_filter(@cairoon.Nearest)
+      pattern.set_extend(Repeat)
+      pattern.set_filter(Nearest)
       ctx.rectangle(0.0, 0.0, 16.0, 16.0)
       ctx.set_source(pattern)
       ctx.fill()
@@ -135,7 +131,7 @@ fn draw_image_oracle_basic_scene(
     16 => {
       ctx.set_source_rgb(0.0, 0.0, 0.0)
       ctx.set_line_width(2.0)
-      ctx.set_line_cap(@cairoon.LineCapRound)
+      ctx.set_line_cap(LineCapRound)
       ctx.set_dash([2.0, 2.0], offset=0.0)
       ctx.move_to(2.0, 8.0)
       ctx.line_to(14.0, 8.0)
@@ -153,14 +149,14 @@ fn draw_image_oracle_basic_scene(
     18 => {
       ctx.set_source_rgb(0.0, 0.0, 1.0)
       ctx.paint()
-      ctx.set_operator(@cairoon.OperatorClear)
+      ctx.set_operator(OperatorClear)
       ctx.rectangle(4.0, 4.0, 8.0, 8.0)
       ctx.fill()
-      ctx.set_operator(@cairoon.OperatorOver)
+      ctx.set_operator(OperatorOver)
       ctx.set_source_rgba(1.0, 0.0, 0.0, 0.5)
       ctx.rectangle(0.0, 0.0, 8.0, 8.0)
       ctx.fill()
     }
-    _ => @cairoon.check_status(@cairoon.InvalidStatus)
+    _ => @cairoon.check_status(InvalidStatus)
   }
 }

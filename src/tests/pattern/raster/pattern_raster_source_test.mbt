@@ -4,7 +4,7 @@ fn[T] expect_raster_source_invalid_content(
 ) -> Unit raise {
   inspect(result is Err(_), content="true")
   match result {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidContent, _)) => ()
+    Err(CairoInvalidArgument(InvalidContent, _)) => ()
     _ => @test.fail("expected InvalidContent")
   }
 }
@@ -21,7 +21,7 @@ test "raster source pattern accepts pycairo raw content ints" {
 
 ///|
 test "raster source pattern paints from acquire callback" {
-  let source = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let source = @cairoon.Surface::image(Argb32, 1, 1)
   let source_ctx = @cairoon.Context::new(source)
   source_ctx.set_source_rgba(1.0, 0.0, 0.0, 1.0)
   source_ctx.paint()
@@ -31,11 +31,7 @@ test "raster source pattern paints from acquire callback" {
   let extent_width = Ref(0)
   let target_width = Ref(0)
   let released_width = Ref(0)
-  let pattern = @cairoon.Pattern::raster_source(
-    @cairoon.ContentColorAlpha,
-    1,
-    1,
-  )
+  let pattern = @cairoon.Pattern::raster_source(ContentColorAlpha, 1, 1)
   pattern.raster_set_acquire(
     fn(target, extents) {
       acquire_calls.val += 1
@@ -49,7 +45,7 @@ test "raster source pattern paints from acquire callback" {
     }),
   )
 
-  let target = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let target = @cairoon.Surface::image(Argb32, 1, 1)
   let ctx = @cairoon.Context::new(target)
   ctx.set_source(pattern)
   ctx.paint()
@@ -69,12 +65,8 @@ test "raster source pattern paints from acquire callback" {
 
 ///|
 test "raster source release callback can clear its registration" {
-  let source = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
-  let pattern = @cairoon.Pattern::raster_source(
-    @cairoon.ContentColorAlpha,
-    1,
-    1,
-  )
+  let source = @cairoon.Surface::image(Argb32, 1, 1)
+  let pattern = @cairoon.Pattern::raster_source(ContentColorAlpha, 1, 1)
   let acquire_calls = Ref(0)
   let release_calls = Ref(0)
   pattern.raster_set_acquire(
@@ -88,7 +80,7 @@ test "raster source release callback can clear its registration" {
     }),
   )
 
-  let target = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let target = @cairoon.Surface::image(Argb32, 1, 1)
   let ctx = @cairoon.Context::new(target)
   ctx.set_source(pattern)
   ctx.paint()
@@ -108,7 +100,7 @@ test "raster source acquire can draw into compatible extents surface" {
   let extent_height = Ref(0)
   let target_width = Ref(0)
   let released_width = Ref(0)
-  let pattern = @cairoon.Pattern::raster_source(@cairoon.ContentColor, 2, 2)
+  let pattern = @cairoon.Pattern::raster_source(ContentColor, 2, 2)
   pattern.raster_set_acquire(
     fn(target, extents) {
       acquire_calls.val += 1
@@ -116,7 +108,7 @@ test "raster source acquire can draw into compatible extents surface" {
       extent_height.val = extents.height
       target_width.val = try! target.get_width()
       let source = try! target.create_similar_image(
-        @cairoon.Argb32,
+        Argb32,
         extents.width,
         extents.height,
       )
@@ -135,7 +127,7 @@ test "raster source acquire can draw into compatible extents surface" {
     }),
   )
 
-  let target = @cairoon.Surface::image(@cairoon.Argb32, 10, 10)
+  let target = @cairoon.Surface::image(Argb32, 10, 10)
   let ctx = @cairoon.Context::new(target)
   ctx.set_source(pattern)
   ctx.paint()
@@ -156,15 +148,11 @@ test "raster source acquire can draw into compatible extents surface" {
 
 ///|
 test "raster source acquire rejects finished surfaces" {
-  let source = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let source = @cairoon.Surface::image(Argb32, 1, 1)
   source.finish()
   let acquire_calls = Ref(0)
   let release_calls = Ref(0)
-  let pattern = @cairoon.Pattern::raster_source(
-    @cairoon.ContentColorAlpha,
-    1,
-    1,
-  )
+  let pattern = @cairoon.Pattern::raster_source(ContentColorAlpha, 1, 1)
   pattern.raster_set_acquire(
     fn(_, _) {
       acquire_calls.val += 1
@@ -173,24 +161,24 @@ test "raster source acquire rejects finished surfaces" {
     release=Some(fn(_) { release_calls.val += 1 }),
   )
 
-  let target = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let target = @cairoon.Surface::image(Argb32, 1, 1)
   let ctx = @cairoon.Context::new(target)
   ctx.set_source(pattern)
   let result = @cairoon.run_cairo(() => ctx.paint())
   inspect(acquire_calls.val > 0, content="true")
   inspect(release_calls.val, content="0")
   match result {
-    Err(@cairoon.CairoMemoryError(@cairoon.NoMemory, _)) => ()
+    Err(CairoMemoryError(NoMemory, _)) => ()
     _ => @test.fail("expected NoMemory when raster acquire returns no surface")
   }
 }
 
 ///|
 test "raster source acquire replacement recovers after failed surface" {
-  let failed_source = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let failed_source = @cairoon.Surface::image(Argb32, 1, 1)
   failed_source.finish()
 
-  let recovered_source = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let recovered_source = @cairoon.Surface::image(Argb32, 1, 1)
   let recovered_ctx = @cairoon.Context::new(recovered_source)
   recovered_ctx.set_source_rgba(0.0, 1.0, 0.0, 1.0)
   recovered_ctx.paint()
@@ -199,11 +187,7 @@ test "raster source acquire replacement recovers after failed surface" {
   let recovered_acquire_calls = Ref(0)
   let release_calls = Ref(0)
   let released_width = Ref(0)
-  let pattern = @cairoon.Pattern::raster_source(
-    @cairoon.ContentColorAlpha,
-    1,
-    1,
-  )
+  let pattern = @cairoon.Pattern::raster_source(ContentColorAlpha, 1, 1)
   pattern.raster_set_acquire(
     fn(_, _) {
       failed_acquire_calls.val += 1
@@ -212,14 +196,14 @@ test "raster source acquire replacement recovers after failed surface" {
     release=Some(fn(_) { release_calls.val += 1 }),
   )
 
-  let failed_target = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let failed_target = @cairoon.Surface::image(Argb32, 1, 1)
   let failed_ctx = @cairoon.Context::new(failed_target)
   failed_ctx.set_source(pattern)
   let failed_result = @cairoon.run_cairo(() => failed_ctx.paint())
   inspect(failed_acquire_calls.val > 0, content="true")
   inspect(release_calls.val, content="0")
   match failed_result {
-    Err(@cairoon.CairoMemoryError(@cairoon.NoMemory, _)) => ()
+    Err(CairoMemoryError(NoMemory, _)) => ()
     _ => @test.fail("expected NoMemory before acquire replacement")
   }
 
@@ -234,7 +218,7 @@ test "raster source acquire replacement recovers after failed surface" {
     }),
   )
 
-  let recovered_target = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let recovered_target = @cairoon.Surface::image(Argb32, 1, 1)
   let ctx = @cairoon.Context::new(recovered_target)
   ctx.set_source(pattern)
   ctx.paint()
@@ -253,16 +237,12 @@ test "raster source acquire replacement recovers after failed surface" {
 ///|
 fn make_data_backed_raster_source_pattern() -> @cairoon.Pattern raise @cairoon.CairoError {
   let data : FixedArray[Byte] = FixedArray::make(4, b'\x00')
-  let source = @cairoon.Surface::image_for_data(data, @cairoon.Argb32, 1, 1)
+  let source = @cairoon.Surface::image_for_data(data, Argb32, 1, 1)
   let source_ctx = @cairoon.Context::new(source)
   source_ctx.set_source_rgba(0.0, 0.0, 1.0, 1.0)
   source_ctx.paint()
 
-  let pattern = @cairoon.Pattern::raster_source(
-    @cairoon.ContentColorAlpha,
-    1,
-    1,
-  )
+  let pattern = @cairoon.Pattern::raster_source(ContentColorAlpha, 1, 1)
   pattern.raster_set_acquire(fn(_, _) { source })
   pattern
 }
@@ -270,7 +250,7 @@ fn make_data_backed_raster_source_pattern() -> @cairoon.Pattern raise @cairoon.C
 ///|
 test "raster source pattern retains data backed acquire surface" {
   let pattern = make_data_backed_raster_source_pattern()
-  let target = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let target = @cairoon.Surface::image(Argb32, 1, 1)
   let ctx = @cairoon.Context::new(target)
   ctx.set_source(pattern)
   ctx.paint()
@@ -283,19 +263,19 @@ test "raster source pattern retains data backed acquire surface" {
 
 ///|
 test "raster source acquire validates pattern subtype" {
-  let source = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let source = @cairoon.Surface::image(Argb32, 1, 1)
   let solid = @cairoon.Pattern::solid_rgba(0.0, 0.0, 1.0, 1.0)
   let set_result = @cairoon.run_cairo(() => {
     solid.raster_set_acquire(fn(_, _) { source })
   })
   match set_result {
-    Err(@cairoon.CairoError(@cairoon.PatternTypeMismatch, _)) => ()
+    Err(CairoError(PatternTypeMismatch, _)) => ()
     _ => @test.fail("expected PatternTypeMismatch")
   }
 
   let clear_result = @cairoon.run_cairo(() => solid.raster_clear_acquire())
   match clear_result {
-    Err(@cairoon.CairoError(@cairoon.PatternTypeMismatch, _)) => ()
+    Err(CairoError(PatternTypeMismatch, _)) => ()
     _ => @test.fail("expected PatternTypeMismatch")
   }
 
@@ -303,7 +283,7 @@ test "raster source acquire validates pattern subtype" {
     solid.raster_set_callbacks(release=Some(fn(_) { () }))
   })
   match release_only_result {
-    Err(@cairoon.CairoError(@cairoon.PatternTypeMismatch, _)) => ()
+    Err(CairoError(PatternTypeMismatch, _)) => ()
     _ => @test.fail("expected PatternTypeMismatch")
   }
 
@@ -312,7 +292,7 @@ test "raster source acquire validates pattern subtype" {
     ()
   })
   match callbacks_result {
-    Err(@cairoon.CairoError(@cairoon.PatternTypeMismatch, _)) => ()
+    Err(CairoError(PatternTypeMismatch, _)) => ()
     _ => @test.fail("expected PatternTypeMismatch")
   }
 }

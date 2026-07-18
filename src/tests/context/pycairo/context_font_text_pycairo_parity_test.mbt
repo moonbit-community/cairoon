@@ -8,8 +8,8 @@ test "context font face round trips mirror pycairo fixture" {
 
   let face = @cairoon.FontFace::toy(
     "serif",
-    slant=@cairoon.FontSlantItalic,
-    weight=@cairoon.FontWeightBold,
+    slant=FontSlantItalic,
+    weight=FontWeightBold,
   )
   ctx.set_font_face(Some(face))
   let returned = ctx.get_font_face()
@@ -31,18 +31,18 @@ test "context set_font_matrix mirrors pycairo identity fixture" {
 test "context font options round trip mirrors pycairo fixture" {
   let ctx = @cairoon.Context::new(pycairo_context_surface(42, 42))
   let options = ctx.get_font_options()
-  options.set_antialias(@cairoon.AntialiasGray)
-  options.set_hint_style(@cairoon.HintStyleSlight)
+  options.set_antialias(AntialiasGray)
+  options.set_hint_style(HintStyleSlight)
 
   ctx.set_font_options(options)
-  options.set_antialias(@cairoon.AntialiasNone)
-  options.set_hint_style(@cairoon.HintStyleFull)
+  options.set_antialias(AntialiasNone)
+  options.set_hint_style(HintStyleFull)
   let returned = ctx.get_font_options()
   debug_inspect(returned.get_antialias(), content="AntialiasGray")
   debug_inspect(returned.get_hint_style(), content="HintStyleSlight")
 
-  returned.set_antialias(@cairoon.AntialiasNone)
-  returned.set_hint_style(@cairoon.HintStyleFull)
+  returned.set_antialias(AntialiasNone)
+  returned.set_hint_style(HintStyleFull)
   let stable = ctx.get_font_options()
   debug_inspect(stable.get_antialias(), content="AntialiasGray")
   debug_inspect(stable.get_hint_style(), content="HintStyleSlight")
@@ -103,7 +103,7 @@ test "context text methods mirror pycairo fixtures" {
     (2.0 + text_extents.x_advance, 18.0),
   )
 
-  let path_surface = @cairoon.Surface::image(@cairoon.Argb32, 64, 32)
+  let path_surface = @cairoon.Surface::image(Argb32, 64, 32)
   let path_ctx = @cairoon.Context::new(path_surface)
   path_ctx.select_font_face("serif")
   path_ctx.set_font_size(16.0)
@@ -135,7 +135,7 @@ test "context glyph methods mirror pycairo fixtures" {
   inspect(empty_extents.height, content="0")
   inspect(empty_extents.x_advance, content="0")
 
-  let show_surface = @cairoon.Surface::image(@cairoon.Argb32, 64, 32)
+  let show_surface = @cairoon.Surface::image(Argb32, 64, 32)
   let show_ctx = @cairoon.Context::new(show_surface)
   show_ctx.select_font_face("Sans")
   show_ctx.set_font_size(16.0)

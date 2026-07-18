@@ -22,17 +22,17 @@ fn make_stream_page_combo_stream_surface(
     0 =>
       @cairoon.Surface::pdf_stream(100.0, 100.0, fn(chunk) {
         chunks.push(chunk)
-        @cairoon.Success
+        Success
       })
     1 =>
       @cairoon.Surface::ps_stream(100.0, 100.0, fn(chunk) {
         chunks.push(chunk)
-        @cairoon.Success
+        Success
       })
     2 =>
       @cairoon.Surface::svg_stream(100.0, 100.0, fn(chunk) {
         chunks.push(chunk)
-        @cairoon.Success
+        Success
       })
     _ => vector_backend_invalid_surface()
   }
@@ -47,23 +47,11 @@ fn configure_stream_page_combo_backend(
 ) -> Unit raise @cairoon.CairoError {
   match kind {
     0 => {
-      surface.pdf_restrict_to_version(@cairoon.PdfVersion1_4)
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataTitle,
-        "Cairoon Surface Page Combo",
-      )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataCreator,
-        "cairoon surface page combo",
-      )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataCreateDate,
-        fixed_pdf_metadata_date(),
-      )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataModDate,
-        fixed_pdf_metadata_date(),
-      )
+      surface.pdf_restrict_to_version(PdfVersion1_4)
+      surface.pdf_set_metadata(PdfMetadataTitle, "Cairoon Surface Page Combo")
+      surface.pdf_set_metadata(PdfMetadataCreator, "cairoon surface page combo")
+      surface.pdf_set_metadata(PdfMetadataCreateDate, fixed_pdf_metadata_date())
+      surface.pdf_set_metadata(PdfMetadataModDate, fixed_pdf_metadata_date())
       set_pdf_custom_metadata_if_supported(
         surface,
         "Combo",
@@ -74,14 +62,11 @@ fn configure_stream_page_combo_backend(
         @cairoon.PDF_OUTLINE_ROOT,
         "page copy cover",
         "page=1 pos=[10 20]",
-        @cairoon.PDFOutlineFlagSet::combine([
-          @cairoon.PdfOutlineOpen,
-          @cairoon.PdfOutlineBold,
-        ]),
+        @cairoon.PDFOutlineFlagSet::combine([PdfOutlineOpen, PdfOutlineBold]),
       )
     }
     1 => {
-      surface.ps_restrict_to_level(@cairoon.PsLevel3)
+      surface.ps_restrict_to_level(PsLevel3)
       surface.ps_set_eps(false)
       surface.ps_dsc_begin_setup()
       surface.ps_dsc_comment("%%Title: Cairoon Surface Page Combo")
@@ -90,10 +75,10 @@ fn configure_stream_page_combo_backend(
       surface.ps_dsc_comment("%%IncludeFeature: *PageSize Legal")
     }
     2 => {
-      surface.svg_restrict_to_version(@cairoon.SvgVersion1_2)
-      surface.svg_set_document_unit(@cairoon.SvgUnitPx)
+      surface.svg_restrict_to_version(SvgVersion1_2)
+      surface.svg_set_document_unit(SvgUnitPx)
     }
-    _ => @cairoon.check_status(@cairoon.InvalidStatus)
+    _ => @cairoon.check_status(InvalidStatus)
   }
 }
 
@@ -121,7 +106,7 @@ fn render_stream_page_combo_scene(
       @cairoon.PDF_OUTLINE_ROOT,
       "page copy retained",
       "page=2 pos=[10 44]",
-      @cairoon.PDFOutlineFlagSet::of(@cairoon.PdfOutlineItalic),
+      @cairoon.PDFOutlineFlagSet::of(PdfOutlineItalic),
     )
   }
   ctx.set_source_rgba(0.85, 0.1, 0.1, 0.72)
@@ -137,10 +122,7 @@ fn render_stream_page_combo_scene(
       @cairoon.PDF_OUTLINE_ROOT,
       "page copy final",
       "page=3 pos=[10 62]",
-      @cairoon.PDFOutlineFlagSet::combine([
-        @cairoon.PdfOutlineOpen,
-        @cairoon.PdfOutlineItalic,
-      ]),
+      @cairoon.PDFOutlineFlagSet::combine([PdfOutlineOpen, PdfOutlineItalic]),
     )
   }
   ctx.set_source_rgb(0.1, 0.1, 0.1)

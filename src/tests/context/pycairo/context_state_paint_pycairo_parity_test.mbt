@@ -11,11 +11,11 @@ test "context default drawing state getters mirror pycairo fixtures" {
 ///|
 test "context drawing state setters mirror pycairo enum fixtures" {
   let ctx = @cairoon.Context::new(pycairo_context_surface(42, 42))
-  ctx.set_antialias(@cairoon.AntialiasSubpixel)
-  ctx.set_fill_rule(@cairoon.FillEvenOdd)
-  ctx.set_line_cap(@cairoon.LineCapSquare)
-  ctx.set_line_join(@cairoon.LineJoinBevel)
-  ctx.set_operator(@cairoon.OperatorSource)
+  ctx.set_antialias(AntialiasSubpixel)
+  ctx.set_fill_rule(FillEvenOdd)
+  ctx.set_line_cap(LineCapSquare)
+  ctx.set_line_join(LineJoinBevel)
+  ctx.set_operator(OperatorSource)
 
   debug_inspect(ctx.get_antialias(), content="AntialiasSubpixel")
   debug_inspect(ctx.get_fill_rule(), content="FillEvenOdd")
@@ -33,7 +33,7 @@ test "context hairline mirrors pycairo fixture" {
     inspect(ctx.get_hairline(), content="true")
   } else {
     match @cairoon.run_cairo(() => ctx.set_hairline(true)) {
-      Err(@cairoon.CairoError(@cairoon.InvalidStatus, _)) => ()
+      Err(CairoError(InvalidStatus, _)) => ()
       _ => @test.fail("expected hairline API to require Cairo 1.18")
     }
   }
@@ -50,7 +50,7 @@ test "context raw operator limits mirror pycairo c int fixture" {
   }
 
   match @cairoon.run_cairo(() => ctx.get_operator()) {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidStatus, _)) => ()
+    Err(CairoInvalidArgument(InvalidStatus, _)) => ()
     _ => @test.fail("expected typed getter to reject unknown raw operator")
   }
 
@@ -148,9 +148,7 @@ test "context append_path mirrors pycairo copied path fixture" {
 
 ///|
 test "context empty clip reset mirrors pycairo in_clip fixture" {
-  let ctx = @cairoon.Context::new(
-    @cairoon.Surface::image(@cairoon.Argb32, 100, 100),
-  )
+  let ctx = @cairoon.Context::new(@cairoon.Surface::image(Argb32, 100, 100))
   inspect(ctx.in_clip(50.0, 50.0), content="true")
   ctx.clip()
   inspect(ctx.in_clip(50.0, 50.0), content="false")
@@ -167,7 +165,7 @@ test "context group stack mirrors pycairo fixture" {
   ctx.push_group()
   ctx.pop_group_to_source()
 
-  ctx.push_group_with_content(@cairoon.ContentColor)
+  ctx.push_group_with_content(ContentColor)
   let _ = ctx.pop_group()
 
   expect_pycairo_context_invalid_pop_group(
@@ -180,24 +178,24 @@ test "context group stack mirrors pycairo fixture" {
 
 ///|
 test "context mask and alpha paint mirror pycairo fixtures" {
-  let paint_surface = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let paint_surface = @cairoon.Surface::image(Argb32, 1, 1)
   let paint_ctx = @cairoon.Context::new(paint_surface)
   paint_ctx.set_source_rgba(1.0, 0.0, 0.0, 1.0)
   paint_ctx.paint_with_alpha(1.0)
   assert_pycairo_context_argb32_pixel(paint_surface, [0, 0, 255, 255])
 
-  let pattern_surface = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let pattern_surface = @cairoon.Surface::image(Argb32, 1, 1)
   let pattern_ctx = @cairoon.Context::new(pattern_surface)
   pattern_ctx.set_source_rgba(0.0, 1.0, 0.0, 1.0)
   pattern_ctx.mask(@cairoon.Pattern::solid_rgba(0.0, 0.0, 0.0, 1.0))
   assert_pycairo_context_argb32_pixel(pattern_surface, [0, 255, 0, 255])
 
-  let mask_surface = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let mask_surface = @cairoon.Surface::image(Argb32, 1, 1)
   let mask_ctx = @cairoon.Context::new(mask_surface)
   mask_ctx.set_source_rgba(1.0, 1.0, 1.0, 1.0)
   mask_ctx.paint()
 
-  let surface_mask_target = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let surface_mask_target = @cairoon.Surface::image(Argb32, 1, 1)
   let surface_mask_ctx = @cairoon.Context::new(surface_mask_target)
   surface_mask_ctx.set_source_rgba(0.0, 0.0, 1.0, 1.0)
   surface_mask_ctx.mask_surface(mask_surface)
@@ -209,13 +207,13 @@ test "context surface source offsets mirror pycairo fixtures" {
   let source = pycairo_context_colored_argb32_source()
   let source_data = source.copy_data()
 
-  let default_target = @cairoon.Surface::image(@cairoon.Argb32, 2, 2)
+  let default_target = @cairoon.Surface::image(Argb32, 2, 2)
   let default_ctx = @cairoon.Context::new(default_target)
   default_ctx.set_source_surface(source)
   default_ctx.paint()
   inspect(default_target.copy_data() == source_data, content="true")
 
-  let shifted_target = @cairoon.Surface::image(@cairoon.Argb32, 3, 3)
+  let shifted_target = @cairoon.Surface::image(Argb32, 3, 3)
   let shifted_ctx = @cairoon.Context::new(shifted_target)
   shifted_ctx.set_source_surface(source, x=1.0, y=1.0)
   shifted_ctx.paint()
@@ -230,12 +228,12 @@ test "context surface source offsets mirror pycairo fixtures" {
 
 ///|
 test "context mask_surface offset mirrors pycairo fixture" {
-  let mask = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let mask = @cairoon.Surface::image(Argb32, 1, 1)
   let mask_ctx = @cairoon.Context::new(mask)
   mask_ctx.set_source_rgba(1.0, 1.0, 1.0, 1.0)
   mask_ctx.paint()
 
-  let target = @cairoon.Surface::image(@cairoon.Argb32, 3, 3)
+  let target = @cairoon.Surface::image(Argb32, 3, 3)
   let ctx = @cairoon.Context::new(target)
   ctx.set_source_rgba(0.0, 0.0, 1.0, 1.0)
   ctx.mask_surface(mask, x=1.0, y=1.0)

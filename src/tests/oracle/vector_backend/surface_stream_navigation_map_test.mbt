@@ -22,17 +22,17 @@ fn make_stream_navigation_map_stream_surface(
     0 =>
       @cairoon.Surface::pdf_stream(132.0, 98.0, fn(chunk) {
         chunks.push(chunk)
-        @cairoon.Success
+        Success
       })
     1 =>
       @cairoon.Surface::ps_stream(132.0, 98.0, fn(chunk) {
         chunks.push(chunk)
-        @cairoon.Success
+        Success
       })
     2 =>
       @cairoon.Surface::svg_stream(132.0, 98.0, fn(chunk) {
         chunks.push(chunk)
-        @cairoon.Success
+        Success
       })
     _ => vector_backend_invalid_surface()
   }
@@ -47,35 +47,14 @@ fn configure_stream_navigation_map_backend(
 ) -> Unit raise @cairoon.CairoError {
   match kind {
     0 => {
-      surface.pdf_restrict_to_version(@cairoon.PdfVersion1_4)
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataTitle,
-        "Cairoon Navigation Map",
-      )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataAuthor,
-        "cairoon navigation map",
-      )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataSubject,
-        "navigation map metadata",
-      )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataKeywords,
-        "navigation,map,toc",
-      )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataCreator,
-        "cairoon navigation map",
-      )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataCreateDate,
-        fixed_pdf_metadata_date(),
-      )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataModDate,
-        fixed_pdf_metadata_date(),
-      )
+      surface.pdf_restrict_to_version(PdfVersion1_4)
+      surface.pdf_set_metadata(PdfMetadataTitle, "Cairoon Navigation Map")
+      surface.pdf_set_metadata(PdfMetadataAuthor, "cairoon navigation map")
+      surface.pdf_set_metadata(PdfMetadataSubject, "navigation map metadata")
+      surface.pdf_set_metadata(PdfMetadataKeywords, "navigation,map,toc")
+      surface.pdf_set_metadata(PdfMetadataCreator, "cairoon navigation map")
+      surface.pdf_set_metadata(PdfMetadataCreateDate, fixed_pdf_metadata_date())
+      surface.pdf_set_metadata(PdfMetadataModDate, fixed_pdf_metadata_date())
       set_pdf_custom_metadata_if_supported(
         surface,
         "NavigationSet",
@@ -85,7 +64,7 @@ fn configure_stream_navigation_map_backend(
       set_pdf_custom_metadata_if_supported(surface, "Scratch", None)
     }
     1 => {
-      surface.ps_restrict_to_level(@cairoon.PsLevel3)
+      surface.ps_restrict_to_level(PsLevel3)
       surface.ps_dsc_begin_setup()
       surface.ps_dsc_comment("%%Title: Cairoon Navigation Map")
       surface.ps_dsc_comment("%%IncludeFeature: *MediaType NavigationMap")
@@ -93,10 +72,10 @@ fn configure_stream_navigation_map_backend(
       surface.ps_dsc_comment("%%IncludeFeature: *PageSize NavigationMap")
     }
     2 => {
-      surface.svg_restrict_to_version(@cairoon.SvgVersion1_2)
-      surface.svg_set_document_unit(@cairoon.SvgUnitPx)
+      surface.svg_restrict_to_version(SvgVersion1_2)
+      surface.svg_set_document_unit(SvgUnitPx)
     }
-    _ => @cairoon.check_status(@cairoon.InvalidStatus)
+    _ => @cairoon.check_status(InvalidStatus)
   }
 }
 
@@ -166,10 +145,7 @@ fn render_stream_navigation_map_scene(
       @cairoon.PDF_OUTLINE_ROOT,
       "navigation map",
       "page=1 pos=[16 30]",
-      @cairoon.PDFOutlineFlagSet::combine([
-        @cairoon.PdfOutlineOpen,
-        @cairoon.PdfOutlineItalic,
-      ]),
+      @cairoon.PDFOutlineFlagSet::combine([PdfOutlineOpen, PdfOutlineItalic]),
     )
   }
   ctx.set_source_rgb(0.96, 0.94, 0.88)
@@ -199,7 +175,7 @@ fn render_stream_navigation_map_scene(
       root_id,
       "navigation detail",
       "page=2 pos=[20 62]",
-      @cairoon.PDFOutlineFlagSet::of(@cairoon.PdfOutlineBold),
+      @cairoon.PDFOutlineFlagSet::of(PdfOutlineBold),
     )
   } else {
     resize_stream_navigation_map_surface(kind, surface, 148.0, 108.0)

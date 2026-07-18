@@ -4,7 +4,7 @@ fn expect_recording_surface_type_mismatch(
 ) -> Unit raise {
   inspect(result is Err(_), content="true")
   match result {
-    Err(@cairoon.CairoError(@cairoon.SurfaceTypeMismatch, _)) => ()
+    Err(CairoError(SurfaceTypeMismatch, _)) => ()
     _ => @test.fail("expected SurfaceTypeMismatch")
   }
 }
@@ -15,14 +15,14 @@ fn[T] expect_recording_invalid_content(
 ) -> Unit raise {
   inspect(result is Err(_), content="true")
   match result {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidContent, _)) => ()
+    Err(CairoInvalidArgument(InvalidContent, _)) => ()
     _ => @test.fail("expected InvalidContent")
   }
 }
 
 ///|
 test "recording surface exposes bounded and unbounded extents" {
-  let unbounded = @cairoon.Surface::recording(@cairoon.ContentColorAlpha)
+  let unbounded = @cairoon.Surface::recording(ContentColorAlpha)
   debug_inspect(unbounded.get_type(), content="SurfaceTypeRecording")
   inspect(unbounded.recording_get_extents() is None, content="true")
   debug_inspect(
@@ -31,10 +31,7 @@ test "recording surface exposes bounded and unbounded extents" {
   )
 
   let bounds = @cairoon.Rectangle::new(1.0, 2.0, 3.0, 4.0)
-  let bounded = @cairoon.Surface::recording(
-    @cairoon.ContentColor,
-    extents=Some(bounds),
-  )
+  let bounded = @cairoon.Surface::recording(ContentColor, extents=Some(bounds))
   match bounded.recording_get_extents() {
     Some(rect) => debug_inspect(rect.components(), content="(1, 2, 3, 4)")
     None => @test.fail("expected recording surface extents")
@@ -44,14 +41,11 @@ test "recording surface exposes bounded and unbounded extents" {
 
 ///|
 test "pycairo recording surface get_extents after finish fixture" {
-  let unbounded = @cairoon.Surface::recording(@cairoon.ContentColor)
+  let unbounded = @cairoon.Surface::recording(ContentColor)
   inspect(unbounded.recording_get_extents() is None, content="true")
 
   let bounds = @cairoon.Rectangle::new(1.0, 2.0, 3.0, 4.0)
-  let bounded = @cairoon.Surface::recording(
-    @cairoon.ContentColor,
-    extents=Some(bounds),
-  )
+  let bounded = @cairoon.Surface::recording(ContentColor, extents=Some(bounds))
   match bounded.recording_get_extents() {
     Some(rect) => debug_inspect(rect.components(), content="(1, 2, 3, 4)")
     None => @test.fail("expected recording surface extents")
@@ -65,7 +59,7 @@ test "pycairo recording surface get_extents after finish fixture" {
 
   let ink_extents = @cairoon.run_cairo(() => bounded.recording_ink_extents())
   match ink_extents {
-    Err(@cairoon.CairoError(@cairoon.SurfaceFinished, _)) => ()
+    Err(CairoError(SurfaceFinished, _)) => ()
     _ => @test.fail("expected SurfaceFinished for recording ink extents")
   }
 }
@@ -89,7 +83,7 @@ test "recording surface accepts pycairo raw content ints" {
 
 ///|
 test "recording surface records drawing operations and replays as pattern" {
-  let recording = @cairoon.Surface::recording(@cairoon.ContentColorAlpha)
+  let recording = @cairoon.Surface::recording(ContentColorAlpha)
   let recorder = @cairoon.Context::new(recording)
   recorder.set_source_rgba(0.0, 0.0, 1.0, 1.0)
   recorder.rectangle(0.0, 0.0, 1.0, 1.0)
@@ -100,7 +94,7 @@ test "recording surface records drawing operations and replays as pattern" {
     content="(0, 0, 1, 1)",
   )
 
-  let target = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let target = @cairoon.Surface::image(Argb32, 1, 1)
   let ctx = @cairoon.Context::new(target)
   ctx.set_source(@cairoon.Pattern::for_surface(recording))
   ctx.paint()
@@ -113,7 +107,7 @@ test "recording surface records drawing operations and replays as pattern" {
 
 ///|
 test "recording surface methods reject other surface types" {
-  let image = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let image = @cairoon.Surface::image(Argb32, 1, 1)
   expect_recording_surface_type_mismatch(
     @cairoon.run_cairo(() => {
       let _ = image.recording_ink_extents()

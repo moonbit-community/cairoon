@@ -22,17 +22,17 @@ fn make_stream_section_catalog_stream_surface(
     0 =>
       @cairoon.Surface::pdf_stream(116.0, 88.0, fn(chunk) {
         chunks.push(chunk)
-        @cairoon.Success
+        Success
       })
     1 =>
       @cairoon.Surface::ps_stream(116.0, 88.0, fn(chunk) {
         chunks.push(chunk)
-        @cairoon.Success
+        Success
       })
     2 =>
       @cairoon.Surface::svg_stream(116.0, 88.0, fn(chunk) {
         chunks.push(chunk)
-        @cairoon.Success
+        Success
       })
     _ => vector_backend_invalid_surface()
   }
@@ -47,35 +47,17 @@ fn configure_stream_section_catalog_backend(
 ) -> Unit raise @cairoon.CairoError {
   match kind {
     0 => {
-      surface.pdf_restrict_to_version(@cairoon.PdfVersion1_4)
+      surface.pdf_restrict_to_version(PdfVersion1_4)
+      surface.pdf_set_metadata(PdfMetadataTitle, "Cairoon Section Catalog")
+      surface.pdf_set_metadata(PdfMetadataAuthor, "cairoon section catalog")
+      surface.pdf_set_metadata(PdfMetadataSubject, "section metadata and tags")
       surface.pdf_set_metadata(
-        @cairoon.PdfMetadataTitle,
-        "Cairoon Section Catalog",
-      )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataAuthor,
-        "cairoon section catalog",
-      )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataSubject,
-        "section metadata and tags",
-      )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataKeywords,
+        PdfMetadataKeywords,
         "section,catalog,links,tags",
       )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataCreator,
-        "cairoon section catalog",
-      )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataCreateDate,
-        fixed_pdf_metadata_date(),
-      )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataModDate,
-        fixed_pdf_metadata_date(),
-      )
+      surface.pdf_set_metadata(PdfMetadataCreator, "cairoon section catalog")
+      surface.pdf_set_metadata(PdfMetadataCreateDate, fixed_pdf_metadata_date())
+      surface.pdf_set_metadata(PdfMetadataModDate, fixed_pdf_metadata_date())
       set_pdf_custom_metadata_if_supported(
         surface,
         "SectionCatalog",
@@ -89,7 +71,7 @@ fn configure_stream_section_catalog_backend(
       set_pdf_custom_metadata_if_supported(surface, "TempSection", None)
     }
     1 => {
-      surface.ps_restrict_to_level(@cairoon.PsLevel3)
+      surface.ps_restrict_to_level(PsLevel3)
       surface.ps_dsc_begin_setup()
       surface.ps_dsc_comment("%%Title: Cairoon Section Catalog")
       surface.ps_dsc_comment("%%IncludeFeature: *MediaType SectionCatalog")
@@ -97,10 +79,10 @@ fn configure_stream_section_catalog_backend(
       surface.ps_dsc_comment("%%IncludeFeature: *PageSize SectionCatalog")
     }
     2 => {
-      surface.svg_restrict_to_version(@cairoon.SvgVersion1_2)
-      surface.svg_set_document_unit(@cairoon.SvgUnitPx)
+      surface.svg_restrict_to_version(SvgVersion1_2)
+      surface.svg_set_document_unit(SvgUnitPx)
     }
-    _ => @cairoon.check_status(@cairoon.InvalidStatus)
+    _ => @cairoon.check_status(InvalidStatus)
   }
 }
 
@@ -188,7 +170,7 @@ fn render_stream_section_catalog_scene(
       @cairoon.PDF_OUTLINE_ROOT,
       "section catalog",
       "page=1 pos=[18 24]",
-      @cairoon.PDFOutlineFlagSet::of(@cairoon.PdfOutlineOpen),
+      @cairoon.PDFOutlineFlagSet::of(PdfOutlineOpen),
     )
   }
   ctx.set_source_rgb(0.97, 0.95, 0.88)
@@ -222,7 +204,7 @@ fn render_stream_section_catalog_scene(
       root_id,
       "section detail",
       "page=2 pos=[24 50]",
-      @cairoon.PDFOutlineFlagSet::of(@cairoon.PdfOutlineBold),
+      @cairoon.PDFOutlineFlagSet::of(PdfOutlineBold),
     )
   } else {
     resize_stream_section_catalog_surface(kind, surface, 140.0, 102.0)
@@ -261,7 +243,7 @@ fn render_stream_section_catalog_scene(
       detail_id,
       "section appendix",
       "page=3 pos=[22 48]",
-      @cairoon.PDFOutlineFlagSet::of(@cairoon.PdfOutlineItalic),
+      @cairoon.PDFOutlineFlagSet::of(PdfOutlineItalic),
     )
   } else {
     resize_stream_section_catalog_surface(kind, surface, 126.0, 94.0)

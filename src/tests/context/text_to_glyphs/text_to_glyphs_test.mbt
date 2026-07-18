@@ -14,7 +14,7 @@ fn expect_text_glyph_invalid_string(
 ) -> Unit raise {
   inspect(result is Err(_), content="true")
   match result {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidString, _)) => ()
+    Err(CairoInvalidArgument(InvalidString, _)) => ()
     _ => @test.fail("expected InvalidString")
   }
 }
@@ -25,16 +25,14 @@ fn expect_text_glyph_invalid_matrix(
 ) -> Unit raise {
   inspect(result is Err(_), content="true")
   match result {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidMatrix, _)) => ()
+    Err(CairoInvalidArgument(InvalidMatrix, _)) => ()
     _ => @test.fail("expected InvalidMatrix")
   }
 }
 
 ///|
 test "scaled font text_to_glyphs handles empty and single text" {
-  let ctx = @cairoon.Context::new(
-    @cairoon.Surface::image(@cairoon.Argb32, 16, 16),
-  )
+  let ctx = @cairoon.Context::new(@cairoon.Surface::image(Argb32, 16, 16))
   ctx.select_font_face("serif")
   ctx.set_font_size(12.0)
   let scaled = ctx.get_scaled_font()
@@ -62,9 +60,7 @@ test "scaled font text_to_glyphs handles empty and single text" {
 
 ///|
 test "scaled font text_to_glyphs preserves spaced ASCII clusters" {
-  let ctx = @cairoon.Context::new(
-    @cairoon.Surface::image(@cairoon.Argb32, 32, 16),
-  )
+  let ctx = @cairoon.Context::new(@cairoon.Surface::image(Argb32, 32, 16))
   ctx.select_font_face("serif")
   ctx.set_font_size(12.0)
   let scaled = ctx.get_scaled_font()
@@ -87,7 +83,7 @@ test "scaled font text_to_glyphs preserves spaced ASCII clusters" {
 
 ///|
 test "context show_text_glyphs renders text_to_glyphs output" {
-  let surface = @cairoon.Surface::image(@cairoon.Argb32, 32, 16)
+  let surface = @cairoon.Surface::image(Argb32, 32, 16)
   let ctx = @cairoon.Context::new(surface)
   ctx.select_font_face("serif")
   ctx.set_font_size(12.0)
@@ -100,9 +96,7 @@ test "context show_text_glyphs renders text_to_glyphs output" {
 
 ///|
 test "text glyph APIs validate embedded nul strings" {
-  let ctx = @cairoon.Context::new(
-    @cairoon.Surface::image(@cairoon.Argb32, 8, 8),
-  )
+  let ctx = @cairoon.Context::new(@cairoon.Surface::image(Argb32, 8, 8))
   let scaled = ctx.get_scaled_font()
   expect_text_glyph_invalid_string(
     @cairoon.run_cairo(() => {
@@ -125,16 +119,14 @@ test "text glyph APIs validate embedded nul strings" {
     @cairoon.run_cairo(() => {
       ctx.show_text_glyphs("a", run.glyphs, [@cairoon.TextCluster::new(0, 0)])
     }) {
-    Err(@cairoon.CairoError(@cairoon.InvalidClusters, _)) => ()
+    Err(CairoError(InvalidClusters, _)) => ()
     _ => @test.fail("expected InvalidClusters")
   }
 }
 
 ///|
 test "context show_text_glyphs propagates existing context errors" {
-  let ctx = @cairoon.Context::new(
-    @cairoon.Surface::image(@cairoon.Argb32, 8, 8),
-  )
+  let ctx = @cairoon.Context::new(@cairoon.Surface::image(Argb32, 8, 8))
   let run = ctx.get_scaled_font().text_to_glyphs(0.0, 0.0, "a")
   let invalid_matrix = @cairoon.run_cairo(() => {
     ctx.set_matrix(@cairoon.Matrix::new(xx=0.0, yy=0.0))

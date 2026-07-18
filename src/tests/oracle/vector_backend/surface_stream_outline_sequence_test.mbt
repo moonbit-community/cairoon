@@ -22,17 +22,17 @@ fn make_stream_outline_sequence_stream_surface(
     0 =>
       @cairoon.Surface::pdf_stream(112.0, 88.0, fn(chunk) {
         chunks.push(chunk)
-        @cairoon.Success
+        Success
       })
     1 =>
       @cairoon.Surface::ps_stream(112.0, 88.0, fn(chunk) {
         chunks.push(chunk)
-        @cairoon.Success
+        Success
       })
     2 =>
       @cairoon.Surface::svg_stream(112.0, 88.0, fn(chunk) {
         chunks.push(chunk)
-        @cairoon.Success
+        Success
       })
     _ => vector_backend_invalid_surface()
   }
@@ -47,27 +47,15 @@ fn configure_stream_outline_sequence_backend(
 ) -> Unit raise @cairoon.CairoError {
   match kind {
     0 => {
-      surface.pdf_restrict_to_version(@cairoon.PdfVersion1_4)
+      surface.pdf_restrict_to_version(PdfVersion1_4)
+      surface.pdf_set_metadata(PdfMetadataTitle, "Cairoon Outline Sequence")
       surface.pdf_set_metadata(
-        @cairoon.PdfMetadataTitle,
-        "Cairoon Outline Sequence",
-      )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataSubject,
+        PdfMetadataSubject,
         "outline sequence page operations",
       )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataCreator,
-        "cairoon outline sequence",
-      )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataCreateDate,
-        fixed_pdf_metadata_date(),
-      )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataModDate,
-        fixed_pdf_metadata_date(),
-      )
+      surface.pdf_set_metadata(PdfMetadataCreator, "cairoon outline sequence")
+      surface.pdf_set_metadata(PdfMetadataCreateDate, fixed_pdf_metadata_date())
+      surface.pdf_set_metadata(PdfMetadataModDate, fixed_pdf_metadata_date())
       set_pdf_custom_metadata_if_supported(
         surface,
         "OutlineSeq",
@@ -81,7 +69,7 @@ fn configure_stream_outline_sequence_backend(
       set_pdf_custom_metadata_if_supported(surface, "OutlineScratch", None)
     }
     1 => {
-      surface.ps_restrict_to_level(@cairoon.PsLevel3)
+      surface.ps_restrict_to_level(PsLevel3)
       surface.ps_set_eps(false)
       surface.ps_dsc_begin_setup()
       surface.ps_dsc_comment("%%Title: Cairoon Outline Sequence")
@@ -90,10 +78,10 @@ fn configure_stream_outline_sequence_backend(
       surface.ps_dsc_comment("%%IncludeFeature: *PageSize OutlineSeq")
     }
     2 => {
-      surface.svg_restrict_to_version(@cairoon.SvgVersion1_2)
-      surface.svg_set_document_unit(@cairoon.SvgUnitPt)
+      surface.svg_restrict_to_version(SvgVersion1_2)
+      surface.svg_set_document_unit(SvgUnitPt)
     }
-    _ => @cairoon.check_status(@cairoon.InvalidStatus)
+    _ => @cairoon.check_status(InvalidStatus)
   }
 }
 
@@ -186,10 +174,7 @@ fn render_stream_outline_sequence_scene(
       @cairoon.PDF_OUTLINE_ROOT,
       "outline sequence cover",
       "page=1 pos=[10 26]",
-      @cairoon.PDFOutlineFlagSet::combine([
-        @cairoon.PdfOutlineOpen,
-        @cairoon.PdfOutlineBold,
-      ]),
+      @cairoon.PDFOutlineFlagSet::combine([PdfOutlineOpen, PdfOutlineBold]),
     )
   }
   draw_outline_sequence_cover(ctx)
@@ -202,16 +187,13 @@ fn render_stream_outline_sequence_scene(
       root_id,
       "outline sequence branch",
       "page=2 pos=[16 72]",
-      @cairoon.PDFOutlineFlagSet::of(@cairoon.PdfOutlineItalic),
+      @cairoon.PDFOutlineFlagSet::of(PdfOutlineItalic),
     )
     let _ = surface.pdf_add_outline_with_flags(
       root_id,
       "outline sequence sibling",
       "page=2 pos=[72 34]",
-      @cairoon.PDFOutlineFlagSet::combine([
-        @cairoon.PdfOutlineBold,
-        @cairoon.PdfOutlineItalic,
-      ]),
+      @cairoon.PDFOutlineFlagSet::combine([PdfOutlineBold, PdfOutlineItalic]),
     )
   }
   draw_outline_sequence_branch(ctx)
@@ -225,9 +207,9 @@ fn render_stream_outline_sequence_scene(
       "outline sequence final",
       "page=3 pos=[12 66]",
       @cairoon.PDFOutlineFlagSet::combine([
-        @cairoon.PdfOutlineOpen,
-        @cairoon.PdfOutlineBold,
-        @cairoon.PdfOutlineItalic,
+        PdfOutlineOpen,
+        PdfOutlineBold,
+        PdfOutlineItalic,
       ]),
     )
   }

@@ -10,8 +10,8 @@ fn init {
 
 ///|
 fn vector_backend_invalid_surface() -> @cairoon.Surface raise @cairoon.CairoError {
-  @cairoon.check_status(@cairoon.InvalidStatus)
-  @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  @cairoon.check_status(InvalidStatus)
+  @cairoon.Surface::image(Argb32, 1, 1)
 }
 
 ///|

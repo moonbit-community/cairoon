@@ -60,7 +60,7 @@ fn install_raster_transition_mode(
     match mode {
       DynamicAcquireRelease => {
         let dynamic_source = try! target.create_similar_image(
-          @cairoon.Argb32,
+          Argb32,
           extents.width,
           extents.height,
         )
@@ -160,7 +160,7 @@ fn exercise_raster_transition_mode(
       release_only_calls.val += 1
     }
     AcquireOnly | AcquireRelease | DynamicAcquireRelease | FailedAcquire => {
-      let target = @cairoon.Surface::image(@cairoon.Argb32, 3, 3)
+      let target = @cairoon.Surface::image(Argb32, 3, 3)
       let ctx = @cairoon.Context::new(target)
       let result = @cairoon.run_cairo(() => {
         ctx.set_source(pattern)
@@ -170,7 +170,7 @@ fn exercise_raster_transition_mode(
       inspect(probe.last_acquire_token.val, content="\{token}")
       if mode is FailedAcquire {
         match result {
-          Err(@cairoon.CairoMemoryError(@cairoon.NoMemory, _)) => ()
+          Err(CairoMemoryError(NoMemory, _)) => ()
           _ => @test.fail("expected NoMemory from failed raster acquire")
         }
         inspect(probe.release_calls.val, content="\{release_calls_before}")
@@ -199,11 +199,11 @@ fn exercise_raster_transition_mode(
 
 ///|
 test "raster source exhaustive callback transition matrix balances owners" {
-  let source = @cairoon.Surface::image(@cairoon.Argb32, 3, 3)
+  let source = @cairoon.Surface::image(Argb32, 3, 3)
   let source_ctx = @cairoon.Context::new(source)
   source_ctx.set_source_rgba(1.0, 0.0, 0.0, 1.0)
   source_ctx.paint()
-  let failed_source = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let failed_source = @cairoon.Surface::image(Argb32, 1, 1)
   failed_source.finish()
   expect_raster_transition_owners_zero(source, failed_source)
 
@@ -221,11 +221,7 @@ test "raster source exhaustive callback transition matrix balances owners" {
   let release_only_calls = Ref(0)
   for source_index, source_mode in modes {
     for destination_index, destination_mode in modes {
-      let pattern = @cairoon.Pattern::raster_source(
-        @cairoon.ContentColorAlpha,
-        3,
-        3,
-      )
+      let pattern = @cairoon.Pattern::raster_source(ContentColorAlpha, 3, 3)
       let probe = RasterTransitionProbe::new()
       let source_token = source_index * 100 + destination_index * 2
       install_raster_transition_mode(

@@ -22,17 +22,17 @@ fn make_stream_pattern_tag_stream_surface(
     0 =>
       @cairoon.Surface::pdf_stream(132.0, 112.0, fn(chunk) {
         chunks.push(chunk)
-        @cairoon.Success
+        Success
       })
     1 =>
       @cairoon.Surface::ps_stream(132.0, 112.0, fn(chunk) {
         chunks.push(chunk)
-        @cairoon.Success
+        Success
       })
     2 =>
       @cairoon.Surface::svg_stream(132.0, 112.0, fn(chunk) {
         chunks.push(chunk)
-        @cairoon.Success
+        Success
       })
     _ => vector_backend_invalid_surface()
   }
@@ -47,31 +47,16 @@ fn configure_stream_pattern_tag_backend(
 ) -> Unit raise @cairoon.CairoError {
   match kind {
     0 => {
-      surface.pdf_restrict_to_version(@cairoon.PdfVersion1_4)
+      surface.pdf_restrict_to_version(PdfVersion1_4)
+      surface.pdf_set_metadata(PdfMetadataTitle, "Cairoon Pattern Tag Matrix")
       surface.pdf_set_metadata(
-        @cairoon.PdfMetadataTitle,
-        "Cairoon Pattern Tag Matrix",
-      )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataSubject,
+        PdfMetadataSubject,
         "pattern tags with font matrix",
       )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataKeywords,
-        "pattern,tag,font,matrix",
-      )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataCreator,
-        "cairoon pattern tag",
-      )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataCreateDate,
-        fixed_pdf_metadata_date(),
-      )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataModDate,
-        fixed_pdf_metadata_date(),
-      )
+      surface.pdf_set_metadata(PdfMetadataKeywords, "pattern,tag,font,matrix")
+      surface.pdf_set_metadata(PdfMetadataCreator, "cairoon pattern tag")
+      surface.pdf_set_metadata(PdfMetadataCreateDate, fixed_pdf_metadata_date())
+      surface.pdf_set_metadata(PdfMetadataModDate, fixed_pdf_metadata_date())
       set_pdf_custom_metadata_if_supported(
         surface,
         "PatternTag",
@@ -81,7 +66,7 @@ fn configure_stream_pattern_tag_backend(
       set_pdf_custom_metadata_if_supported(surface, "Scratch", None)
     }
     1 => {
-      surface.ps_restrict_to_level(@cairoon.PsLevel3)
+      surface.ps_restrict_to_level(PsLevel3)
       surface.ps_set_eps(false)
       surface.ps_dsc_begin_setup()
       surface.ps_dsc_comment("%%Title: Cairoon Pattern Tag Matrix")
@@ -90,10 +75,10 @@ fn configure_stream_pattern_tag_backend(
       surface.ps_dsc_comment("%%IncludeFeature: *PageSize PatternTag")
     }
     2 => {
-      surface.svg_restrict_to_version(@cairoon.SvgVersion1_2)
-      surface.svg_set_document_unit(@cairoon.SvgUnitPt)
+      surface.svg_restrict_to_version(SvgVersion1_2)
+      surface.svg_set_document_unit(SvgUnitPt)
     }
-    _ => @cairoon.check_status(@cairoon.InvalidStatus)
+    _ => @cairoon.check_status(InvalidStatus)
   }
 }
 
@@ -113,7 +98,7 @@ fn resize_stream_pattern_tag_surface(
 
 ///|
 fn make_stream_pattern_tag_pattern() -> @cairoon.Pattern raise @cairoon.CairoError {
-  let image = @cairoon.Surface::image(@cairoon.Argb32, 14, 14)
+  let image = @cairoon.Surface::image(Argb32, 14, 14)
   let image_ctx = @cairoon.Context::new(image)
   image_ctx.set_source_rgb(0.94, 0.90, 0.78)
   image_ctx.paint()
@@ -128,8 +113,8 @@ fn make_stream_pattern_tag_pattern() -> @cairoon.Pattern raise @cairoon.CairoErr
   image_ctx.fill()
 
   let pattern = @cairoon.Pattern::for_surface(image)
-  pattern.set_extend(@cairoon.Repeat)
-  pattern.set_filter(@cairoon.Nearest)
+  pattern.set_extend(Repeat)
+  pattern.set_filter(Nearest)
   pattern.set_matrix(
     @cairoon.Matrix::new(xx=0.75, yx=0.12, xy=-0.18, yy=0.85, x0=-6.0, y0=2.0),
   )
@@ -168,10 +153,7 @@ fn render_stream_pattern_tag_scene(
       @cairoon.PDF_OUTLINE_ROOT,
       "pattern cover",
       "page=1 pos=[12 28]",
-      @cairoon.PDFOutlineFlagSet::combine([
-        @cairoon.PdfOutlineOpen,
-        @cairoon.PdfOutlineBold,
-      ]),
+      @cairoon.PDFOutlineFlagSet::combine([PdfOutlineOpen, PdfOutlineBold]),
     )
   }
   ctx.set_source_rgb(0.95, 0.96, 0.90)
@@ -202,7 +184,7 @@ fn render_stream_pattern_tag_scene(
       root_id,
       "pattern destination",
       "page=2 pos=[16 72]",
-      @cairoon.PDFOutlineFlagSet::of(@cairoon.PdfOutlineItalic),
+      @cairoon.PDFOutlineFlagSet::of(PdfOutlineItalic),
     )
   } else {
     resize_stream_pattern_tag_surface(kind, surface, 120.0, 138.0)
@@ -233,7 +215,7 @@ fn render_stream_pattern_tag_scene(
       @cairoon.PDF_OUTLINE_ROOT,
       "pattern final",
       "page=3 pos=[12 78]",
-      @cairoon.PDFOutlineFlagSet::of(@cairoon.PdfOutlineBold),
+      @cairoon.PDFOutlineFlagSet::of(PdfOutlineBold),
     )
   } else {
     resize_stream_pattern_tag_surface(kind, surface, 96.0, 120.0)

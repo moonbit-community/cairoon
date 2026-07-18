@@ -21,11 +21,11 @@ fn paint_quad_source_surface(
 fn apply_vector_surface_pattern(
   ctx : @cairoon.Context,
 ) -> Unit raise @cairoon.CairoError {
-  let source = @cairoon.Surface::image(@cairoon.Argb32, 2, 2)
+  let source = @cairoon.Surface::image(Argb32, 2, 2)
   paint_quad_source_surface(source)
   let pattern = @cairoon.Pattern::for_surface(source)
-  pattern.set_extend(@cairoon.Repeat)
-  pattern.set_filter(@cairoon.Nearest)
+  pattern.set_extend(Repeat)
+  pattern.set_filter(Nearest)
   ctx.rectangle(0.0, 0.0, 10.0, 10.0)
   ctx.set_source(pattern)
   ctx.fill()
@@ -35,7 +35,7 @@ fn apply_vector_surface_pattern(
 fn apply_vector_mask_surface(
   ctx : @cairoon.Context,
 ) -> Unit raise @cairoon.CairoError {
-  let mask = @cairoon.Surface::image(@cairoon.Argb32, 2, 2)
+  let mask = @cairoon.Surface::image(Argb32, 2, 2)
   let mask_ctx = @cairoon.Context::new(mask)
   mask_ctx.set_source_rgba(1.0, 1.0, 1.0, 1.0)
   mask_ctx.rectangle(0.0, 0.0, 1.0, 1.0)

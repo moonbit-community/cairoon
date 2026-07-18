@@ -21,7 +21,7 @@ fn lifetime_stress_stream_callbacks(index : Int) -> Unit raise {
   })
   lifetime_paint_stream_surface(svg)
 
-  let image = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let image = @cairoon.Surface::image(Argb32, 1, 1)
   let image_ctx = @cairoon.Context::new(image)
   image_ctx.set_source_rgb(1.0, 0.0, 0.0)
   image_ctx.paint()
@@ -46,7 +46,7 @@ fn lifetime_stress_stream_callbacks(index : Int) -> Unit raise {
   })
   let script_surface = @cairoon.Surface::script(
     script,
-    @cairoon.ContentColorAlpha,
+    ContentColorAlpha,
     4.0,
     4.0,
   )
@@ -71,41 +71,31 @@ fn lifetime_stress_stream_callbacks(index : Int) -> Unit raise {
 
   expect_lifetime_write_error(
     @cairoon.run_cairo(() => {
-      let failing = @cairoon.Surface::pdf_stream(4.0, 4.0, fn(_) {
-        @cairoon.WriteError
-      })
+      let failing = @cairoon.Surface::pdf_stream(4.0, 4.0, fn(_) { WriteError })
       lifetime_paint_stream_surface(failing)
     }),
   )
   expect_lifetime_write_error(
     @cairoon.run_cairo(() => {
-      let failing = @cairoon.Surface::ps_stream(4.0, 4.0, fn(_) {
-        @cairoon.WriteError
-      })
+      let failing = @cairoon.Surface::ps_stream(4.0, 4.0, fn(_) { WriteError })
       lifetime_paint_stream_surface(failing)
     }),
   )
   expect_lifetime_write_error(
     @cairoon.run_cairo(() => {
-      let failing = @cairoon.Surface::svg_stream(4.0, 4.0, fn(_) {
-        @cairoon.WriteError
-      })
+      let failing = @cairoon.Surface::svg_stream(4.0, 4.0, fn(_) { WriteError })
       lifetime_paint_stream_surface(failing)
     }),
   )
   expect_lifetime_write_error(
-    @cairoon.run_cairo(() => {
-      image.write_to_png_stream(fn(_) { @cairoon.WriteError })
-    }),
+    @cairoon.run_cairo(() => image.write_to_png_stream(fn(_) { WriteError })),
   )
   expect_lifetime_write_error(
     @cairoon.run_cairo(() => {
-      let failing_script = @cairoon.Device::script_stream(fn(_) {
-        @cairoon.WriteError
-      })
+      let failing_script = @cairoon.Device::script_stream(fn(_) { WriteError })
       let failing_surface = @cairoon.Surface::script(
         failing_script,
-        @cairoon.ContentColorAlpha,
+        ContentColorAlpha,
         4.0,
         4.0,
       )

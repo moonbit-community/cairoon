@@ -4,7 +4,7 @@ fn expect_tag_invalid_string(
 ) -> Unit raise {
   inspect(result is Err(_), content="true")
   match result {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidString, _)) => ()
+    Err(CairoInvalidArgument(InvalidString, _)) => ()
     _ => @test.fail("expected InvalidString")
   }
 }
@@ -13,16 +13,14 @@ fn expect_tag_invalid_string(
 fn expect_tag_error(result : Result[Unit, @cairoon.CairoError]) -> Unit raise {
   inspect(result is Err(_), content="true")
   match result {
-    Err(@cairoon.CairoError(@cairoon.TagError, _)) => ()
+    Err(CairoError(TagError, _)) => ()
     _ => @test.fail("expected TagError")
   }
 }
 
 ///|
 test "context tags accept matching begin and end" {
-  let ctx = @cairoon.Context::new(
-    @cairoon.Surface::image(@cairoon.Argb32, 1, 1),
-  )
+  let ctx = @cairoon.Context::new(@cairoon.Surface::image(Argb32, 1, 1))
   ctx.tag_begin("foo", "bar='quux'")
   ctx.tag_end("foo")
   inspect(ctx.status().is_success(), content="true")
@@ -38,9 +36,7 @@ test "context tag constants mirror cairo string constants" {
 
 ///|
 test "context tags validate embedded nul strings before ffi" {
-  let ctx = @cairoon.Context::new(
-    @cairoon.Surface::image(@cairoon.Argb32, 1, 1),
-  )
+  let ctx = @cairoon.Context::new(@cairoon.Surface::image(Argb32, 1, 1))
   expect_tag_invalid_string(
     @cairoon.run_cairo(() => ctx.tag_begin("bad\u{0}tag", "")),
   )
@@ -75,16 +71,14 @@ test "context tag nesting errors map to TagError" {
 
 ///|
 test "context tags propagate existing context errors" {
-  let ctx = @cairoon.Context::new(
-    @cairoon.Surface::image(@cairoon.Argb32, 1, 1),
-  )
+  let ctx = @cairoon.Context::new(@cairoon.Surface::image(Argb32, 1, 1))
   let invalid_matrix = @cairoon.run_cairo(() => {
     ctx.set_matrix(@cairoon.Matrix::new(xx=0.0, yy=0.0))
   })
   inspect(invalid_matrix is Err(_), content="true")
   let result = @cairoon.run_cairo(() => ctx.tag_end("foo"))
   match result {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidMatrix, _)) => ()
+    Err(CairoInvalidArgument(InvalidMatrix, _)) => ()
     _ => @test.fail("expected InvalidMatrix")
   }
 }

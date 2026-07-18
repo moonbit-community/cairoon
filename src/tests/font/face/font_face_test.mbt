@@ -4,7 +4,7 @@ fn expect_font_face_invalid_string(
 ) -> Unit raise {
   inspect(result is Err(_), content="true")
   match result {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidString, _)) => ()
+    Err(CairoInvalidArgument(InvalidString, _)) => ()
     _ => @test.fail("expected InvalidString")
   }
 }
@@ -13,8 +13,8 @@ fn expect_font_face_invalid_string(
 test "toy font face exposes family slant and weight" {
   let font_face = @cairoon.FontFace::toy(
     "serif",
-    slant=@cairoon.FontSlantItalic,
-    weight=@cairoon.FontWeightBold,
+    slant=FontSlantItalic,
+    weight=FontWeightBold,
   )
   inspect(font_face.get_family(), content="serif")
   debug_inspect(font_face.get_slant(), content="FontSlantItalic")
@@ -34,8 +34,8 @@ test "toy font face defaults match cairo defaults" {
 test "toy font face raw slant weight mirrors pycairo c int passthrough" {
   let typed = @cairoon.FontFace::toy(
     "serif",
-    slant=@cairoon.FontSlantOblique,
-    weight=@cairoon.FontWeightBold,
+    slant=FontSlantOblique,
+    weight=FontWeightBold,
   )
   inspect(typed.get_slant_raw(), content="2")
   inspect(typed.get_weight_raw(), content="1")
@@ -49,7 +49,7 @@ test "toy font face raw slant weight mirrors pycairo c int passthrough" {
       let _ = @cairoon.FontFace::toy_raw("serif", slant=42, weight=0)
       ()
     }) {
-    Err(@cairoon.CairoError(@cairoon.InvalidSlant, _)) => ()
+    Err(CairoError(InvalidSlant, _)) => ()
     _ => @test.fail("expected invalid raw slant to map to InvalidSlant")
   }
   match
@@ -57,16 +57,14 @@ test "toy font face raw slant weight mirrors pycairo c int passthrough" {
       let _ = @cairoon.FontFace::toy_raw("serif", slant=0, weight=42)
       ()
     }) {
-    Err(@cairoon.CairoError(@cairoon.InvalidWeight, _)) => ()
+    Err(CairoError(InvalidWeight, _)) => ()
     _ => @test.fail("expected invalid raw weight to map to InvalidWeight")
   }
 }
 
 ///|
 test "context select_font_face_raw mirrors pycairo c int passthrough" {
-  let ctx = @cairoon.Context::new(
-    @cairoon.Surface::image(@cairoon.Argb32, 4, 4),
-  )
+  let ctx = @cairoon.Context::new(@cairoon.Surface::image(Argb32, 4, 4))
   ctx.select_font_face_raw("serif", slant=2, weight=1)
   let known_selected = ctx.get_font_face()
   inspect(known_selected.get_slant_raw(), content="2")
@@ -74,21 +72,17 @@ test "context select_font_face_raw mirrors pycairo c int passthrough" {
   debug_inspect(known_selected.get_slant(), content="FontSlantOblique")
   debug_inspect(known_selected.get_weight(), content="FontWeightBold")
 
-  let slant_ctx = @cairoon.Context::new(
-    @cairoon.Surface::image(@cairoon.Argb32, 4, 4),
-  )
+  let slant_ctx = @cairoon.Context::new(@cairoon.Surface::image(Argb32, 4, 4))
   match
     @cairoon.run_cairo(() => slant_ctx.select_font_face_raw("serif", slant=42)) {
-    Err(@cairoon.CairoError(@cairoon.InvalidSlant, _)) => ()
+    Err(CairoError(InvalidSlant, _)) => ()
     _ => @test.fail("expected invalid raw context slant to map to InvalidSlant")
   }
 
-  let weight_ctx = @cairoon.Context::new(
-    @cairoon.Surface::image(@cairoon.Argb32, 4, 4),
-  )
+  let weight_ctx = @cairoon.Context::new(@cairoon.Surface::image(Argb32, 4, 4))
   match
     @cairoon.run_cairo(() => weight_ctx.select_font_face_raw("serif", weight=42)) {
-    Err(@cairoon.CairoError(@cairoon.InvalidWeight, _)) => ()
+    Err(CairoError(InvalidWeight, _)) => ()
     _ =>
       @test.fail("expected invalid raw context weight to map to InvalidWeight")
   }
@@ -108,9 +102,7 @@ test "font family APIs validate embedded nul strings" {
       ()
     }),
   )
-  let ctx = @cairoon.Context::new(
-    @cairoon.Surface::image(@cairoon.Argb32, 1, 1),
-  )
+  let ctx = @cairoon.Context::new(@cairoon.Surface::image(Argb32, 1, 1))
   expect_font_face_invalid_string(
     @cairoon.run_cairo(() => ctx.select_font_face("bad\u{0}family")),
   )
@@ -121,13 +113,9 @@ test "font family APIs validate embedded nul strings" {
 
 ///|
 test "context get font face returns referenced wrappers with pointer equality" {
-  let surface = @cairoon.Surface::image(@cairoon.Rgb24, 4, 4)
+  let surface = @cairoon.Surface::image(Rgb24, 4, 4)
   let ctx = @cairoon.Context::new(surface)
-  ctx.select_font_face(
-    "serif",
-    slant=@cairoon.FontSlantOblique,
-    weight=@cairoon.FontWeightBold,
-  )
+  ctx.select_font_face("serif", slant=FontSlantOblique, weight=FontWeightBold)
   let first = ctx.get_font_face()
   let second = ctx.get_font_face()
   inspect(first.equal(second), content="true")
@@ -139,12 +127,12 @@ test "context get font face returns referenced wrappers with pointer equality" {
 
 ///|
 test "context set font face and reset to default" {
-  let surface = @cairoon.Surface::image(@cairoon.Rgb24, 4, 4)
+  let surface = @cairoon.Surface::image(Rgb24, 4, 4)
   let ctx = @cairoon.Context::new(surface)
   let font_face = @cairoon.FontFace::toy(
     "serif",
-    slant=@cairoon.FontSlantItalic,
-    weight=@cairoon.FontWeightBold,
+    slant=FontSlantItalic,
+    weight=FontWeightBold,
   )
   ctx.set_font_face(Some(font_face))
   let returned = ctx.get_font_face()
@@ -159,9 +147,9 @@ test "context set font face and reset to default" {
 
 ///|
 fn make_returned_font_face_from_context() -> @cairoon.FontFace raise @cairoon.CairoError {
-  let surface = @cairoon.Surface::image(@cairoon.Rgb24, 4, 4)
+  let surface = @cairoon.Surface::image(Rgb24, 4, 4)
   let ctx = @cairoon.Context::new(surface)
-  ctx.select_font_face("sans-serif", weight=@cairoon.FontWeightBold)
+  ctx.select_font_face("sans-serif", weight=FontWeightBold)
   ctx.get_font_face()
 }
 
@@ -174,9 +162,7 @@ test "context font face survives source context scope" {
 
 ///|
 test "font face context methods propagate cairo error" {
-  let ctx = @cairoon.Context::new(
-    @cairoon.Surface::image(@cairoon.Argb32, 1, 1),
-  )
+  let ctx = @cairoon.Context::new(@cairoon.Surface::image(Argb32, 1, 1))
   let font_face = @cairoon.FontFace::toy("serif")
   let set_matrix_result = @cairoon.run_cairo(() => {
     ctx.set_matrix(@cairoon.Matrix::new(xx=0.0, yy=0.0))
@@ -189,28 +175,28 @@ test "font face context methods propagate cairo error" {
   })
   inspect(get_result is Err(_), content="true")
   match get_result {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidMatrix, _)) => ()
+    Err(CairoInvalidArgument(InvalidMatrix, _)) => ()
     _ => @test.fail("expected InvalidMatrix")
   }
 
   let set_result = @cairoon.run_cairo(() => ctx.set_font_face(Some(font_face)))
   inspect(set_result is Err(_), content="true")
   match set_result {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidMatrix, _)) => ()
+    Err(CairoInvalidArgument(InvalidMatrix, _)) => ()
     _ => @test.fail("expected InvalidMatrix")
   }
 
   let reset_result = @cairoon.run_cairo(() => ctx.set_font_face(None))
   inspect(reset_result is Err(_), content="true")
   match reset_result {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidMatrix, _)) => ()
+    Err(CairoInvalidArgument(InvalidMatrix, _)) => ()
     _ => @test.fail("expected InvalidMatrix")
   }
 
   let select_result = @cairoon.run_cairo(() => ctx.select_font_face("serif"))
   inspect(select_result is Err(_), content="true")
   match select_result {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidMatrix, _)) => ()
+    Err(CairoInvalidArgument(InvalidMatrix, _)) => ()
     _ => @test.fail("expected InvalidMatrix")
   }
 
@@ -219,7 +205,7 @@ test "font face context methods propagate cairo error" {
   })
   inspect(select_raw_result is Err(_), content="true")
   match select_raw_result {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidMatrix, _)) => ()
+    Err(CairoInvalidArgument(InvalidMatrix, _)) => ()
     _ => @test.fail("expected InvalidMatrix")
   }
 }

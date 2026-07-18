@@ -1,6 +1,6 @@
 ///|
 test "raster source get_acquire returns current callbacks" {
-  let source = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let source = @cairoon.Surface::image(Argb32, 1, 1)
   let source_ctx = @cairoon.Context::new(source)
   source_ctx.set_source_rgba(0.0, 1.0, 0.0, 1.0)
   source_ctx.paint()
@@ -10,11 +10,7 @@ test "raster source get_acquire returns current callbacks" {
   let acquired_target_width = Ref(0)
   let acquired_extent_width = Ref(0)
   let released_height = Ref(0)
-  let pattern = @cairoon.Pattern::raster_source(
-    @cairoon.ContentColorAlpha,
-    1,
-    1,
-  )
+  let pattern = @cairoon.Pattern::raster_source(ContentColorAlpha, 1, 1)
   pattern.raster_set_acquire(
     fn(target, extents) {
       acquire_calls.val += 1
@@ -30,7 +26,7 @@ test "raster source get_acquire returns current callbacks" {
 
   match pattern.raster_get_acquire() {
     Some((acquire, Some(release))) => {
-      let target = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+      let target = @cairoon.Surface::image(Argb32, 1, 1)
       let acquired = acquire(
         target,
         @cairoon.RectangleInt::new(width=1, height=1),
@@ -58,13 +54,9 @@ fn saved_raster_callbacks_from_local_pattern(
   ((@cairoon.Surface, @cairoon.RectangleInt) -> @cairoon.Surface)?,
   ((@cairoon.Surface) -> Unit)?,
 ) raise @cairoon.CairoError {
-  let source = @cairoon.Surface::image(@cairoon.Argb32, 2, 1)
-  let replacement = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
-  let pattern = @cairoon.Pattern::raster_source(
-    @cairoon.ContentColorAlpha,
-    2,
-    1,
-  )
+  let source = @cairoon.Surface::image(Argb32, 2, 1)
+  let replacement = @cairoon.Surface::image(Argb32, 1, 1)
+  let pattern = @cairoon.Pattern::raster_source(ContentColorAlpha, 2, 1)
   pattern.raster_set_acquire(
     fn(target, extents) {
       acquire_calls.val += 1
@@ -103,7 +95,7 @@ test "saved raster callbacks outlive replacement clear and local scopes" {
   }
   match (saved_acquire, saved_release) {
     (Some(acquire), Some(release)) => {
-      let target = @cairoon.Surface::image(@cairoon.Argb32, 3, 2)
+      let target = @cairoon.Surface::image(Argb32, 3, 2)
       let acquired = acquire(
         target,
         @cairoon.RectangleInt::new(x=4, y=5, width=2, height=1),
@@ -124,18 +116,14 @@ test "saved raster callbacks outlive replacement clear and local scopes" {
 
 ///|
 test "raster source get_acquire reports optional and cleared callbacks" {
-  let source = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
-  let pattern = @cairoon.Pattern::raster_source(
-    @cairoon.ContentColorAlpha,
-    1,
-    1,
-  )
+  let source = @cairoon.Surface::image(Argb32, 1, 1)
+  let pattern = @cairoon.Pattern::raster_source(ContentColorAlpha, 1, 1)
   inspect(pattern.raster_get_acquire() is None, content="true")
 
   pattern.raster_set_acquire(fn(_, _) { source })
   match pattern.raster_get_acquire() {
     Some((acquire, None)) => {
-      let target = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+      let target = @cairoon.Surface::image(Argb32, 1, 1)
       let acquired = acquire(
         target,
         @cairoon.RectangleInt::new(width=1, height=1),
@@ -151,7 +139,7 @@ test "raster source get_acquire reports optional and cleared callbacks" {
   let solid = @cairoon.Pattern::solid_rgba(0.0, 0.0, 0.0, 1.0)
   let result = @cairoon.run_cairo(() => solid.raster_get_acquire())
   match result {
-    Err(@cairoon.CairoError(@cairoon.PatternTypeMismatch, _)) => ()
+    Err(CairoError(PatternTypeMismatch, _)) => ()
     _ => @test.fail("expected PatternTypeMismatch")
   }
 }
@@ -160,11 +148,7 @@ test "raster source get_acquire reports optional and cleared callbacks" {
 test "raster source callbacks preserve release only state" {
   let release_calls = Ref(0)
   let release_width = Ref(0)
-  let pattern = @cairoon.Pattern::raster_source(
-    @cairoon.ContentColorAlpha,
-    1,
-    1,
-  )
+  let pattern = @cairoon.Pattern::raster_source(ContentColorAlpha, 1, 1)
   pattern.raster_set_callbacks(
     release=Some(fn(surface) {
       release_calls.val += 1
@@ -177,7 +161,7 @@ test "raster source callbacks preserve release only state" {
   inspect(pattern.raster_get_acquire() is None, content="true")
   match release {
     Some(release) => {
-      let surface = @cairoon.Surface::image(@cairoon.Argb32, 2, 1)
+      let surface = @cairoon.Surface::image(Argb32, 2, 1)
       release(surface)
       inspect(release_calls.val, content="1")
       inspect(release_width.val, content="2")

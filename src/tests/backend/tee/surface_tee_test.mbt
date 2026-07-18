@@ -22,18 +22,8 @@ fn paint_tee(
 fn tee_with_local_target() -> @cairoon.Surface raise @cairoon.CairoError {
   let master_data : FixedArray[Byte] = FixedArray::make(4, b'\x00')
   let target_data : FixedArray[Byte] = FixedArray::make(4, b'\x00')
-  let master = @cairoon.Surface::image_for_data(
-    master_data,
-    @cairoon.Argb32,
-    1,
-    1,
-  )
-  let target = @cairoon.Surface::image_for_data(
-    target_data,
-    @cairoon.Argb32,
-    1,
-    1,
-  )
+  let master = @cairoon.Surface::image_for_data(master_data, Argb32, 1, 1)
+  let target = @cairoon.Surface::image_for_data(target_data, Argb32, 1, 1)
   let tee = @cairoon.Surface::tee(master)
   tee.tee_add(target)
   tee
@@ -43,18 +33,8 @@ fn tee_with_local_target() -> @cairoon.Surface raise @cairoon.CairoError {
 fn indexed_target_after_local_tee_remove() -> @cairoon.Surface raise @cairoon.CairoError {
   let primary_data : FixedArray[Byte] = FixedArray::make(4, b'\x00')
   let target_data : FixedArray[Byte] = FixedArray::make(4, b'\x00')
-  let primary = @cairoon.Surface::image_for_data(
-    primary_data,
-    @cairoon.Argb32,
-    1,
-    1,
-  )
-  let target = @cairoon.Surface::image_for_data(
-    target_data,
-    @cairoon.Argb32,
-    1,
-    1,
-  )
+  let primary = @cairoon.Surface::image_for_data(primary_data, Argb32, 1, 1)
+  let target = @cairoon.Surface::image_for_data(target_data, Argb32, 1, 1)
   let tee = @cairoon.Surface::tee(primary)
   tee.tee_add(target)
   let indexed = tee.tee_index(1)
@@ -67,15 +47,15 @@ fn[T] expect_tee_surface_finished(
   result : Result[T, @cairoon.CairoError],
 ) -> Unit raise {
   match result {
-    Err(@cairoon.CairoError(@cairoon.SurfaceFinished, _)) => ()
+    Err(CairoError(SurfaceFinished, _)) => ()
     _ => @test.fail("expected SurfaceFinished")
   }
 }
 
 ///|
 test "tee surface mirrors drawing to primary and added target" {
-  let primary = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
-  let target = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let primary = @cairoon.Surface::image(Argb32, 1, 1)
+  let target = @cairoon.Surface::image(Argb32, 1, 1)
   let tee = @cairoon.Surface::tee(primary)
   debug_inspect(tee.get_type(), content="SurfaceTypeTee")
 
@@ -114,8 +94,8 @@ test "tee indexed target survives removal and owner scopes" {
 
 ///|
 test "tee methods preserve surface-finished status" {
-  let primary = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
-  let target = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let primary = @cairoon.Surface::image(Argb32, 1, 1)
+  let target = @cairoon.Surface::image(Argb32, 1, 1)
   let tee = @cairoon.Surface::tee(primary)
   tee.tee_add(target)
   tee.finish()
@@ -127,36 +107,36 @@ test "tee methods preserve surface-finished status" {
 
 ///|
 test "tee index preserves cairo no-memory status for positive out of range" {
-  let primary = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let primary = @cairoon.Surface::image(Argb32, 1, 1)
   let tee = @cairoon.Surface::tee(primary)
   let out_of_range = @cairoon.run_cairo(() => tee.tee_index(1))
   match out_of_range {
-    Err(@cairoon.CairoMemoryError(@cairoon.NoMemory, _)) => ()
+    Err(CairoMemoryError(NoMemory, _)) => ()
     _ => @test.fail("expected NoMemory for out-of-range tee index")
   }
 }
 
 ///|
 test "tee methods map subtype and index errors" {
-  let image = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
-  let other = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let image = @cairoon.Surface::image(Argb32, 1, 1)
+  let other = @cairoon.Surface::image(Argb32, 1, 1)
 
   let add = @cairoon.run_cairo(() => image.tee_add(other))
   match add {
-    Err(@cairoon.CairoError(@cairoon.SurfaceTypeMismatch, _)) => ()
+    Err(CairoError(SurfaceTypeMismatch, _)) => ()
     _ => @test.fail("expected SurfaceTypeMismatch for tee_add on image surface")
   }
 
   let remove = @cairoon.run_cairo(() => image.tee_remove(other))
   match remove {
-    Err(@cairoon.CairoError(@cairoon.SurfaceTypeMismatch, _)) => ()
+    Err(CairoError(SurfaceTypeMismatch, _)) => ()
     _ =>
       @test.fail("expected SurfaceTypeMismatch for tee_remove on image surface")
   }
 
   let index = @cairoon.run_cairo(() => image.tee_index(0))
   match index {
-    Err(@cairoon.CairoError(@cairoon.SurfaceTypeMismatch, _)) => ()
+    Err(CairoError(SurfaceTypeMismatch, _)) => ()
     _ =>
       @test.fail("expected SurfaceTypeMismatch for tee_index on image surface")
   }
@@ -164,31 +144,31 @@ test "tee methods map subtype and index errors" {
   let tee = @cairoon.Surface::tee(image)
   let negative = @cairoon.run_cairo(() => tee.tee_index(-1))
   match negative {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidIndex, _)) => ()
+    Err(CairoInvalidArgument(InvalidIndex, _)) => ()
     _ => @test.fail("expected InvalidIndex for negative tee index")
   }
 
   let self_add = @cairoon.run_cairo(() => tee.tee_add(tee))
   match self_add {
-    Err(@cairoon.CairoError(@cairoon.InvalidStatus, _)) => ()
+    Err(CairoError(InvalidStatus, _)) => ()
     _ => @test.fail("expected InvalidStatus for tee self-add")
   }
 
   let self_remove = @cairoon.run_cairo(() => tee.tee_remove(tee))
   match self_remove {
-    Err(@cairoon.CairoError(@cairoon.InvalidStatus, _)) => ()
+    Err(CairoError(InvalidStatus, _)) => ()
     _ => @test.fail("expected InvalidStatus for tee self-remove")
   }
 
   let absent_tee = @cairoon.Surface::tee(image)
   let absent_remove = @cairoon.run_cairo(() => absent_tee.tee_remove(other))
   match absent_remove {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidIndex, _)) => ()
+    Err(CairoInvalidArgument(InvalidIndex, _)) => ()
     _ => @test.fail("expected InvalidIndex for absent tee target")
   }
   let sticky_index = @cairoon.run_cairo(() => absent_tee.tee_index(0))
   match sticky_index {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidIndex, _)) => ()
+    Err(CairoInvalidArgument(InvalidIndex, _)) => ()
     _ => @test.fail("expected sticky InvalidIndex after absent removal")
   }
 }

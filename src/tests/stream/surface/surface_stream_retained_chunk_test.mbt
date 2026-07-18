@@ -3,43 +3,43 @@ test "stream writer chunks remain usable after callback returns" {
   let pdf_chunks : Array[Bytes] = []
   let pdf = @cairoon.Surface::pdf_stream(10.0, 10.0, fn(chunk) {
     pdf_chunks.push(chunk)
-    @cairoon.Success
+    Success
   })
   paint_stream_surface(pdf)
 
   let ps_chunks : Array[Bytes] = []
   let ps = @cairoon.Surface::ps_stream(10.0, 10.0, fn(chunk) {
     ps_chunks.push(chunk)
-    @cairoon.Success
+    Success
   })
   paint_stream_surface(ps)
 
   let svg_chunks : Array[Bytes] = []
   let svg = @cairoon.Surface::svg_stream(10.0, 10.0, fn(chunk) {
     svg_chunks.push(chunk)
-    @cairoon.Success
+    Success
   })
   paint_stream_surface(svg)
 
   let png_chunks : Array[Bytes] = []
-  let image = @cairoon.Surface::image(@cairoon.Argb32, 2, 2)
+  let image = @cairoon.Surface::image(Argb32, 2, 2)
   let image_ctx = @cairoon.Context::new(image)
   image_ctx.set_source_rgb(1.0, 0.0, 0.0)
   image_ctx.paint()
   image.write_to_png_stream(fn(chunk) {
     png_chunks.push(chunk)
-    @cairoon.Success
+    Success
   })
 
   let script_chunks : Array[Bytes] = []
   let script = @cairoon.Device::script_stream(fn(chunk) {
     script_chunks.push(chunk)
-    @cairoon.Success
+    Success
   })
   script.script_write_comment("retained stream chunk")
   let script_surface = @cairoon.Surface::script(
     script,
-    @cairoon.ContentColorAlpha,
+    ContentColorAlpha,
     4.0,
     4.0,
   )

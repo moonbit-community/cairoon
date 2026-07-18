@@ -22,17 +22,17 @@ fn make_stream_tag_attribute_stream_surface(
     0 =>
       @cairoon.Surface::pdf_stream(144.0, 120.0, fn(chunk) {
         chunks.push(chunk)
-        @cairoon.Success
+        Success
       })
     1 =>
       @cairoon.Surface::ps_stream(144.0, 120.0, fn(chunk) {
         chunks.push(chunk)
-        @cairoon.Success
+        Success
       })
     2 =>
       @cairoon.Surface::svg_stream(144.0, 120.0, fn(chunk) {
         chunks.push(chunk)
-        @cairoon.Success
+        Success
       })
     _ => vector_backend_invalid_surface()
   }
@@ -47,36 +47,27 @@ fn configure_stream_tag_attribute_backend(
 ) -> Unit raise @cairoon.CairoError {
   match kind {
     0 => {
-      surface.pdf_restrict_to_version(@cairoon.PdfVersion1_4)
+      surface.pdf_restrict_to_version(PdfVersion1_4)
+      surface.pdf_set_metadata(PdfMetadataTitle, "Cairoon Tag Attribute Matrix")
       surface.pdf_set_metadata(
-        @cairoon.PdfMetadataTitle,
-        "Cairoon Tag Attribute Matrix",
-      )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataCreator,
+        PdfMetadataCreator,
         "cairoon tag attribute matrix",
       )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataCreateDate,
-        fixed_pdf_metadata_date(),
-      )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataModDate,
-        fixed_pdf_metadata_date(),
-      )
+      surface.pdf_set_metadata(PdfMetadataCreateDate, fixed_pdf_metadata_date())
+      surface.pdf_set_metadata(PdfMetadataModDate, fixed_pdf_metadata_date())
     }
     1 => {
-      surface.ps_restrict_to_level(@cairoon.PsLevel3)
+      surface.ps_restrict_to_level(PsLevel3)
       surface.ps_dsc_begin_setup()
       surface.ps_dsc_comment("%%Title: Cairoon Tag Attribute Matrix")
       surface.ps_dsc_begin_page_setup()
       surface.ps_dsc_comment("%%IncludeFeature: *MediaType TagAttributes")
     }
     2 => {
-      surface.svg_restrict_to_version(@cairoon.SvgVersion1_2)
-      surface.svg_set_document_unit(@cairoon.SvgUnitPx)
+      surface.svg_restrict_to_version(SvgVersion1_2)
+      surface.svg_set_document_unit(SvgUnitPx)
     }
-    _ => @cairoon.check_status(@cairoon.InvalidStatus)
+    _ => @cairoon.check_status(InvalidStatus)
   }
 }
 
@@ -195,7 +186,7 @@ fn expect_tag_attribute_error(
     ctx.show_page()
   })
   match result {
-    Err(@cairoon.CairoError(@cairoon.TagError, _)) => ()
+    Err(CairoError(TagError, _)) => ()
     _ => @test.fail("expected TagError for \{tag_name}: \{attributes}")
   }
 }
@@ -227,7 +218,7 @@ test "tag attribute validation follows cairo version contract" {
         nested.show_page()
       })
       match nested_result {
-        Err(@cairoon.CairoError(@cairoon.TagError, _)) => ()
+        Err(CairoError(TagError, _)) => ()
         _ => @test.fail("expected nested content TagError")
       }
     }
@@ -241,7 +232,7 @@ test "tag attribute validation follows cairo version contract" {
       legacy.show_page()
     })
     match legacy_result {
-      Err(@cairoon.CairoError(@cairoon.TagError, _)) =>
+      Err(CairoError(TagError, _)) =>
         @test.fail("Cairo 1.15.x unexpectedly enforced stable tag validation")
       _ => ()
     }

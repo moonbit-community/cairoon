@@ -10,34 +10,34 @@ fn expect_operator_raw(
 
 ///|
 test "portable enum constructors expose cairo names" {
-  let antialias : @cairoon.Antialias = @cairoon.AntialiasDefault
-  let content : @cairoon.Content = @cairoon.ContentColorAlpha
-  let surface_type : @cairoon.SurfaceType = @cairoon.SurfaceTypeImage
-  let device_type : @cairoon.DeviceType = @cairoon.DeviceTypeScript
-  let fill : @cairoon.FillRule = @cairoon.FillEvenOdd
-  let filter : @cairoon.Filter = @cairoon.Bilinear
-  let hint_metrics : @cairoon.HintMetrics = @cairoon.HintMetricsOn
-  let color_mode : @cairoon.ColorMode = @cairoon.ColorModeColor
-  let dither : @cairoon.Dither = @cairoon.DitherBest
-  let hint_style : @cairoon.HintStyle = @cairoon.HintStyleFull
-  let subpixel : @cairoon.SubpixelOrder = @cairoon.SubpixelVbgr
-  let line_cap : @cairoon.LineCap = @cairoon.LineCapSquare
-  let line_join : @cairoon.LineJoin = @cairoon.LineJoinBevel
-  let operator : @cairoon.Operator = @cairoon.OperatorHslLuminosity
-  let extend_mode : @cairoon.Extend = @cairoon.ExtendNone
-  let font_slant : @cairoon.FontSlant = @cairoon.FontSlantOblique
-  let font_weight : @cairoon.FontWeight = @cairoon.FontWeightBold
-  let pdf_version : @cairoon.PDFVersion = @cairoon.PdfVersion1_7
-  let ps_level : @cairoon.PSLevel = @cairoon.PsLevel3
-  let path_data : @cairoon.PathDataType = @cairoon.PathClosePath
-  let overlap : @cairoon.RegionOverlap = @cairoon.RegionOverlapPart
-  let svg_version : @cairoon.SVGVersion = @cairoon.SvgVersion1_2
-  let svg_unit : @cairoon.SVGUnit = @cairoon.SvgUnitPercent
-  let metadata : @cairoon.PDFMetadata = @cairoon.PdfMetadataModDate
-  let outline : @cairoon.PDFOutlineFlags = @cairoon.PdfOutlineItalic
-  let script_mode : @cairoon.ScriptMode = @cairoon.ScriptModeBinary
-  let cluster_flags : @cairoon.TextClusterFlags = @cairoon.TextClusterBackward
-  let observer_mode : @cairoon.SurfaceObserverMode = @cairoon.SurfaceObserverRecordOperations
+  let antialias : @cairoon.Antialias = AntialiasDefault
+  let content : @cairoon.Content = ContentColorAlpha
+  let surface_type : @cairoon.SurfaceType = SurfaceTypeImage
+  let device_type : @cairoon.DeviceType = DeviceTypeScript
+  let fill : @cairoon.FillRule = FillEvenOdd
+  let filter : @cairoon.Filter = Bilinear
+  let hint_metrics : @cairoon.HintMetrics = HintMetricsOn
+  let color_mode : @cairoon.ColorMode = ColorModeColor
+  let dither : @cairoon.Dither = DitherBest
+  let hint_style : @cairoon.HintStyle = HintStyleFull
+  let subpixel : @cairoon.SubpixelOrder = SubpixelVbgr
+  let line_cap : @cairoon.LineCap = LineCapSquare
+  let line_join : @cairoon.LineJoin = LineJoinBevel
+  let operator : @cairoon.Operator = OperatorHslLuminosity
+  let extend_mode : @cairoon.Extend = ExtendNone
+  let font_slant : @cairoon.FontSlant = FontSlantOblique
+  let font_weight : @cairoon.FontWeight = FontWeightBold
+  let pdf_version : @cairoon.PDFVersion = PdfVersion1_7
+  let ps_level : @cairoon.PSLevel = PsLevel3
+  let path_data : @cairoon.PathDataType = PathClosePath
+  let overlap : @cairoon.RegionOverlap = RegionOverlapPart
+  let svg_version : @cairoon.SVGVersion = SvgVersion1_2
+  let svg_unit : @cairoon.SVGUnit = SvgUnitPercent
+  let metadata : @cairoon.PDFMetadata = PdfMetadataModDate
+  let outline : @cairoon.PDFOutlineFlags = PdfOutlineItalic
+  let script_mode : @cairoon.ScriptMode = ScriptModeBinary
+  let cluster_flags : @cairoon.TextClusterFlags = TextClusterBackward
+  let observer_mode : @cairoon.SurfaceObserverMode = SurfaceObserverRecordOperations
   debug_inspect(antialias, content="AntialiasDefault")
   debug_inspect(content, content="ContentColorAlpha")
   debug_inspect(surface_type, content="SurfaceTypeImage")
@@ -70,13 +70,13 @@ test "portable enum constructors expose cairo names" {
 
 ///|
 test "pycairo enum smoke fixtures" {
-  let status : @cairoon.Status = @cairoon.Jbig2GlobalMissing
-  let backward : @cairoon.TextClusterFlags = @cairoon.TextClusterBackward
-  let observer : @cairoon.SurfaceObserverMode = @cairoon.SurfaceObserverNormal
-  inspect(status == @cairoon.Jbig2GlobalMissing, content="true")
+  let status : @cairoon.Status = Jbig2GlobalMissing
+  let backward : @cairoon.TextClusterFlags = TextClusterBackward
+  let observer : @cairoon.SurfaceObserverMode = SurfaceObserverNormal
+  inspect(status == Jbig2GlobalMissing, content="true")
   inspect(status.message().length() > 0, content="true")
-  inspect(backward == @cairoon.TextClusterBackward, content="true")
-  inspect(observer == @cairoon.SurfaceObserverNormal, content="true")
+  inspect(backward == TextClusterBackward, content="true")
+  inspect(observer == SurfaceObserverNormal, content="true")
   debug_inspect(status, content="Jbig2GlobalMissing")
   debug_inspect(backward, content="TextClusterBackward")
   debug_inspect(observer, content="SurfaceObserverNormal")
@@ -84,31 +84,29 @@ test "pycairo enum smoke fixtures" {
 
 ///|
 test "pycairo module constants raw value fixture" {
-  let ctx = @cairoon.Context::new(
-    @cairoon.Surface::image(@cairoon.Argb32, 1, 1),
-  )
-  ctx.set_antialias(@cairoon.AntialiasFast)
+  let ctx = @cairoon.Context::new(@cairoon.Surface::image(Argb32, 1, 1))
+  ctx.set_antialias(AntialiasFast)
   inspect(ctx.get_antialias_raw(), content="4")
-  ctx.set_antialias(@cairoon.AntialiasGood)
+  ctx.set_antialias(AntialiasGood)
   inspect(ctx.get_antialias_raw(), content="5")
-  ctx.set_antialias(@cairoon.AntialiasBest)
+  ctx.set_antialias(AntialiasBest)
   inspect(ctx.get_antialias_raw(), content="6")
 
-  expect_operator_raw(ctx, @cairoon.OperatorMultiply, 14)
-  expect_operator_raw(ctx, @cairoon.OperatorScreen, 15)
-  expect_operator_raw(ctx, @cairoon.OperatorOverlay, 16)
-  expect_operator_raw(ctx, @cairoon.OperatorDarken, 17)
-  expect_operator_raw(ctx, @cairoon.OperatorLighten, 18)
-  expect_operator_raw(ctx, @cairoon.OperatorColorDodge, 19)
-  expect_operator_raw(ctx, @cairoon.OperatorColorBurn, 20)
-  expect_operator_raw(ctx, @cairoon.OperatorHardLight, 21)
-  expect_operator_raw(ctx, @cairoon.OperatorSoftLight, 22)
-  expect_operator_raw(ctx, @cairoon.OperatorDifference, 23)
-  expect_operator_raw(ctx, @cairoon.OperatorExclusion, 24)
-  expect_operator_raw(ctx, @cairoon.OperatorHslHue, 25)
-  expect_operator_raw(ctx, @cairoon.OperatorHslSaturation, 26)
-  expect_operator_raw(ctx, @cairoon.OperatorHslColor, 27)
-  expect_operator_raw(ctx, @cairoon.OperatorHslLuminosity, 28)
+  expect_operator_raw(ctx, OperatorMultiply, 14)
+  expect_operator_raw(ctx, OperatorScreen, 15)
+  expect_operator_raw(ctx, OperatorOverlay, 16)
+  expect_operator_raw(ctx, OperatorDarken, 17)
+  expect_operator_raw(ctx, OperatorLighten, 18)
+  expect_operator_raw(ctx, OperatorColorDodge, 19)
+  expect_operator_raw(ctx, OperatorColorBurn, 20)
+  expect_operator_raw(ctx, OperatorHardLight, 21)
+  expect_operator_raw(ctx, OperatorSoftLight, 22)
+  expect_operator_raw(ctx, OperatorDifference, 23)
+  expect_operator_raw(ctx, OperatorExclusion, 24)
+  expect_operator_raw(ctx, OperatorHslHue, 25)
+  expect_operator_raw(ctx, OperatorHslSaturation, 26)
+  expect_operator_raw(ctx, OperatorHslColor, 27)
+  expect_operator_raw(ctx, OperatorHslLuminosity, 28)
 
   let region = @cairoon.Region::from_rectangle(
     @cairoon.RectangleInt::new(x=0, y=0, width=4, height=4),
@@ -131,10 +129,10 @@ test "pycairo module constants raw value fixture" {
 
 ///|
 test "format stride_for_width delegates to cairo" {
-  let rgb24 : @cairoon.Format = @cairoon.Rgb24
-  let argb32 : @cairoon.Format = @cairoon.Argb32
-  let a8 : @cairoon.Format = @cairoon.A8
-  let a1 : @cairoon.Format = @cairoon.A1
+  let rgb24 : @cairoon.Format = Rgb24
+  let argb32 : @cairoon.Format = Argb32
+  let a8 : @cairoon.Format = A8
+  let a1 : @cairoon.Format = A1
   inspect(rgb24.stride_for_width(8), content="32")
   inspect(argb32.stride_for_width(8), content="32")
   inspect(a8.stride_for_width(8), content="8")
@@ -143,11 +141,11 @@ test "format stride_for_width delegates to cairo" {
 
 ///|
 test "format stride_for_width covers extended formats and invalid widths" {
-  let argb32 : @cairoon.Format = @cairoon.Argb32
-  let rgb16 : @cairoon.Format = @cairoon.Rgb16_565
-  let rgb30 : @cairoon.Format = @cairoon.Rgb30
-  let rgb96f : @cairoon.Format = @cairoon.Rgb96F
-  let rgba128f : @cairoon.Format = @cairoon.Rgba128F
+  let argb32 : @cairoon.Format = Argb32
+  let rgb16 : @cairoon.Format = Rgb16_565
+  let rgb30 : @cairoon.Format = Rgb30
+  let rgb96f : @cairoon.Format = Rgb96F
+  let rgba128f : @cairoon.Format = Rgba128F
   inspect(rgb16.stride_for_width(2), content="4")
   inspect(rgb30.stride_for_width(2), content="8")
   if @cairoon.CAIRO_VERSION >= 11702 {

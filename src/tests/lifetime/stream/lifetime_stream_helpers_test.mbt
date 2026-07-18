@@ -14,7 +14,7 @@ fn expect_lifetime_write_error(
 ) -> Unit raise {
   inspect(result is Err(_), content="true")
   match result {
-    Err(@cairoon.CairoIOError(@cairoon.WriteError, _)) => ()
+    Err(CairoIOError(WriteError, _)) => ()
     _ => @test.fail("expected WriteError")
   }
 }
@@ -27,7 +27,7 @@ fn lifetime_record_stream_chunk(
 ) -> @cairoon.Status {
   chunk_count.val += 1
   byte_count.val += chunk.length()
-  @cairoon.Success
+  Success
 }
 
 ///|
@@ -44,14 +44,14 @@ fn lifetime_record_stream_chunk_with_status(
 
 ///|
 fn lifetime_png_bytes() -> Bytes raise @cairoon.CairoError {
-  let surface = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let surface = @cairoon.Surface::image(Argb32, 1, 1)
   let ctx = @cairoon.Context::new(surface)
   ctx.set_source_rgba(0.0, 1.0, 0.0, 1.0)
   ctx.paint()
   let mut output = Bytes::default()
   surface.write_to_png_stream(fn(chunk) {
     output = output + chunk
-    @cairoon.Success
+    Success
   })
   output
 }
@@ -88,7 +88,7 @@ fn expect_lifetime_stream_fuzz_write_error(
 ) -> Unit raise {
   inspect(chunk_count > 0, content="true")
   match result {
-    Err(@cairoon.CairoIOError(@cairoon.WriteError, _)) => ()
+    Err(CairoIOError(WriteError, _)) => ()
     _ => @test.fail("expected WriteError from fuzzed stream callback")
   }
 }
@@ -100,8 +100,7 @@ fn expect_lifetime_stream_fuzz_read_error(
 ) -> Unit raise {
   inspect(chunk_count > 0, content="true")
   match result {
-    Err(@cairoon.CairoIOError(@cairoon.ReadError, _))
-    | Err(@cairoon.CairoIOError(@cairoon.PngError, _)) => ()
+    Err(CairoIOError(ReadError, _)) | Err(CairoIOError(PngError, _)) => ()
     _ => @test.fail("expected read failure from fuzzed PNG stream callback")
   }
 }
@@ -141,7 +140,7 @@ fn lifetime_stream_fuzz_vector_writer(
 fn lifetime_stream_fuzz_png_writer(
   status : @cairoon.Status,
 ) -> (Result[Unit, @cairoon.CairoError], Int, Int) raise @cairoon.CairoError {
-  let image = @cairoon.Surface::image(@cairoon.Argb32, 2, 2)
+  let image = @cairoon.Surface::image(Argb32, 2, 2)
   let ctx = @cairoon.Context::new(image)
   ctx.set_source_rgba(0.2, 0.5, 0.8, 1.0)
   ctx.paint()
@@ -170,12 +169,7 @@ fn lifetime_stream_fuzz_script_writer(
     )
   })
   let result = @cairoon.run_cairo(() => {
-    let surface = @cairoon.Surface::script(
-      device,
-      @cairoon.ContentColorAlpha,
-      4.0,
-      4.0,
-    )
+    let surface = @cairoon.Surface::script(device, ContentColorAlpha, 4.0, 4.0)
     let ctx = @cairoon.Context::new(surface)
     ctx.set_source_rgb(0.4, 0.0, 0.7)
     ctx.paint()
@@ -215,8 +209,8 @@ fn lifetime_stream_fuzz_png_reader(
 ///|
 fn lifetime_stream_fuzz_status(value : Int) -> @cairoon.Status {
   match value % 3 {
-    0 => @cairoon.Success
-    1 => @cairoon.WriteError
-    _ => @cairoon.LastStatus
+    0 => Success
+    1 => WriteError
+    _ => LastStatus
   }
 }

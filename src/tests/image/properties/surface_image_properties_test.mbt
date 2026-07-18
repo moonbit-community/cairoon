@@ -4,7 +4,7 @@ fn[T] expect_surface_finished(
 ) -> Unit raise {
   inspect(result is Err(_), content="true")
   match result {
-    Err(@cairoon.CairoError(@cairoon.SurfaceFinished, _)) => ()
+    Err(CairoError(SurfaceFinished, _)) => ()
     _ => @test.fail("expected SurfaceFinished")
   }
 }
@@ -15,7 +15,7 @@ fn[T] expect_surface_type_mismatch(
 ) -> Unit raise {
   inspect(result is Err(_), content="true")
   match result {
-    Err(@cairoon.CairoError(@cairoon.SurfaceTypeMismatch, _)) => ()
+    Err(CairoError(SurfaceTypeMismatch, _)) => ()
     _ => @test.fail("expected SurfaceTypeMismatch")
   }
 }
@@ -26,7 +26,7 @@ fn[T] expect_surface_invalid_content(
 ) -> Unit raise {
   inspect(result is Err(_), content="true")
   match result {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidContent, _)) => ()
+    Err(CairoInvalidArgument(InvalidContent, _)) => ()
     _ => @test.fail("expected InvalidContent")
   }
 }
@@ -37,14 +37,14 @@ fn[T] expect_surface_invalid_format(
 ) -> Unit raise {
   inspect(result is Err(_), content="true")
   match result {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidFormat, _)) => ()
+    Err(CairoInvalidArgument(InvalidFormat, _)) => ()
     _ => @test.fail("expected InvalidFormat")
   }
 }
 
 ///|
 test "image surface properties" {
-  let surface = @cairoon.Surface::image(@cairoon.Argb32, 2, 1)
+  let surface = @cairoon.Surface::image(Argb32, 2, 1)
   debug_inspect(surface.get_type(), content="SurfaceTypeImage")
   debug_inspect(surface.get_content(), content="ContentColorAlpha")
   inspect(surface.get_content_raw(), content="12288")
@@ -87,7 +87,7 @@ test "image surface accepts pycairo raw format ints" {
 
 ///|
 test "surface create_similar accepts pycairo raw content ints" {
-  let parent = @cairoon.Surface::image(@cairoon.Argb32, 2, 2)
+  let parent = @cairoon.Surface::image(Argb32, 2, 2)
   let color = parent.create_similar_raw(0x1000, 1, 1)
   debug_inspect(color.get_content(), content="ContentColor")
   inspect(color.get_content_raw(), content="4096")
@@ -103,7 +103,7 @@ test "surface create_similar accepts pycairo raw content ints" {
 
 ///|
 test "image surface properties map status and subtype errors" {
-  let finished = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let finished = @cairoon.Surface::image(Argb32, 1, 1)
   finished.finish()
   expect_surface_finished(@cairoon.run_cairo(() => finished.get_width()))
   expect_surface_finished(@cairoon.run_cairo(() => finished.get_height()))
@@ -122,7 +122,7 @@ test "image surface properties map status and subtype errors" {
 ///|
 test "image surface supports cairo float formats" {
   if @cairoon.CAIRO_VERSION >= 11702 {
-    let rgb = @cairoon.Surface::image(@cairoon.Rgb96F, 3, 2)
+    let rgb = @cairoon.Surface::image(Rgb96F, 3, 2)
     debug_inspect(rgb.get_type(), content="SurfaceTypeImage")
     debug_inspect(rgb.get_format(), content="Rgb96F")
     debug_inspect(rgb.get_content(), content="ContentColor")
@@ -130,28 +130,26 @@ test "image surface supports cairo float formats" {
     inspect(rgb.get_height(), content="2")
     inspect(
       rgb.get_stride(),
-      content="\{@cairoon.Format::stride_for_width(@cairoon.Rgb96F, 3)}",
+      content="\{@cairoon.Format::stride_for_width(Rgb96F, 3)}",
     )
     inspect(rgb.copy_data().length(), content="\{rgb.get_stride() * 2}")
 
-    let rgba = @cairoon.Surface::image(@cairoon.Rgba128F, 3, 2)
+    let rgba = @cairoon.Surface::image(Rgba128F, 3, 2)
     debug_inspect(rgba.get_type(), content="SurfaceTypeImage")
     debug_inspect(rgba.get_format(), content="Rgba128F")
     debug_inspect(rgba.get_content(), content="ContentColorAlpha")
     inspect(
       rgba.get_stride(),
-      content="\{@cairoon.Format::stride_for_width(@cairoon.Rgba128F, 3)}",
+      content="\{@cairoon.Format::stride_for_width(Rgba128F, 3)}",
     )
     inspect(rgba.copy_data().length(), content="\{rgba.get_stride() * 2}")
   } else {
-    match
-      @cairoon.run_cairo(() => @cairoon.Surface::image(@cairoon.Rgb96F, 3, 2)) {
-      Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidFormat, _)) => ()
+    match @cairoon.run_cairo(() => @cairoon.Surface::image(Rgb96F, 3, 2)) {
+      Err(CairoInvalidArgument(InvalidFormat, _)) => ()
       _ => @test.fail("expected InvalidFormat for RGB96F before Cairo 1.17.2")
     }
-    match
-      @cairoon.run_cairo(() => @cairoon.Surface::image(@cairoon.Rgba128F, 3, 2)) {
-      Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidFormat, _)) => ()
+    match @cairoon.run_cairo(() => @cairoon.Surface::image(Rgba128F, 3, 2)) {
+      Err(CairoInvalidArgument(InvalidFormat, _)) => ()
       _ => @test.fail("expected InvalidFormat for RGBA128F before Cairo 1.17.2")
     }
   }

@@ -4,7 +4,7 @@ fn expect_surface_invalid_size(
 ) -> Unit raise {
   inspect(result is Err(_), content="true")
   match result {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidSize, _)) => ()
+    Err(CairoInvalidArgument(InvalidSize, _)) => ()
     _ => @test.fail("expected InvalidSize")
   }
 }
@@ -15,7 +15,7 @@ fn[T] expect_surface_finished(
 ) -> Unit raise {
   inspect(result is Err(_), content="true")
   match result {
-    Err(@cairoon.CairoError(@cairoon.SurfaceFinished, _)) => ()
+    Err(CairoError(SurfaceFinished, _)) => ()
     _ => @test.fail("expected SurfaceFinished")
   }
 }
@@ -26,7 +26,7 @@ fn expect_pycairo_surface_invalid_matrix(
 ) -> Unit raise {
   inspect(result is Err(_), content="true")
   match result {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidMatrix, _)) => ()
+    Err(CairoInvalidArgument(InvalidMatrix, _)) => ()
     _ => @test.fail("expected InvalidMatrix")
   }
 }
@@ -34,19 +34,19 @@ fn expect_pycairo_surface_invalid_matrix(
 ///|
 fn pycairo_similar_image_from_local_pdf() -> @cairoon.Surface raise @cairoon.CairoError {
   let surface = @cairoon.Surface::pdf(1.0, 1.0)
-  surface.create_similar_image(@cairoon.Argb32, 24, 42)
+  surface.create_similar_image(Argb32, 24, 42)
 }
 
 ///|
 test "pycairo surface context manager fixture" {
-  let surface = @cairoon.Surface::image(@cairoon.Argb32, 10, 10)
+  let surface = @cairoon.Surface::image(Argb32, 10, 10)
   surface.with_finished(() => surface.show_page())
   expect_surface_finished(@cairoon.run_cairo(() => surface.show_page()))
 }
 
 ///|
 test "pycairo surface cmp hash fixture" {
-  let main = @cairoon.Surface::image(@cairoon.Argb32, 10, 10)
+  let main = @cairoon.Surface::image(Argb32, 10, 10)
   let ctx = @cairoon.Context::new(main)
   let target = ctx.get_target()
 
@@ -56,13 +56,13 @@ test "pycairo surface cmp hash fixture" {
   inspect(target.not_equal(main), content="false")
   inspect(Hash::hash(target) == Hash::hash(main), content="true")
 
-  let other = @cairoon.Surface::image(@cairoon.Argb32, 10, 10)
+  let other = @cairoon.Surface::image(Argb32, 10, 10)
   inspect(main != other, content="true")
 }
 
 ///|
 test "pycairo surface content and format getters fixture" {
-  let surface = @cairoon.Surface::image(@cairoon.Argb32, 10, 10)
+  let surface = @cairoon.Surface::image(Argb32, 10, 10)
   debug_inspect(surface.get_content(), content="ContentColorAlpha")
   inspect(surface.get_content_raw(), content="12288")
   debug_inspect(surface.get_format(), content="Argb32")
@@ -71,7 +71,7 @@ test "pycairo surface content and format getters fixture" {
 
 ///|
 test "pycairo surface device scale fixture" {
-  let surface = @cairoon.Surface::image(@cairoon.Argb32, 10, 10)
+  let surface = @cairoon.Surface::image(Argb32, 10, 10)
   debug_inspect(surface.get_device_scale(), content="(1, 1)")
 
   surface.set_device_scale(5.0, 3.0)
@@ -95,7 +95,7 @@ test "pycairo surface device scale fixture" {
 
 ///|
 test "pycairo surface create_for_rectangle fixture" {
-  let surface = @cairoon.Surface::image(@cairoon.Argb32, 100, 100)
+  let surface = @cairoon.Surface::image(Argb32, 100, 100)
   let child = surface.create_for_rectangle(0.0, 0.0, 10.0, 10.0)
   inspect(child.status().is_success(), content="true")
 
@@ -127,7 +127,7 @@ test "pycairo surface create_for_rectangle fixture" {
 ///|
 test "pycairo surface create_similar_image fixture" {
   let surface = @cairoon.Surface::pdf(1.0, 1.0)
-  let image = surface.create_similar_image(@cairoon.Argb32, 24, 42)
+  let image = surface.create_similar_image(Argb32, 24, 42)
   debug_inspect(image.get_type(), content="SurfaceTypeImage")
   debug_inspect(image.get_format(), content="Argb32")
   inspect(image.get_width(), content="24")
@@ -141,34 +141,28 @@ test "pycairo surface create_similar_image fixture" {
   inspect(scoped_image.copy_data().length(), content="4032")
 
   expect_surface_invalid_size(
-    @cairoon.run_cairo(() => {
-      surface.create_similar_image(@cairoon.Argb32, 24, -1)
-    }),
+    @cairoon.run_cairo(() => surface.create_similar_image(Argb32, 24, -1)),
   )
 }
 
 ///|
 test "pycairo surface create_similar fixture" {
-  let surface = @cairoon.Surface::image(@cairoon.Argb32, 10, 10)
-  let similar = surface.create_similar(@cairoon.ContentColor, 10, 10)
+  let surface = @cairoon.Surface::image(Argb32, 10, 10)
+  let similar = surface.create_similar(ContentColor, 10, 10)
   inspect(similar.status().is_success(), content="true")
   debug_inspect(similar.get_content(), content="ContentColor")
 
   expect_surface_invalid_size(
-    @cairoon.run_cairo(() => {
-      surface.create_similar(@cairoon.ContentColor, -1, 10)
-    }),
+    @cairoon.run_cairo(() => surface.create_similar(ContentColor, -1, 10)),
   )
   expect_surface_invalid_size(
-    @cairoon.run_cairo(() => {
-      surface.create_similar(@cairoon.ContentColor, 10, -1)
-    }),
+    @cairoon.run_cairo(() => surface.create_similar(ContentColor, 10, -1)),
   )
 }
 
 ///|
 test "pycairo surface device offset fixture" {
-  let surface = @cairoon.Surface::image(@cairoon.Argb32, 10, 10)
+  let surface = @cairoon.Surface::image(Argb32, 10, 10)
   surface.set_device_offset(1.0, 1.0)
   debug_inspect(surface.get_device_offset(), content="(1, 1)")
 
@@ -182,7 +176,7 @@ test "pycairo surface device offset fixture" {
 
 ///|
 test "pycairo surface fallback resolution and dirty page fixture" {
-  let surface = @cairoon.Surface::image(@cairoon.Argb32, 10, 10)
+  let surface = @cairoon.Surface::image(Argb32, 10, 10)
   surface.set_fallback_resolution(42.0, 42.0)
   debug_inspect(surface.get_fallback_resolution(), content="(42, 42)")
 

@@ -22,17 +22,17 @@ fn make_stream_appendix_rubric_stream_surface(
     0 =>
       @cairoon.Surface::pdf_stream(128.0, 104.0, fn(chunk) {
         chunks.push(chunk)
-        @cairoon.Success
+        Success
       })
     1 =>
       @cairoon.Surface::ps_stream(128.0, 104.0, fn(chunk) {
         chunks.push(chunk)
-        @cairoon.Success
+        Success
       })
     2 =>
       @cairoon.Surface::svg_stream(128.0, 104.0, fn(chunk) {
         chunks.push(chunk)
-        @cairoon.Success
+        Success
       })
     _ => vector_backend_invalid_surface()
   }
@@ -47,46 +47,25 @@ fn configure_stream_appendix_rubric_backend(
 ) -> Unit raise @cairoon.CairoError {
   match kind {
     0 => {
-      surface.pdf_restrict_to_version(@cairoon.PdfVersion1_4)
+      surface.pdf_restrict_to_version(PdfVersion1_4)
+      surface.pdf_set_metadata(PdfMetadataTitle, "Cairoon Appendix Rubric")
+      surface.pdf_set_metadata(PdfMetadataAuthor, "cairoon backend oracle")
+      surface.pdf_set_metadata(PdfMetadataSubject, "draft appendix rubric")
+      surface.pdf_set_metadata(PdfMetadataSubject, "final appendix rubric")
       surface.pdf_set_metadata(
-        @cairoon.PdfMetadataTitle,
-        "Cairoon Appendix Rubric",
-      )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataAuthor,
-        "cairoon backend oracle",
-      )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataSubject,
-        "draft appendix rubric",
-      )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataSubject,
-        "final appendix rubric",
-      )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataKeywords,
+        PdfMetadataKeywords,
         "appendix,rubric,code,formula",
       )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataCreator,
-        "cairoon appendix rubric",
-      )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataCreateDate,
-        fixed_pdf_metadata_date(),
-      )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataModDate,
-        fixed_pdf_metadata_date(),
-      )
+      surface.pdf_set_metadata(PdfMetadataCreator, "cairoon appendix rubric")
+      surface.pdf_set_metadata(PdfMetadataCreateDate, fixed_pdf_metadata_date())
+      surface.pdf_set_metadata(PdfMetadataModDate, fixed_pdf_metadata_date())
       set_pdf_custom_metadata_if_supported(surface, "Rubric", Some("draft"))
       set_pdf_custom_metadata_if_supported(surface, "Rubric", Some("final"))
       set_pdf_custom_metadata_if_supported(surface, "Obsolete", Some("drop-me"))
       set_pdf_custom_metadata_if_supported(surface, "Obsolete", None)
     }
     1 => {
-      surface.ps_restrict_to_level(@cairoon.PsLevel3)
+      surface.ps_restrict_to_level(PsLevel3)
       surface.ps_set_eps(false)
       surface.ps_dsc_begin_setup()
       surface.ps_dsc_comment("%%Title: Cairoon Appendix Rubric")
@@ -95,10 +74,10 @@ fn configure_stream_appendix_rubric_backend(
       surface.ps_dsc_comment("%%IncludeFeature: *PageSize AppendixRubric")
     }
     2 => {
-      surface.svg_restrict_to_version(@cairoon.SvgVersion1_2)
-      surface.svg_set_document_unit(@cairoon.SvgUnitPt)
+      surface.svg_restrict_to_version(SvgVersion1_2)
+      surface.svg_set_document_unit(SvgUnitPt)
     }
-    _ => @cairoon.check_status(@cairoon.InvalidStatus)
+    _ => @cairoon.check_status(InvalidStatus)
   }
 }
 
@@ -184,10 +163,7 @@ fn render_stream_appendix_rubric_scene(
       @cairoon.PDF_OUTLINE_ROOT,
       "appendix index",
       "page=1 pos=[16 28]",
-      @cairoon.PDFOutlineFlagSet::combine([
-        @cairoon.PdfOutlineOpen,
-        @cairoon.PdfOutlineBold,
-      ]),
+      @cairoon.PDFOutlineFlagSet::combine([PdfOutlineOpen, PdfOutlineBold]),
     )
   }
   ctx.set_source_rgb(0.95, 0.94, 0.88)
@@ -217,7 +193,7 @@ fn render_stream_appendix_rubric_scene(
       index_id,
       "appendix code",
       "page=2 pos=[18 48]",
-      @cairoon.PDFOutlineFlagSet::of(@cairoon.PdfOutlineItalic),
+      @cairoon.PDFOutlineFlagSet::of(PdfOutlineItalic),
     )
   } else {
     resize_stream_appendix_rubric_surface(kind, surface, 142.0, 116.0)
@@ -247,7 +223,7 @@ fn render_stream_appendix_rubric_scene(
       code_id,
       "appendix bibliography",
       "page=3 pos=[18 40]",
-      @cairoon.PDFOutlineFlagSet::of(@cairoon.PdfOutlineBold),
+      @cairoon.PDFOutlineFlagSet::of(PdfOutlineBold),
     )
   } else {
     resize_stream_appendix_rubric_surface(kind, surface, 150.0, 96.0)

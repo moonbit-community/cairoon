@@ -7,32 +7,23 @@ fn make_vector_oracle_stream_surface(
     0 => {
       let surface = @cairoon.Surface::pdf_stream(10.0, 10.0, fn(chunk) {
         chunks.push(chunk)
-        @cairoon.Success
+        Success
       })
-      surface.pdf_restrict_to_version(@cairoon.PdfVersion1_4)
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataCreator,
-        "cairoon-vector-oracle",
-      )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataCreateDate,
-        fixed_pdf_metadata_date(),
-      )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataModDate,
-        fixed_pdf_metadata_date(),
-      )
+      surface.pdf_restrict_to_version(PdfVersion1_4)
+      surface.pdf_set_metadata(PdfMetadataCreator, "cairoon-vector-oracle")
+      surface.pdf_set_metadata(PdfMetadataCreateDate, fixed_pdf_metadata_date())
+      surface.pdf_set_metadata(PdfMetadataModDate, fixed_pdf_metadata_date())
       surface
     }
     1 =>
       @cairoon.Surface::ps_stream(10.0, 10.0, fn(chunk) {
         chunks.push(chunk)
-        @cairoon.Success
+        Success
       })
     2 =>
       @cairoon.Surface::svg_stream(10.0, 10.0, fn(chunk) {
         chunks.push(chunk)
-        @cairoon.Success
+        Success
       })
     _ => vector_backend_invalid_surface()
   }
@@ -179,7 +170,7 @@ fn render_backend_oracle_stream_scene(
       let surface = make_stream_tag_attribute_stream_surface(kind, chunks)
       render_stream_tag_attribute_scene(surface)
     }
-    _ => @cairoon.check_status(@cairoon.InvalidStatus)
+    _ => @cairoon.check_status(InvalidStatus)
   }
 }
 
@@ -336,12 +327,12 @@ test "single-backend document feature streams match direct cairo C oracle after 
     let chunks : Array[Bytes] = []
     let surface = @cairoon.Surface::pdf_stream(100.0, 100.0, fn(chunk) {
       chunks.push(chunk)
-      @cairoon.Success
+      Success
     })
     match scene {
       21 => ignore(render_pdf_text_document_feature_surface(surface))
       34 => ignore(render_pdf_page_operation_document_feature_surface(surface))
-      _ => @cairoon.check_status(@cairoon.InvalidStatus)
+      _ => @cairoon.check_status(InvalidStatus)
     }
     inspect(chunks.length() > 0, content="true")
 
@@ -370,7 +361,7 @@ test "pdf mime and thumbnail streams match direct cairo C oracle after normaliza
   let jpeg_chunks : Array[Bytes] = []
   let jpeg_surface = @cairoon.Surface::pdf_stream(3.0, 3.0, fn(chunk) {
     jpeg_chunks.push(chunk)
-    @cairoon.Success
+    Success
   })
   render_pdf_jpeg_mime_surface(jpeg_surface, jpeg)
   inspect(jpeg_chunks.length() > 0, content="true")
@@ -394,7 +385,7 @@ test "pdf mime and thumbnail streams match direct cairo C oracle after normaliza
   let thumbnail_chunks : Array[Bytes] = []
   let thumbnail_surface = @cairoon.Surface::pdf_stream(20.0, 20.0, fn(chunk) {
     thumbnail_chunks.push(chunk)
-    @cairoon.Success
+    Success
   })
   render_pdf_thumbnail_surface(thumbnail_surface)
   inspect(thumbnail_chunks.length() > 0, content="true")

@@ -34,15 +34,11 @@ fn chunks_contain_marker(chunks : Array[Bytes], marker : String) -> Bool {
 
 ///|
 fn paint_unicode_text_surface(text : String) -> @cairoon.Surface raise {
-  let surface = @cairoon.Surface::image(@cairoon.Argb32, 300, 300)
+  let surface = @cairoon.Surface::image(Argb32, 300, 300)
   let ctx = @cairoon.Context::new(surface)
   ctx.scale(300.0, 300.0)
   ctx.set_line_width(0.04)
-  ctx.select_font_face(
-    "Sans",
-    slant=@cairoon.FontSlantNormal,
-    weight=@cairoon.FontWeightNormal,
-  )
+  ctx.select_font_face("Sans", slant=FontSlantNormal, weight=FontWeightNormal)
   ctx.set_font_size(0.20)
   ctx.set_source_rgba(1.0, 0.0, 0.0, 1.0)
   ctx.move_to(0.05, 0.5)
@@ -58,7 +54,7 @@ fn make_pdf_context_with_local_surface(
 ) -> @cairoon.Context raise {
   let surface = @cairoon.Surface::pdf_stream(1.0, 1.0, fn(chunk) {
     chunks.push(chunk)
-    @cairoon.Success
+    Success
   })
   @cairoon.Context::new(surface)
 }
@@ -69,7 +65,7 @@ fn make_ps_context_with_local_surface(
 ) -> @cairoon.Context raise {
   let surface = @cairoon.Surface::ps_stream(1.0, 1.0, fn(chunk) {
     chunks.push(chunk)
-    @cairoon.Success
+    Success
   })
   @cairoon.Context::new(surface)
 }
@@ -80,7 +76,7 @@ fn make_pdf_pattern_with_local_surface(
 ) -> @cairoon.Pattern raise {
   let surface = @cairoon.Surface::pdf_stream(1.0, 1.0, fn(chunk) {
     chunks.push(chunk)
-    @cairoon.Success
+    Success
   })
   @cairoon.Pattern::for_surface(surface)
 }
@@ -98,7 +94,7 @@ fn expect_pycairo_surface_file_obj_error(
 ) -> Unit raise {
   let result = @cairoon.run_cairo(() => surface.finish())
   match result {
-    Err(@cairoon.CairoIOError(@cairoon.WriteError, _)) => ()
+    Err(CairoIOError(WriteError, _)) => ()
     _ => @test.fail("expected WriteError from failing stream writer")
   }
 }
@@ -112,7 +108,7 @@ test "pycairo unicode show_text smoke fixture" {
 ///|
 test "pycairo unicode png filename roundtrip fixture" {
   let path = "/tmp/cairoon_pycairo_unicode_ēxāmple.png"
-  let surface = @cairoon.Surface::image(@cairoon.Argb32, 10, 10)
+  let surface = @cairoon.Surface::image(Argb32, 10, 10)
   let ctx = @cairoon.Context::new(surface)
   ctx.set_source_rgba(0.0, 0.25, 1.0, 1.0)
   ctx.paint()
@@ -152,37 +148,37 @@ test "pycairo surface destroy before surface pattern fixture" {
 ///|
 test "pycairo surface file object error fixture" {
   expect_pycairo_surface_file_obj_error(
-    @cairoon.Surface::pdf_stream(100.0, 100.0, fn(_) { @cairoon.WriteError }),
+    @cairoon.Surface::pdf_stream(100.0, 100.0, fn(_) { WriteError }),
   )
   expect_pycairo_surface_file_obj_error(
-    @cairoon.Surface::ps_stream(100.0, 100.0, fn(_) { @cairoon.WriteError }),
+    @cairoon.Surface::ps_stream(100.0, 100.0, fn(_) { WriteError }),
   )
 }
 
 ///|
 test "pycairo surface has_show_text_glyphs fixture" {
-  let surface = @cairoon.Surface::image(@cairoon.Argb32, 100, 100)
+  let surface = @cairoon.Surface::image(Argb32, 100, 100)
   inspect(surface.has_show_text_glyphs(), content="false")
   surface.finish()
   match @cairoon.run_cairo(() => surface.has_show_text_glyphs()) {
-    Err(@cairoon.CairoError(@cairoon.SurfaceFinished, _)) => ()
+    Err(CairoError(SurfaceFinished, _)) => ()
     _ => @test.fail("expected SurfaceFinished")
   }
 }
 
 ///|
 test "pycairo context paint smoke fixture" {
-  let surface = @cairoon.Surface::image(@cairoon.Argb32, 100, 100)
+  let surface = @cairoon.Surface::image(Argb32, 100, 100)
   let ctx = @cairoon.Context::new(surface)
   ctx.set_source_rgb(1.0, 1.0, 1.0)
-  ctx.set_operator(@cairoon.OperatorSource)
+  ctx.set_operator(OperatorSource)
   ctx.paint()
   inspect(bytes_all_value(surface.copy_data(), 255), content="true")
 }
 
 ///|
 test "pycairo surface constructor smoke fixture" {
-  let image = @cairoon.Surface::image(@cairoon.Argb32, 100, 100)
+  let image = @cairoon.Surface::image(Argb32, 100, 100)
   debug_inspect(image.get_type(), content="SurfaceTypeImage")
   debug_inspect(image.get_format(), content="Argb32")
   inspect(image.get_width(), content="100")
@@ -191,7 +187,7 @@ test "pycairo surface constructor smoke fixture" {
   let pdf_chunks : Array[Bytes] = []
   let pdf = @cairoon.Surface::pdf_stream(100.0, 100.0, fn(chunk) {
     pdf_chunks.push(chunk)
-    @cairoon.Success
+    Success
   })
   debug_inspect(pdf.get_type(), content="SurfaceTypePdf")
   pdf.finish()
@@ -201,21 +197,18 @@ test "pycairo surface constructor smoke fixture" {
   let ps_chunks : Array[Bytes] = []
   let ps = @cairoon.Surface::ps_stream(100.0, 100.0, fn(chunk) {
     ps_chunks.push(chunk)
-    @cairoon.Success
+    Success
   })
   debug_inspect(ps.get_type(), content="SurfaceTypePs")
   ps.finish()
   inspect(chunks_contain_marker(ps_chunks, "%!PS-Adobe-3.0"), content="true")
   inspect(chunks_contain_marker(ps_chunks, "%%EOF"), content="true")
 
-  let unbounded = @cairoon.Surface::recording(@cairoon.ContentColor)
+  let unbounded = @cairoon.Surface::recording(ContentColor)
   debug_inspect(unbounded.get_type(), content="SurfaceTypeRecording")
   inspect(unbounded.recording_get_extents() is None, content="true")
   let bounds = @cairoon.Rectangle::new(1.0, 1.0, 10.0, 10.0)
-  let bounded = @cairoon.Surface::recording(
-    @cairoon.ContentColor,
-    extents=Some(bounds),
-  )
+  let bounded = @cairoon.Surface::recording(ContentColor, extents=Some(bounds))
   match bounded.recording_get_extents() {
     Some(rect) => debug_inspect(rect.components(), content="(1, 1, 10, 10)")
     None => @test.fail("expected recording surface extents")
@@ -224,7 +217,7 @@ test "pycairo surface constructor smoke fixture" {
   let svg_chunks : Array[Bytes] = []
   let svg = @cairoon.Surface::svg_stream(100.0, 100.0, fn(chunk) {
     svg_chunks.push(chunk)
-    @cairoon.Success
+    Success
   })
   debug_inspect(svg.get_type(), content="SurfaceTypeSvg")
   svg.finish()
@@ -233,14 +226,11 @@ test "pycairo surface constructor smoke fixture" {
 
 ///|
 test "pycairo recording surface get_extents fixture" {
-  let unbounded = @cairoon.Surface::recording(@cairoon.ContentColor)
+  let unbounded = @cairoon.Surface::recording(ContentColor)
   inspect(unbounded.recording_get_extents() is None, content="true")
 
   let bounds = @cairoon.Rectangle::new(1.0, 2.0, 3.0, 4.0)
-  let bounded = @cairoon.Surface::recording(
-    @cairoon.ContentColor,
-    extents=Some(bounds),
-  )
+  let bounded = @cairoon.Surface::recording(ContentColor, extents=Some(bounds))
   match bounded.recording_get_extents() {
     Some(rect) => debug_inspect(rect.components(), content="(1, 2, 3, 4)")
     None => @test.fail("expected recording surface extents")

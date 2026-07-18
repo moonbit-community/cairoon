@@ -37,7 +37,7 @@ fn bytes_slice(bytes : Bytes, offset : Int, length : Int) -> Bytes {
 
 ///|
 fn make_png_surface() -> @cairoon.Surface raise @cairoon.CairoError {
-  let surface = @cairoon.Surface::image(@cairoon.Argb32, 2, 2)
+  let surface = @cairoon.Surface::image(Argb32, 2, 2)
   let ctx = @cairoon.Context::new(surface)
   ctx.set_source_rgb(1.0, 0.0, 0.0)
   ctx.paint()
@@ -50,7 +50,7 @@ fn make_png_bytes() -> Bytes raise @cairoon.CairoError {
   let surface = make_png_surface()
   surface.write_to_png_stream(fn(chunk) {
     chunks.push(chunk)
-    @cairoon.Success
+    Success
   })
   chunks_to_bytes(chunks)
 }
@@ -99,25 +99,25 @@ fn make_vector_stream_surface_with_close_flag(
     0 =>
       @cairoon.Surface::pdf_stream(10.0, 10.0, fn(_) {
         if closed.val {
-          @cairoon.WriteError
+          WriteError
         } else {
-          @cairoon.Success
+          Success
         }
       })
     1 =>
       @cairoon.Surface::ps_stream(10.0, 10.0, fn(_) {
         if closed.val {
-          @cairoon.WriteError
+          WriteError
         } else {
-          @cairoon.Success
+          Success
         }
       })
     _ =>
       @cairoon.Surface::svg_stream(10.0, 10.0, fn(_) {
         if closed.val {
-          @cairoon.WriteError
+          WriteError
         } else {
-          @cairoon.Success
+          Success
         }
       })
   }
@@ -133,7 +133,7 @@ fn expect_vector_stream_write_error(
     paint_stream_surface(surface)
   })
   match result {
-    Err(@cairoon.CairoIOError(@cairoon.WriteError, _)) => ()
+    Err(CairoIOError(WriteError, _)) => ()
     _ => @test.fail("expected WriteError from vector stream writer")
   }
 }
@@ -145,19 +145,19 @@ fn expect_vector_stream_closed_before_finish_error(kind : Int) -> Unit raise {
   closed.val = true
   let result = @cairoon.run_cairo(() => paint_stream_surface(surface))
   match result {
-    Err(@cairoon.CairoIOError(@cairoon.WriteError, _)) => ()
+    Err(CairoIOError(WriteError, _)) => ()
     _ => @test.fail("expected WriteError from closed vector stream writer")
   }
 }
 
 ///|
 fn expect_png_stream_write_error(status : @cairoon.Status) -> Unit raise {
-  let surface = @cairoon.Surface::image(@cairoon.Argb32, 2, 2)
+  let surface = @cairoon.Surface::image(Argb32, 2, 2)
   let result = @cairoon.run_cairo(() => {
     surface.write_to_png_stream(fn(_) { status })
   })
   match result {
-    Err(@cairoon.CairoIOError(@cairoon.WriteError, _)) => ()
+    Err(CairoIOError(WriteError, _)) => ()
     _ => @test.fail("expected WriteError from PNG stream writer")
   }
 }

@@ -22,17 +22,17 @@ fn make_stream_link_audit_stream_surface(
     0 =>
       @cairoon.Surface::pdf_stream(118.0, 92.0, fn(chunk) {
         chunks.push(chunk)
-        @cairoon.Success
+        Success
       })
     1 =>
       @cairoon.Surface::ps_stream(118.0, 92.0, fn(chunk) {
         chunks.push(chunk)
-        @cairoon.Success
+        Success
       })
     2 =>
       @cairoon.Surface::svg_stream(118.0, 92.0, fn(chunk) {
         chunks.push(chunk)
-        @cairoon.Success
+        Success
       })
     _ => vector_backend_invalid_surface()
   }
@@ -47,25 +47,13 @@ fn configure_stream_link_audit_backend(
 ) -> Unit raise @cairoon.CairoError {
   match kind {
     0 => {
-      surface.pdf_restrict_to_version(@cairoon.PdfVersion1_4)
-      surface.pdf_set_metadata(@cairoon.PdfMetadataTitle, "Cairoon Link Audit")
-      surface.pdf_set_metadata(@cairoon.PdfMetadataAuthor, "cairoon link audit")
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataKeywords,
-        "link,audit,destination",
-      )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataCreator,
-        "cairoon link audit",
-      )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataCreateDate,
-        fixed_pdf_metadata_date(),
-      )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataModDate,
-        fixed_pdf_metadata_date(),
-      )
+      surface.pdf_restrict_to_version(PdfVersion1_4)
+      surface.pdf_set_metadata(PdfMetadataTitle, "Cairoon Link Audit")
+      surface.pdf_set_metadata(PdfMetadataAuthor, "cairoon link audit")
+      surface.pdf_set_metadata(PdfMetadataKeywords, "link,audit,destination")
+      surface.pdf_set_metadata(PdfMetadataCreator, "cairoon link audit")
+      surface.pdf_set_metadata(PdfMetadataCreateDate, fixed_pdf_metadata_date())
+      surface.pdf_set_metadata(PdfMetadataModDate, fixed_pdf_metadata_date())
       set_pdf_custom_metadata_if_supported(
         surface,
         "AuditID",
@@ -73,7 +61,7 @@ fn configure_stream_link_audit_backend(
       )
     }
     1 => {
-      surface.ps_restrict_to_level(@cairoon.PsLevel3)
+      surface.ps_restrict_to_level(PsLevel3)
       surface.ps_dsc_begin_setup()
       surface.ps_dsc_comment("%%Title: Cairoon Link Audit")
       surface.ps_dsc_comment("%%IncludeFeature: *MediaType LinkAudit")
@@ -81,10 +69,10 @@ fn configure_stream_link_audit_backend(
       surface.ps_dsc_comment("%%IncludeFeature: *PageSize LinkAudit")
     }
     2 => {
-      surface.svg_restrict_to_version(@cairoon.SvgVersion1_2)
-      surface.svg_set_document_unit(@cairoon.SvgUnitPx)
+      surface.svg_restrict_to_version(SvgVersion1_2)
+      surface.svg_set_document_unit(SvgUnitPx)
     }
-    _ => @cairoon.check_status(@cairoon.InvalidStatus)
+    _ => @cairoon.check_status(InvalidStatus)
   }
 }
 
@@ -146,10 +134,7 @@ fn render_stream_link_audit_scene(
       @cairoon.PDF_OUTLINE_ROOT,
       "link audit index",
       "page=1 pos=[16 28]",
-      @cairoon.PDFOutlineFlagSet::combine([
-        @cairoon.PdfOutlineOpen,
-        @cairoon.PdfOutlineBold,
-      ]),
+      @cairoon.PDFOutlineFlagSet::combine([PdfOutlineOpen, PdfOutlineBold]),
     )
   }
   ctx.set_source_rgb(0.94, 0.96, 0.90)
@@ -175,7 +160,7 @@ fn render_stream_link_audit_scene(
       root_id,
       "link audit detail",
       "page=2 pos=[18 68]",
-      @cairoon.PDFOutlineFlagSet::of(@cairoon.PdfOutlineItalic),
+      @cairoon.PDFOutlineFlagSet::of(PdfOutlineItalic),
     )
   } else {
     resize_stream_link_audit_surface(kind, surface, 142.0, 108.0)

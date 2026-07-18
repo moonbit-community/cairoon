@@ -22,17 +22,17 @@ fn make_stream_tag_metadata_stream_surface(
     0 =>
       @cairoon.Surface::pdf_stream(120.0, 96.0, fn(chunk) {
         chunks.push(chunk)
-        @cairoon.Success
+        Success
       })
     1 =>
       @cairoon.Surface::ps_stream(120.0, 96.0, fn(chunk) {
         chunks.push(chunk)
-        @cairoon.Success
+        Success
       })
     2 =>
       @cairoon.Surface::svg_stream(120.0, 96.0, fn(chunk) {
         chunks.push(chunk)
-        @cairoon.Success
+        Success
       })
     _ => vector_backend_invalid_surface()
   }
@@ -47,27 +47,15 @@ fn configure_stream_tag_metadata_backend(
 ) -> Unit raise @cairoon.CairoError {
   match kind {
     0 => {
-      surface.pdf_restrict_to_version(@cairoon.PdfVersion1_4)
+      surface.pdf_restrict_to_version(PdfVersion1_4)
+      surface.pdf_set_metadata(PdfMetadataTitle, "Cairoon Tag Metadata Matrix")
       surface.pdf_set_metadata(
-        @cairoon.PdfMetadataTitle,
-        "Cairoon Tag Metadata Matrix",
-      )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataSubject,
+        PdfMetadataSubject,
         "tag metadata page transitions",
       )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataCreator,
-        "cairoon tag metadata",
-      )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataCreateDate,
-        fixed_pdf_metadata_date(),
-      )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataModDate,
-        fixed_pdf_metadata_date(),
-      )
+      surface.pdf_set_metadata(PdfMetadataCreator, "cairoon tag metadata")
+      surface.pdf_set_metadata(PdfMetadataCreateDate, fixed_pdf_metadata_date())
+      surface.pdf_set_metadata(PdfMetadataModDate, fixed_pdf_metadata_date())
       set_pdf_custom_metadata_if_supported(
         surface,
         "TagMeta",
@@ -77,7 +65,7 @@ fn configure_stream_tag_metadata_backend(
       set_pdf_custom_metadata_if_supported(surface, "Scratch", None)
     }
     1 => {
-      surface.ps_restrict_to_level(@cairoon.PsLevel3)
+      surface.ps_restrict_to_level(PsLevel3)
       surface.ps_set_eps(false)
       surface.ps_dsc_begin_setup()
       surface.ps_dsc_comment("%%Title: Cairoon Tag Metadata Matrix")
@@ -86,10 +74,10 @@ fn configure_stream_tag_metadata_backend(
       surface.ps_dsc_comment("%%IncludeFeature: *PageSize TagMeta")
     }
     2 => {
-      surface.svg_restrict_to_version(@cairoon.SvgVersion1_2)
-      surface.svg_set_document_unit(@cairoon.SvgUnitPt)
+      surface.svg_restrict_to_version(SvgVersion1_2)
+      surface.svg_set_document_unit(SvgUnitPt)
     }
-    _ => @cairoon.check_status(@cairoon.InvalidStatus)
+    _ => @cairoon.check_status(InvalidStatus)
   }
 }
 
@@ -124,10 +112,7 @@ fn render_stream_tag_metadata_scene(
       @cairoon.PDF_OUTLINE_ROOT,
       "tag metadata cover",
       "page=1 pos=[12 24]",
-      @cairoon.PDFOutlineFlagSet::combine([
-        @cairoon.PdfOutlineOpen,
-        @cairoon.PdfOutlineBold,
-      ]),
+      @cairoon.PDFOutlineFlagSet::combine([PdfOutlineOpen, PdfOutlineBold]),
     )
   }
   ctx.set_source_rgb(0.93, 0.95, 0.99)
@@ -155,7 +140,7 @@ fn render_stream_tag_metadata_scene(
       root_id,
       "tag metadata overlay",
       "page=2 pos=[18 78]",
-      @cairoon.PDFOutlineFlagSet::of(@cairoon.PdfOutlineItalic),
+      @cairoon.PDFOutlineFlagSet::of(PdfOutlineItalic),
     )
   } else {
     resize_stream_tag_metadata_surface(kind, surface, 140.0, 96.0)
@@ -186,7 +171,7 @@ fn render_stream_tag_metadata_scene(
       overlay_id,
       "tag metadata final",
       "page=3 pos=[14 88]",
-      @cairoon.PDFOutlineFlagSet::of(@cairoon.PdfOutlineOpen),
+      @cairoon.PDFOutlineFlagSet::of(PdfOutlineOpen),
     )
   } else {
     resize_stream_tag_metadata_surface(kind, surface, 100.0, 120.0)

@@ -67,7 +67,7 @@ fn draw_image_oracle_scene(
 
 ///|
 fn render_image_oracle_scene(scene : Int) -> Bytes raise @cairoon.CairoError {
-  let surface = @cairoon.Surface::image(@cairoon.Argb32, 16, 16)
+  let surface = @cairoon.Surface::image(Argb32, 16, 16)
   let ctx = @cairoon.Context::new(surface)
   draw_image_oracle_scene(ctx, scene)
   surface.copy_data()
@@ -79,11 +79,11 @@ fn render_buffered_image_oracle_scene(
 ) -> (Bytes, Bytes) raise @cairoon.CairoError {
   let width = 16
   let height = 16
-  let stride = @cairoon.Format::stride_for_width(@cairoon.Argb32, width)
+  let stride = @cairoon.Format::stride_for_width(Argb32, width)
   let backing : FixedArray[Byte] = FixedArray::make(stride * height, b'\x00')
   let surface = @cairoon.Surface::image_for_data(
     backing,
-    @cairoon.Argb32,
+    Argb32,
     width,
     height,
     stride~,

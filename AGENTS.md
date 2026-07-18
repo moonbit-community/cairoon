@@ -1040,6 +1040,10 @@ What does not transfer directly:
 
 MoonBit reliability requirements and remaining work:
 
+- `moon check --target native --deny-warn --warn-list +73` must pass from a
+  clean build. `scripts/verify.sh` must run that exact command, and
+  `scripts/check-reliability-ledger.py` must reject a downgrade that omits the
+  unnecessary-annotation check.
 - ASan/LSan runs for every C stub path.
 - Stress tests that force MoonBit GC/finalizers while Cairo objects reference
   each other.
@@ -1157,7 +1161,8 @@ All finalizers must be exercised by tests that allocate and release at least
 
 A migrated API is done only when:
 
-- Public MoonBit wrappers compile with `moon check --target native --deny-warn`.
+- Public MoonBit wrappers compile with
+  `moon check --target native --deny-warn --warn-list +73`.
 - Tests pass with `moon test --target native --deny-warn`.
 - `scripts/verify.sh` treats MoonBit compiler warnings as release blockers for
   native check, support-package tests, extracted black-box/oracle tests, full

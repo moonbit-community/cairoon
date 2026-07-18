@@ -12,16 +12,10 @@ fn stream_equivalence_extension(kind : Int) -> String {
 fn configure_stream_equivalence_pdf_surface(
   surface : @cairoon.Surface,
 ) -> Unit raise @cairoon.CairoError {
-  surface.pdf_restrict_to_version(@cairoon.PdfVersion1_4)
+  surface.pdf_restrict_to_version(PdfVersion1_4)
   if @cairoon.CAIRO_VERSION >= 11706 {
-    surface.pdf_set_metadata(
-      @cairoon.PdfMetadataCreateDate,
-      fixed_pdf_metadata_date(),
-    )
-    surface.pdf_set_metadata(
-      @cairoon.PdfMetadataModDate,
-      fixed_pdf_metadata_date(),
-    )
+    surface.pdf_set_metadata(PdfMetadataCreateDate, fixed_pdf_metadata_date())
+    surface.pdf_set_metadata(PdfMetadataModDate, fixed_pdf_metadata_date())
   }
 }
 
@@ -39,8 +33,8 @@ fn make_stream_equivalence_file_surface(
     1 => @cairoon.Surface::ps(12.0, 12.0, path=Some(path))
     2 => {
       let surface = @cairoon.Surface::svg(12.0, 12.0, path=Some(path))
-      surface.svg_restrict_to_version(@cairoon.SvgVersion1_2)
-      surface.svg_set_document_unit(@cairoon.SvgUnitPx)
+      surface.svg_restrict_to_version(SvgVersion1_2)
+      surface.svg_set_document_unit(SvgUnitPx)
       surface
     }
     _ => vector_backend_invalid_surface()
@@ -56,7 +50,7 @@ fn make_stream_equivalence_stream_surface(
     0 => {
       let surface = @cairoon.Surface::pdf_stream(12.0, 12.0, fn(chunk) {
         chunks.push(chunk)
-        @cairoon.Success
+        Success
       })
       configure_stream_equivalence_pdf_surface(surface)
       surface
@@ -64,15 +58,15 @@ fn make_stream_equivalence_stream_surface(
     1 =>
       @cairoon.Surface::ps_stream(12.0, 12.0, fn(chunk) {
         chunks.push(chunk)
-        @cairoon.Success
+        Success
       })
     2 => {
       let surface = @cairoon.Surface::svg_stream(12.0, 12.0, fn(chunk) {
         chunks.push(chunk)
-        @cairoon.Success
+        Success
       })
-      surface.svg_restrict_to_version(@cairoon.SvgVersion1_2)
-      surface.svg_set_document_unit(@cairoon.SvgUnitPx)
+      surface.svg_restrict_to_version(SvgVersion1_2)
+      surface.svg_set_document_unit(SvgUnitPx)
       surface
     }
     _ => vector_backend_invalid_surface()
@@ -101,17 +95,17 @@ fn make_stream_document_feature_stream_surface(
     0 =>
       @cairoon.Surface::pdf_stream(100.0, 100.0, fn(chunk) {
         chunks.push(chunk)
-        @cairoon.Success
+        Success
       })
     1 =>
       @cairoon.Surface::ps_stream(12.0, 12.0, fn(chunk) {
         chunks.push(chunk)
-        @cairoon.Success
+        Success
       })
     2 =>
       @cairoon.Surface::svg_stream(12.0, 12.0, fn(chunk) {
         chunks.push(chunk)
-        @cairoon.Success
+        Success
       })
     _ => vector_backend_invalid_surface()
   }
@@ -256,7 +250,7 @@ fn render_stream_document_feature_scene(
     0 => render_pdf_document_feature_surface(surface)
     1 => render_ps_dsc_multipage_surface(surface)
     2 => render_svg_unit_multipage_surface(surface)
-    _ => @cairoon.check_status(@cairoon.InvalidStatus)
+    _ => @cairoon.check_status(InvalidStatus)
   }
 }
 

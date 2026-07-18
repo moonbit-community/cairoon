@@ -1,6 +1,6 @@
 ///|
 fn context_path_surface() -> @cairoon.Surface raise @cairoon.CairoError {
-  @cairoon.Surface::image(@cairoon.Argb32, 20, 20)
+  @cairoon.Surface::image(Argb32, 20, 20)
 }
 
 ///|
@@ -161,7 +161,7 @@ test "context path copy and append propagate cairo error" {
   })
   inspect(copy_result is Err(_), content="true")
   match copy_result {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidMatrix, _)) => ()
+    Err(CairoInvalidArgument(InvalidMatrix, _)) => ()
     _ => @test.fail("expected InvalidMatrix")
   }
 
@@ -171,14 +171,14 @@ test "context path copy and append propagate cairo error" {
   })
   inspect(flat_result is Err(_), content="true")
   match flat_result {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidMatrix, _)) => ()
+    Err(CairoInvalidArgument(InvalidMatrix, _)) => ()
     _ => @test.fail("expected InvalidMatrix")
   }
 
   let append_result = @cairoon.run_cairo(() => ctx.append_path(path))
   inspect(append_result is Err(_), content="true")
   match append_result {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidMatrix, _)) => ()
+    Err(CairoInvalidArgument(InvalidMatrix, _)) => ()
     _ => @test.fail("expected InvalidMatrix")
   }
 }
@@ -190,7 +190,7 @@ test "context relative path operations without current point map cairo error" {
     rel_move_ctx.rel_move_to(1.0, 1.0)
   })
   match rel_move_result {
-    Err(@cairoon.CairoError(@cairoon.NoCurrentPoint, _)) => ()
+    Err(CairoError(NoCurrentPoint, _)) => ()
     _ => @test.fail("expected NoCurrentPoint from rel_move_to")
   }
 
@@ -199,7 +199,7 @@ test "context relative path operations without current point map cairo error" {
     rel_line_ctx.rel_line_to(1.0, 1.0)
   })
   match rel_line_result {
-    Err(@cairoon.CairoError(@cairoon.NoCurrentPoint, _)) => ()
+    Err(CairoError(NoCurrentPoint, _)) => ()
     _ => @test.fail("expected NoCurrentPoint from rel_line_to")
   }
 
@@ -208,7 +208,7 @@ test "context relative path operations without current point map cairo error" {
     rel_curve_ctx.rel_curve_to(1.0, 1.0, 2.0, 2.0, 3.0, 3.0)
   })
   match rel_curve_result {
-    Err(@cairoon.CairoError(@cairoon.NoCurrentPoint, _)) => ()
+    Err(CairoError(NoCurrentPoint, _)) => ()
     _ => @test.fail("expected NoCurrentPoint from rel_curve_to")
   }
 }
@@ -224,7 +224,7 @@ test "context path getters propagate cairo error" {
   let current_point_result = @cairoon.run_cairo(() => ctx.get_current_point())
   inspect(current_point_result is Err(_), content="true")
   match current_point_result {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidMatrix, _)) => ()
+    Err(CairoInvalidArgument(InvalidMatrix, _)) => ()
     _ => @test.fail("expected InvalidMatrix")
   }
 
@@ -233,7 +233,7 @@ test "context path getters propagate cairo error" {
   })
   inspect(has_current_point_result is Err(_), content="true")
   match has_current_point_result {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidMatrix, _)) => ()
+    Err(CairoInvalidArgument(InvalidMatrix, _)) => ()
     _ => @test.fail("expected InvalidMatrix")
   }
 }

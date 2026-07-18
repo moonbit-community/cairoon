@@ -20,13 +20,13 @@ test "backend stream callback multi-seed fuzz covers status and reader edges" {
         )
         total_chunks.val += chunks
         total_bytes.val += bytes
-        if status == @cairoon.Success {
+        if status == Success {
           expect_lifetime_stream_fuzz_success(result, chunks, bytes)
           write_successes.val += 1
         } else {
           expect_lifetime_stream_fuzz_write_error(result, chunks)
           write_failures.val += 1
-          if status == @cairoon.LastStatus {
+          if status == LastStatus {
             invalid_status_failures.val += 1
           }
         }
@@ -34,13 +34,13 @@ test "backend stream callback multi-seed fuzz covers status and reader edges" {
         let (result, chunks, bytes) = lifetime_stream_fuzz_png_writer(status)
         total_chunks.val += chunks
         total_bytes.val += bytes
-        if status == @cairoon.Success {
+        if status == Success {
           expect_lifetime_stream_fuzz_success(result, chunks, bytes)
           write_successes.val += 1
         } else {
           expect_lifetime_stream_fuzz_write_error(result, chunks)
           write_failures.val += 1
-          if status == @cairoon.LastStatus {
+          if status == LastStatus {
             invalid_status_failures.val += 1
           }
         }
@@ -48,13 +48,13 @@ test "backend stream callback multi-seed fuzz covers status and reader edges" {
         let (result, chunks, bytes) = lifetime_stream_fuzz_script_writer(status)
         total_chunks.val += chunks
         total_bytes.val += bytes
-        if status == @cairoon.Success {
+        if status == Success {
           expect_lifetime_stream_fuzz_success(result, chunks, bytes)
           write_successes.val += 1
         } else {
           expect_lifetime_stream_fuzz_write_error(result, chunks)
           write_failures.val += 1
-          if status == @cairoon.LastStatus {
+          if status == LastStatus {
             invalid_status_failures.val += 1
           }
         }

@@ -22,17 +22,17 @@ fn make_stream_lifecycle_stream_surface(
     0 =>
       @cairoon.Surface::pdf_stream(150.0, 110.0, fn(chunk) {
         chunks.push(chunk)
-        @cairoon.Success
+        Success
       })
     1 =>
       @cairoon.Surface::ps_stream(150.0, 110.0, fn(chunk) {
         chunks.push(chunk)
-        @cairoon.Success
+        Success
       })
     2 =>
       @cairoon.Surface::svg_stream(150.0, 110.0, fn(chunk) {
         chunks.push(chunk)
-        @cairoon.Success
+        Success
       })
     _ => vector_backend_invalid_surface()
   }
@@ -47,35 +47,14 @@ fn configure_stream_lifecycle_backend(
 ) -> Unit raise @cairoon.CairoError {
   match kind {
     0 => {
-      surface.pdf_restrict_to_version(@cairoon.PdfVersion1_4)
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataTitle,
-        "Cairoon Lifecycle Matrix",
-      )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataAuthor,
-        "cairoon lifecycle author",
-      )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataSubject,
-        "page lifecycle matrix",
-      )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataKeywords,
-        "lifecycle,copy,show,tags",
-      )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataCreator,
-        "cairoon lifecycle matrix",
-      )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataCreateDate,
-        fixed_pdf_metadata_date(),
-      )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataModDate,
-        fixed_pdf_metadata_date(),
-      )
+      surface.pdf_restrict_to_version(PdfVersion1_4)
+      surface.pdf_set_metadata(PdfMetadataTitle, "Cairoon Lifecycle Matrix")
+      surface.pdf_set_metadata(PdfMetadataAuthor, "cairoon lifecycle author")
+      surface.pdf_set_metadata(PdfMetadataSubject, "page lifecycle matrix")
+      surface.pdf_set_metadata(PdfMetadataKeywords, "lifecycle,copy,show,tags")
+      surface.pdf_set_metadata(PdfMetadataCreator, "cairoon lifecycle matrix")
+      surface.pdf_set_metadata(PdfMetadataCreateDate, fixed_pdf_metadata_date())
+      surface.pdf_set_metadata(PdfMetadataModDate, fixed_pdf_metadata_date())
       set_pdf_custom_metadata_if_supported(
         surface,
         "Lifecycle",
@@ -87,7 +66,7 @@ fn configure_stream_lifecycle_backend(
       set_pdf_custom_metadata_if_supported(surface, "Scratch", None)
     }
     1 => {
-      surface.ps_restrict_to_level(@cairoon.PsLevel2)
+      surface.ps_restrict_to_level(PsLevel2)
       surface.ps_set_eps(false)
       surface.ps_dsc_begin_setup()
       surface.ps_dsc_comment("%%Title: Cairoon Lifecycle Matrix")
@@ -96,10 +75,10 @@ fn configure_stream_lifecycle_backend(
       surface.ps_dsc_comment("%%IncludeFeature: *PageSize Lifecycle")
     }
     2 => {
-      surface.svg_restrict_to_version(@cairoon.SvgVersion1_2)
-      surface.svg_set_document_unit(@cairoon.SvgUnitMm)
+      surface.svg_restrict_to_version(SvgVersion1_2)
+      surface.svg_set_document_unit(SvgUnitMm)
     }
-    _ => @cairoon.check_status(@cairoon.InvalidStatus)
+    _ => @cairoon.check_status(InvalidStatus)
   }
 }
 
@@ -136,10 +115,7 @@ fn render_stream_lifecycle_scene(
       @cairoon.PDF_OUTLINE_ROOT,
       "life cover",
       "page=1 pos=[16 24]",
-      @cairoon.PDFOutlineFlagSet::combine([
-        @cairoon.PdfOutlineOpen,
-        @cairoon.PdfOutlineBold,
-      ]),
+      @cairoon.PDFOutlineFlagSet::combine([PdfOutlineOpen, PdfOutlineBold]),
     )
   }
   ctx.set_source_rgb(0.91, 0.96, 0.98)
@@ -171,7 +147,7 @@ fn render_stream_lifecycle_scene(
       root_id,
       "life retained copy",
       "page=2 pos=[18 76]",
-      @cairoon.PDFOutlineFlagSet::of(@cairoon.PdfOutlineItalic),
+      @cairoon.PDFOutlineFlagSet::of(PdfOutlineItalic),
     )
   } else {
     resize_stream_lifecycle_surface(kind, surface, 150.0, 110.0)
@@ -193,10 +169,7 @@ fn render_stream_lifecycle_scene(
       retained_id,
       "life retained second",
       "page=3 pos=[18 82]",
-      @cairoon.PDFOutlineFlagSet::combine([
-        @cairoon.PdfOutlineOpen,
-        @cairoon.PdfOutlineItalic,
-      ]),
+      @cairoon.PDFOutlineFlagSet::combine([PdfOutlineOpen, PdfOutlineItalic]),
     )
   } else {
     resize_stream_lifecycle_surface(kind, surface, 96.0, 150.0)
@@ -228,7 +201,7 @@ fn render_stream_lifecycle_scene(
       @cairoon.PDF_OUTLINE_ROOT,
       "life fresh root",
       "page=4 pos=[12 38]",
-      @cairoon.PDFOutlineFlagSet::of(@cairoon.PdfOutlineBold),
+      @cairoon.PDFOutlineFlagSet::of(PdfOutlineBold),
     )
   } else {
     resize_stream_lifecycle_surface(kind, surface, 120.0, 120.0)
@@ -268,10 +241,7 @@ fn render_stream_lifecycle_scene(
       fresh_id,
       "life final child",
       "page=5 pos=[10 44]",
-      @cairoon.PDFOutlineFlagSet::combine([
-        @cairoon.PdfOutlineOpen,
-        @cairoon.PdfOutlineBold,
-      ]),
+      @cairoon.PDFOutlineFlagSet::combine([PdfOutlineOpen, PdfOutlineBold]),
     )
   } else {
     resize_stream_lifecycle_surface(kind, surface, 80.0, 140.0)

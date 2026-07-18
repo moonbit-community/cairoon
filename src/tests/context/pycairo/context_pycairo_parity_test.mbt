@@ -3,7 +3,7 @@ fn pycairo_context_surface(
   width : Int,
   height : Int,
 ) -> @cairoon.Surface raise @cairoon.CairoError {
-  @cairoon.Surface::image(@cairoon.Argb32, width, height)
+  @cairoon.Surface::image(Argb32, width, height)
 }
 
 ///|
@@ -98,7 +98,7 @@ fn pycairo_context_colored_argb32_source() -> @cairoon.Surface raise @cairoon.Ca
   data[13] = b'\xFF'
   data[14] = b'\xFF'
   data[15] = b'\xFF'
-  @cairoon.Surface::image_for_data(data, @cairoon.Argb32, 2, 2)
+  @cairoon.Surface::image_for_data(data, Argb32, 2, 2)
 }
 
 ///|
@@ -117,7 +117,7 @@ fn expect_pycairo_context_invalid_pop_group(
 ) -> Unit raise {
   inspect(result is Err(_), content="true")
   match result {
-    Err(@cairoon.CairoError(@cairoon.InvalidPopGroup, _)) => ()
+    Err(CairoError(InvalidPopGroup, _)) => ()
     _ => @test.fail("expected InvalidPopGroup")
   }
 }

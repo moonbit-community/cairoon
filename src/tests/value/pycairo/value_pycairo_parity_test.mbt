@@ -4,7 +4,7 @@ fn expect_value_invalid_index(
 ) -> Unit raise {
   inspect(result is Err(_), content="true")
   match result {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidIndex, _)) => ()
+    Err(CairoInvalidArgument(InvalidIndex, _)) => ()
     _ => @test.fail("expected InvalidIndex")
   }
 }
@@ -35,9 +35,7 @@ test "pycairo rectangle tuple-like fixture" {
 
 ///|
 test "pycairo rectangle producing APIs return rectangle values" {
-  let ctx = @cairoon.Context::new(
-    @cairoon.Surface::image(@cairoon.Argb32, 10, 10),
-  )
+  let ctx = @cairoon.Context::new(@cairoon.Surface::image(Argb32, 10, 10))
   ctx.line_to(0.0, 5.0)
   ctx.line_to(5.0, 5.0)
   ctx.line_to(5.0, 0.0)
@@ -51,7 +49,7 @@ test "pycairo rectangle producing APIs return rectangle values" {
   inspect(rectangles[0].height, content="5")
 
   let recording = @cairoon.Surface::recording(
-    @cairoon.ContentColor,
+    ContentColor,
     extents=Some(@cairoon.Rectangle::new(1.0, 1.0, 10.0, 10.0)),
   )
   let extents = recording.recording_get_extents()
@@ -147,9 +145,7 @@ test "pycairo text extents tuple-like fixture" {
     }),
   )
 
-  let ctx = @cairoon.Context::new(
-    @cairoon.Surface::image(@cairoon.Argb32, 10, 10),
-  )
+  let ctx = @cairoon.Context::new(@cairoon.Surface::image(Argb32, 10, 10))
   inspect(ctx.text_extents("foo").width > 0.0, content="true")
   let scaled = ctx.get_scaled_font()
   inspect(scaled.text_extents("foo").width > 0.0, content="true")
@@ -182,9 +178,7 @@ test "pycairo font extents value fixture" {
   inspect(extents.max_y_advance, content="5")
   debug_inspect(extents.components(), content="(1, 2, 3, 4, 5)")
 
-  let ctx = @cairoon.Context::new(
-    @cairoon.Surface::image(@cairoon.Argb32, 10, 10),
-  )
+  let ctx = @cairoon.Context::new(@cairoon.Surface::image(Argb32, 10, 10))
   inspect(ctx.font_extents().height > 0.0, content="true")
   inspect(ctx.get_scaled_font().extents().height > 0.0, content="true")
 }

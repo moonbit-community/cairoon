@@ -19,7 +19,7 @@ test "png path and stream writers produce identical bytes" {
   let chunks : Array[Bytes] = []
   surface.write_to_png_stream(fn(chunk) {
     chunks.push(chunk)
-    @cairoon.Success
+    Success
   })
   inspect(path_bytes == chunks_to_bytes(chunks), content="true")
 
@@ -41,7 +41,7 @@ test "png path and stream writers produce identical bytes" {
 
 ///|
 test "png stream writer status maps to cairo IO error" {
-  expect_png_stream_write_error(@cairoon.WriteError)
+  expect_png_stream_write_error(WriteError)
 }
 
 ///|
@@ -51,11 +51,11 @@ test "png stream writer stops user callbacks after first error" {
   let result = @cairoon.run_cairo(() => {
     surface.write_to_png_stream(fn(_) {
       calls.val += 1
-      @cairoon.WriteError
+      WriteError
     })
   })
   match result {
-    Err(@cairoon.CairoIOError(@cairoon.WriteError, _)) => ()
+    Err(CairoIOError(WriteError, _)) => ()
     _ => @test.fail("expected WriteError from PNG stream writer")
   }
   inspect(calls.val, content="1")
@@ -63,7 +63,7 @@ test "png stream writer stops user callbacks after first error" {
 
 ///|
 test "png stream writer invalid status maps to write error" {
-  expect_png_stream_write_error(@cairoon.LastStatus)
+  expect_png_stream_write_error(LastStatus)
 }
 
 ///|
@@ -78,7 +78,7 @@ test "png stream reader creates image surface" {
   inspect(surface.get_width(), content="2")
   inspect(surface.get_height(), content="2")
   let format = surface.get_format()
-  inspect(format == @cairoon.Argb32 || format == @cairoon.Rgb24, content="true")
+  inspect(format == Argb32 || format == Rgb24, content="true")
   inspect(surface.copy_data() == make_png_surface().copy_data(), content="true")
   inspect(offset.val == input.length(), content="true")
 }
@@ -99,8 +99,7 @@ test "png stream reader short read maps to cairo IO error" {
     ()
   })
   match result {
-    Err(@cairoon.CairoIOError(@cairoon.ReadError, _))
-    | Err(@cairoon.CairoIOError(@cairoon.PngError, _)) => ()
+    Err(CairoIOError(ReadError, _)) | Err(CairoIOError(PngError, _)) => ()
     _ => @test.fail("expected read failure from PNG stream reader")
   }
 }
@@ -130,7 +129,7 @@ test "png stream reader maps corrupt image data to PngError" {
   })
   if @cairoon.CAIRO_VERSION >= 11600 {
     match result {
-      Err(@cairoon.CairoIOError(@cairoon.PngError, _)) => ()
+      Err(CairoIOError(PngError, _)) => ()
       _ => @test.fail("expected PngError for a corrupt IHDR checksum")
     }
   } else {

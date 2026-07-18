@@ -4,7 +4,7 @@ fn expect_ps_surface_type_mismatch(
 ) -> Unit raise {
   inspect(result is Err(_), content="true")
   match result {
-    Err(@cairoon.CairoError(@cairoon.SurfaceTypeMismatch, _)) => ()
+    Err(CairoError(SurfaceTypeMismatch, _)) => ()
     _ => @test.fail("expected SurfaceTypeMismatch")
   }
 }
@@ -15,7 +15,7 @@ fn expect_ps_surface_finished(
 ) -> Unit raise {
   inspect(result is Err(_), content="true")
   match result {
-    Err(@cairoon.CairoError(@cairoon.SurfaceFinished, _)) => ()
+    Err(CairoError(SurfaceFinished, _)) => ()
     _ => @test.fail("expected SurfaceFinished")
   }
 }
@@ -34,7 +34,7 @@ fn ps_dsc_comment_with_byte_length(length : Int) -> String {
 fn expect_invalid_ps_dsc_comment(comment : String) -> Unit raise {
   let surface = @cairoon.Surface::ps(10.0, 10.0)
   match @cairoon.run_cairo(() => surface.ps_dsc_comment(comment)) {
-    Err(@cairoon.CairoError(@cairoon.InvalidDscComment, _)) => ()
+    Err(CairoError(InvalidDscComment, _)) => ()
     _ => @test.fail("expected InvalidDscComment")
   }
 }
@@ -65,14 +65,14 @@ fn ps_bytes_find(haystack : Bytes, needle : Bytes) -> Int {
 ///|
 test "ps level helpers expose cairo-supported levels" {
   let levels = @cairoon.PSLevel::supported()
-  let level : @cairoon.PSLevel = @cairoon.PsLevel3
+  let level : @cairoon.PSLevel = PsLevel3
   inspect(levels.length() > 0, content="true")
   inspect(levels.any(item => item == level), content="true")
   inspect(level.to_string().contains("PS"), content="true")
   inspect(@cairoon.PSLevel::to_string_raw(0).contains("PS"), content="true")
   for invalid in [-1, 99] {
     match @cairoon.run_cairo(() => @cairoon.PSLevel::to_string_raw(invalid)) {
-      Err(@cairoon.CairoError(@cairoon.InvalidStatus, _)) => ()
+      Err(CairoError(InvalidStatus, _)) => ()
       _ => @test.fail("expected InvalidStatus for invalid raw PS level")
     }
   }
@@ -106,7 +106,7 @@ test "ps surface no-output constructor exposes eps size dsc and level APIs" {
   inspect(surface.ps_get_eps(), content="false")
   surface.ps_set_eps(true)
   inspect(surface.ps_get_eps(), content="true")
-  surface.ps_restrict_to_level(@cairoon.PsLevel2)
+  surface.ps_restrict_to_level(PsLevel2)
   surface.ps_set_size(12.0, 14.0)
   surface.ps_dsc_comment("%%Title: Cairoon PS")
   surface.ps_dsc_begin_setup()
@@ -125,7 +125,7 @@ test "ps surface no-output constructor exposes eps size dsc and level APIs" {
     @cairoon.run_cairo(() => surface.ps_set_eps(false)),
   )
   expect_ps_surface_finished(
-    @cairoon.run_cairo(() => surface.ps_restrict_to_level(@cairoon.PsLevel3)),
+    @cairoon.run_cairo(() => surface.ps_restrict_to_level(PsLevel3)),
   )
   expect_ps_surface_finished(
     @cairoon.run_cairo(() => surface.ps_set_size(1.0, 1.0)),
@@ -190,7 +190,7 @@ test "ps surface validates dsc comments and path strings" {
     @cairoon.run_cairo(() => {
       invalid_comment_string.ps_dsc_comment("%%Title: bad\u{0}comment")
     }) {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidString, _)) => ()
+    Err(CairoInvalidArgument(InvalidString, _)) => ()
     _ => @test.fail("expected InvalidString for PS DSC comment")
   }
 
@@ -200,7 +200,7 @@ test "ps surface validates dsc comments and path strings" {
     ()
   })
   match invalid {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidString, _)) => ()
+    Err(CairoInvalidArgument(InvalidString, _)) => ()
     _ => @test.fail("expected InvalidString for PS path")
   }
 }
@@ -228,7 +228,7 @@ test "ps surface filename constructor renders and finishes" {
 
 ///|
 test "ps surface methods reject other surface types" {
-  let image = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let image = @cairoon.Surface::image(Argb32, 1, 1)
   expect_ps_surface_type_mismatch(
     @cairoon.run_cairo(() => {
       let _ = image.ps_get_eps()
@@ -239,7 +239,7 @@ test "ps surface methods reject other surface types" {
     @cairoon.run_cairo(() => image.ps_set_eps(true)),
   )
   expect_ps_surface_type_mismatch(
-    @cairoon.run_cairo(() => image.ps_restrict_to_level(@cairoon.PsLevel2)),
+    @cairoon.run_cairo(() => image.ps_restrict_to_level(PsLevel2)),
   )
   expect_ps_surface_type_mismatch(
     @cairoon.run_cairo(() => image.ps_restrict_to_level_raw(0)),
@@ -251,7 +251,7 @@ test "ps surface methods reject other surface types" {
 
 ///|
 test "ps setup and size methods reject other surface types" {
-  let image = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let image = @cairoon.Surface::image(Argb32, 1, 1)
   expect_ps_surface_type_mismatch(
     @cairoon.run_cairo(() => image.ps_set_size(10.0, 10.0)),
   )

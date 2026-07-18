@@ -12,7 +12,7 @@ fn expect_error_payload(
 ///|
 fn expect_memory_error(status : @cairoon.Status) -> Unit raise {
   match @cairoon.run_cairo(() => @cairoon.check_status(status)) {
-    Err(@cairoon.CairoMemoryError(actual_status, actual_message)) =>
+    Err(CairoMemoryError(actual_status, actual_message)) =>
       expect_error_payload(actual_status, actual_message, status)
     _ => @test.fail("expected CairoMemoryError")
   }
@@ -21,7 +21,7 @@ fn expect_memory_error(status : @cairoon.Status) -> Unit raise {
 ///|
 fn expect_io_error(status : @cairoon.Status) -> Unit raise {
   match @cairoon.run_cairo(() => @cairoon.check_status(status)) {
-    Err(@cairoon.CairoIOError(actual_status, actual_message)) =>
+    Err(CairoIOError(actual_status, actual_message)) =>
       expect_error_payload(actual_status, actual_message, status)
     _ => @test.fail("expected CairoIOError")
   }
@@ -30,7 +30,7 @@ fn expect_io_error(status : @cairoon.Status) -> Unit raise {
 ///|
 fn expect_invalid_argument(status : @cairoon.Status) -> Unit raise {
   match @cairoon.run_cairo(() => @cairoon.check_status(status)) {
-    Err(@cairoon.CairoInvalidArgument(actual_status, actual_message)) =>
+    Err(CairoInvalidArgument(actual_status, actual_message)) =>
       expect_error_payload(actual_status, actual_message, status)
     _ => @test.fail("expected CairoInvalidArgument")
   }
@@ -39,7 +39,7 @@ fn expect_invalid_argument(status : @cairoon.Status) -> Unit raise {
 ///|
 fn expect_general_error(status : @cairoon.Status) -> Unit raise {
   match @cairoon.run_cairo(() => @cairoon.check_status(status)) {
-    Err(@cairoon.CairoError(actual_status, actual_message)) =>
+    Err(CairoError(actual_status, actual_message)) =>
       expect_error_payload(actual_status, actual_message, status)
     _ => @test.fail("expected CairoError")
   }
@@ -48,7 +48,7 @@ fn expect_general_error(status : @cairoon.Status) -> Unit raise {
 ///|
 test "run_cairo returns Ok for success" {
   let result = @cairoon.run_cairo(() => {
-    @cairoon.check_status(@cairoon.Success)
+    @cairoon.check_status(Success)
     42
   })
   match result {
@@ -59,65 +59,61 @@ test "run_cairo returns Ok for success" {
 
 ///|
 test "status error mapping classifies every cairo status" {
-  expect_memory_error(@cairoon.NoMemory)
+  expect_memory_error(NoMemory)
 
-  let io_statuses : Array[@cairoon.Status] = [
-    @cairoon.ReadError,
-    @cairoon.WriteError,
-    @cairoon.PngError,
-  ]
+  let io_statuses : Array[@cairoon.Status] = [ReadError, WriteError, PngError]
   for status in io_statuses {
     expect_io_error(status)
   }
 
   let invalid_argument_statuses : Array[@cairoon.Status] = [
-    @cairoon.InvalidFormat,
-    @cairoon.InvalidContent,
-    @cairoon.InvalidMatrix,
-    @cairoon.InvalidString,
-    @cairoon.InvalidDash,
-    @cairoon.InvalidIndex,
-    @cairoon.InvalidStride,
-    @cairoon.InvalidSize,
-    @cairoon.NullPointer,
+    InvalidFormat,
+    InvalidContent,
+    InvalidMatrix,
+    InvalidString,
+    InvalidDash,
+    InvalidIndex,
+    InvalidStride,
+    InvalidSize,
+    NullPointer,
   ]
   for status in invalid_argument_statuses {
     expect_invalid_argument(status)
   }
 
   let general_error_statuses : Array[@cairoon.Status] = [
-    @cairoon.InvalidRestore,
-    @cairoon.InvalidPopGroup,
-    @cairoon.NoCurrentPoint,
-    @cairoon.InvalidStatus,
-    @cairoon.InvalidPathData,
-    @cairoon.SurfaceFinished,
-    @cairoon.SurfaceTypeMismatch,
-    @cairoon.PatternTypeMismatch,
-    @cairoon.InvalidVisual,
-    @cairoon.FileNotFound,
-    @cairoon.InvalidDscComment,
-    @cairoon.ClipNotRepresentable,
-    @cairoon.TempFileError,
-    @cairoon.FontTypeMismatch,
-    @cairoon.UserFontImmutable,
-    @cairoon.UserFontError,
-    @cairoon.NegativeCount,
-    @cairoon.InvalidClusters,
-    @cairoon.InvalidSlant,
-    @cairoon.InvalidWeight,
-    @cairoon.UserFontNotImplemented,
-    @cairoon.DeviceTypeMismatch,
-    @cairoon.DeviceError,
-    @cairoon.InvalidMeshConstruction,
-    @cairoon.DeviceFinished,
-    @cairoon.Jbig2GlobalMissing,
-    @cairoon.FreetypeError,
-    @cairoon.Win32GdiError,
-    @cairoon.TagError,
-    @cairoon.DwriteError,
-    @cairoon.SvgFontError,
-    @cairoon.LastStatus,
+    InvalidRestore,
+    InvalidPopGroup,
+    NoCurrentPoint,
+    InvalidStatus,
+    InvalidPathData,
+    SurfaceFinished,
+    SurfaceTypeMismatch,
+    PatternTypeMismatch,
+    InvalidVisual,
+    FileNotFound,
+    InvalidDscComment,
+    ClipNotRepresentable,
+    TempFileError,
+    FontTypeMismatch,
+    UserFontImmutable,
+    UserFontError,
+    NegativeCount,
+    InvalidClusters,
+    InvalidSlant,
+    InvalidWeight,
+    UserFontNotImplemented,
+    DeviceTypeMismatch,
+    DeviceError,
+    InvalidMeshConstruction,
+    DeviceFinished,
+    Jbig2GlobalMissing,
+    FreetypeError,
+    Win32GdiError,
+    TagError,
+    DwriteError,
+    SvgFontError,
+    LastStatus,
   ]
   for status in general_error_statuses {
     expect_general_error(status)

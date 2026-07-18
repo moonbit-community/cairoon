@@ -4,7 +4,7 @@ fn expect_glyph_invalid_matrix(
 ) -> Unit raise {
   inspect(result is Err(_), content="true")
   match result {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidMatrix, _)) => ()
+    Err(CairoInvalidArgument(InvalidMatrix, _)) => ()
     _ => @test.fail("expected InvalidMatrix")
   }
 }
@@ -21,9 +21,7 @@ fn has_nonzero_byte(bytes : Bytes) -> Bool {
 
 ///|
 test "context and scaled font glyph_extents match" {
-  let ctx = @cairoon.Context::new(
-    @cairoon.Surface::image(@cairoon.Argb32, 32, 32),
-  )
+  let ctx = @cairoon.Context::new(@cairoon.Surface::image(Argb32, 32, 32))
   ctx.select_font_face("serif")
   ctx.set_font_size(12.0)
   let glyphs = [@cairoon.Glyph::new(0UL, 2.0, 12.0)]
@@ -41,7 +39,7 @@ test "context and scaled font glyph_extents match" {
 
 ///|
 test "context show_glyphs renders without changing the path" {
-  let surface = @cairoon.Surface::image(@cairoon.Argb32, 32, 32)
+  let surface = @cairoon.Surface::image(Argb32, 32, 32)
   let ctx = @cairoon.Context::new(surface)
   ctx.select_font_face("serif")
   ctx.set_font_size(12.0)
@@ -59,7 +57,7 @@ test "context show_glyphs renders without changing the path" {
 
 ///|
 test "context glyph_path creates fillable glyph path" {
-  let surface = @cairoon.Surface::image(@cairoon.Argb32, 48, 24)
+  let surface = @cairoon.Surface::image(Argb32, 48, 24)
   let ctx = @cairoon.Context::new(surface)
   ctx.select_font_face("serif")
   ctx.set_font_size(16.0)
@@ -75,9 +73,7 @@ test "context glyph_path creates fillable glyph path" {
 
 ///|
 test "empty glyph arrays are accepted" {
-  let ctx = @cairoon.Context::new(
-    @cairoon.Surface::image(@cairoon.Argb32, 8, 8),
-  )
+  let ctx = @cairoon.Context::new(@cairoon.Surface::image(Argb32, 8, 8))
   ctx.show_glyphs([])
   ctx.glyph_path([])
   inspect(ctx.copy_path().length(), content="0")
@@ -88,9 +84,7 @@ test "empty glyph arrays are accepted" {
 
 ///|
 test "context glyph methods propagate existing context errors" {
-  let ctx = @cairoon.Context::new(
-    @cairoon.Surface::image(@cairoon.Argb32, 8, 8),
-  )
+  let ctx = @cairoon.Context::new(@cairoon.Surface::image(Argb32, 8, 8))
   let glyphs = [@cairoon.Glyph::new(0UL, 0.0, 0.0)]
   let invalid_matrix = @cairoon.run_cairo(() => {
     ctx.set_matrix(@cairoon.Matrix::new(xx=0.0, yy=0.0))

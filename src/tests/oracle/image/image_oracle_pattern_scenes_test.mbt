@@ -5,12 +5,12 @@ fn draw_image_oracle_pattern_scene(
 ) -> Unit raise @cairoon.CairoError {
   match scene {
     19 => {
-      let source = @cairoon.Surface::image(@cairoon.Argb32, 2, 2)
+      let source = @cairoon.Surface::image(Argb32, 2, 2)
       paint_image_oracle_quad_surface(source)
       let pattern = @cairoon.Pattern::for_surface(source)
-      pattern.set_extend(@cairoon.Reflect)
-      pattern.set_filter(@cairoon.Nearest)
-      set_image_oracle_dither_if_supported(pattern, @cairoon.DitherBest)
+      pattern.set_extend(Reflect)
+      pattern.set_filter(Nearest)
+      set_image_oracle_dither_if_supported(pattern, DitherBest)
       pattern.set_matrix(
         @cairoon.Matrix::new(xx=0.75, yx=0.2, xy=-0.25, yy=0.8, x0=-1.0, y0=0.5),
       )
@@ -25,9 +25,9 @@ fn draw_image_oracle_pattern_scene(
       pattern.add_color_stop_rgba(0.0, 1.0, 0.0, 0.0, 1.0)
       pattern.add_color_stop_rgba(0.5, 0.0, 1.0, 0.0, 0.75)
       pattern.add_color_stop_rgba(1.0, 0.0, 0.0, 1.0, 1.0)
-      pattern.set_extend(@cairoon.Repeat)
-      pattern.set_filter(@cairoon.Nearest)
-      set_image_oracle_dither_if_supported(pattern, @cairoon.DitherFast)
+      pattern.set_extend(Repeat)
+      pattern.set_filter(Nearest)
+      set_image_oracle_dither_if_supported(pattern, DitherFast)
       pattern.set_matrix(
         @cairoon.Matrix::new(xx=0.6, yx=0.1, xy=-0.2, yy=0.9, x0=-2.0, y0=1.0),
       )
@@ -56,7 +56,7 @@ fn draw_image_oracle_pattern_scene(
     22 => {
       ctx.set_source_rgb(0.0, 0.0, 0.25)
       ctx.paint()
-      ctx.push_group_with_content(@cairoon.ContentColorAlpha)
+      ctx.push_group_with_content(ContentColorAlpha)
       ctx.set_source_rgba(1.0, 0.0, 0.0, 0.8)
       ctx.rectangle(2.0, 2.0, 11.0, 10.0)
       ctx.fill()
@@ -81,7 +81,7 @@ fn draw_image_oracle_pattern_scene(
     24 => {
       ctx.set_source_rgb(0.0, 0.0, 0.25)
       ctx.paint()
-      ctx.set_fill_rule(@cairoon.FillEvenOdd)
+      ctx.set_fill_rule(FillEvenOdd)
       ctx.rectangle(2.0, 2.0, 12.0, 12.0)
       ctx.rectangle(5.0, 5.0, 6.0, 6.0)
       ctx.set_source_rgba(0.0, 0.85, 0.25, 0.9)
@@ -92,9 +92,9 @@ fn draw_image_oracle_pattern_scene(
       pattern.add_color_stop_rgba(0.0, 1.0, 0.0, 0.0, 1.0)
       pattern.add_color_stop_rgba(0.4, 0.0, 1.0, 0.0, 0.65)
       pattern.add_color_stop_rgba(1.0, 0.0, 0.0, 1.0, 0.9)
-      pattern.set_extend(@cairoon.Reflect)
-      pattern.set_filter(@cairoon.Nearest)
-      set_image_oracle_dither_if_supported(pattern, @cairoon.DitherGood)
+      pattern.set_extend(Reflect)
+      pattern.set_filter(Nearest)
+      set_image_oracle_dither_if_supported(pattern, DitherGood)
       pattern.set_matrix(
         @cairoon.Matrix::new(
           xx=0.8,
@@ -112,12 +112,12 @@ fn draw_image_oracle_pattern_scene(
       ctx.fill()
     }
     26 => {
-      let source = @cairoon.Surface::image(@cairoon.Argb32, 2, 2)
+      let source = @cairoon.Surface::image(Argb32, 2, 2)
       paint_image_oracle_quad_surface(source)
       let pattern = @cairoon.Pattern::for_surface(source)
-      pattern.set_extend(@cairoon.Pad)
-      pattern.set_filter(@cairoon.Bilinear)
-      set_image_oracle_dither_if_supported(pattern, @cairoon.DitherDefault)
+      pattern.set_extend(Pad)
+      pattern.set_filter(Bilinear)
+      set_image_oracle_dither_if_supported(pattern, DitherDefault)
       pattern.set_matrix(
         @cairoon.Matrix::new(
           xx=0.55,
@@ -135,12 +135,12 @@ fn draw_image_oracle_pattern_scene(
       ctx.fill()
     }
     27 => {
-      let source = @cairoon.Surface::image(@cairoon.Argb32, 2, 2)
+      let source = @cairoon.Surface::image(Argb32, 2, 2)
       paint_image_oracle_quad_surface(source)
       let pattern = @cairoon.Pattern::for_surface(source)
-      pattern.set_extend(@cairoon.ExtendNone)
-      pattern.set_filter(@cairoon.Nearest)
-      set_image_oracle_dither_if_supported(pattern, @cairoon.DitherNone)
+      pattern.set_extend(ExtendNone)
+      pattern.set_filter(Nearest)
+      set_image_oracle_dither_if_supported(pattern, DitherNone)
       pattern.set_matrix(
         @cairoon.Matrix::new(
           xx=0.45,
@@ -163,9 +163,9 @@ fn draw_image_oracle_pattern_scene(
       pattern.add_color_stop_rgba(0.30, 0.20, 0.85, 0.25, 0.80)
       pattern.add_color_stop_rgba(0.75, 0.10, 0.20, 0.95, 0.65)
       pattern.add_color_stop_rgba(1.0, 0.98, 0.92, 0.25, 1.0)
-      pattern.set_extend(@cairoon.Pad)
-      pattern.set_filter(@cairoon.Bilinear)
-      set_image_oracle_dither_if_supported(pattern, @cairoon.DitherBest)
+      pattern.set_extend(Pad)
+      pattern.set_filter(Bilinear)
+      set_image_oracle_dither_if_supported(pattern, DitherBest)
       pattern.set_matrix(
         @cairoon.Matrix::new(
           xx=0.70,
@@ -188,9 +188,9 @@ fn draw_image_oracle_pattern_scene(
       pattern.add_color_stop_rgba(0.35, 0.15, 0.85, 0.25, 0.70)
       pattern.add_color_stop_rgba(0.70, 0.10, 0.25, 0.95, 0.65)
       pattern.add_color_stop_rgba(1.0, 0.95, 0.95, 0.95, 0.90)
-      pattern.set_extend(@cairoon.Repeat)
-      pattern.set_filter(@cairoon.Bilinear)
-      set_image_oracle_dither_if_supported(pattern, @cairoon.DitherFast)
+      pattern.set_extend(Repeat)
+      pattern.set_filter(Bilinear)
+      set_image_oracle_dither_if_supported(pattern, DitherFast)
       pattern.set_matrix(
         @cairoon.Matrix::new(
           xx=0.65,
@@ -208,12 +208,12 @@ fn draw_image_oracle_pattern_scene(
       ctx.fill()
     }
     30 => {
-      let source = @cairoon.Surface::image(@cairoon.Argb32, 2, 2)
+      let source = @cairoon.Surface::image(Argb32, 2, 2)
       paint_image_oracle_quad_surface(source)
       let pattern = @cairoon.Pattern::for_surface(source)
-      pattern.set_extend(@cairoon.Repeat)
-      pattern.set_filter(@cairoon.Bilinear)
-      set_image_oracle_dither_if_supported(pattern, @cairoon.DitherGood)
+      pattern.set_extend(Repeat)
+      pattern.set_filter(Bilinear)
+      set_image_oracle_dither_if_supported(pattern, DitherGood)
       pattern.set_matrix(
         @cairoon.Matrix::new(
           xx=0.70,
@@ -236,9 +236,9 @@ fn draw_image_oracle_pattern_scene(
       pattern.add_color_stop_rgba(0.45, 0.10, 0.90, 0.80, 0.60)
       pattern.add_color_stop_rgba(0.45, 0.95, 0.90, 0.20, 0.80)
       pattern.add_color_stop_rgba(1.0, 0.95, 0.10, 0.65, 0.95)
-      pattern.set_extend(@cairoon.ExtendNone)
-      pattern.set_filter(@cairoon.Good)
-      set_image_oracle_dither_if_supported(pattern, @cairoon.DitherNone)
+      pattern.set_extend(ExtendNone)
+      pattern.set_filter(Good)
+      set_image_oracle_dither_if_supported(pattern, DitherNone)
       pattern.set_matrix(
         @cairoon.Matrix::new(
           xx=0.85,
@@ -261,9 +261,9 @@ fn draw_image_oracle_pattern_scene(
       pattern.add_color_stop_rgba(0.25, 0.95, 0.30, 0.10, 0.75)
       pattern.add_color_stop_rgba(0.80, 0.10, 0.20, 0.95, 0.65)
       pattern.add_color_stop_rgba(1.0, 0.02, 0.03, 0.08, 1.0)
-      pattern.set_extend(@cairoon.Pad)
-      pattern.set_filter(@cairoon.Good)
-      set_image_oracle_dither_if_supported(pattern, @cairoon.DitherDefault)
+      pattern.set_extend(Pad)
+      pattern.set_filter(Good)
+      set_image_oracle_dither_if_supported(pattern, DitherDefault)
       pattern.set_matrix(
         @cairoon.Matrix::new(
           xx=0.78,
@@ -320,6 +320,6 @@ fn draw_image_oracle_pattern_scene(
       ctx.set_source(pattern)
       ctx.fill()
     }
-    _ => @cairoon.check_status(@cairoon.InvalidStatus)
+    _ => @cairoon.check_status(InvalidStatus)
   }
 }

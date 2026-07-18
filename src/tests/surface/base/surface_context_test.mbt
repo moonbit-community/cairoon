@@ -4,7 +4,7 @@ fn expect_surface_invalid_size(
 ) -> Unit raise {
   inspect(result is Err(_), content="true")
   match result {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidSize, _)) => ()
+    Err(CairoInvalidArgument(InvalidSize, _)) => ()
     _ => @test.fail("expected InvalidSize")
   }
 }
@@ -15,7 +15,7 @@ fn[T] expect_surface_finished(
 ) -> Unit raise {
   inspect(result is Err(_), content="true")
   match result {
-    Err(@cairoon.CairoError(@cairoon.SurfaceFinished, _)) => ()
+    Err(CairoError(SurfaceFinished, _)) => ()
     _ => @test.fail("expected SurfaceFinished")
   }
 }
@@ -26,27 +26,27 @@ fn[T] expect_surface_invalid_format(
 ) -> Unit raise {
   inspect(result is Err(_), content="true")
   match result {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidFormat, _)) => ()
+    Err(CairoInvalidArgument(InvalidFormat, _)) => ()
     _ => @test.fail("expected InvalidFormat")
   }
 }
 
 ///|
 test "surface equality and hash use cairo pointer identity" {
-  let surface = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let surface = @cairoon.Surface::image(Argb32, 1, 1)
   let ctx = @cairoon.Context::new(surface)
   let target = ctx.get_target()
   inspect(surface.equal(target), content="true")
   inspect(target.equal(surface), content="true")
   inspect(surface.hash() == target.hash(), content="true")
 
-  let other = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let other = @cairoon.Surface::image(Argb32, 1, 1)
   inspect(surface.equal(other), content="false")
 }
 
 ///|
 test "surface finish records status for base methods" {
-  let surface = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let surface = @cairoon.Surface::image(Argb32, 1, 1)
   debug_inspect(surface.status(), content="Success")
   surface.finish()
   debug_inspect(surface.status(), content="SurfaceFinished")
@@ -60,7 +60,7 @@ test "surface finish records status for base methods" {
 
 ///|
 test "surface with_finished finishes after success and cairo errors" {
-  let surface = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let surface = @cairoon.Surface::image(Argb32, 1, 1)
   let len = surface.with_finished(() => {
     let ctx = @cairoon.Context::new(surface)
     ctx.set_source_rgba(1.0, 0.0, 0.0, 1.0)
@@ -71,11 +71,11 @@ test "surface with_finished finishes after success and cairo errors" {
   debug_inspect(surface.status(), content="SurfaceFinished")
   expect_surface_finished(@cairoon.run_cairo(() => surface.flush()))
 
-  let failed_surface = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let failed_surface = @cairoon.Surface::image(Argb32, 1, 1)
   expect_surface_invalid_size(
     @cairoon.run_cairo(() => {
       failed_surface.with_finished(() => {
-        failed_surface.create_similar(@cairoon.ContentColor, -1, 1)
+        failed_surface.create_similar(ContentColor, -1, 1)
       })
     }),
   )
@@ -84,7 +84,7 @@ test "surface with_finished finishes after success and cairo errors" {
 
 ///|
 test "surface finished status covers capability dirty and state methods" {
-  let surface = @cairoon.Surface::image(@cairoon.Argb32, 2, 2)
+  let surface = @cairoon.Surface::image(Argb32, 2, 2)
   inspect(
     surface.has_show_text_glyphs() || !surface.has_show_text_glyphs(),
     content="true",
@@ -115,12 +115,12 @@ test "surface finished status covers capability dirty and state methods" {
 
 ///|
 test "surface similar constructors and state queries" {
-  let source = @cairoon.Surface::image(@cairoon.Argb32, 2, 2)
-  let similar = source.create_similar(@cairoon.ContentColor, 3, 4)
+  let source = @cairoon.Surface::image(Argb32, 2, 2)
+  let similar = source.create_similar(ContentColor, 3, 4)
   inspect(similar.status().is_success(), content="true")
   debug_inspect(similar.get_content(), content="ContentColor")
 
-  let image = source.create_similar_image(@cairoon.Rgb24, 3, 4)
+  let image = source.create_similar_image(Rgb24, 3, 4)
   inspect(image.status().is_success(), content="true")
   debug_inspect(image.get_type(), content="SurfaceTypeImage")
   debug_inspect(image.get_content(), content="ContentColor")
@@ -136,18 +136,18 @@ test "surface similar constructors and state queries" {
 
 ///|
 test "surface similar constructors validate invalid dimensions" {
-  let source = @cairoon.Surface::image(@cairoon.Argb32, 2, 2)
+  let source = @cairoon.Surface::image(Argb32, 2, 2)
   expect_surface_invalid_size(
-    @cairoon.run_cairo(() => source.create_similar(@cairoon.ContentColor, -1, 1)),
+    @cairoon.run_cairo(() => source.create_similar(ContentColor, -1, 1)),
   )
   expect_surface_invalid_size(
-    @cairoon.run_cairo(() => source.create_similar(@cairoon.ContentColor, 1, -1)),
+    @cairoon.run_cairo(() => source.create_similar(ContentColor, 1, -1)),
   )
   expect_surface_invalid_size(
-    @cairoon.run_cairo(() => source.create_similar_image(@cairoon.Argb32, -1, 1)),
+    @cairoon.run_cairo(() => source.create_similar_image(Argb32, -1, 1)),
   )
   expect_surface_invalid_size(
-    @cairoon.run_cairo(() => source.create_similar_image(@cairoon.Argb32, 1, -1)),
+    @cairoon.run_cairo(() => source.create_similar_image(Argb32, 1, -1)),
   )
   expect_surface_invalid_format(
     @cairoon.run_cairo(() => source.create_similar_image_raw(-1, 1, 1)),
@@ -156,7 +156,7 @@ test "surface similar constructors validate invalid dimensions" {
 
 ///|
 test "surface device state and dirty markers round trip" {
-  let surface = @cairoon.Surface::image(@cairoon.Argb32, 3, 3)
+  let surface = @cairoon.Surface::image(Argb32, 3, 3)
   surface.set_device_offset(1.25, -2.5)
   debug_inspect(surface.get_device_offset(), content="(1.25, -2.5)")
 
@@ -165,7 +165,7 @@ test "surface device state and dirty markers round trip" {
 
   let bad_scale = @cairoon.run_cairo(() => surface.set_device_scale(0.0, 1.0))
   match bad_scale {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidMatrix, _)) => ()
+    Err(CairoInvalidArgument(InvalidMatrix, _)) => ()
     _ => @test.fail("expected InvalidMatrix for zero device scale")
   }
 
@@ -184,7 +184,7 @@ test "surface state and subsurface constructors preserve pycairo numeric limits"
   let max_double = 1.7976931348623157e308
   let min_double = -max_double
   let min_positive = 2.2250738585072014e-308
-  let surface = @cairoon.Surface::image(@cairoon.Argb32, 100, 100)
+  let surface = @cairoon.Surface::image(Argb32, 100, 100)
 
   surface.set_device_offset(max_double, min_double)
   debug_inspect(
@@ -211,7 +211,7 @@ test "surface state and subsurface constructors preserve pycairo numeric limits"
 
 ///|
 test "context paints deterministic argb32 bytes" {
-  let surface = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let surface = @cairoon.Surface::image(Argb32, 1, 1)
   let ctx = @cairoon.Context::new(surface)
   ctx.set_source_rgba(1.0, 0.0, 0.0, 1.0)
   ctx.paint()

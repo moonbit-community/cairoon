@@ -3,7 +3,7 @@ fn expect_pycairo_device_finished(
   result : Result[Unit, @cairoon.CairoError],
 ) -> Unit raise {
   match result {
-    Err(@cairoon.CairoError(@cairoon.DeviceFinished, _)) => ()
+    Err(CairoError(DeviceFinished, _)) => ()
     _ => @test.fail("expected DeviceFinished")
   }
 }
@@ -19,7 +19,7 @@ fn pycairo_device_chunks_to_string(chunks : Array[Bytes]) -> String {
 
 ///|
 test "pycairo device context manager fixture" {
-  let device = @cairoon.Device::script_stream(_chunk => @cairoon.Success)
+  let device = @cairoon.Device::script_stream(_chunk => Success)
   device.with_finished(() => {
     device.acquire()
     device.release()
@@ -29,19 +29,14 @@ test "pycairo device context manager fixture" {
 
 ///|
 test "pycairo device cmp hash fixture" {
-  let device = @cairoon.Device::script_stream(_chunk => @cairoon.Success)
-  let surface = @cairoon.Surface::script(
-    device,
-    @cairoon.ContentColorAlpha,
-    42.0,
-    10.0,
-  )
+  let device = @cairoon.Device::script_stream(_chunk => Success)
+  let surface = @cairoon.Surface::script(device, ContentColorAlpha, 42.0, 10.0)
   match surface.get_device() {
     Some(other) => {
       inspect(device == other, content="true")
       inspect(device != other, content="false")
       inspect(Hash::hash(device) == Hash::hash(other), content="true")
-      let unrelated = @cairoon.Device::script_stream(_chunk => @cairoon.Success)
+      let unrelated = @cairoon.Device::script_stream(_chunk => Success)
       inspect(device != unrelated, content="true")
     }
     None => @test.fail("expected script surface device")
@@ -50,14 +45,14 @@ test "pycairo device cmp hash fixture" {
 
 ///|
 test "pycairo image surface get_device fixture" {
-  let surface = @cairoon.Surface::image(@cairoon.Argb32, 10, 10)
+  let surface = @cairoon.Surface::image(Argb32, 10, 10)
   inspect(surface.get_device() is None, content="true")
 }
 
 ///|
 test "pycairo script feature and device type fixture" {
   inspect(@cairoon.HAS_SCRIPT_SURFACE, content="true")
-  let device = @cairoon.Device::script_stream(_chunk => @cairoon.Success)
+  let device = @cairoon.Device::script_stream(_chunk => Success)
   debug_inspect(device.get_type(), content="DeviceTypeScript")
 }
 
@@ -84,10 +79,10 @@ test "pycairo script device mode and comment fixture" {
   let chunks : Array[Bytes] = []
   let device = @cairoon.Device::script_stream(chunk => {
     chunks.push(chunk)
-    @cairoon.Success
+    Success
   })
   debug_inspect(device.script_get_mode(), content="ScriptModeAscii")
-  device.script_set_mode(@cairoon.ScriptModeBinary)
+  device.script_set_mode(ScriptModeBinary)
   debug_inspect(device.script_get_mode(), content="ScriptModeBinary")
   device.script_write_comment("pycairo foo")
   device.script_write_comment("pycairo bar")
@@ -99,14 +94,14 @@ test "pycairo script device mode and comment fixture" {
 
 ///|
 test "pycairo script device recording replay fixture" {
-  let recording = @cairoon.Surface::recording(@cairoon.ContentColor)
+  let recording = @cairoon.Surface::recording(ContentColor)
   let ctx = @cairoon.Context::new(recording)
   ctx.paint()
 
   let chunks : Array[Bytes] = []
   let device = @cairoon.Device::script_stream(chunk => {
     chunks.push(chunk)
-    @cairoon.Success
+    Success
   })
   device.script_from_recording_surface(recording)
   device.flush()
@@ -126,9 +121,9 @@ test "pycairo script surface create_for_target parity fixture" {
   let chunks : Array[Bytes] = []
   let device = @cairoon.Device::script_stream(chunk => {
     chunks.push(chunk)
-    @cairoon.Success
+    Success
   })
-  let target = @cairoon.Surface::image(@cairoon.Argb32, 2, 2)
+  let target = @cairoon.Surface::image(Argb32, 2, 2)
   let script = @cairoon.Surface::script_for_target(device, target)
   let script_ctx = @cairoon.Context::new(script)
   script_ctx.set_source_rgb(0.25, 0.5, 1.0)
@@ -137,7 +132,7 @@ test "pycairo script surface create_for_target parity fixture" {
   target.flush()
   device.flush()
 
-  let direct = @cairoon.Surface::image(@cairoon.Argb32, 2, 2)
+  let direct = @cairoon.Surface::image(Argb32, 2, 2)
   let direct_ctx = @cairoon.Context::new(direct)
   direct_ctx.set_source_rgb(0.25, 0.5, 1.0)
   direct_ctx.paint()

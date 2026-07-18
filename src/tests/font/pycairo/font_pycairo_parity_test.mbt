@@ -1,6 +1,6 @@
 ///|
 fn pycairo_font_surface() -> @cairoon.Surface raise @cairoon.CairoError {
-  @cairoon.Surface::image(@cairoon.Argb32, 10, 10)
+  @cairoon.Surface::image(Argb32, 10, 10)
 }
 
 ///|
@@ -13,7 +13,7 @@ fn expect_pycairo_font_options_unavailable(
   result : Result[Unit, @cairoon.CairoError],
 ) -> Unit raise {
   match result {
-    Err(@cairoon.CairoError(@cairoon.InvalidStatus, _)) => ()
+    Err(CairoError(InvalidStatus, _)) => ()
     _ => @test.fail("expected font options API to be unavailable")
   }
 }
@@ -54,8 +54,8 @@ test "pycairo surface font options default getters fixture" {
 
 ///|
 test "pycairo font options copy equality and merge fixture" {
-  let options = @cairoon.Surface::image(@cairoon.Rgb24, 1, 1).get_font_options()
-  options.set_hint_metrics(@cairoon.HintMetricsDefault)
+  let options = @cairoon.Surface::image(Rgb24, 1, 1).get_font_options()
+  options.set_hint_metrics(HintMetricsDefault)
   let copied = options.copy()
   inspect(options == copied, content="true")
   inspect(options != copied, content="false")
@@ -63,7 +63,7 @@ test "pycairo font options copy equality and merge fixture" {
   inspect(options.hash() == copied.hash(), content="true")
   debug_inspect(copied.get_hint_metrics(), content="HintMetricsDefault")
 
-  options.set_hint_metrics(@cairoon.HintMetricsOn)
+  options.set_hint_metrics(HintMetricsOn)
   inspect(options == copied, content="false")
   inspect(options != copied, content="true")
   inspect(options.equal(copied), content="false")
@@ -77,16 +77,16 @@ test "pycairo font options copy equality and merge fixture" {
 test "pycairo font options enum setter fixtures" {
   let options = pycairo_font_surface().get_font_options()
 
-  options.set_antialias(@cairoon.AntialiasGray)
+  options.set_antialias(AntialiasGray)
   debug_inspect(options.get_antialias(), content="AntialiasGray")
 
-  options.set_hint_metrics(@cairoon.HintMetricsOff)
+  options.set_hint_metrics(HintMetricsOff)
   debug_inspect(options.get_hint_metrics(), content="HintMetricsOff")
 
-  options.set_hint_style(@cairoon.HintStyleSlight)
+  options.set_hint_style(HintStyleSlight)
   debug_inspect(options.get_hint_style(), content="HintStyleSlight")
 
-  options.set_subpixel_order(@cairoon.SubpixelVrgb)
+  options.set_subpixel_order(SubpixelVrgb)
   debug_inspect(options.get_subpixel_order(), content="SubpixelVrgb")
 }
 
@@ -96,11 +96,11 @@ test "pycairo font options color mode fixture" {
   if @cairoon.CAIRO_VERSION >= 11800 {
     debug_inspect(options.get_color_mode(), content="ColorModeDefault")
 
-    options.set_color_mode(@cairoon.ColorModeColor)
+    options.set_color_mode(ColorModeColor)
     debug_inspect(options.get_color_mode(), content="ColorModeColor")
   } else {
     expect_pycairo_font_options_unavailable(
-      @cairoon.run_cairo(() => options.set_color_mode(@cairoon.ColorModeColor)),
+      @cairoon.run_cairo(() => options.set_color_mode(ColorModeColor)),
     )
   }
 }
@@ -151,7 +151,7 @@ test "pycairo font options custom palette color fixture" {
   })
   if @cairoon.CAIRO_VERSION >= 11800 {
     match missing {
-      Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidIndex, _)) => ()
+      Err(CairoInvalidArgument(InvalidIndex, _)) => ()
       _ => @test.fail("expected InvalidIndex for missing palette color")
     }
 

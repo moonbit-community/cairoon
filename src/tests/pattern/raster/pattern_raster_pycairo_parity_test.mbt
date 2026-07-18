@@ -10,7 +10,7 @@ fn expect_pycairo_raster_red_pixel(surface : @cairoon.Surface) -> Unit raise {
 
 ///|
 test "pycairo raster source callback state fixture" {
-  let pattern = @cairoon.Pattern::raster_source(@cairoon.ContentColor, 2, 2)
+  let pattern = @cairoon.Pattern::raster_source(ContentColor, 2, 2)
   inspect(pattern.status().is_success(), content="true")
   inspect(pattern.raster_get_acquire() is None, content="true")
 
@@ -23,13 +23,13 @@ test "pycairo raster source callback state fixture" {
   inspect(pattern.raster_get_acquire() is None, content="true")
   match release_only_release {
     Some(release) => {
-      release(@cairoon.Surface::image(@cairoon.Argb32, 3, 1))
+      release(@cairoon.Surface::image(Argb32, 3, 1))
       inspect(release_probe.val, content="3")
     }
     None => @test.fail("expected release callback")
   }
 
-  let source = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let source = @cairoon.Surface::image(Argb32, 1, 1)
   let acquire_probe = Ref(0)
   pattern.raster_set_acquire(fn(_, extents) {
     acquire_probe.val = extents.width
@@ -38,7 +38,7 @@ test "pycairo raster source callback state fixture" {
   match pattern.raster_get_acquire() {
     Some((acquire, None)) => {
       let acquired = acquire(
-        @cairoon.Surface::image(@cairoon.Argb32, 1, 1),
+        @cairoon.Surface::image(Argb32, 1, 1),
         @cairoon.RectangleInt::new(width=2, height=2),
       )
       inspect(acquired.get_width(), content="1")
@@ -56,12 +56,12 @@ test "pycairo raster source callback state fixture" {
 ///|
 test "pycairo raster source acquire release paint fixture" {
   let events : Array[String] = []
-  let pattern = @cairoon.Pattern::raster_source(@cairoon.ContentColor, 2, 2)
+  let pattern = @cairoon.Pattern::raster_source(ContentColor, 2, 2)
   pattern.raster_set_acquire(
     fn(target, extents) {
       events.push("acquire")
       let source = try! target.create_similar_image(
-        @cairoon.Argb32,
+        Argb32,
         extents.width,
         extents.height,
       )
@@ -80,7 +80,7 @@ test "pycairo raster source acquire release paint fixture" {
     }),
   )
 
-  let surface = @cairoon.Surface::image(@cairoon.Argb32, 10, 10)
+  let surface = @cairoon.Surface::image(Argb32, 10, 10)
   let ctx = @cairoon.Context::new(surface)
   ctx.set_source(pattern)
   ctx.paint()

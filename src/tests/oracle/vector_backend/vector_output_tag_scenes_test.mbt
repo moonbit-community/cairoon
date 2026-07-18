@@ -317,7 +317,7 @@ fn draw_grouped_glyph_tag_multi_page_scene(
   ctx : @cairoon.Context,
 ) -> Unit raise @cairoon.CairoError {
   ctx.save()
-  ctx.push_group_with_content(@cairoon.ContentColorAlpha)
+  ctx.push_group_with_content(ContentColorAlpha)
   let background = @cairoon.Pattern::linear(0.0, 0.0, 10.0, 0.0)
   background.add_color_stop_rgba(0.0, 1.0, 0.0, 0.0, 1.0)
   background.add_color_stop_rgba(1.0, 0.0, 0.0, 1.0, 1.0)

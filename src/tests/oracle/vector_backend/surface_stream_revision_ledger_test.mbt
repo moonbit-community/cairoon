@@ -22,17 +22,17 @@ fn make_stream_revision_ledger_stream_surface(
     0 =>
       @cairoon.Surface::pdf_stream(124.0, 104.0, fn(chunk) {
         chunks.push(chunk)
-        @cairoon.Success
+        Success
       })
     1 =>
       @cairoon.Surface::ps_stream(124.0, 104.0, fn(chunk) {
         chunks.push(chunk)
-        @cairoon.Success
+        Success
       })
     2 =>
       @cairoon.Surface::svg_stream(124.0, 104.0, fn(chunk) {
         chunks.push(chunk)
-        @cairoon.Success
+        Success
       })
     _ => vector_backend_invalid_surface()
   }
@@ -47,39 +47,15 @@ fn configure_stream_revision_ledger_backend(
 ) -> Unit raise @cairoon.CairoError {
   match kind {
     0 => {
-      surface.pdf_restrict_to_version(@cairoon.PdfVersion1_4)
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataTitle,
-        "Cairoon Revision Ledger",
-      )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataAuthor,
-        "cairoon backend oracle",
-      )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataSubject,
-        "draft revision sequence",
-      )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataSubject,
-        "final revision sequence",
-      )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataKeywords,
-        "revision,ledger,page,tag",
-      )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataCreator,
-        "cairoon revision ledger",
-      )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataCreateDate,
-        fixed_pdf_metadata_date(),
-      )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataModDate,
-        fixed_pdf_metadata_date(),
-      )
+      surface.pdf_restrict_to_version(PdfVersion1_4)
+      surface.pdf_set_metadata(PdfMetadataTitle, "Cairoon Revision Ledger")
+      surface.pdf_set_metadata(PdfMetadataAuthor, "cairoon backend oracle")
+      surface.pdf_set_metadata(PdfMetadataSubject, "draft revision sequence")
+      surface.pdf_set_metadata(PdfMetadataSubject, "final revision sequence")
+      surface.pdf_set_metadata(PdfMetadataKeywords, "revision,ledger,page,tag")
+      surface.pdf_set_metadata(PdfMetadataCreator, "cairoon revision ledger")
+      surface.pdf_set_metadata(PdfMetadataCreateDate, fixed_pdf_metadata_date())
+      surface.pdf_set_metadata(PdfMetadataModDate, fixed_pdf_metadata_date())
       set_pdf_custom_metadata_if_supported(
         surface,
         "RevisionLedger",
@@ -100,7 +76,7 @@ fn configure_stream_revision_ledger_backend(
       set_pdf_custom_metadata_if_supported(surface, "Ephemeral", None)
     }
     1 => {
-      surface.ps_restrict_to_level(@cairoon.PsLevel3)
+      surface.ps_restrict_to_level(PsLevel3)
       surface.ps_set_eps(false)
       surface.ps_dsc_begin_setup()
       surface.ps_dsc_comment("%%Title: Cairoon Revision Ledger")
@@ -109,10 +85,10 @@ fn configure_stream_revision_ledger_backend(
       surface.ps_dsc_comment("%%IncludeFeature: *PageSize RevisionLedger")
     }
     2 => {
-      surface.svg_restrict_to_version(@cairoon.SvgVersion1_2)
-      surface.svg_set_document_unit(@cairoon.SvgUnitPt)
+      surface.svg_restrict_to_version(SvgVersion1_2)
+      surface.svg_set_document_unit(SvgUnitPt)
     }
-    _ => @cairoon.check_status(@cairoon.InvalidStatus)
+    _ => @cairoon.check_status(InvalidStatus)
   }
 }
 
@@ -197,10 +173,7 @@ fn render_stream_revision_ledger_scene(
       @cairoon.PDF_OUTLINE_ROOT,
       "ledger draft",
       "page=1 pos=[12 28]",
-      @cairoon.PDFOutlineFlagSet::combine([
-        @cairoon.PdfOutlineOpen,
-        @cairoon.PdfOutlineBold,
-      ]),
+      @cairoon.PDFOutlineFlagSet::combine([PdfOutlineOpen, PdfOutlineBold]),
     )
   }
   ctx.set_source_rgb(0.96, 0.95, 0.88)
@@ -233,7 +206,7 @@ fn render_stream_revision_ledger_scene(
       root_id,
       "ledger review",
       "page=2 pos=[18 70]",
-      @cairoon.PDFOutlineFlagSet::of(@cairoon.PdfOutlineItalic),
+      @cairoon.PDFOutlineFlagSet::of(PdfOutlineItalic),
     )
   } else {
     resize_stream_revision_ledger_surface(kind, surface, 136.0, 104.0)
@@ -258,10 +231,7 @@ fn render_stream_revision_ledger_scene(
       review_id,
       "ledger final",
       "page=3 pos=[18 104]",
-      @cairoon.PDFOutlineFlagSet::combine([
-        @cairoon.PdfOutlineBold,
-        @cairoon.PdfOutlineItalic,
-      ]),
+      @cairoon.PDFOutlineFlagSet::combine([PdfOutlineBold, PdfOutlineItalic]),
     )
   } else {
     resize_stream_revision_ledger_surface(kind, surface, 118.0, 126.0)

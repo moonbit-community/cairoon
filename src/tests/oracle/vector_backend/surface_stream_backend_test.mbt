@@ -68,7 +68,7 @@ test "pdf text document feature stream output matches file output after normaliz
   let chunks : Array[Bytes] = []
   let stream_surface = @cairoon.Surface::pdf_stream(100.0, 100.0, fn(chunk) {
     chunks.push(chunk)
-    @cairoon.Success
+    Success
   })
   let _ = render_pdf_text_document_feature_surface(stream_surface)
   inspect(chunks.length() > 0, content="true")
@@ -91,7 +91,7 @@ test "pdf page operation document feature stream output matches file output afte
   let chunks : Array[Bytes] = []
   let stream_surface = @cairoon.Surface::pdf_stream(100.0, 100.0, fn(chunk) {
     chunks.push(chunk)
-    @cairoon.Success
+    Success
   })
   let _ = render_pdf_page_operation_document_feature_surface(stream_surface)
   inspect(chunks.length() > 0, content="true")
@@ -114,7 +114,7 @@ test "pdf jpeg mime stream output matches file output" {
   let chunks : Array[Bytes] = []
   let stream_surface = @cairoon.Surface::pdf_stream(3.0, 3.0, fn(chunk) {
     chunks.push(chunk)
-    @cairoon.Success
+    Success
   })
   render_pdf_jpeg_mime_surface(stream_surface, jpeg)
   inspect(chunks.length() > 0, content="true")
@@ -136,7 +136,7 @@ test "pdf thumbnail stream output matches file output" {
   let chunks : Array[Bytes] = []
   let stream_surface = @cairoon.Surface::pdf_stream(20.0, 20.0, fn(chunk) {
     chunks.push(chunk)
-    @cairoon.Success
+    Success
   })
   render_pdf_thumbnail_surface(stream_surface)
   inspect(chunks.length() > 0, content="true")

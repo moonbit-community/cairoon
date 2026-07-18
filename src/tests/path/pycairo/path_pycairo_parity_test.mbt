@@ -1,6 +1,6 @@
 ///|
 fn pycairo_path_context() -> @cairoon.Context raise @cairoon.CairoError {
-  @cairoon.Context::new(@cairoon.Surface::image(@cairoon.Argb32, 42, 42))
+  @cairoon.Context::new(@cairoon.Surface::image(Argb32, 42, 42))
 }
 
 ///|

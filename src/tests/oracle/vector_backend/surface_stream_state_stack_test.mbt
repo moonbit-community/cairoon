@@ -22,17 +22,17 @@ fn make_stream_state_stack_stream_surface(
     0 =>
       @cairoon.Surface::pdf_stream(140.0, 90.0, fn(chunk) {
         chunks.push(chunk)
-        @cairoon.Success
+        Success
       })
     1 =>
       @cairoon.Surface::ps_stream(140.0, 90.0, fn(chunk) {
         chunks.push(chunk)
-        @cairoon.Success
+        Success
       })
     2 =>
       @cairoon.Surface::svg_stream(140.0, 90.0, fn(chunk) {
         chunks.push(chunk)
-        @cairoon.Success
+        Success
       })
     _ => vector_backend_invalid_surface()
   }
@@ -47,24 +47,15 @@ fn configure_stream_state_stack_backend(
 ) -> Unit raise @cairoon.CairoError {
   match kind {
     0 => {
-      surface.pdf_restrict_to_version(@cairoon.PdfVersion1_4)
-      surface.pdf_set_metadata(@cairoon.PdfMetadataTitle, "Cairoon State Stack")
+      surface.pdf_restrict_to_version(PdfVersion1_4)
+      surface.pdf_set_metadata(PdfMetadataTitle, "Cairoon State Stack")
       surface.pdf_set_metadata(
-        @cairoon.PdfMetadataSubject,
+        PdfMetadataSubject,
         "clip group mask state stack",
       )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataCreator,
-        "cairoon state stack",
-      )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataCreateDate,
-        fixed_pdf_metadata_date(),
-      )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataModDate,
-        fixed_pdf_metadata_date(),
-      )
+      surface.pdf_set_metadata(PdfMetadataCreator, "cairoon state stack")
+      surface.pdf_set_metadata(PdfMetadataCreateDate, fixed_pdf_metadata_date())
+      surface.pdf_set_metadata(PdfMetadataModDate, fixed_pdf_metadata_date())
       set_pdf_custom_metadata_if_supported(
         surface,
         "StateStack",
@@ -74,7 +65,7 @@ fn configure_stream_state_stack_backend(
       set_pdf_custom_metadata_if_supported(surface, "Scratch", None)
     }
     1 => {
-      surface.ps_restrict_to_level(@cairoon.PsLevel3)
+      surface.ps_restrict_to_level(PsLevel3)
       surface.ps_set_eps(false)
       surface.ps_dsc_begin_setup()
       surface.ps_dsc_comment("%%Title: Cairoon State Stack")
@@ -83,10 +74,10 @@ fn configure_stream_state_stack_backend(
       surface.ps_dsc_comment("%%IncludeFeature: *PageSize StateStack")
     }
     2 => {
-      surface.svg_restrict_to_version(@cairoon.SvgVersion1_2)
-      surface.svg_set_document_unit(@cairoon.SvgUnitCm)
+      surface.svg_restrict_to_version(SvgVersion1_2)
+      surface.svg_set_document_unit(SvgUnitCm)
     }
-    _ => @cairoon.check_status(@cairoon.InvalidStatus)
+    _ => @cairoon.check_status(InvalidStatus)
   }
 }
 
@@ -126,7 +117,7 @@ fn draw_stream_state_stack_group(
   ctx.clip()
   ctx.set_source_rgb(0.05, 0.07, 0.18)
   ctx.paint()
-  ctx.push_group_with_content(@cairoon.ContentColorAlpha)
+  ctx.push_group_with_content(ContentColorAlpha)
   ctx.set_source_rgba(0.95, 0.20, 0.18, 0.76)
   ctx.rectangle(16.0, 20.0, 58.0, 30.0)
   ctx.fill()
@@ -172,10 +163,7 @@ fn render_stream_state_stack_scene(
       @cairoon.PDF_OUTLINE_ROOT,
       "state clip",
       "page=1 pos=[12 76]",
-      @cairoon.PDFOutlineFlagSet::combine([
-        @cairoon.PdfOutlineOpen,
-        @cairoon.PdfOutlineBold,
-      ]),
+      @cairoon.PDFOutlineFlagSet::combine([PdfOutlineOpen, PdfOutlineBold]),
     )
   }
   ctx.set_source_rgb(0.92, 0.96, 1.0)
@@ -203,7 +191,7 @@ fn render_stream_state_stack_scene(
       root_id,
       "state group",
       "page=2 pos=[14 26]",
-      @cairoon.PDFOutlineFlagSet::of(@cairoon.PdfOutlineItalic),
+      @cairoon.PDFOutlineFlagSet::of(PdfOutlineItalic),
     )
   } else {
     resize_stream_state_stack_surface(kind, surface, 120.0, 100.0)
@@ -229,7 +217,7 @@ fn render_stream_state_stack_scene(
       group_id,
       "state mask",
       "page=3 pos=[18 88]",
-      @cairoon.PDFOutlineFlagSet::of(@cairoon.PdfOutlineOpen),
+      @cairoon.PDFOutlineFlagSet::of(PdfOutlineOpen),
     )
   } else {
     resize_stream_state_stack_surface(kind, surface, 120.0, 100.0)

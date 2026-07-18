@@ -10,10 +10,8 @@ fn minimal_embedded_jbig2() -> Bytes {
 ///|
 test "PDF reports a missing JBIG2 global segment" {
   let result = @cairoon.run_cairo(() => {
-    let surface = @cairoon.Surface::pdf_stream(8.0, 8.0, fn(_) {
-      @cairoon.Success
-    })
-    let image = @cairoon.Surface::image(@cairoon.A1, 1, 1)
+    let surface = @cairoon.Surface::pdf_stream(8.0, 8.0, fn(_) { Success })
+    let image = @cairoon.Surface::image(A1, 1, 1)
     image.set_mime_data(
       @cairoon.MIME_TYPE_JBIG2,
       Some(minimal_embedded_jbig2()),
@@ -28,7 +26,7 @@ test "PDF reports a missing JBIG2 global segment" {
     surface.finish()
   })
   match result {
-    Err(@cairoon.CairoError(@cairoon.Jbig2GlobalMissing, _)) => ()
+    Err(CairoError(Jbig2GlobalMissing, _)) => ()
     _ => @test.fail("expected Jbig2GlobalMissing from PDF finalization")
   }
 }

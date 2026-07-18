@@ -71,7 +71,7 @@ test "region get_rectangle invalid index maps to cairo error" {
   let result = @cairoon.run_cairo(() => region.get_rectangle(1))
   inspect(result is Err(_), content="true")
   match result {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidIndex, _)) => ()
+    Err(CairoInvalidArgument(InvalidIndex, _)) => ()
     _ => @test.fail("expected InvalidIndex")
   }
 }

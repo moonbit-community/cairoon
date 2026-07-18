@@ -12,14 +12,14 @@ fn expect_mapped_surface_finished(
 ) -> Unit raise {
   inspect(result is Err(_), content="true")
   match result {
-    Err(@cairoon.CairoError(@cairoon.SurfaceFinished, _)) => ()
+    Err(CairoError(SurfaceFinished, _)) => ()
     _ => @test.fail("expected SurfaceFinished")
   }
 }
 
 ///|
 test "mapped image paints whole surface and explicit unmap uploads" {
-  let main = @cairoon.Surface::image(@cairoon.Rgb24, 2, 1)
+  let main = @cairoon.Surface::image(Rgb24, 2, 1)
   inspect_rgb24_bytes(main.copy_data(), [0, 0, 0, 0, 0, 0, 0, 0])
 
   let mapped = main.map_to_image()
@@ -47,7 +47,7 @@ test "mapped image paints whole surface and explicit unmap uploads" {
 
 ///|
 test "mapped image extents update only selected rectangle" {
-  let main = @cairoon.Surface::image(@cairoon.Rgb24, 2, 1)
+  let main = @cairoon.Surface::image(Rgb24, 2, 1)
   let mapped = main.map_to_image(
     extents=Some(@cairoon.RectangleInt::new(x=0, y=0, width=1, height=1)),
   )
@@ -64,14 +64,14 @@ test "mapped image extents update only selected rectangle" {
 
 ///|
 test "mapped image rejects wrong base and double unmap" {
-  let main = @cairoon.Surface::image(@cairoon.Rgb24, 2, 1)
+  let main = @cairoon.Surface::image(Rgb24, 2, 1)
   let mapped = main.map_to_image()
-  let other = @cairoon.Surface::image(@cairoon.Rgb24, 2, 1)
+  let other = @cairoon.Surface::image(Rgb24, 2, 1)
 
   let wrong_base = @cairoon.run_cairo(() => other.unmap_image(mapped))
   inspect(wrong_base is Err(_), content="true")
   match wrong_base {
-    Err(@cairoon.CairoError(@cairoon.SurfaceTypeMismatch, _)) => ()
+    Err(CairoError(SurfaceTypeMismatch, _)) => ()
     _ => @test.fail("expected SurfaceTypeMismatch")
   }
 
@@ -89,7 +89,7 @@ test "mapped image rejects wrong base and double unmap" {
 
 ///|
 test "mapped image can unmap through mapped wrapper" {
-  let main = @cairoon.Surface::image(@cairoon.Rgb24, 1, 1)
+  let main = @cairoon.Surface::image(Rgb24, 1, 1)
   let mapped = main.map_to_image()
   let ctx = @cairoon.Context::new_for_mapped_image(mapped)
   ctx.set_source_rgb(1.0, 1.0, 1.0)
@@ -102,7 +102,7 @@ test "mapped image can unmap through mapped wrapper" {
 
 ///|
 test "explicit unmap cleans up after base surface is finished" {
-  let main = @cairoon.Surface::image(@cairoon.Rgb24, 1, 1)
+  let main = @cairoon.Surface::image(Rgb24, 1, 1)
   let mapped = main.map_to_image()
   main.finish()
 
@@ -119,7 +119,7 @@ test "explicit unmap cleans up after base surface is finished" {
 
 ///|
 test "mapped image with_unmapped unmaps after success and cairo errors" {
-  let main = @cairoon.Surface::image(@cairoon.Rgb24, 1, 1)
+  let main = @cairoon.Surface::image(Rgb24, 1, 1)
   let mapped = main.map_to_image()
   mapped.with_unmapped(() => {
     let ctx = @cairoon.Context::new_for_mapped_image(mapped)
@@ -135,16 +135,16 @@ test "mapped image with_unmapped unmaps after success and cairo errors" {
     }),
   )
 
-  let failed_main = @cairoon.Surface::image(@cairoon.Rgb24, 1, 1)
+  let failed_main = @cairoon.Surface::image(Rgb24, 1, 1)
   let failed_mapped = failed_main.map_to_image()
   let failed = @cairoon.run_cairo(() => {
     failed_mapped.with_unmapped(() => {
-      let _ = failed_main.create_similar(@cairoon.ContentColor, -1, 1)
+      let _ = failed_main.create_similar(ContentColor, -1, 1)
       ()
     })
   })
   match failed {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidSize, _)) => ()
+    Err(CairoInvalidArgument(InvalidSize, _)) => ()
     _ => @test.fail("expected InvalidSize")
   }
   expect_mapped_surface_finished(
@@ -157,17 +157,17 @@ test "mapped image with_unmapped unmaps after success and cairo errors" {
 
 ///|
 test "mapped image with_unmapped preserves a closure error after prior unmap" {
-  let main = @cairoon.Surface::image(@cairoon.Rgb24, 1, 1)
+  let main = @cairoon.Surface::image(Rgb24, 1, 1)
   let mapped = main.map_to_image()
   let failed = @cairoon.run_cairo(() => {
     mapped.with_unmapped(() => {
       mapped.unmap()
-      let _ = main.create_similar(@cairoon.ContentColor, -1, 1)
+      let _ = main.create_similar(ContentColor, -1, 1)
       ()
     })
   })
   match failed {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidSize, _)) => ()
+    Err(CairoInvalidArgument(InvalidSize, _)) => ()
     _ => @test.fail("expected original InvalidSize error")
   }
   expect_mapped_surface_finished(
@@ -180,7 +180,7 @@ test "mapped image with_unmapped preserves a closure error after prior unmap" {
 
 ///|
 test "pycairo mapped image context scope cannot be reused" {
-  let main = @cairoon.Surface::image(@cairoon.Rgb24, 1, 1)
+  let main = @cairoon.Surface::image(Rgb24, 1, 1)
   let mapped = main.map_to_image()
   mapped.with_unmapped(() => ())
 
@@ -200,19 +200,19 @@ test "pycairo mapped image context scope cannot be reused" {
 
 ///|
 test "mapped image with_unmapped uploads before propagated cairo error" {
-  let main = @cairoon.Surface::image(@cairoon.Rgb24, 1, 1)
+  let main = @cairoon.Surface::image(Rgb24, 1, 1)
   let mapped = main.map_to_image()
   let failed = @cairoon.run_cairo(() => {
     mapped.with_unmapped(() => {
       let ctx = @cairoon.Context::new_for_mapped_image(mapped)
       ctx.set_source_rgb(1.0, 1.0, 1.0)
       ctx.paint()
-      let _ = main.create_similar(@cairoon.ContentColor, -1, 1)
+      let _ = main.create_similar(ContentColor, -1, 1)
       ()
     })
   })
   match failed {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidSize, _)) => ()
+    Err(CairoInvalidArgument(InvalidSize, _)) => ()
     _ => @test.fail("expected InvalidSize")
   }
   main.flush()

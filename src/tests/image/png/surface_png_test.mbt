@@ -1,7 +1,7 @@
 ///|
 test "image surface png file roundtrip and invalid paths" {
   let path = "/tmp/cairoon_surface_png_roundtrip.png"
-  let surface = @cairoon.Surface::image(@cairoon.Argb32, 2, 1)
+  let surface = @cairoon.Surface::image(Argb32, 2, 1)
   let ctx = @cairoon.Context::new(surface)
   ctx.set_source_rgba(0.0, 0.0, 1.0, 0.5)
   ctx.paint()
@@ -16,14 +16,14 @@ test "image surface png file roundtrip and invalid paths" {
   let invalid_path = "/tmp/cairoon\u{0}bad.png"
   let write_result = @cairoon.run_cairo(() => surface.write_to_png(invalid_path))
   match write_result {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidString, _)) => ()
+    Err(CairoInvalidArgument(InvalidString, _)) => ()
     _ => @test.fail("expected InvalidString for write_to_png")
   }
   let read_result = @cairoon.run_cairo(() => {
     @cairoon.Surface::image_from_png(invalid_path)
   })
   match read_result {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidString, _)) => ()
+    Err(CairoInvalidArgument(InvalidString, _)) => ()
     _ => @test.fail("expected InvalidString for image_from_png")
   }
 }
@@ -32,7 +32,7 @@ test "image surface png file roundtrip and invalid paths" {
 test "corrupt PNG file maps raw status to PngError" {
   let valid_path = "/tmp/cairoon_png_valid_for_corruption.png"
   let corrupt_path = "/tmp/cairoon_png_corrupt_crc.png"
-  let surface = @cairoon.Surface::image(@cairoon.Argb32, 2, 2)
+  let surface = @cairoon.Surface::image(Argb32, 2, 2)
   surface.write_to_png(valid_path)
   let input = @fs.read_file_to_bytes(valid_path)
   let corrupt = Bytes::makei(input.length(), fn(index) {
@@ -53,7 +53,7 @@ test "corrupt PNG file maps raw status to PngError" {
   })
   if @cairoon.CAIRO_VERSION >= 11600 {
     match result {
-      Err(@cairoon.CairoIOError(@cairoon.PngError, _)) => ()
+      Err(CairoIOError(PngError, _)) => ()
       _ => @test.fail("expected PngError for a corrupt PNG file")
     }
   } else {

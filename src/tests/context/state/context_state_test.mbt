@@ -1,6 +1,6 @@
 ///|
 fn context_state_surface() -> @cairoon.Surface raise @cairoon.CairoError {
-  @cairoon.Surface::image(@cairoon.Argb32, 16, 16)
+  @cairoon.Surface::image(Argb32, 16, 16)
 }
 
 ///|
@@ -15,7 +15,7 @@ fn expect_hairline_unavailable(
   result : Result[Unit, @cairoon.CairoError],
 ) -> Unit raise {
   match result {
-    Err(@cairoon.CairoError(@cairoon.InvalidStatus, _)) => ()
+    Err(CairoError(InvalidStatus, _)) => ()
     _ => @test.fail("expected hairline API to require Cairo 1.18")
   }
 }
@@ -46,11 +46,11 @@ test "context default drawing state mirrors cairo" {
 ///|
 test "context drawing state setters round trip" {
   let ctx = @cairoon.Context::new(context_state_surface())
-  ctx.set_antialias(@cairoon.AntialiasSubpixel)
-  ctx.set_fill_rule(@cairoon.FillEvenOdd)
-  ctx.set_line_cap(@cairoon.LineCapSquare)
-  ctx.set_line_join(@cairoon.LineJoinBevel)
-  ctx.set_operator(@cairoon.OperatorSource)
+  ctx.set_antialias(AntialiasSubpixel)
+  ctx.set_fill_rule(FillEvenOdd)
+  ctx.set_line_cap(LineCapSquare)
+  ctx.set_line_join(LineJoinBevel)
+  ctx.set_operator(OperatorSource)
   ctx.set_line_width(4.5)
   ctx.set_tolerance(0.25)
   ctx.set_miter_limit(2.5)
@@ -80,13 +80,13 @@ test "context drawing state enum setters cover all cairo values" {
   let ctx = @cairoon.Context::new(context_state_surface())
 
   let antialiases : Array[@cairoon.Antialias] = [
-    @cairoon.AntialiasDefault,
-    @cairoon.AntialiasNone,
-    @cairoon.AntialiasGray,
-    @cairoon.AntialiasSubpixel,
-    @cairoon.AntialiasFast,
-    @cairoon.AntialiasGood,
-    @cairoon.AntialiasBest,
+    AntialiasDefault,
+    AntialiasNone,
+    AntialiasGray,
+    AntialiasSubpixel,
+    AntialiasFast,
+    AntialiasGood,
+    AntialiasBest,
   ]
   for antialias in antialiases {
     ctx.set_antialias(antialias)
@@ -95,10 +95,7 @@ test "context drawing state enum setters cover all cairo values" {
     }
   }
 
-  let fill_rules : Array[@cairoon.FillRule] = [
-    @cairoon.FillWinding,
-    @cairoon.FillEvenOdd,
-  ]
+  let fill_rules : Array[@cairoon.FillRule] = [FillWinding, FillEvenOdd]
   for fill_rule in fill_rules {
     ctx.set_fill_rule(fill_rule)
     guard ctx.get_fill_rule() == fill_rule else {
@@ -107,9 +104,9 @@ test "context drawing state enum setters cover all cairo values" {
   }
 
   let caps : Array[@cairoon.LineCap] = [
-    @cairoon.LineCapButt,
-    @cairoon.LineCapRound,
-    @cairoon.LineCapSquare,
+    LineCapButt,
+    LineCapRound,
+    LineCapSquare,
   ]
   for cap in caps {
     ctx.set_line_cap(cap)
@@ -119,9 +116,9 @@ test "context drawing state enum setters cover all cairo values" {
   }
 
   let joins : Array[@cairoon.LineJoin] = [
-    @cairoon.LineJoinMiter,
-    @cairoon.LineJoinRound,
-    @cairoon.LineJoinBevel,
+    LineJoinMiter,
+    LineJoinRound,
+    LineJoinBevel,
   ]
   for join in joins {
     ctx.set_line_join(join)
@@ -131,35 +128,35 @@ test "context drawing state enum setters cover all cairo values" {
   }
 
   let operators : Array[@cairoon.Operator] = [
-    @cairoon.OperatorClear,
-    @cairoon.OperatorSource,
-    @cairoon.OperatorOver,
-    @cairoon.OperatorIn,
-    @cairoon.OperatorOut,
-    @cairoon.OperatorAtop,
-    @cairoon.OperatorDest,
-    @cairoon.OperatorDestOver,
-    @cairoon.OperatorDestIn,
-    @cairoon.OperatorDestOut,
-    @cairoon.OperatorDestAtop,
-    @cairoon.OperatorXor,
-    @cairoon.OperatorAdd,
-    @cairoon.OperatorSaturate,
-    @cairoon.OperatorMultiply,
-    @cairoon.OperatorScreen,
-    @cairoon.OperatorOverlay,
-    @cairoon.OperatorDarken,
-    @cairoon.OperatorLighten,
-    @cairoon.OperatorColorDodge,
-    @cairoon.OperatorColorBurn,
-    @cairoon.OperatorHardLight,
-    @cairoon.OperatorSoftLight,
-    @cairoon.OperatorDifference,
-    @cairoon.OperatorExclusion,
-    @cairoon.OperatorHslHue,
-    @cairoon.OperatorHslSaturation,
-    @cairoon.OperatorHslColor,
-    @cairoon.OperatorHslLuminosity,
+    OperatorClear,
+    OperatorSource,
+    OperatorOver,
+    OperatorIn,
+    OperatorOut,
+    OperatorAtop,
+    OperatorDest,
+    OperatorDestOver,
+    OperatorDestIn,
+    OperatorDestOut,
+    OperatorDestAtop,
+    OperatorXor,
+    OperatorAdd,
+    OperatorSaturate,
+    OperatorMultiply,
+    OperatorScreen,
+    OperatorOverlay,
+    OperatorDarken,
+    OperatorLighten,
+    OperatorColorDodge,
+    OperatorColorBurn,
+    OperatorHardLight,
+    OperatorSoftLight,
+    OperatorDifference,
+    OperatorExclusion,
+    OperatorHslHue,
+    OperatorHslSaturation,
+    OperatorHslColor,
+    OperatorHslLuminosity,
   ]
   for operator in operators {
     ctx.set_operator(operator)
@@ -172,7 +169,7 @@ test "context drawing state enum setters cover all cairo values" {
 ///|
 test "context raw operator mirrors pycairo c int passthrough" {
   let ctx = @cairoon.Context::new(context_state_surface())
-  ctx.set_operator(@cairoon.OperatorOver)
+  ctx.set_operator(OperatorOver)
   inspect(ctx.get_operator_raw(), content="2")
 
   let min_c_int = -2147483647 - 1
@@ -184,7 +181,7 @@ test "context raw operator mirrors pycairo c int passthrough" {
 
   let typed_unknown = @cairoon.run_cairo(() => ctx.get_operator())
   match typed_unknown {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidStatus, _)) => ()
+    Err(CairoInvalidArgument(InvalidStatus, _)) => ()
     _ => @test.fail("expected typed getter to reject unknown raw operator")
   }
 
@@ -195,48 +192,48 @@ test "context raw operator mirrors pycairo c int passthrough" {
 ///|
 test "context raw drawing state enums mirror pycairo c int passthrough" {
   let antialias_ctx = @cairoon.Context::new(context_state_surface())
-  antialias_ctx.set_antialias(@cairoon.AntialiasGood)
+  antialias_ctx.set_antialias(AntialiasGood)
   inspect(antialias_ctx.get_antialias_raw(), content="5")
   antialias_ctx.set_antialias_raw(42)
   inspect(antialias_ctx.get_antialias_raw(), content="42")
   match @cairoon.run_cairo(() => antialias_ctx.get_antialias()) {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidStatus, _)) => ()
+    Err(CairoInvalidArgument(InvalidStatus, _)) => ()
     _ => @test.fail("expected typed getter to reject unknown raw antialias")
   }
   antialias_ctx.set_antialias_raw(0)
   debug_inspect(antialias_ctx.get_antialias(), content="AntialiasDefault")
 
   let fill_rule_ctx = @cairoon.Context::new(context_state_surface())
-  fill_rule_ctx.set_fill_rule(@cairoon.FillEvenOdd)
+  fill_rule_ctx.set_fill_rule(FillEvenOdd)
   inspect(fill_rule_ctx.get_fill_rule_raw(), content="1")
   fill_rule_ctx.set_fill_rule_raw(42)
   inspect(fill_rule_ctx.get_fill_rule_raw(), content="42")
   match @cairoon.run_cairo(() => fill_rule_ctx.get_fill_rule()) {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidStatus, _)) => ()
+    Err(CairoInvalidArgument(InvalidStatus, _)) => ()
     _ => @test.fail("expected typed getter to reject unknown raw fill rule")
   }
   fill_rule_ctx.set_fill_rule_raw(0)
   debug_inspect(fill_rule_ctx.get_fill_rule(), content="FillWinding")
 
   let line_cap_ctx = @cairoon.Context::new(context_state_surface())
-  line_cap_ctx.set_line_cap(@cairoon.LineCapRound)
+  line_cap_ctx.set_line_cap(LineCapRound)
   inspect(line_cap_ctx.get_line_cap_raw(), content="1")
   line_cap_ctx.set_line_cap_raw(42)
   inspect(line_cap_ctx.get_line_cap_raw(), content="42")
   match @cairoon.run_cairo(() => line_cap_ctx.get_line_cap()) {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidStatus, _)) => ()
+    Err(CairoInvalidArgument(InvalidStatus, _)) => ()
     _ => @test.fail("expected typed getter to reject unknown raw line cap")
   }
   line_cap_ctx.set_line_cap_raw(2)
   debug_inspect(line_cap_ctx.get_line_cap(), content="LineCapSquare")
 
   let line_join_ctx = @cairoon.Context::new(context_state_surface())
-  line_join_ctx.set_line_join(@cairoon.LineJoinBevel)
+  line_join_ctx.set_line_join(LineJoinBevel)
   inspect(line_join_ctx.get_line_join_raw(), content="2")
   line_join_ctx.set_line_join_raw(42)
   inspect(line_join_ctx.get_line_join_raw(), content="42")
   match @cairoon.run_cairo(() => line_join_ctx.get_line_join()) {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidStatus, _)) => ()
+    Err(CairoInvalidArgument(InvalidStatus, _)) => ()
     _ => @test.fail("expected typed getter to reject unknown raw line join")
   }
   line_join_ctx.set_line_join_raw(1)
@@ -247,13 +244,13 @@ test "context raw drawing state enums mirror pycairo c int passthrough" {
 test "context save restore preserves drawing state" {
   let ctx = @cairoon.Context::new(context_state_surface())
   ctx.set_line_width(3.0)
-  ctx.set_operator(@cairoon.OperatorOver)
+  ctx.set_operator(OperatorOver)
   if @cairoon.CAIRO_VERSION >= 11800 {
     ctx.set_hairline(true)
     ctx.save()
     ctx.set_hairline(false)
     ctx.set_line_width(7.0)
-    ctx.set_operator(@cairoon.OperatorClear)
+    ctx.set_operator(OperatorClear)
     assert_state_close(ctx.get_line_width(), 7.0)
     debug_inspect(ctx.get_operator(), content="OperatorClear")
     inspect(ctx.get_hairline(), content="false")
@@ -269,7 +266,7 @@ test "context save restore preserves drawing state" {
     )
     ctx.save()
     ctx.set_line_width(7.0)
-    ctx.set_operator(@cairoon.OperatorClear)
+    ctx.set_operator(OperatorClear)
     ctx.restore()
     debug_inspect(ctx.get_operator(), content="OperatorOver")
     assert_state_close(ctx.get_line_width(), 3.0)
@@ -312,7 +309,7 @@ test "context invalid dash maps to cairo invalid argument" {
   })
   inspect(negative_result is Err(_), content="true")
   match negative_result {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidDash, _)) => ()
+    Err(CairoInvalidArgument(InvalidDash, _)) => ()
     _ => @test.fail("expected InvalidDash")
   }
 
@@ -321,7 +318,7 @@ test "context invalid dash maps to cairo invalid argument" {
   })
   inspect(zero_result is Err(_), content="true")
   match zero_result {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidDash, _)) => ()
+    Err(CairoInvalidArgument(InvalidDash, _)) => ()
     _ => @test.fail("expected InvalidDash")
   }
 }
@@ -334,8 +331,8 @@ test "context invalid restore maps to cairo error" {
   inspect(result is Err(_), content="true")
   debug_inspect(ctx.status(), content="InvalidRestore")
   match result {
-    Err(@cairoon.CairoError(status, message)) => {
-      inspect(status == @cairoon.InvalidRestore, content="true")
+    Err(CairoError(status, message)) => {
+      inspect(status == InvalidRestore, content="true")
       inspect(status == ctx.status(), content="true")
       inspect(message == @cairoon.InvalidRestore.message(), content="true")
       inspect(message.length() > 0, content="true")
@@ -354,19 +351,19 @@ test "context drawing state getters propagate cairo error" {
   let get_result = @cairoon.run_cairo(() => ctx.get_line_width())
   inspect(get_result is Err(_), content="true")
   match get_result {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidMatrix, _)) => ()
+    Err(CairoInvalidArgument(InvalidMatrix, _)) => ()
     _ => @test.fail("expected InvalidMatrix")
   }
   let get_hairline_result = @cairoon.run_cairo(() => ctx.get_hairline())
   inspect(get_hairline_result is Err(_), content="true")
   match get_hairline_result {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidMatrix, _)) => ()
+    Err(CairoInvalidArgument(InvalidMatrix, _)) => ()
     _ => @test.fail("expected InvalidMatrix")
   }
   let set_hairline_result = @cairoon.run_cairo(() => ctx.set_hairline(true))
   inspect(set_hairline_result is Err(_), content="true")
   match set_hairline_result {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidMatrix, _)) => ()
+    Err(CairoInvalidArgument(InvalidMatrix, _)) => ()
     _ => @test.fail("expected InvalidMatrix")
   }
 }

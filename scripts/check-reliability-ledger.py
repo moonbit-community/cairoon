@@ -124,7 +124,7 @@ VERIFY_COMMANDS = (
     "python3 ./scripts/check-pycairo-test-parity.py",
     "python3 ./scripts/check-reliability-ledger.py",
     "python3 ./scripts/check-vector-backend-scenes.py",
-    "moon check --target native --deny-warn",
+    "moon check --target native --deny-warn --warn-list +73",
     "./scripts/check-downstream-consumer.sh",
     "moon test --target native --deny-warn",
     "moon info --target native",

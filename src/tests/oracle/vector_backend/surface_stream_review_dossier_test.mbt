@@ -22,17 +22,17 @@ fn make_stream_review_dossier_stream_surface(
     0 =>
       @cairoon.Surface::pdf_stream(140.0, 112.0, fn(chunk) {
         chunks.push(chunk)
-        @cairoon.Success
+        Success
       })
     1 =>
       @cairoon.Surface::ps_stream(140.0, 112.0, fn(chunk) {
         chunks.push(chunk)
-        @cairoon.Success
+        Success
       })
     2 =>
       @cairoon.Surface::svg_stream(140.0, 112.0, fn(chunk) {
         chunks.push(chunk)
-        @cairoon.Success
+        Success
       })
     _ => vector_backend_invalid_surface()
   }
@@ -47,42 +47,24 @@ fn configure_stream_review_dossier_backend(
 ) -> Unit raise @cairoon.CairoError {
   match kind {
     0 => {
-      surface.pdf_restrict_to_version(@cairoon.PdfVersion1_4)
+      surface.pdf_restrict_to_version(PdfVersion1_4)
+      surface.pdf_set_metadata(PdfMetadataTitle, "Cairoon Review Dossier")
+      surface.pdf_set_metadata(PdfMetadataSubject, "draft review dossier")
+      surface.pdf_set_metadata(PdfMetadataSubject, "final review dossier")
       surface.pdf_set_metadata(
-        @cairoon.PdfMetadataTitle,
-        "Cairoon Review Dossier",
-      )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataSubject,
-        "draft review dossier",
-      )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataSubject,
-        "final review dossier",
-      )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataKeywords,
+        PdfMetadataKeywords,
         "review,dossier,toc,list,table",
       )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataCreator,
-        "cairoon review dossier",
-      )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataCreateDate,
-        fixed_pdf_metadata_date(),
-      )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataModDate,
-        fixed_pdf_metadata_date(),
-      )
+      surface.pdf_set_metadata(PdfMetadataCreator, "cairoon review dossier")
+      surface.pdf_set_metadata(PdfMetadataCreateDate, fixed_pdf_metadata_date())
+      surface.pdf_set_metadata(PdfMetadataModDate, fixed_pdf_metadata_date())
       set_pdf_custom_metadata_if_supported(surface, "Dossier", Some("draft"))
       set_pdf_custom_metadata_if_supported(surface, "Dossier", Some("final"))
       set_pdf_custom_metadata_if_supported(surface, "Scratch", Some("drop-me"))
       set_pdf_custom_metadata_if_supported(surface, "Scratch", None)
     }
     1 => {
-      surface.ps_restrict_to_level(@cairoon.PsLevel3)
+      surface.ps_restrict_to_level(PsLevel3)
       surface.ps_set_eps(false)
       surface.ps_dsc_begin_setup()
       surface.ps_dsc_comment("%%Title: Cairoon Review Dossier")
@@ -91,10 +73,10 @@ fn configure_stream_review_dossier_backend(
       surface.ps_dsc_comment("%%IncludeFeature: *PageSize ReviewDossier")
     }
     2 => {
-      surface.svg_restrict_to_version(@cairoon.SvgVersion1_2)
-      surface.svg_set_document_unit(@cairoon.SvgUnitPt)
+      surface.svg_restrict_to_version(SvgVersion1_2)
+      surface.svg_set_document_unit(SvgUnitPt)
     }
-    _ => @cairoon.check_status(@cairoon.InvalidStatus)
+    _ => @cairoon.check_status(InvalidStatus)
   }
 }
 
@@ -195,10 +177,7 @@ fn render_stream_review_dossier_scene(
       @cairoon.PDF_OUTLINE_ROOT,
       "review index",
       "page=1 pos=[18 28]",
-      @cairoon.PDFOutlineFlagSet::combine([
-        @cairoon.PdfOutlineOpen,
-        @cairoon.PdfOutlineBold,
-      ]),
+      @cairoon.PDFOutlineFlagSet::combine([PdfOutlineOpen, PdfOutlineBold]),
     )
   }
   ctx.set_source_rgb(0.96, 0.94, 0.88)
@@ -231,7 +210,7 @@ fn render_stream_review_dossier_scene(
       root_id,
       "review list",
       "page=2 pos=[20 44]",
-      @cairoon.PDFOutlineFlagSet::of(@cairoon.PdfOutlineItalic),
+      @cairoon.PDFOutlineFlagSet::of(PdfOutlineItalic),
     )
   } else {
     resize_stream_review_dossier_surface(kind, surface, 132.0, 118.0)
@@ -266,7 +245,7 @@ fn render_stream_review_dossier_scene(
       list_id,
       "review table",
       "page=3 pos=[18 86]",
-      @cairoon.PDFOutlineFlagSet::of(@cairoon.PdfOutlineBold),
+      @cairoon.PDFOutlineFlagSet::of(PdfOutlineBold),
     )
   } else {
     resize_stream_review_dossier_surface(kind, surface, 136.0, 110.0)

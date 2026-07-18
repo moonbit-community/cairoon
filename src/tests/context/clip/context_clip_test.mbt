@@ -1,6 +1,6 @@
 ///|
 fn context_clip_surface() -> @cairoon.Surface raise @cairoon.CairoError {
-  @cairoon.Surface::image(@cairoon.Argb32, 20, 20)
+  @cairoon.Surface::image(Argb32, 20, 20)
 }
 
 ///|
@@ -49,9 +49,7 @@ test "context clip extents in_clip and reset_clip" {
 
 ///|
 test "context empty path clip matches pycairo in_clip behavior" {
-  let ctx = @cairoon.Context::new(
-    @cairoon.Surface::image(@cairoon.Argb32, 100, 100),
-  )
+  let ctx = @cairoon.Context::new(@cairoon.Surface::image(Argb32, 100, 100))
   inspect(ctx.in_clip(50.0, 50.0), content="true")
   ctx.clip()
   inspect(ctx.in_clip(50.0, 50.0), content="false")
@@ -80,7 +78,7 @@ test "context clip clears path and clip_preserve keeps path" {
 
 ///|
 test "context clip_preserve keeps current path drawable" {
-  let surface = @cairoon.Surface::image(@cairoon.Argb32, 4, 4)
+  let surface = @cairoon.Surface::image(Argb32, 4, 4)
   let ctx = @cairoon.Context::new(surface)
   ctx.rectangle(1.0, 1.0, 2.0, 2.0)
   ctx.clip_preserve()
@@ -124,7 +122,7 @@ test "context copy_clip_rectangle_list maps non-rectangular clip status" {
   let result = @cairoon.run_cairo(() => ctx.copy_clip_rectangle_list())
   inspect(result is Err(_), content="true")
   match result {
-    Err(@cairoon.CairoError(@cairoon.ClipNotRepresentable, _)) => ()
+    Err(CairoError(ClipNotRepresentable, _)) => ()
     _ => @test.fail("expected ClipNotRepresentable")
   }
 }
@@ -139,14 +137,14 @@ test "context clip getters propagate cairo error" {
   let extents_result = @cairoon.run_cairo(() => ctx.clip_extents())
   inspect(extents_result is Err(_), content="true")
   match extents_result {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidMatrix, _)) => ()
+    Err(CairoInvalidArgument(InvalidMatrix, _)) => ()
     _ => @test.fail("expected InvalidMatrix")
   }
 
   let in_clip_result = @cairoon.run_cairo(() => ctx.in_clip(0.0, 0.0))
   inspect(in_clip_result is Err(_), content="true")
   match in_clip_result {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidMatrix, _)) => ()
+    Err(CairoInvalidArgument(InvalidMatrix, _)) => ()
     _ => @test.fail("expected InvalidMatrix")
   }
 }

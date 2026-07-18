@@ -109,6 +109,21 @@ class VerifyGateTests(unittest.TestCase):
         with mock.patch.object(self.checker, "CI", self.script):
             return self.checker.check_ci_gate()
 
+    def test_native_check_requires_warning_73(self) -> None:
+        marker = "moon check --target native --deny-warn --warn-list +73"
+        downgraded = "moon check --target native --deny-warn"
+        self.assertIn(marker, self.checker.VERIFY_COMMANDS)
+        self.script.write_text(
+            "\n".join(
+                f"run {downgraded}" if command == marker else f"run {command}"
+                for command in self.checker.VERIFY_COMMANDS
+            ),
+            encoding="utf-8",
+        )
+        with mock.patch.object(self.checker, "VERIFY", self.script):
+            errors = self.checker.check_verify_gate()
+        self.assertTrue(any(marker in error for error in errors))
+
     def test_missing_public_coverage_ledger_gate_fails(self) -> None:
         marker = "python3 ./scripts/check-public-coverage.py"
         self.assertIn(marker, self.checker.VERIFY_COMMANDS)

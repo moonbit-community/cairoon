@@ -54,7 +54,7 @@ test "gradient queries map pattern type mismatches" {
   let count_result = @cairoon.run_cairo(() => solid.get_color_stop_count())
   inspect(count_result is Err(_), content="true")
   match count_result {
-    Err(@cairoon.CairoError(@cairoon.PatternTypeMismatch, _)) => ()
+    Err(CairoError(PatternTypeMismatch, _)) => ()
     _ => @test.fail("expected PatternTypeMismatch")
   }
 
@@ -62,7 +62,7 @@ test "gradient queries map pattern type mismatches" {
   let radial_result = @cairoon.run_cairo(() => linear.get_radial_circles())
   inspect(radial_result is Err(_), content="true")
   match radial_result {
-    Err(@cairoon.CairoError(@cairoon.PatternTypeMismatch, _)) => ()
+    Err(CairoError(PatternTypeMismatch, _)) => ()
     _ => @test.fail("expected PatternTypeMismatch")
   }
 
@@ -70,7 +70,7 @@ test "gradient queries map pattern type mismatches" {
   let linear_result = @cairoon.run_cairo(() => radial.get_linear_points())
   inspect(linear_result is Err(_), content="true")
   match linear_result {
-    Err(@cairoon.CairoError(@cairoon.PatternTypeMismatch, _)) => ()
+    Err(CairoError(PatternTypeMismatch, _)) => ()
     _ => @test.fail("expected PatternTypeMismatch")
   }
 }
@@ -81,7 +81,7 @@ test "gradient invalid color stop index maps to cairo invalid argument" {
   let result = @cairoon.run_cairo(() => pattern.get_color_stop_rgba(0))
   inspect(result is Err(_), content="true")
   match result {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidIndex, _)) => ()
+    Err(CairoInvalidArgument(InvalidIndex, _)) => ()
     _ => @test.fail("expected InvalidIndex")
   }
 }

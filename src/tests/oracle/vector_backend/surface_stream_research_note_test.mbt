@@ -22,17 +22,17 @@ fn make_stream_research_note_stream_surface(
     0 =>
       @cairoon.Surface::pdf_stream(132.0, 108.0, fn(chunk) {
         chunks.push(chunk)
-        @cairoon.Success
+        Success
       })
     1 =>
       @cairoon.Surface::ps_stream(132.0, 108.0, fn(chunk) {
         chunks.push(chunk)
-        @cairoon.Success
+        Success
       })
     2 =>
       @cairoon.Surface::svg_stream(132.0, 108.0, fn(chunk) {
         chunks.push(chunk)
-        @cairoon.Success
+        Success
       })
     _ => vector_backend_invalid_surface()
   }
@@ -47,39 +47,18 @@ fn configure_stream_research_note_backend(
 ) -> Unit raise @cairoon.CairoError {
   match kind {
     0 => {
-      surface.pdf_restrict_to_version(@cairoon.PdfVersion1_4)
+      surface.pdf_restrict_to_version(PdfVersion1_4)
+      surface.pdf_set_metadata(PdfMetadataTitle, "Cairoon Research Note")
+      surface.pdf_set_metadata(PdfMetadataAuthor, "cairoon backend oracle")
+      surface.pdf_set_metadata(PdfMetadataSubject, "draft research note")
+      surface.pdf_set_metadata(PdfMetadataSubject, "final research note")
       surface.pdf_set_metadata(
-        @cairoon.PdfMetadataTitle,
-        "Cairoon Research Note",
-      )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataAuthor,
-        "cairoon backend oracle",
-      )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataSubject,
-        "draft research note",
-      )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataSubject,
-        "final research note",
-      )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataKeywords,
+        PdfMetadataKeywords,
         "research,note,table,artifact",
       )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataCreator,
-        "cairoon research note",
-      )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataCreateDate,
-        fixed_pdf_metadata_date(),
-      )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataModDate,
-        fixed_pdf_metadata_date(),
-      )
+      surface.pdf_set_metadata(PdfMetadataCreator, "cairoon research note")
+      surface.pdf_set_metadata(PdfMetadataCreateDate, fixed_pdf_metadata_date())
+      surface.pdf_set_metadata(PdfMetadataModDate, fixed_pdf_metadata_date())
       set_pdf_custom_metadata_if_supported(surface, "Review", Some("alpha"))
       set_pdf_custom_metadata_if_supported(surface, "Review", Some("accepted"))
       set_pdf_custom_metadata_if_supported(
@@ -90,7 +69,7 @@ fn configure_stream_research_note_backend(
       set_pdf_custom_metadata_if_supported(surface, "Scratch", None)
     }
     1 => {
-      surface.ps_restrict_to_level(@cairoon.PsLevel3)
+      surface.ps_restrict_to_level(PsLevel3)
       surface.ps_set_eps(false)
       surface.ps_dsc_begin_setup()
       surface.ps_dsc_comment("%%Title: Cairoon Research Note")
@@ -99,10 +78,10 @@ fn configure_stream_research_note_backend(
       surface.ps_dsc_comment("%%IncludeFeature: *PageSize ResearchNote")
     }
     2 => {
-      surface.svg_restrict_to_version(@cairoon.SvgVersion1_2)
-      surface.svg_set_document_unit(@cairoon.SvgUnitPt)
+      surface.svg_restrict_to_version(SvgVersion1_2)
+      surface.svg_set_document_unit(SvgUnitPt)
     }
-    _ => @cairoon.check_status(@cairoon.InvalidStatus)
+    _ => @cairoon.check_status(InvalidStatus)
   }
 }
 
@@ -193,10 +172,7 @@ fn render_stream_research_note_scene(
       @cairoon.PDF_OUTLINE_ROOT,
       "research abstract",
       "page=1 pos=[18 30]",
-      @cairoon.PDFOutlineFlagSet::combine([
-        @cairoon.PdfOutlineOpen,
-        @cairoon.PdfOutlineBold,
-      ]),
+      @cairoon.PDFOutlineFlagSet::combine([PdfOutlineOpen, PdfOutlineBold]),
     )
   }
   ctx.set_source_rgb(0.94, 0.96, 0.92)
@@ -226,7 +202,7 @@ fn render_stream_research_note_scene(
       abstract_id,
       "research table",
       "page=2 pos=[20 52]",
-      @cairoon.PDFOutlineFlagSet::of(@cairoon.PdfOutlineItalic),
+      @cairoon.PDFOutlineFlagSet::of(PdfOutlineItalic),
     )
   } else {
     resize_stream_research_note_surface(kind, surface, 144.0, 118.0)
@@ -272,7 +248,7 @@ fn render_stream_research_note_scene(
       table_id,
       "research artifact",
       "page=3 pos=[22 44]",
-      @cairoon.PDFOutlineFlagSet::of(@cairoon.PdfOutlineBold),
+      @cairoon.PDFOutlineFlagSet::of(PdfOutlineBold),
     )
   } else {
     resize_stream_research_note_surface(kind, surface, 150.0, 98.0)

@@ -4,7 +4,7 @@ fn expect_svg_surface_type_mismatch(
 ) -> Unit raise {
   inspect(result is Err(_), content="true")
   match result {
-    Err(@cairoon.CairoError(@cairoon.SurfaceTypeMismatch, _)) => ()
+    Err(CairoError(SurfaceTypeMismatch, _)) => ()
     _ => @test.fail("expected SurfaceTypeMismatch")
   }
 }
@@ -15,7 +15,7 @@ fn expect_svg_surface_finished(
 ) -> Unit raise {
   inspect(result is Err(_), content="true")
   match result {
-    Err(@cairoon.CairoError(@cairoon.SurfaceFinished, _)) => ()
+    Err(CairoError(SurfaceFinished, _)) => ()
     _ => @test.fail("expected SurfaceFinished")
   }
 }
@@ -23,7 +23,7 @@ fn expect_svg_surface_finished(
 ///|
 test "svg version helpers expose cairo-supported versions" {
   let versions = @cairoon.SVGVersion::supported()
-  let version : @cairoon.SVGVersion = @cairoon.SvgVersion1_2
+  let version : @cairoon.SVGVersion = SvgVersion1_2
   inspect(versions.length() > 0, content="true")
   inspect(versions.any(item => item == version), content="true")
   inspect(version.to_string().contains("SVG"), content="true")
@@ -31,7 +31,7 @@ test "svg version helpers expose cairo-supported versions" {
   for invalid in [-1, 99] {
     match
       @cairoon.run_cairo(() => @cairoon.SVGVersion::to_string_raw(invalid)) {
-      Err(@cairoon.CairoError(@cairoon.InvalidStatus, _)) => ()
+      Err(CairoError(InvalidStatus, _)) => ()
       _ => @test.fail("expected InvalidStatus for invalid raw SVG version")
     }
   }
@@ -63,22 +63,20 @@ test "svg surface no-output constructor exposes units and version restriction" {
   debug_inspect(surface.get_type(), content="SurfaceTypeSvg")
   let default_unit = surface.svg_get_document_unit()
   inspect(
-    default_unit == @cairoon.SvgUnitPt || default_unit == @cairoon.SvgUnitUser,
+    default_unit == SvgUnitPt || default_unit == SvgUnitUser,
     content="true",
   )
 
-  surface.svg_set_document_unit(@cairoon.SvgUnitPx)
+  surface.svg_set_document_unit(SvgUnitPx)
   debug_inspect(surface.svg_get_document_unit(), content="SvgUnitPx")
-  surface.svg_restrict_to_version(@cairoon.SvgVersion1_2)
+  surface.svg_restrict_to_version(SvgVersion1_2)
   surface.finish()
 
   expect_svg_surface_finished(
-    @cairoon.run_cairo(() => surface.svg_set_document_unit(@cairoon.SvgUnitPx)),
+    @cairoon.run_cairo(() => surface.svg_set_document_unit(SvgUnitPx)),
   )
   expect_svg_surface_finished(
-    @cairoon.run_cairo(() => {
-      surface.svg_restrict_to_version(@cairoon.SvgVersion1_2)
-    }),
+    @cairoon.run_cairo(() => surface.svg_restrict_to_version(SvgVersion1_2)),
   )
 }
 
@@ -106,14 +104,14 @@ test "svg surface filename constructor and invalid paths" {
     ()
   })
   match invalid {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidString, _)) => ()
+    Err(CairoInvalidArgument(InvalidString, _)) => ()
     _ => @test.fail("expected InvalidString for SVG path")
   }
 }
 
 ///|
 test "svg surface methods reject other surface types" {
-  let image = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let image = @cairoon.Surface::image(Argb32, 1, 1)
   expect_svg_surface_type_mismatch(
     @cairoon.run_cairo(() => {
       let _ = image.svg_get_document_unit()
@@ -121,15 +119,13 @@ test "svg surface methods reject other surface types" {
     }),
   )
   expect_svg_surface_type_mismatch(
-    @cairoon.run_cairo(() => image.svg_set_document_unit(@cairoon.SvgUnitPx)),
+    @cairoon.run_cairo(() => image.svg_set_document_unit(SvgUnitPx)),
   )
   expect_svg_surface_type_mismatch(
     @cairoon.run_cairo(() => image.svg_set_document_unit_raw(3)),
   )
   expect_svg_surface_type_mismatch(
-    @cairoon.run_cairo(() => {
-      image.svg_restrict_to_version(@cairoon.SvgVersion1_2)
-    }),
+    @cairoon.run_cairo(() => image.svg_restrict_to_version(SvgVersion1_2)),
   )
   expect_svg_surface_type_mismatch(
     @cairoon.run_cairo(() => image.svg_restrict_to_version_raw(1)),

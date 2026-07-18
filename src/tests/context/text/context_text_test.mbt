@@ -24,7 +24,7 @@ fn expect_text_invalid_string(
 ) -> Unit raise {
   inspect(result is Err(_), content="true")
   match result {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidString, _)) => ()
+    Err(CairoInvalidArgument(InvalidString, _)) => ()
     _ => @test.fail("expected InvalidString")
   }
 }
@@ -35,16 +35,14 @@ fn expect_text_invalid_matrix(
 ) -> Unit raise {
   inspect(result is Err(_), content="true")
   match result {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidMatrix, _)) => ()
+    Err(CairoInvalidArgument(InvalidMatrix, _)) => ()
     _ => @test.fail("expected InvalidMatrix")
   }
 }
 
 ///|
 test "context font_extents matches current scaled font" {
-  let ctx = @cairoon.Context::new(
-    @cairoon.Surface::image(@cairoon.Argb32, 32, 32),
-  )
+  let ctx = @cairoon.Context::new(@cairoon.Surface::image(Argb32, 32, 32))
   ctx.select_font_face("serif")
   ctx.set_font_size(12.0)
   let context_extents = ctx.font_extents()
@@ -56,9 +54,7 @@ test "context font_extents matches current scaled font" {
 
 ///|
 test "context text_extents matches current scaled font" {
-  let ctx = @cairoon.Context::new(
-    @cairoon.Surface::image(@cairoon.Argb32, 32, 32),
-  )
+  let ctx = @cairoon.Context::new(@cairoon.Surface::image(Argb32, 32, 32))
   ctx.select_font_face("serif")
   ctx.set_font_size(12.0)
   let context_extents = ctx.text_extents("foo")
@@ -75,9 +71,7 @@ test "context text_extents matches current scaled font" {
 
 ///|
 test "context show_text advances current point" {
-  let ctx = @cairoon.Context::new(
-    @cairoon.Surface::image(@cairoon.Argb32, 32, 32),
-  )
+  let ctx = @cairoon.Context::new(@cairoon.Surface::image(Argb32, 32, 32))
   ctx.select_font_face("serif")
   ctx.set_font_size(12.0)
   ctx.move_to(2.0, 7.0)
@@ -91,7 +85,7 @@ test "context show_text advances current point" {
 
 ///|
 test "context text_path creates fillable text path" {
-  let surface = @cairoon.Surface::image(@cairoon.Argb32, 48, 24)
+  let surface = @cairoon.Surface::image(Argb32, 48, 24)
   let ctx = @cairoon.Context::new(surface)
   ctx.select_font_face("serif")
   ctx.set_font_size(16.0)
@@ -107,9 +101,7 @@ test "context text_path creates fillable text path" {
 
 ///|
 test "context text methods validate embedded nul strings" {
-  let ctx = @cairoon.Context::new(
-    @cairoon.Surface::image(@cairoon.Argb32, 8, 8),
-  )
+  let ctx = @cairoon.Context::new(@cairoon.Surface::image(Argb32, 8, 8))
   expect_text_invalid_string(
     @cairoon.run_cairo(() => ctx.show_text("bad\u{0}text")),
   )
@@ -126,9 +118,7 @@ test "context text methods validate embedded nul strings" {
 
 ///|
 test "context text methods propagate existing context errors" {
-  let ctx = @cairoon.Context::new(
-    @cairoon.Surface::image(@cairoon.Argb32, 8, 8),
-  )
+  let ctx = @cairoon.Context::new(@cairoon.Surface::image(Argb32, 8, 8))
   let invalid_matrix = @cairoon.run_cairo(() => {
     ctx.set_matrix(@cairoon.Matrix::new(xx=0.0, yy=0.0))
   })

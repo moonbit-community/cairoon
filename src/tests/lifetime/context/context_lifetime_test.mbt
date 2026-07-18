@@ -1,6 +1,6 @@
 ///|
 fn make_returned_target_surface() -> @cairoon.Surface raise @cairoon.CairoError {
-  let surface = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let surface = @cairoon.Surface::image(Argb32, 1, 1)
   let ctx = @cairoon.Context::new(surface)
   ctx.set_source_rgba(1.0, 0.0, 0.0, 1.0)
   ctx.paint()
@@ -9,7 +9,7 @@ fn make_returned_target_surface() -> @cairoon.Surface raise @cairoon.CairoError 
 
 ///|
 fn make_returned_group_target_surface() -> @cairoon.Surface raise @cairoon.CairoError {
-  let surface = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let surface = @cairoon.Surface::image(Argb32, 1, 1)
   let ctx = @cairoon.Context::new(surface)
   ctx.push_group()
   let group_target = ctx.get_group_target()
@@ -20,8 +20,8 @@ fn make_returned_group_target_surface() -> @cairoon.Surface raise @cairoon.Cairo
 
 ///|
 fn make_context_with_local_surface_source() -> @cairoon.Context raise @cairoon.CairoError {
-  let target = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
-  let source = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let target = @cairoon.Surface::image(Argb32, 1, 1)
+  let source = @cairoon.Surface::image(Argb32, 1, 1)
   let source_ctx = @cairoon.Context::new(source)
   source_ctx.set_source_rgba(0.0, 0.0, 1.0, 1.0)
   source_ctx.paint()
@@ -33,12 +33,12 @@ fn make_context_with_local_surface_source() -> @cairoon.Context raise @cairoon.C
 
 ///|
 fn make_source_pattern_from_local_context() -> @cairoon.Pattern raise @cairoon.CairoError {
-  let source = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let source = @cairoon.Surface::image(Argb32, 1, 1)
   let source_ctx = @cairoon.Context::new(source)
   source_ctx.set_source_rgba(0.0, 0.0, 1.0, 1.0)
   source_ctx.paint()
 
-  let target = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let target = @cairoon.Surface::image(Argb32, 1, 1)
   let ctx = @cairoon.Context::new(target)
   ctx.set_source_surface(source)
   ctx.get_source()
@@ -64,7 +64,7 @@ fn make_context_with_local_pdf_stream_target(
 ) -> @cairoon.Context raise @cairoon.CairoError {
   let surface = @cairoon.Surface::pdf_stream(8.0, 8.0, fn(chunk) {
     chunks.push(chunk)
-    @cairoon.Success
+    Success
   })
   @cairoon.Context::new(surface)
 }
@@ -75,7 +75,7 @@ fn make_context_with_local_ps_stream_target(
 ) -> @cairoon.Context raise @cairoon.CairoError {
   let surface = @cairoon.Surface::ps_stream(8.0, 8.0, fn(chunk) {
     chunks.push(chunk)
-    @cairoon.Success
+    Success
   })
   @cairoon.Context::new(surface)
 }
@@ -114,7 +114,7 @@ test "context get_group_target survives context scope" {
 
 ///|
 test "context equality and hash use cairo pointer identity" {
-  let surface = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let surface = @cairoon.Surface::image(Argb32, 1, 1)
   let ctx = @cairoon.Context::new(surface)
   let same = ctx
   let other = @cairoon.Context::new(surface)
@@ -125,7 +125,7 @@ test "context equality and hash use cairo pointer identity" {
 
 ///|
 test "context get_source returns an independent pattern wrapper" {
-  let surface = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let surface = @cairoon.Surface::image(Argb32, 1, 1)
   let ctx = @cairoon.Context::new(surface)
   ctx.set_source_rgba(1.0, 0.0, 0.0, 0.5)
   let source = ctx.get_source()
@@ -160,7 +160,7 @@ test "context get_source surface pattern survives source and context scopes" {
   inspect(source_data[2].to_int(), content="0")
   inspect(source_data[3].to_int(), content="255")
 
-  let target = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let target = @cairoon.Surface::image(Argb32, 1, 1)
   let ctx = @cairoon.Context::new(target)
   ctx.set_source(pattern)
   ctx.paint()
@@ -188,7 +188,7 @@ test "context keeps pdf and ps stream targets alive after surface scope exits" {
 
 ///|
 test "surface copy_page and show_page are checked operations" {
-  let surface = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let surface = @cairoon.Surface::image(Argb32, 1, 1)
   surface.copy_page()
   surface.show_page()
   debug_inspect(surface.status(), content="Success")
@@ -196,9 +196,7 @@ test "surface copy_page and show_page are checked operations" {
 
 ///|
 test "context borrowed returns propagate cairo error" {
-  let ctx = @cairoon.Context::new(
-    @cairoon.Surface::image(@cairoon.Argb32, 1, 1),
-  )
+  let ctx = @cairoon.Context::new(@cairoon.Surface::image(Argb32, 1, 1))
   let set_result = @cairoon.run_cairo(() => {
     ctx.set_matrix(@cairoon.Matrix::new(xx=0.0, yy=0.0))
   })
@@ -210,7 +208,7 @@ test "context borrowed returns propagate cairo error" {
   })
   inspect(target_result is Err(_), content="true")
   match target_result {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidMatrix, _)) => ()
+    Err(CairoInvalidArgument(InvalidMatrix, _)) => ()
     _ => @test.fail("expected InvalidMatrix")
   }
 
@@ -220,7 +218,7 @@ test "context borrowed returns propagate cairo error" {
   })
   inspect(source_result is Err(_), content="true")
   match source_result {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidMatrix, _)) => ()
+    Err(CairoInvalidArgument(InvalidMatrix, _)) => ()
     _ => @test.fail("expected InvalidMatrix")
   }
 }

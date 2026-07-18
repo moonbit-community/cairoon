@@ -2,7 +2,7 @@
 fn make_raster_manual_color_source(
   color : Int,
 ) -> @cairoon.Surface raise @cairoon.CairoError {
-  let surface = @cairoon.Surface::image(@cairoon.Argb32, 3, 3)
+  let surface = @cairoon.Surface::image(Argb32, 3, 3)
   let ctx = @cairoon.Context::new(surface)
   paint_raster_manual_color(ctx, color)
   surface
@@ -57,7 +57,7 @@ test "raster source manual callback multi-seed fuzz keeps owners balanced" {
     make_raster_manual_color_source(1),
     make_raster_manual_color_source(2),
   ]
-  let failed_source = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let failed_source = @cairoon.Surface::image(Argb32, 1, 1)
   failed_source.finish()
   expect_raster_manual_owner_counts_zero(sources, failed_source)
 
@@ -73,11 +73,7 @@ test "raster source manual callback multi-seed fuzz keeps owners balanced" {
 
   for seed_start in [11, 137, 523] {
     let seed = Ref(seed_start)
-    let pattern = @cairoon.Pattern::raster_source(
-      @cairoon.ContentColorAlpha,
-      3,
-      3,
-    )
+    let pattern = @cairoon.Pattern::raster_source(ContentColorAlpha, 3, 3)
 
     for step in 0..<48 {
       let value = next_raster_manual_seed(seed)
@@ -122,7 +118,7 @@ test "raster source manual callback multi-seed fuzz keeps owners balanced" {
           } else if use_dynamic_source {
             dynamic_acquires.val += 1
             let source = try! target.create_similar_image(
-              @cairoon.Argb32,
+              Argb32,
               extents.width,
               extents.height,
             )
@@ -162,7 +158,7 @@ test "raster source manual callback multi-seed fuzz keeps owners balanced" {
           match current_acquire {
             Some(manual_acquire) => {
               let manual_target = @cairoon.Surface::image(
-                @cairoon.Argb32,
+                Argb32,
                 2 + value % 2,
                 2 + step % 2,
               )
@@ -187,7 +183,7 @@ test "raster source manual callback multi-seed fuzz keeps owners balanced" {
         }
 
         let target = @cairoon.Surface::image(
-          @cairoon.Argb32,
+          Argb32,
           1 + value % 3,
           1 + value / 3 % 3,
         )
@@ -196,8 +192,7 @@ test "raster source manual callback multi-seed fuzz keeps owners balanced" {
         let result = @cairoon.run_cairo(() => ctx.paint())
         if should_fail {
           match result {
-            Err(@cairoon.CairoMemoryError(@cairoon.NoMemory, _)) =>
-              paint_failures.val += 1
+            Err(CairoMemoryError(NoMemory, _)) => paint_failures.val += 1
             _ => @test.fail("expected NoMemory from finished acquire surface")
           }
         } else {

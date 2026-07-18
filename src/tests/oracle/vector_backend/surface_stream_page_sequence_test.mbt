@@ -22,17 +22,17 @@ fn make_stream_page_sequence_stream_surface(
     0 =>
       @cairoon.Surface::pdf_stream(132.0, 96.0, fn(chunk) {
         chunks.push(chunk)
-        @cairoon.Success
+        Success
       })
     1 =>
       @cairoon.Surface::ps_stream(132.0, 96.0, fn(chunk) {
         chunks.push(chunk)
-        @cairoon.Success
+        Success
       })
     2 =>
       @cairoon.Surface::svg_stream(132.0, 96.0, fn(chunk) {
         chunks.push(chunk)
-        @cairoon.Success
+        Success
       })
     _ => vector_backend_invalid_surface()
   }
@@ -47,35 +47,14 @@ fn configure_stream_page_sequence_backend(
 ) -> Unit raise @cairoon.CairoError {
   match kind {
     0 => {
-      surface.pdf_restrict_to_version(@cairoon.PdfVersion1_4)
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataTitle,
-        "Cairoon Page Sequence",
-      )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataAuthor,
-        "cairoon sequence author",
-      )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataSubject,
-        "page sequence metadata",
-      )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataKeywords,
-        "sequence,pages,metadata",
-      )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataCreator,
-        "cairoon page sequence",
-      )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataCreateDate,
-        fixed_pdf_metadata_date(),
-      )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataModDate,
-        fixed_pdf_metadata_date(),
-      )
+      surface.pdf_restrict_to_version(PdfVersion1_4)
+      surface.pdf_set_metadata(PdfMetadataTitle, "Cairoon Page Sequence")
+      surface.pdf_set_metadata(PdfMetadataAuthor, "cairoon sequence author")
+      surface.pdf_set_metadata(PdfMetadataSubject, "page sequence metadata")
+      surface.pdf_set_metadata(PdfMetadataKeywords, "sequence,pages,metadata")
+      surface.pdf_set_metadata(PdfMetadataCreator, "cairoon page sequence")
+      surface.pdf_set_metadata(PdfMetadataCreateDate, fixed_pdf_metadata_date())
+      surface.pdf_set_metadata(PdfMetadataModDate, fixed_pdf_metadata_date())
       set_pdf_custom_metadata_if_supported(
         surface,
         "Sequence",
@@ -91,7 +70,7 @@ fn configure_stream_page_sequence_backend(
       set_pdf_custom_metadata_if_supported(surface, "Transient", None)
     }
     1 => {
-      surface.ps_restrict_to_level(@cairoon.PsLevel3)
+      surface.ps_restrict_to_level(PsLevel3)
       surface.ps_set_eps(false)
       surface.ps_dsc_begin_setup()
       surface.ps_dsc_comment("%%Title: Cairoon Page Sequence")
@@ -100,10 +79,10 @@ fn configure_stream_page_sequence_backend(
       surface.ps_dsc_comment("%%IncludeFeature: *PageSize Letter")
     }
     2 => {
-      surface.svg_restrict_to_version(@cairoon.SvgVersion1_2)
-      surface.svg_set_document_unit(@cairoon.SvgUnitPx)
+      surface.svg_restrict_to_version(SvgVersion1_2)
+      surface.svg_set_document_unit(SvgUnitPx)
     }
-    _ => @cairoon.check_status(@cairoon.InvalidStatus)
+    _ => @cairoon.check_status(InvalidStatus)
   }
 }
 
@@ -138,10 +117,7 @@ fn render_stream_page_sequence_scene(
       @cairoon.PDF_OUTLINE_ROOT,
       "sequence cover",
       "page=1 pos=[12 20]",
-      @cairoon.PDFOutlineFlagSet::combine([
-        @cairoon.PdfOutlineOpen,
-        @cairoon.PdfOutlineBold,
-      ]),
+      @cairoon.PDFOutlineFlagSet::combine([PdfOutlineOpen, PdfOutlineBold]),
     )
   }
   ctx.set_source_rgb(0.90, 0.95, 1.0)
@@ -163,7 +139,7 @@ fn render_stream_page_sequence_scene(
       root_id,
       "sequence retained overlay",
       "page=2 pos=[12 54]",
-      @cairoon.PDFOutlineFlagSet::of(@cairoon.PdfOutlineItalic),
+      @cairoon.PDFOutlineFlagSet::of(PdfOutlineItalic),
     )
   } else {
     resize_stream_page_sequence_surface(kind, surface, 96.0, 132.0)
@@ -183,10 +159,7 @@ fn render_stream_page_sequence_scene(
       root_id,
       "sequence fresh copy",
       "page=3 pos=[12 32]",
-      @cairoon.PDFOutlineFlagSet::combine([
-        @cairoon.PdfOutlineOpen,
-        @cairoon.PdfOutlineItalic,
-      ]),
+      @cairoon.PDFOutlineFlagSet::combine([PdfOutlineOpen, PdfOutlineItalic]),
     )
   } else {
     resize_stream_page_sequence_surface(kind, surface, 132.0, 96.0)
@@ -210,7 +183,7 @@ fn render_stream_page_sequence_scene(
       @cairoon.PDF_OUTLINE_ROOT,
       "sequence final",
       "page=4 pos=[8 28]",
-      @cairoon.PDFOutlineFlagSet::of(@cairoon.PdfOutlineBold),
+      @cairoon.PDFOutlineFlagSet::of(PdfOutlineBold),
     )
   } else {
     resize_stream_page_sequence_surface(kind, surface, 72.0, 120.0)

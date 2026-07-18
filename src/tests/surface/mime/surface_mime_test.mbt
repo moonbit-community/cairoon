@@ -85,18 +85,12 @@ fn mime_bytes_contains(haystack : Bytes, needle : Bytes) -> Bool {
 ///|
 fn write_pycairo_pdf_jpeg_mime(path : String, jpeg : Bytes) -> Unit raise {
   let surface = @cairoon.Surface::pdf(3.0, 3.0, path=Some(path))
-  surface.pdf_restrict_to_version(@cairoon.PdfVersion1_4)
-  surface.pdf_set_metadata(@cairoon.PdfMetadataCreator, "cairoon-mime-parity")
-  surface.pdf_set_metadata(
-    @cairoon.PdfMetadataCreateDate,
-    "2026-01-02T03:04:05+00:00",
-  )
-  surface.pdf_set_metadata(
-    @cairoon.PdfMetadataModDate,
-    "2026-01-02T03:04:05+00:00",
-  )
+  surface.pdf_restrict_to_version(PdfVersion1_4)
+  surface.pdf_set_metadata(PdfMetadataCreator, "cairoon-mime-parity")
+  surface.pdf_set_metadata(PdfMetadataCreateDate, "2026-01-02T03:04:05+00:00")
+  surface.pdf_set_metadata(PdfMetadataModDate, "2026-01-02T03:04:05+00:00")
   let ctx = @cairoon.Context::new(surface)
-  let image = @cairoon.Surface::image(@cairoon.Rgb24, 1, 1)
+  let image = @cairoon.Surface::image(Rgb24, 1, 1)
   image.set_mime_data(@cairoon.MIME_TYPE_JPEG, Some(jpeg))
   ctx.set_source_surface(image)
   ctx.paint()
@@ -105,7 +99,7 @@ fn write_pycairo_pdf_jpeg_mime(path : String, jpeg : Bytes) -> Unit raise {
 
 ///|
 test "surface mime data set get and clear" {
-  let surface = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let surface = @cairoon.Surface::image(Argb32, 1, 1)
   inspect(surface.get_mime_data("foo") is None, content="true")
   inspect(
     surface.get_mime_data(@cairoon.MIME_TYPE_JPEG) is None,
@@ -122,7 +116,7 @@ test "surface mime data set get and clear" {
 
 ///|
 test "pycairo mime data multi-key clear fixture" {
-  let surface = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let surface = @cairoon.Surface::image(Argb32, 1, 1)
   let payload = @utf8.encode("bla")
   let head = Bytes::from_array([b'b'])
 
@@ -162,7 +156,7 @@ test "pycairo PDF MIME data embeds JPEG payload fixture" {
 
 ///|
 test "surface mime data preserves embedded nul bytes and zero length payloads" {
-  let surface = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let surface = @cairoon.Surface::image(Argb32, 1, 1)
   let binary = binary_mime_payload()
   surface.set_mime_data(@cairoon.MIME_TYPE_JPEG, Some(binary))
   expect_mime_bytes(surface, @cairoon.MIME_TYPE_JPEG, binary)
@@ -177,12 +171,12 @@ test "surface mime data preserves embedded nul bytes and zero length payloads" {
 
 ///|
 test "surface mime data validates mime type strings" {
-  let surface = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let surface = @cairoon.Surface::image(Argb32, 1, 1)
   let invalid = @cairoon.run_cairo(() => {
     surface.set_mime_data("bad\u{0}mime", Some(@utf8.encode("data")))
   })
   match invalid {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidString, _)) => ()
+    Err(CairoInvalidArgument(InvalidString, _)) => ()
     _ => @test.fail("expected InvalidString for set_mime_data")
   }
 
@@ -191,14 +185,14 @@ test "surface mime data validates mime type strings" {
     ()
   })
   match get_invalid {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidString, _)) => ()
+    Err(CairoInvalidArgument(InvalidString, _)) => ()
     _ => @test.fail("expected InvalidString for get_mime_data")
   }
 }
 
 ///|
 test "surface reports unsupported mime type" {
-  let surface = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let surface = @cairoon.Surface::image(Argb32, 1, 1)
   inspect(surface.supports_mime_type(@cairoon.MIME_TYPE_JPEG), content="false")
 
   let invalid = @cairoon.run_cairo(() => {
@@ -206,7 +200,7 @@ test "surface reports unsupported mime type" {
     ()
   })
   match invalid {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidString, _)) => ()
+    Err(CairoInvalidArgument(InvalidString, _)) => ()
     _ => @test.fail("expected InvalidString for supports_mime_type")
   }
 }
@@ -275,7 +269,7 @@ fn inspect_mime_support(
 test "backend surfaces report cairo mime support matrix" {
   inspect_mime_support(
     "image",
-    @cairoon.Surface::image(@cairoon.Argb32, 1, 1),
+    @cairoon.Surface::image(Argb32, 1, 1),
     jpeg=false,
     png=false,
     jp2=false,

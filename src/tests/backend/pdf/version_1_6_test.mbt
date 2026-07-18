@@ -1,11 +1,11 @@
 ///|
 test "pdf 1.6 typed version follows linked cairo support" {
   let versions = @cairoon.PDFVersion::supported()
-  if versions.any(version => version == @cairoon.PdfVersion1_6) {
+  if versions.any(version => version == PdfVersion1_6) {
     inspect(@cairoon.PdfVersion1_6.to_string(), content="PDF 1.6")
   } else {
     match @cairoon.run_cairo(() => @cairoon.PdfVersion1_6.to_string()) {
-      Err(@cairoon.CairoError(@cairoon.InvalidStatus, _)) => ()
+      Err(CairoError(InvalidStatus, _)) => ()
       _ => @test.fail("expected PDF 1.6 to require linked Cairo support")
     }
   }

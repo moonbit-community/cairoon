@@ -22,17 +22,17 @@ fn make_stream_article_thread_stream_surface(
     0 =>
       @cairoon.Surface::pdf_stream(132.0, 96.0, fn(chunk) {
         chunks.push(chunk)
-        @cairoon.Success
+        Success
       })
     1 =>
       @cairoon.Surface::ps_stream(132.0, 96.0, fn(chunk) {
         chunks.push(chunk)
-        @cairoon.Success
+        Success
       })
     2 =>
       @cairoon.Surface::svg_stream(132.0, 96.0, fn(chunk) {
         chunks.push(chunk)
-        @cairoon.Success
+        Success
       })
     _ => vector_backend_invalid_surface()
   }
@@ -47,39 +47,15 @@ fn configure_stream_article_thread_backend(
 ) -> Unit raise @cairoon.CairoError {
   match kind {
     0 => {
-      surface.pdf_restrict_to_version(@cairoon.PdfVersion1_4)
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataTitle,
-        "Cairoon Article Thread",
-      )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataAuthor,
-        "cairoon backend oracle",
-      )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataSubject,
-        "draft article thread",
-      )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataSubject,
-        "final article thread",
-      )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataKeywords,
-        "article,thread,aside,note",
-      )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataCreator,
-        "cairoon article thread",
-      )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataCreateDate,
-        fixed_pdf_metadata_date(),
-      )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataModDate,
-        fixed_pdf_metadata_date(),
-      )
+      surface.pdf_restrict_to_version(PdfVersion1_4)
+      surface.pdf_set_metadata(PdfMetadataTitle, "Cairoon Article Thread")
+      surface.pdf_set_metadata(PdfMetadataAuthor, "cairoon backend oracle")
+      surface.pdf_set_metadata(PdfMetadataSubject, "draft article thread")
+      surface.pdf_set_metadata(PdfMetadataSubject, "final article thread")
+      surface.pdf_set_metadata(PdfMetadataKeywords, "article,thread,aside,note")
+      surface.pdf_set_metadata(PdfMetadataCreator, "cairoon article thread")
+      surface.pdf_set_metadata(PdfMetadataCreateDate, fixed_pdf_metadata_date())
+      surface.pdf_set_metadata(PdfMetadataModDate, fixed_pdf_metadata_date())
       set_pdf_custom_metadata_if_supported(surface, "Thread", Some("draft"))
       set_pdf_custom_metadata_if_supported(surface, "Thread", Some("final"))
       set_pdf_custom_metadata_if_supported(
@@ -90,7 +66,7 @@ fn configure_stream_article_thread_backend(
       set_pdf_custom_metadata_if_supported(surface, "Transient", None)
     }
     1 => {
-      surface.ps_restrict_to_level(@cairoon.PsLevel3)
+      surface.ps_restrict_to_level(PsLevel3)
       surface.ps_set_eps(false)
       surface.ps_dsc_begin_setup()
       surface.ps_dsc_comment("%%Title: Cairoon Article Thread")
@@ -99,10 +75,10 @@ fn configure_stream_article_thread_backend(
       surface.ps_dsc_comment("%%IncludeFeature: *PageSize ArticleThread")
     }
     2 => {
-      surface.svg_restrict_to_version(@cairoon.SvgVersion1_2)
-      surface.svg_set_document_unit(@cairoon.SvgUnitPt)
+      surface.svg_restrict_to_version(SvgVersion1_2)
+      surface.svg_set_document_unit(SvgUnitPt)
     }
-    _ => @cairoon.check_status(@cairoon.InvalidStatus)
+    _ => @cairoon.check_status(InvalidStatus)
   }
 }
 
@@ -187,10 +163,7 @@ fn render_stream_article_thread_scene(
       @cairoon.PDF_OUTLINE_ROOT,
       "article intro",
       "page=1 pos=[12 28]",
-      @cairoon.PDFOutlineFlagSet::combine([
-        @cairoon.PdfOutlineOpen,
-        @cairoon.PdfOutlineBold,
-      ]),
+      @cairoon.PDFOutlineFlagSet::combine([PdfOutlineOpen, PdfOutlineBold]),
     )
   }
   ctx.set_source_rgb(0.96, 0.97, 0.91)
@@ -223,7 +196,7 @@ fn render_stream_article_thread_scene(
       intro_id,
       "article note",
       "page=2 pos=[20 68]",
-      @cairoon.PDFOutlineFlagSet::of(@cairoon.PdfOutlineItalic),
+      @cairoon.PDFOutlineFlagSet::of(PdfOutlineItalic),
     )
   } else {
     resize_stream_article_thread_surface(kind, surface, 144.0, 108.0)
@@ -252,10 +225,7 @@ fn render_stream_article_thread_scene(
       note_id,
       "article figure",
       "page=3 pos=[20 98]",
-      @cairoon.PDFOutlineFlagSet::combine([
-        @cairoon.PdfOutlineBold,
-        @cairoon.PdfOutlineItalic,
-      ]),
+      @cairoon.PDFOutlineFlagSet::combine([PdfOutlineBold, PdfOutlineItalic]),
     )
   } else {
     resize_stream_article_thread_surface(kind, surface, 126.0, 116.0)

@@ -1,7 +1,7 @@
 ///|
 fn surface_with_local_pixel_buffer() -> @cairoon.Surface raise @cairoon.CairoError {
   let data : FixedArray[Byte] = FixedArray::make(4, b'\x00')
-  @cairoon.Surface::image_for_data(data, @cairoon.Argb32, 1, 1)
+  @cairoon.Surface::image_for_data(data, Argb32, 1, 1)
 }
 
 ///|
@@ -35,15 +35,9 @@ fn set_argb32_pixel(
 
 ///|
 test "image surface for data shares caller buffer" {
-  let stride = @cairoon.Format::stride_for_width(@cairoon.Argb32, 1)
+  let stride = @cairoon.Format::stride_for_width(Argb32, 1)
   let data : FixedArray[Byte] = FixedArray::make(stride, b'\x00')
-  let surface = @cairoon.Surface::image_for_data(
-    data,
-    @cairoon.Argb32,
-    1,
-    1,
-    stride~,
-  )
+  let surface = @cairoon.Surface::image_for_data(data, Argb32, 1, 1, stride~)
   let ctx = @cairoon.Context::new(surface)
   ctx.set_source_rgba(0.0, 1.0, 0.0, 1.0)
   ctx.paint()
@@ -59,11 +53,11 @@ test "image surface for data shares caller buffer" {
 test "pycairo image surface create_for_data releases retained buffer on finish" {
   let width = 6
   let height = 4
-  let stride = @cairoon.Format::stride_for_width(@cairoon.Argb32, width)
+  let stride = @cairoon.Format::stride_for_width(Argb32, width)
   let data : FixedArray[Byte] = FixedArray::make(stride * height, b'\x00')
   let surface = @cairoon.Surface::image_for_data(
     data,
-    @cairoon.Argb32,
+    Argb32,
     width,
     height,
     stride~,
@@ -77,7 +71,7 @@ test "pycairo image surface create_for_data releases retained buffer on finish" 
     ()
   })
   match result {
-    Err(@cairoon.CairoError(@cairoon.SurfaceFinished, _)) => ()
+    Err(CairoError(SurfaceFinished, _)) => ()
     _ => @test.fail("expected SurfaceFinished after finish")
   }
   data[0] = b'\xff'
@@ -87,20 +81,14 @@ test "pycairo image surface create_for_data releases retained buffer on finish" 
 ///|
 test "surface finish releases retained data after a sticky cairo error" {
   let data : FixedArray[Byte] = FixedArray::make(4, b'\x00')
-  let surface = @cairoon.Surface::image_for_data(
-    data,
-    @cairoon.Argb32,
-    1,
-    1,
-    stride=4,
-  )
+  let surface = @cairoon.Surface::image_for_data(data, Argb32, 1, 1, stride=4)
   ignore(@oracle_native.oracle_native_anchor())
   inspect(image_surface_has_data_user_data_ffi(surface), content="true")
   inspect(surface_poison_with_invalid_fallback_ffi(surface), content="5")
   debug_inspect(surface.status(), content="InvalidMatrix")
 
   match @cairoon.run_cairo(() => surface.finish()) {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidMatrix, _)) => ()
+    Err(CairoInvalidArgument(InvalidMatrix, _)) => ()
     _ => @test.fail("expected sticky InvalidMatrix from finish")
   }
   inspect(image_surface_has_data_user_data_ffi(surface), content="false")
@@ -110,7 +98,7 @@ test "surface finish releases retained data after a sticky cairo error" {
 test "pycairo image surface create_for_data array fixture" {
   let width = 32
   let height = 32
-  let stride = @cairoon.Format::stride_for_width(@cairoon.Argb32, width)
+  let stride = @cairoon.Format::stride_for_width(Argb32, width)
   let data : FixedArray[Byte] = FixedArray::make(stride * height, b'\x00')
   for y in 0..<height {
     let alpha = y * 255 / 31
@@ -118,12 +106,7 @@ test "pycairo image surface create_for_data array fixture" {
       set_argb32_pixel(data, stride, x, y, alpha)
     }
   }
-  let surface = @cairoon.Surface::image_for_data(
-    data,
-    @cairoon.Argb32,
-    width,
-    height,
-  )
+  let surface = @cairoon.Surface::image_for_data(data, Argb32, width, height)
   inspect(surface.get_width(), content="32")
   inspect(surface.get_height(), content="32")
   inspect(surface.get_stride(), content="\{stride}")
@@ -151,11 +134,11 @@ test "pycairo image surface create_for_data array fixture" {
 ///|
 test "image surface for data supports cairo float formats" {
   if @cairoon.CAIRO_VERSION >= 11702 {
-    let rgb_stride = @cairoon.Format::stride_for_width(@cairoon.Rgb96F, 2)
+    let rgb_stride = @cairoon.Format::stride_for_width(Rgb96F, 2)
     let rgb_data : FixedArray[Byte] = FixedArray::make(rgb_stride, b'\x00')
     let rgb = @cairoon.Surface::image_for_data(
       rgb_data,
-      @cairoon.Rgb96F,
+      Rgb96F,
       2,
       1,
       stride=rgb_stride,
@@ -164,11 +147,11 @@ test "image surface for data supports cairo float formats" {
     inspect(rgb.get_stride(), content="\{rgb_stride}")
     inspect(rgb.copy_data() == Bytes::from_array(rgb_data), content="true")
 
-    let rgba_stride = @cairoon.Format::stride_for_width(@cairoon.Rgba128F, 2)
+    let rgba_stride = @cairoon.Format::stride_for_width(Rgba128F, 2)
     let rgba_data : FixedArray[Byte] = FixedArray::make(rgba_stride, b'\x00')
     let rgba = @cairoon.Surface::image_for_data(
       rgba_data,
-      @cairoon.Rgba128F,
+      Rgba128F,
       2,
       1,
       stride=rgba_stride,
@@ -177,11 +160,8 @@ test "image surface for data supports cairo float formats" {
     inspect(rgba.get_stride(), content="\{rgba_stride}")
     inspect(rgba.copy_data() == Bytes::from_array(rgba_data), content="true")
   } else {
-    inspect(@cairoon.Format::stride_for_width(@cairoon.Rgb96F, 2), content="-1")
-    inspect(
-      @cairoon.Format::stride_for_width(@cairoon.Rgba128F, 2),
-      content="-1",
-    )
+    inspect(@cairoon.Format::stride_for_width(Rgb96F, 2), content="-1")
+    inspect(@cairoon.Format::stride_for_width(Rgba128F, 2), content="-1")
   }
 }
 
@@ -201,23 +181,13 @@ test "image surface for data retains local buffer" {
 ///|
 test "image surface for data allows empty zero dimension buffer" {
   let data : FixedArray[Byte] = FixedArray::make(0, b'\x00')
-  let zero_height = @cairoon.Surface::image_for_data(
-    data,
-    @cairoon.Argb32,
-    10,
-    0,
-  )
+  let zero_height = @cairoon.Surface::image_for_data(data, Argb32, 10, 0)
   inspect(zero_height.get_width(), content="10")
   inspect(zero_height.get_height(), content="0")
   inspect(zero_height.get_stride(), content="40")
   inspect(zero_height.copy_data().length(), content="0")
 
-  let zero_width = @cairoon.Surface::image_for_data(
-    data,
-    @cairoon.Argb32,
-    0,
-    10,
-  )
+  let zero_width = @cairoon.Surface::image_for_data(data, Argb32, 0, 10)
   inspect(zero_width.get_width(), content="0")
   inspect(zero_width.get_height(), content="10")
   inspect(zero_width.get_stride(), content="0")
@@ -226,37 +196,31 @@ test "image surface for data allows empty zero dimension buffer" {
 
 ///|
 test "image surface for data validates stride and buffer size" {
-  let stride = @cairoon.Format::stride_for_width(@cairoon.Argb32, 1)
+  let stride = @cairoon.Format::stride_for_width(Argb32, 1)
   let short : FixedArray[Byte] = FixedArray::make(stride - 1, b'\x00')
   let short_result = @cairoon.run_cairo(() => {
-    @cairoon.Surface::image_for_data(short, @cairoon.Argb32, 1, 1, stride~)
+    @cairoon.Surface::image_for_data(short, Argb32, 1, 1, stride~)
   })
   match short_result {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidSize, _)) => ()
+    Err(CairoInvalidArgument(InvalidSize, _)) => ()
     _ => @test.fail("expected InvalidSize for short image buffer")
   }
 
   let bad_stride : FixedArray[Byte] = FixedArray::make(12, b'\x00')
   let stride_result = @cairoon.run_cairo(() => {
-    @cairoon.Surface::image_for_data(
-      bad_stride,
-      @cairoon.Argb32,
-      3,
-      3,
-      stride=3,
-    )
+    @cairoon.Surface::image_for_data(bad_stride, Argb32, 3, 3, stride=3)
   })
   match stride_result {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidStride, _)) => ()
+    Err(CairoInvalidArgument(InvalidStride, _)) => ()
     _ => @test.fail("expected InvalidStride for invalid image stride")
   }
 
   let negative : FixedArray[Byte] = FixedArray::make(0, b'\x00')
   let negative_result = @cairoon.run_cairo(() => {
-    @cairoon.Surface::image_for_data(negative, @cairoon.Argb32, -1, 1)
+    @cairoon.Surface::image_for_data(negative, Argb32, -1, 1)
   })
   match negative_result {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidSize, _)) => ()
+    Err(CairoInvalidArgument(InvalidSize, _)) => ()
     _ => @test.fail("expected InvalidSize for negative image dimension")
   }
 }

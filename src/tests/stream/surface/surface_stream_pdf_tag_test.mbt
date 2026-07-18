@@ -15,14 +15,11 @@ test "pdf stream public tag metadata markers stay stable" {
   let chunks : Array[Bytes] = []
   let surface = @cairoon.Surface::pdf_stream(96.0, 72.0, fn(chunk) {
     chunks.push(chunk)
-    @cairoon.Success
+    Success
   })
-  surface.pdf_restrict_to_version(@cairoon.PdfVersion1_4)
-  surface.pdf_set_metadata(
-    @cairoon.PdfMetadataTitle,
-    "Cairoon Public Stream Tags",
-  )
-  surface.pdf_set_metadata(@cairoon.PdfMetadataCreator, "cairoon public stream")
+  surface.pdf_restrict_to_version(PdfVersion1_4)
+  surface.pdf_set_metadata(PdfMetadataTitle, "Cairoon Public Stream Tags")
+  surface.pdf_set_metadata(PdfMetadataCreator, "cairoon public stream")
   if @cairoon.CAIRO_VERSION >= 11706 {
     surface.pdf_set_custom_metadata(
       "PublicTag",
@@ -34,7 +31,7 @@ test "pdf stream public tag metadata markers stay stable" {
     @cairoon.PDF_OUTLINE_ROOT,
     "stream cover",
     "page=1 pos=[8 16]",
-    @cairoon.PDFOutlineFlagSet::of(@cairoon.PdfOutlineOpen),
+    @cairoon.PDFOutlineFlagSet::of(PdfOutlineOpen),
   )
 
   let ctx = @cairoon.Context::new(surface)
@@ -62,7 +59,7 @@ test "pdf stream public tag metadata markers stay stable" {
     cover_id,
     "stream final",
     "page=2 pos=[12 24]",
-    @cairoon.PDFOutlineFlagSet::of(@cairoon.PdfOutlineBold),
+    @cairoon.PDFOutlineFlagSet::of(PdfOutlineBold),
   )
   ctx.set_source_rgb(1.0, 0.94, 0.88)
   ctx.paint()

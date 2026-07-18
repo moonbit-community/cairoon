@@ -2,7 +2,7 @@
 fn lifetime_image_data_from_local_surface(
   value : Byte,
 ) -> @cairoon.ImageData raise @cairoon.CairoError {
-  let surface = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let surface = @cairoon.Surface::image(Argb32, 1, 1)
   let data = surface.get_data()
   data.set(0, value)
   data
@@ -23,7 +23,7 @@ fn expect_lifetime_image_data_mapped_finished(
 ) -> Unit raise {
   inspect(result is Err(_), content="true")
   match result {
-    Err(@cairoon.CairoError(@cairoon.SurfaceFinished, _)) => ()
+    Err(CairoError(SurfaceFinished, _)) => ()
     _ => @test.fail("expected SurfaceFinished")
   }
 }
@@ -43,12 +43,7 @@ fn lifetime_stress_image_data_views(index : Int) -> Unit raise {
   }
 
   let backing : FixedArray[Byte] = FixedArray::make(4, b'\x00')
-  let backed_surface = @cairoon.Surface::image_for_data(
-    backing,
-    @cairoon.Argb32,
-    1,
-    1,
-  )
+  let backed_surface = @cairoon.Surface::image_for_data(backing, Argb32, 1, 1)
   let backed = backed_surface.get_data()
   backed.set(2, first)
   backed.set(3, second)
@@ -56,7 +51,7 @@ fn lifetime_stress_image_data_views(index : Int) -> Unit raise {
     @test.fail("image data view stopped sharing buffer-backed storage")
   }
 
-  let base = @cairoon.Surface::image(@cairoon.Rgb24, 1, 1)
+  let base = @cairoon.Surface::image(Rgb24, 1, 1)
   let mapped = base.map_to_image()
   let mapped_data = mapped.get_data()
   mapped_data.set(0, b'\xff')

@@ -73,7 +73,7 @@ fn text_glyph_run_from_oracle(
     x, y, text,
   )
   if positions.length() != indices.length() * 2 {
-    @cairoon.check_status(@cairoon.InvalidSize)
+    @cairoon.check_status(InvalidSize)
   }
   let glyphs = Array::makei(indices.length(), index => {
     let offset = index * 2
@@ -88,7 +88,7 @@ fn text_glyph_run_from_oracle(
     x, y, text,
   )
   if cluster_values.length() % 2 != 0 {
-    @cairoon.check_status(@cairoon.InvalidSize)
+    @cairoon.check_status(InvalidSize)
   }
   let clusters = Array::makei(cluster_values.length() / 2, index => {
     let offset = index * 2
@@ -106,9 +106,9 @@ fn text_glyph_run_from_oracle(
 
 ///|
 fn scaled_font_oracle_make_font() -> @cairoon.ScaledFont raise @cairoon.CairoError {
-  let face = @cairoon.FontFace::toy("serif", weight=@cairoon.FontWeightBold)
+  let face = @cairoon.FontFace::toy("serif", weight=FontWeightBold)
   let options = @cairoon.FontOptions::new()
-  options.set_antialias(@cairoon.AntialiasGray)
+  options.set_antialias(AntialiasGray)
   @cairoon.ScaledFont::new(
     face,
     @cairoon.Matrix::new(xx=12.0, yy=12.0),

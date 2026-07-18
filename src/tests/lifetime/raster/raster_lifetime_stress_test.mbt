@@ -5,7 +5,7 @@ fn raster_stress_paint_source(
   blue : Double,
 ) -> @cairoon.Surface raise @cairoon.CairoError {
   let backing : FixedArray[Byte] = FixedArray::make(4, b'\x00')
-  let surface = @cairoon.Surface::image_for_data(backing, @cairoon.Argb32, 1, 1)
+  let surface = @cairoon.Surface::image_for_data(backing, Argb32, 1, 1)
   let ctx = @cairoon.Context::new(surface)
   ctx.set_source_rgba(red, green, blue, 1.0)
   ctx.paint()
@@ -40,11 +40,7 @@ fn raster_stress_pattern_from_local_source(
   release_calls : Ref[Int],
 ) -> @cairoon.Pattern raise @cairoon.CairoError {
   let source = raster_stress_paint_source(0.0, 0.0, 1.0)
-  let pattern = @cairoon.Pattern::raster_source(
-    @cairoon.ContentColorAlpha,
-    1,
-    1,
-  )
+  let pattern = @cairoon.Pattern::raster_source(ContentColorAlpha, 1, 1)
   pattern.raster_set_acquire(
     fn(target, extents) {
       acquire_calls.val += 1
@@ -64,7 +60,7 @@ fn raster_stress_pattern_from_local_source(
 fn raster_stress_render(
   pattern : @cairoon.Pattern,
 ) -> Bytes raise @cairoon.CairoError {
-  let target = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let target = @cairoon.Surface::image(Argb32, 1, 1)
   let ctx = @cairoon.Context::new(target)
   ctx.set_source(pattern)
   ctx.paint()
@@ -88,7 +84,7 @@ fn raster_stress_one_iteration(index : Int) -> Unit raise {
 
   match pattern.raster_get_acquire() {
     Some((acquire, Some(release))) => {
-      let target = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+      let target = @cairoon.Surface::image(Argb32, 1, 1)
       let acquired = acquire(
         target,
         @cairoon.RectangleInt::new(width=1, height=1),

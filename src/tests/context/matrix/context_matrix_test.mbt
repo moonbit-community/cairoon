@@ -1,6 +1,6 @@
 ///|
 fn context_matrix_surface() -> @cairoon.Surface raise @cairoon.CairoError {
-  @cairoon.Surface::image(@cairoon.Argb32, 16, 16)
+  @cairoon.Surface::image(Argb32, 16, 16)
 }
 
 ///|
@@ -100,14 +100,14 @@ test "context matrix mutators reject non-invertible transforms" {
     set_ctx.set_matrix(@cairoon.Matrix::new(xx=0.0, yy=0.0))
   })
   match set_result {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidMatrix, _)) => ()
+    Err(CairoInvalidArgument(InvalidMatrix, _)) => ()
     _ => @test.fail("expected InvalidMatrix from set_matrix")
   }
 
   let scale_ctx = @cairoon.Context::new(context_matrix_surface())
   let scale_result = @cairoon.run_cairo(() => scale_ctx.scale(0.0, 1.0))
   match scale_result {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidMatrix, _)) => ()
+    Err(CairoInvalidArgument(InvalidMatrix, _)) => ()
     _ => @test.fail("expected InvalidMatrix from scale")
   }
 
@@ -116,7 +116,7 @@ test "context matrix mutators reject non-invertible transforms" {
     transform_ctx.transform(@cairoon.Matrix::new(xx=0.0, yy=0.0))
   })
   match transform_result {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidMatrix, _)) => ()
+    Err(CairoInvalidArgument(InvalidMatrix, _)) => ()
     _ => @test.fail("expected InvalidMatrix from transform")
   }
 }

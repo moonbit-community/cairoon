@@ -17,7 +17,7 @@ fn make_pattern_color_surface(
   width : Int,
   height : Int,
 ) -> @cairoon.Surface raise @cairoon.CairoError {
-  let surface = @cairoon.Surface::image(@cairoon.Argb32, width, height)
+  let surface = @cairoon.Surface::image(Argb32, width, height)
   paint_pattern_color(@cairoon.Context::new(surface), color)
   surface
 }
@@ -39,7 +39,7 @@ test "raster source deterministic callback fuzz recovers after replacements" {
   let static_red = make_pattern_color_surface(0, 3, 3)
   let static_green = make_pattern_color_surface(1, 3, 3)
   let static_blue = make_pattern_color_surface(2, 3, 3)
-  let failed_source = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let failed_source = @cairoon.Surface::image(Argb32, 1, 1)
   failed_source.finish()
 
   let acquire_calls = Ref(0)
@@ -50,11 +50,7 @@ test "raster source deterministic callback fuzz recovers after replacements" {
   let last_extent_width = Ref(0)
   let last_target_width = Ref(0)
   let last_release_width = Ref(0)
-  let pattern = @cairoon.Pattern::raster_source(
-    @cairoon.ContentColorAlpha,
-    3,
-    3,
-  )
+  let pattern = @cairoon.Pattern::raster_source(ContentColorAlpha, 3, 3)
 
   for step in 0..<25 {
     if step % 6 == 0 {
@@ -93,7 +89,7 @@ test "raster source deterministic callback fuzz recovers after replacements" {
           failed_source
         } else if step % 4 == 2 {
           let source = try! target.create_similar_image(
-            @cairoon.Argb32,
+            Argb32,
             extents.width,
             extents.height,
           )
@@ -116,7 +112,7 @@ test "raster source deterministic callback fuzz recovers after replacements" {
     if !should_fail && step % 4 == 1 {
       match pattern.raster_get_acquire() {
         Some((acquire, Some(release))) => {
-          let target = @cairoon.Surface::image(@cairoon.Argb32, 2, 2)
+          let target = @cairoon.Surface::image(Argb32, 2, 2)
           let acquired = acquire(
             target,
             @cairoon.RectangleInt::new(width=2, height=2),
@@ -130,11 +126,7 @@ test "raster source deterministic callback fuzz recovers after replacements" {
 
     let target_width = 1 + step % 3
     let target_height = 1 + step / 3 % 3
-    let target = @cairoon.Surface::image(
-      @cairoon.Argb32,
-      target_width,
-      target_height,
-    )
+    let target = @cairoon.Surface::image(Argb32, target_width, target_height)
     let ctx = @cairoon.Context::new(target)
     let result = @cairoon.run_cairo(() => {
       ctx.set_source(pattern)
@@ -142,8 +134,7 @@ test "raster source deterministic callback fuzz recovers after replacements" {
     })
     if should_fail {
       match result {
-        Err(@cairoon.CairoMemoryError(@cairoon.NoMemory, _)) =>
-          failed_paints.val += 1
+        Err(CairoMemoryError(NoMemory, _)) => failed_paints.val += 1
         _ =>
           @test.fail("expected NoMemory from finished raster acquire surface")
       }
@@ -175,7 +166,7 @@ test "raster source deterministic callback fuzz recovers after replacements" {
   }
 
   pattern.raster_set_acquire(fn(_, _) { static_red })
-  let recovered_target = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let recovered_target = @cairoon.Surface::image(Argb32, 1, 1)
   let recovered_ctx = @cairoon.Context::new(recovered_target)
   recovered_ctx.set_source(pattern)
   recovered_ctx.paint()

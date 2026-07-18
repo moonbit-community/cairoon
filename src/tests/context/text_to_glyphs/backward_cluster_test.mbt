@@ -3,14 +3,9 @@ test "context accepts reverse-order asymmetric UTF-8 clusters" {
   let chunks : Array[Bytes] = []
   let device = @cairoon.Device::script_stream(fn(chunk) {
     chunks.push(chunk)
-    @cairoon.Success
+    Success
   })
-  let surface = @cairoon.Surface::script(
-    device,
-    @cairoon.ContentColorAlpha,
-    32.0,
-    16.0,
-  )
+  let surface = @cairoon.Surface::script(device, ContentColorAlpha, 32.0, 16.0)
   let ctx = @cairoon.Context::new(surface)
   ctx.select_font_face("serif")
   ctx.set_font_size(12.0)
@@ -24,12 +19,7 @@ test "context accepts reverse-order asymmetric UTF-8 clusters" {
     @cairoon.TextCluster::new(2, 1),
     @cairoon.TextCluster::new(1, 1),
   ]
-  ctx.show_text_glyphs(
-    text,
-    glyphs,
-    clusters,
-    flags=@cairoon.TextClusterBackward,
-  )
+  ctx.show_text_glyphs(text, glyphs, clusters, flags=TextClusterBackward)
   surface.finish()
   device.finish()
   let output = StringBuilder()

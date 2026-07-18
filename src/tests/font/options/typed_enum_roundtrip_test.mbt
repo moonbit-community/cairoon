@@ -2,11 +2,11 @@
 test "font subpixel orders round trip through cairo" {
   let options = @cairoon.FontOptions::new()
   let orders : Array[@cairoon.SubpixelOrder] = [
-    @cairoon.SubpixelDefault,
-    @cairoon.SubpixelRgb,
-    @cairoon.SubpixelBgr,
-    @cairoon.SubpixelVrgb,
-    @cairoon.SubpixelVbgr,
+    SubpixelDefault,
+    SubpixelRgb,
+    SubpixelBgr,
+    SubpixelVrgb,
+    SubpixelVbgr,
   ]
   for order in orders {
     options.set_subpixel_order(order)
@@ -18,11 +18,11 @@ test "font subpixel orders round trip through cairo" {
 test "font hint styles round trip through cairo" {
   let options = @cairoon.FontOptions::new()
   let styles : Array[@cairoon.HintStyle] = [
-    @cairoon.HintStyleDefault,
-    @cairoon.HintStyleNone,
-    @cairoon.HintStyleSlight,
-    @cairoon.HintStyleMedium,
-    @cairoon.HintStyleFull,
+    HintStyleDefault,
+    HintStyleNone,
+    HintStyleSlight,
+    HintStyleMedium,
+    HintStyleFull,
   ]
   for style in styles {
     options.set_hint_style(style)
@@ -35,9 +35,9 @@ test "font color modes round trip when supported" {
   if @cairoon.CAIRO_VERSION >= 11800 {
     let options = @cairoon.FontOptions::new()
     let modes : Array[@cairoon.ColorMode] = [
-      @cairoon.ColorModeDefault,
-      @cairoon.ColorModeNoColor,
-      @cairoon.ColorModeColor,
+      ColorModeDefault,
+      ColorModeNoColor,
+      ColorModeColor,
     ]
     for mode in modes {
       options.set_color_mode(mode)
@@ -46,9 +46,9 @@ test "font color modes round trip when supported" {
   } else {
     let options = @cairoon.FontOptions::new()
     let modes : Array[@cairoon.ColorMode] = [
-      @cairoon.ColorModeDefault,
-      @cairoon.ColorModeNoColor,
-      @cairoon.ColorModeColor,
+      ColorModeDefault,
+      ColorModeNoColor,
+      ColorModeColor,
     ]
     for mode in modes {
       expect_font_options_api_unavailable(

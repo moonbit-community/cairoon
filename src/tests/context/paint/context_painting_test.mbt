@@ -16,14 +16,14 @@ fn expect_painting_invalid_matrix(
 ) -> Unit raise {
   inspect(result is Err(_), content="true")
   match result {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidMatrix, _)) => ()
+    Err(CairoInvalidArgument(InvalidMatrix, _)) => ()
     _ => @test.fail("expected InvalidMatrix")
   }
 }
 
 ///|
 test "context paint_with_alpha composites source alpha" {
-  let surface = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let surface = @cairoon.Surface::image(Argb32, 1, 1)
   let ctx = @cairoon.Context::new(surface)
   ctx.set_source_rgba(1.0, 0.0, 0.0, 1.0)
   ctx.paint_with_alpha(0.5)
@@ -37,9 +37,7 @@ test "context paint_with_alpha composites source alpha" {
 
 ///|
 test "context set_source_rgb and rgba round trip through get_source" {
-  let ctx = @cairoon.Context::new(
-    @cairoon.Surface::image(@cairoon.Argb32, 1, 1),
-  )
+  let ctx = @cairoon.Context::new(@cairoon.Surface::image(Argb32, 1, 1))
   ctx.set_source_rgb(1.0, 1.0, 1.0)
   debug_inspect(ctx.get_source().get_rgba(), content="(1, 1, 1, 1)")
 
@@ -55,7 +53,7 @@ test "context set_source_rgb and rgba round trip through get_source" {
 
 ///|
 test "context mask and mask_surface apply alpha masks" {
-  let pattern_target = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let pattern_target = @cairoon.Surface::image(Argb32, 1, 1)
   let pattern_ctx = @cairoon.Context::new(pattern_target)
   pattern_ctx.set_source_rgba(0.0, 1.0, 0.0, 1.0)
   pattern_ctx.mask(@cairoon.Pattern::solid_rgba(0.0, 0.0, 0.0, 1.0))
@@ -65,12 +63,12 @@ test "context mask and mask_surface apply alpha masks" {
   inspect(pattern_data[2].to_int(), content="0")
   inspect(pattern_data[3].to_int(), content="255")
 
-  let mask_surface = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let mask_surface = @cairoon.Surface::image(Argb32, 1, 1)
   let mask_ctx = @cairoon.Context::new(mask_surface)
   mask_ctx.set_source_rgba(1.0, 1.0, 1.0, 1.0)
   mask_ctx.paint()
 
-  let surface_target = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let surface_target = @cairoon.Surface::image(Argb32, 1, 1)
   let surface_ctx = @cairoon.Context::new(surface_target)
   surface_ctx.set_source_rgba(0.0, 0.0, 1.0, 1.0)
   surface_ctx.mask_surface(mask_surface)
@@ -83,12 +81,12 @@ test "context mask and mask_surface apply alpha masks" {
 
 ///|
 test "context set_source_surface samples surface at user-space origin" {
-  let source = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let source = @cairoon.Surface::image(Argb32, 1, 1)
   let source_ctx = @cairoon.Context::new(source)
   source_ctx.set_source_rgba(1.0, 0.0, 0.0, 1.0)
   source_ctx.paint()
 
-  let target = @cairoon.Surface::image(@cairoon.Argb32, 3, 3)
+  let target = @cairoon.Surface::image(Argb32, 3, 3)
   let ctx = @cairoon.Context::new(target)
   ctx.set_source_surface(source, x=1.0, y=1.0)
   ctx.paint()
@@ -104,7 +102,7 @@ test "context set_source_surface samples surface at user-space origin" {
   inspect(data[stride + 6].to_int(), content="255")
   inspect(data[stride + 7].to_int(), content="255")
 
-  let locked_target = @cairoon.Surface::image(@cairoon.Argb32, 2, 1)
+  let locked_target = @cairoon.Surface::image(Argb32, 2, 1)
   let locked_ctx = @cairoon.Context::new(locked_target)
   locked_ctx.set_source(@cairoon.Pattern::for_surface(source))
   locked_ctx.translate(1.0, 0.0)
@@ -122,7 +120,7 @@ test "context set_source_surface samples surface at user-space origin" {
 
 ///|
 test "context fill_preserve and stroke_preserve keep current path" {
-  let fill_surface = @cairoon.Surface::image(@cairoon.Argb32, 4, 4)
+  let fill_surface = @cairoon.Surface::image(Argb32, 4, 4)
   let fill_ctx = @cairoon.Context::new(fill_surface)
   fill_ctx.rectangle(1.0, 1.0, 2.0, 2.0)
   fill_ctx.fill_preserve()
@@ -130,7 +128,7 @@ test "context fill_preserve and stroke_preserve keep current path" {
   fill_ctx.fill()
   debug_inspect(fill_ctx.path_extents(), content="(0, 0, 0, 0)")
 
-  let stroke_surface = @cairoon.Surface::image(@cairoon.Argb32, 4, 4)
+  let stroke_surface = @cairoon.Surface::image(Argb32, 4, 4)
   let stroke_ctx = @cairoon.Context::new(stroke_surface)
   stroke_ctx.rectangle(1.0, 1.0, 2.0, 2.0)
   stroke_ctx.stroke_preserve()
@@ -141,7 +139,7 @@ test "context fill_preserve and stroke_preserve keep current path" {
 
 ///|
 test "context copy_page and show_page are checked context operations" {
-  let surface = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let surface = @cairoon.Surface::image(Argb32, 1, 1)
   let ctx = @cairoon.Context::new(surface)
   ctx.copy_page()
   ctx.show_page()
@@ -150,11 +148,9 @@ test "context copy_page and show_page are checked context operations" {
 
 ///|
 test "context painting and page methods propagate cairo error" {
-  let mask_surface = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let mask_surface = @cairoon.Surface::image(Argb32, 1, 1)
   let pattern = @cairoon.Pattern::solid_rgba(0.0, 0.0, 0.0, 1.0)
-  let ctx = @cairoon.Context::new(
-    @cairoon.Surface::image(@cairoon.Argb32, 1, 1),
-  )
+  let ctx = @cairoon.Context::new(@cairoon.Surface::image(Argb32, 1, 1))
   let set_result = @cairoon.run_cairo(() => {
     ctx.set_matrix(@cairoon.Matrix::new(xx=0.0, yy=0.0))
   })

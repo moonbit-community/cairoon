@@ -30,6 +30,12 @@ Implemented in this workspace:
   copy isolation, append replay, and flattened line-only replay. Rectangle
   types cover 128 signed-field values and exact invalid-index suberrors. The
   nine tests do not derive expected values from cairoon or Cairo.
+- Native verification now enables MoonBit warning 73 as an error. A
+  compiler-guided mechanical cleanup removes 2,115 unnecessary package
+  qualifiers from 129 external black-box/oracle test files while leaving
+  production code, C glue, public signatures, and behavior unchanged.
+  `scripts/verify.sh` runs the exact strict check, and a negative reliability
+  checker mutation rejects the former command without `+73`.
 - Public-package branch instrumentation is audited by
   `scripts/check-public-coverage.py`: every portable reachable branch found by
   the audit has a black-box test. The ledger has 53 stable source keys with
@@ -78,7 +84,7 @@ Implemented in this workspace:
   process failures, deterministic JSON, and environment redaction.
 - Exact local release lanes for Cairo 1.15.10 and 1.18.4, built from pinned
   source URLs and SHA-256 digests on a pinned Ubuntu base image. Both lanes
-  pass all static gates, 838/838 native tests, 180/180 script tests, and 63/63
+  pass all static gates, 838/838 native tests, 181/181 script tests, and 63/63
   executable documentation tests with the pinned MoonBit
   `0.10.4+4f2e8f7dc-nightly` compiler. In each lane, the source-checkout and
   extracted-publication-zip consumers also pass 1/1 independently. Each lane
@@ -840,17 +846,18 @@ Implemented in this workspace:
 
 The most recent full local verification passed on 2026-07-18:
 
-- `./scripts/verify.sh` passed 180/180 script tests,
+- `./scripts/verify.sh` passed 181/181 script tests,
   838/838 native tests, 63/63 executable documentation tests, formatting,
   project layout, source-size, Cairo build-protocol/generated-constant, FFI
   ownership, exact external-owner/finalizer/stress evidence, API inventory,
   pycairo parity, public documentation, reliability-ledger, vector-scene,
-  native type, and generated-interface gates. The isolated consumer passed
-  1/1 against both the checkout and the integrity-tested extracted
-  634-member publication zip. Host ASan/UBSan passed every discovered package;
+  native type including warning 73, and generated-interface gates. The
+  isolated consumer passed 1/1 against both the checkout and the
+  integrity-tested extracted 634-member publication zip. Host ASan/UBSan
+  passed every discovered package;
   authoritative Linux LSan coverage is supplied by both exact-Cairo lanes.
 - `./scripts/test-cairo-matrix.sh cairo-1.15.10` and
-  `./scripts/test-cairo-matrix.sh cairo-1.18.4` passed the same 180 script,
+  `./scripts/test-cairo-matrix.sh cairo-1.18.4` passed the same 181 script,
   838 native, and 63 documentation tests, both 1/1 consumer paths, the
   unmodified host-archive consumer, all 634 publication members, and every
   discovered package under ASan/LSan/UBSan.

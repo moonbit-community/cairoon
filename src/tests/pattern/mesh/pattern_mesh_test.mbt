@@ -2,7 +2,7 @@
 fn expect_mesh_error(result : Result[Unit, @cairoon.CairoError]) -> Unit raise {
   inspect(result is Err(_), content="true")
   match result {
-    Err(@cairoon.CairoError(@cairoon.InvalidMeshConstruction, _)) => ()
+    Err(CairoError(InvalidMeshConstruction, _)) => ()
     _ => @test.fail("expected InvalidMeshConstruction")
   }
 }
@@ -13,7 +13,7 @@ fn expect_mesh_invalid_index(
 ) -> Unit raise {
   inspect(result is Err(_), content="true")
   match result {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidIndex, _)) => ()
+    Err(CairoInvalidArgument(InvalidIndex, _)) => ()
     _ => @test.fail("expected InvalidIndex")
   }
 }
@@ -81,7 +81,7 @@ test "mesh pattern builds triangle patch and paints" {
   pattern.mesh_set_corner_color_rgba(2, 1.0, 0.0, 0.0, 1.0)
   pattern.mesh_end_patch()
 
-  let surface = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let surface = @cairoon.Surface::image(Argb32, 1, 1)
   let ctx = @cairoon.Context::new(surface)
   ctx.set_source(pattern)
   ctx.paint()
@@ -195,7 +195,7 @@ test "mesh methods reject non-mesh patterns" {
   let result = @cairoon.run_cairo(() => solid.mesh_begin_patch())
   inspect(result is Err(_), content="true")
   match result {
-    Err(@cairoon.CairoError(@cairoon.PatternTypeMismatch, _)) => ()
+    Err(CairoError(PatternTypeMismatch, _)) => ()
     _ => @test.fail("expected PatternTypeMismatch")
   }
 }

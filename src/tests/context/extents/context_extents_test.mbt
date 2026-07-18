@@ -1,6 +1,6 @@
 ///|
 fn context_extents_surface() -> @cairoon.Surface raise @cairoon.CairoError {
-  @cairoon.Surface::image(@cairoon.Argb32, 20, 20)
+  @cairoon.Surface::image(Argb32, 20, 20)
 }
 
 ///|
@@ -92,14 +92,14 @@ test "context hit testing and extents propagate cairo error" {
   let fill_result = @cairoon.run_cairo(() => ctx.fill_extents())
   inspect(fill_result is Err(_), content="true")
   match fill_result {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidMatrix, _)) => ()
+    Err(CairoInvalidArgument(InvalidMatrix, _)) => ()
     _ => @test.fail("expected InvalidMatrix")
   }
 
   let hit_result = @cairoon.run_cairo(() => ctx.in_fill(0.0, 0.0))
   inspect(hit_result is Err(_), content="true")
   match hit_result {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidMatrix, _)) => ()
+    Err(CairoInvalidArgument(InvalidMatrix, _)) => ()
     _ => @test.fail("expected InvalidMatrix")
   }
 }

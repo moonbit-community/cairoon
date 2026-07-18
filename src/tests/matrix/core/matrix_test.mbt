@@ -96,7 +96,7 @@ test "matrix invert maps invalid matrix to cairo error" {
   let result = @cairoon.run_cairo(() => singular.invert())
   inspect(result is Err(_), content="true")
   match result {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidMatrix, _)) => ()
+    Err(CairoInvalidArgument(InvalidMatrix, _)) => ()
     _ => @test.fail("expected InvalidMatrix")
   }
 }
@@ -117,7 +117,7 @@ test "matrix component access mirrors pycairo order" {
   let result = @cairoon.run_cairo(() => matrix.component(6))
   inspect(result is Err(_), content="true")
   match result {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidIndex, _)) => ()
+    Err(CairoInvalidArgument(InvalidIndex, _)) => ()
     _ => @test.fail("expected InvalidIndex")
   }
 }

@@ -3,16 +3,10 @@ test "pdf output contains stable structural markers" {
   let path = "/tmp/cairoon_vector_output.pdf"
   let oracle_path = "/tmp/cairoon_vector_output_oracle.pdf"
   let surface = @cairoon.Surface::pdf(10.0, 10.0, path=Some(path))
-  surface.pdf_restrict_to_version(@cairoon.PdfVersion1_4)
-  surface.pdf_set_metadata(@cairoon.PdfMetadataCreator, "cairoon-vector-oracle")
-  surface.pdf_set_metadata(
-    @cairoon.PdfMetadataCreateDate,
-    fixed_pdf_metadata_date(),
-  )
-  surface.pdf_set_metadata(
-    @cairoon.PdfMetadataModDate,
-    fixed_pdf_metadata_date(),
-  )
+  surface.pdf_restrict_to_version(PdfVersion1_4)
+  surface.pdf_set_metadata(PdfMetadataCreator, "cairoon-vector-oracle")
+  surface.pdf_set_metadata(PdfMetadataCreateDate, fixed_pdf_metadata_date())
+  surface.pdf_set_metadata(PdfMetadataModDate, fixed_pdf_metadata_date())
   let ctx = @cairoon.Context::new(surface)
   ctx.set_source_rgb(0.0, 0.0, 1.0)
   ctx.paint()
@@ -25,20 +19,14 @@ test "pdf output contains stable structural markers" {
 test "pdf output contains metadata and custom metadata markers" {
   let path = "/tmp/cairoon_vector_pdf_metadata.pdf"
   let surface = @cairoon.Surface::pdf(10.0, 10.0, path=Some(path))
-  surface.pdf_restrict_to_version(@cairoon.PdfVersion1_4)
-  surface.pdf_set_metadata(@cairoon.PdfMetadataTitle, "Cairoon Title")
-  surface.pdf_set_metadata(@cairoon.PdfMetadataAuthor, "Cairoon Author")
-  surface.pdf_set_metadata(@cairoon.PdfMetadataSubject, "Cairoon Subject")
-  surface.pdf_set_metadata(@cairoon.PdfMetadataKeywords, "moonbit cairo ffi")
-  surface.pdf_set_metadata(@cairoon.PdfMetadataCreator, "cairoon metadata test")
-  surface.pdf_set_metadata(
-    @cairoon.PdfMetadataCreateDate,
-    fixed_pdf_metadata_date(),
-  )
-  surface.pdf_set_metadata(
-    @cairoon.PdfMetadataModDate,
-    fixed_pdf_metadata_date(),
-  )
+  surface.pdf_restrict_to_version(PdfVersion1_4)
+  surface.pdf_set_metadata(PdfMetadataTitle, "Cairoon Title")
+  surface.pdf_set_metadata(PdfMetadataAuthor, "Cairoon Author")
+  surface.pdf_set_metadata(PdfMetadataSubject, "Cairoon Subject")
+  surface.pdf_set_metadata(PdfMetadataKeywords, "moonbit cairo ffi")
+  surface.pdf_set_metadata(PdfMetadataCreator, "cairoon metadata test")
+  surface.pdf_set_metadata(PdfMetadataCreateDate, fixed_pdf_metadata_date())
+  surface.pdf_set_metadata(PdfMetadataModDate, fixed_pdf_metadata_date())
   set_pdf_custom_metadata_if_supported(surface, "ISBN", Some("978-0123456789"))
   let ctx = @cairoon.Context::new(surface)
   ctx.set_source_rgb(0.0, 0.0, 1.0)
@@ -55,14 +43,14 @@ test "pdf output contains metadata and custom metadata markers" {
 test "pdf output contains page label and outline markers" {
   let path = "/tmp/cairoon_vector_pdf_outline.pdf"
   let surface = @cairoon.Surface::pdf(20.0, 20.0, path=Some(path))
-  surface.pdf_restrict_to_version(@cairoon.PdfVersion1_4)
+  surface.pdf_restrict_to_version(PdfVersion1_4)
   surface.pdf_set_page_label("intro")
   let outline_id = surface.pdf_add_outline_with_flags(
     @cairoon.PDF_OUTLINE_ROOT,
     "chapter one",
     "page=1 pos=[3 4]",
     @cairoon.PDFOutlineFlagSet::combine(
-      [@cairoon.PdfOutlineOpen, @cairoon.PdfOutlineBold][:],
+      [@cairoon.PdfOutlineOpen, PdfOutlineBold][:],
     ),
   )
   inspect(outline_id > @cairoon.PDF_OUTLINE_ROOT, content="true")
@@ -89,19 +77,10 @@ test "pdf output contains page thumbnail markers" {
 test "pdf output contains multi-page markers" {
   let path = "/tmp/cairoon_vector_pdf_multipage.pdf"
   let surface = @cairoon.Surface::pdf(12.0, 12.0, path=Some(path))
-  surface.pdf_restrict_to_version(@cairoon.PdfVersion1_4)
-  surface.pdf_set_metadata(
-    @cairoon.PdfMetadataCreator,
-    "cairoon multipage test",
-  )
-  surface.pdf_set_metadata(
-    @cairoon.PdfMetadataCreateDate,
-    fixed_pdf_metadata_date(),
-  )
-  surface.pdf_set_metadata(
-    @cairoon.PdfMetadataModDate,
-    fixed_pdf_metadata_date(),
-  )
+  surface.pdf_restrict_to_version(PdfVersion1_4)
+  surface.pdf_set_metadata(PdfMetadataCreator, "cairoon multipage test")
+  surface.pdf_set_metadata(PdfMetadataCreateDate, fixed_pdf_metadata_date())
+  surface.pdf_set_metadata(PdfMetadataModDate, fixed_pdf_metadata_date())
   let ctx = @cairoon.Context::new(surface)
   paint_page(ctx, 0.0, 0.0, 1.0)
   ctx.show_page()
@@ -196,7 +175,7 @@ test "pdf page operation document feature output contains retained markers" {
 test "pdf link tag output contains annotation markers" {
   let path = "/tmp/cairoon_vector_tag_output.pdf"
   let surface = @cairoon.Surface::pdf(100.0, 100.0, path=Some(path))
-  surface.pdf_restrict_to_version(@cairoon.PdfVersion1_4)
+  surface.pdf_restrict_to_version(PdfVersion1_4)
   let ctx = @cairoon.Context::new(surface)
   ctx.select_font_face("serif")
   ctx.set_font_size(12.0)
@@ -215,7 +194,7 @@ test "pdf link tag output contains annotation markers" {
 test "pdf destination tag output contains named destination markers" {
   let path = "/tmp/cairoon_vector_dest_tag_output.pdf"
   let surface = @cairoon.Surface::pdf(100.0, 100.0, path=Some(path))
-  surface.pdf_restrict_to_version(@cairoon.PdfVersion1_4)
+  surface.pdf_restrict_to_version(PdfVersion1_4)
   let ctx = @cairoon.Context::new(surface)
   ctx.select_font_face("serif")
   ctx.set_font_size(12.0)
@@ -238,7 +217,7 @@ test "pdf destination tag output contains named destination markers" {
 test "pdf document structure tags output structure tree markers" {
   let path = "/tmp/cairoon_vector_structure_tag_output.pdf"
   let surface = @cairoon.Surface::pdf(100.0, 100.0, path=Some(path))
-  surface.pdf_restrict_to_version(@cairoon.PdfVersion1_4)
+  surface.pdf_restrict_to_version(PdfVersion1_4)
   let ctx = @cairoon.Context::new(surface)
   ctx.select_font_face("serif")
   ctx.set_font_size(12.0)

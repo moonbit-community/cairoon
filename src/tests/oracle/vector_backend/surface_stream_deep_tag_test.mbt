@@ -22,17 +22,17 @@ fn make_stream_deep_tag_stream_surface(
     0 =>
       @cairoon.Surface::pdf_stream(140.0, 130.0, fn(chunk) {
         chunks.push(chunk)
-        @cairoon.Success
+        Success
       })
     1 =>
       @cairoon.Surface::ps_stream(140.0, 130.0, fn(chunk) {
         chunks.push(chunk)
-        @cairoon.Success
+        Success
       })
     2 =>
       @cairoon.Surface::svg_stream(140.0, 130.0, fn(chunk) {
         chunks.push(chunk)
-        @cairoon.Success
+        Success
       })
     _ => vector_backend_invalid_surface()
   }
@@ -47,32 +47,14 @@ fn configure_stream_deep_tag_backend(
 ) -> Unit raise @cairoon.CairoError {
   match kind {
     0 => {
-      surface.pdf_restrict_to_version(@cairoon.PdfVersion1_4)
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataTitle,
-        "Cairoon Deep Tag Tree",
-      )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataAuthor,
-        "cairoon deep tag author",
-      )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataSubject,
-        "deep tag tree metadata",
-      )
-      surface.pdf_set_metadata(@cairoon.PdfMetadataKeywords, "deep,tags,tree")
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataCreator,
-        "cairoon deep tag tree",
-      )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataCreateDate,
-        fixed_pdf_metadata_date(),
-      )
-      surface.pdf_set_metadata(
-        @cairoon.PdfMetadataModDate,
-        fixed_pdf_metadata_date(),
-      )
+      surface.pdf_restrict_to_version(PdfVersion1_4)
+      surface.pdf_set_metadata(PdfMetadataTitle, "Cairoon Deep Tag Tree")
+      surface.pdf_set_metadata(PdfMetadataAuthor, "cairoon deep tag author")
+      surface.pdf_set_metadata(PdfMetadataSubject, "deep tag tree metadata")
+      surface.pdf_set_metadata(PdfMetadataKeywords, "deep,tags,tree")
+      surface.pdf_set_metadata(PdfMetadataCreator, "cairoon deep tag tree")
+      surface.pdf_set_metadata(PdfMetadataCreateDate, fixed_pdf_metadata_date())
+      surface.pdf_set_metadata(PdfMetadataModDate, fixed_pdf_metadata_date())
       set_pdf_custom_metadata_if_supported(
         surface,
         "Scenario",
@@ -83,7 +65,7 @@ fn configure_stream_deep_tag_backend(
       set_pdf_custom_metadata_if_supported(surface, "Scratch", None)
     }
     1 => {
-      surface.ps_restrict_to_level(@cairoon.PsLevel3)
+      surface.ps_restrict_to_level(PsLevel3)
       surface.ps_set_eps(false)
       surface.ps_dsc_begin_setup()
       surface.ps_dsc_comment("%%Title: Cairoon Deep Tag Tree")
@@ -92,10 +74,10 @@ fn configure_stream_deep_tag_backend(
       surface.ps_dsc_comment("%%IncludeFeature: *PageSize A5")
     }
     2 => {
-      surface.svg_restrict_to_version(@cairoon.SvgVersion1_2)
-      surface.svg_set_document_unit(@cairoon.SvgUnitPt)
+      surface.svg_restrict_to_version(SvgVersion1_2)
+      surface.svg_set_document_unit(SvgUnitPt)
     }
-    _ => @cairoon.check_status(@cairoon.InvalidStatus)
+    _ => @cairoon.check_status(InvalidStatus)
   }
 }
 
@@ -115,10 +97,7 @@ fn render_stream_deep_tag_scene(
       @cairoon.PDF_OUTLINE_ROOT,
       "deep cover",
       "page=1 pos=[12 24]",
-      @cairoon.PDFOutlineFlagSet::combine([
-        @cairoon.PdfOutlineOpen,
-        @cairoon.PdfOutlineBold,
-      ]),
+      @cairoon.PDFOutlineFlagSet::combine([PdfOutlineOpen, PdfOutlineBold]),
     )
   }
   ctx.set_source_rgb(0.91, 0.96, 1.0)
@@ -153,7 +132,7 @@ fn render_stream_deep_tag_scene(
       root_id,
       "deep table",
       "page=2 pos=[12 34]",
-      @cairoon.PDFOutlineFlagSet::of(@cairoon.PdfOutlineItalic),
+      @cairoon.PDFOutlineFlagSet::of(PdfOutlineItalic),
     )
   }
   ctx.set_source_rgb(0.0, 0.0, 0.0)

@@ -110,7 +110,7 @@ python3 cairoon/scripts/check-ffi-ownership.py
 python3 cairoon/scripts/check-external-owners.py
 python3 cairoon/scripts/check-reliability-ledger.py
 python3 cairoon/scripts/check-vector-backend-scenes.py
-moon -C cairoon check --target native --deny-warn
+moon -C cairoon check --target native --deny-warn --warn-list +73
 ./cairoon/scripts/check-downstream-consumer.sh
 moon -C cairoon info --target native
 ```
@@ -263,7 +263,7 @@ For surfaces and devices, add backend-specific smoke tests:
 
 A release candidate must pass on all supported platforms:
 
-- `moon check --target native --deny-warn`
+- `moon check --target native --deny-warn --warn-list +73`
 - `moon test --target native --deny-warn`
 - Package-isolated ASan/LSan/UBSan on the authoritative Linux lane; macOS
   follows the platform policy below
@@ -297,7 +297,7 @@ It runs `moon fmt --check`, the checker unit tests under `scripts/tests`,
 `scripts/check-pycairo-test-parity.py`,
 `scripts/check-reliability-ledger.py`,
 `scripts/check-vector-backend-scenes.py`, native
-`moon check --target native --deny-warn`, the isolated
+`moon check --target native --deny-warn --warn-list +73`, the isolated
 `integration/consumer` module's public import/link/render smoke test against
 both checkout and extracted publication zip, archive integrity and fixture
 exclusion checks, the `src/native` native-stub package,
@@ -4504,6 +4504,14 @@ RasterSource behavior test proves that getter-returned callback closures own
 their MoonBit references independently of subsequent replacement, clearing,
 after the original Pattern and captured-source bindings leave local scope.
 
+The strict MoonBit warning slice removes 2,115 compiler-identified unnecessary
+package qualifiers from 129 external black-box and oracle test files. The
+transformation changes no production implementation, C glue, or public
+signature. Native verification now runs
+`moon check --target native --deny-warn --warn-list +73`; the reliability
+checker tokenizes the active shell command, and a negative mutation test proves
+the former command without `+73` cannot satisfy the gate.
+
 The geometry property-oracle slice adds nine deterministic tests whose
 expected values do not come from Cairo or cairoon. A 16-by-16 half-open
 occupancy grid checks Region construction, positive-area containment, extents,
@@ -4516,7 +4524,7 @@ RectangleInt each cover 128 signed-field values, structural equality,
 component/index aliases, and six out-of-range indexes with exact
 `CairoInvalidArgument(InvalidIndex, _)` matching.
 
-Exact Linux Cairo 1.15.10 and 1.18.4 each pass 838/838 native tests, 180/180
+Exact Linux Cairo 1.15.10 and 1.18.4 each pass 838/838 native tests, 181/181
 script tests, 63/63 executable docs, the source and extracted 1/1 downstream
 consumers, the same unmodified host-generated archive consumer, publication
 archive integrity for 634 members, and every discovered package under

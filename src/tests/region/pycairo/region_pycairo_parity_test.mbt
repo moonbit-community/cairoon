@@ -3,7 +3,7 @@ fn[T] expect_region_invalid_index(
   result : Result[T, @cairoon.CairoError],
 ) -> Unit raise {
   match result {
-    Err(@cairoon.CairoInvalidArgument(@cairoon.InvalidIndex, _)) => ()
+    Err(CairoInvalidArgument(InvalidIndex, _)) => ()
     _ => @test.fail("expected InvalidIndex")
   }
 }

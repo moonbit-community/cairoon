@@ -16,10 +16,10 @@ fn finalizer_fuzz_error_status(
   result : Result[Unit, @cairoon.CairoError],
 ) -> @cairoon.Status? {
   match result {
-    Err(@cairoon.CairoError(status, _)) => Some(status)
-    Err(@cairoon.CairoMemoryError(status, _)) => Some(status)
-    Err(@cairoon.CairoIOError(status, _)) => Some(status)
-    Err(@cairoon.CairoInvalidArgument(status, _)) => Some(status)
+    Err(CairoError(status, _)) => Some(status)
+    Err(CairoMemoryError(status, _)) => Some(status)
+    Err(CairoIOError(status, _)) => Some(status)
+    Err(CairoInvalidArgument(status, _)) => Some(status)
     _ => None
   }
 }
@@ -56,7 +56,7 @@ fn finalizer_fuzz_expect_argb32(
 ///|
 fn finalizer_fuzz_surface_graph(value : Int) -> Unit raise {
   let backing : FixedArray[Byte] = FixedArray::make(16, b'\x00')
-  let source = @cairoon.Surface::image_for_data(backing, @cairoon.Argb32, 2, 2)
+  let source = @cairoon.Surface::image_for_data(backing, Argb32, 2, 2)
   let source_ctx = @cairoon.Context::new(source)
   if value % 2 == 0 {
     source_ctx.set_source_rgba(1.0, 0.0, 0.0, 1.0)
@@ -68,7 +68,7 @@ fn finalizer_fuzz_surface_graph(value : Int) -> Unit raise {
   let pattern = @cairoon.Pattern::for_surface(source)
   let returned = pattern.get_surface()
   let child = source.create_for_rectangle(0.0, 0.0, 1.0, 1.0)
-  let target = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let target = @cairoon.Surface::image(Argb32, 1, 1)
   let ctx = @cairoon.Context::new(target)
   ctx.set_source(pattern)
   ctx.paint()
@@ -90,13 +90,13 @@ fn finalizer_fuzz_surface_graph(value : Int) -> Unit raise {
       let _ = source.copy_data()
       ()
     }),
-    @cairoon.SurfaceFinished,
+    SurfaceFinished,
   )
 }
 
 ///|
 fn finalizer_fuzz_mapped_edge(value : Int) -> Unit raise {
-  let base = @cairoon.Surface::image(@cairoon.Rgb24, 2, 1)
+  let base = @cairoon.Surface::image(Rgb24, 2, 1)
   if value % 3 == 0 {
     let mapped = base.map_to_image(
       extents=Some(@cairoon.RectangleInt::new(x=0, y=0, width=1, height=1)),
@@ -106,16 +106,16 @@ fn finalizer_fuzz_mapped_edge(value : Int) -> Unit raise {
         let ctx = @cairoon.Context::new_for_mapped_image(mapped)
         ctx.set_source_rgb(1.0, 1.0, 1.0)
         ctx.paint()
-        let _ = base.create_similar(@cairoon.ContentColor, -1, 1)
+        let _ = base.create_similar(ContentColor, -1, 1)
         ()
       })
     })
-    finalizer_fuzz_expect_status(result, @cairoon.InvalidSize)
+    finalizer_fuzz_expect_status(result, InvalidSize)
     base.flush()
     finalizer_fuzz_expect_argb32(base.copy_data(), [255, 255, 255, 255])
     finalizer_fuzz_expect_status(
       @cairoon.run_cairo(() => mapped.unmap()),
-      @cairoon.SurfaceFinished,
+      SurfaceFinished,
     )
   } else {
     let mapped = base.map_to_image()
@@ -132,13 +132,13 @@ fn finalizer_fuzz_mapped_edge(value : Int) -> Unit raise {
 
 ///|
 fn finalizer_fuzz_font_path_region(value : Int) -> Unit raise {
-  let surface = @cairoon.Surface::image(@cairoon.Argb32, 4, 4)
+  let surface = @cairoon.Surface::image(Argb32, 4, 4)
   let ctx = @cairoon.Context::new(surface)
-  ctx.select_font_face("serif", weight=@cairoon.FontWeightBold)
+  ctx.select_font_face("serif", weight=FontWeightBold)
   ctx.set_font_size(8.0 + (value % 5).to_double())
   let face = ctx.get_font_face()
   let options = ctx.get_font_options()
-  options.set_antialias(@cairoon.AntialiasGray)
+  options.set_antialias(AntialiasGray)
   let scaled = @cairoon.ScaledFont::new(
     face,
     @cairoon.Matrix::new(xx=10.0, yy=10.0),
@@ -155,9 +155,7 @@ fn finalizer_fuzz_font_path_region(value : Int) -> Unit raise {
   ctx.rectangle(0.0, 0.0, 2.0, 2.0)
   let path = ctx.copy_path()
   let flat = ctx.copy_path_flat()
-  let target = @cairoon.Context::new(
-    @cairoon.Surface::image(@cairoon.Argb32, 4, 4),
-  )
+  let target = @cairoon.Context::new(@cairoon.Surface::image(Argb32, 4, 4))
   target.append_path(path)
   target.append_path(flat)
   inspect(path.length() >= 5, content="true")
@@ -176,26 +174,22 @@ fn finalizer_fuzz_font_path_region(value : Int) -> Unit raise {
       let _ = copy.get_rectangle(99)
       ()
     }),
-    @cairoon.InvalidIndex,
+    InvalidIndex,
   )
 }
 
 ///|
 fn finalizer_fuzz_raster_edge(value : Int) -> Unit raise {
-  let source = @cairoon.Surface::image(@cairoon.Argb32, 2, 2)
+  let source = @cairoon.Surface::image(Argb32, 2, 2)
   let source_ctx = @cairoon.Context::new(source)
   source_ctx.set_source_rgba(0.0, 0.0, 1.0, 1.0)
   source_ctx.paint()
 
-  let failed_source = @cairoon.Surface::image(@cairoon.Argb32, 1, 1)
+  let failed_source = @cairoon.Surface::image(Argb32, 1, 1)
   failed_source.finish()
   let acquire_calls = Ref(0)
   let release_calls = Ref(0)
-  let pattern = @cairoon.Pattern::raster_source(
-    @cairoon.ContentColorAlpha,
-    2,
-    2,
-  )
+  let pattern = @cairoon.Pattern::raster_source(ContentColorAlpha, 2, 2)
   let should_fail = value % 4 == 0
   pattern.raster_set_acquire(
     fn(target, extents) {
@@ -214,12 +208,12 @@ fn finalizer_fuzz_raster_edge(value : Int) -> Unit raise {
     }),
   )
 
-  let target = @cairoon.Surface::image(@cairoon.Argb32, 2, 2)
+  let target = @cairoon.Surface::image(Argb32, 2, 2)
   let ctx = @cairoon.Context::new(target)
   ctx.set_source(pattern)
   let result = @cairoon.run_cairo(() => ctx.paint())
   if should_fail {
-    finalizer_fuzz_expect_status(result, @cairoon.NoMemory)
+    finalizer_fuzz_expect_status(result, NoMemory)
   } else {
     match result {
       Ok(_) => ()
@@ -241,18 +235,13 @@ fn finalizer_fuzz_stream_device_edge(value : Int) -> Unit raise {
     chunk_count.val += 1
     byte_count.val += chunk.length()
     if value % 5 == 0 {
-      @cairoon.WriteError
+      WriteError
     } else {
-      @cairoon.Success
+      Success
     }
   })
   let result = @cairoon.run_cairo(() => {
-    let surface = @cairoon.Surface::script(
-      device,
-      @cairoon.ContentColorAlpha,
-      3.0,
-      3.0,
-    )
+    let surface = @cairoon.Surface::script(device, ContentColorAlpha, 3.0, 3.0)
     let ctx = @cairoon.Context::new(surface)
     ctx.set_source_rgb(0.2, 0.4, 0.6)
     ctx.paint()
@@ -260,7 +249,7 @@ fn finalizer_fuzz_stream_device_edge(value : Int) -> Unit raise {
     device.finish()
   })
   if value % 5 == 0 {
-    finalizer_fuzz_expect_status(result, @cairoon.WriteError)
+    finalizer_fuzz_expect_status(result, WriteError)
   } else {
     match result {
       Ok(_) => ()
