@@ -31,7 +31,7 @@ exemptions: when a file moves out of the repository root or direct `src/`, the
 same commit must remove its allowlist entry so an identically named file cannot
 silently return later.
 
-- 38 `.mbt` implementation files directly in `src/`.
+- 37 `.mbt` implementation files directly in `src/`.
 - 1 `.mbt` implementation file and 1 package-local `*_test.mbt` file in
   `src/core/constants/`.
 - 1 `.mbt` implementation file and 1 package-local `*_test.mbt` file in
@@ -57,7 +57,7 @@ silently return later.
 - 2 `.mbt` implementation files and 0 package-local `*_test.mbt` files in
   `src/internal/path/`. Path is producer-only at this layer, so real Context
   and mesh Pattern black-box tests replace a test-only raw constructor.
-- 5 `.mbt` implementation files and 1 package-local `*_test.mbt` file in
+- 7 `.mbt` implementation files and 1 package-local `*_test.mbt` file in
   `src/internal/pattern/`.
 - 2 `.mbt` implementation files and 1 package-local `*_test.mbt` file in
   `src/internal/ps/`.
@@ -87,10 +87,10 @@ silently return later.
 This is still migration debt, but the repository root and the public package
 root no longer carry standalone white-box test files or family reference docs,
 and public C glue is no longer compiled by `src/moon.pkg`. All object handles
-and every Surface/Device FFI declaration lives in a child package; the sole
-root FFI file contains exactly seven raster-source callback bridges whose
-signatures use facade-owned `Surface` and `RectangleInt` values. Future slices
-may move facade files
+and every production FFI declaration lives in a child package. The public root
+contains no `extern "C"` declaration; raster-source callbacks cross the Pattern
+child boundary as `RawSurface` handles and integer rectangle fields. Future
+slices may move facade files
 only when MoonBit constructor and suberror visibility can be preserved without
 recreating raw ownership or C declarations in the public package.
 
@@ -222,9 +222,11 @@ cairoon/
         moon.pkg
         ffi.mbt
         ffi_mesh.mbt
+        ffi_raster_callbacks.mbt
         pattern.mbt
         gradient.mbt
         mesh.mbt
+        raster_callbacks.mbt
         pattern_test.mbt
       ps/
         moon.pkg
@@ -465,7 +467,7 @@ MoonBit package shape without weakening the public interface.
 |---|---|---|
 | Public package | `src/` | Owns the stable `CAIMEOX/cairoon` interface and public external object types until a facade proof proves otherwise. |
 | Pure support packages | `src/core/` | May hold pure values/helpers only after their public names can be preserved or intentionally re-exported. `src/core/glyph` is the first accepted seam: the public package exposes `pub type Glyph = @glyph.Glyph`, owns `@glyph.field_arrays` for glyph-array marshaling preparation, and tests prove `@cairoon.Glyph::new`, field access, dot-method syntax, and glyph-array FFI paths still work through the facade. `src/core/constants` is the second accepted seam: it owns generated primitive Cairo constants, while the facade preserves `@cairoon.CAIRO_VERSION`, `@cairoon.HAS_*`, `@cairoon.MIME_TYPE_*`, tag constants, `PDF_OUTLINE_ROOT`, and `COLOR_PALETTE_DEFAULT` through `pub const` aliases. |
-| Internal implementation packages | `src/internal/<family>/` | May own native-gated externs and helpers when the public `CAIMEOX/cairoon` facade remains unchanged. Version, format, status, PDF, PS, SVG, stream, and C-string helpers keep public enums, errors, and object wrappers in the facade. Region, FontOptions, FontFace, Path, Device, ScaledFont, Pattern, Context, and Surface are facade-owned object seams: each child owns the sole GC-managed raw handle and uses raw `Int` status/enum values; checked public methods alone wrap or unwrap it. The ScaledFont child additionally owns private `RawTextToGlyphs`, whose arrays are copied into public pure values. Cross-family child calls exchange only raw handles. Context owns 109 externs across seven C-matched families, Device owns 17, Pattern owns 38, and Surface owns 84; the public root retains exactly seven raster-source callback bridges in one file. Native linking propagates from `CAIMEOX/cairoon/native`; no child repeats host flags, and each still links independently. Producer-only children such as Path are tested through real external producers, not test-only C constructors. Callback-owning children such as Device/Surface streams and the facade raster Pattern bridge must prove owned-closure cleanup and retained-object safety under ASan/LSan/UBSan. |
+| Internal implementation packages | `src/internal/<family>/` | May own native-gated externs and helpers when the public `CAIMEOX/cairoon` facade remains unchanged. Version, format, status, PDF, PS, SVG, stream, and C-string helpers keep public enums, errors, and object wrappers in the facade. Region, FontOptions, FontFace, Path, Device, ScaledFont, Pattern, Context, and Surface are facade-owned object seams: each child owns the sole GC-managed raw handle and uses raw `Int` status/enum values; checked public methods alone wrap or unwrap it. The ScaledFont child additionally owns private `RawTextToGlyphs`, whose arrays are copied into public pure values. Cross-family child calls exchange only raw handles. Context owns 109 externs across seven C-matched families, Device owns 17, Pattern owns 45, and Surface owns 84; the public root owns no C FFI. Native linking propagates from `CAIMEOX/cairoon/native`; no child repeats host flags, and each still links independently. Producer-only children such as Path are tested through real external producers, not test-only C constructors. Callback-owning Pattern, Device, and Surface children must prove owned-closure cleanup and retained-object safety under ASan/LSan/UBSan. |
 | Native stubs | `src/native/` | Owns public C glue compilation through `src/native/moon.pkg`. Every `.c` file beside that package file must be listed by bare filename in its `native-stub` list; `src/moon.pkg` imports `CAIMEOX/cairoon/native` and must not own `native-stub` entries. Headers in `src/native/` are private to those stubs. Stub compilation uses `${build.CAIRO_CFLAGS}`, while the module build script propagates Cairo linking from this package. |
 | Black-box tests | `src/tests/<family>/` | Import `CAIMEOX/cairoon`; assert only public behavior. They must not repeat compiler or linker flags because `CAIMEOX/cairoon/native` propagates the native configuration. |
 | White-box oracles | `src/tests/oracle/<family>/` plus shared C support in `src/tests/oracle/native/` | Import `CAIMEOX/cairoon` for the public API and declare test-only direct-C oracle externs locally; public binding wrappers must never import oracle packages. Test-only C symbols are provided by the oracle-native support package, not `src/moon.pkg`. |
@@ -612,14 +614,14 @@ Follow this order. Each step gets its own commit and must pass
    glyph/oracle/lifetime tests, unchanged generated public interface, and
    package-isolated ASan/LSan/UBSan must pass before this seam is accepted.
    `src/internal/pattern` is the seventh object-handle seam. It owns the sole
-   `RawPattern` owner and all 38 core/solid/gradient/mesh/SurfacePattern/raw
-   raster-source externs in focused FFI files. Public `Pattern` remains an abstract
-   single-field wrapper and retains typed enum/status conversion, Matrix/value
-   assembly, traits, callback APIs, and error mapping.
-   `ffi_pattern_raster_source.mbt` keeps seven facade callback bridges,
-   while Context source/group/mask bridges exchange `RawPattern`. Three
-   package-local raw identity/state/gradient/mesh tests, external Pattern,
-   Context, image/vector oracle, callback-owner/fuzz, value/finalizer tests,
+   `RawPattern` owner and all 45 core/solid/gradient/mesh/SurfacePattern/raw
+   raster-source/callback externs in three focused FFI files. Public `Pattern`
+   remains an abstract single-field wrapper and retains typed enum/status
+   conversion, Matrix/value assembly, traits, callback APIs, and error mapping.
+   Raster callbacks exchange raw Surface handles and integer extents through
+   the child, while Context source/group/mask bridges exchange `RawPattern`.
+   Five package-local raw identity/state/gradient/mesh/callback tests, external
+   Pattern, Context, image/vector oracle, callback-owner/fuzz, value/finalizer tests,
    unchanged generated public interface, and package-isolated ASan/LSan/UBSan must
    pass before this seam is accepted.
    `src/internal/context` is the eighth object-handle seam and the first split

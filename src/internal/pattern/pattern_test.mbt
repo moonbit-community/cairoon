@@ -50,6 +50,102 @@ test "raw surface and raster patterns cross the package boundary" {
 }
 
 ///|
+test "raw raster callbacks stay inside Pattern package" {
+  let raster = create_raster_source_raw(0x3000, 4, 5)
+  let target = @surface_impl.image_create_raw(0, 4, 5)
+  let source = @surface_impl.image_create_raw(0, 4, 5)
+  let acquired = Ref(0)
+  let released = Ref(0)
+  let target_matches = Ref(false)
+  let acquire_x = Ref(0)
+  let acquire_y = Ref(0)
+  let acquire_width = Ref(0)
+  let acquire_height = Ref(0)
+  let released_source_matches = Ref(false)
+  let raw_acquire : (@surface_impl.RawSurface, Int, Int, Int, Int) -> @surface_impl.RawSurface = fn(
+    target_arg,
+    x,
+    y,
+    width,
+    height,
+  ) {
+    target_matches.val = @surface_impl.equal_raw(target_arg, target)
+    acquire_x.val = x
+    acquire_y.val = y
+    acquire_width.val = width
+    acquire_height.val = height
+    acquired.val += 1
+    source
+  }
+  let raw_release : (@surface_impl.RawSurface) -> Unit = fn(surface) {
+    released_source_matches.val = @surface_impl.equal_raw(surface, source)
+    released.val += 1
+  }
+  inspect(
+    raster_set_callbacks_raw(
+      raster,
+      acquire=Some(raw_acquire),
+      release=Some(raw_release),
+    ),
+    content="0",
+  )
+
+  let has_acquire = Ref(0)
+  let has_release = Ref(0)
+  let status = Ref(-1)
+  inspect(
+    raster_has_callbacks_raw(raster, has_acquire, has_release, status),
+    content="true",
+  )
+  inspect(has_acquire.val, content="1")
+  inspect(has_release.val, content="1")
+  inspect(status.val, content="0")
+  let acquire = raster_get_acquire_raw(raster, status)
+  inspect(status.val, content="0")
+  let returned = acquire(target, 1, 2, 3, 4)
+  inspect(@surface_impl.equal_raw(returned, source), content="true")
+  inspect(acquired.val, content="1")
+  inspect(target_matches.val, content="true")
+  inspect(acquire_x.val, content="1")
+  inspect(acquire_y.val, content="2")
+  inspect(acquire_width.val, content="3")
+  inspect(acquire_height.val, content="4")
+  let release = raster_get_release_raw(raster, status)
+  inspect(status.val, content="0")
+  release(returned)
+  inspect(released.val, content="1")
+  inspect(released_source_matches.val, content="true")
+
+  inspect(
+    raster_set_callbacks_raw(raster, acquire=Some(fn(_, _, _, _, _) { source })),
+    content="0",
+  )
+  ignore(raster_has_callbacks_raw(raster, has_acquire, has_release, status))
+  inspect(has_acquire.val, content="1")
+  inspect(has_release.val, content="0")
+  inspect(status.val, content="0")
+
+  inspect(
+    raster_set_callbacks_raw(raster, release=Some(fn(_) { released.val += 1 })),
+    content="0",
+  )
+  ignore(raster_has_callbacks_raw(raster, has_acquire, has_release, status))
+  inspect(has_acquire.val, content="0")
+  inspect(has_release.val, content="1")
+  inspect(status.val, content="0")
+
+  inspect(raster_clear_callbacks_raw(raster), content="0")
+  ignore(raster_has_callbacks_raw(raster, has_acquire, has_release, status))
+  inspect(has_acquire.val, content="0")
+  inspect(has_release.val, content="0")
+  inspect(status.val, content="0")
+  inspect(
+    raster_clear_callbacks_raw(create_rgb_raw(1.0, 0.0, 0.0)),
+    content="14",
+  )
+}
+
+///|
 test "raw gradient pattern exposes stops and geometry" {
   let linear = create_linear_raw(1.0, 2.0, 4.0, 5.0)
   inspect(status_raw(linear), content="0")

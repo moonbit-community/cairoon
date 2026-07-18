@@ -12,15 +12,7 @@ REPO_ROOT = pathlib.Path(__file__).resolve().parents[1]
 PACKAGE_ROOT = REPO_ROOT / "src"
 TEST_PACKAGE_ROOT = PACKAGE_ROOT / "tests"
 NATIVE_ROOT = PACKAGE_ROOT / "native"
-PUBLIC_FACADE_CALLBACK_SYMBOLS = {
-    "cairoon_raster_source_pattern_clear_acquire",
-    "cairoon_raster_source_pattern_get_acquire_callback",
-    "cairoon_raster_source_pattern_get_release_callback",
-    "cairoon_raster_source_pattern_has_callbacks",
-    "cairoon_raster_source_pattern_set_acquire",
-    "cairoon_raster_source_pattern_set_acquire_with_release",
-    "cairoon_raster_source_pattern_set_release",
-}
+PUBLIC_FACADE_CALLBACK_SYMBOLS: set[str] = set()
 DIRECT_CAIRO_SYMBOLS = {
     "cairo_format_stride_for_width",
     "cairo_version",
@@ -774,8 +766,7 @@ def main() -> int:
             )
     root_symbols = {
         symbol
-        for path in files
-        if path.parent == PACKAGE_ROOT
+        for path in sorted(PACKAGE_ROOT.glob("*.mbt"))
         for symbol, _ in extern_symbols(path)
     }
     extra_root_symbols = root_symbols - PUBLIC_FACADE_CALLBACK_SYMBOLS

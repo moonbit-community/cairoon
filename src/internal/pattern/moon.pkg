@@ -9,5 +9,9 @@ import {
 } for "test"
 
 options(
-  targets: { "ffi.mbt": [ "native" ], "ffi_mesh.mbt": [ "native" ] },
+  targets: {
+    "ffi.mbt": [ "native" ],
+    "ffi_mesh.mbt": [ "native" ],
+    "ffi_raster_callbacks.mbt": [ "native" ],
+  },
 )

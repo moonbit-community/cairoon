@@ -29,7 +29,3 @@ import {
 } for "test"
 
 warnings = "+unnecessary_annotation"
-
-options(
-  targets: { "ffi_pattern_raster_source.mbt": [ "native" ] },
-)

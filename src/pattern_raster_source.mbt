@@ -76,60 +76,27 @@ pub fn Pattern::raster_set_callbacks(
   acquire? : ((Surface, RectangleInt) -> Surface)? = None,
   release? : ((Surface) -> Unit)? = None,
 ) -> Unit raise CairoError {
-  let call_acquire : FuncRef[
-    (Surface, Int, Int, Int, Int, (Surface, RectangleInt) -> Surface) -> Surface,
-  ] = fn(
-    target : Surface,
-    x : Int,
-    y : Int,
-    width : Int,
-    height : Int,
-    acquire : (Surface, RectangleInt) -> Surface,
-  ) {
-    acquire(target, RectangleInt::new(x~, y~, width~, height~))
+  let raw_acquire = match acquire {
+    None => None
+    Some(acquire) =>
+      Some(fn(target, x, y, width, height) {
+        acquire(
+          Surface::from_raw(target),
+          RectangleInt::new(x~, y~, width~, height~),
+        ).to_raw()
+      })
   }
-  match release {
-    None =>
-      match acquire {
-        None => self.raster_clear_acquire()
-        Some(acquire) =>
-          check_status(
-            raster_source_pattern_set_acquire_ffi(
-              self.to_raw(),
-              call_acquire,
-              acquire,
-            ),
-          )
-      }
-    Some(release) => {
-      let call_release : FuncRef[(Surface, (Surface) -> Unit) -> Unit] = fn(
-        surface : Surface,
-        release : (Surface) -> Unit,
-      ) {
-        release(surface)
-      }
-      match acquire {
-        None =>
-          check_status(
-            raster_source_pattern_set_release_ffi(
-              self.to_raw(),
-              call_release,
-              release,
-            ),
-          )
-        Some(acquire) =>
-          check_status(
-            raster_source_pattern_set_acquire_with_release_ffi(
-              self.to_raw(),
-              call_acquire,
-              acquire,
-              call_release,
-              release,
-            ),
-          )
-      }
-    }
+  let raw_release = match release {
+    None => None
+    Some(release) => Some(fn(surface) { release(Surface::from_raw(surface)) })
   }
+  check_pattern_status_raw(
+    @pattern_impl.raster_set_callbacks_raw(
+      self.to_raw(),
+      acquire=raw_acquire,
+      release=raw_release,
+    ),
+  )
 }
 
 ///|
@@ -144,35 +111,45 @@ pub fn Pattern::raster_get_callbacks(
 ) -> (((Surface, RectangleInt) -> Surface)?, ((Surface) -> Unit)?) raise CairoError {
   let has_acquire = Ref(0)
   let has_release = Ref(0)
-  let status = Ref(Success)
-  let _ = raster_source_pattern_has_callbacks_ffi(
+  let status = Ref(0)
+  let _ = @pattern_impl.raster_has_callbacks_raw(
     self.to_raw(),
     has_acquire,
     has_release,
     status,
   )
-  check_status(status.val)
+  check_pattern_status_raw(status.val)
   let acquire = if has_acquire.val == 0 {
     None
   } else {
-    let acquire_status = Ref(Success)
-    let acquire = raster_source_pattern_get_acquire_callback_ffi(
+    let acquire_status = Ref(0)
+    let raw_acquire = @pattern_impl.raster_get_acquire_raw(
       self.to_raw(),
       acquire_status,
     )
-    check_status(acquire_status.val)
-    Some(acquire)
+    check_pattern_status_raw(acquire_status.val)
+    Some(fn(target : Surface, extents : RectangleInt) {
+      Surface::from_raw(
+        raw_acquire(
+          target.to_raw(),
+          extents.x,
+          extents.y,
+          extents.width,
+          extents.height,
+        ),
+      )
+    })
   }
   let release = if has_release.val == 0 {
     None
   } else {
-    let release_status = Ref(Success)
-    let release = raster_source_pattern_get_release_callback_ffi(
+    let release_status = Ref(0)
+    let raw_release = @pattern_impl.raster_get_release_raw(
       self.to_raw(),
       release_status,
     )
-    check_status(release_status.val)
-    Some(release)
+    check_pattern_status_raw(release_status.val)
+    Some(fn(surface : Surface) { raw_release(surface.to_raw()) })
   }
   (acquire, release)
 }
@@ -193,7 +170,9 @@ pub fn Pattern::raster_clear_callbacks(self : Pattern) -> Unit raise CairoError 
 /// This is the pycairo-compatible name for `raster_clear_callbacks()`. It uses
 /// the same deferred, reentrant-safe cleanup and raises the same checked errors.
 pub fn Pattern::raster_clear_acquire(self : Pattern) -> Unit raise CairoError {
-  check_status(raster_source_pattern_clear_acquire_ffi(self.to_raw()))
+  check_pattern_status_raw(
+    @pattern_impl.raster_clear_callbacks_raw(self.to_raw()),
+  )
 }
 
 ///|

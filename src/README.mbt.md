@@ -79,8 +79,8 @@ pycairo test families are covered, and all 579 published declarations have
 substantive API documentation.
 
 Local release-candidate matrices on exact Cairo 1.15.10 and 1.18.4 pass 165/165
-script tests, 827/827 native tests, 63/63 executable docs, source and extracted
-consumers plus the unmodified cross-host archive consumer, all 625 publication
+script tests, 828/828 native tests, 63/63 executable docs, source and extracted
+consumers plus the unmodified cross-host archive consumer, all 626 publication
 members, and every package under ASan/LSan/UBSan. The sole global `Partial` row
 is shipped test/release-platform evidence: the release commit still needs
 passing Ubuntu and macOS native jobs plus the Ubuntu ASan/LSan/UBSan job. It

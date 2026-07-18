@@ -14,14 +14,25 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 
 ## Recent Audit Deltas
 
+- 2026-07-18: Raster-source callback FFI now follows the Pattern owner rather
+  than the public facade. Seven registration, clearing, and introspection
+  externs moved into `src/internal/pattern`; the child owns 45 raw externs and
+  exchanges `RawSurface`, integer extents, raw callback closures, and `Int`
+  statuses. Public `pattern_raster_source.mbt` alone adapts `Surface`,
+  `RectangleInt`, `Status`, and checked `CairoError`. A package-local callback
+  state/getter round-trip raises the native suite to 828/828. The public root
+  now declares no C FFI, direct root implementation files fall to 37, the
+  grandfather allowlist to 40, and the integrity-checked archive to 626
+  members. Production remains 349 local plus two direct symbols in 36 FFI
+  files, and the public interface hash remains unchanged.
 - 2026-07-18: Surface stream callback FFI now follows the package owner rather
   than the public facade. PDF, PS, SVG, and PNG stream externs moved from four
   root FFI files into `src/internal/surface`; the child package owns callback
   chunk copying and exposes five raw wrappers, while the public package keeps
-  status conversion and checked errors. The internal Surface boundary now has
-  84 raw externs, and the public root retains only seven raster-source callback
-  externs in one file. A package-local PDF/PS/SVG write and PNG write/read
-  round-trip raises the native suite to 827/827. Direct root implementation
+  status conversion and checked errors. At that slice boundary, internal
+  Surface had 84 raw externs and the public root retained seven raster-source
+  callback externs in one file. A package-local PDF/PS/SVG write and PNG
+  write/read round-trip raises the native suite to 827/827. Direct root implementation
   files fall to 38, the grandfather allowlist to 41, production FFI files to
   36, and the integrity-checked archive to 625 members; the
   349-local-plus-two-direct symbol set and public interface hash remain
@@ -535,12 +546,13 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 | Scaled fonts | Done | External object, constructor, matrices/options/font-face getters, returned font-face/options lifetime after the source scaled-font scope exits, sheared font/CTM scale-matrix combination coverage, font/text/glyph extents including embedded-NUL validation, empty, single/multi/spaced ASCII, precomposed/decomposed Latin, CJK, Arabic RTL, and emoji UTF-8 text-to-glyph string/coordinate cases with direct C Cairo oracle coverage, targeted normal/ASan gate coverage, executable Font reference docs for matrices/options/metrics/text-to-glyphs/errors, and Context get/set |
 | Python buffer protocol / NumPy / pygame adapters | Decision | Python's buffer protocol and optional NumPy/pygame object adapters are host-runtime integrations, not Cairo APIs. Cairoon exposes checked `FixedArray[Byte]`-backed image construction plus retained `ImageData` access; exact shared-storage, mutable pixel, byte-layout, lifetime, and bounds behavior is tested without adding Python package dependencies or an unsafe unscoped raw-pointer API |
 | Docs | Done | README smoke examples, AGENTS lifecycle/error specifications, package/release/porting guides, and executable family reference notes are present. `scripts/check-public-docs.py` proves substantive MoonBit `///` documentation for all 579 public declarations across the facade and intentionally published support packages, with zero entries in `scripts/public-docs-debt.txt`; executable downstream-style docs cover every API family, including complete PDF/PS/SVG backend workflows and checked errors. New undocumented APIs or ledger drift fail the local and CI verification gate |
-| Tests | Partial | Local portable-scope evidence is complete: exact Cairo 1.15.10 and Cairo 1.18.4 lanes pass 165/165 script tests, 827/827 native tests, 63/63 executable docs, 288 upstream pycairo tests across 20 families, 579/579 documented public declarations, the 349-local-plus-two-direct production FFI boundary, source and extracted consumers plus the unmodified cross-host archive consumer, all 625 publication members, and every discovered package under ASan/LSan/UBSan. Remaining gap: the unpushed release commit lacks shipped GitHub evidence for Ubuntu and macOS native jobs plus the Ubuntu combined ASan/LSan/UBSan job. Do not close this row until those exact jobs pass on the release commit; local evidence alone cannot close it. |
+| Tests | Partial | Local portable-scope evidence is complete: exact Cairo 1.15.10 and Cairo 1.18.4 lanes pass 165/165 script tests, 828/828 native tests, 63/63 executable docs, 288 upstream pycairo tests across 20 families, 579/579 documented public declarations, the 349-local-plus-two-direct production FFI boundary, source and extracted consumers plus the unmodified cross-host archive consumer, all 626 publication members, and every discovered package under ASan/LSan/UBSan. Remaining gap: the unpushed release commit lacks shipped GitHub evidence for Ubuntu and macOS native jobs plus the Ubuntu combined ASan/LSan/UBSan job. Do not close this row until those exact jobs pass on the release commit; local evidence alone cannot close it. |
 
 ## Recent Reliability Slices
 
 | Slice | Status | Notes |
 |---|---|---|
+| Pattern raster callback FFI ownership | Done | Moves all seven raster callback registration/introspection externs from the public root to `src/internal/pattern`, whose 45 externs now own the complete Pattern C boundary; adapts public `Surface`/`RectangleInt` callbacks to raw Surface handles and integer extents, adds a package-local four-state callback/getter test, leaves no C FFI in the public root, and preserves all public signatures plus the 349-local-plus-two-direct production symbol set. |
 | Surface stream callback FFI ownership | Done | Moves PDF, PS, SVG, and PNG stream callback externs from four public-root FFI files to `src/internal/surface`, where callback chunk copying and raw status transport are owned beside the corresponding surfaces; adds package-local vector-write and PNG-write/read round trips, leaves checked error conversion in the public facade, reduces direct root implementation files to 38 and the grandfather allowlist to 41, and preserves all public signatures plus the 349-local-plus-two-direct production symbol set. |
 | Public facade branch coverage | Done | Adds 26 family-local black-box tests for object `Hash::hash_combine`, value component ordering, typed pattern/font/surface/backend enums, raw unbounded recordings, raster callback clearing, Region status, backward text-cluster input, deterministic PNG errors, and PDF `Jbig2GlobalMissing`; the native suite contains 826 tests. Public-package instrumentation activates 50 intentional uncovered lines on Cairo 1.15.10 and 43 on Cairo 1.18.4, all stable-keyed in `scripts/public-coverage-exceptions.tsv` as linked-version boundaries, defensive native values, backend-dependent output, native-result invariants, platform backends, or platform-only statuses. `scripts/check-public-coverage.py` validates source anchors in the default gate, while `--analyze` reruns instrumentation and rejects both new uncovered lines and stale exceptions. |
 | Surface lifecycle and public API contract | Done | Documents all 35 base Surface declarations; makes backend finish and retained image-data release unconditional for valid pointers even after sticky errors; preserves closure errors after best-effort `with_finished` cleanup; adds executable native and MoonBit cleanup-order guards plus sticky-data-release and sticky-stream regressions; and passes 792/792 plus full package-isolated ASan/LSan on exact Linux Cairo 1.15.10 and 1.18.4 |

@@ -74,6 +74,16 @@ pub fn mesh_set_corner_color_rgb_raw(RawPattern, Int, Double, Double, Double) ->
 
 pub fn mesh_set_corner_color_rgba_raw(RawPattern, Int, Double, Double, Double, Double) -> Int
 
+pub fn raster_clear_callbacks_raw(RawPattern) -> Int
+
+pub fn raster_get_acquire_raw(RawPattern, @ref.Ref[Int]) -> (@surface.RawSurface, Int, Int, Int, Int) -> @surface.RawSurface
+
+pub fn raster_get_release_raw(RawPattern, @ref.Ref[Int]) -> (@surface.RawSurface) -> Unit
+
+pub fn raster_has_callbacks_raw(RawPattern, @ref.Ref[Int], @ref.Ref[Int], @ref.Ref[Int]) -> Bool
+
+pub fn raster_set_callbacks_raw(RawPattern, acquire? : ((@surface.RawSurface, Int, Int, Int, Int) -> @surface.RawSurface)?, release? : ((@surface.RawSurface) -> Unit)?) -> Int
+
 pub fn set_dither_raw(RawPattern, Int) -> Int
 
 pub fn set_extend_raw(RawPattern, Int) -> Int

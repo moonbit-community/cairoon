@@ -168,8 +168,8 @@ preferred_target = "native"
 supported_targets = "native"
 ```
 
-The public package config must import the native-stub package and gate raw FFI
-MoonBit declarations to native:
+The public package config must import the native-stub package and raw owner
+packages. It has no `targets` block because it declares no C FFI directly:
 
 ```moonbit
 import {
@@ -184,16 +184,10 @@ import {
   "CAIMEOX/cairoon/internal/surface" @surface_impl,
   "CAIMEOX/cairoon/native",
 }
-
-options(
-  targets: {
-    "ffi_pattern_raster_source.mbt": ["native"]
-  },
-)
 ```
 
 Context, Device, FontFace, FontOptions, Path, Pattern, Region, ScaledFont, and
-Surface are object-handle exceptions to the public-package FFI list. Their
+Surface keep their public facade wrappers in `src/`, while their
 `src/internal/<family>/moon.pkg` files import `CAIMEOX/cairoon/native`,
 and native-gate their own FFI files. Native linking propagates from
 `CAIMEOX/cairoon/native`; child and consumer packages must not repeat Cairo
@@ -244,11 +238,11 @@ official dependency-safe mechanism and cross-host regression coverage.
 ## Raw FFI File Boundaries
 
 Raw `extern "C"` declarations are split by Cairo concept family, mirroring the
-C glue split. Every GC-managed object handle has one declaration in
-`src/internal/<family>/`; the public package may retain only bridge externs
-whose signature genuinely requires a MoonBit callback type. Facade enums and
-values must be converted to primitive raw fields before entering a child
-package and are never grounds for a root FFI declaration. Every FFI file is
+C glue split. Every GC-managed object handle and callback declaration has one
+owner in `src/internal/<family>/`; the public package declares no C FFI.
+Facade enums, values, and callback arguments must be converted to raw handles
+and primitive fields before entering a child package and are never grounds for
+a root FFI declaration. Every FFI file is
 native-gated by its owning `moon.pkg`. A child package must
 expose raw statuses and enum values as `Int`, must not import
 `CAIMEOX/cairoon`, and must not map failures to facade-owned `CairoError`.
@@ -265,10 +259,12 @@ accessors that call `cairoon_scaled_font.c` or `cairoon_glyph.c`;
 `src/internal/pattern/ffi.mbt` owns `RawPattern` and 25 constructor, identity,
 common-state, matrix, solid, gradient, SurfacePattern, and raw raster-source
 externs; its `ffi_mesh.mbt` owns all 13 mesh-pattern externs and exchanges
-`RawPath` with `src/internal/path`. Typed enum setters convert to `Int` and use
-the child raw functions. Public `ffi_pattern_raster_source.mbt` retains exactly
-seven facade callback bridges that call public exports in
-`cairoon_raster_source_pattern.c`;
+`RawPath` with `src/internal/path`; its `ffi_raster_callbacks.mbt` owns all
+seven raster callback registration/introspection externs and exchanges only
+`RawSurface`, integer extents, and raw `Int` statuses. Typed enum setters and
+public callback adapters convert facade values before calling the child raw
+functions. No Pattern extern remains in the public package.
+The callback exports live in `cairoon_raster_source_pattern.c`;
 retained callback state, acquired-surface owner tracking, and Cairo
 acquire/release trampolines live in `cairoon_raster_source_callbacks.c`;
 `src/internal/context` owns the sole `RawContext` external object and 109 raw
@@ -306,7 +302,7 @@ remains in `src/internal/format`. Deleted root files such as
 `ffi_pdf_surface.mbt`, `ffi_ps_surface.mbt`, `ffi_surface_png.mbt`,
 `ffi_svg_surface.mbt`,
 `ffi_context_font_text.mbt`, `ffi_context_state.mbt`, `ffi_device.mbt`, and
-`ffi_pattern.mbt` must not return.
+`ffi_pattern.mbt`, `ffi_pattern_raster_source.mbt` must not return.
 `src/internal/font_face/ffi.mbt` owns the
 abstract `RawFontFace` external object and every declared FontFace-specific
 extern; the internal Context and ScaledFont packages may accept or return that
@@ -352,15 +348,16 @@ validation, traits, and all `CairoError` mapping. Context get/set bridge externs
 may return or borrow `RawScaledFont`, but only checked facade methods may wrap
 or unwrap it. No `RawTextToGlyphs` value may escape the facade as public API.
 `src/internal/pattern` owns the abstract `RawPattern` external object and all
-38 raw solid, gradient, common-state, mesh, SurfacePattern, and raw
-raster-source externs. Its child interface uses `Int` for Cairo statuses and
+45 raw solid, gradient, common-state, mesh, SurfacePattern, raster-source, and
+raster callback externs. Its child interface uses `Int` for Cairo statuses and
 raw enum values, imports `src/internal/path` and `src/internal/surface`, and
 must not import
 `CAIMEOX/cairoon`. Public `pattern.mbt` retains the abstract single-field
 `Pattern` wrapper, typed enum/status conversion, Matrix/value assembly,
-traits, and all `CairoError` mapping. `ffi_pattern_raster_source.mbt` keeps seven
-callback bridges whose types include `Surface`, `RectangleInt`, or MoonBit
-closures. Context source/group/mask paths exchange
+traits, and all `CairoError` mapping. Public raster callbacks are adapted to
+raw `RawSurface` callbacks plus integer rectangle fields before crossing into
+the child; no facade `Surface`, `RectangleInt`, `Status`, or `CairoError` type
+may appear in Pattern FFI. Context source/group/mask paths exchange
 `RawPattern`; only checked facade methods may wrap or unwrap it.
 `src/internal/context` owns the abstract `RawContext` external object and all
 109 raw Context externs. Its seven FFI and seven wrapper files
@@ -529,9 +526,11 @@ constructor name, enum type, error, and generated interface entry. A native
 ABI probe proved that an abstract public single-field wrapper around an
 external raw handle is pointer-transparent across packages. Production FFI
 must still use the explicit raw type; accepting public `Surface` directly is
-limited to existing callback/test C ABIs and requires raster-owner plus
-black-box regression coverage. Adding a second field to any object facade is
-an ABI change and is forbidden without replacing all such direct C signatures.
+forbidden even when its current representation is pointer-transparent. Raster
+callbacks adapt through `RawSurface` plus primitive extents in the Pattern
+child and retain black-box owner/lifetime coverage. Adding a second field to
+any object facade remains a compatibility change requiring interface and
+behavior review.
 Keep enum
 constructors in the facade unless a compatibility proof shows that
 `@cairoon.<Constructor>` syntax survives. Any internal package that imports
@@ -783,17 +782,18 @@ Concrete requirements:
 `scripts/check-ffi-ownership.py` is the executable declaration policy. Its raw
 object set must include `RawSurface`, `RawMappedImageSurface`, and
 `RawImageData`; production FFI must not use public `MappedImageSurface` or
-`ImageData` in place of those handles. `Surface` remains recognized only
-because existing raster callback ABIs intentionally accept the
-pointer-transparent facade wrapper. The checker must reject duplicate C symbol
+`ImageData` in place of those handles. Public object types remain recognized
+by the checker so any accidental facade-typed extern still requires explicit
+ownership and is visible in review, but production callback ABIs must use raw
+owner-package handles. The checker must reject duplicate C symbol
 declarations and exports, missing `MOONBIT_FFI_EXPORT` definitions, native
 exports with no production extern, and drift in the exact public-facade callback
 set. The 349 cairoon production externs and native exports must be a one-to-one
 set; only `cairo_version` and `cairo_format_stride_for_width` may bind directly
-to libcairo. The public package root contains exactly seven raster-source
-callback bridges in `ffi_pattern_raster_source.mbt`. Surface and Device stream
-callbacks live in their raw owner packages and expose callback statuses as
-`Int`. A typed facade method converts its enum to
+to libcairo. The exact public-facade callback set is empty: `src/*.mbt` must
+contain no `extern "C"` declarations. Pattern, Surface, and Device callbacks
+live in their raw owner packages and expose callback statuses as `Int`. A typed
+facade method converts its enum to
 the child package's raw `Int`; it must not redeclare the same C symbol with a
 facade enum or `Ref[Status]`, because clean native compilation would otherwise
 emit incompatible generated-C prototypes. Test-only MoonBit-callable C probes
