@@ -78,7 +78,7 @@ version or commit is pinned. The complete portable API scope and all 20 pinned
 pycairo test families are covered, and all 579 published declarations have
 substantive API documentation.
 
-Local release-candidate matrices on exact Cairo 1.15.10 and 1.18.4 pass 181/181
+Local release-candidate matrices on exact Cairo 1.15.10 and 1.18.4 pass 183/183
 script tests, 838/838 native tests, 63/63 executable docs, 12/12 raw external
 owners with exact finalizer and 1000-iteration stress evidence, source and
 extracted consumers plus the unmodified cross-host archive consumer, all 634

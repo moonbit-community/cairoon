@@ -202,7 +202,13 @@ The `src/native/moon.pkg` package owns all public C glue compilation. Its
 back into another package. The checked-in `src/native/moon.pkg` is the
 executable source of truth for this list: every `.c` beside it must appear in
 `native-stub`, every `native-stub` entry must exist beside it, and its
-`stub-cc-flags` must be exactly `${build.CAIRO_CFLAGS}`.
+`stub-cc-flags` must be exactly
+`"${build.CAIRO_CFLAGS} -std=c11 -Wall -Wextra -Wpedantic -Werror"`.
+The test-only `src/tests/oracle/native/moon.pkg` package must use the same exact
+flag string for all oracle glue. Keep the `pkg-config`-derived flags first and
+the strict C11 warning flags in the shown order; omission, reordering, or
+warning downgrades are release failures enforced by
+`scripts/check-project-layout.py` and its negative unit tests.
 `scripts/build/cairo_config.py` resolves Cairo with `pkg-config`, emits that
 build variable, and propagates the linker flags from the native package to all
 dependents. `scripts/check-project-layout.py` and the build-script unit tests
@@ -1167,6 +1173,9 @@ A migrated API is done only when:
 - `scripts/verify.sh` treats MoonBit compiler warnings as release blockers for
   native check, support-package tests, extracted black-box/oracle tests, full
   native tests, and targeted clang/ASan test-package runs.
+- All production and oracle C stubs compile as C11 with `-Wall -Wextra`,
+  `-Wpedantic`, and `-Werror`; the project-layout gate rejects removal or
+  reordering of any required flag.
 - ASan run is clean.
 - Every non-primitive parameter in production `src/**/ffi*.mbt` raw FFI files
   has an explicit `#borrow` or `#owned`.

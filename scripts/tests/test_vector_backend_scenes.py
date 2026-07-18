@@ -44,6 +44,17 @@ class VectorBackendSceneCheckerTests(unittest.TestCase):
         moonbit_anchors.extend(
             f'test "{name}"' for name in self.checker.TAG_ATTRIBUTE_RUNTIME_TESTS
         )
+        c_anchors.extend(
+            (
+                self.checker.TAG_ATTRIBUTE_VERSION_GUARD,
+                f"static void {self.checker.TAG_ATTRIBUTE_HELPER}(void) {{",
+                "}",
+                "#endif",
+                "static cairo_status_t "
+                f"{self.checker.TAG_ATTRIBUTE_DRAW_FUNCTION}(void) {{",
+                "}",
+            )
+        )
         self.c_source.write_text("\n".join(c_anchors), encoding="utf-8")
         self.moonbit_source.write_text("\n".join(moonbit_anchors), encoding="utf-8")
 
@@ -90,6 +101,22 @@ class VectorBackendSceneCheckerTests(unittest.TestCase):
         errors = self.check_coverage()
 
         self.assertTrue(any(missing_test in error for error in errors), errors)
+
+    def test_tag_attribute_helper_requires_old_cairo_compile_guard(self) -> None:
+        for token in (self.checker.TAG_ATTRIBUTE_VERSION_GUARD, "#endif"):
+            with self.subTest(token=token):
+                self.write_complete_sources()
+                self.c_source.write_text(
+                    self.c_source.read_text(encoding="utf-8").replace(token, "", 1),
+                    encoding="utf-8",
+                )
+
+                errors = self.check_coverage()
+
+                self.assertTrue(
+                    any(self.checker.TAG_ATTRIBUTE_HELPER in error for error in errors),
+                    errors,
+                )
 
     def check_stream_scene_list(
         self,

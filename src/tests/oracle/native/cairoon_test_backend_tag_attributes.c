@@ -55,6 +55,7 @@ static cairo_status_t cairoon_test_configure_backend_tag_attributes(
   }
 }
 
+#if CAIRO_VERSION >= CAIRO_VERSION_ENCODE(1, 18, 0)
 static void cairoon_test_tag_attribute_text(
   cairo_t *cr,
   double x,
@@ -63,6 +64,7 @@ static void cairoon_test_tag_attribute_text(
   cairo_move_to(cr, x, y);
   cairo_show_text(cr, text);
 }
+#endif
 
 static cairo_status_t cairoon_test_draw_backend_tag_attributes(cairo_t *cr) {
 #if CAIRO_VERSION >= CAIRO_VERSION_ENCODE(1, 18, 0)

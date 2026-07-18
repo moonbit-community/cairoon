@@ -54,5 +54,9 @@ options(
     "cairoon_test_ps_vector.c",
     "cairoon_test_svg_vector.c",
   ],
-  link: { "native": { "stub-cc-flags": "${build.CAIRO_CFLAGS}" } },
+  link: {
+    "native": {
+      "stub-cc-flags": "${build.CAIRO_CFLAGS} -std=c11 -Wall -Wextra -Wpedantic -Werror",
+    },
+  },
 )

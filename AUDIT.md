@@ -77,14 +77,17 @@ Implemented in this workspace:
   same 255-method portable mapping instead of dropping constant coverage.
 - Portable system-Cairo configuration through `scripts/build/cairo_config.py`.
   MoonBit's pre-build protocol resolves Cairo 1.15.10 or newer via `pkg-config`,
-  injects `${build.CAIRO_CFLAGS}` into the two native-stub packages, and
-  propagates linker flags from `CAIMEOX/cairoon/native`. All 83 package and
+  injects `${build.CAIRO_CFLAGS}` into the two native-stub packages, appends
+  the exact `-std=c11 -Wall -Wextra -Wpedantic -Werror` contract for all 34
+  production and 49 oracle C stubs, and propagates linker flags from
+  `CAIMEOX/cairoon/native`. The layout checker and a parameterized negative
+  test reject omission, reordering, or downgrading of those flags. All 83 package and
   consumer manifests are free of concrete host paths and repeated
   `cc-link-flags`; eight focused protocol tests cover quoting, version floors,
   process failures, deterministic JSON, and environment redaction.
 - Exact local release lanes for Cairo 1.15.10 and 1.18.4, built from pinned
   source URLs and SHA-256 digests on a pinned Ubuntu base image. Both lanes
-  pass all static gates, 838/838 native tests, 181/181 script tests, and 63/63
+  pass all static gates, 838/838 native tests, 183/183 script tests, and 63/63
   executable documentation tests with the pinned MoonBit
   `0.10.4+4f2e8f7dc-nightly` compiler. In each lane, the source-checkout and
   extracted-publication-zip consumers also pass 1/1 independently. Each lane
@@ -846,7 +849,7 @@ Implemented in this workspace:
 
 The most recent full local verification passed on 2026-07-18:
 
-- `./scripts/verify.sh` passed 181/181 script tests,
+- `./scripts/verify.sh` passed 183/183 script tests,
   838/838 native tests, 63/63 executable documentation tests, formatting,
   project layout, source-size, Cairo build-protocol/generated-constant, FFI
   ownership, exact external-owner/finalizer/stress evidence, API inventory,
@@ -857,7 +860,7 @@ The most recent full local verification passed on 2026-07-18:
   passed every discovered package;
   authoritative Linux LSan coverage is supplied by both exact-Cairo lanes.
 - `./scripts/test-cairo-matrix.sh cairo-1.15.10` and
-  `./scripts/test-cairo-matrix.sh cairo-1.18.4` passed the same 181 script,
+  `./scripts/test-cairo-matrix.sh cairo-1.18.4` passed the same 183 script,
   838 native, and 63 documentation tests, both 1/1 consumer paths, the
   unmodified host-archive consumer, all 634 publication members, and every
   discovered package under ASan/LSan/UBSan.

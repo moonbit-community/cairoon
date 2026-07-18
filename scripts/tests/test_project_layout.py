@@ -245,7 +245,10 @@ class NativeBuildConfigurationLayoutTests(unittest.TestCase):
     def write_stub_package(self, package: pathlib.Path, flags: str | None = None) -> None:
         package.mkdir(parents=True, exist_ok=True)
         if flags is None:
-            flags = "${build.CAIRO_CFLAGS}"
+            flags = (
+                "${build.CAIRO_CFLAGS} "
+                "-std=c11 -Wall -Wextra -Wpedantic -Werror"
+            )
         (package / "moon.pkg").write_text(
             'options(\n'
             '  "native-stub": [ "stub.c" ],\n'
@@ -296,6 +299,25 @@ class NativeBuildConfigurationLayoutTests(unittest.TestCase):
         errors = self.check()
 
         self.assertTrue(any("CAIRO_CFLAGS" in error for error in errors), errors)
+
+    def test_native_stub_requires_every_strict_c_flag(self) -> None:
+        complete = (
+            "${build.CAIRO_CFLAGS} "
+            "-std=c11 -Wall -Wextra -Wpedantic -Werror"
+        )
+        for required in ["-std=c11", "-Wall", "-Wextra", "-Wpedantic", "-Werror"]:
+            with self.subTest(required=required):
+                self.write_stub_package(
+                    self.native,
+                    complete.replace(f" {required}", ""),
+                )
+
+                errors = self.check()
+
+                self.assertTrue(
+                    any("exact strict C flags" in error for error in errors),
+                    errors,
+                )
 
     def test_consumer_must_not_repeat_cairo_link_flags(self) -> None:
         (self.consumer / "moon.pkg").write_text(

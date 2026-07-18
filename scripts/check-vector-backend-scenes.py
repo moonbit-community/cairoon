@@ -71,6 +71,11 @@ TAG_ATTRIBUTE_RUNTIME_TESTS = (
     "backend tag attribute matrix output contains stable markers",
     "ps svg backend tag attribute matrix omits pdf tag metadata",
 )
+TAG_ATTRIBUTE_VERSION_GUARD = (
+    "#if CAIRO_VERSION >= CAIRO_VERSION_ENCODE(1, 18, 0)"
+)
+TAG_ATTRIBUTE_HELPER = "cairoon_test_tag_attribute_text"
+TAG_ATTRIBUTE_DRAW_FUNCTION = "cairoon_test_draw_backend_tag_attributes"
 
 
 def read_text(path: pathlib.Path) -> str:
@@ -232,6 +237,19 @@ def check_tag_attribute_coverage() -> list[str]:
         if f'test "{test_name}"' not in moonbit_text:
             errors.append(
                 f"{TAG_ATTRIBUTE_MOONBIT}: missing tag runtime test {test_name!r}"
+            )
+
+    helper_index = c_text.find(f"static void {TAG_ATTRIBUTE_HELPER}")
+    draw_index = c_text.find(f"static cairo_status_t {TAG_ATTRIBUTE_DRAW_FUNCTION}")
+    if helper_index >= 0 and draw_index > helper_index:
+        guard_index = c_text.rfind(TAG_ATTRIBUTE_VERSION_GUARD, 0, helper_index)
+        previous_endif = c_text.rfind("#endif", 0, helper_index)
+        closing_endif = c_text.find("#endif", helper_index, draw_index)
+        if guard_index <= previous_endif or closing_endif < 0:
+            errors.append(
+                f"{TAG_ATTRIBUTE_C}: {TAG_ATTRIBUTE_HELPER} must be enclosed by "
+                f"{TAG_ATTRIBUTE_VERSION_GUARD!r} so Cairo < 1.18 does not "
+                "compile an unused static helper under -Werror"
             )
 
     return errors

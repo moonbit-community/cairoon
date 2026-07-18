@@ -35,5 +35,9 @@ options(
     "cairoon_scaled_font.c",
     "cairoon_region.c",
   ],
-  link: { "native": { "stub-cc-flags": "${build.CAIRO_CFLAGS}" } },
+  link: {
+    "native": {
+      "stub-cc-flags": "${build.CAIRO_CFLAGS} -std=c11 -Wall -Wextra -Wpedantic -Werror",
+    },
+  },
 )

@@ -74,7 +74,7 @@ Evaluate each slice with this scorecard:
 |---|---|---|
 | API surface | Public entries appear in `src/pkg.generated.mbti`; Python-only pycairo APIs are recorded as `Decision`; `scripts/check-api-inventory.py` passes against both the parent `cairo/__init__.pyi` and the pinned standalone snapshot | Strong for current portable APIs; source and archive modes enforce the same 67 public top-level entries, 224 top-level constants, and 255 portable class methods, mapped to public MoonBit API anchors or explicit product decisions; source SHA or snapshot shape drift fails closed |
 | Reliability ledger | `API_INVENTORY.md` statuses are `Done`, `Partial`, or `Decision`; every `Partial` row names its remaining gap; this scorecard and CI/verify gate are checked by `scripts/check-reliability-ledger.py` | Exact for current migrated slices; the one remaining `Partial` row names shipped release-platform evidence, and the full-product claim still requires it to reach `Done` or an explicit scope `Decision` |
-| FFI boundary safety | Production raw `src/**/ffi*.mbt` declarations are native-gated in their owning `moon.pkg`, mark every non-primitive C FFI parameter with `#borrow` or `#owned`, and `scripts/check-project-layout.py`, `scripts/check-ffi-ownership.py`, `scripts/check-external-owners.py`, plus `scripts/check-stream-cleanup.py` pass | Strong for current raw externs, including internal helper packages; the ownership gates enforce Device, Surface, mapped-image, and stream-constructor cleanup order plus scoped-error precedence. The external-owner gate independently discovers all 12 raw owner declarations, native finalizers, and external-object allocators; enforces structural owner naming; and requires exact release plus top-level 1000-iteration lifetime evidence |
+| FFI boundary safety | Production raw `src/**/ffi*.mbt` declarations are native-gated in their owning `moon.pkg`, mark every non-primitive C FFI parameter with `#borrow` or `#owned`, and `scripts/check-project-layout.py`, `scripts/check-ffi-ownership.py`, `scripts/check-external-owners.py`, plus `scripts/check-stream-cleanup.py` pass | Strong for current raw externs, including internal helper packages; the ownership gates enforce Device, Surface, mapped-image, and stream-constructor cleanup order plus scoped-error precedence. All 34 production and 49 oracle C stubs compile under the exact C11 `-Wall -Wextra -Wpedantic -Werror` contract, and the layout gate rejects any downgrade. The external-owner gate independently discovers all 12 raw owner declarations, native finalizers, and external-object allocators; enforces structural owner naming; and requires exact release plus top-level 1000-iteration lifetime evidence |
 | Behavioral parity | pycairo-derived black-box cases, independent pure-MoonBit property models, or direct C Cairo primitive oracles cover normal and invalid inputs | Strong for image, context, path, font, pattern, region, surface/device, and backend helpers already listed in the inventory; all 288 tests from all 20 upstream test files are pinned and mapped to 197 family-local MoonBit runtime anchors, 291 required generated static API anchors, 29 deliberately absent signatures, 4 explicit inventory decisions, and 1 mandatory static verify gate. Deterministic Matrix, Region, Path, Rectangle, and RectangleInt properties use independent algebra, occupancy-grid, command-state, and generated-value models. The public-facade ledger has 53 stable source anchors with semver scopes; exact analysis activates 50 exceptions on Cairo 1.15.10 and 43 on Cairo 1.18.4, while every portable reachable branch found by the audit is covered. |
 | Rendering parity | Deterministic image pixels or normalized PDF/PS/SVG bytes match direct C Cairo output | Strong for the portable migration scope. Scene 66 closes Cairo 1.18's finite tag-attribute contract across URI, multi-rectangle, destination, page-position, external-file, content, and content-reference cases; it joins the enumerated image and vector fixtures with file/stream/direct-C comparisons and stable positive or negative backend markers |
 | Lifetime safety | External-object ownership, borrowed returns, callback retention, integer/pointer operations, and error exits run under ASan/LSan/UBSan or stress tests | Strong for the current portable scope: all 12 raw owners have an exact C finalizer/release mapping and a top-level 1000-iteration allocation path in a separately packaged lifetime test. Linux runs every MoonBit package in a separate ASan/LSan/UBSan process; stream constructors retain callback state until partial native producers are destroyed on failure, and saved raster getter closures survive replacement, clearing, and their original local bindings leaving scope. Two upstream Cairo paths have pure-C-probe-verified, exact-count LSan suppressions isolated to the vector-oracle and PDF backend packages; every other package remains unsuppressed. |
@@ -119,7 +119,9 @@ Review `src/pkg.generated.mbti` after `moon info`. Public additions, `raise`
 annotations, and enum constructors must match the intended API.
 Run `scripts/configure-cairo-constants.sh --check` before native checks when the
 system Cairo installation may have changed. The build-script and layout tests
-also reject concrete host paths or repeated Cairo linker flags. Run
+also reject concrete host paths, repeated Cairo linker flags, or either
+native-stub package omitting or reordering the exact
+`-std=c11 -Wall -Wextra -Wpedantic -Werror` suffix. Run
 `scripts/check-api-inventory.py`
 whenever the pycairo stub, public API, or inventory changes. Run
 `scripts/check-public-docs.py` whenever a public declaration or doc comment
@@ -265,6 +267,8 @@ A release candidate must pass on all supported platforms:
 
 - `moon check --target native --deny-warn --warn-list +73`
 - `moon test --target native --deny-warn`
+- All production and direct-C oracle stubs compiled as C11 with
+  `-Wall -Wextra -Wpedantic -Werror`
 - Package-isolated ASan/LSan/UBSan on the authoritative Linux lane; macOS
   follows the platform policy below
 - Differential pycairo/C oracle suite
@@ -4512,6 +4516,17 @@ signature. Native verification now runs
 checker tokenizes the active shell command, and a negative mutation test proves
 the former command without `+73` cannot satisfy the gate.
 
+The strict C stub slice applies
+`-std=c11 -Wall -Wextra -Wpedantic -Werror` after the generated Cairo flags in
+both native-stub packages. This covers all 34 production C files and 49
+test-only direct-C oracle files. The layout checker requires the exact ordered
+flag string, while a parameterized negative test removes each flag in turn and
+proves the release gate fails closed. Cairo 1.15.10 then exposed the
+1.18-only tag-attribute text helper as unused; the helper now shares its call
+sites' compile guard, and a checker regression rejects either missing guard
+boundary. No production C source, production MoonBit code, public signature,
+native test, or FFI symbol changed in this slice.
+
 The geometry property-oracle slice adds nine deterministic tests whose
 expected values do not come from Cairo or cairoon. A 16-by-16 half-open
 occupancy grid checks Region construction, positive-area containment, extents,
@@ -4524,7 +4539,7 @@ RectangleInt each cover 128 signed-field values, structural equality,
 component/index aliases, and six out-of-range indexes with exact
 `CairoInvalidArgument(InvalidIndex, _)` matching.
 
-Exact Linux Cairo 1.15.10 and 1.18.4 each pass 838/838 native tests, 181/181
+Exact Linux Cairo 1.15.10 and 1.18.4 each pass 838/838 native tests, 183/183
 script tests, 63/63 executable docs, the source and extracted 1/1 downstream
 consumers, the same unmodified host-generated archive consumer, publication
 archive integrity for 634 members, and every discovered package under

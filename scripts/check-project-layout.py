@@ -32,7 +32,10 @@ NATIVE_PACKAGE_CONFIG = NATIVE_PACKAGE_DIR / "moon.pkg"
 CAIRO_BUILD_SCRIPT = REPO_ROOT / "scripts" / "build" / "cairo_config.py"
 SANITIZER_PROBE_ROOT = REPO_ROOT / "scripts" / "sanitizers" / "probes"
 NATIVE_TARGETS = {"native"}
-CAIRO_CFLAGS_VARIABLE = '"stub-cc-flags": "${build.CAIRO_CFLAGS}"'
+STRICT_STUB_CFLAGS = (
+    '"stub-cc-flags": "${build.CAIRO_CFLAGS} '
+    '-std=c11 -Wall -Wextra -Wpedantic -Werror"'
+)
 COUNTED_PACKAGE_ROOTS = (
     PACKAGE_ROOT / "core",
     PACKAGE_ROOT / "internal",
@@ -372,10 +375,10 @@ def check_native_build_configuration() -> list[str]:
                 "Cairo build script"
             )
         if '"native-stub"' in text:
-            if CAIRO_CFLAGS_VARIABLE not in text:
+            if STRICT_STUB_CFLAGS not in text:
                 errors.append(
-                    f"{relative}: native-stub packages must use "
-                    '"stub-cc-flags": "${build.CAIRO_CFLAGS}"'
+                    f"{relative}: native-stub packages must use exact strict "
+                    f"C flags {STRICT_STUB_CFLAGS}"
                 )
         elif '"stub-cc-flags"' in text:
             errors.append(
