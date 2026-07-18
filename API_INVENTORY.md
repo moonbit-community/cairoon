@@ -14,6 +14,17 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 
 ## Recent Audit Deltas
 
+- 2026-07-18: Finalizer graph fuzz now proves the reachability of both script
+  stream outcomes. A test-first counter exposed that operation dispatch selected
+  stream cases only when `value % 5 == 4`, while the stream `WriteError` branch
+  required `value % 5 == 0` and was therefore impossible. The dispatcher now
+  passes the independent quotient to the stream scenario. The fixed seeds
+  execute 28 stream cases: 19 successful finalizations and 9 `WriteError`
+  exits, with nonzero runtime assertions for both classes. The focused package
+  passes host ASan/UBSan and both exact-Cairo Linux lanes under
+  ASan/LSan/UBSan. This test-only correction leaves 183 script tests, 838
+  native tests, 421 source files, 634 publication members, public signatures,
+  production C glue, and the 349-local-plus-two-direct FFI boundary unchanged.
 - 2026-07-18: C glue now has an executable C11 warnings-as-errors contract.
   Both native-stub manifests apply the exact `-std=c11 -Wall -Wextra
   -Wpedantic -Werror` suffix after the `pkg-config` Cairo flags, covering all
@@ -601,6 +612,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 
 | Slice | Status | Notes |
 |---|---|---|
+| Finalizer fuzz branch reachability | Done | Separates the five-way operation selector from each operation's scenario selector; adds runtime counters proving the fixed seeds execute both successful and `WriteError` script-device finalization; and turns the previously unreachable claimed error path into 9 of 28 stream cases while preserving all production code and public interfaces. |
 | Strict C stub compilation gate | Done | Compiles all 34 production and 49 oracle C stubs as C11 with `-Wall -Wextra -Wpedantic -Werror` after the generated Cairo flags; requires the exact string in both native-stub manifests; adds parameterized negative layout tests proving that removing any required flag fails the release gate; and keeps the 1.18-only tag-attribute helper behind the same compile guard as its uses so Cairo 1.15.10 remains warning-clean. |
 | Strict MoonBit warning 73 gate | Done | Removes 2,115 compiler-identified unnecessary package qualifiers from 129 external test files, preserving production and public interfaces; upgrades the native check to `--deny-warn --warn-list +73`; and adds a negative reliability-checker mutation proving the old command cannot impersonate the release gate. |
 | Geometry property oracles | Done | Adds independent pure-MoonBit generated models for Region coverage/boolean algebra, Path command state/copy/append/flatten replay, and Rectangle/RectangleInt components/equality/index errors. The tests cover 32 Region seeds, 32 Path seeds with 18 commands each, and 128 values of each rectangle type; they preserve Cairo's documented half-open region semantics and replay normalization without deriving expected values from the binding. |

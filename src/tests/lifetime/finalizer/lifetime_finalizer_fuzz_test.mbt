@@ -228,7 +228,11 @@ fn finalizer_fuzz_raster_edge(value : Int) -> Unit raise {
 }
 
 ///|
-fn finalizer_fuzz_stream_device_edge(value : Int) -> Unit raise {
+fn finalizer_fuzz_stream_device_edge(
+  value : Int,
+  stream_successes : Ref[Int],
+  stream_failures : Ref[Int],
+) -> Unit raise {
   let chunk_count = Ref(0)
   let byte_count = Ref(0)
   let device = @cairoon.Device::script_stream(fn(chunk) {
@@ -249,8 +253,10 @@ fn finalizer_fuzz_stream_device_edge(value : Int) -> Unit raise {
     device.finish()
   })
   if value % 5 == 0 {
+    stream_failures.val += 1
     finalizer_fuzz_expect_status(result, WriteError)
   } else {
+    stream_successes.val += 1
     match result {
       Ok(_) => ()
       _ => @test.fail("expected successful script finalizer fuzz path")
@@ -261,26 +267,39 @@ fn finalizer_fuzz_stream_device_edge(value : Int) -> Unit raise {
 }
 
 ///|
-fn finalizer_fuzz_step(value : Int) -> Unit raise {
+fn finalizer_fuzz_step(
+  value : Int,
+  stream_successes : Ref[Int],
+  stream_failures : Ref[Int],
+) -> Unit raise {
   match value % 5 {
     0 => finalizer_fuzz_surface_graph(value)
     1 => finalizer_fuzz_mapped_edge(value)
     2 => finalizer_fuzz_font_path_region(value)
     3 => finalizer_fuzz_raster_edge(value)
-    _ => finalizer_fuzz_stream_device_edge(value)
+    _ =>
+      finalizer_fuzz_stream_device_edge(
+        value / 5,
+        stream_successes,
+        stream_failures,
+      )
   }
 }
 
 ///|
 test "finalizer graph multi-seed fuzz covers error exits and retained owners" {
   let pressure_total = Ref(0)
+  let stream_successes = Ref(0)
+  let stream_failures = Ref(0)
   for seed_start in [19, 97, 701, 4099] {
     let seed = Ref(seed_start)
     for _ in 0..<40 {
       let value = finalizer_fuzz_next(seed)
-      finalizer_fuzz_step(value)
+      finalizer_fuzz_step(value, stream_successes, stream_failures)
       pressure_total.val += finalizer_fuzz_pressure(value)
     }
   }
   inspect(pressure_total.val > 0, content="true")
+  inspect(stream_successes.val, content="19")
+  inspect(stream_failures.val, content="9")
 }

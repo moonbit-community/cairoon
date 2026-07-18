@@ -839,11 +839,15 @@ Implemented in this workspace:
   while the shipped macOS lane runs the ordinary native gate.
   Finalizer graph fuzz now covers multi-seed surface/context/pattern/font/path/
   region/mapped-image/raster-source/script-device owner graphs, error exits,
-  callback clearing, and allocation pressure under ASan. Broader platform
-  coverage and stronger randomized finalizer/callback-edge coverage remain
-  useful release depth. The product-level Tests row remains `Partial` until
-  the release commit has shipped Ubuntu/macOS evidence; this is not an open
-  local lifetime defect.
+  callback clearing, and allocation pressure under ASan. Operation dispatch
+  and operation-local scenarios use independent values, and explicit runtime
+  counters prove that the fixed seeds execute 19 successful and 9 `WriteError`
+  script-device exits across 28 stream cases. The focused package passes host
+  ASan/UBSan and both exact-Cairo Linux lanes under ASan/LSan/UBSan. Broader
+  platform coverage and stronger randomized finalizer/callback-edge coverage
+  remain useful release depth. The product-level Tests row remains `Partial`
+  until the release commit has shipped Ubuntu/macOS evidence; this is not an
+  open local lifetime defect.
 
 ## Last Verified
 

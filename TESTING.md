@@ -4539,6 +4539,17 @@ RectangleInt each cover 128 signed-field values, structural equality,
 component/index aliases, and six out-of-range indexes with exact
 `CairoInvalidArgument(InvalidIndex, _)` matching.
 
+The finalizer-fuzz reachability slice repairs a false coverage claim without
+changing production code. The five-way dispatcher previously selected the
+script-device operation only for values congruent to 4 modulo 5, while that
+operation selected `WriteError` only for values congruent to 0 modulo 5. A new
+failure counter first demonstrated the branch was unreachable. The dispatcher
+now passes the independent quotient as the operation-local scenario, and
+runtime counters prove the fixed seeds execute 19 successful and 9
+`WriteError` exits across 28 script-device cases. The isolated finalizer package
+passes normally, under host ASan/UBSan, and in both exact-Cairo Linux lanes
+under ASan/LSan/UBSan.
+
 Exact Linux Cairo 1.15.10 and 1.18.4 each pass 838/838 native tests, 183/183
 script tests, 63/63 executable docs, the source and extracted 1/1 downstream
 consumers, the same unmodified host-generated archive consumer, publication
@@ -4566,7 +4577,8 @@ Remaining reliability work is now narrower and should be tracked as evidence,
 not as an unstructured checklist:
 
 - Add broader release-platform coverage and finalizer fuzz beyond the
-  deterministic raster-source owner-count, state-machine, manual
+  branch-reachability-asserted deterministic raster-source owner-count,
+  state-machine, manual
   get-callback, exhaustive transition-matrix, callback allocation,
   retained-owner, stream retention, and backend stream multi-seed callback and
   finalizer graph fuzz tests. This is global release evidence rather than an

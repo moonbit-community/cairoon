@@ -1163,6 +1163,13 @@ Required lifetime tests:
 All finalizers must be exercised by tests that allocate and release at least
 1000 objects in a loop under ASan.
 
+Deterministic fuzz tests must derive operation dispatch and operation-local
+scenario selection from independent values. Reusing one remainder for both is
+forbidden when it can make a claimed success, error, cleanup, or ownership path
+unreachable. Every claimed path class must increment an explicit runtime
+counter, and the test must assert that every counter is nonzero for the fixed
+seed set.
+
 ## Definition Of Done
 
 A migrated API is done only when:
