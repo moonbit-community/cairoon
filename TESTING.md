@@ -82,7 +82,7 @@ Evaluate each slice with this scorecard:
 | Portability | Required backends pass on each supported platform, or unsupported APIs have explicit `Decision` rows | Strong local evidence at the exact Cairo 1.15.10 compatibility floor and recommended 1.18.4 release, plus the host lane. Module metadata declares native as the sole supported backend, and layout/archive regressions reject drift; unsupported targets stop before native FFI checking. Both Linux lanes consume the same unmodified host-generated zip through module-level `pkg-config` discovery; still Partial until the release commit's shipped Ubuntu/macOS CI jobs pass |
 | Documentation | Public declarations have substantive MoonBit `///` comments, family workflows have executable examples where practical, and `scripts/check-public-docs.py` reports zero debt | Done: all 579 public declarations have substantive comments, the exact grandfather ledger is empty, executable downstream-style family notes include complete PDF/PS/SVG workflows, and new undocumented APIs or ledger drift fail the gate |
 | Downstream consumption | A separately named MoonBit module resolves the versioned local dependency, imports only `CAIMEOX/cairoon`, carries no native flags, receives propagated Cairo linking, renders through the public API against checkout and extracted publication zip, and stays outside that archive | Strong local evidence through `integration/consumer` and `scripts/check-downstream-consumer.sh`; the zip is integrity-tested and recompiled in a fresh temporary workspace, and `--archive` mode recompiles the producer-host zip unchanged in both exact-Cairo lanes |
-| Publication integrity | The zip contains the declared dual-license notice and full texts, native-only module metadata, package README/interface, dependency pre-build script, and pinned pycairo API snapshot; canonical paths are unique, safe, CRC-valid, and exclude integration fixtures | Done locally: `scripts/check-publication-archive.py` checks all 629 members, and twelve focused tests cover valid archives plus missing/incorrect license data, metadata/target mismatch, missing build/API support, duplicate names, unsafe paths, fixture leakage, emptiness, and corruption |
+| Publication integrity | The zip contains the declared dual-license notice and full texts, native-only module metadata, package README/interface, dependency pre-build script, and pinned pycairo API snapshot; canonical paths are unique, safe, CRC-valid, and exclude integration fixtures | Done locally: `scripts/check-publication-archive.py` checks all 625 members, and twelve focused tests cover valid archives plus missing/incorrect license data, metadata/target mismatch, missing build/API support, duplicate names, unsafe paths, fixture leakage, emptiness, and corruption |
 
 The practical release rule is simple: a feature can be trusted when its
 inventory row is `Done`, its reference docs are executable where practical,
@@ -4472,10 +4472,19 @@ standalone
 `scripts/sanitizers/probes/cairo_pdf_jbig2_missing_probe.c` must reproduce the
 exact signature before two suppressions can apply only to the PDF test package.
 
-Exact Linux Cairo 1.15.10 and 1.18.4 each pass 826/826 native tests, 165/165
+The current Surface stream FFI ownership slice moves PDF, PS, SVG, and PNG
+callback externs and callback chunk copying into `src/internal/surface` while
+leaving checked error conversion in the public facade. A package-local test
+constructs and finishes all three vector stream surfaces, then writes and reads
+a PNG through callbacks. It catches missing child-package imports, incorrect
+callback status transport, and callback lifetime regressions before public
+black-box coverage runs. The public interface hash and production symbol set
+remain unchanged while four public-root FFI files disappear.
+
+Exact Linux Cairo 1.15.10 and 1.18.4 each pass 827/827 native tests, 165/165
 script tests, 63/63 executable docs, the source and extracted 1/1 downstream
 consumers, the same unmodified host-generated archive consumer, publication
-archive integrity for 629 members, and every discovered package under
+archive integrity for 625 members, and every discovered package under
 ASan/LSan/UBSan. The pure-C recording-snapshot probe still limits the vector
 package to 16 suppressions/7424 bytes on Cairo 1.15.10 and 16/9344 on Cairo
 1.18.4. The pure-C PDF/JBIG2 probe limits the PDF package to two rows totaling

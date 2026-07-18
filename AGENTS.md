@@ -187,11 +187,7 @@ import {
 
 options(
   targets: {
-    "ffi_pattern_raster_source.mbt": ["native"],
-    "ffi_pdf_surface.mbt": ["native"],
-    "ffi_ps_surface.mbt": ["native"],
-    "ffi_surface_png.mbt": ["native"],
-    "ffi_svg_surface.mbt": ["native"]
+    "ffi_pattern_raster_source.mbt": ["native"]
   },
 )
 ```
@@ -290,15 +286,16 @@ raw script-surface paths. No public Device FFI file is permitted;
 `src/internal/path/ffi.mbt` owns `RawPath` and the Path-specific extern
 declarations that call `cairoon_path.c`;
 `src/internal/surface` owns the sole `RawSurface`, `RawMappedImageSurface`, and
-`RawImageData` external objects plus exactly 79 raw externs. Its 13 FFI files
+`RawImageData` external objects plus exactly 84 raw externs. Its 13 FFI files
 are an executable family ledger: base 9, state/page 12, image 7, mapped image
-10, image data 7, PNG 2, MIME 4, font options 1, recording 3, PDF 8, PS 8,
-SVG 4, and Tee 4. The package imports only `src/internal/font_options` and
-`src/native`; cross-object users import `src/internal/surface`, never the
-reverse. The public package retains exactly five Surface bridges: two PNG
-stream callbacks and one PDF, PS, and SVG stream constructor each. Typed
-facade methods convert enums to `Int` in MoonBit and call the corresponding
-child raw function, so no production C symbol is declared twice. Raw
+10, image data 7, PNG 4, MIME 4, font options 1, recording 3, PDF 9, PS 9,
+SVG 5, and Tee 4. The package imports `src/internal/font_options`,
+`src/internal/stream`, and `src/native`; cross-object users import
+`src/internal/surface`, never the reverse. PDF, PS, SVG, and PNG stream
+callbacks use raw `Int` statuses in the child, copy call-scoped chunks there,
+and adapt to facade `Status` values only in checked public methods. The public
+package retains no Surface extern declarations, so no production C symbol is
+declared twice. Raw
 PDF/PS/SVG version query/string helpers remain in
 `src/internal/pdf`, `src/internal/ps`, and `src/internal/svg`; format stride
 remains in `src/internal/format`. Deleted root files such as
@@ -306,6 +303,8 @@ remains in `src/internal/format`. Deleted root files such as
 `ffi_surface_state.mbt`, `ffi_surface_mime.mbt`,
 `ffi_surface_font_options.mbt`, `ffi_tee_surface.mbt`, `ffi_surface.mbt`,
 `ffi_image_surface.mbt`, `ffi_recording_surface.mbt`,
+`ffi_pdf_surface.mbt`, `ffi_ps_surface.mbt`, `ffi_surface_png.mbt`,
+`ffi_svg_surface.mbt`,
 `ffi_context_font_text.mbt`, `ffi_context_state.mbt`, `ffi_device.mbt`, and
 `ffi_pattern.mbt` must not return.
 `src/internal/font_face/ffi.mbt` owns the
@@ -315,9 +314,8 @@ raw handle, but only checked public facade methods may wrap or unwrap it.
 The child interface uses `Int` for statuses, slants, and weights and must not
 import `CAIMEOX/cairoon`. `src/internal/font_options/ffi.mbt` owns the
 abstract `RawFontOptions` external object and every FontOptions-specific extern;
-the internal Context and ScaledFont packages plus public Surface bridge externs
-may accept or return that raw handle, but only checked facade methods may wrap
-or unwrap it.
+the internal Context, ScaledFont, and Surface packages may accept or return
+that raw handle, but only checked facade methods may wrap or unwrap it.
 The child interface uses `Int` for statuses and enum values and must not import
 `CAIMEOX/cairoon`. `src/internal/region/ffi.mbt` owns the abstract
 `RawRegion` external object and every Region extern that calls
@@ -379,11 +377,12 @@ package-isolated ASan/LSan runs.
 `src/internal/surface` owns `RawSurface`, `RawMappedImageSurface`, and
 `RawImageData`; these are the only MoonBit external-object owners for their C
 payloads. Public `Surface`, `MappedImageSurface`, and `ImageData` are private
-single-field wrappers with no finalizer. The child has 79 externs in 13 exact
+single-field wrappers with no finalizer. The child has 84 externs in 13 exact
 families and package-local tests must exercise base/image/state, mapped/data,
-MIME/font-options/recording/Tee, and PDF/PS/SVG paths. Context, Pattern, and
-Device child packages may exchange these raw handles. No package may declare a
-second raw Surface-family type or recreate one of the deleted root externs.
+MIME/font-options/recording/Tee, PDF/PS/SVG paths, and retained stream
+callbacks. Context, Pattern, and Device child packages may exchange these raw
+handles. No package may declare a second raw Surface-family type or recreate
+one of the deleted root externs.
 
 Do not add public wrappers to `ffi_*.mbt`; these files are private native FFI
 plumbing only. Public MoonBit APIs stay in focused wrapper files such as
@@ -518,12 +517,14 @@ wrappers. The sixth accepted probe is `src/internal/svg`: it owns raw SVG
 version query/string helpers while `src/svg_surface.mbt` keeps public
 `SVGVersion` constructors and object-surface wrappers. The seventh accepted
 probe is `src/internal/stream`: it owns pure stream callback chunk-copy helpers
-while public PDF, PS, SVG, PNG, and script-device stream wrappers stay in the
-facade. The eighth accepted probe is `src/internal/cstring`: it owns pure
+used by the Device and Surface raw owner packages, while public stream methods
+and `Status` conversion stay in the facade. The eighth accepted probe is
+`src/internal/cstring`: it owns pure
 embedded-NUL byte scanning, while `check_no_embedded_nul` and the
 `CairoInvalidArgument(InvalidString, _)` mapping stay in the facade. The ninth
 accepted object seam is `src/internal/surface`: it owns all Surface-family raw
-handles and object-only externs, while the public wrappers preserve every
+handles and externs, including retained PDF/PS/SVG/PNG callbacks, while the
+public wrappers preserve every
 constructor name, enum type, error, and generated interface entry. A native
 ABI probe proved that an abstract public single-field wrapper around an
 external raw handle is pointer-transparent across packages. Production FFI
@@ -789,9 +790,10 @@ declarations and exports, missing `MOONBIT_FFI_EXPORT` definitions, native
 exports with no production extern, and drift in the exact public-facade callback
 set. The 349 cairoon production externs and native exports must be a one-to-one
 set; only `cairo_version` and `cairo_format_stride_for_width` may bind directly
-to libcairo. The public package root contains exactly 12 callback bridges in
-five files: seven raster-source callbacks, two PNG stream callbacks, and one
-PDF, PS, and SVG stream constructor. A typed facade method converts its enum to
+to libcairo. The public package root contains exactly seven raster-source
+callback bridges in `ffi_pattern_raster_source.mbt`. Surface and Device stream
+callbacks live in their raw owner packages and expose callback statuses as
+`Int`. A typed facade method converts its enum to
 the child package's raw `Int`; it must not redeclare the same C symbol with a
 facade enum or `Ref[Status]`, because clean native compilation would otherwise
 emit incompatible generated-C prototypes. Test-only MoonBit-callable C probes

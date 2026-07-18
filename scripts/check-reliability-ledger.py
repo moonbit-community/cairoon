@@ -44,13 +44,13 @@ TESTS_EVIDENCE_MAX_CHARS = 1200
 TESTS_EVIDENCE_MARKERS = (
     "Cairo 1.15.10",
     "Cairo 1.18.4",
-    "826/826 native tests",
+    "827/827 native tests",
     "63/63 executable docs",
     "288 upstream pycairo tests across 20 families",
     "579/579 documented public declarations",
     "349-local-plus-two-direct production FFI boundary",
     "source and extracted consumers plus the unmodified cross-host archive consumer",
-    "629 publication members",
+    "625 publication members",
     "ASan/LSan/UBSan",
     "Remaining gap:",
     "release commit",
@@ -290,11 +290,11 @@ def expected_tests_evidence() -> str:
     return (
         "Local portable-scope evidence is complete: exact Cairo 1.15.10 and "
         f"Cairo 1.18.4 lanes pass {script_test_evidence_marker()}, "
-        "826/826 native tests, 63/63 executable docs, 288 upstream pycairo "
+        "827/827 native tests, 63/63 executable docs, 288 upstream pycairo "
         "tests across 20 families, 579/579 documented public declarations, "
         "the 349-local-plus-two-direct production FFI boundary, source and "
         "extracted consumers plus the unmodified cross-host archive consumer, "
-        "all 629 publication members, and every "
+        "all 625 publication members, and every "
         "discovered package under ASan/LSan/UBSan. Remaining gap: the unpushed "
         "release commit lacks shipped GitHub evidence for Ubuntu and macOS "
         "native jobs plus the Ubuntu combined ASan/LSan/UBSan job. Do not "
@@ -307,9 +307,9 @@ def current_stability_markers() -> tuple[str, ...]:
     return (
         (
             "Local release-candidate matrices on exact Cairo 1.15.10 and "
-            f"1.18.4 pass {script_test_evidence_marker()}, 826/826 native "
+            f"1.18.4 pass {script_test_evidence_marker()}, 827/827 native "
             "tests, 63/63 executable docs, source and extracted consumers plus "
-            "the unmodified cross-host archive consumer, all 629 publication "
+            "the unmodified cross-host archive consumer, all 625 publication "
             "members, and every package under "
             "ASan/LSan/UBSan."
         ),
@@ -321,9 +321,9 @@ def current_stability_markers() -> tuple[str, ...]:
 def expected_current_stability_evidence() -> str:
     return (
         "Local release-candidate matrices on exact Cairo 1.15.10 and 1.18.4 "
-        f"pass {script_test_evidence_marker()}, 826/826 native tests, 63/63 "
+        f"pass {script_test_evidence_marker()}, 827/827 native tests, 63/63 "
         "executable docs, source and extracted consumers plus the unmodified "
-        "cross-host archive consumer, all 629 publication members, and every "
+        "cross-host archive consumer, all 625 publication members, and every "
         "package under ASan/LSan/UBSan. The sole global `Partial` row is "
         "shipped test/release-platform evidence: the release commit still needs "
         "passing Ubuntu and macOS native jobs plus the Ubuntu ASan/LSan/UBSan job. "

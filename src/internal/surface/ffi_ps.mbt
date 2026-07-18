@@ -9,6 +9,17 @@ extern "C" fn ps_surface_create_ffi(
 ) -> RawSurface = "cairoon_ps_surface_create"
 
 ///|
+#borrow(call_writer, status)
+#owned(writer)
+extern "C" fn ps_surface_create_for_stream_ffi(
+  call_writer : FuncRef[(Bytes, (Bytes) -> Int) -> Int],
+  writer : (Bytes) -> Int,
+  width_in_points : Double,
+  height_in_points : Double,
+  status : Ref[Int],
+) -> RawSurface = "cairoon_ps_surface_create_for_stream"
+
+///|
 #borrow(surface)
 extern "C" fn ps_surface_restrict_to_level_ffi(
   surface : RawSurface,

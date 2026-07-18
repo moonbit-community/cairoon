@@ -13,10 +13,6 @@ device.mbt
 enums.mbt
 error.mbt
 ffi_pattern_raster_source.mbt
-ffi_pdf_surface.mbt
-ffi_ps_surface.mbt
-ffi_surface_png.mbt
-ffi_svg_surface.mbt
 font_face.mbt
 font_options.mbt
 format.mbt

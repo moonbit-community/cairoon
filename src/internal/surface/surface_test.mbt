@@ -139,3 +139,90 @@ test "raw PDF, PS, and SVG no-output surfaces expose backend state" {
   inspect(svg_get_document_unit_raw(svg, status), content="1")
   inspect(status.val, content="0")
 }
+
+///|
+fn raw_stream_chunks_to_bytes(chunks : Array[Bytes]) -> Bytes {
+  let mut bytes = Bytes::default()
+  for chunk in chunks {
+    bytes = bytes + chunk
+  }
+  bytes
+}
+
+///|
+fn raw_stream_bytes_slice(bytes : Bytes, offset : Int, length : Int) -> Bytes {
+  Bytes::makei(length, fn(index) { bytes[offset + index] })
+}
+
+///|
+test "raw vector and PNG stream callbacks stay inside Surface package" {
+  let status = Ref(-1)
+
+  let pdf_chunks : Array[Bytes] = []
+  let pdf = pdf_create_stream_raw(
+    fn(chunk) {
+      pdf_chunks.push(chunk)
+      0
+    },
+    20.0,
+    30.0,
+    status,
+  )
+  inspect(status.val, content="0")
+  inspect(finish_raw(pdf), content="0")
+  inspect(pdf_chunks.length() > 0, content="true")
+
+  let ps_chunks : Array[Bytes] = []
+  let ps = ps_create_stream_raw(
+    fn(chunk) {
+      ps_chunks.push(chunk)
+      0
+    },
+    20.0,
+    30.0,
+    status,
+  )
+  inspect(status.val, content="0")
+  inspect(finish_raw(ps), content="0")
+  inspect(ps_chunks.length() > 0, content="true")
+
+  let svg_chunks : Array[Bytes] = []
+  let svg = svg_create_stream_raw(
+    fn(chunk) {
+      svg_chunks.push(chunk)
+      0
+    },
+    20.0,
+    30.0,
+    status,
+  )
+  inspect(status.val, content="0")
+  inspect(finish_raw(svg), content="0")
+  inspect(svg_chunks.length() > 0, content="true")
+
+  let png_chunks : Array[Bytes] = []
+  let image = image_create_raw(0, 2, 2)
+  inspect(
+    write_to_png_stream_raw(image, fn(chunk) {
+      png_chunks.push(chunk)
+      0
+    }),
+    content="0",
+  )
+  let png = raw_stream_chunks_to_bytes(png_chunks)
+  let offset = Ref(0)
+  let decoded = image_create_from_png_stream_raw(
+    fn(length) {
+      let chunk = raw_stream_bytes_slice(png, offset.val, length)
+      offset.val += length
+      chunk
+    },
+    status,
+  )
+  inspect(status.val, content="0")
+  inspect(image_get_width_raw(decoded, status), content="2")
+  inspect(status.val, content="0")
+  inspect(image_get_height_raw(decoded, status), content="2")
+  inspect(status.val, content="0")
+  inspect(offset.val == png.length(), content="true")
+}

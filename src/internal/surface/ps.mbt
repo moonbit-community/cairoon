@@ -13,6 +13,23 @@ pub fn ps_create_raw(
 }
 
 ///|
+pub fn ps_create_stream_raw(
+  writer : (Bytes) -> Int,
+  width_in_points : Double,
+  height_in_points : Double,
+  status : Ref[Int],
+) -> RawSurface {
+  ensure_native()
+  ps_surface_create_for_stream_ffi(
+    fn(chunk, writer) { writer(@stream_impl.copy_chunk(chunk)) },
+    writer,
+    width_in_points,
+    height_in_points,
+    status,
+  )
+}
+
+///|
 pub fn ps_restrict_to_level_raw(surface : RawSurface, level : Int) -> Int {
   ensure_native()
   ps_surface_restrict_to_level_ffi(surface, level)

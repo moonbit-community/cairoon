@@ -13,9 +13,6 @@ PACKAGE_ROOT = REPO_ROOT / "src"
 TEST_PACKAGE_ROOT = PACKAGE_ROOT / "tests"
 NATIVE_ROOT = PACKAGE_ROOT / "native"
 PUBLIC_FACADE_CALLBACK_SYMBOLS = {
-    "cairoon_image_surface_create_from_png_stream",
-    "cairoon_pdf_surface_create_for_stream",
-    "cairoon_ps_surface_create_for_stream",
     "cairoon_raster_source_pattern_clear_acquire",
     "cairoon_raster_source_pattern_get_acquire_callback",
     "cairoon_raster_source_pattern_get_release_callback",
@@ -23,8 +20,6 @@ PUBLIC_FACADE_CALLBACK_SYMBOLS = {
     "cairoon_raster_source_pattern_set_acquire",
     "cairoon_raster_source_pattern_set_acquire_with_release",
     "cairoon_raster_source_pattern_set_release",
-    "cairoon_surface_write_to_png_stream",
-    "cairoon_svg_surface_create_for_stream",
 }
 DIRECT_CAIRO_SYMBOLS = {
     "cairo_format_stride_for_width",

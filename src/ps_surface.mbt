@@ -38,15 +38,14 @@ pub fn Surface::ps_stream(
   height_in_points : Double,
   writer : (Bytes) -> Status,
 ) -> Surface raise CairoError {
-  let status = Ref(Success)
-  let raw = ps_surface_create_for_stream_ffi(
-    fn(chunk, writer) { writer(@stream_impl.copy_chunk(chunk)) },
-    writer,
+  let status = Ref(0)
+  let raw = @surface_impl.ps_create_stream_raw(
+    fn(chunk) { writer(chunk).to_raw() },
     width_in_points,
     height_in_points,
     status,
   )
-  check_status(status.val)
+  check_surface_status_raw(status.val)
   check_surface_status_raw(@surface_impl.status_raw(raw))
   Surface::from_raw(raw)
 }

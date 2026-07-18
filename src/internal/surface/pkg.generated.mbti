@@ -57,6 +57,8 @@ pub fn image_create_for_data_raw(FixedArray[Byte], Int, Int, Int, Int, @ref.Ref[
 
 pub fn image_create_from_png_raw(Bytes, @ref.Ref[Int]) -> RawSurface
 
+pub fn image_create_from_png_stream_raw((Int) -> Bytes, @ref.Ref[Int]) -> RawSurface
+
 pub fn image_create_raw(Int, Int, Int) -> RawSurface
 
 pub fn image_get_data_raw(RawSurface, @ref.Ref[Int]) -> RawImageData
@@ -97,6 +99,8 @@ pub fn pdf_add_outline_bits_raw(RawSurface, Int, Bytes, Bytes, Int, @ref.Ref[Int
 
 pub fn pdf_create_raw(Bool, Bytes, Double, Double, @ref.Ref[Int]) -> RawSurface
 
+pub fn pdf_create_stream_raw((Bytes) -> Int, Double, Double, @ref.Ref[Int]) -> RawSurface
+
 pub fn pdf_restrict_to_version_raw(RawSurface, Int) -> Int
 
 pub fn pdf_set_custom_metadata_raw(RawSurface, Bytes, Bool, Bytes) -> Int
@@ -110,6 +114,8 @@ pub fn pdf_set_size_raw(RawSurface, Double, Double) -> Int
 pub fn pdf_set_thumbnail_size_raw(RawSurface, Int, Int) -> Int
 
 pub fn ps_create_raw(Bool, Bytes, Double, Double, @ref.Ref[Int]) -> RawSurface
+
+pub fn ps_create_stream_raw((Bytes) -> Int, Double, Double, @ref.Ref[Int]) -> RawSurface
 
 pub fn ps_dsc_begin_page_setup_raw(RawSurface) -> Int
 
@@ -147,6 +153,8 @@ pub fn supports_mime_type_raw(RawSurface, Bytes, @ref.Ref[Int]) -> Bool
 
 pub fn svg_create_raw(Bool, Bytes, Double, Double, @ref.Ref[Int]) -> RawSurface
 
+pub fn svg_create_stream_raw((Bytes) -> Int, Double, Double, @ref.Ref[Int]) -> RawSurface
+
 pub fn svg_get_document_unit_raw(RawSurface, @ref.Ref[Int]) -> Int
 
 pub fn svg_restrict_to_version_raw(RawSurface, Int) -> Int
@@ -164,6 +172,8 @@ pub fn tee_remove_raw(RawSurface, RawSurface) -> Int
 pub fn unmap_image_raw(RawSurface, RawMappedImageSurface) -> Int
 
 pub fn write_to_png_raw(RawSurface, Bytes) -> Int
+
+pub fn write_to_png_stream_raw(RawSurface, (Bytes) -> Int) -> Int
 
 // Errors
 

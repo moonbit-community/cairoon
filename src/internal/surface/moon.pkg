@@ -1,5 +1,6 @@
 import {
   "CAIMEOX/cairoon/internal/font_options" @font_options_impl,
+  "CAIMEOX/cairoon/internal/stream" @stream_impl,
   "CAIMEOX/cairoon/native",
 }
 

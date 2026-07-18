@@ -14,7 +14,6 @@ import {
   "CAIMEOX/cairoon/internal/region" @region_impl,
   "CAIMEOX/cairoon/internal/scaled_font" @scaled_font_impl,
   "CAIMEOX/cairoon/internal/status" @status_impl,
-  "CAIMEOX/cairoon/internal/stream" @stream_impl,
   "CAIMEOX/cairoon/internal/surface" @surface_impl,
   "CAIMEOX/cairoon/internal/svg" @svg_impl,
   "CAIMEOX/cairoon/internal/version" @version_impl,
@@ -32,11 +31,5 @@ import {
 warnings = "+unnecessary_annotation"
 
 options(
-  targets: {
-    "ffi_pattern_raster_source.mbt": [ "native" ],
-    "ffi_pdf_surface.mbt": [ "native" ],
-    "ffi_ps_surface.mbt": [ "native" ],
-    "ffi_surface_png.mbt": [ "native" ],
-    "ffi_svg_surface.mbt": [ "native" ],
-  },
+  targets: { "ffi_pattern_raster_source.mbt": [ "native" ] },
 )

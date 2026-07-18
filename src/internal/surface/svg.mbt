@@ -13,6 +13,23 @@ pub fn svg_create_raw(
 }
 
 ///|
+pub fn svg_create_stream_raw(
+  writer : (Bytes) -> Int,
+  width_in_points : Double,
+  height_in_points : Double,
+  status : Ref[Int],
+) -> RawSurface {
+  ensure_native()
+  svg_surface_create_for_stream_ffi(
+    fn(chunk, writer) { writer(@stream_impl.copy_chunk(chunk)) },
+    writer,
+    width_in_points,
+    height_in_points,
+    status,
+  )
+}
+
+///|
 pub fn svg_restrict_to_version_raw(surface : RawSurface, version : Int) -> Int {
   ensure_native()
   svg_surface_restrict_to_version_ffi(surface, version)

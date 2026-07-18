@@ -355,9 +355,9 @@ class CurrentReleaseEvidenceTests(unittest.TestCase):
         )
         self.current_stability_evidence = (
             "Local release-candidate matrices on exact Cairo 1.15.10 and 1.18.4 "
-            f"pass {self.script_test_marker}, 826/826 native tests, 63/63 executable "
+            f"pass {self.script_test_marker}, 827/827 native tests, 63/63 executable "
             "docs, source and extracted consumers plus the unmodified cross-host "
-            "archive consumer, all 629 publication members, and every package under "
+            "archive consumer, all 625 publication members, and every package under "
             "ASan/LSan/UBSan. The sole global `Partial` row is shipped "
             "test/release-platform evidence: the release commit still needs passing "
             "Ubuntu and macOS native jobs plus the Ubuntu ASan/LSan/UBSan job. It does "
@@ -377,11 +377,11 @@ class CurrentReleaseEvidenceTests(unittest.TestCase):
         )
         self.tests_evidence = (
             "Local portable-scope evidence is complete: exact Cairo 1.15.10 and "
-            f"Cairo 1.18.4 lanes pass {self.script_test_marker}, 826/826 native tests, "
+            f"Cairo 1.18.4 lanes pass {self.script_test_marker}, 827/827 native tests, "
             "63/63 executable docs, 288 upstream pycairo tests across 20 families, "
             "579/579 documented public declarations, the 349-local-plus-two-direct "
             "production FFI boundary, source and extracted consumers plus the "
-            "unmodified cross-host archive consumer, all 629 publication members, "
+            "unmodified cross-host archive consumer, all 625 publication members, "
             "and every discovered package under "
             "ASan/LSan/UBSan. Remaining gap: the unpushed release commit lacks "
             "shipped GitHub evidence for Ubuntu and macOS native jobs plus the Ubuntu "
@@ -541,9 +541,9 @@ class CurrentReleaseEvidenceTests(unittest.TestCase):
         self.assertTrue(any(self.script_test_marker in error for error in errors))
 
     def test_tests_evidence_requires_exact_native_count(self) -> None:
-        notes = self.tests_evidence.replace("826/826 native tests", "native tests")
+        notes = self.tests_evidence.replace("827/827 native tests", "native tests")
         errors = self.check_inventory(notes)
-        self.assertTrue(any("826/826 native tests" in error for error in errors))
+        self.assertTrue(any("827/827 native tests" in error for error in errors))
         notes = self.tests_evidence.replace("lanes pass", "lanes do not pass")
         errors = self.check_inventory(notes)
         self.assertTrue(any("canonical release evidence" in error for error in errors))
@@ -560,11 +560,11 @@ class CurrentReleaseEvidenceTests(unittest.TestCase):
         errors = self.check_docs(package_readme_text=readme)
         self.assertTrue(any("ASan/LSan/UBSan" in error for error in errors))
         readme = self.package_readme_text.replace(
-            "826/826 native tests",
+            "827/827 native tests",
             "native tests",
         )
         errors = self.check_docs(package_readme_text=readme)
-        self.assertTrue(any("826/826 native tests" in error for error in errors))
+        self.assertTrue(any("827/827 native tests" in error for error in errors))
 
     def test_current_stability_requires_one_exact_visible_paragraph(self) -> None:
         mutations = {
