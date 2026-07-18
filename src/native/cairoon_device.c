@@ -86,20 +86,18 @@ CairoonDevice *cairoon_script_device_create_for_stream(
   cairo_device_t *device =
     cairo_script_create_for_stream(cairoon_stream_write, state);
   if (device == NULL) {
-    cairoon_stream_state_destroy(state);
+    cairoon_stream_device_cleanup_failure(device, state);
     *status_out = CAIRO_STATUS_NO_MEMORY;
     return cairoon_device_wrap_owned(NULL);
   }
   *status_out = cairo_device_status(device);
   if (*status_out != CAIRO_STATUS_SUCCESS) {
-    cairo_device_destroy(device);
-    cairoon_stream_state_destroy(state);
+    cairoon_stream_device_cleanup_failure(device, state);
     return cairoon_device_wrap_owned(NULL);
   }
   *status_out = cairoon_stream_attach_device(device, state);
   if (*status_out != CAIRO_STATUS_SUCCESS) {
-    cairo_device_destroy(device);
-    cairoon_stream_state_destroy(state);
+    cairoon_stream_device_cleanup_failure(device, state);
     return cairoon_device_wrap_owned(NULL);
   }
   return cairoon_device_wrap_owned(device);

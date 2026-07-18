@@ -27,20 +27,19 @@ CairoonSurface *FUNCTION(void) {
   void *state = cairoon_stream_state_new(callback, arg, &status);
   cairo_surface_t *surface = create(cairoon_stream_write, state);
   if (surface == NULL) {
-    cairoon_stream_state_destroy(state);
+    cairoon_stream_surface_cleanup_failure(surface, state);
+    *status_out = CAIRO_STATUS_NO_MEMORY;
     return cairoon_surface_wrap_owned(NULL);
   }
   status = cairo_surface_status(surface);
   if (status != CAIRO_STATUS_SUCCESS) {
-    cairo_surface_destroy(surface);
-    cairoon_stream_state_destroy(state);
+    cairoon_stream_surface_cleanup_failure(surface, state);
     *status_out = status;
     return cairoon_surface_wrap_owned(NULL);
   }
   status = cairoon_stream_attach(surface, state);
   if (status != CAIRO_STATUS_SUCCESS) {
-    cairo_surface_destroy(surface);
-    cairoon_stream_state_destroy(state);
+    cairoon_stream_surface_cleanup_failure(surface, state);
     *status_out = status;
     return cairoon_surface_wrap_owned(NULL);
   }
@@ -59,6 +58,20 @@ cairo_status_t cairoon_stream_attach_device(cairo_device_t *device, void *state)
   return cairo_device_set_user_data(
     device, &cairoon_stream_state_key, state, cairoon_stream_state_destroy);
 }
+void cairoon_stream_surface_cleanup_failure(
+  cairo_surface_t *surface, void *state) {
+  if (surface != NULL) {
+    cairo_surface_destroy(surface);
+  }
+  cairoon_stream_state_destroy(state);
+}
+void cairoon_stream_device_cleanup_failure(
+  cairo_device_t *device, void *state) {
+  if (device != NULL) {
+    cairo_device_destroy(device);
+  }
+  cairoon_stream_state_destroy(state);
+}
 """
 
 DEVICE_TEMPLATE = """
@@ -66,19 +79,18 @@ CairoonDevice *cairoon_script_device_create_for_stream(void) {
   void *state = cairoon_stream_state_new(callback, arg, status_out);
   cairo_device_t *device = create(cairoon_stream_write, state);
   if (device == NULL) {
-    cairoon_stream_state_destroy(state);
+    cairoon_stream_device_cleanup_failure(device, state);
+    *status_out = CAIRO_STATUS_NO_MEMORY;
     return cairoon_device_wrap_owned(NULL);
   }
   *status_out = cairo_device_status(device);
   if (*status_out != CAIRO_STATUS_SUCCESS) {
-    cairo_device_destroy(device);
-    cairoon_stream_state_destroy(state);
+    cairoon_stream_device_cleanup_failure(device, state);
     return cairoon_device_wrap_owned(NULL);
   }
   *status_out = cairoon_stream_attach_device(device, state);
   if (*status_out != CAIRO_STATUS_SUCCESS) {
-    cairo_device_destroy(device);
-    cairoon_stream_state_destroy(state);
+    cairoon_stream_device_cleanup_failure(device, state);
     return cairoon_device_wrap_owned(NULL);
   }
   return cairoon_device_wrap_owned(device);
@@ -157,10 +169,16 @@ class StreamCleanupGuardTests(unittest.TestCase):
         self.assertTrue(any("transfer state" in error for error in errors), errors)
 
     def test_surface_attach_failure_rejects_reversed_cleanup(self) -> None:
-        path = self.native_root / "cairoon_svg_surface.c"
+        path = self.native_root / "cairoon_stream.c"
         source = path.read_text(encoding="utf-8").replace(
-            "cairo_surface_destroy(surface);\n    cairoon_stream_state_destroy(state);",
-            "cairoon_stream_state_destroy(state);\n    cairo_surface_destroy(surface);",
+            "  if (surface != NULL) {\n"
+            "    cairo_surface_destroy(surface);\n"
+            "  }\n"
+            "  cairoon_stream_state_destroy(state);",
+            "  cairoon_stream_state_destroy(state);\n"
+            "  if (surface != NULL) {\n"
+            "    cairo_surface_destroy(surface);\n"
+            "  }",
         )
         path.write_text(source, encoding="utf-8")
 
@@ -184,8 +202,7 @@ class StreamCleanupGuardTests(unittest.TestCase):
         path = self.native_root / "cairoon_ps_surface.c"
         source = path.read_text(encoding="utf-8").replace(
             "  if (status != CAIRO_STATUS_SUCCESS) {\n"
-            "    cairo_surface_destroy(surface);\n"
-            "    cairoon_stream_state_destroy(state);\n"
+            "    cairoon_stream_surface_cleanup_failure(surface, state);\n"
             "    *status_out = status;\n"
             "    return cairoon_surface_wrap_owned(NULL);\n"
             "  }\n"
@@ -200,17 +217,50 @@ class StreamCleanupGuardTests(unittest.TestCase):
         self.assertTrue(any("native-status failure" in error for error in errors), errors)
 
     def test_device_status_failure_rejects_reversed_cleanup(self) -> None:
-        path = self.native_root / "cairoon_device.c"
+        path = self.native_root / "cairoon_stream.c"
         source = path.read_text(encoding="utf-8").replace(
-            "cairo_device_destroy(device);\n    cairoon_stream_state_destroy(state);",
-            "cairoon_stream_state_destroy(state);\n    cairo_device_destroy(device);",
-            1,
+            "  if (device != NULL) {\n"
+            "    cairo_device_destroy(device);\n"
+            "  }\n"
+            "  cairoon_stream_state_destroy(state);",
+            "  cairoon_stream_state_destroy(state);\n"
+            "  if (device != NULL) {\n"
+            "    cairo_device_destroy(device);\n"
+            "  }",
         )
         path.write_text(source, encoding="utf-8")
 
         errors = self.check()
 
         self.assertTrue(any("native producer" in error for error in errors), errors)
+
+    def test_surface_null_failure_requires_shared_cleanup(self) -> None:
+        path = self.native_root / "cairoon_pdf_surface.c"
+        source = path.read_text(encoding="utf-8").replace(
+            "cairoon_stream_surface_cleanup_failure(surface, state);",
+            "cairoon_stream_state_destroy(state);",
+            1,
+        )
+        path.write_text(source, encoding="utf-8")
+
+        errors = self.check()
+
+        self.assertTrue(any("null-surface failure" in error for error in errors), errors)
+
+    def test_device_attach_failure_requires_shared_cleanup(self) -> None:
+        path = self.native_root / "cairoon_device.c"
+        source = path.read_text(encoding="utf-8")
+        marker = "cairoon_stream_device_cleanup_failure(device, state);"
+        source = source[: source.rfind(marker)] + source[source.rfind(marker) :].replace(
+            marker,
+            "cairo_device_destroy(device);\n    cairoon_stream_state_destroy(state);",
+            1,
+        )
+        path.write_text(source, encoding="utf-8")
+
+        errors = self.check()
+
+        self.assertTrue(any("attach failure" in error for error in errors), errors)
 
 
 if __name__ == "__main__":

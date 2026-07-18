@@ -166,6 +166,24 @@ cairo_status_t cairoon_stream_attach_device(cairo_device_t *device, void *state)
     cairoon_stream_state_destroy);
 }
 
+void cairoon_stream_surface_cleanup_failure(
+  cairo_surface_t *surface,
+  void *state) {
+  if (surface != NULL) {
+    cairo_surface_destroy(surface);
+  }
+  cairoon_stream_state_destroy(state);
+}
+
+void cairoon_stream_device_cleanup_failure(
+  cairo_device_t *device,
+  void *state) {
+  if (device != NULL) {
+    cairo_device_destroy(device);
+  }
+  cairoon_stream_state_destroy(state);
+}
+
 void cairoon_stream_read_state_destroy(void *state_ptr) {
   CairoonStreamReadState *state = (CairoonStreamReadState *)state_ptr;
   if (state == NULL) {

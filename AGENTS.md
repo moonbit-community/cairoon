@@ -340,10 +340,18 @@ all 17 raw Device/script externs. Its child interface uses `Int` for statuses,
 `Device` wrapper, typed enum conversion, path/string validation, traits,
 scoped lifecycle helpers, and all `CairoError`/`CairoIOError` mapping.
 `Surface::get_device` and all script-surface paths exchange `RawSurface` in the
-child after facade enum conversion. The child
-stream constructor owns the writer closure, copies each
-call-scoped chunk before invoking it, and relies on native stream state to
-release the closure exactly once.
+child after facade enum conversion. The child stream constructor owns the
+writer closure, copies each call-scoped chunk before invoking it, and relies on
+native stream state to release the closure exactly once. A stream attach helper
+consumes that state only after `cairo_*_set_user_data` succeeds. Before
+transfer, a null producer, producer status failure, or user-data attachment
+failure must call the shared Surface/Device cleanup helper; that helper must
+null-check the producer, destroy it before destroying the stream state, and
+perform no other ownership transfer. Keep this rule executable with static
+negative mutations for every failure branch and a test-only runtime
+attachment-failure oracle under ASan/LSan/UBSan. Surface or device destruction
+may invoke the writer, but exact backend-controlled callback counts are not a
+portable contract.
 `src/internal/scaled_font` owns the abstract `RawScaledFont` and private
 `RawTextToGlyphs` external objects plus all 18 ScaledFont/result externs. Its
 child interface uses `Int` for Cairo statuses and text-cluster flags and must

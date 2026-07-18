@@ -41,8 +41,8 @@ PARTIAL_GAP_MARKERS = (
     "until",
 )
 TESTS_EVIDENCE_MAX_CHARS = 1200
-NATIVE_TEST_MARKER = "838/838 native tests"
-PUBLICATION_MARKER = "634 publication members"
+NATIVE_TEST_MARKER = "840/840 native tests"
+PUBLICATION_MARKER = "638 publication members"
 OWNER_EVIDENCE_MARKER = (
     "12/12 raw external owners with exact finalizer and 1000-iteration stress evidence"
 )

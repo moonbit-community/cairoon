@@ -9,6 +9,16 @@ Implemented in this workspace:
   external docs package passes 63/63 tests, and the project-layout gate
   requires every reference to have an executable block and exact entries in
   both documentation indexes.
+- Stream user-data attachment failures now have executable lifetime evidence.
+  Shared Surface and Device cleanup helpers cover every null producer,
+  native-status error, and attachment error; each null-checks and destroys the
+  partial Cairo producer before releasing the owned MoonBit writer state. A
+  separate oracle package simulates attachment failure with real PDF, PS, SVG,
+  and ScriptDevice producers under ASan/LSan/UBSan. The three surface cases
+  prove destroy-time output reaches the still-live writer; the ScriptDevice
+  case verifies state release without assuming a backend callback count. Ten
+  focused checker tests include nine negative mutations across the helpers and
+  constructor branches.
 - External-object lifetime evidence is now exact rather than inferred from a
   broad sanitizer pass. `scripts/lifetime/owners.json` maps all 12 discovered
   raw owners to one FFI declaration, structurally named native payload/finalizer,
@@ -79,21 +89,21 @@ Implemented in this workspace:
   MoonBit's pre-build protocol resolves Cairo 1.15.10 or newer via `pkg-config`,
   injects `${build.CAIRO_CFLAGS}` into the two native-stub packages, appends
   the exact `-std=c11 -Wall -Wextra -Wpedantic -Werror` contract for all 34
-  production and 49 oracle C stubs, and propagates linker flags from
+  production and 50 oracle C stubs, and propagates linker flags from
   `CAIMEOX/cairoon/native`. The layout checker and a parameterized negative
-  test reject omission, reordering, or downgrading of those flags. All 83 package and
+  test reject omission, reordering, or downgrading of those flags. All 89 package and
   consumer manifests are free of concrete host paths and repeated
   `cc-link-flags`; eight focused protocol tests cover quoting, version floors,
   process failures, deterministic JSON, and environment redaction.
 - Exact local release lanes for Cairo 1.15.10 and 1.18.4, built from pinned
   source URLs and SHA-256 digests on a pinned Ubuntu base image. Both lanes
-  pass all static gates, 838/838 native tests, 183/183 script tests, and 63/63
+  pass all static gates, 840/840 native tests, 185/185 script tests, and 63/63
   executable documentation tests with the pinned MoonBit
   `0.10.4+4f2e8f7dc-nightly` compiler. In each lane, the source-checkout and
   extracted-publication-zip consumers also pass 1/1 independently. Each lane
   additionally consumes the same unmodified host-generated zip, so
   producer-specific include/library paths cannot be hidden by lane setup. The
-  integrity-checked publication archive contains 634 members, and every
+  integrity-checked publication archive contains 638 members, and every
   discovered package passes ASan/LSan/UBSan. Each pinned lane also runs
   instrumented public-facade coverage and requires the exact linked-version
   ledger profile.
@@ -855,20 +865,20 @@ Implemented in this workspace:
 
 The most recent full local verification passed on 2026-07-18:
 
-- `./scripts/verify.sh` passed 183/183 script tests,
-  838/838 native tests, 63/63 executable documentation tests, formatting,
+- `./scripts/verify.sh` passed 185/185 script tests,
+  840/840 native tests, 63/63 executable documentation tests, formatting,
   project layout, source-size, Cairo build-protocol/generated-constant, FFI
   ownership, exact external-owner/finalizer/stress evidence, API inventory,
   pycairo parity, public documentation, reliability-ledger, vector-scene,
   native type including warning 73, and generated-interface gates. The
   isolated consumer passed 1/1 against both the checkout and the
-  integrity-tested extracted 634-member publication zip. Host ASan/UBSan
+  integrity-tested extracted 638-member publication zip. Host ASan/UBSan
   passed every discovered package;
   authoritative Linux LSan coverage is supplied by both exact-Cairo lanes.
 - `./scripts/test-cairo-matrix.sh cairo-1.15.10` and
-  `./scripts/test-cairo-matrix.sh cairo-1.18.4` passed the same 183 script,
-  838 native, and 63 documentation tests, both 1/1 consumer paths, the
-  unmodified host-archive consumer, all 634 publication members, and every
+  `./scripts/test-cairo-matrix.sh cairo-1.18.4` passed the same 185 script,
+  840 native, and 63 documentation tests, both 1/1 consumer paths, the
+  unmodified host-archive consumer, all 638 publication members, and every
   discovered package under ASan/LSan/UBSan.
   Intentional signed-overflow and leak preflights passed in both lanes. The
   constrained vector suppression accounted for 16 allocations/7424 bytes on
@@ -3542,23 +3552,31 @@ failed, `cairoon_stream_attach` released the state immediately and the caller
 then destroyed the producer. Backend destruction can still invoke its writer,
 so this rare allocation-failure path could call through freed MoonBit state.
 
-The attach helpers now consume state only on successful user-data attachment.
-All four constructors check native status before attachment. A native-status or
-attachment failure destroys the Surface/Device while the callback state is
-still valid, then releases that state exactly once and returns a null raw owner
-with the original status. Null native-construction failures still release state
-directly because no producer exists.
+The attach helpers consume state only on successful user-data attachment. All
+four constructors check native status before attachment. Null construction,
+native-status, and attachment failures now all call a shared Surface or Device
+cleanup helper. Each helper null-checks the producer, destroys it while the
+callback state is still valid, releases the state exactly once, and leaves the
+caller to return a null raw owner with the original status.
 
 `scripts/check-stream-cleanup.py` independently parses these five native files
-and statically pins successful ownership transfer plus failure cleanup order; it
-is separate from the already-large FFI checker. Seven negative mutations reject
-missing or malformed attachment, helper-side failure consumption, missing
-status cleanup, and reversed Surface/Device order; one passing baseline raises
-the script suite to 90/90. Both exact Linux Cairo 1.15.10 and 1.18.4 pass 16/16
-stream-surface, 19/19 ScriptDevice, and 2/2 stream-lifetime tests in ordinary
-and package-isolated ASan/LSan runs. Those dynamic tests cover callback lifetime
-but do not fault-inject Cairo's user-data allocation. No production FFI symbol
-or public MoonBit signature changed.
+and statically pins successful ownership transfer, shared-helper structure, and
+all three pre-transfer failure branches; it is separate from the already-large
+FFI checker. Nine negative mutations reject missing or malformed attachment,
+helper-side failure consumption, missing shared cleanup, missing status checks,
+and reversed Surface/Device helper order; one passing baseline contributes ten
+script tests.
+
+`src/tests/oracle/stream_failure` adds two dynamic fault-injection tests. Its
+test-only C bridge creates real PDF, PS, SVG, and ScriptDevice stream producers,
+arms the MoonBit closure, and invokes the production cleanup helper as though
+user-data attachment had failed. PDF/PS/SVG destruction must call the still-live
+writer and emit nonzero bytes; ScriptDevice destruction has no portable output
+multiplicity contract, so leak, use-after-free, and double-release detection is
+delegated to ASan/LSan/UBSan. Both exact Cairo lanes pass this oracle 2/2 plus
+17/17 stream-surface, 19/19 ScriptDevice, and 2/2 stream-lifetime tests in
+ordinary and package-isolated sanitizer runs. No production FFI symbol or
+public MoonBit signature changed.
 
 ## SVG Surface Contract And Documentation Audit
 
@@ -3686,7 +3704,7 @@ fresh workspace, and reruns the consumer against the packaged module. The two
 exact Linux Cairo lanes additionally consume the same host-generated zip
 without rewriting its manifests or running the repository constants updater.
 This catches producer-specific include and library paths that source-copy lane
-setup would otherwise hide. The current 634-member archive also contains the
+setup would otherwise hide. The current 638-member archive also contains the
 declared dual-license notice and complete license texts; source,
 freshly extracted, and unmodified cross-host archive paths all pass against
 Cairo 1.15.10 and 1.18.4.

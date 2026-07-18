@@ -74,7 +74,7 @@ Evaluate each slice with this scorecard:
 |---|---|---|
 | API surface | Public entries appear in `src/pkg.generated.mbti`; Python-only pycairo APIs are recorded as `Decision`; `scripts/check-api-inventory.py` passes against both the parent `cairo/__init__.pyi` and the pinned standalone snapshot | Strong for current portable APIs; source and archive modes enforce the same 67 public top-level entries, 224 top-level constants, and 255 portable class methods, mapped to public MoonBit API anchors or explicit product decisions; source SHA or snapshot shape drift fails closed |
 | Reliability ledger | `API_INVENTORY.md` statuses are `Done`, `Partial`, or `Decision`; every `Partial` row names its remaining gap; this scorecard and CI/verify gate are checked by `scripts/check-reliability-ledger.py` | Exact for current migrated slices; the one remaining `Partial` row names shipped release-platform evidence, and the full-product claim still requires it to reach `Done` or an explicit scope `Decision` |
-| FFI boundary safety | Production raw `src/**/ffi*.mbt` declarations are native-gated in their owning `moon.pkg`, mark every non-primitive C FFI parameter with `#borrow` or `#owned`, and `scripts/check-project-layout.py`, `scripts/check-ffi-ownership.py`, `scripts/check-external-owners.py`, plus `scripts/check-stream-cleanup.py` pass | Strong for current raw externs, including internal helper packages; the ownership gates enforce Device, Surface, mapped-image, and stream-constructor cleanup order plus scoped-error precedence. All 34 production and 49 oracle C stubs compile under the exact C11 `-Wall -Wextra -Wpedantic -Werror` contract, and the layout gate rejects any downgrade. The external-owner gate independently discovers all 12 raw owner declarations, native finalizers, and external-object allocators; enforces structural owner naming; and requires exact release plus top-level 1000-iteration lifetime evidence |
+| FFI boundary safety | Production raw `src/**/ffi*.mbt` declarations are native-gated in their owning `moon.pkg`, mark every non-primitive C FFI parameter with `#borrow` or `#owned`, and `scripts/check-project-layout.py`, `scripts/check-ffi-ownership.py`, `scripts/check-external-owners.py`, plus `scripts/check-stream-cleanup.py` pass | Strong for current raw externs, including internal helper packages; the ownership gates enforce Device, Surface, mapped-image, and stream-constructor cleanup order plus scoped-error precedence. All 34 production and 50 oracle C stubs compile under the exact C11 `-Wall -Wextra -Wpedantic -Werror` contract, and the layout gate rejects any downgrade. The external-owner gate independently discovers all 12 raw owner declarations, native finalizers, and external-object allocators; enforces structural owner naming; and requires exact release plus top-level 1000-iteration lifetime evidence |
 | Behavioral parity | pycairo-derived black-box cases, independent pure-MoonBit property models, or direct C Cairo primitive oracles cover normal and invalid inputs | Strong for image, context, path, font, pattern, region, surface/device, and backend helpers already listed in the inventory; all 288 tests from all 20 upstream test files are pinned and mapped to 197 family-local MoonBit runtime anchors, 291 required generated static API anchors, 29 deliberately absent signatures, 4 explicit inventory decisions, and 1 mandatory static verify gate. Deterministic Matrix, Region, Path, Rectangle, and RectangleInt properties use independent algebra, occupancy-grid, command-state, and generated-value models. The public-facade ledger has 53 stable source anchors with semver scopes; exact analysis activates 50 exceptions on Cairo 1.15.10 and 43 on Cairo 1.18.4, while every portable reachable branch found by the audit is covered. |
 | Rendering parity | Deterministic image pixels or normalized PDF/PS/SVG bytes match direct C Cairo output | Strong for the portable migration scope. Scene 66 closes Cairo 1.18's finite tag-attribute contract across URI, multi-rectangle, destination, page-position, external-file, content, and content-reference cases; it joins the enumerated image and vector fixtures with file/stream/direct-C comparisons and stable positive or negative backend markers |
 | Lifetime safety | External-object ownership, borrowed returns, callback retention, integer/pointer operations, and error exits run under ASan/LSan/UBSan or stress tests | Strong for the current portable scope: all 12 raw owners have an exact C finalizer/release mapping and a top-level 1000-iteration allocation path in a separately packaged lifetime test. Linux runs every MoonBit package in a separate ASan/LSan/UBSan process; stream constructors retain callback state until partial native producers are destroyed on failure, and saved raster getter closures survive replacement, clearing, and their original local bindings leaving scope. Two upstream Cairo paths have pure-C-probe-verified, exact-count LSan suppressions isolated to the vector-oracle and PDF backend packages; every other package remains unsuppressed. |
@@ -82,7 +82,7 @@ Evaluate each slice with this scorecard:
 | Portability | Required backends pass on each supported platform, or unsupported APIs have explicit `Decision` rows | Strong local evidence at the exact Cairo 1.15.10 compatibility floor and recommended 1.18.4 release, plus the host lane. Module metadata declares native as the sole supported backend, and layout/archive regressions reject drift; unsupported targets stop before native FFI checking. Both Linux lanes consume the same unmodified host-generated zip through module-level `pkg-config` discovery; still Partial until the release commit's shipped Ubuntu/macOS CI jobs pass |
 | Documentation | Public declarations have substantive MoonBit `///` comments, family workflows have executable examples where practical, and `scripts/check-public-docs.py` reports zero debt | Done: all 579 public declarations have substantive comments, the exact grandfather ledger is empty, executable downstream-style family notes include complete PDF/PS/SVG workflows, and new undocumented APIs or ledger drift fail the gate |
 | Downstream consumption | A separately named MoonBit module resolves the versioned local dependency, imports only `CAIMEOX/cairoon`, carries no native flags, receives propagated Cairo linking, renders through the public API against checkout and extracted publication zip, and stays outside that archive | Strong local evidence through `integration/consumer` and `scripts/check-downstream-consumer.sh`; the zip is integrity-tested and recompiled in a fresh temporary workspace, and `--archive` mode recompiles the producer-host zip unchanged in both exact-Cairo lanes |
-| Publication integrity | The zip contains the declared dual-license notice and full texts, native-only module metadata, package README/interface, dependency pre-build script, pinned pycairo API snapshot, and source-identical external-owner checker/ledger; canonical paths are unique, safe, CRC-valid, and exclude integration fixtures | Done locally: `scripts/check-publication-archive.py` checks all 634 members, and thirteen focused tests cover valid archives plus missing/incorrect license data, metadata/target mismatch, missing or altered build/API/owner support, duplicate names, unsafe paths, fixture leakage, emptiness, and corruption |
+| Publication integrity | The zip contains the declared dual-license notice and full texts, native-only module metadata, package README/interface, dependency pre-build script, pinned pycairo API snapshot, and source-identical external-owner checker/ledger; canonical paths are unique, safe, CRC-valid, and exclude integration fixtures | Done locally: `scripts/check-publication-archive.py` checks all 638 members, and thirteen focused tests cover valid archives plus missing/incorrect license data, metadata/target mismatch, missing or altered build/API/owner support, duplicate names, unsafe paths, fixture leakage, emptiness, and corruption |
 
 The practical release rule is simple: a feature can be trusted when its
 inventory row is `Done`, its reference docs are executable where practical,
@@ -4388,20 +4388,25 @@ The subsequent stream-constructor ownership audit found that shared
 when Cairo user-data attachment failed. PDF/PS/SVG and ScriptDevice callers then
 destroyed the partially constructed native producer, whose backend finalizer
 could still invoke the now-freed writer. Attachment helpers now consume state
-only on success. Every constructor checks native status before attachment and,
-on either status or attachment failure, destroys the native producer while the
+only on success. Shared Surface and Device cleanup helpers cover null producer,
+native-status, and attachment failures; each destroys any producer while the
 state is live before releasing that state exactly once.
 
 The dedicated `scripts/check-stream-cleanup.py` makes the required transfer and
 failure order a static release gate without enlarging the existing FFI checker.
-Seven negative mutations reject missing or malformed attachment, helper-side
-failure consumption, missing pre-attach status checks, and reversed Surface or
-Device cleanup; one passing baseline raises the script suite to 90/90. On exact
-Linux Cairo 1.15.10 and 1.18.4, stream surfaces pass 16/16, ScriptDevice passes
-19/19, and stream lifetime stress passes 2/2 in ordinary and package-isolated
-ASan/LSan runs. These dynamic tests cover callback lifetime but do not inject
-Cairo user-data allocation failure. Public API and the 349-local-plus-two-direct
-symbol production FFI boundary are unchanged.
+Nine negative mutations reject missing or malformed attachment, helper-side
+failure consumption, missing shared cleanup or pre-attach status checks, and
+reversed Surface or Device helper order; one passing baseline contributes ten
+script tests. The separate `src/tests/oracle/stream_failure` package constructs
+real PDF, PS, SVG, and ScriptDevice stream producers, arms the MoonBit writer,
+and calls the production cleanup helper as though user-data attachment failed.
+PDF/PS/SVG destruction must invoke the still-live writer with nonzero output;
+ScriptDevice output count remains backend-controlled, while ASan/LSan/UBSan
+detects leaks, use-after-free, and double release. On exact Linux Cairo 1.15.10
+and 1.18.4, this oracle passes 2/2 alongside 17/17 stream-surface, 19/19
+ScriptDevice, and 2/2 stream-lifetime tests in ordinary and package-isolated
+sanitizer runs. Public API and the 349-local-plus-two-direct production FFI
+boundary are unchanged.
 
 The subsequent SVG contract/documentation replay covers all 11 public
 declarations. Constructor docs pin point-sized pages, optional filename output,
@@ -4518,7 +4523,7 @@ the former command without `+73` cannot satisfy the gate.
 
 The strict C stub slice applies
 `-std=c11 -Wall -Wextra -Wpedantic -Werror` after the generated Cairo flags in
-both native-stub packages. This covers all 34 production C files and 49
+both native-stub packages. This covers all 34 production C files and 50
 test-only direct-C oracle files. The layout checker requires the exact ordered
 flag string, while a parameterized negative test removes each flag in turn and
 proves the release gate fails closed. Cairo 1.15.10 then exposed the
@@ -4575,10 +4580,18 @@ The focused stream, public raster, and raster oracle packages pass 2/2, 16/16,
 and 9/9 respectively under host ASan/UBSan and both exact-Cairo Linux
 ASan/LSan/UBSan lanes, without changing the 838-test inventory.
 
-Exact Linux Cairo 1.15.10 and 1.18.4 each pass 838/838 native tests, 183/183
+The stream attachment-failure slice adds a shared producer-before-state cleanup
+helper for all three Surface backends and ScriptDevice. Ten static checker tests
+pin every transfer and failure branch, including nine negative mutations. A
+distinct two-test oracle dynamically simulates user-data attachment failure on
+real producers; PDF/PS/SVG prove destroy-time writes cannot outlive the closure,
+and ScriptDevice state release is checked without assuming a callback count.
+The package passes normally and under ASan/LSan/UBSan on both exact Cairo lanes.
+
+Exact Linux Cairo 1.15.10 and 1.18.4 each pass 840/840 native tests, 185/185
 script tests, 63/63 executable docs, the source and extracted 1/1 downstream
 consumers, the same unmodified host-generated archive consumer, publication
-archive integrity for 634 members, and every discovered package under
+archive integrity for 638 members, and every discovered package under
 ASan/LSan/UBSan. The pure-C recording-snapshot probe still limits the vector
 package to 16 suppressions/7424 bytes on Cairo 1.15.10 and 16/9344 on Cairo
 1.18.4. The pure-C PDF/JBIG2 probe limits the PDF package to two rows totaling
