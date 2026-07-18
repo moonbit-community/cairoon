@@ -82,7 +82,7 @@ Evaluate each slice with this scorecard:
 | Portability | Required backends pass on each supported platform, or unsupported APIs have explicit `Decision` rows | Strong local evidence at the exact Cairo 1.15.10 compatibility floor and recommended 1.18.4 release, plus the host lane. Module metadata declares native as the sole supported backend, and layout/archive regressions reject drift; unsupported targets stop before native FFI checking. Both Linux lanes consume the same unmodified host-generated zip through module-level `pkg-config` discovery. GitHub runs are grouped by workflow and ref with stale-run cancellation and 60-minute native/sanitizer ceilings, all enforced by negative workflow mutations; still Partial until the release commit's shipped Ubuntu/macOS CI jobs pass |
 | Documentation | Public declarations have substantive MoonBit `///` comments, family workflows have executable examples where practical, and `scripts/check-public-docs.py` reports zero debt | Done: all 579 public declarations have substantive comments, the exact grandfather ledger is empty, executable downstream-style family notes include complete PDF/PS/SVG workflows, and new undocumented APIs or ledger drift fail the gate |
 | Downstream consumption | A separately named MoonBit module resolves the versioned local dependency, imports only `CAIMEOX/cairoon`, carries no native flags, receives propagated Cairo linking, renders through the public API against checkout and extracted publication zip, and stays outside that archive | Strong local evidence through `integration/consumer` and `scripts/check-downstream-consumer.sh`; the zip is integrity-tested and recompiled in a fresh temporary workspace, and `--archive` mode recompiles the producer-host zip unchanged in both exact-Cairo lanes |
-| Publication integrity | The zip contains the declared dual-license notice and full texts, native-only module metadata, package README/interface, dependency pre-build script, pinned pycairo API snapshot, and source-identical external-owner checker/ledger; canonical paths are unique, safe, CRC-valid, and exclude integration fixtures | Done locally: `scripts/check-publication-archive.py` checks all 638 members, and thirteen focused tests cover valid archives plus missing/incorrect license data, metadata/target mismatch, missing or altered build/API/owner support, duplicate names, unsafe paths, fixture leakage, emptiness, and corruption |
+| Publication integrity | The zip contains the declared dual-license notice and full texts, native-only module metadata, package README/interface, dependency pre-build script, pinned pycairo API snapshot, and source-identical external-owner checker/ledger; canonical paths are unique, safe, CRC-valid, and exclude integration fixtures | Done locally: `scripts/check-publication-archive.py` checks all 640 members, and thirteen focused tests cover valid archives plus missing/incorrect license data, metadata/target mismatch, missing or altered build/API/owner support, duplicate names, unsafe paths, fixture leakage, emptiness, and corruption |
 
 The practical release rule is simple: a feature can be trusted when its
 inventory row is `Done`, its reference docs are executable where practical,
@@ -3563,7 +3563,7 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, 2026-07-
   scene dispatcher into focused basic, pattern, and pattern-stack scene files
   and added `scripts/check-source-size-budget.py` to the local verify gate.
   This keeps the expected full native suite at 635 tests while making future
-  source/test/script/native-glue files above 900 lines fail local verification
+  source/test/script/native-glue files above 850 lines fail local verification
   until they are split deliberately.
   A later PNG path/stream pycairo parity slice added a black-box fixture that
   writes one ARGB32 image through both `Surface::write_to_png` and
@@ -4591,7 +4591,7 @@ The package passes normally and under ASan/LSan/UBSan on both exact Cairo lanes.
 Exact Linux Cairo 1.15.10 and 1.18.4 each pass 840/840 native tests, 185/185
 script tests, 63/63 executable docs, the source and extracted 1/1 downstream
 consumers, the same unmodified host-generated archive consumer, publication
-archive integrity for 638 members, and every discovered package under
+archive integrity for 640 members, and every discovered package under
 ASan/LSan/UBSan. The pure-C recording-snapshot probe still limits the vector
 package to 16 suppressions/7424 bytes on Cairo 1.15.10 and 16/9344 on Cairo
 1.18.4. The pure-C PDF/JBIG2 probe limits the PDF package to two rows totaling
@@ -4600,7 +4600,12 @@ is unsuppressed. Documentation reaches 579 of 579 declarations with zero debt,
 so the Documentation inventory row is Done. Public signatures and the
 349-local-plus-two-direct-symbol production FFI boundary remain unchanged.
 
-The sanitizer runner now compiles every native package with
+The sanitizer runner is split by responsibility: `run.py` owns CLI and
+per-package orchestration, `toolchain.py` owns compiler discovery, runtime
+isolation, wrappers, and preflights, and `leak_probes.py` owns strict leak
+classification and suppression accounting. The reliability checker requires
+critical markers in those exact modules. Together they compile every native
+package with
 `-fsanitize=address,undefined` and sets fail-fast UBSan options with stack
 traces. Its signed-overflow preflight proves the undefined-behavior runtime is
 active before MoonBit tests begin. Linux function sanitization cannot compare

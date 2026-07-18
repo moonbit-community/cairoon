@@ -4,6 +4,14 @@
 
 Implemented in this workspace:
 
+- Sanitizer tooling is no longer concentrated in an 852-line entry point.
+  `scripts/sanitizers/run.py` contains CLI and package orchestration,
+  `toolchain.py` owns compiler discovery, preflights, wrappers, and shadow
+  toolchains, and `leak_probes.py` owns strict upstream-Cairo leak signatures
+  and suppression-use accounting. Existing test imports remain available via
+  entry-point re-exports. The reliability gate requires each critical marker
+  in its owning module, the source-size ceiling is now 850 lines, and all 425
+  checked source files comply.
 - Eleven family-scoped executable reference documents under `src/docs/`,
   including dedicated enum, status/version/error, and pure-value guides. The
   external docs package passes 63/63 tests, and the project-layout gate
@@ -103,7 +111,7 @@ Implemented in this workspace:
   extracted-publication-zip consumers also pass 1/1 independently. Each lane
   additionally consumes the same unmodified host-generated zip, so
   producer-specific include/library paths cannot be hidden by lane setup. The
-  integrity-checked publication archive contains 638 members, and every
+  integrity-checked publication archive contains 640 members, and every
   discovered package passes ASan/LSan/UBSan. Each pinned lane also runs
   instrumented public-facade coverage and requires the exact linked-version
   ledger profile.
@@ -872,13 +880,13 @@ The most recent full local verification passed on 2026-07-18:
   pycairo parity, public documentation, reliability-ledger, vector-scene,
   native type including warning 73, and generated-interface gates. The
   isolated consumer passed 1/1 against both the checkout and the
-  integrity-tested extracted 638-member publication zip. Host ASan/UBSan
+  integrity-tested extracted 640-member publication zip. Host ASan/UBSan
   passed every discovered package;
   authoritative Linux LSan coverage is supplied by both exact-Cairo lanes.
 - `./scripts/test-cairo-matrix.sh cairo-1.15.10` and
   `./scripts/test-cairo-matrix.sh cairo-1.18.4` passed the same 185 script,
   840 native, and 63 documentation tests, both 1/1 consumer paths, the
-  unmodified host-archive consumer, all 638 publication members, and every
+  unmodified host-archive consumer, all 640 publication members, and every
   discovered package under ASan/LSan/UBSan.
   Intentional signed-overflow and leak preflights passed in both lanes. The
   constrained vector suppression accounted for 16 allocations/7424 bytes on
@@ -3704,7 +3712,7 @@ fresh workspace, and reruns the consumer against the packaged module. The two
 exact Linux Cairo lanes additionally consume the same host-generated zip
 without rewriting its manifests or running the repository constants updater.
 This catches producer-specific include and library paths that source-copy lane
-setup would otherwise hide. The current 638-member archive also contains the
+setup would otherwise hide. The current 640-member archive also contains the
 declared dual-license notice and complete license texts; source,
 freshly extracted, and unmodified cross-host archive paths all pass against
 Cairo 1.15.10 and 1.18.4.

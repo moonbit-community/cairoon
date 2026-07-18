@@ -146,11 +146,15 @@ cairoon/
       textextents.json
       typing.json
     sanitizers/
+      leak_probes.py
+      lsan-cairo-pdf-jbig2-missing.supp
       lsan-cairo-recording-snapshot-stripped.supp
       lsan-cairo-recording-snapshot.supp
       policy.py
       run.py
+      toolchain.py
       probes/
+        cairo_pdf_jbig2_missing_probe.c
         cairo_recording_snapshot_probe.c
     tests/
       test_external_owners.py
@@ -691,7 +695,7 @@ before MoonBit compilation. The layout check proves:
 - the root and public-package-root allowlists are exact ledgers with no stale
   names left behind after a migration slice moves files into child packages;
 - `scripts/check-source-size-budget.py` keeps source, test, script, native
-  glue, and executable-doc files under the 900-line review budget so large
+  glue, and executable-doc files under the 850-line review budget so large
   oracles and glue families are split deliberately instead of growing in place;
 - `src/moon.pkg`, `src/pkg.generated.mbti`, and `moon.mod source = "src"`
   are present;

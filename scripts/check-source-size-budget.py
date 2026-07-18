@@ -8,7 +8,7 @@ import sys
 
 
 REPO_ROOT = pathlib.Path(__file__).resolve().parents[1]
-MAX_SOURCE_LINES = 900
+MAX_SOURCE_LINES = 850
 SOURCE_SUFFIXES = (".mbt", ".mbt.md", ".c", ".h", ".py", ".sh")
 SEARCH_ROOTS = (
     REPO_ROOT / "src",

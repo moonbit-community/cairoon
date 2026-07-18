@@ -554,7 +554,7 @@ class CurrentReleaseEvidenceTests(unittest.TestCase):
                     "    def test_discovered(self):",
                     "        pass",
                 ]
-            ),
+            ) + "\n",
             encoding="utf-8",
         )
         with mock.patch.object(self.checker, "REPO_ROOT", self.root):
@@ -690,6 +690,8 @@ class LocalMatrixGateTests(unittest.TestCase):
         self.matrix = self.root / "scripts" / "test-cairo-matrix.sh"
         self.lane = self.root / "scripts" / "matrix" / "run-lane.sh"
         self.sanitizer = self.root / "scripts" / "sanitizers" / "run.py"
+        self.sanitizer_toolchain = self.sanitizer.with_name("toolchain.py")
+        self.sanitizer_leak_probes = self.sanitizer.with_name("leak_probes.py")
         self.lane.parent.mkdir(parents=True)
         self.sanitizer.parent.mkdir(parents=True)
         self.matrix.write_text(
@@ -703,16 +705,32 @@ class LocalMatrixGateTests(unittest.TestCase):
         self.sanitizer.write_text(
             "\n".join(
                 [
+                    "from leak_probes import (",
+                    "from toolchain import (",
+                    "discover_packages",
+                    "MOON_TOOLCHAIN_ROOT",
+                ]
+            ) + "\n",
+            encoding="utf-8",
+        )
+        self.sanitizer_toolchain.write_text(
+            "\n".join(
+                [
                     "compiler_preflight",
                     "-fsanitize=address,undefined",
                     "UBSAN_OPTIONS",
                     "validate_ubsan_probe",
+                ]
+            ) + "\n",
+            encoding="utf-8",
+        )
+        self.sanitizer_leak_probes.write_text(
+            "\n".join(
+                [
                     "probe_recording_snapshot_leak",
                     "RECORDING_SNAPSHOT_PACKAGES",
                     "probe_pdf_jbig2_missing_leak",
                     "PDF_JBIG2_MISSING_PACKAGES",
-                    "discover_packages",
-                    "MOON_TOOLCHAIN_ROOT",
                     "validate_suppression_usage",
                     "validate_pdf_jbig2_suppression_usage",
                 ]
@@ -756,8 +774,8 @@ class LocalMatrixGateTests(unittest.TestCase):
         self.assertTrue(any("--analyze" in error for error in errors))
 
     def test_matrix_lane_requires_undefined_behavior_preflight(self) -> None:
-        self.sanitizer.write_text(
-            self.sanitizer.read_text(encoding="utf-8").replace(
+        self.sanitizer_toolchain.write_text(
+            self.sanitizer_toolchain.read_text(encoding="utf-8").replace(
                 "validate_ubsan_probe\n",
                 "",
             ),

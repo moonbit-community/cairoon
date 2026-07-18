@@ -1059,6 +1059,13 @@ MoonBit reliability requirements and remaining work:
   `scripts/check-reliability-ledger.py` must reject a downgrade that omits the
   unnecessary-annotation check.
 - ASan/LSan runs for every C stub path.
+- Keep sanitizer infrastructure split by responsibility:
+  `scripts/sanitizers/run.py` owns only CLI and per-package orchestration,
+  `toolchain.py` owns compiler discovery, sanitizer preflights, wrappers, and
+  the isolated MoonBit toolchain, `leak_probes.py` owns standalone Cairo leak
+  classification and exact suppression accounting, and `policy.py` owns
+  option construction. Re-exporting compatibility names from `run.py` is
+  allowed; moving their implementations back into the entry point is not.
 - Stress tests that force MoonBit GC/finalizers while Cairo objects reference
   each other.
 - Differential rendering tests comparing cairoon output with pycairo or direct

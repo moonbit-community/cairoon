@@ -42,7 +42,7 @@ PARTIAL_GAP_MARKERS = (
 )
 TESTS_EVIDENCE_MAX_CHARS = 1200
 NATIVE_TEST_MARKER = "840/840 native tests"
-PUBLICATION_MARKER = "638 publication members"
+PUBLICATION_MARKER = "640 publication members"
 OWNER_EVIDENCE_MARKER = (
     "12/12 raw external owners with exact finalizer and 1000-iteration stress evidence"
 )
@@ -130,6 +130,28 @@ VERIFY_COMMANDS = (
     "moon info --target native",
     "python3 ./scripts/sanitizers/run.py",
 )
+SANITIZER_MODULE_MARKERS = {
+    "run.py": (
+        "from leak_probes import (",
+        "from toolchain import (",
+        "discover_packages",
+        "MOON_TOOLCHAIN_ROOT",
+    ),
+    "toolchain.py": (
+        "compiler_preflight",
+        "-fsanitize=address,undefined",
+        "UBSAN_OPTIONS",
+        "validate_ubsan_probe",
+    ),
+    "leak_probes.py": (
+        "probe_recording_snapshot_leak",
+        "RECORDING_SNAPSHOT_PACKAGES",
+        "probe_pdf_jbig2_missing_leak",
+        "PDF_JBIG2_MISSING_PACKAGES",
+        "validate_suppression_usage",
+        "validate_pdf_jbig2_suppression_usage",
+    ),
+}
 
 
 def table_cells(line: str) -> list[str] | None:
@@ -519,7 +541,6 @@ def check_local_matrix() -> list[str]:
     lane_text = (
         REPO_ROOT / "scripts" / "matrix" / "run-lane.sh"
     ).read_text(encoding="utf-8")
-    sanitizer_text = SANITIZER.read_text(encoding="utf-8")
     errors: list[str] = []
     matrix_markers = (
         "cairo-1.15.10",
@@ -546,23 +567,15 @@ def check_local_matrix() -> list[str]:
             f"{MATRIX}: pinned Cairo lanes must run {archive_command!r}"
         )
 
-    sanitizer_markers = (
-        "compiler_preflight",
-        "-fsanitize=address,undefined",
-        "UBSAN_OPTIONS",
-        "validate_ubsan_probe",
-        "probe_recording_snapshot_leak",
-        "RECORDING_SNAPSHOT_PACKAGES",
-        "probe_pdf_jbig2_missing_leak",
-        "PDF_JBIG2_MISSING_PACKAGES",
-        "discover_packages",
-        "MOON_TOOLCHAIN_ROOT",
-        "validate_suppression_usage",
-        "validate_pdf_jbig2_suppression_usage",
-    )
-    for marker in sanitizer_markers:
-        if marker not in sanitizer_text:
-            errors.append(f"{SANITIZER}: sanitizer gate is missing {marker!r}")
+    for filename, markers in SANITIZER_MODULE_MARKERS.items():
+        path = SANITIZER.parent / filename
+        if not path.is_file():
+            errors.append(f"{path}: sanitizer module is missing")
+            continue
+        source = path.read_text(encoding="utf-8")
+        for marker in markers:
+            if marker not in source:
+                errors.append(f"{path}: sanitizer gate is missing {marker!r}")
     return errors
 
 
