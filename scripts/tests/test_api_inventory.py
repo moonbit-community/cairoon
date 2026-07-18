@@ -264,6 +264,7 @@ class ApiInventorySnapshotTests(unittest.TestCase):
         )
 
         self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("4 method Decisions", result.stdout)
         self.assertIn("39 class protocols", result.stdout)
 
     def test_checker_covers_every_pycairo_class_attribute(self) -> None:
@@ -310,6 +311,32 @@ class ApiInventorySnapshotTests(unittest.TestCase):
 
         self.assertEqual(result.returncode, 1)
         self.assertIn("pycairo class attribute 'Matrix.xx'", result.stderr)
+
+    def test_checker_requires_xlib_method_decision(self) -> None:
+        inventory = self.temp_root / "API_INVENTORY.md"
+        inventory.write_text(
+            INVENTORY_PATH.read_text(encoding="utf-8").replace(
+                "requires a future conditional extension layer with X11/XCB headers",
+                "requires an unspecified extension layer",
+                1,
+            ),
+            encoding="utf-8",
+        )
+
+        result = subprocess.run(
+            [
+                sys.executable,
+                str(CHECKER_PATH),
+                "--inventory",
+                str(inventory),
+            ],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("pycairo method 'XlibSurface.get_width'", result.stderr)
 
 
 if __name__ == "__main__":

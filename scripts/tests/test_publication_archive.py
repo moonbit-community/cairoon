@@ -27,6 +27,9 @@ VALID_MEMBERS = {
     "scripts/api/attribute_mappings.py": (
         REPO_ROOT / "scripts" / "api" / "attribute_mappings.py"
     ).read_bytes(),
+    "scripts/api/method_mappings.py": (
+        REPO_ROOT / "scripts" / "api" / "method_mappings.py"
+    ).read_bytes(),
     "scripts/api/protocol_mappings.py": (
         REPO_ROOT / "scripts" / "api" / "protocol_mappings.py"
     ).read_bytes(),
@@ -161,16 +164,22 @@ class PublicationArchiveCheckerTests(unittest.TestCase):
         )
 
     def test_missing_api_mapping_support_fails(self) -> None:
-        members = dict(VALID_MEMBERS)
-        del members["scripts/api/attribute_mappings.py"]
-        self.write_archive(members, include_required=False)
+        for member_name in (
+            "scripts/api/attribute_mappings.py",
+            "scripts/api/method_mappings.py",
+            "scripts/api/protocol_mappings.py",
+        ):
+            with self.subTest(member_name=member_name):
+                members = dict(VALID_MEMBERS)
+                del members[member_name]
+                self.write_archive(members, include_required=False)
 
-        errors, _ = self.check()
+                errors, _ = self.check()
 
-        self.assertTrue(
-            any("scripts/api/attribute_mappings.py" in error for error in errors),
-            errors,
-        )
+                self.assertTrue(
+                    any(member_name in error for error in errors),
+                    errors,
+                )
 
     def test_external_owner_support_is_required_and_exact(self) -> None:
         members = dict(VALID_MEMBERS)

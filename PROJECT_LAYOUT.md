@@ -121,6 +121,7 @@ cairoon/
   scripts/
     api/
       attribute_mappings.py
+      method_mappings.py
       protocol_mappings.py
       pycairo-api-snapshot.json
       snapshot.py

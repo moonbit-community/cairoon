@@ -20,6 +20,7 @@ REQUIRED_MEMBERS = frozenset(
         "README.md",
         "moon.mod",
         "scripts/api/attribute_mappings.py",
+        "scripts/api/method_mappings.py",
         "scripts/api/protocol_mappings.py",
         "scripts/api/pycairo-api-snapshot.json",
         "scripts/api/snapshot.py",
@@ -70,6 +71,7 @@ SOURCE_IDENTICAL_MEMBERS = frozenset(
     {
         "API_INVENTORY.md",
         "scripts/api/attribute_mappings.py",
+        "scripts/api/method_mappings.py",
         "scripts/api/protocol_mappings.py",
         "scripts/api/pycairo-api-snapshot.json",
         "scripts/api/snapshot.py",

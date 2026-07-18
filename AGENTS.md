@@ -1100,10 +1100,10 @@ The derivation must remain executable outside the parent pycairo checkout.
 `scripts/api/pycairo-api-snapshot.json` pins the upstream commit, exact stub
 SHA-256, top-level APIs, ordinary class methods, Python protocols/constructors,
 class attributes, constants, and enum aliases. The API checker must reject
-source/snapshot drift and require every protocol and attribute to have exact,
-type-scoped MoonBit interface evidence or an explicit product Decision. It must
-report the same complete counts when the parent stub is absent from an
-extracted publication archive.
+source/snapshot drift and require every ordinary method, protocol, and
+attribute to have exactly one type-scoped MoonBit interface mapping or explicit
+product Decision. It must report the same complete counts when the parent stub
+is absent from an extracted publication archive.
 
 Each public item is one of:
 
