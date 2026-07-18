@@ -1038,14 +1038,20 @@ What does not transfer directly:
   explicit MoonBit stream callbacks instead of Python file objects.
 - Python-specific object identity and subclass behavior.
 
-What is missing for MoonBit reliability:
+MoonBit reliability requirements and remaining work:
 
 - ASan/LSan runs for every C stub path.
 - Stress tests that force MoonBit GC/finalizers while Cairo objects reference
   each other.
 - Differential rendering tests comparing cairoon output with pycairo or direct
   C Cairo output.
-- Property tests for matrix, region, path, and rectangle operations.
+- Keep deterministic property tests for matrix, region, path, and rectangle
+  operations. The required suites live in `src/tests/matrix/property`,
+  `src/tests/region/core`, `src/tests/path/core`, and `src/tests/value/core`.
+  Region tests must use an independent discrete-coverage oracle; Path tests
+  must use an independent command/current-point model and replay checks;
+  Rectangle tests must generate signed dimensions and invalid indexes. Do not
+  replace these with assertions derived from the implementation under test.
 - Fuzz tests for invalid enum/status/string/buffer/stride inputs.
 - Explicit callback error-propagation tests.
 - Cross-platform CI across Linux and macOS, with Cairo 1.15.10 and a current

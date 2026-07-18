@@ -22,6 +22,14 @@ Implemented in this workspace:
   test saves getter-returned acquire/release closures, replaces and clears the
   registration, exits the Pattern/source scope, and then calls the saved pair,
   directly proving the getter's strong-reference contract.
+- Region, Path, Rectangle, and RectangleInt now have independent generated
+  property evidence. A pure-MoonBit 16-by-16 occupancy grid checks Region
+  construction, positive-area containment, extents, copy/translation/equality,
+  and all four Region/rectangle boolean operations over 32 seeds. A separate
+  Path state model checks 32 generated 18-command sequences, current points,
+  copy isolation, append replay, and flattened line-only replay. Rectangle
+  types cover 128 signed-field values and exact invalid-index suberrors. The
+  nine tests do not derive expected values from cairoon or Cairo.
 - Public-package branch instrumentation is audited by
   `scripts/check-public-coverage.py`: every portable reachable branch found by
   the audit has a black-box test. The ledger has 53 stable source keys with
@@ -70,13 +78,13 @@ Implemented in this workspace:
   process failures, deterministic JSON, and environment redaction.
 - Exact local release lanes for Cairo 1.15.10 and 1.18.4, built from pinned
   source URLs and SHA-256 digests on a pinned Ubuntu base image. Both lanes
-  pass all static gates, 829/829 native tests, 180/180 script tests, and 63/63
+  pass all static gates, 838/838 native tests, 180/180 script tests, and 63/63
   executable documentation tests with the pinned MoonBit
   `0.10.4+4f2e8f7dc-nightly` compiler. In each lane, the source-checkout and
   extracted-publication-zip consumers also pass 1/1 independently. Each lane
   additionally consumes the same unmodified host-generated zip, so
   producer-specific include/library paths cannot be hidden by lane setup. The
-  integrity-checked publication archive contains 629 members, and every
+  integrity-checked publication archive contains 634 members, and every
   discovered package passes ASan/LSan/UBSan. Each pinned lane also runs
   instrumented public-facade coverage and requires the exact linked-version
   ledger profile.
@@ -833,18 +841,18 @@ Implemented in this workspace:
 The most recent full local verification passed on 2026-07-18:
 
 - `./scripts/verify.sh` passed 180/180 script tests,
-  829/829 native tests, 63/63 executable documentation tests, formatting,
+  838/838 native tests, 63/63 executable documentation tests, formatting,
   project layout, source-size, Cairo build-protocol/generated-constant, FFI
   ownership, exact external-owner/finalizer/stress evidence, API inventory,
   pycairo parity, public documentation, reliability-ledger, vector-scene,
   native type, and generated-interface gates. The isolated consumer passed
   1/1 against both the checkout and the integrity-tested extracted
-  629-member publication zip. Host ASan/UBSan passed every discovered package;
+  634-member publication zip. Host ASan/UBSan passed every discovered package;
   authoritative Linux LSan coverage is supplied by both exact-Cairo lanes.
 - `./scripts/test-cairo-matrix.sh cairo-1.15.10` and
   `./scripts/test-cairo-matrix.sh cairo-1.18.4` passed the same 180 script,
-  829 native, and 63 documentation tests, both 1/1 consumer paths, the
-  unmodified host-archive consumer, all 629 publication members, and every
+  838 native, and 63 documentation tests, both 1/1 consumer paths, the
+  unmodified host-archive consumer, all 634 publication members, and every
   discovered package under ASan/LSan/UBSan.
   Intentional signed-overflow and leak preflights passed in both lanes. The
   constrained vector suppression accounted for 16 allocations/7424 bytes on
@@ -3632,7 +3640,7 @@ fresh workspace, and reruns the consumer against the packaged module. The two
 exact Linux Cairo lanes additionally consume the same host-generated zip
 without rewriting its manifests or running the repository constants updater.
 This catches producer-specific include and library paths that source-copy lane
-setup would otherwise hide. The current 629-member archive also contains the
+setup would otherwise hide. The current 634-member archive also contains the
 declared dual-license notice and complete license texts; source,
 freshly extracted, and unmodified cross-host archive paths all pass against
 Cairo 1.15.10 and 1.18.4.
