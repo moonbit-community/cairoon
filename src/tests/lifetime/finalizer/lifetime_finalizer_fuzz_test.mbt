@@ -5,6 +5,40 @@ fn finalizer_fuzz_next(seed : Ref[Int]) -> Int {
 }
 
 ///|
+struct FinalizerFuzzCoverage {
+  operation_counts : FixedArray[Int]
+  surface_red : Ref[Int]
+  surface_blue : Ref[Int]
+  mapped_error : Ref[Int]
+  mapped_explicit_unmap : Ref[Int]
+  mapped_implicit_unmap : Ref[Int]
+  font_size_counts : FixedArray[Int]
+  region_width_counts : FixedArray[Int]
+  raster_successes : Ref[Int]
+  raster_failures : Ref[Int]
+  stream_successes : Ref[Int]
+  stream_failures : Ref[Int]
+}
+
+///|
+fn FinalizerFuzzCoverage::new() -> FinalizerFuzzCoverage {
+  {
+    operation_counts: FixedArray::make(5, 0),
+    surface_red: Ref(0),
+    surface_blue: Ref(0),
+    mapped_error: Ref(0),
+    mapped_explicit_unmap: Ref(0),
+    mapped_implicit_unmap: Ref(0),
+    font_size_counts: FixedArray::make(5, 0),
+    region_width_counts: FixedArray::make(2, 0),
+    raster_successes: Ref(0),
+    raster_failures: Ref(0),
+    stream_successes: Ref(0),
+    stream_failures: Ref(0),
+  }
+}
+
+///|
 fn finalizer_fuzz_pressure(value : Int) -> Int {
   let bytes = Bytes::make(64 + value % 64, b'\x5a')
   let ints : FixedArray[Int] = FixedArray::make(16 + value % 16, value)
@@ -54,13 +88,18 @@ fn finalizer_fuzz_expect_argb32(
 }
 
 ///|
-fn finalizer_fuzz_surface_graph(value : Int) -> Unit raise {
+fn finalizer_fuzz_surface_graph(
+  value : Int,
+  coverage : FinalizerFuzzCoverage,
+) -> Unit raise {
   let backing : FixedArray[Byte] = FixedArray::make(16, b'\x00')
   let source = @cairoon.Surface::image_for_data(backing, Argb32, 2, 2)
   let source_ctx = @cairoon.Context::new(source)
   if value % 2 == 0 {
+    coverage.surface_red.val += 1
     source_ctx.set_source_rgba(1.0, 0.0, 0.0, 1.0)
   } else {
+    coverage.surface_blue.val += 1
     source_ctx.set_source_rgba(0.0, 0.0, 1.0, 1.0)
   }
   source_ctx.paint()
@@ -95,9 +134,13 @@ fn finalizer_fuzz_surface_graph(value : Int) -> Unit raise {
 }
 
 ///|
-fn finalizer_fuzz_mapped_edge(value : Int) -> Unit raise {
+fn finalizer_fuzz_mapped_edge(
+  value : Int,
+  coverage : FinalizerFuzzCoverage,
+) -> Unit raise {
   let base = @cairoon.Surface::image(Rgb24, 2, 1)
   if value % 3 == 0 {
+    coverage.mapped_error.val += 1
     let mapped = base.map_to_image(
       extents=Some(@cairoon.RectangleInt::new(x=0, y=0, width=1, height=1)),
     )
@@ -123,19 +166,28 @@ fn finalizer_fuzz_mapped_edge(value : Int) -> Unit raise {
     ctx.set_source_rgb(0.0, 1.0, 0.0)
     ctx.paint()
     if value % 2 == 0 {
+      coverage.mapped_explicit_unmap.val += 1
       mapped.unmap()
       base.flush()
       finalizer_fuzz_expect_argb32(base.copy_data(), [0, 255, 0, 255])
+    } else {
+      coverage.mapped_implicit_unmap.val += 1
     }
   }
 }
 
 ///|
-fn finalizer_fuzz_font_path_region(value : Int) -> Unit raise {
+fn finalizer_fuzz_font_path_region(
+  value : Int,
+  coverage : FinalizerFuzzCoverage,
+) -> Unit raise {
   let surface = @cairoon.Surface::image(Argb32, 4, 4)
   let ctx = @cairoon.Context::new(surface)
   ctx.select_font_face("serif", weight=FontWeightBold)
-  ctx.set_font_size(8.0 + (value % 5).to_double())
+  let font_size_index = value % 5
+  coverage.font_size_counts[font_size_index] = coverage.font_size_counts[font_size_index] +
+    1
+  ctx.set_font_size(8.0 + font_size_index.to_double())
   let face = ctx.get_font_face()
   let options = ctx.get_font_options()
   options.set_antialias(AntialiasGray)
@@ -160,8 +212,11 @@ fn finalizer_fuzz_font_path_region(value : Int) -> Unit raise {
   target.append_path(flat)
   inspect(path.length() >= 5, content="true")
 
+  let region_width_index = value % 2
+  coverage.region_width_counts[region_width_index] = coverage.region_width_counts[region_width_index] +
+    1
   let region = @cairoon.Region::from_rectangle(
-    @cairoon.RectangleInt::new(x=0, y=0, width=2 + value % 2, height=2),
+    @cairoon.RectangleInt::new(x=0, y=0, width=2 + region_width_index, height=2),
   )
   let copy = region.copy()
   ignore(
@@ -179,7 +234,10 @@ fn finalizer_fuzz_font_path_region(value : Int) -> Unit raise {
 }
 
 ///|
-fn finalizer_fuzz_raster_edge(value : Int) -> Unit raise {
+fn finalizer_fuzz_raster_edge(
+  value : Int,
+  coverage : FinalizerFuzzCoverage,
+) -> Unit raise {
   let source = @cairoon.Surface::image(Argb32, 2, 2)
   let source_ctx = @cairoon.Context::new(source)
   source_ctx.set_source_rgba(0.0, 0.0, 1.0, 1.0)
@@ -213,8 +271,10 @@ fn finalizer_fuzz_raster_edge(value : Int) -> Unit raise {
   ctx.set_source(pattern)
   let result = @cairoon.run_cairo(() => ctx.paint())
   if should_fail {
+    coverage.raster_failures.val += 1
     finalizer_fuzz_expect_status(result, NoMemory)
   } else {
+    coverage.raster_successes.val += 1
     match result {
       Ok(_) => ()
       _ => @test.fail("expected successful raster finalizer fuzz paint")
@@ -230,8 +290,7 @@ fn finalizer_fuzz_raster_edge(value : Int) -> Unit raise {
 ///|
 fn finalizer_fuzz_stream_device_edge(
   value : Int,
-  stream_successes : Ref[Int],
-  stream_failures : Ref[Int],
+  coverage : FinalizerFuzzCoverage,
 ) -> Unit raise {
   let chunk_count = Ref(0)
   let byte_count = Ref(0)
@@ -253,10 +312,10 @@ fn finalizer_fuzz_stream_device_edge(
     device.finish()
   })
   if value % 5 == 0 {
-    stream_failures.val += 1
+    coverage.stream_failures.val += 1
     finalizer_fuzz_expect_status(result, WriteError)
   } else {
-    stream_successes.val += 1
+    coverage.stream_successes.val += 1
     match result {
       Ok(_) => ()
       _ => @test.fail("expected successful script finalizer fuzz path")
@@ -269,37 +328,53 @@ fn finalizer_fuzz_stream_device_edge(
 ///|
 fn finalizer_fuzz_step(
   value : Int,
-  stream_successes : Ref[Int],
-  stream_failures : Ref[Int],
+  coverage : FinalizerFuzzCoverage,
 ) -> Unit raise {
-  match value % 5 {
-    0 => finalizer_fuzz_surface_graph(value)
-    1 => finalizer_fuzz_mapped_edge(value)
-    2 => finalizer_fuzz_font_path_region(value)
-    3 => finalizer_fuzz_raster_edge(value)
-    _ =>
-      finalizer_fuzz_stream_device_edge(
-        value / 5,
-        stream_successes,
-        stream_failures,
-      )
+  let operation = value % 5
+  coverage.operation_counts[operation] = coverage.operation_counts[operation] +
+    1
+  let scenario = value / 5
+  match operation {
+    0 => finalizer_fuzz_surface_graph(scenario, coverage)
+    1 => finalizer_fuzz_mapped_edge(scenario, coverage)
+    2 => finalizer_fuzz_font_path_region(scenario, coverage)
+    3 => finalizer_fuzz_raster_edge(scenario, coverage)
+    _ => finalizer_fuzz_stream_device_edge(scenario, coverage)
   }
 }
 
 ///|
-test "finalizer graph multi-seed fuzz covers error exits and retained owners" {
+test "finalizer graph fuzz covers every operation-local lifecycle scenario" {
   let pressure_total = Ref(0)
-  let stream_successes = Ref(0)
-  let stream_failures = Ref(0)
+  let coverage = FinalizerFuzzCoverage::new()
   for seed_start in [19, 97, 701, 4099] {
     let seed = Ref(seed_start)
     for _ in 0..<40 {
       let value = finalizer_fuzz_next(seed)
-      finalizer_fuzz_step(value, stream_successes, stream_failures)
+      finalizer_fuzz_step(value, coverage)
       pressure_total.val += finalizer_fuzz_pressure(value)
     }
   }
   inspect(pressure_total.val > 0, content="true")
-  inspect(stream_successes.val, content="19")
-  inspect(stream_failures.val, content="9")
+  inspect(coverage.operation_counts[0], content="33")
+  inspect(coverage.operation_counts[1], content="38")
+  inspect(coverage.operation_counts[2], content="25")
+  inspect(coverage.operation_counts[3], content="36")
+  inspect(coverage.operation_counts[4], content="28")
+  inspect(coverage.surface_red.val, content="14")
+  inspect(coverage.surface_blue.val, content="19")
+  inspect(coverage.mapped_error.val, content="18")
+  inspect(coverage.mapped_explicit_unmap.val, content="7")
+  inspect(coverage.mapped_implicit_unmap.val, content="13")
+  inspect(coverage.font_size_counts[0], content="3")
+  inspect(coverage.font_size_counts[1], content="5")
+  inspect(coverage.font_size_counts[2], content="8")
+  inspect(coverage.font_size_counts[3], content="5")
+  inspect(coverage.font_size_counts[4], content="4")
+  inspect(coverage.region_width_counts[0], content="11")
+  inspect(coverage.region_width_counts[1], content="14")
+  inspect(coverage.raster_successes.val, content="27")
+  inspect(coverage.raster_failures.val, content="9")
+  inspect(coverage.stream_successes.val, content="19")
+  inspect(coverage.stream_failures.val, content="9")
 }

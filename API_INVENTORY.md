@@ -14,6 +14,17 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 
 ## Recent Audit Deltas
 
+- 2026-07-18: Finalizer graph fuzz now closes every operation-local scenario
+  class. A second test-first counter exposed another correlated selector: the
+  font/path/region operation required `value % 5 == 2`, then reused
+  `value % 5` for five intended font sizes, so its actual distribution was
+  `[0, 0, 25, 0, 0]`. The dispatcher now uses the remainder only for its
+  five-way operation and passes the quotient to every operation. A dedicated
+  coverage probe pins operation counts `33/38/25/36/28`, surface colors
+  `14/19`, mapped error/explicit/implicit-unmap outcomes `18/7/13`, font sizes
+  `3/5/8/5/4`, region widths `11/14`, raster success/failure `27/9`, and stream
+  success/failure `19/9`. This changes no production code, public signature,
+  test total, source-file total, FFI symbol, or publication member.
 - 2026-07-18: Finalizer graph fuzz now proves the reachability of both script
   stream outcomes. A test-first counter exposed that operation dispatch selected
   stream cases only when `value % 5 == 4`, while the stream `WriteError` branch
@@ -612,6 +623,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 
 | Slice | Status | Notes |
 |---|---|---|
+| Finalizer fuzz scenario closure | Done | Finds the five intended font-size variants had collapsed to one because operation and scenario both used modulo five; routes the quotient to every operation; and adds an exact distribution probe for all five operations plus surface, mapped-image, font, region, raster-source, and stream scenario classes. |
 | Finalizer fuzz branch reachability | Done | Separates the five-way operation selector from each operation's scenario selector; adds runtime counters proving the fixed seeds execute both successful and `WriteError` script-device finalization; and turns the previously unreachable claimed error path into 9 of 28 stream cases while preserving all production code and public interfaces. |
 | Strict C stub compilation gate | Done | Compiles all 34 production and 49 oracle C stubs as C11 with `-Wall -Wextra -Wpedantic -Werror` after the generated Cairo flags; requires the exact string in both native-stub manifests; adds parameterized negative layout tests proving that removing any required flag fails the release gate; and keeps the 1.18-only tag-attribute helper behind the same compile guard as its uses so Cairo 1.15.10 remains warning-clean. |
 | Strict MoonBit warning 73 gate | Done | Removes 2,115 compiler-identified unnecessary package qualifiers from 129 external test files, preserving production and public interfaces; upgrades the native check to `--deny-warn --warn-list +73`; and adds a negative reliability-checker mutation proving the old command cannot impersonate the release gate. |

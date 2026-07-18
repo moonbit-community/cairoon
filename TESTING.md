@@ -4550,6 +4550,16 @@ runtime counters prove the fixed seeds execute 19 successful and 9
 passes normally, under host ASan/UBSan, and in both exact-Cairo Linux lanes
 under ASan/LSan/UBSan.
 
+A follow-up exact-distribution counter exposed the same correlation in the
+font/path/region operation: dispatch required `value % 5 == 2`, so reusing that
+remainder for five intended font sizes produced `[0, 0, 25, 0, 0]`. The
+dispatcher now uses the remainder only for operation selection and gives every
+operation the quotient as its local scenario. `FinalizerFuzzCoverage` pins all
+five operation counts plus both surface colors, three mapped-image outcomes,
+five font sizes, two region widths, raster-source success/failure, and script
+stream success/`WriteError`; the exact distributions are recorded in
+`API_INVENTORY.md` and checked in the runtime test.
+
 Exact Linux Cairo 1.15.10 and 1.18.4 each pass 838/838 native tests, 183/183
 script tests, 63/63 executable docs, the source and extracted 1/1 downstream
 consumers, the same unmodified host-generated archive consumer, publication
