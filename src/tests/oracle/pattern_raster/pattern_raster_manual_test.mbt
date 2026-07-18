@@ -34,6 +34,17 @@ fn expect_raster_manual_first_pixel(data : Bytes, color : Int) -> Unit raise {
 }
 
 ///|
+fn expect_raster_manual_distribution(
+  actual : FixedArray[Int],
+  expected : Array[Int],
+) -> Unit raise {
+  inspect(actual.length(), content="\{expected.length()}")
+  for index in 0..<expected.length() {
+    inspect(actual[index], content="\{expected[index]}")
+  }
+}
+
+///|
 fn expect_raster_manual_owner_counts_zero(
   sources : Array[@cairoon.Surface],
   failed_source : @cairoon.Surface,
@@ -70,6 +81,9 @@ test "raster source manual callback multi-seed fuzz keeps owners balanced" {
   let user_release_calls = Ref(0)
   let release_only_calls = Ref(0)
   let dynamic_acquires = Ref(0)
+  let mode_counts = FixedArray::make(8, 0)
+  let mode_color_counts = FixedArray::make(24, 0)
+  let manual_mode_counts = FixedArray::make(8, 0)
 
   for seed_start in [11, 137, 523] {
     let seed = Ref(seed_start)
@@ -79,6 +93,10 @@ test "raster source manual callback multi-seed fuzz keeps owners balanced" {
       let value = next_raster_manual_seed(seed)
       let mode = (value + step) % 8
       let color = (value / 7 + step) % 3
+      mode_counts[mode] = mode_counts[mode] + 1
+      let mode_color_index = mode * 3 + color
+      mode_color_counts[mode_color_index] = mode_color_counts[mode_color_index] +
+        1
       let static_source = sources[color]
 
       if mode == 0 {
@@ -155,6 +173,7 @@ test "raster source manual callback multi-seed fuzz keeps owners balanced" {
         inspect(current_release is Some(_), content="\{use_user_release}")
 
         if !should_fail && step % 3 == 0 {
+          manual_mode_counts[mode] = manual_mode_counts[mode] + 1
           match current_acquire {
             Some(manual_acquire) => {
               let manual_target = @cairoon.Surface::image(
@@ -215,14 +234,21 @@ test "raster source manual callback multi-seed fuzz keeps owners balanced" {
     expect_raster_manual_owner_counts_zero(sources, failed_source)
   }
 
-  inspect(paint_failures.val > 0, content="true")
-  inspect(paint_successes.val > 0, content="true")
-  inspect(manual_acquires.val > 0, content="true")
-  inspect(manual_releases.val > 0, content="true")
-  inspect(acquire_only_manuals.val > 0, content="true")
+  inspect(paint_failures.val, content="14")
+  inspect(paint_successes.val, content="83")
+  inspect(manual_acquires.val, content="25")
+  inspect(manual_releases.val, content="21")
+  inspect(acquire_only_manuals.val, content="4")
   inspect(acquire_calls.val > manual_acquires.val, content="true")
   inspect(user_release_calls.val > 0, content="true")
-  inspect(release_only_calls.val > 0, content="true")
+  inspect(release_only_calls.val, content="26")
   inspect(dynamic_acquires.val > 0, content="true")
+  expect_raster_manual_distribution(mode_counts, [
+    21, 26, 14, 17, 18, 13, 19, 16,
+  ])
+  expect_raster_manual_distribution(mode_color_counts, [
+    6, 7, 8, 12, 7, 7, 4, 6, 4, 7, 6, 4, 3, 7, 8, 4, 3, 6, 7, 1, 11, 6, 6, 4,
+  ])
+  expect_raster_manual_distribution(manual_mode_counts, [0, 0, 0, 6, 4, 1, 7, 7])
   expect_raster_manual_owner_counts_zero(sources, failed_source)
 }

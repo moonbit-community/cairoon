@@ -1169,6 +1169,11 @@ forbidden when it can make a claimed success, error, cleanup, or ownership path
 unreachable. Every claimed path class must increment an explicit runtime
 counter. Fixed-seed finalizer graph suites must assert the exact expected
 counter distribution, not merely that every counter is nonzero.
+Fixed-seed or fixed-step callback fuzz suites whose behavior depends on two
+selectors must also assert the exact flattened cross-distribution (for example,
+operation by status or mode by color). Marginal totals and nonzero assertions
+are insufficient. Keep backend-controlled callback invocation counts out of
+that exact selector contract unless Cairo documents a stable count.
 
 ## Definition Of Done
 

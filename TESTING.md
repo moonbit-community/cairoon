@@ -4560,6 +4560,21 @@ five font sizes, two region widths, raster-source success/failure, and script
 stream success/`WriteError`; the exact distributions are recorded in
 `API_INVENTORY.md` and checked in the runtime test.
 
+The callback-fuzz distribution audit then replayed every fixed stream/raster
+seed and step. It found no additional unreachable branch, but aggregate
+nonzero assertions could not detect the loss of a particular backend/status or
+mode/color pair. The stream suite now asserts all seven operation totals and
+the complete five-writer-by-three-status matrix, including exact totals of 22
+successes, 47 failures, 26 invalid-status fallbacks, 10 successful readers,
+and 17 failed readers. Public raster fuzz pins callback-state, outcome/color,
+and manual-acquire/color profiles. The raster state and manual oracles pin all
+operation/color and mode/color cells plus selector-derived paint and manual
+acquire/release totals. Backend-controlled callback invocation multiplicity
+remains checked relationally because Cairo does not promise a fixed call count.
+The focused stream, public raster, and raster oracle packages pass 2/2, 16/16,
+and 9/9 respectively under host ASan/UBSan and both exact-Cairo Linux
+ASan/LSan/UBSan lanes, without changing the 838-test inventory.
+
 Exact Linux Cairo 1.15.10 and 1.18.4 each pass 838/838 native tests, 183/183
 script tests, 63/63 executable docs, the source and extracted 1/1 downstream
 consumers, the same unmodified host-generated archive consumer, publication

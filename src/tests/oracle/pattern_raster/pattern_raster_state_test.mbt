@@ -26,6 +26,17 @@ fn expect_raster_state_first_pixel(data : Bytes, color : Int) -> Unit raise {
 }
 
 ///|
+fn expect_raster_state_distribution(
+  actual : FixedArray[Int],
+  expected : Array[Int],
+) -> Unit raise {
+  inspect(actual.length(), content="\{expected.length()}")
+  for index in 0..<expected.length() {
+    inspect(actual[index], content="\{expected[index]}")
+  }
+}
+
+///|
 fn expect_raster_state_owner_counts_zero(
   sources : Array[@cairoon.Surface],
   failed_source : @cairoon.Surface,
@@ -59,6 +70,8 @@ test "raster source callback state machine multi-seed fuzz keeps owners balanced
   let failed_paints = Ref(0)
   let successful_paints = Ref(0)
   let dynamic_acquires = Ref(0)
+  let operation_counts = FixedArray::make(7, 0)
+  let operation_color_counts = FixedArray::make(21, 0)
 
   for seed_start in [17, 313, 701, 887] {
     let seed = Ref(seed_start)
@@ -68,6 +81,10 @@ test "raster source callback state machine multi-seed fuzz keeps owners balanced
       let value = next_raster_state_seed(seed)
       let op = value % 7
       let color = (value + step) % 3
+      operation_counts[op] = operation_counts[op] + 1
+      let operation_color_index = op * 3 + color
+      operation_color_counts[operation_color_index] = operation_color_counts[operation_color_index] +
+        1
       if op == 0 {
         pattern.raster_clear_callbacks()
         let (acquire, release) = pattern.raster_get_callbacks()
@@ -179,5 +196,11 @@ test "raster source callback state machine multi-seed fuzz keeps owners balanced
   inspect(user_release_calls.val > 0, content="true")
   inspect(release_only_calls.val > 0, content="true")
   inspect(dynamic_acquires.val > 0, content="true")
+  expect_raster_state_distribution(operation_counts, [
+    45, 41, 36, 33, 54, 34, 45,
+  ])
+  expect_raster_state_distribution(operation_color_counts, [
+    13, 15, 17, 21, 11, 9, 13, 11, 12, 14, 13, 6, 24, 12, 18, 9, 9, 16, 17, 14, 14,
+  ])
   expect_raster_state_owner_counts_zero(sources, failed_source)
 }

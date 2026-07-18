@@ -3639,6 +3639,36 @@ black-box, owner-count, exhaustive transition, manual callback, fuzz, and
 lanes pass all 828 native tests and every package under ASan/LSan/UBSan; the
 Pattern and raster packages require no suppression.
 
+## Deterministic Callback Fuzz Distribution Audit
+
+The 2026-07-18 callback-fuzz replay found no currently unreachable stream or
+raster selector combination, but it did find that four suites could lose an
+individual backend/status or mode/color case while aggregate `> 0` assertions
+continued to pass. Selector-derived coverage is now an exact contract; callback
+invocation multiplicity controlled by linked Cairo remains a semantic
+inequality unless Cairo documents a stable count.
+
+The four-seed stream suite pins operation counts
+`10/20/12/11/16/10/17`. For PDF, PS, SVG, PNG-write, and ScriptDevice rows, the
+flattened Success/WriteError/LastStatus matrix is
+`3/4/3, 8/4/8, 2/4/6, 3/5/3, 6/4/6`; this yields exactly 22 writer successes,
+47 failures, 26 invalid-status fallbacks, 10 successful PNG readers, and 17
+short-read failures. The public 25-step raster suite pins release-only/clear
+installation counts `5/4`, failure/dynamic/static outcomes `5/5/15`, their
+three-color matrix `2/1/2, 2/1/2, 5/6/4`, and manual-acquire colors `2/2/1`.
+
+The four-seed raster state oracle pins seven operation totals
+`45/41/36/33/54/34/45` and all 21 operation/color cells. The three-seed manual
+oracle pins eight mode totals `21/26/14/17/18/13/19/16`, all 24 mode/color
+cells, manual-acquire mode totals `0/0/0/6/4/1/7/7`, and exact semantic
+outcomes: 14 failed paints, 83 successful paints, 25 manual acquires, 21 manual
+releases, 4 acquire-only calls, and 26 release-only calls. These changes touch
+only tests and reliability specifications; production code, public signatures,
+the 349-local-plus-two-direct FFI boundary, and the 838-test inventory remain
+unchanged. The affected packages pass host ASan/UBSan and both exact-Cairo
+Linux lanes under ASan/LSan/UBSan; the full lanes remain at 183 script checks,
+838 native tests, 63 executable-doc tests, and 634 publication members.
+
 ## Downstream Consumer Evidence
 
 The local release gate includes a separately named MoonBit consumer module

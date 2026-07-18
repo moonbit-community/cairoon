@@ -35,6 +35,17 @@ fn expect_pattern_first_pixel(bytes : Bytes, color : Int) -> Unit raise {
 }
 
 ///|
+fn expect_pattern_fuzz_distribution(
+  actual : FixedArray[Int],
+  expected : Array[Int],
+) -> Unit raise {
+  inspect(actual.length(), content="\{expected.length()}")
+  for index in 0..<expected.length() {
+    inspect(actual[index], content="\{expected[index]}")
+  }
+}
+
+///|
 test "raster source deterministic callback fuzz recovers after replacements" {
   let static_red = make_pattern_color_surface(0, 3, 3)
   let static_green = make_pattern_color_surface(1, 3, 3)
@@ -50,10 +61,15 @@ test "raster source deterministic callback fuzz recovers after replacements" {
   let last_extent_width = Ref(0)
   let last_target_width = Ref(0)
   let last_release_width = Ref(0)
+  let callback_state_counts = FixedArray::make(2, 0)
+  let outcome_counts = FixedArray::make(3, 0)
+  let outcome_color_counts = FixedArray::make(9, 0)
+  let manual_color_counts = FixedArray::make(3, 0)
   let pattern = @cairoon.Pattern::raster_source(ContentColorAlpha, 3, 3)
 
   for step in 0..<25 {
     if step % 6 == 0 {
+      callback_state_counts[0] = callback_state_counts[0] + 1
       pattern.raster_set_callbacks(
         release=Some(fn(surface) {
           last_release_width.val = try! surface.get_width()
@@ -67,6 +83,7 @@ test "raster source deterministic callback fuzz recovers after replacements" {
     }
 
     if step % 8 == 0 {
+      callback_state_counts[1] = callback_state_counts[1] + 1
       pattern.raster_clear_callbacks()
       guard pattern.raster_get_acquire() is None else {
         @test.fail("expected raster callbacks to be cleared")
@@ -75,6 +92,18 @@ test "raster source deterministic callback fuzz recovers after replacements" {
 
     let should_fail = step % 5 == 0
     let color = step % 3
+    let use_dynamic_source = !should_fail && step % 4 == 2
+    let outcome = if should_fail {
+      0
+    } else if use_dynamic_source {
+      1
+    } else {
+      2
+    }
+    outcome_counts[outcome] = outcome_counts[outcome] + 1
+    let outcome_color_index = outcome * 3 + color
+    outcome_color_counts[outcome_color_index] = outcome_color_counts[outcome_color_index] +
+      1
     let static_source = match color {
       0 => static_red
       1 => static_green
@@ -87,7 +116,7 @@ test "raster source deterministic callback fuzz recovers after replacements" {
         last_target_width.val = try! target.get_width()
         if should_fail {
           failed_source
-        } else if step % 4 == 2 {
+        } else if use_dynamic_source {
           let source = try! target.create_similar_image(
             Argb32,
             extents.width,
@@ -110,6 +139,7 @@ test "raster source deterministic callback fuzz recovers after replacements" {
     )
 
     if !should_fail && step % 4 == 1 {
+      manual_color_counts[color] = manual_color_counts[color] + 1
       match pattern.raster_get_acquire() {
         Some((acquire, Some(release))) => {
           let target = @cairoon.Surface::image(Argb32, 2, 2)
@@ -153,7 +183,13 @@ test "raster source deterministic callback fuzz recovers after replacements" {
 
   inspect(failed_paints.val, content="5")
   inspect(release_only_installs.val, content="5")
-  inspect(manual_acquires.val > 0, content="true")
+  inspect(manual_acquires.val, content="5")
+  expect_pattern_fuzz_distribution(callback_state_counts, [5, 4])
+  expect_pattern_fuzz_distribution(outcome_counts, [5, 5, 15])
+  expect_pattern_fuzz_distribution(outcome_color_counts, [
+    2, 1, 2, 2, 1, 2, 5, 6, 4,
+  ])
+  expect_pattern_fuzz_distribution(manual_color_counts, [2, 2, 1])
   inspect(acquire_calls.val > release_calls.val, content="true")
   inspect(last_extent_width.val > 0, content="true")
   inspect(last_target_width.val > 0, content="true")
