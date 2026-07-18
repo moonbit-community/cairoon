@@ -14,6 +14,19 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 
 ## Recent Audit Deltas
 
+- 2026-07-19: The pycairo API snapshot is now a complete schema-v2 shape
+  contract rather than a methods-only approximation. It pins 67 public
+  top-level entries, 259 ordinary methods, 39 Python protocols/constructors,
+  206 class attributes, 224 top-level constants, and 178 enum aliases.
+  `scripts/check-api-inventory.py` requires all 39 protocols and all 206
+  attributes to resolve to type-scoped MoonBit constructors, traits, fields,
+  enum variants, functions, constants, structured error payloads, or explicit
+  platform Decisions. Missing `Context::new` and `Matrix.xx` regressions prove
+  the generated interface cannot satisfy the gate by count alone. The archive
+  now requires source-identical snapshot/parser/mapping/checker support. This
+  raises the audited totals to 191/191 script tests, 427 checked source files,
+  and 642 publication members without changing public signatures, native
+  tests, documentation totals, or the production FFI boundary.
 - 2026-07-18: Sanitizer infrastructure is split into cohesive modules instead
   of one 852-line entry point. `run.py` now owns CLI and package orchestration,
   `toolchain.py` owns compiler/runtime isolation and ASan/UBSan/LSan preflights,
@@ -647,7 +660,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 | Scaled fonts | Done | External object, constructor, matrices/options/font-face getters, returned font-face/options lifetime after the source scaled-font scope exits, sheared font/CTM scale-matrix combination coverage, font/text/glyph extents including embedded-NUL validation, empty, single/multi/spaced ASCII, precomposed/decomposed Latin, CJK, Arabic RTL, and emoji UTF-8 text-to-glyph string/coordinate cases with direct C Cairo oracle coverage, targeted normal/ASan gate coverage, executable Font reference docs for matrices/options/metrics/text-to-glyphs/errors, and Context get/set |
 | Python buffer protocol / NumPy / pygame adapters | Decision | Python's buffer protocol and optional NumPy/pygame object adapters are host-runtime integrations, not Cairo APIs. Cairoon exposes checked `FixedArray[Byte]`-backed image construction plus retained `ImageData` access; exact shared-storage, mutable pixel, byte-layout, lifetime, and bounds behavior is tested without adding Python package dependencies or an unsafe unscoped raw-pointer API |
 | Docs | Done | README smoke examples, AGENTS lifecycle/error specifications, package/release/porting guides, and executable family reference notes are present. `scripts/check-public-docs.py` proves substantive MoonBit `///` documentation for all 579 public declarations across the facade and intentionally published support packages, with zero entries in `scripts/public-docs-debt.txt`; executable downstream-style docs cover every API family, including complete PDF/PS/SVG backend workflows and checked errors. New undocumented APIs or ledger drift fail the local and CI verification gate |
-| Tests | Partial | Local portable-scope evidence is complete: exact Cairo 1.15.10 and Cairo 1.18.4 lanes pass 185/185 script tests, 840/840 native tests, 63/63 executable docs, 288 upstream pycairo tests across 20 families, 579/579 documented public declarations, 12/12 raw external owners with exact finalizer and 1000-iteration stress evidence, the 349-local-plus-two-direct production FFI boundary, source and extracted consumers plus the unmodified cross-host archive consumer, all 640 publication members, and every discovered package under ASan/LSan/UBSan. Remaining gap: the unpushed release commit lacks shipped GitHub evidence for Ubuntu and macOS native jobs plus the Ubuntu combined ASan/LSan/UBSan job. Do not close this row until those exact jobs pass on the release commit; local evidence alone cannot close it. |
+| Tests | Partial | Local portable-scope evidence is complete: exact Cairo 1.15.10 and Cairo 1.18.4 lanes pass 191/191 script tests, 840/840 native tests, 63/63 executable docs, 288 upstream pycairo tests across 20 families, 579/579 documented public declarations, 12/12 raw external owners with exact finalizer and 1000-iteration stress evidence, the 349-local-plus-two-direct production FFI boundary, source and extracted consumers plus the unmodified cross-host archive consumer, all 642 publication members, and every discovered package under ASan/LSan/UBSan. Remaining gap: the unpushed release commit lacks shipped GitHub evidence for Ubuntu and macOS native jobs plus the Ubuntu combined ASan/LSan/UBSan job. Do not close this row until those exact jobs pass on the release commit; local evidence alone cannot close it. |
 
 ## Recent Reliability Slices
 
@@ -671,7 +684,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 | Foundational executable reference documentation | Done | Adds focused `src/docs/enums.mbt.md`, `src/docs/status_and_version.mbt.md`, and `src/docs/value_types.mbt.md` references for typed/raw enum boundaries, compile/runtime versions, feature constants, `Status` diagnostics, all four `CairoError` mappings, rectangles, glyphs, clusters, runs, and extents. The external docs package now passes 63/63 tests, while the layout gate and eight focused tests prevent required, executable, or indexed documentation from disappearing. |
 | Raster-source callback transition closure | Done | Adds a six-state, 36-edge exhaustive callback replacement matrix in `src/tests/oracle/pattern_raster`, executing both the replaced and replacement states while checking callback shape, stale callback tokens, successful and failed paint behavior, static/dynamic source pixels, and C-side retained-surface owner counts; the automatically discovered package runs in native and targeted ASan verification |
 | Warning-free native verify gate | Done | Removes reserved-keyword `extend` parameter names from Pattern public/raw FFI wrappers without changing generated public signatures, and upgrades `scripts/verify.sh` so native check, support-package tests, extracted black-box/oracle tests, the full native suite, and targeted clang/ASan test-package runs use `--deny-warn`; the GitHub failure at `e644b9a` was an older PDF tag stream equality oracle, already stabilized locally by PDF marker-based stream tests and PS/SVG-only byte equivalence |
-| Top-level and portable method inventory parity | Done | Extends `scripts/check-api-inventory.py` in `scripts/verify.sh`; the script parses parent `cairo/__init__.pyi`, requires every public top-level pycairo class/function to have an implementation or explicit product-decision anchor in this inventory, and requires every portable pycairo class method in the first-product scope to have a public MoonBit API anchor in `src/pkg.generated.mbti` |
+| Complete pycairo API-shape inventory parity | Done | Extends `scripts/check-api-inventory.py` in `scripts/verify.sh`; schema v2 parses parent `cairo/__init__.pyi` or its pinned standalone snapshot and requires every public top-level entry, portable ordinary method, Python protocol/constructor, class attribute, top-level constant, and enum alias to have exact public MoonBit evidence or an explicit product Decision. Type-scoped enum/field checks include the separately owned Glyph interface and prevent same-named members on another type from satisfying the gate. |
 | Black-box test package extraction probe | Done | Moves version-helper tests into `src/tests/api`, proving external test packages can import the stable `CAIMEOX/cairoon` public package while preserving `moon.mod source = "src"`; `scripts/check-project-layout.py` rejects root-level MoonBit test packages and rejects repeated `cc-link-flags`, while module-level native configuration links external cairoon tests |
 | Core API black-box package expansion | Done | Moves enum and pycairo `test_api.py` smoke/lifetime tests into `src/tests/api`, proving public constructors, constants, methods, and smoke/lifetime behavior work from an external MoonBit package |
 | API family package split | Done | Splits API tests into `src/tests/api/{version,enums,pycairo}`, leaving `src/tests/api` as a pure directory container while preserving the 1 version, 4 enum/format, and 8 pycairo `test_api.py` fixtures through separately linked published-API black-box packages |
@@ -1037,8 +1050,9 @@ Detailed execution rules live in `TESTING.md`.
   full-product claim.
 - `scripts/check-api-inventory.py` must pass; every public top-level entry in
   parent `cairo/__init__.pyi` must have an implementation or product-decision
-  anchor in this file, and every portable pycairo class method must have a
-  public MoonBit API anchor in `src/pkg.generated.mbti`.
+  anchor in this file, and every portable ordinary method, Python
+  protocol/constructor, and class attribute must have exact public MoonBit
+  evidence or an explicit platform Decision.
 - Each Done row must have black-box MoonBit tests and, where rendering is
   involved, deterministic pixel or vector-output assertions.
 - Rendering APIs must gain differential tests against pycairo or Cairo C

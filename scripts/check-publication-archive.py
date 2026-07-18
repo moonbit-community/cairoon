@@ -16,10 +16,15 @@ REQUIRED_MEMBERS = frozenset(
         "COPYING",
         "COPYING-LGPL-2.1",
         "COPYING-MPL-1.1",
+        "API_INVENTORY.md",
         "README.md",
         "moon.mod",
+        "scripts/api/attribute_mappings.py",
+        "scripts/api/protocol_mappings.py",
         "scripts/api/pycairo-api-snapshot.json",
+        "scripts/api/snapshot.py",
         "scripts/build/cairo_config.py",
+        "scripts/check-api-inventory.py",
         "scripts/check-external-owners.py",
         "scripts/lifetime/owners.json",
         "src/README.mbt.md",
@@ -47,8 +52,10 @@ REQUIRED_TEXT_MARKERS = {
         'supported_targets = "native"',
     ),
     "scripts/api/pycairo-api-snapshot.json": (
-        '"schema_version": 1',
+        '"schema_version": 2',
         '"path": "cairo/__init__.pyi"',
+        '"protocols": {',
+        '"attributes": {',
     ),
 }
 REQUIRED_SHA256 = {
@@ -61,6 +68,12 @@ REQUIRED_SHA256 = {
 }
 SOURCE_IDENTICAL_MEMBERS = frozenset(
     {
+        "API_INVENTORY.md",
+        "scripts/api/attribute_mappings.py",
+        "scripts/api/protocol_mappings.py",
+        "scripts/api/pycairo-api-snapshot.json",
+        "scripts/api/snapshot.py",
+        "scripts/check-api-inventory.py",
         "scripts/check-external-owners.py",
         "scripts/lifetime/owners.json",
     }

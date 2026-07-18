@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "upstream": {
     "repository": "https://github.com/pygobject/pycairo",
     "commit": "80ea3348aff95e8441e6c3e2086371ea40528d81",
@@ -388,6 +388,391 @@
       "get_depth",
       "get_height",
       "get_width"
+    ]
+  },
+  "protocols": {
+    "Context": [
+      "__init__"
+    ],
+    "Device": [
+      "__enter__"
+    ],
+    "FontOptions": [
+      "__init__"
+    ],
+    "Glyph": [
+      "__init__"
+    ],
+    "ImageSurface": [
+      "__init__"
+    ],
+    "LinearGradient": [
+      "__init__"
+    ],
+    "Matrix": [
+      "__getitem__",
+      "__init__",
+      "__mul__"
+    ],
+    "MeshPattern": [
+      "__init__"
+    ],
+    "PDFSurface": [
+      "__init__"
+    ],
+    "PSSurface": [
+      "__init__"
+    ],
+    "Path": [
+      "__eq__",
+      "__ge__",
+      "__gt__",
+      "__iter__",
+      "__le__",
+      "__lt__",
+      "__ne__"
+    ],
+    "RadialGradient": [
+      "__init__"
+    ],
+    "RasterSourcePattern": [
+      "__init__"
+    ],
+    "RecordingSurface": [
+      "__init__"
+    ],
+    "Rectangle": [
+      "__init__"
+    ],
+    "RectangleInt": [
+      "__init__"
+    ],
+    "Region": [
+      "__init__"
+    ],
+    "SVGSurface": [
+      "__init__"
+    ],
+    "ScaledFont": [
+      "__init__"
+    ],
+    "ScriptDevice": [
+      "__init__"
+    ],
+    "ScriptSurface": [
+      "__init__"
+    ],
+    "SolidPattern": [
+      "__init__"
+    ],
+    "Surface": [
+      "__enter__"
+    ],
+    "SurfacePattern": [
+      "__init__"
+    ],
+    "TeeSurface": [
+      "__init__"
+    ],
+    "TextCluster": [
+      "__init__"
+    ],
+    "TextExtents": [
+      "__init__"
+    ],
+    "ToyFontFace": [
+      "__init__"
+    ],
+    "Win32PrintingSurface": [
+      "__init__"
+    ],
+    "Win32Surface": [
+      "__init__"
+    ],
+    "XCBSurface": [
+      "__init__"
+    ]
+  },
+  "attributes": {
+    "Antialias": [
+      "BEST",
+      "DEFAULT",
+      "FAST",
+      "GOOD",
+      "GRAY",
+      "NONE",
+      "SUBPIXEL"
+    ],
+    "ColorMode": [
+      "COLOR",
+      "DEFAULT",
+      "NO_COLOR"
+    ],
+    "Content": [
+      "ALPHA",
+      "COLOR",
+      "COLOR_ALPHA"
+    ],
+    "Dither": [
+      "BEST",
+      "DEFAULT",
+      "FAST",
+      "GOOD",
+      "NONE"
+    ],
+    "Error": [
+      "status"
+    ],
+    "Extend": [
+      "NONE",
+      "PAD",
+      "REFLECT",
+      "REPEAT"
+    ],
+    "FillRule": [
+      "EVEN_ODD",
+      "WINDING"
+    ],
+    "Filter": [
+      "BEST",
+      "BILINEAR",
+      "FAST",
+      "GAUSSIAN",
+      "GOOD",
+      "NEAREST"
+    ],
+    "FontSlant": [
+      "ITALIC",
+      "NORMAL",
+      "OBLIQUE"
+    ],
+    "FontWeight": [
+      "BOLD",
+      "NORMAL"
+    ],
+    "Format": [
+      "A1",
+      "A8",
+      "ARGB32",
+      "INVALID",
+      "RGB16_565",
+      "RGB24",
+      "RGB30",
+      "RGB96F",
+      "RGBA128F"
+    ],
+    "Glyph": [
+      "index",
+      "x",
+      "y"
+    ],
+    "HintMetrics": [
+      "DEFAULT",
+      "OFF",
+      "ON"
+    ],
+    "HintStyle": [
+      "DEFAULT",
+      "FULL",
+      "MEDIUM",
+      "NONE",
+      "SLIGHT"
+    ],
+    "ImageSurface": [
+      "format_stride_for_width"
+    ],
+    "LineCap": [
+      "BUTT",
+      "ROUND",
+      "SQUARE"
+    ],
+    "LineJoin": [
+      "BEVEL",
+      "MITER",
+      "ROUND"
+    ],
+    "Matrix": [
+      "x0",
+      "xx",
+      "xy",
+      "y0",
+      "yx",
+      "yy"
+    ],
+    "Operator": [
+      "ADD",
+      "ATOP",
+      "CLEAR",
+      "COLOR_BURN",
+      "COLOR_DODGE",
+      "DARKEN",
+      "DEST",
+      "DEST_ATOP",
+      "DEST_IN",
+      "DEST_OUT",
+      "DEST_OVER",
+      "DIFFERENCE",
+      "EXCLUSION",
+      "HARD_LIGHT",
+      "HSL_COLOR",
+      "HSL_HUE",
+      "HSL_LUMINOSITY",
+      "HSL_SATURATION",
+      "IN",
+      "LIGHTEN",
+      "MULTIPLY",
+      "OUT",
+      "OVER",
+      "OVERLAY",
+      "SATURATE",
+      "SCREEN",
+      "SOFT_LIGHT",
+      "SOURCE",
+      "XOR"
+    ],
+    "PDFMetadata": [
+      "AUTHOR",
+      "CREATE_DATE",
+      "CREATOR",
+      "KEYWORDS",
+      "MOD_DATE",
+      "SUBJECT",
+      "TITLE"
+    ],
+    "PDFOutlineFlags": [
+      "BOLD",
+      "ITALIC",
+      "OPEN"
+    ],
+    "PDFVersion": [
+      "VERSION_1_4",
+      "VERSION_1_5",
+      "VERSION_1_6",
+      "VERSION_1_7"
+    ],
+    "PSLevel": [
+      "LEVEL_2",
+      "LEVEL_3"
+    ],
+    "PSSurface": [
+      "ps_level_to_string"
+    ],
+    "PathDataType": [
+      "CLOSE_PATH",
+      "CURVE_TO",
+      "LINE_TO",
+      "MOVE_TO"
+    ],
+    "Rectangle": [
+      "height",
+      "width",
+      "x",
+      "y"
+    ],
+    "RectangleInt": [
+      "height",
+      "width",
+      "x",
+      "y"
+    ],
+    "RegionOverlap": [
+      "IN",
+      "OUT",
+      "PART"
+    ],
+    "SVGUnit": [
+      "CM",
+      "EM",
+      "EX",
+      "IN",
+      "MM",
+      "PC",
+      "PERCENT",
+      "PT",
+      "PX",
+      "USER"
+    ],
+    "SVGVersion": [
+      "VERSION_1_1",
+      "VERSION_1_2"
+    ],
+    "ScriptMode": [
+      "ASCII",
+      "BINARY"
+    ],
+    "Status": [
+      "CLIP_NOT_REPRESENTABLE",
+      "DEVICE_ERROR",
+      "DEVICE_FINISHED",
+      "DEVICE_TYPE_MISMATCH",
+      "DWRITE_ERROR",
+      "FILE_NOT_FOUND",
+      "FONT_TYPE_MISMATCH",
+      "FREETYPE_ERROR",
+      "INVALID_CLUSTERS",
+      "INVALID_CONTENT",
+      "INVALID_DASH",
+      "INVALID_DSC_COMMENT",
+      "INVALID_FORMAT",
+      "INVALID_INDEX",
+      "INVALID_MATRIX",
+      "INVALID_MESH_CONSTRUCTION",
+      "INVALID_PATH_DATA",
+      "INVALID_POP_GROUP",
+      "INVALID_RESTORE",
+      "INVALID_SIZE",
+      "INVALID_SLANT",
+      "INVALID_STATUS",
+      "INVALID_STRIDE",
+      "INVALID_STRING",
+      "INVALID_VISUAL",
+      "INVALID_WEIGHT",
+      "JBIG2_GLOBAL_MISSING",
+      "LAST_STATUS",
+      "NEGATIVE_COUNT",
+      "NO_CURRENT_POINT",
+      "NO_MEMORY",
+      "NULL_POINTER",
+      "PATTERN_TYPE_MISMATCH",
+      "PNG_ERROR",
+      "READ_ERROR",
+      "SUCCESS",
+      "SURFACE_FINISHED",
+      "SURFACE_TYPE_MISMATCH",
+      "SVG_FONT_ERROR",
+      "TAG_ERROR",
+      "TEMP_FILE_ERROR",
+      "USER_FONT_ERROR",
+      "USER_FONT_IMMUTABLE",
+      "USER_FONT_NOT_IMPLEMENTED",
+      "WIN32_GDI_ERROR",
+      "WRITE_ERROR"
+    ],
+    "SubpixelOrder": [
+      "BGR",
+      "DEFAULT",
+      "RGB",
+      "VBGR",
+      "VRGB"
+    ],
+    "SurfaceObserverMode": [
+      "NORMAL",
+      "RECORD_OPERATIONS"
+    ],
+    "TextCluster": [
+      "num_bytes",
+      "num_glyphs"
+    ],
+    "TextClusterFlags": [
+      "BACKWARD"
+    ],
+    "TextExtents": [
+      "height",
+      "width",
+      "x_advance",
+      "x_bearing",
+      "y_advance",
+      "y_bearing"
     ]
   },
   "constants": [

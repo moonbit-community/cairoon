@@ -14,6 +14,8 @@ SNAPSHOT_FIELDS = {
     "upstream",
     "top_level",
     "methods",
+    "protocols",
+    "attributes",
     "constants",
     "enum_aliases",
 }
@@ -21,10 +23,19 @@ SNAPSHOT_UPSTREAM_FIELDS = {"repository", "commit", "path", "sha256"}
 EXPECTED_SNAPSHOT_COUNTS = {
     "top_level": 67,
     "methods": 259,
+    "protocols": 39,
+    "attributes": 206,
     "constants": 224,
     "enum_aliases": 178,
 }
-ApiShape = tuple[set[str], dict[str, set[str]], set[str], set[str]]
+ApiShape = tuple[
+    set[str],
+    dict[str, set[str]],
+    dict[str, set[str]],
+    dict[str, set[str]],
+    set[str],
+    set[str],
+]
 
 
 def parse_pycairo_api(stub_path: pathlib.Path) -> ApiShape:
@@ -36,10 +47,14 @@ def parse_pycairo_api(stub_path: pathlib.Path) -> ApiShape:
         and not node.name.startswith("_")
     }
     methods: dict[str, set[str]] = {}
+    protocols: dict[str, set[str]] = {}
+    attributes: dict[str, set[str]] = {}
     constants: set[str] = set()
     enum_aliases: set[str] = set()
     for node in module.body:
         if isinstance(node, ast.ClassDef):
+            if node.name.startswith("_"):
+                continue
             public_methods = {
                 item.name
                 for item in node.body
@@ -48,6 +63,31 @@ def parse_pycairo_api(stub_path: pathlib.Path) -> ApiShape:
             }
             if public_methods:
                 methods[node.name] = public_methods
+            public_protocols = {
+                item.name
+                for item in node.body
+                if isinstance(item, (ast.FunctionDef, ast.AsyncFunctionDef))
+                and item.name.startswith("__")
+                and item.name.endswith("__")
+            }
+            if public_protocols:
+                protocols[node.name] = public_protocols
+            public_attributes: set[str] = set()
+            for item in node.body:
+                if isinstance(item, ast.AnnAssign) and isinstance(
+                    item.target, ast.Name
+                ):
+                    if not item.target.id.startswith("_"):
+                        public_attributes.add(item.target.id)
+                elif isinstance(item, ast.Assign):
+                    public_attributes.update(
+                        target.id
+                        for target in item.targets
+                        if isinstance(target, ast.Name)
+                        and not target.id.startswith("_")
+                    )
+            if public_attributes:
+                attributes[node.name] = public_attributes
         elif isinstance(node, ast.AnnAssign) and isinstance(node.target, ast.Name):
             if not node.target.id.startswith("_"):
                 constants.add(node.target.id)
@@ -64,7 +104,7 @@ def parse_pycairo_api(stub_path: pathlib.Path) -> ApiShape:
                 and node.value.value.id in top_level
             ):
                 enum_aliases.update(public_names)
-    return top_level, methods, constants, enum_aliases
+    return top_level, methods, protocols, attributes, constants, enum_aliases
 
 
 def reject_duplicate_keys(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
@@ -89,10 +129,12 @@ def sorted_string_set(owner: str, value: Any) -> set[str]:
 
 
 def shape_counts(shape: ApiShape) -> dict[str, int]:
-    top_level, methods, constants, enum_aliases = shape
+    top_level, methods, protocols, attributes, constants, enum_aliases = shape
     return {
         "top_level": len(top_level),
         "methods": sum(len(names) for names in methods.values()),
+        "protocols": sum(len(names) for names in protocols.values()),
+        "attributes": sum(len(names) for names in attributes.values()),
         "constants": len(constants),
         "enum_aliases": len(enum_aliases),
     }
@@ -121,8 +163,8 @@ def load_api_snapshot(path: pathlib.Path) -> tuple[ApiShape, str]:
         raise ValueError(
             f"{path}: API snapshot fields must be {sorted(SNAPSHOT_FIELDS)!r}"
         )
-    if payload.get("schema_version") != 1:
-        raise ValueError(f"{path}: API snapshot schema_version must be 1")
+    if payload.get("schema_version") != 2:
+        raise ValueError(f"{path}: API snapshot schema_version must be 2")
 
     upstream = payload.get("upstream")
     if not isinstance(upstream, dict) or set(upstream) != SNAPSHOT_UPSTREAM_FIELDS:
@@ -167,11 +209,47 @@ def load_api_snapshot(path: pathlib.Path) -> tuple[ApiShape, str]:
     }
     if len(methods) != len(methods_value):
         raise ValueError(f"{path}: method class names must be non-empty strings")
-    if not set(methods).issubset(top_level):
-        raise ValueError(f"{path}: method classes must be public top-level APIs")
+    protocols_value = payload.get("protocols")
+    if not isinstance(protocols_value, dict):
+        raise ValueError(f"{path}: protocols must be an object")
+    if list(protocols_value) != sorted(protocols_value):
+        raise ValueError(f"{path}: protocol classes must be sorted")
+    protocols = {
+        class_name: sorted_string_set(
+            f"{path}: protocols.{class_name}", protocol_names
+        )
+        for class_name, protocol_names in protocols_value.items()
+        if isinstance(class_name, str) and class_name
+    }
+    if len(protocols) != len(protocols_value):
+        raise ValueError(f"{path}: protocol class names must be non-empty strings")
+    attributes_value = payload.get("attributes")
+    if not isinstance(attributes_value, dict):
+        raise ValueError(f"{path}: attributes must be an object")
+    if list(attributes_value) != sorted(attributes_value):
+        raise ValueError(f"{path}: attribute classes must be sorted")
+    attributes = {
+        class_name: sorted_string_set(
+            f"{path}: attributes.{class_name}", attribute_names
+        )
+        for class_name, attribute_names in attributes_value.items()
+        if isinstance(class_name, str) and class_name
+    }
+    if len(attributes) != len(attributes_value):
+        raise ValueError(f"{path}: attribute class names must be non-empty strings")
+    class_maps = {
+        "method": methods,
+        "protocol": protocols,
+        "attribute": attributes,
+    }
+    for label, class_map in class_maps.items():
+        if not set(class_map).issubset(top_level):
+            raise ValueError(
+                f"{path}: {label} classes must be public top-level APIs"
+            )
     if not enum_aliases.issubset(constants):
         raise ValueError(f"{path}: enum_aliases must be a subset of constants")
-    shape = top_level, methods, constants, enum_aliases
+    shape = top_level, methods, protocols, attributes, constants, enum_aliases
     require_expected_counts(path, shape)
     return shape, expected_digest
 
@@ -188,9 +266,9 @@ def write_api_snapshot(
         raise ValueError("upstream commit must be a 40-character lowercase Git hash")
     shape = parse_pycairo_api(stub_path)
     require_expected_counts(stub_path, shape)
-    top_level, methods, constants, enum_aliases = shape
+    top_level, methods, protocols, attributes, constants, enum_aliases = shape
     payload = {
-        "schema_version": 1,
+        "schema_version": 2,
         "upstream": {
             "repository": "https://github.com/pygobject/pycairo",
             "commit": upstream_commit,
@@ -201,6 +279,14 @@ def write_api_snapshot(
         "methods": {
             class_name: sorted(method_names)
             for class_name, method_names in sorted(methods.items())
+        },
+        "protocols": {
+            class_name: sorted(protocol_names)
+            for class_name, protocol_names in sorted(protocols.items())
+        },
+        "attributes": {
+            class_name: sorted(attribute_names)
+            for class_name, attribute_names in sorted(attributes.items())
         },
         "constants": sorted(constants),
         "enum_aliases": sorted(enum_aliases),

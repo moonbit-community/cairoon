@@ -12,6 +12,15 @@ SCRIPT_ROOT = pathlib.Path(__file__).resolve().parent
 if str(SCRIPT_ROOT) not in sys.path:
     sys.path.insert(0, str(SCRIPT_ROOT))
 
+from api.attribute_mappings import (
+    PUBLIC_ATTRIBUTE_API_ANCHORS,
+    PUBLIC_ATTRIBUTE_MEMBERS,
+    parse_public_type_members,
+)
+from api.protocol_mappings import (
+    PROTOCOL_DECISION_ANCHORS,
+    PUBLIC_PROTOCOL_ANCHORS,
+)
 from api.snapshot import load_pycairo_api, write_api_snapshot
 
 
@@ -20,6 +29,8 @@ PYCAIRO_STUB = REPO_ROOT.parent / "cairo" / "__init__.pyi"
 PYCAIRO_API_SNAPSHOT = REPO_ROOT / "scripts" / "api" / "pycairo-api-snapshot.json"
 INVENTORY = REPO_ROOT / "API_INVENTORY.md"
 GENERATED_MBTI = REPO_ROOT / "src" / "pkg.generated.mbti"
+GLYPH_MBTI = REPO_ROOT / "src" / "core" / "glyph" / "pkg.generated.mbti"
+DEFAULT_PUBLIC_APIS = (GENERATED_MBTI, GLYPH_MBTI)
 
 # Each public top-level pycairo class/function must have at least one inventory
 # anchor recording either its cairoon implementation or an explicit product
@@ -519,7 +530,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         "--snapshot", type=pathlib.Path, default=PYCAIRO_API_SNAPSHOT
     )
     parser.add_argument("--inventory", type=pathlib.Path, default=INVENTORY)
-    parser.add_argument("--public-api", type=pathlib.Path, default=GENERATED_MBTI)
+    parser.add_argument("--public-api", type=pathlib.Path, action="append")
     parser.add_argument("--update-snapshot", action="store_true")
     parser.add_argument("--upstream-commit")
     return parser.parse_args(argv)
@@ -536,23 +547,35 @@ def main(argv: list[str] | None = None) -> int:
         except (OSError, SyntaxError, ValueError) as exc:
             print(exc, file=sys.stderr)
             return 1
-        names, methods, constants, _ = shape
+        names, methods, protocols, attributes, constants, _ = shape
         print(
             f"Wrote {args.snapshot} with {len(names)} top-level entries, "
             f"{len(constants)} constants, and "
-            f"{sum(len(items) for items in methods.values())} class methods"
+            f"{sum(len(items) for items in methods.values())} class methods, "
+            f"{sum(len(items) for items in protocols.values())} protocols, and "
+            f"{sum(len(items) for items in attributes.values())} class attributes"
         )
         return 0
     try:
-        stub_names, stub_methods, stub_constants, enum_alias_constants = (
-            load_pycairo_api(args.stub, args.snapshot)
-        )
+        (
+            stub_names,
+            stub_methods,
+            stub_protocols,
+            stub_attributes,
+            stub_constants,
+            enum_alias_constants,
+        ) = load_pycairo_api(args.stub, args.snapshot)
         inventory = args.inventory.read_text(encoding="utf-8")
-        public_api = args.public_api.read_text(encoding="utf-8")
+        public_api_paths = tuple(args.public_api or DEFAULT_PUBLIC_APIS)
+        public_api = "\n".join(
+            path.read_text(encoding="utf-8") for path in public_api_paths
+        )
+        public_type_members = parse_public_type_members(public_api)
     except (OSError, SyntaxError, ValueError) as exc:
         print(exc, file=sys.stderr)
         return 1
     source_label = args.stub if args.stub.is_file() else args.snapshot
+    public_api_label = ", ".join(str(path) for path in public_api_paths)
     expected_names = set(EXPECTED_ANCHORS)
 
     errors: list[str] = []
@@ -590,9 +613,104 @@ def main(argv: list[str] | None = None) -> int:
             for anchor in method_anchors[method]:
                 if anchor not in public_api:
                     errors.append(
-                        f"{args.public_api}: public API anchor {anchor!r} for "
+                        f"{public_api_label}: public API anchor {anchor!r} for "
                         f"pycairo method '{class_name}.{method}' is missing"
                     )
+    actual_protocol_keys = {
+        (class_name, protocol)
+        for class_name, protocols in stub_protocols.items()
+        for protocol in protocols
+    }
+    public_protocol_keys = {
+        (class_name, protocol)
+        for class_name, protocols in PUBLIC_PROTOCOL_ANCHORS.items()
+        for protocol in protocols
+    }
+    decision_protocol_keys = {
+        (class_name, protocol)
+        for class_name, protocols in PROTOCOL_DECISION_ANCHORS.items()
+        for protocol in protocols
+    }
+    mapped_protocol_keys = public_protocol_keys | decision_protocol_keys
+    for class_name, protocol in sorted(actual_protocol_keys - mapped_protocol_keys):
+        errors.append(
+            f"{source_label}: pycairo protocol '{class_name}.{protocol}' has no "
+            "portable mapping or product Decision"
+        )
+    for class_name, protocol in sorted(mapped_protocol_keys - actual_protocol_keys):
+        errors.append(
+            f"{args.inventory}: protocol mapping '{class_name}.{protocol}' is "
+            "no longer in pycairo stub"
+        )
+    for class_name, protocol in sorted(actual_protocol_keys & public_protocol_keys):
+        for anchor in PUBLIC_PROTOCOL_ANCHORS[class_name][protocol]:
+            if anchor not in public_api:
+                errors.append(
+                    f"{public_api_label}: public API anchor {anchor!r} for "
+                    f"pycairo protocol '{class_name}.{protocol}' is missing"
+                )
+    for class_name, protocol in sorted(actual_protocol_keys & decision_protocol_keys):
+        for anchor in PROTOCOL_DECISION_ANCHORS[class_name][protocol]:
+            if anchor not in inventory:
+                errors.append(
+                    f"{args.inventory}: Decision anchor {anchor!r} for "
+                    f"pycairo protocol '{class_name}.{protocol}' is missing"
+                )
+    actual_attribute_keys = {
+        (class_name, attribute)
+        for class_name, attributes in stub_attributes.items()
+        for attribute in attributes
+    }
+    member_attribute_keys = {
+        (class_name, attribute)
+        for class_name, attributes in PUBLIC_ATTRIBUTE_MEMBERS.items()
+        for attribute in attributes
+    }
+    api_attribute_keys = {
+        (class_name, attribute)
+        for class_name, attributes in PUBLIC_ATTRIBUTE_API_ANCHORS.items()
+        for attribute in attributes
+    }
+    mapped_attribute_keys = member_attribute_keys | api_attribute_keys
+    for class_name, attribute in sorted(
+        member_attribute_keys & api_attribute_keys
+    ):
+        errors.append(
+            f"attribute mapping '{class_name}.{attribute}' has both member and "
+            "API-anchor evidence"
+        )
+    for class_name, attribute in sorted(
+        actual_attribute_keys - mapped_attribute_keys
+    ):
+        errors.append(
+            f"{source_label}: pycairo class attribute "
+            f"'{class_name}.{attribute}' has no public API mapping"
+        )
+    for class_name, attribute in sorted(
+        mapped_attribute_keys - actual_attribute_keys
+    ):
+        errors.append(
+            f"{args.inventory}: class attribute mapping "
+            f"'{class_name}.{attribute}' is no longer in pycairo stub"
+        )
+    for class_name, attribute in sorted(
+        actual_attribute_keys & member_attribute_keys
+    ):
+        type_name, member = PUBLIC_ATTRIBUTE_MEMBERS[class_name][attribute]
+        if member not in public_type_members.get(type_name, set()):
+            errors.append(
+                f"{public_api_label}: public member '{type_name}.{member}' for "
+                f"pycairo class attribute '{class_name}.{attribute}' is missing"
+            )
+    for class_name, attribute in sorted(
+        actual_attribute_keys & api_attribute_keys
+    ):
+        for anchor in PUBLIC_ATTRIBUTE_API_ANCHORS[class_name][attribute]:
+            if anchor not in public_api:
+                errors.append(
+                    f"{public_api_label}: public API anchor {anchor!r} for "
+                    f"pycairo class attribute '{class_name}.{attribute}' is missing"
+                )
     for name in sorted(stub_constants):
         anchors = public_constant_inventory_anchors(name)
         if anchors is None:
@@ -613,7 +731,7 @@ def main(argv: list[str] | None = None) -> int:
         for public_anchor in public_constant_api_anchors(name):
             if public_anchor not in public_api:
                 errors.append(
-                    f"{args.public_api}: public API anchor {public_anchor!r} "
+                    f"{public_api_label}: public API anchor {public_anchor!r} "
                     f"for pycairo constant or alias '{name}' is missing"
                 )
 
@@ -622,10 +740,13 @@ def main(argv: list[str] | None = None) -> int:
             print(error, file=sys.stderr)
         return 1
     method_count = sum(len(stub_methods.get(name, set())) for name in PUBLIC_METHOD_ANCHORS)
+    protocol_count = sum(len(protocols) for protocols in stub_protocols.values())
+    attribute_count = sum(len(attributes) for attributes in stub_attributes.values())
     print(
         f"API inventory covers {len(stub_names)} pycairo top-level entries, "
         f"{len(stub_constants)} top-level constants, and "
-        f"{method_count} portable class methods"
+        f"{method_count} portable class methods, plus "
+        f"{protocol_count} class protocols and {attribute_count} class attributes"
     )
     return 0
 

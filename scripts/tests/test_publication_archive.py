@@ -17,16 +17,29 @@ VALID_MEMBERS = {
     "COPYING": (REPO_ROOT / "COPYING").read_bytes(),
     "COPYING-LGPL-2.1": (REPO_ROOT / "COPYING-LGPL-2.1").read_bytes(),
     "COPYING-MPL-1.1": (REPO_ROOT / "COPYING-MPL-1.1").read_bytes(),
+    "API_INVENTORY.md": (REPO_ROOT / "API_INVENTORY.md").read_bytes(),
     "README.md": b"# example\n",
     "moon.mod": (
         b'license = "LGPL-2.1-only OR MPL-1.1"\n'
         b'preferred_target = "native"\n'
         b'supported_targets = "native"\n'
     ),
+    "scripts/api/attribute_mappings.py": (
+        REPO_ROOT / "scripts" / "api" / "attribute_mappings.py"
+    ).read_bytes(),
+    "scripts/api/protocol_mappings.py": (
+        REPO_ROOT / "scripts" / "api" / "protocol_mappings.py"
+    ).read_bytes(),
     "scripts/api/pycairo-api-snapshot.json": (
         REPO_ROOT / "scripts" / "api" / "pycairo-api-snapshot.json"
     ).read_bytes(),
+    "scripts/api/snapshot.py": (
+        REPO_ROOT / "scripts" / "api" / "snapshot.py"
+    ).read_bytes(),
     "scripts/build/cairo_config.py": b"# build config\n",
+    "scripts/check-api-inventory.py": (
+        REPO_ROOT / "scripts" / "check-api-inventory.py"
+    ).read_bytes(),
     "scripts/check-external-owners.py": (
         REPO_ROOT / "scripts" / "check-external-owners.py"
     ).read_bytes(),
@@ -144,6 +157,18 @@ class PublicationArchiveCheckerTests(unittest.TestCase):
 
         self.assertTrue(
             any("scripts/api/pycairo-api-snapshot.json" in error for error in errors),
+            errors,
+        )
+
+    def test_missing_api_mapping_support_fails(self) -> None:
+        members = dict(VALID_MEMBERS)
+        del members["scripts/api/attribute_mappings.py"]
+        self.write_archive(members, include_required=False)
+
+        errors, _ = self.check()
+
+        self.assertTrue(
+            any("scripts/api/attribute_mappings.py" in error for error in errors),
             errors,
         )
 

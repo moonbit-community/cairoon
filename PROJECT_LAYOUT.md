@@ -119,6 +119,11 @@ cairoon/
           moon.pkg
           consumer_smoke_test.mbt
   scripts/
+    api/
+      attribute_mappings.py
+      protocol_mappings.py
+      pycairo-api-snapshot.json
+      snapshot.py
     lifetime/
       owners.json
     matrix/

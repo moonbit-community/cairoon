@@ -7,6 +7,8 @@ import hashlib
 import importlib.util
 import json
 import pathlib
+import subprocess
+import sys
 import tempfile
 import unittest
 
@@ -15,6 +17,10 @@ REPO_ROOT = pathlib.Path(__file__).resolve().parents[2]
 MODULE_PATH = REPO_ROOT / "scripts" / "api" / "snapshot.py"
 SNAPSHOT_PATH = REPO_ROOT / "scripts" / "api" / "pycairo-api-snapshot.json"
 PYCAIRO_STUB = REPO_ROOT.parent / "cairo" / "__init__.pyi"
+CHECKER_PATH = REPO_ROOT / "scripts" / "check-api-inventory.py"
+INVENTORY_PATH = REPO_ROOT / "API_INVENTORY.md"
+PUBLIC_API_PATH = REPO_ROOT / "src" / "pkg.generated.mbti"
+GLYPH_API_PATH = REPO_ROOT / "src" / "core" / "glyph" / "pkg.generated.mbti"
 UPSTREAM_COMMIT = "80ea3348aff95e8441e6c3e2086371ea40528d81"
 
 
@@ -53,23 +59,33 @@ class ApiInventorySnapshotTests(unittest.TestCase):
         payload = self.committed_payload()
         top_level = payload["top_level"]
         methods = payload["methods"]
+        protocols = payload["protocols"]
+        attributes = payload["attributes"]
         constants = payload["constants"]
         enum_aliases = payload["enum_aliases"]
         assert isinstance(top_level, list)
         assert isinstance(methods, dict)
+        assert isinstance(protocols, dict)
+        assert isinstance(attributes, dict)
         assert isinstance(constants, list)
         assert isinstance(enum_aliases, list)
 
         lines: list[str] = []
         for name in top_level:
             assert isinstance(name, str)
-            class_methods = methods.get(name)
-            if class_methods is None:
+            class_methods = methods.get(name, [])
+            class_protocols = protocols.get(name, [])
+            class_attributes = attributes.get(name, [])
+            if not class_methods and not class_protocols and not class_attributes:
                 lines.extend((f"def {name}(): ...", ""))
                 continue
             assert isinstance(class_methods, list)
+            assert isinstance(class_protocols, list)
+            assert isinstance(class_attributes, list)
             lines.append(f"class {name}:")
+            lines.extend(f"    {attribute}: int = ..." for attribute in class_attributes)
             lines.extend(f"    def {method}(self): ..." for method in class_methods)
+            lines.extend(f"    def {protocol}(self): ..." for protocol in class_protocols)
             lines.append("")
 
         alias_owner = top_level[0]
@@ -84,6 +100,33 @@ class ApiInventorySnapshotTests(unittest.TestCase):
         stub = self.temp_root / "synthetic.pyi"
         stub.write_text("\n".join(lines) + "\n", encoding="utf-8")
         return stub
+
+    def test_parser_captures_protocols_and_class_attributes(self) -> None:
+        stub = self.temp_root / "members.pyi"
+        stub.write_text(
+            "class Widget:\n"
+            "    KIND: int = ...\n"
+            "    def __init__(self): ...\n"
+            "    def __iter__(self): ...\n"
+            "    def run(self): ...\n",
+            encoding="utf-8",
+        )
+
+        (
+            top_level,
+            methods,
+            protocols,
+            attributes,
+            constants,
+            enum_aliases,
+        ) = self.snapshot.parse_pycairo_api(stub)
+
+        self.assertEqual(top_level, {"Widget"})
+        self.assertEqual(methods, {"Widget": {"run"}})
+        self.assertEqual(protocols, {"Widget": {"__init__", "__iter__"}})
+        self.assertEqual(attributes, {"Widget": {"KIND"}})
+        self.assertEqual(constants, set())
+        self.assertEqual(enum_aliases, set())
 
     def test_source_mode_matches_snapshot(self) -> None:
         stub = PYCAIRO_STUB
@@ -110,6 +153,8 @@ class ApiInventorySnapshotTests(unittest.TestCase):
             {
                 "top_level": 67,
                 "methods": 259,
+                "protocols": 39,
+                "attributes": 206,
                 "constants": 224,
                 "enum_aliases": 178,
             },
@@ -177,6 +222,94 @@ class ApiInventorySnapshotTests(unittest.TestCase):
         )
         generated_upstream["sha256"] = committed_upstream["sha256"]
         self.assertEqual(generated_payload, committed_payload)
+
+    def test_checker_requires_context_constructor_evidence(self) -> None:
+        public_api = self.temp_root / "pkg.generated.mbti"
+        public_api.write_text(
+            PUBLIC_API_PATH.read_text(encoding="utf-8").replace(
+                "pub fn Context::new(",
+                "pub fn Context::missing(",
+                1,
+            ),
+            encoding="utf-8",
+        )
+
+        result = subprocess.run(
+            [
+                sys.executable,
+                str(CHECKER_PATH),
+                "--stub",
+                str(PYCAIRO_STUB),
+                "--snapshot",
+                str(SNAPSHOT_PATH),
+                "--inventory",
+                str(INVENTORY_PATH),
+                "--public-api",
+                str(public_api),
+            ],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("pycairo protocol 'Context.__init__'", result.stderr)
+
+    def test_checker_covers_every_pycairo_protocol(self) -> None:
+        result = subprocess.run(
+            [sys.executable, str(CHECKER_PATH)],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("39 class protocols", result.stdout)
+
+    def test_checker_covers_every_pycairo_class_attribute(self) -> None:
+        result = subprocess.run(
+            [sys.executable, str(CHECKER_PATH)],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("206 class attributes", result.stdout)
+
+    def test_checker_requires_matrix_field_evidence(self) -> None:
+        public_api = self.temp_root / "pkg.generated.mbti"
+        public_api.write_text(
+            PUBLIC_API_PATH.read_text(encoding="utf-8").replace(
+                "  xx : Double\n",
+                "  missing_xx : Double\n",
+                1,
+            ),
+            encoding="utf-8",
+        )
+
+        result = subprocess.run(
+            [
+                sys.executable,
+                str(CHECKER_PATH),
+                "--stub",
+                str(PYCAIRO_STUB),
+                "--snapshot",
+                str(SNAPSHOT_PATH),
+                "--inventory",
+                str(INVENTORY_PATH),
+                "--public-api",
+                str(public_api),
+                "--public-api",
+                str(GLYPH_API_PATH),
+            ],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("pycairo class attribute 'Matrix.xx'", result.stderr)
 
 
 if __name__ == "__main__":

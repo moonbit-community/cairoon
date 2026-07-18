@@ -78,10 +78,10 @@ version or commit is pinned. The complete portable API scope and all 20 pinned
 pycairo test families are covered, and all 579 published declarations have
 substantive API documentation.
 
-Local release-candidate matrices on exact Cairo 1.15.10 and 1.18.4 pass 185/185
+Local release-candidate matrices on exact Cairo 1.15.10 and 1.18.4 pass 191/191
 script tests, 840/840 native tests, 63/63 executable docs, 12/12 raw external
 owners with exact finalizer and 1000-iteration stress evidence, source and
-extracted consumers plus the unmodified cross-host archive consumer, all 640
+extracted consumers plus the unmodified cross-host archive consumer, all 642
 publication members, and every package under ASan/LSan/UBSan. The sole global
 `Partial` row is shipped test/release-platform evidence: the release commit
 still needs passing Ubuntu and macOS native jobs plus the Ubuntu
