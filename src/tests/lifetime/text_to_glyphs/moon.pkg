@@ -1,0 +1,6 @@
+import {
+  "CAIMEOX/cairoon/internal/font_face" @font_face_impl,
+  "CAIMEOX/cairoon/internal/font_options" @font_options_impl,
+  "CAIMEOX/cairoon/internal/scaled_font" @scaled_font_impl,
+  "moonbitlang/core/test",
+} for "test"

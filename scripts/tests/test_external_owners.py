@@ -71,7 +71,7 @@ test "sample allocation stress" {
         )
         self.ledger_path = self.root / "scripts/lifetime/owners.json"
         self.ledger = {
-            "schema_version": 1,
+            "schema_version": 2,
             "minimum_iterations": 1000,
             "owners": [
                 {
@@ -87,6 +87,7 @@ test "sample allocation stress" {
                     "stress_test": "sample allocation stress",
                     "stress_helper": "stress_sample",
                     "allocation_anchor": "make_sample()",
+                    "forbidden_stress_anchors": [],
                 }
             ],
         }
@@ -106,6 +107,36 @@ test "sample allocation stress" {
 
     def test_valid_owner_evidence_passes(self) -> None:
         self.assertEqual(self.check(), [])
+
+    def test_stress_helper_cannot_use_a_forbidden_release_anchor(self) -> None:
+        self.ledger["owners"][0]["forbidden_stress_anchors"] = [
+            "release_sample()"
+        ]
+        self.write_ledger()
+        self.stress_path.write_text(
+            self.stress_path.read_text(encoding="utf-8").replace(
+                "  make_sample()\n}",
+                "  make_sample()\n  release_sample()\n}",
+                1,
+            ),
+            encoding="utf-8",
+        )
+
+        errors = self.check()
+
+        self.assertTrue(any("forbidden stress anchor" in e for e in errors))
+
+    def test_forbidden_stress_anchors_must_be_unique_trimmed_strings(self) -> None:
+        for anchors in (["release_sample()", "release_sample()"], [" "]):
+            with self.subTest(anchors=anchors):
+                self.ledger["owners"][0]["forbidden_stress_anchors"] = anchors
+                self.write_ledger()
+
+                errors = self.check()
+
+                self.assertTrue(
+                    any("forbidden_stress_anchors" in e for e in errors)
+                )
 
     def test_new_raw_owner_requires_a_ledger_row(self) -> None:
         path = self.root / "src/public/ffi_extra.mbt"
@@ -189,6 +220,7 @@ void *second_wrap(void) {
                 "stress_test": "sample allocation stress",
                 "stress_helper": "stress_sample",
                 "allocation_anchor": "make_sample()",
+                "forbidden_stress_anchors": [],
             }
         )
         self.write_ledger()

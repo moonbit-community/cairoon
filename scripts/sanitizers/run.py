@@ -17,6 +17,7 @@ from leak_probes import (
     PDF_JBIG2_MISSING_PROBE,
     PDF_JBIG2_MISSING_PROFILES,
     PDF_JBIG2_MISSING_STATUS_SENTINEL,
+    PDF_JBIG2_MISSING_STRIPPED_SUPPRESSION,
     PDF_JBIG2_MISSING_SUPPRESSION,
     RECORDING_SNAPSHOT_ALLOCATION_SIZES,
     RECORDING_SNAPSHOT_PACKAGES,
@@ -170,7 +171,7 @@ def run_suite(
                     )
                 elif pdf_jbig2_suppressed:
                     command_env["LSAN_OPTIONS"] = lsan_options(
-                        PDF_JBIG2_MISSING_SUPPRESSION
+                        pdf_jbig2_leak.suppression_path
                     )
                 command = moon_test_command(
                     moon,

@@ -78,16 +78,23 @@ version or commit is pinned. The complete portable API scope and all 20 pinned
 pycairo test families are covered, and all 579 published declarations have
 substantive API documentation.
 
-Local release-candidate matrices on exact Cairo 1.15.10 and 1.18.4 pass 203/203
-script tests, 840/840 native tests, 63/63 executable docs, 12/12 raw external
-owners with exact finalizer and 1000-iteration stress evidence, source and
-extracted consumers plus the unmodified cross-host archive consumer, all 660
-publication members, and every package under ASan/LSan/UBSan. The sole global
-`Partial` row is shipped test/release-platform evidence: the release commit
-still needs passing Ubuntu and macOS native jobs plus the Ubuntu
+Local release-candidate matrices on exact Cairo 1.15.10 and 1.18.4 pass 208/208
+script tests, 841/841 native tests, 63/63 executable docs, 12/12 raw external
+owners with exact finalizer and 1000-iteration stress evidence, including one
+raw-result stress path that bans explicit release, source and extracted
+consumers plus the unmodified cross-host archive consumer, all 664 publication
+members, and every package under ASan/LSan/UBSan. The sole global `Partial` row
+is shipped test/release-platform evidence: GitHub run 29678818105 passed macOS
+native but failed both Ubuntu jobs on the prior release commit. The local fix
+commit still needs passing Ubuntu and macOS native jobs plus the Ubuntu
 ASan/LSan/UBSan job. It does not represent an unimplemented portable API
 family, but it must close before a full-product claim. There is still no
 source-compatibility promise before `1.0`.
+
+Separately, an isolated Ubuntu 24.04 replay with its system Cairo 1.18.0 passes
+all 841 native tests and every package under ASan/LSan/UBSan, including the
+stripped-symbol fallback paths. This local replay does not replace the shipped
+release-commit evidence required above.
 
 The uppercase `CAIRO_VERSION*` and `HAS_*` constants are generated release
 source snapshots. When consuming the same source archive with different Cairo

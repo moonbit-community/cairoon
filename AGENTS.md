@@ -688,6 +688,11 @@ action, and a helper reached unconditionally inside a top-level loop of at
 least 1000 iterations in a `*_test.mbt` file beside its own
 `src/tests/lifetime/**/moon.pkg`. The helper's allocation anchor must also be a
 top-level executed expression, not a comment, literal, or conditional branch.
+When a row claims finalizer-only fallback coverage, its non-empty
+`forbidden_stress_anchors` array must name every explicit release entry point;
+the checker must reject those anchors anywhere in the helper body. An empty
+array means only that the row makes no finalizer-only claim, never that release
+evidence is optional.
 Any new raw owner, moved declaration, changed allocator struct, changed release
 action, or replacement stress path must update the registry in the same commit.
 `scripts/check-external-owners.py` must reject missing, duplicate, and stale
@@ -1262,7 +1267,9 @@ A migrated API is done only when:
   has an explicit `#borrow` or `#owned`.
 - Every Cairo-owned pointer has exactly one MoonBit external-object owner.
 - `scripts/check-external-owners.py` proves every raw owner has one native
-  finalizer and an allocation anchor reached by a 1000-iteration lifetime test.
+  finalizer and an allocation anchor reached by a 1000-iteration lifetime test;
+  any finalizer-only fallback claim also bans every explicit release anchor
+  from that stress helper.
 - Every borrowed Cairo return that escapes to MoonBit is referenced before
   wrapping.
 - Every public failing operation raises `CairoError` or a documented suberror

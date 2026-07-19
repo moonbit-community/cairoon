@@ -31,6 +31,20 @@ EXPECTED_RELIABILITY_SUPPORT = frozenset(
         "scripts/reliability/markdown.py",
     }
 )
+EXPECTED_SANITIZER_SUPPORT = frozenset(
+    {
+        "scripts/sanitizers/leak_probes.py",
+        "scripts/sanitizers/lsan-cairo-pdf-jbig2-missing-stripped.supp",
+        "scripts/sanitizers/lsan-cairo-pdf-jbig2-missing.supp",
+        "scripts/sanitizers/lsan-cairo-recording-snapshot-stripped.supp",
+        "scripts/sanitizers/lsan-cairo-recording-snapshot.supp",
+        "scripts/sanitizers/policy.py",
+        "scripts/sanitizers/probes/cairo_pdf_jbig2_missing_probe.c",
+        "scripts/sanitizers/probes/cairo_recording_snapshot_probe.c",
+        "scripts/sanitizers/run.py",
+        "scripts/sanitizers/toolchain.py",
+    }
+)
 VALID_MEMBERS = {
     "COPYING": (REPO_ROOT / "COPYING").read_bytes(),
     "COPYING-LGPL-2.1": (REPO_ROOT / "COPYING-LGPL-2.1").read_bytes(),
@@ -76,6 +90,9 @@ VALID_MEMBERS = {
 } | {
     member_name: (REPO_ROOT / member_name).read_bytes()
     for member_name in EXPECTED_RELIABILITY_SUPPORT
+} | {
+    member_name: (REPO_ROOT / member_name).read_bytes()
+    for member_name in EXPECTED_SANITIZER_SUPPORT
 }
 
 
@@ -269,6 +286,35 @@ class PublicationArchiveCheckerTests(unittest.TestCase):
             EXPECTED_RELIABILITY_SUPPORT,
         )
         for member_name in EXPECTED_RELIABILITY_SUPPORT:
+            with self.subTest(member_name=member_name, mutation="missing"):
+                members = dict(VALID_MEMBERS)
+                del members[member_name]
+                self.write_archive(members, include_required=False)
+
+                errors, _ = self.check()
+
+                self.assertTrue(any(member_name in error for error in errors), errors)
+
+            with self.subTest(member_name=member_name, mutation="altered"):
+                self.write_archive({member_name: b"# altered\n"})
+
+                errors, _ = self.check()
+
+                self.assertTrue(
+                    any(
+                        member_name in error
+                        and "does not match the verified source file" in error
+                        for error in errors
+                    ),
+                    errors,
+                )
+
+    def test_sanitizer_support_contract_is_declared(self) -> None:
+        self.assertEqual(
+            self.checker.SANITIZER_SUPPORT,
+            EXPECTED_SANITIZER_SUPPORT,
+        )
+        for member_name in EXPECTED_SANITIZER_SUPPORT:
             with self.subTest(member_name=member_name, mutation="missing"):
                 members = dict(VALID_MEMBERS)
                 del members[member_name]

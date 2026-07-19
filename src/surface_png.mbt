@@ -4,8 +4,10 @@
 /// The path is UTF-8 encoded and embedded NUL raises
 /// `CairoInvalidArgument(InvalidString, _)`. The returned surface independently
 /// owns decoded image storage. Missing files raise
-/// `CairoError(FileNotFound, _)`, while PNG/read failures use `CairoIOError`;
-/// PNG support must be enabled in linked Cairo.
+/// `CairoError(FileNotFound, _)`. Cairo 1.18.2 and newer report malformed data
+/// as `CairoIOError(PngError, _)`; Cairo 1.16 through 1.18.0 can instead report
+/// the upstream error-surface bug as `CairoMemoryError(NoMemory, _)`. PNG
+/// support must be enabled in linked Cairo.
 pub fn Surface::image_from_png(path : String) -> Surface raise CairoError {
   let status = Ref(0)
   let raw = @surface_impl.image_create_from_png_raw(
@@ -23,7 +25,9 @@ pub fn Surface::image_from_png(path : String) -> Surface raise CairoError {
 /// Cairo calls `reader(length)` until decoding completes; every returned
 /// `Bytes` value must contain exactly `length` bytes. The callback is borrowed
 /// only during construction and cannot raise. Short reads map to
-/// `CairoIOError(ReadError, _)`; decode failures use `CairoIOError(PngError, _)`.
+/// `CairoIOError(ReadError, _)`. Cairo 1.18.2 and newer map malformed data to
+/// `CairoIOError(PngError, _)`; Cairo 1.16 through 1.18.0 can surface the
+/// upstream error-surface bug as `CairoMemoryError(NoMemory, _)`.
 pub fn Surface::image_from_png_stream(
   reader : (Int) -> Bytes,
 ) -> Surface raise CairoError {

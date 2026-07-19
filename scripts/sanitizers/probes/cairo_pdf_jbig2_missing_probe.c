@@ -4,6 +4,12 @@
 #include <cairo.h>
 #include <cairo-pdf.h>
 
+#if defined(__GNUC__) || defined(__clang__)
+#define CAIROON_PROBE_NOINLINE __attribute__((noinline))
+#else
+#define CAIROON_PROBE_NOINLINE
+#endif
+
 static cairo_status_t discard_output(
   void *closure,
   const unsigned char *data,
@@ -14,6 +20,16 @@ static cairo_status_t discard_output(
   return CAIRO_STATUS_SUCCESS;
 }
 
+static CAIROON_PROBE_NOINLINE cairo_surface_t *
+cairoon_probe_pdf_surface_create_for_stream(void) {
+  return cairo_pdf_surface_create_for_stream(discard_output, NULL, 8.0, 8.0);
+}
+
+static CAIROON_PROBE_NOINLINE void cairoon_probe_surface_finish(
+  cairo_surface_t *surface) {
+  cairo_surface_finish(surface);
+}
+
 static cairo_status_t render_missing_global(void) {
   static const unsigned char jbig2[] = {
     0x00, 0x00, 0x00, 0x01, 0x30, 0x00, 0x01, 0x00,
@@ -22,11 +38,7 @@ static cairo_status_t render_missing_global(void) {
   };
   static const unsigned char global_id[] = "shared-jbig2-id";
 
-  cairo_surface_t *pdf = cairo_pdf_surface_create_for_stream(
-    discard_output,
-    NULL,
-    8.0,
-    8.0);
+  cairo_surface_t *pdf = cairoon_probe_pdf_surface_create_for_stream();
   cairo_surface_t *image = cairo_image_surface_create(CAIRO_FORMAT_A1, 1, 1);
   cairo_status_t status = cairo_surface_set_mime_data(
     image,
@@ -54,7 +66,7 @@ static cairo_status_t render_missing_global(void) {
   cairo_destroy(ctx);
   cairo_surface_destroy(image);
 
-  cairo_surface_finish(pdf);
+  cairoon_probe_surface_finish(pdf);
   if (status == CAIRO_STATUS_SUCCESS) {
     status = cairo_surface_status(pdf);
   }

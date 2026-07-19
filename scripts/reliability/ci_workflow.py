@@ -50,6 +50,15 @@ JOB_SPECS = {
 
 def check_ci_workflow(text: str, source: pathlib.Path) -> list[str]:
     errors = check_workflow_shape(text, source)
+    checkout_steps = [
+        content
+        for _, _, content in yaml_structural_lines(text)
+        if content.startswith("uses: actions/checkout@")
+    ]
+    if checkout_steps != ["uses: actions/checkout@v6"] * 2:
+        errors.append(
+            f"{source}: native and sanitizer jobs must each use actions/checkout@v6"
+        )
     jobs_section = yaml_mapping_section(text, 0, "jobs")
     if sorted(yaml_keys_at_indent(jobs_section, 2)) != ["asan", "native"]:
         errors.append(f"{source}: CI jobs mapping must contain exactly native and asan")

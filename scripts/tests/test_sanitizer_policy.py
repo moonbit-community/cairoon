@@ -17,6 +17,7 @@ from policy import asan_options, leak_detection_enabled, policy_description
 from run import (
     CLEANUP_SOURCE,
     PDF_JBIG2_MISSING_PACKAGES,
+    PDF_JBIG2_MISSING_STRIPPED_SUPPRESSION,
     PDF_JBIG2_MISSING_SUPPRESSION,
     RECORDING_SNAPSHOT_PACKAGES,
     RECORDING_SNAPSHOT_STRIPPED_SUPPRESSION,
@@ -227,20 +228,23 @@ class SanitizerPolicyTests(unittest.TestCase):
             PDF_JBIG2_MISSING_PACKAGES,
             frozenset({"src/tests/backend/pdf"}),
         )
-        suppression_lines = [
-            line.strip()
-            for line in PDF_JBIG2_MISSING_SUPPRESSION.read_text(
-                encoding="ascii"
-            ).splitlines()
-            if line.strip() and not line.startswith("#")
-        ]
-        self.assertEqual(
-            suppression_lines,
-            [
+        expected = {
+            PDF_JBIG2_MISSING_SUPPRESSION: [
                 "leak:_cairo_pdf_interchange_init",
                 "leak:_cairo_paginated_surface_finish",
             ],
-        )
+            PDF_JBIG2_MISSING_STRIPPED_SUPPRESSION: [
+                "leak:cairoon_pdf_surface_create_for_stream",
+                "leak:cairoon_surface_finish",
+            ],
+        }
+        for path, expected_lines in expected.items():
+            suppression_lines = [
+                line.strip()
+                for line in path.read_text(encoding="ascii").splitlines()
+                if line.strip() and not line.startswith("#")
+            ]
+            self.assertEqual(suppression_lines, expected_lines)
 
     def test_known_pdf_jbig2_probe_signatures_are_accepted(self) -> None:
         profiles = (
@@ -281,6 +285,43 @@ class SanitizerPolicyTests(unittest.TestCase):
                 assert leak is not None
                 self.assertEqual(leak.total_bytes, total_bytes)
                 self.assertEqual(leak.total_allocations, total_count)
+
+    def test_stripped_pdf_jbig2_probe_signature_is_accepted(self) -> None:
+        interchange = [304, 304, 304, 144, 20, 8, 344, 344, 344, 168]
+        paginated = [32, 24, 8, 4]
+        blocks = "".join(
+            f"Direct leak of {size} byte(s) in 1 object(s) allocated from:\n"
+            "    #1 0x1 (/lib/libcairo.so.2+0x1)\n"
+            "    #2 0x2 in cairoon_probe_pdf_surface_create_for_stream "
+            "probe.c:20:3\n"
+            for size in interchange
+        )
+        blocks += "".join(
+            f"Direct leak of {size} byte(s) in 1 object(s) allocated from:\n"
+            "    #1 0x1 (/lib/libcairo.so.2+0x1)\n"
+            "    #2 0x2 in cairo_surface_finish (/lib/libcairo.so.2+0x2)\n"
+            "    #3 0x3 in cairoon_probe_surface_finish probe.c:30:3\n"
+            for size in paginated
+        )
+        output = (
+            "CAIROON_PDF_JBIG2_STATUS=JBIG2_GLOBAL_MISSING\n"
+            "ERROR: LeakSanitizer: detected memory leaks\n"
+            + blocks
+            + "SUMMARY: AddressSanitizer: 2352 byte(s) leaked in "
+            "14 allocation(s).\n"
+        )
+        leak = classify_pdf_jbig2_missing_probe(86, output)
+        self.assertIsNotNone(leak)
+        assert leak is not None
+        self.assertEqual(
+            leak.suppression_path.name,
+            "lsan-cairo-pdf-jbig2-missing-stripped.supp",
+        )
+        self.assertEqual(
+            leak.interchange_template,
+            "cairoon_pdf_surface_create_for_stream",
+        )
+        self.assertEqual(leak.paginated_template, "cairoon_surface_finish")
 
     def test_unknown_pdf_jbig2_probe_signature_is_rejected(self) -> None:
         output = (
@@ -348,6 +389,31 @@ class SanitizerPolicyTests(unittest.TestCase):
             leak.suppression_path,
             RECORDING_SNAPSHOT_STRIPPED_SUPPRESSION,
         )
+
+    def test_ubuntu_recording_snapshot_probe_signature_is_accepted(self) -> None:
+        stack = (
+            "Direct leak of 576 byte(s) in 1 object(s) allocated from:\n"
+            "    #1 0x1 (/lib/x86_64-linux-gnu/libcairo.so.2+0x1)\n"
+            "    #2 0x2 in cairo_surface_destroy "
+            "(/lib/x86_64-linux-gnu/libcairo.so.2+0x2)\n"
+            "    #3 0x3 in cairo_pattern_destroy "
+            "(/lib/x86_64-linux-gnu/libcairo.so.2+0x3)\n"
+            "    #4 0x4 in cairo_restore "
+            "(/lib/x86_64-linux-gnu/libcairo.so.2+0x4)\n"
+            "    #5 0x5 in render_document probe.c:70:3\n"
+        )
+        output = (
+            "ERROR: LeakSanitizer: detected memory leaks\n"
+            + stack
+            + stack
+            + "SUMMARY: AddressSanitizer: 1152 byte(s) leaked in "
+            "2 allocation(s).\n"
+        )
+        leak = classify_recording_snapshot_probe(86, output)
+        self.assertIsNotNone(leak)
+        assert leak is not None
+        self.assertEqual(leak.allocation_size, 576)
+        self.assertEqual(leak.suppression_template, "cairo_restore")
 
     def test_unknown_recording_snapshot_probe_signature_is_rejected(self) -> None:
         output = (

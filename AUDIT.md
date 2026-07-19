@@ -4,6 +4,30 @@
 
 Implemented in this workspace:
 
+- GitHub Actions run `29678818105` passed macOS native but exposed two Ubuntu
+  compatibility gaps. The native job stopped on Cairo 1.18.0's upstream
+  malformed-PNG error-surface bug, which reports `NoMemory` until Cairo 1.18.2
+  correctly propagates `PngError`; path and stream tests now assert that exact
+  version boundary. The sanitizer job's pure-C recording probe found the known
+  leak with an x86_64-specific 576-byte layout, now accepted only under the
+  existing exact stack/count/total constraints. A local Ubuntu system-Cairo
+  replay also proved the next stripped PDF/JBIG2 profile and its separate
+  package-scoped wrapper suppression at exactly 10 allocations/2284 bytes plus
+  4/68. That stock-Cairo replay now passes all 841 native tests and every
+  discovered package under ASan/LSan/UBSan. Both CI checkouts now use
+  Node-24-native `actions/checkout@v6`, and the reliability checker rejects a
+  downgrade. The current tree has 446 checked source files, 208 script tests,
+  841 native tests, and 664 publication members without changing public
+  signatures or production FFI symbols.
+- `RawTextToGlyphs` finalizer fallback now has direct lifetime evidence rather
+  than being inferred from public methods that release glyph/cluster arrays
+  eagerly. A dedicated package drops 1000 raw results across an exact
+  334/333/333 clustered-success, glyph-only-success, and invalid-font
+  distribution. Owner-ledger schema v2 adds `forbidden_stress_anchors`, so the
+  checker rejects any explicit release in that helper; 16 focused checker
+  tests include 15 negative regressions. The current tree has 446 checked
+  source files, 205 script tests, 841 native tests, and 663 publication members
+  without changing public signatures or production FFI symbols.
 - The source-size gate now applies one 600-line ceiling to every checked
   MoonBit source/executable-doc module, C source/header, Python module, and
   shell script; no 850-line general-source allowance remains. Four focused
@@ -164,13 +188,13 @@ Implemented in this workspace:
   process failures, deterministic JSON, and environment redaction.
 - Exact local release lanes for Cairo 1.15.10 and 1.18.4, built from pinned
   source URLs and SHA-256 digests on a pinned Ubuntu base image. Both lanes
-  pass all static gates, 840/840 native tests, 203/203 script tests, and 63/63
+  pass all static gates, 841/841 native tests, 208/208 script tests, and 63/63
   executable documentation tests with the pinned MoonBit
   `0.10.4+4f2e8f7dc-nightly` compiler. In each lane, the source-checkout and
   extracted-publication-zip consumers also pass 1/1 independently. Each lane
   additionally consumes the same unmodified host-generated zip, so
   producer-specific include/library paths cannot be hidden by lane setup. The
-  integrity-checked publication archive contains 660 members, and every
+  integrity-checked publication archive contains 664 members, and every
   discovered package passes ASan/LSan/UBSan. Each pinned lane also runs
   instrumented public-facade coverage and requires the exact linked-version
   ledger profile.
@@ -205,11 +229,17 @@ Implemented in this workspace:
   3/40 on 1.15.10, and 10/2284 plus 4/68 on 1.18.4. Any additional matching or
   unsuppressed leak fails the package; all packages outside these two isolated
   cases remain unsuppressed.
-- Ubuntu 24.04's stock Cairo 1.18.0 reproduces the same two 584-byte leaks but
-  strips the internal function name. In that case the pure-C stack must contain
-  `cairo_surface_destroy`, `cairo_pattern_destroy`, `cairo_restore`, and the
-  probe's `render_document` frame before a `cairo_restore` fallback is selected;
-  the vector run then enforces exactly 16 suppressions/9344 bytes.
+- Ubuntu 24.04's stock Cairo 1.18.0 strips the recording-snapshot internal
+  function name and uses architecture-specific layouts: the failed GitHub
+  x86_64 probe reports two 576-byte allocations, while the local arm64 replay
+  reports two 584-byte allocations. In either case the pure-C stack must
+  contain `cairo_surface_destroy`, `cairo_pattern_destroy`, `cairo_restore`,
+  and the probe's `render_document` frame before a `cairo_restore` fallback is
+  selected; the vector run then enforces exactly 16 suppressions and the
+  probe-derived byte total. The same distro library strips the two PDF/JBIG2
+  private frames, so named pure-C probe frames select separate
+  `cairoon_pdf_surface_create_for_stream` and `cairoon_surface_finish`
+  suppressions. The PDF package still must report exactly 10/2284 plus 4/68.
 - Static raw FFI ownership linting through
   `scripts/check-ffi-ownership.py`, wired into `scripts/verify.sh`, so every
   non-primitive production `src/**/ffi*.mbt` parameter must be annotated with
@@ -933,26 +963,36 @@ Implemented in this workspace:
 
 The most recent full local verification passed on 2026-07-19:
 
-- `./scripts/verify.sh` passed 203/203 script tests,
-  840/840 native tests, 63/63 executable documentation tests, formatting,
+- `CAIROON_VERIFY_ASAN=0 ./scripts/verify.sh` passed 208/208 script tests,
+  841/841 native tests, 63/63 executable documentation tests, formatting,
   project layout, source-size, Cairo build-protocol/generated-constant, FFI
   ownership, exact external-owner/finalizer/stress evidence, API inventory,
   pycairo parity, public documentation, reliability-ledger, vector-scene,
   native type including warning 73, and generated-interface gates. The
   isolated consumer passed 1/1 against both the checkout and the
-  integrity-tested extracted 660-member publication zip. Host ASan/UBSan
-  passed every discovered package;
-  authoritative Linux LSan coverage is supplied by both exact-Cairo lanes.
+  integrity-tested extracted 664-member publication zip. A targeted host
+  ASan/UBSan run passed the finalizer-only `RawTextToGlyphs` package;
+  authoritative whole-workspace ASan/LSan/UBSan coverage is supplied by the
+  Linux lanes below.
 - `./scripts/test-cairo-matrix.sh cairo-1.15.10` and
-  `./scripts/test-cairo-matrix.sh cairo-1.18.4` passed the same 203 script,
-  840 native, and 63 documentation tests, both 1/1 consumer paths, the
-  unmodified host-archive consumer, all 660 publication members, and every
+  `./scripts/test-cairo-matrix.sh cairo-1.18.4` passed the same 208 script,
+  841 native, and 63 documentation tests, both 1/1 consumer paths, the
+  unmodified host-archive consumer, all 664 publication members, and every
   discovered package under ASan/LSan/UBSan.
   Intentional signed-overflow and leak preflights passed in both lanes. The
   constrained vector suppression accounted for 16 allocations/7424 bytes on
   1.15.10 and 16/9344 on 1.18.4; the constrained PDF/JBIG2 suppressions
   accounted for 9 allocations/988 bytes and 14/2352 respectively. Every other
   package remained unsuppressed.
+- An isolated Ubuntu 24.04 replay with its unmodified system Cairo 1.18.0
+  passed 208/208 script tests, 841/841 native tests, 63/63 executable docs,
+  both downstream consumer paths, all 664 publication members, and every
+  discovered package under ASan/LSan/UBSan. Its stripped recording path used
+  exactly 16 suppressions/9344 bytes at `cairo_restore` on arm64; the stripped
+  PDF path used exactly 10/2284 at
+  `cairoon_pdf_surface_create_for_stream` plus 4/68 at
+  `cairoon_surface_finish`. The x86_64 576-byte recording layout remains pinned
+  by the classifier regression derived from the failed GitHub probe.
 - The parity ledger covers all 288 tests in 20 pinned pycairo families, public
   documentation covers 579/579 declarations with zero debt, and the production
   boundary remains 349 local FFI symbols plus two direct libcairo symbols.

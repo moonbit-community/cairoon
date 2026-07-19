@@ -38,7 +38,7 @@ RECORDING_SNAPSHOT_STRIPPED_SUPPRESSION = (
 RECORDING_SNAPSHOT_PACKAGES = frozenset(
     {"src/tests/oracle/vector_backend"}
 )
-RECORDING_SNAPSHOT_ALLOCATION_SIZES = frozenset({464, 584})
+RECORDING_SNAPSHOT_ALLOCATION_SIZES = frozenset({464, 576, 584})
 RECORDING_SNAPSHOT_VECTOR_ALLOCATIONS = 16
 PDF_JBIG2_MISSING_PROBE = (
     REPO_ROOT
@@ -49,6 +49,12 @@ PDF_JBIG2_MISSING_PROBE = (
 )
 PDF_JBIG2_MISSING_SUPPRESSION = (
     REPO_ROOT / "scripts" / "sanitizers" / "lsan-cairo-pdf-jbig2-missing.supp"
+)
+PDF_JBIG2_MISSING_STRIPPED_SUPPRESSION = (
+    REPO_ROOT
+    / "scripts"
+    / "sanitizers"
+    / "lsan-cairo-pdf-jbig2-missing-stripped.supp"
 )
 PDF_JBIG2_MISSING_PACKAGES = frozenset({"src/tests/backend/pdf"})
 PDF_JBIG2_MISSING_STATUS_SENTINEL = (
@@ -77,6 +83,9 @@ class PdfJbig2MissingLeak:
     interchange_bytes: int
     paginated_allocations: int
     paginated_bytes: int
+    interchange_template: str
+    paginated_template: str
+    suppression_path: Path
 
 
 def lsan_options(suppression: Path | None = None) -> str:
@@ -230,16 +239,35 @@ def classify_pdf_jbig2_missing_probe(
     paginated_allocations = 0
     paginated_bytes = 0
     unknown_stack = False
+    profile_mode: str | None = None
     for size_text, count_text, stack in blocks:
         size = int(size_text)
         count = int(count_text)
         if "in _cairo_pdf_interchange_init" in stack:
             interchange_allocations += count
             interchange_bytes += size * count
+            mode = "symbolized"
         elif "in _cairo_paginated_surface_finish" in stack:
             paginated_allocations += count
             paginated_bytes += size * count
+            mode = "symbolized"
+        elif "in cairoon_probe_pdf_surface_create_for_stream" in stack:
+            interchange_allocations += count
+            interchange_bytes += size * count
+            mode = "stripped"
+        elif (
+            "in cairoon_probe_surface_finish" in stack
+            and "in cairo_surface_finish" in stack
+        ):
+            paginated_allocations += count
+            paginated_bytes += size * count
+            mode = "stripped"
         else:
+            unknown_stack = True
+            continue
+        if profile_mode is None:
+            profile_mode = mode
+        elif profile_mode != mode:
             unknown_stack = True
 
     total_allocations = interchange_allocations + paginated_allocations
@@ -256,6 +284,7 @@ def classify_pdf_jbig2_missing_probe(
         returncode == LSAN_EXIT_CODE
         and "ERROR: LeakSanitizer: detected memory leaks" in output
         and not unknown_stack
+        and profile_mode in {"symbolized", "stripped"}
         and bool(blocks)
         and summary is not None
         and int(summary.group("count")) == total_allocations
@@ -267,7 +296,20 @@ def classify_pdf_jbig2_missing_probe(
             "standalone Cairo PDF JBIG2-missing probe produced an unknown "
             f"sanitizer signature; exit={returncode}\n{output}"
         )
-    return PdfJbig2MissingLeak(*signature)
+    if profile_mode == "symbolized":
+        interchange_template = "_cairo_pdf_interchange_init"
+        paginated_template = "_cairo_paginated_surface_finish"
+        suppression_path = PDF_JBIG2_MISSING_SUPPRESSION
+    else:
+        interchange_template = "cairoon_pdf_surface_create_for_stream"
+        paginated_template = "cairoon_surface_finish"
+        suppression_path = PDF_JBIG2_MISSING_STRIPPED_SUPPRESSION
+    return PdfJbig2MissingLeak(
+        *signature,
+        interchange_template,
+        paginated_template,
+        suppression_path,
+    )
 
 
 def probe_pdf_jbig2_missing_leak(
@@ -379,11 +421,11 @@ def validate_pdf_jbig2_suppression_usage(
         )
     )
     expected = {
-        "_cairo_pdf_interchange_init": (
+        leak.interchange_template: (
             str(leak.interchange_allocations),
             str(leak.interchange_bytes),
         ),
-        "_cairo_paginated_surface_finish": (
+        leak.paginated_template: (
             str(leak.paginated_allocations),
             str(leak.paginated_bytes),
         ),

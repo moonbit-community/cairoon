@@ -75,7 +75,7 @@ silently return later.
   `src/internal/svg/`.
 - 1 `.mbt` prelude file and 11 executable `.mbt.md` docs in `src/docs/`.
 - 1 native-package MoonBit anchor file in `src/native/`.
-- 150 `*_test.mbt` files under `src/tests/`, including black-box and oracle
+- 151 `*_test.mbt` files under `src/tests/`, including black-box and oracle
   packages.
 - 0 white-box `*_wbtest.mbt` files in `src/`.
 - 34 public C implementation files owned by `src/native/moon.pkg`.
@@ -472,6 +472,8 @@ cairoon/
         raster/
           moon.pkg
         stream/
+          moon.pkg
+        text_to_glyphs/
           moon.pkg
         value/
           moon.pkg

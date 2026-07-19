@@ -77,12 +77,12 @@ Evaluate each slice with this scorecard:
 | FFI boundary safety | Production raw `src/**/ffi*.mbt` declarations are native-gated in their owning `moon.pkg`, mark every non-primitive C FFI parameter with `#borrow` or `#owned`, and `scripts/check-project-layout.py`, `scripts/check-ffi-ownership.py`, `scripts/check-external-owners.py`, plus `scripts/check-stream-cleanup.py` pass | Strong for current raw externs, including internal helper packages; the ownership gates enforce Device, Surface, mapped-image, and stream-constructor cleanup order plus scoped-error precedence. The 336-line FFI CLI owns declaration/facade/export parity while focused `scripts/ffi_ownership/` modules own shared parsing and family cleanup rules; seven guard tests pin all six root-aware delegations. The 258-line layout CLI owns path assembly and output while focused `scripts/project_layout/` modules own parsing, metadata/docs/consumer, native/package, and counter rules; eighteen tests include all eleven root-aware delegations. All 34 production and 51 oracle C stubs compile under the exact C11 `-Wall -Wextra -Wpedantic -Werror` contract, and the layout gate rejects any downgrade. The external-owner gate independently discovers all 12 raw owner declarations, native finalizers, and external-object allocators; enforces structural owner naming; and requires exact release plus top-level 1000-iteration lifetime evidence |
 | Behavioral parity | pycairo-derived black-box cases, independent pure-MoonBit property models, or direct C Cairo primitive oracles cover normal and invalid inputs | Strong for image, context, path, font, pattern, region, surface/device, and backend helpers already listed in the inventory; all 288 tests from all 20 upstream test files are pinned and mapped to 197 family-local MoonBit runtime anchors, 291 required generated static API anchors, 29 deliberately absent signatures, 4 explicit inventory decisions, and 1 mandatory static verify gate. Deterministic Matrix, Region, Path, Rectangle, and RectangleInt properties use independent algebra, occupancy-grid, command-state, and generated-value models. The public-facade ledger has 53 stable source anchors with semver scopes; exact analysis activates 50 exceptions on Cairo 1.15.10 and 43 on Cairo 1.18.4, while every portable reachable branch found by the audit is covered. |
 | Rendering parity | Deterministic image pixels or normalized PDF/PS/SVG bytes match direct C Cairo output | Strong for the portable migration scope. Scene 66 closes Cairo 1.18's finite tag-attribute contract across URI, multi-rectangle, destination, page-position, external-file, content, and content-reference cases; it joins the enumerated image and vector fixtures with file/stream/direct-C comparisons and stable positive or negative backend markers |
-| Lifetime safety | External-object ownership, borrowed returns, callback retention, integer/pointer operations, and error exits run under ASan/LSan/UBSan or stress tests | Strong for the current portable scope: all 12 raw owners have an exact C finalizer/release mapping and a top-level 1000-iteration allocation path in a separately packaged lifetime test. Linux runs every MoonBit package in a separate ASan/LSan/UBSan process; stream constructors retain callback state until partial native producers are destroyed on failure, and saved raster getter closures survive replacement, clearing, and their original local bindings leaving scope. Two upstream Cairo paths have pure-C-probe-verified, exact-count LSan suppressions isolated to the vector-oracle and PDF backend packages; every other package remains unsuppressed. |
+| Lifetime safety | External-object ownership, borrowed returns, callback retention, integer/pointer operations, and error exits run under ASan/LSan/UBSan or stress tests | Strong for the current portable scope: all 12 raw owners have an exact C finalizer/release mapping and a top-level 1000-iteration allocation path in a separately packaged lifetime test. The `RawTextToGlyphs` path covers clustered, glyph-only, and invalid-font result objects while schema-v2 owner evidence forbids explicit release in its stress helper. Linux runs every MoonBit package in a separate ASan/LSan/UBSan process; stream constructors retain callback state until partial native producers are destroyed on failure, and saved raster getter closures survive replacement, clearing, and their original local bindings leaving scope. Two upstream Cairo paths have pure-C-probe-verified, exact-count LSan suppressions isolated to the vector-oracle and PDF backend packages; every other package remains unsuppressed. |
 | Callback safety | C-held MoonBit callbacks and callback arguments are retained across the callback invocation and released deterministically | Strong for stream writers/readers and raster-source callbacks covered by current stress/fuzz tests; reentrant raster registration changes are deferred until the old acquire/release pairs finish, with ASan and retained-owner regressions for clear from both callback directions |
 | Portability | Required backends pass on each supported platform, or unsupported APIs have explicit `Decision` rows | Strong local evidence at the exact Cairo 1.15.10 compatibility floor and recommended 1.18.4 release, plus the host lane. Module metadata declares native as the sole supported backend, and layout/archive regressions reject drift; unsupported targets stop before native FFI checking. Both Linux lanes consume the same unmodified host-generated zip through module-level `pkg-config` discovery. GitHub runs are grouped by workflow and ref with stale-run cancellation and 60-minute native/sanitizer ceilings, all enforced by negative workflow mutations; still Partial until the release commit's shipped Ubuntu/macOS CI jobs pass |
 | Documentation | Public declarations have substantive MoonBit `///` comments, family workflows have executable examples where practical, and `scripts/check-public-docs.py` reports zero debt | Done: all 579 public declarations have substantive comments, the exact grandfather ledger is empty, executable downstream-style family notes include complete PDF/PS/SVG workflows, and new undocumented APIs or ledger drift fail the gate |
 | Downstream consumption | A separately named MoonBit module resolves the versioned local dependency, imports only `CAIMEOX/cairoon`, carries no native flags, receives propagated Cairo linking, renders through the public API against checkout and extracted publication zip, and stays outside that archive | Strong local evidence through `integration/consumer` and `scripts/check-downstream-consumer.sh`; the zip is integrity-tested and recompiled in a fresh temporary workspace, and `--archive` mode recompiles the producer-host zip unchanged in both exact-Cairo lanes |
-| Publication integrity | The zip contains the declared dual-license notice and full texts, native-only module metadata, package README/interface, dependency pre-build script, complete source-identical pycairo API audit toolchain, source-identical external-owner checker/ledger, and the complete modular FFI ownership and reliability-ledger audits; canonical paths are unique, safe, CRC-valid, and exclude integration fixtures | Done locally: `scripts/check-publication-archive.py` checks all 660 members, and sixteen focused tests cover valid archives plus missing/incorrect license data, metadata/target mismatch, missing or altered build/API/owner/FFI/reliability support, duplicate names, unsafe paths, fixture leakage, emptiness, and corruption |
+| Publication integrity | The zip contains the declared dual-license notice and full texts, native-only module metadata, package README/interface, dependency pre-build script, complete source-identical pycairo API audit toolchain, source-identical external-owner checker/ledger, and the complete modular FFI ownership, reliability-ledger, and sanitizer toolchains; canonical paths are unique, safe, CRC-valid, and exclude integration fixtures | Done locally: `scripts/check-publication-archive.py` checks all 664 members, and seventeen focused tests cover valid archives plus missing/incorrect license data, metadata/target mismatch, missing or altered build/API/owner/FFI/reliability/sanitizer support, duplicate names, unsafe paths, fixture leakage, emptiness, and corruption |
 
 The practical release rule is simple: a feature can be trusted when its
 inventory row is `Done`, its reference docs are executable where practical,
@@ -233,6 +233,9 @@ Memory tests must cover:
 - MoonBit objects retained by C payloads with `moonbit_incref` and released
   with `moonbit_decref`.
 - Error paths where Cairo returns a status object or null-like object.
+- Finalizer-only fallback paths whose normal public wrapper releases eagerly;
+  their lifetime-ledger helper must be statically forbidden from calling the
+  explicit release entry point.
 
 ### Tier 4: Backend Integration Tests
 
@@ -4024,6 +4027,10 @@ The exact Linux release evidence after the FontFace package extraction is:
   On stripped Ubuntu Cairo libraries, the probe selects a `cairo_restore`
   fallback and the runner additionally requires exactly 16 suppressions and
   the probe-predicted byte count.
+  A separately named PDF probe frame distinguishes stripped interchange-init
+  and paginated-finish stacks. Only the production PDF-stream constructor and
+  Surface-finish wrappers may then suppress them, with the same exact
+  allocation/byte accounting as the symbolized profile.
 
 After the downstream fixture was added on 2026-07-15, the full host
 `./scripts/verify.sh` gate passed again: 761/761 repository MoonBit tests, the
@@ -4592,10 +4599,34 @@ real producers; PDF/PS/SVG prove destroy-time writes cannot outlive the closure,
 and ScriptDevice state release is checked without assuming a callback count.
 The package passes normally and under ASan/LSan/UBSan on both exact Cairo lanes.
 
-Exact Linux Cairo 1.15.10 and 1.18.4 each pass 840/840 native tests, 203/203
+The `RawTextToGlyphs` finalizer-fallback slice upgrades the external-owner
+ledger to schema v2 and gives this temporary native result its own lifetime
+package. Its 1000 iterations have an exact 334/333/333 distribution across
+clustered success, glyph-only success, and invalid-font results. The helper
+never calls `text_to_glyphs_release_raw`; `forbidden_stress_anchors` makes that
+absence executable, and two new negative checker regressions reject an
+explicit release plus malformed anchor arrays.
+
+GitHub Actions run `29678818105` passed macOS native and failed both Ubuntu
+jobs. Ubuntu native reproduced Cairo 1.18.0's upstream malformed-PNG
+error-surface bug: that release reports `NoMemory`, while Cairo 1.18.2+ reports
+`PngError`. Path and stream tests now assert those exact version contracts.
+Ubuntu sanitizer observed the known recording-snapshot leak as two 576-byte
+allocations on x86_64; the classifier accepts that size only under the existing
+two-direct-leak, stack, and total-byte constraints. An isolated Ubuntu 24.04
+system-Cairo replay then exercised the stripped PDF/JBIG2 path, whose package
+run used exactly 10 allocations/2284 bytes at the PDF stream constructor and
+4/68 at Surface finish. That replay now passes 841/841 native tests and every
+discovered package under ASan/LSan/UBSan; its arm64 stripped recording path
+uses exactly 16 suppressions/9344 bytes at `cairo_restore`, while a regression
+pins the failed x86_64 probe's 576-byte layout. The CI workflow also uses
+`actions/checkout@v6`, and a negative workflow mutation rejects a return to the
+Node-20-based v4 action.
+
+Exact Linux Cairo 1.15.10 and 1.18.4 each pass 841/841 native tests, 208/208
 script tests, 63/63 executable docs, the source and extracted 1/1 downstream
 consumers, the same unmodified host-generated archive consumer, publication
-archive integrity for 660 members, and every discovered package under
+archive integrity for 664 members, and every discovered package under
 ASan/LSan/UBSan. The pure-C recording-snapshot probe still limits the vector
 package to 16 suppressions/7424 bytes on Cairo 1.15.10 and 16/9344 on Cairo
 1.18.4. The pure-C PDF/JBIG2 probe limits the PDF package to two rows totaling
@@ -4628,8 +4659,9 @@ not as an unstructured checklist:
   state-machine, manual
   get-callback, exhaustive transition-matrix, callback allocation,
   retained-owner, stream retention, and backend stream multi-seed callback and
-  finalizer graph fuzz tests. This is global release evidence rather than an
-  unbounded `RasterSourcePattern` API requirement.
+  finalizer graph fuzz tests, plus the finalizer-only raw text-result stress
+  path. This is global release evidence rather than an unbounded
+  `RasterSourcePattern` API requirement.
 - Keep the CI workflow green and expand it as the supported release platform
   matrix grows; generated-interface review, differential oracles, and sanitizer
   gates should be required before release. Preserve the ref-scoped concurrency

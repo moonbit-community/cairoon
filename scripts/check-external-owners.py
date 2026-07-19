@@ -23,6 +23,7 @@ LEDGER_KEYS = {
     "stress_test",
     "stress_helper",
     "allocation_anchor",
+    "forbidden_stress_anchors",
 }
 RAW_TYPE_RE = re.compile(
     r"^[ \t]*type[ \t]+(Raw[A-Za-z0-9_]+)\b[^\r\n]*$",
@@ -216,8 +217,8 @@ def load_ledger(path: pathlib.Path) -> tuple[dict[str, Any] | None, list[str]]:
         return None, [
             f"{path}: top-level keys must be exactly {sorted(expected)!r}"
         ]
-    if payload["schema_version"] != 1:
-        return None, [f"{path}: schema_version must be 1"]
+    if payload["schema_version"] != 2:
+        return None, [f"{path}: schema_version must be 2"]
     minimum = payload["minimum_iterations"]
     if not isinstance(minimum, int) or isinstance(minimum, bool) or minimum < 1000:
         return None, [f"{path}: minimum_iterations must be an integer >= 1000"]
@@ -253,7 +254,10 @@ def check_external_owners(
                 f"{location}: keys must be exactly {sorted(LEDGER_KEYS)!r}"
             )
             continue
-        string_keys = LEDGER_KEYS - {"release_anchors"}
+        string_keys = LEDGER_KEYS - {
+            "release_anchors",
+            "forbidden_stress_anchors",
+        }
         if any(
             not isinstance(raw_row[key], str)
             or not raw_row[key].strip()
@@ -278,6 +282,23 @@ def check_external_owners(
         ):
             errors.append(
                 f"{location}: release_anchors must be a non-empty unique string array"
+            )
+            continue
+        forbidden_stress_anchors = raw_row["forbidden_stress_anchors"]
+        if (
+            not isinstance(forbidden_stress_anchors, list)
+            or any(
+                not isinstance(anchor, str)
+                or not anchor.strip()
+                or anchor != anchor.strip()
+                for anchor in forbidden_stress_anchors
+            )
+            or len(set(forbidden_stress_anchors))
+            != len(forbidden_stress_anchors)
+        ):
+            errors.append(
+                f"{location}: forbidden_stress_anchors must be a unique "
+                "trimmed string array"
             )
             continue
         rows.append(raw_row)
@@ -446,6 +467,12 @@ def check_external_owners(
                     f"{raw_type}: stress helper {row['stress_helper']} must reach "
                     f"allocation anchor {row['allocation_anchor']!r} unconditionally"
                 )
+            for forbidden_anchor in row["forbidden_stress_anchors"]:
+                if re.search(re.escape(forbidden_anchor), helper_body):
+                    errors.append(
+                        f"{raw_type}: stress helper {row['stress_helper']} contains "
+                        f"forbidden stress anchor {forbidden_anchor!r}"
+                    )
 
     return errors
 
@@ -458,10 +485,15 @@ def main() -> int:
         return 1
     payload, _ = load_ledger(LEDGER)
     assert payload is not None
+    finalizer_only_paths = sum(
+        bool(owner["forbidden_stress_anchors"])
+        for owner in payload["owners"]
+    )
     print(
         "External owner lifetime evidence ok; "
         f"{len(payload['owners'])} raw owners have exact allocator, finalizer, "
-        f"release, and {payload['minimum_iterations']}-iteration stress evidence"
+        f"release, and {payload['minimum_iterations']}-iteration stress evidence; "
+        f"{finalizer_only_paths} stress path bans explicit release"
     )
     return 0
 

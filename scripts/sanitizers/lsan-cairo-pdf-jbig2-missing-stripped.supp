@@ -1,0 +1,3 @@
+# Distro Cairo omits private symbols; project wrappers keep the scope exact.
+leak:cairoon_pdf_surface_create_for_stream
+leak:cairoon_surface_finish

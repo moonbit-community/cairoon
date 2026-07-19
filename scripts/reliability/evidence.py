@@ -27,10 +27,11 @@ PARTIAL_GAP_MARKERS = (
     "until",
 )
 TESTS_EVIDENCE_MAX_CHARS = 1200
-NATIVE_TEST_MARKER = "840/840 native tests"
-PUBLICATION_MARKER = "660 publication members"
+NATIVE_TEST_MARKER = "841/841 native tests"
+PUBLICATION_MARKER = "664 publication members"
 OWNER_EVIDENCE_MARKER = (
-    "12/12 raw external owners with exact finalizer and 1000-iteration stress evidence"
+    "12/12 raw external owners with exact finalizer and 1000-iteration stress "
+    "evidence, including one raw-result stress path that bans explicit release"
 )
 TESTS_EVIDENCE_MARKERS = (
     "Cairo 1.15.10",
@@ -93,11 +94,12 @@ def expected_tests_evidence(repo_root: pathlib.Path) -> str:
         "FFI boundary, source and "
         "extracted consumers plus the unmodified cross-host archive consumer, "
         f"all {PUBLICATION_MARKER}, and every "
-        "discovered package under ASan/LSan/UBSan. Remaining gap: the unpushed "
-        "release commit lacks shipped GitHub evidence for Ubuntu and macOS "
-        "native jobs plus the Ubuntu combined ASan/LSan/UBSan job. Do not "
-        "close this row until those exact jobs pass on the release commit; "
-        "local evidence alone cannot close it."
+        "discovered package under ASan/LSan/UBSan. Remaining gap: GitHub run "
+        "29678818105 passed macOS native but failed both Ubuntu jobs on the "
+        "prior release commit. The local fix commit still needs passing Ubuntu "
+        "and macOS native jobs plus the Ubuntu combined ASan/LSan/UBSan job. "
+        "Do not close this row until those exact jobs pass on the release "
+        "commit; local evidence alone cannot close it."
     )
 
 
@@ -114,8 +116,12 @@ def current_stability_markers(repo_root: pathlib.Path) -> tuple[str, ...]:
         ),
         "The sole global `Partial` row is shipped test/release-platform evidence",
         (
-            "release commit still needs passing Ubuntu and macOS native jobs plus "
-            "the Ubuntu ASan/LSan/UBSan job"
+            "GitHub run 29678818105 passed macOS native but failed both Ubuntu "
+            "jobs on the prior release commit"
+        ),
+        (
+            "local fix commit still needs passing Ubuntu and macOS native jobs "
+            "plus the Ubuntu ASan/LSan/UBSan job"
         ),
     )
 
@@ -128,8 +134,10 @@ def expected_current_stability_evidence(repo_root: pathlib.Path) -> str:
         "consumers plus the unmodified cross-host archive consumer, all "
         f"{PUBLICATION_MARKER}, and every "
         "package under ASan/LSan/UBSan. The sole global `Partial` row is "
-        "shipped test/release-platform evidence: the release commit still needs "
-        "passing Ubuntu and macOS native jobs plus the Ubuntu ASan/LSan/UBSan job. "
+        "shipped test/release-platform evidence: GitHub run 29678818105 passed "
+        "macOS native but failed both Ubuntu jobs on the prior release commit. "
+        "The local fix commit still needs passing Ubuntu and macOS native jobs "
+        "plus the Ubuntu ASan/LSan/UBSan job. "
         "It does not represent an unimplemented portable API family, but it must "
         "close before a full-product claim. There is still no source-compatibility "
         "promise before `1.0`."

@@ -31,6 +31,20 @@ RELIABILITY_SUPPORT = frozenset(
         "scripts/reliability/markdown.py",
     }
 )
+SANITIZER_SUPPORT = frozenset(
+    {
+        "scripts/sanitizers/leak_probes.py",
+        "scripts/sanitizers/lsan-cairo-pdf-jbig2-missing-stripped.supp",
+        "scripts/sanitizers/lsan-cairo-pdf-jbig2-missing.supp",
+        "scripts/sanitizers/lsan-cairo-recording-snapshot-stripped.supp",
+        "scripts/sanitizers/lsan-cairo-recording-snapshot.supp",
+        "scripts/sanitizers/policy.py",
+        "scripts/sanitizers/probes/cairo_pdf_jbig2_missing_probe.c",
+        "scripts/sanitizers/probes/cairo_recording_snapshot_probe.c",
+        "scripts/sanitizers/run.py",
+        "scripts/sanitizers/toolchain.py",
+    }
+)
 REQUIRED_MEMBERS = frozenset(
     {
         "COPYING",
@@ -52,7 +66,7 @@ REQUIRED_MEMBERS = frozenset(
         "src/moon.pkg",
         "src/pkg.generated.mbti",
     }
-) | FFI_OWNERSHIP_SUPPORT | RELIABILITY_SUPPORT
+) | FFI_OWNERSHIP_SUPPORT | RELIABILITY_SUPPORT | SANITIZER_SUPPORT
 REQUIRED_TEXT_MARKERS = {
     "COPYING": (
         "COPYING-LGPL-2.1",
@@ -99,7 +113,7 @@ SOURCE_IDENTICAL_MEMBERS = frozenset(
         "scripts/check-external-owners.py",
         "scripts/lifetime/owners.json",
     }
-) | FFI_OWNERSHIP_SUPPORT | RELIABILITY_SUPPORT
+) | FFI_OWNERSHIP_SUPPORT | RELIABILITY_SUPPORT | SANITIZER_SUPPORT
 
 
 def check_archive(path: pathlib.Path) -> tuple[list[str], int]:

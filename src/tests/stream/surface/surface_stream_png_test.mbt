@@ -105,7 +105,7 @@ test "png stream reader short read maps to cairo IO error" {
 }
 
 ///|
-test "png stream reader maps corrupt image data to PngError" {
+test "png stream reader preserves version-specific corrupt status" {
   let input = make_png_bytes()
   let corrupt = Bytes::makei(input.length(), fn(index) {
     if index == 29 {
@@ -127,10 +127,17 @@ test "png stream reader maps corrupt image data to PngError" {
     })
     ()
   })
-  if @cairoon.CAIRO_VERSION >= 11600 {
+  let expects_no_memory = @cairoon.CAIRO_VERSION >= 11600 &&
+    @cairoon.CAIRO_VERSION <= 11800
+  if @cairoon.CAIRO_VERSION >= 11802 {
     match result {
       Err(CairoIOError(PngError, _)) => ()
       _ => @test.fail("expected PngError for a corrupt IHDR checksum")
+    }
+  } else if expects_no_memory {
+    match result {
+      Err(CairoMemoryError(NoMemory, _)) => ()
+      _ => @test.fail("expected Cairo 1.16-1.18.0 malformed-PNG status")
     }
   } else {
     inspect(result is Err(_), content="true")

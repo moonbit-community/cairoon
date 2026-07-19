@@ -373,6 +373,16 @@ class VerifyGateTests(unittest.TestCase):
                 errors = self.check_ci(mutated)
                 self.assertTrue(errors)
 
+        checkout_anchor = "        uses: actions/checkout@v6"
+        self.assertEqual(workflow.count(checkout_anchor), 2)
+        with self.subTest(label="deprecated checkout runtime"):
+            downgraded = workflow.replace(
+                checkout_anchor,
+                "        uses: actions/checkout@v4",
+                1,
+            )
+            self.assertTrue(self.check_ci(downgraded))
+
         permissions_anchor = "permissions:\n  contents: read\n"
         self.assertEqual(workflow.count(permissions_anchor), 1)
         jobs_prefix, jobs_separator, jobs_body = workflow.partition("jobs:\n")

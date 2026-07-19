@@ -107,11 +107,17 @@ cairoon is suitable for light native use when the required inventory rows are
 marked `Done`, the automated downstream consumer smoke test passes, and the
 project is pinned. The complete portable API scope and all 20 pinned pycairo
 test-source families are covered, and all 579 published declarations have
-substantive API documentation. The sole global `Partial` inventory row is
-test/release-platform evidence: local verification is extensive, but the
-release commit still needs passing GitHub Actions evidence from the Ubuntu and
-macOS native jobs plus the Ubuntu ASan/LSan/UBSan job. Platform-specific backends
-remain out of scope, and no source-compatibility promise exists before `1.0`.
+substantive API documentation. Raw text-to-glyph result fallback is exercised
+by a 1000-iteration finalizer-only stress package whose ledger forbids explicit
+release. The sole global `Partial` inventory row is test/release-platform
+evidence: GitHub Actions run `29678818105` passed macOS native but failed both
+Ubuntu jobs on the prior release commit. The diagnosed Cairo 1.18.0 PNG and
+stripped-symbol sanitizer fixes now pass all 841 native tests and every package
+under ASan/LSan/UBSan in an isolated Ubuntu 24.04 system-Cairo replay. That fix
+commit still needs passing Ubuntu and macOS native jobs plus the Ubuntu
+ASan/LSan/UBSan job.
+Platform-specific backends remain out of scope, and no source-compatibility
+promise exists before `1.0`.
 
 Linux ASan/LSan/UBSan runs each MoonBit package in a separate process. Cairo
 1.15.10 and 1.18.4 both have two reproducible upstream error-path leaks covered
