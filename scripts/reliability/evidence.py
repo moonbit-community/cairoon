@@ -97,7 +97,8 @@ def expected_tests_evidence(repo_root: pathlib.Path) -> str:
         f"all {PUBLICATION_MARKER}, and every "
         "discovered package under ASan/LSan/UBSan. Ubuntu 24.04 system Cairo "
         f"1.18.0 independently passes {NATIVE_TEST_MARKER} and every discovered "
-        "package under ASan/LSan/UBSan. Remaining gap: GitHub run "
+        "package under ASan/LSan/UBSan on both local arm64 and Rosetta-backed "
+        "x86_64. Remaining gap: GitHub run "
         "29678818105 passed macOS native but failed both Ubuntu jobs on the "
         "prior release commit. The local fix commit still needs passing Ubuntu "
         "and macOS native jobs plus the Ubuntu combined ASan/LSan/UBSan job. "
@@ -119,7 +120,8 @@ def current_stability_markers(repo_root: pathlib.Path) -> tuple[str, ...]:
         ),
         (
             "Ubuntu 24.04 system Cairo 1.18.0 independently passes "
-            f"{NATIVE_TEST_MARKER} and every package under ASan/LSan/UBSan"
+            f"{NATIVE_TEST_MARKER} and every package under ASan/LSan/UBSan on "
+            "both local arm64 and Rosetta-backed x86_64"
         ),
         "The sole global `Partial` row is shipped test/release-platform evidence",
         (
@@ -142,7 +144,8 @@ def expected_current_stability_evidence(repo_root: pathlib.Path) -> str:
         f"{PUBLICATION_MARKER}, and every "
         "package under ASan/LSan/UBSan. Ubuntu 24.04 system Cairo 1.18.0 "
         f"independently passes {NATIVE_TEST_MARKER} and every package under "
-        "ASan/LSan/UBSan. The sole global `Partial` row is "
+        "ASan/LSan/UBSan on both local arm64 and Rosetta-backed x86_64. The "
+        "sole global `Partial` row is "
         "shipped test/release-platform evidence: GitHub run 29678818105 passed "
         "macOS native but failed both Ubuntu jobs on the prior release commit. "
         "The local fix commit still needs passing Ubuntu and macOS native jobs "

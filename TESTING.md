@@ -294,6 +294,16 @@ Release candidates additionally run all three Linux Cairo lanes:
 ./scripts/test-cairo-matrix.sh cairo-1.18.4
 ```
 
+Cross-architecture local evidence uses explicit build and execution platforms.
+On Apple Silicon, use an isolated Rosetta-backed Docker context rather than
+QEMU's unstable long-running compiler emulation:
+
+```sh
+./scripts/test-cairo-matrix.sh ubuntu-24.04-system \
+  --platform linux/amd64 \
+  --docker-context colima-cairoon-rosetta
+```
+
 All lanes pin the Ubuntu base image and MoonBit toolchain. The system target
 requires Ubuntu's Cairo package to resolve exactly to 1.18.0; exact targets pin
 the Cairo source URL, archive SHA-256, install prefix, and linked version. The
@@ -4620,11 +4630,12 @@ allocations on x86_64; the classifier accepts that size only under the existing
 two-direct-leak, stack, and total-byte constraints. The first-class
 `ubuntu-24.04-system` lane then exercised the stripped PDF/JBIG2 path, whose
 package run used exactly 10 allocations/2284 bytes at the PDF stream constructor
-and 4/68 at Surface finish. That lane now passes 224/224 script tests, 841/841
-native tests, 63/63 docs, all three 6/6 consumer modes, the unmodified 667-member host
-archive, and every discovered package under ASan/LSan/UBSan; its arm64 stripped
-recording path uses exactly 16 suppressions/9344 bytes at `cairo_restore`, while
-a regression pins the failed x86_64 probe's 576-byte layout. The CI workflow
+and 4/68 at Surface finish. That lane now passes 225/225 script tests, 841/841
+native tests, 63/63 docs, all three 6/6 consumer modes, the unmodified 668-member
+host archive, and every discovered package under ASan/LSan/UBSan on both local
+arm64 and Rosetta-backed x86_64. Its arm64 stripped recording path uses exactly
+16 suppressions/9344 bytes at `cairo_restore`; x86_64 uses exactly 16/9216,
+matching 16 x 576-byte allocations. The CI workflow
 also uses `actions/checkout@v6`, and a negative workflow mutation rejects a
 return to the Node-20-based v4 action.
 

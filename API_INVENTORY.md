@@ -14,6 +14,17 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 
 ## Recent Audit Deltas
 
+- 2026-07-20: The Ubuntu 24.04 system-Cairo lane now has full local x86_64
+  execution evidence, not only a synthetic signature regression. An isolated
+  Rosetta-backed Docker context passed 225/225 script tests, 841/841 native
+  tests, 63/63 executable docs, all 668 byte-identical publication members, all
+  6/6 consumer workflows in every mode, and every package under
+  ASan/LSan/UBSan. The stripped recording package used exactly 16
+  suppressions/9216 bytes, matching 16 x 576-byte x86_64 allocations; the PDF
+  package used exactly 10/2284 plus 4/68. The matrix CLI now passes an explicit
+  platform to both Docker build and run, isolates platform image tags, accepts
+  an explicit Docker context, and makes pinned downloads retryable and
+  resumable. Negative reliability mutations pin those contracts.
 - 2026-07-19: Publication integrity now covers the complete archive rather than
   a critical-file whitelist. `scripts/check-publication-archive.py` derives
   the canonical publishable file set from the verified checkout and rejects
@@ -812,7 +823,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 | Scaled fonts | Done | External object, constructor, matrices/options/font-face getters, returned font-face/options lifetime after the source scaled-font scope exits, sheared font/CTM scale-matrix combination coverage, font/text/glyph extents including embedded-NUL validation, empty, single/multi/spaced ASCII, precomposed/decomposed Latin, CJK, Arabic RTL, and emoji UTF-8 text-to-glyph string/coordinate cases with direct C Cairo oracle coverage, targeted normal/ASan gate coverage, executable Font reference docs for matrices/options/metrics/text-to-glyphs/errors, and Context get/set |
 | Python buffer protocol / NumPy / pygame adapters | Decision | Python's buffer protocol and optional NumPy/pygame object adapters are host-runtime integrations, not Cairo APIs. Cairoon exposes checked `FixedArray[Byte]`-backed image construction plus retained `ImageData` access; exact shared-storage, mutable pixel, byte-layout, lifetime, and bounds behavior is tested without adding Python package dependencies or an unsafe unscoped raw-pointer API |
 | Docs | Done | README smoke examples, AGENTS lifecycle/error specifications, package/release/porting guides, and executable family reference notes are present. `scripts/check-public-docs.py` proves substantive MoonBit `///` documentation for all 579 public declarations across the facade and intentionally published support packages, with zero entries in `scripts/public-docs-debt.txt`; executable downstream-style docs cover every API family, including complete PDF/PS/SVG backend workflows and checked errors. New undocumented APIs or ledger drift fail the local and CI verification gate |
-| Tests | Partial | Local portable-scope evidence is complete: exact Cairo 1.15.10 and Cairo 1.18.4 lanes pass 225/225 script tests, 841/841 native tests, 63/63 executable docs, 288 upstream pycairo tests across 20 families, 579/579 documented public declarations, 12/12 raw external owners with exact finalizer and 1000-iteration stress evidence, including one raw-result stress path that bans explicit release, the 349-local-plus-two-direct production FFI boundary, 6/6 source, extracted, and unmodified cross-host archive consumer runs, all 668 byte-identical publication members, and every discovered package under ASan/LSan/UBSan. Ubuntu 24.04 system Cairo 1.18.0 independently passes 841/841 native tests and every discovered package under ASan/LSan/UBSan. Remaining gap: GitHub run 29678818105 passed macOS native but failed both Ubuntu jobs on the prior release commit. The local fix commit still needs passing Ubuntu and macOS native jobs plus the Ubuntu combined ASan/LSan/UBSan job. Do not close this row until those exact jobs pass on the release commit; local evidence alone cannot close it. |
+| Tests | Partial | Local portable-scope evidence is complete: exact Cairo 1.15.10 and Cairo 1.18.4 lanes pass 225/225 script tests, 841/841 native tests, 63/63 executable docs, 288 upstream pycairo tests across 20 families, 579/579 documented public declarations, 12/12 raw external owners with exact finalizer and 1000-iteration stress evidence, including one raw-result stress path that bans explicit release, the 349-local-plus-two-direct production FFI boundary, 6/6 source, extracted, and unmodified cross-host archive consumer runs, all 668 byte-identical publication members, and every discovered package under ASan/LSan/UBSan. Ubuntu 24.04 system Cairo 1.18.0 independently passes 841/841 native tests and every discovered package under ASan/LSan/UBSan on both local arm64 and Rosetta-backed x86_64. Remaining gap: GitHub run 29678818105 passed macOS native but failed both Ubuntu jobs on the prior release commit. The local fix commit still needs passing Ubuntu and macOS native jobs plus the Ubuntu combined ASan/LSan/UBSan job. Do not close this row until those exact jobs pass on the release commit; local evidence alone cannot close it. |
 
 ## Recent Reliability Slices
 

@@ -91,15 +91,16 @@ raw-result stress path that bans explicit release, 6/6 source, extracted, and
 unmodified cross-host archive consumer runs, all 668 byte-identical
 publication members, and every package under ASan/LSan/UBSan. Ubuntu 24.04
 system Cairo 1.18.0 independently passes 841/841 native tests and every package under
-ASan/LSan/UBSan. The sole global `Partial` row is shipped test/release-platform
-evidence: GitHub run 29678818105 passed macOS native but failed both Ubuntu jobs
-on the prior release commit. The local fix commit still needs passing Ubuntu
-and macOS native jobs plus the Ubuntu ASan/LSan/UBSan job. It does not represent
-an unimplemented portable API family, but it must close before a full-product
-claim. There is still no source-compatibility promise before `1.0`.
+ASan/LSan/UBSan on both local arm64 and Rosetta-backed x86_64. The sole global
+`Partial` row is shipped test/release-platform evidence: GitHub run 29678818105
+passed macOS native but failed both Ubuntu jobs on the prior release commit. The
+local fix commit still needs passing Ubuntu and macOS native jobs plus the Ubuntu
+ASan/LSan/UBSan job. It does not represent an unimplemented portable API family,
+but it must close before a full-product claim. There is still no
+source-compatibility promise before `1.0`.
 
-Run `./scripts/test-cairo-matrix.sh ubuntu-24.04-system` to reproduce that
-system-library lane without spending hosted CI capacity.
+Run `./scripts/test-cairo-matrix.sh ubuntu-24.04-system` without hosted CI. On
+Apple Silicon, use `./scripts/test-cairo-matrix.sh ubuntu-24.04-system --platform linux/amd64 --docker-context colima-cairoon-rosetta` with an isolated Rosetta-backed Docker daemon.
 
 The uppercase `CAIRO_VERSION*` and `HAS_*` constants are generated release
 source snapshots. When consuming the same source archive with different Cairo

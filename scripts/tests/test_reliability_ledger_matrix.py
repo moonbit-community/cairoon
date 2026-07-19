@@ -56,6 +56,11 @@ class LocalMatrixGateTests(unittest.TestCase):
             "cairo-1.18.4\n"
             "ubuntu-24.04-system\n"
             "--target system-cairo\n"
+            "--platform\n"
+            "--docker-context\n"
+            'build+=(--platform "$docker_platform")\n'
+            'run+=(--platform "$docker_platform")\n'
+            "platform_image_suffix\n"
             "CAIROON_SANITIZER_LEAKS=on\n"
             "moon package --list\n"
             "dst=/artifact/cairoon.zip,readonly\n",
@@ -68,6 +73,13 @@ class LocalMatrixGateTests(unittest.TestCase):
             'ENV CAIROON_MATRIX_CAIRO_VERSION="1.18.0"\n'
             'RUN test "$(pkg-config --modversion cairo)" = '
             '"${CAIROON_MATRIX_CAIRO_VERSION}"\n'
+            "RUN printf '%s\\n' \\\n"
+            "  'retry = 5' \\\n"
+            "  'retry-all-errors' \\\n"
+            "  'retry-delay = 2' \\\n"
+            "  'connect-timeout = 30' \\\n"
+            "  'continue-at = -' \\\n"
+            "  > /root/.curlrc\n"
             "FROM matrix-base AS exact-cairo\n",
             encoding="utf-8",
         )
@@ -165,6 +177,30 @@ class LocalMatrixGateTests(unittest.TestCase):
                     errors,
                 )
                 path.write_text(original, encoding="utf-8")
+
+        download_markers = (
+            "'retry = 5'",
+            "'retry-all-errors'",
+            "'retry-delay = 2'",
+            "'connect-timeout = 30'",
+            "'continue-at = -'",
+        )
+        for marker in download_markers:
+            with self.subTest(download_marker=marker):
+                original = self.dockerfile.read_text(encoding="utf-8")
+                self.assertIn(marker, original)
+                self.dockerfile.write_text(
+                    original.replace(marker, "", 1),
+                    encoding="utf-8",
+                )
+
+                errors = self.check(lane_text)
+
+                self.assertTrue(
+                    any("resumable download policy" in error for error in errors),
+                    errors,
+                )
+                self.dockerfile.write_text(original, encoding="utf-8")
 
     def test_matrix_lane_accepts_active_instrumented_public_coverage(self) -> None:
         errors = self.check(

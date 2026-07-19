@@ -225,6 +225,11 @@ def check_local_matrix(
     matrix_markers = (
         "cairo-1.15.10",
         "cairo-1.18.4",
+        "--platform",
+        "--docker-context",
+        'build+=(--platform "$docker_platform")',
+        'run+=(--platform "$docker_platform")',
+        "platform_image_suffix",
         "CAIROON_SANITIZER_LEAKS=on",
         "moon package --list",
         "dst=/artifact/cairoon.zip,readonly",
@@ -255,6 +260,19 @@ def check_local_matrix(
         if marker not in source:
             errors.append(
                 f"{path}: Ubuntu system Cairo lane is missing {marker!r}"
+            )
+
+    download_contract = (
+        "'retry = 5'",
+        "'retry-all-errors'",
+        "'retry-delay = 2'",
+        "'connect-timeout = 30'",
+        "'continue-at = -'",
+    )
+    for marker in download_contract:
+        if marker not in dockerfile_text:
+            errors.append(
+                f"{dockerfile}: resumable download policy is missing {marker!r}"
             )
 
     coverage_command = "python3 ./scripts/check-public-coverage.py --analyze"

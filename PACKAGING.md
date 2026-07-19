@@ -167,15 +167,28 @@ set `ASAN_OPTIONS=detect_leaks=0` on Linux release evidence.
 Run the exact local Cairo compatibility lanes before release:
 
 ```sh
+./scripts/test-cairo-matrix.sh ubuntu-24.04-system
 ./scripts/test-cairo-matrix.sh cairo-1.15.10
 ./scripts/test-cairo-matrix.sh cairo-1.18.4
 ```
 
-Each lane builds Cairo from a pinned URL and SHA-256 in an isolated Docker
-image, copies the checkout into disposable storage, runs the complete MoonBit
-native suite, and tests each MoonBit package separately under ASan/LSan/UBSan. Exact
-counts for the audited release state are recorded in `AUDIT.md` and
-`TESTING.md`. The runner first proves UBSan is active with an intentional signed
+On Apple Silicon, the system lane can be replayed as x86_64 through an isolated
+Rosetta-backed context:
+
+```sh
+./scripts/test-cairo-matrix.sh ubuntu-24.04-system \
+  --platform linux/amd64 \
+  --docker-context colima-cairoon-rosetta
+```
+
+Exact lanes build Cairo from a pinned URL and SHA-256; the system lane requires
+Ubuntu 24.04's unmodified Cairo 1.18.0. Every lane uses an isolated Docker image,
+copies the checkout into disposable storage, runs the complete MoonBit native
+suite, and tests each MoonBit package separately under ASan/LSan/UBSan. The
+selected platform reaches both Docker build and run and is encoded in the image
+tag; fixed downloads retry and resume. Exact counts for the audited release
+state are recorded in `AUDIT.md` and `TESTING.md`. The runner first proves UBSan
+is active with an intentional signed
 overflow and LSan is active with an intentional leak. Clang's `function`
 subcheck is disabled only in four non-inlined C helpers that dispatch already
 type-checked MoonBit `FuncRef` values: stream read/write and raster-source

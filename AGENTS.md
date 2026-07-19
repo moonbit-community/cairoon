@@ -1190,6 +1190,11 @@ MoonBit reliability requirements and remaining work:
   consumer modes,
   the full native/doc suites, and every discovered package under
   ASan/LSan/UBSan.
+- Cross-architecture matrix evidence must use `--platform` and may use
+  `--docker-context` for an isolated daemon. The selected platform must be
+  passed to both Docker build and run and must be encoded in the image tag.
+  Pinned Dockerfile downloads must retry all transfer errors and resume partial
+  files. Reliability mutations must reject removal of any of these contracts.
 
 ## Reliability Evaluation Plan
 

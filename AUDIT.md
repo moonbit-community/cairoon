@@ -1042,13 +1042,14 @@ The most recent full local verification passed on 2026-07-19:
   24.04's unmodified system Cairo 1.18.0: 225/225 script tests, 841/841 native
   tests, 63/63 executable docs, all three 6/6 consumer modes, all 668
   byte-identical publication members, and every discovered package under
-  ASan/LSan/UBSan.
-  Its stripped recording path used
-  exactly 16 suppressions/9344 bytes at `cairo_restore` on arm64; the stripped
-  PDF path used exactly 10/2284 at
+  ASan/LSan/UBSan on both local arm64 and Rosetta-backed x86_64.
+  The stripped recording path used exactly 16 suppressions/9344 bytes at
+  `cairo_restore` on arm64 and 16/9216 bytes on x86_64, exactly matching the
+  576-byte x86_64 layout. The stripped PDF path used exactly 10/2284 at
   `cairoon_pdf_surface_create_for_stream` plus 4/68 at
-  `cairoon_surface_finish`. The x86_64 576-byte recording layout remains pinned
-  by the classifier regression derived from the failed GitHub probe.
+  `cairoon_surface_finish` on x86_64. The matrix now accepts explicit platform
+  and Docker-context selection, applies the platform to build and run, isolates
+  image tags by platform, and retries/resumes fixed downloads.
 - The parity ledger covers all 288 tests in 20 pinned pycairo families, public
   documentation covers 579/579 declarations with zero debt, and the production
   boundary remains 349 local FFI symbols plus two direct libcairo symbols.

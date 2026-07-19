@@ -6,23 +6,64 @@ matrix_dir="$repo_root/scripts/matrix"
 lane=all
 no_cache=0
 release_archive_path=""
+docker_platform=""
+docker_context=""
+platform_image_suffix=""
 
 usage() {
   cat <<'EOF'
-Usage: scripts/test-cairo-matrix.sh [all|host|ubuntu-24.04-system|cairo-1.15.10|cairo-1.18.4] [--no-cache]
+Usage: scripts/test-cairo-matrix.sh [all|host|ubuntu-24.04-system|cairo-1.15.10|cairo-1.18.4] [--no-cache] [--platform PLATFORM] [--docker-context CONTEXT]
 
 Runs release evidence locally. The Docker lane mounts the checkout read-only
 and tests a disposable copy, so generated constants cannot modify host files.
+PLATFORM must be linux/amd64 or linux/arm64. CONTEXT selects an isolated Docker
+daemon, for example a Rosetta-backed Colima profile on Apple Silicon.
 EOF
 }
 
-for argument in "$@"; do
-  case "$argument" in
+missing_option_value() {
+  printf 'error: %s requires a non-empty value\n' "$1" >&2
+  usage >&2
+  exit 2
+}
+
+while [[ "$#" -gt 0 ]]; do
+  case "$1" in
     all|host|ubuntu-24.04-system|cairo-1.15.10|cairo-1.18.4)
-      lane="$argument"
+      lane="$1"
+      shift
       ;;
     --no-cache)
       no_cache=1
+      shift
+      ;;
+    --platform)
+      if [[ "$#" -lt 2 || -z "$2" || "$2" == --* ]]; then
+        missing_option_value "$1"
+      fi
+      docker_platform="$2"
+      shift 2
+      ;;
+    --platform=*)
+      docker_platform="${1#*=}"
+      if [[ -z "$docker_platform" ]]; then
+        missing_option_value --platform
+      fi
+      shift
+      ;;
+    --docker-context)
+      if [[ "$#" -lt 2 || -z "$2" || "$2" == --* ]]; then
+        missing_option_value "$1"
+      fi
+      docker_context="$2"
+      shift 2
+      ;;
+    --docker-context=*)
+      docker_context="${1#*=}"
+      if [[ -z "$docker_context" ]]; then
+        missing_option_value --docker-context
+      fi
+      shift
       ;;
     -h|--help)
       usage
@@ -34,6 +75,23 @@ for argument in "$@"; do
       ;;
   esac
 done
+
+case "$docker_platform" in
+  "") ;;
+  linux/amd64|linux/arm64)
+    platform_image_suffix="-${docker_platform//\//-}"
+    ;;
+  *)
+    printf 'error: unsupported Docker platform: %s\n' "$docker_platform" >&2
+    usage >&2
+    exit 2
+    ;;
+esac
+
+docker_cli=(docker)
+if [[ -n "$docker_context" ]]; then
+  docker_cli+=(--context "$docker_context")
+fi
 
 run_host() {
   printf '\n==> host Cairo lane\n'
@@ -70,10 +128,13 @@ run_matrix_image() {
   shift
   prepare_release_archive
   local build=(
-    docker build
+    "${docker_cli[@]}" build
     --file "$matrix_dir/Dockerfile"
     --tag "$image"
   )
+  if [[ -n "$docker_platform" ]]; then
+    build+=(--platform "$docker_platform")
+  fi
   build+=("$@")
   if [[ "$no_cache" == 1 ]]; then
     build+=(--no-cache)
@@ -81,17 +142,23 @@ run_matrix_image() {
   build+=("$matrix_dir")
   "${build[@]}"
 
-  docker run --rm --init \
-    --mount "type=bind,src=$repo_root,dst=/source,readonly" \
-    --mount "type=bind,src=$release_archive_path,dst=/artifact/cairoon.zip,readonly" \
+  local run=("${docker_cli[@]}" run --rm --init)
+  if [[ -n "$docker_platform" ]]; then
+    run+=(--platform "$docker_platform")
+  fi
+  run+=(
+    --mount "type=bind,src=$repo_root,dst=/source,readonly"
+    --mount "type=bind,src=$release_archive_path,dst=/artifact/cairoon.zip,readonly"
     "$image"
+  )
+  "${run[@]}"
 }
 
 run_cairo_lane() {
   local version="$1"
   local url="$2"
   local sha256="$3"
-  local image="cairoon-local:cairo-${version}-moon-0.10.4-4f2e8f7dc"
+  local image="cairoon-local:cairo-${version}-moon-0.10.4-4f2e8f7dc${platform_image_suffix}"
 
   printf '\n==> Linux Cairo %s lane\n' "$version"
   run_matrix_image \
@@ -102,7 +169,7 @@ run_cairo_lane() {
 }
 
 run_ubuntu_24_04_system() {
-  local image="cairoon-local:ubuntu-24.04-system-cairo-moon-0.10.4-4f2e8f7dc"
+  local image="cairoon-local:ubuntu-24.04-system-cairo-moon-0.10.4-4f2e8f7dc${platform_image_suffix}"
 
   printf '\n==> Ubuntu 24.04 system Cairo lane\n'
   run_matrix_image "$image" --target system-cairo

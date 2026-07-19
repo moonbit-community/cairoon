@@ -28,6 +28,14 @@ RUN apt-get update \
 
 ARG MOONBIT_INSTALL_VERSION=0.10.4+4f2e8f7dc-nightly
 
+RUN printf '%s\n' \
+        'retry = 5' \
+        'retry-all-errors' \
+        'retry-delay = 2' \
+        'connect-timeout = 30' \
+        'continue-at = -' \
+        > /root/.curlrc
+
 RUN curl -fsSL https://cli.moonbitlang.com/install/unix.sh -o /tmp/moonbit-install.sh \
     && MOONBIT_INSTALL_VERSION="${MOONBIT_INSTALL_VERSION}" \
         bash /tmp/moonbit-install.sh \
