@@ -4,14 +4,20 @@
 
 Implemented in this workspace:
 
+- The 835-line pattern-stack C oracle is split by responsibility: stack,
+  mesh, and mask scenes remain in a 504-line file, while Overlay, SoftLight,
+  and Difference scenes live in a 332-line blend-operator file. The source-size
+  gate now enforces 600 lines for every C source/header and 850 for other
+  checked source, with two focused boundary tests. The current tree has 430
+  checked source files and 34 production plus 51 oracle C stubs.
 - Sanitizer tooling is no longer concentrated in an 852-line entry point.
   `scripts/sanitizers/run.py` contains CLI and package orchestration,
   `toolchain.py` owns compiler discovery, preflights, wrappers, and shadow
   toolchains, and `leak_probes.py` owns strict upstream-Cairo leak signatures
   and suppression-use accounting. Existing test imports remain available via
   entry-point re-exports. The reliability gate requires each critical marker
-  in its owning module, the source-size ceiling is now 850 lines, and all 425
-  checked source files comply.
+  in its owning module. That slice established the 850-line general source
+  ceiling; the later C-specific 600-line ceiling is described above.
 - Eleven family-scoped executable reference documents under `src/docs/`,
   including dedicated enum, status/version/error, and pure-value guides. The
   external docs package passes 63/63 tests, and the project-layout gate
@@ -99,7 +105,7 @@ Implemented in this workspace:
   MoonBit's pre-build protocol resolves Cairo 1.15.10 or newer via `pkg-config`,
   injects `${build.CAIRO_CFLAGS}` into the two native-stub packages, appends
   the exact `-std=c11 -Wall -Wextra -Wpedantic -Werror` contract for all 34
-  production and 50 oracle C stubs, and propagates linker flags from
+  production and 51 oracle C stubs, and propagates linker flags from
   `CAIMEOX/cairoon/native`. The layout checker and a parameterized negative
   test reject omission, reordering, or downgrading of those flags. All 89 package and
   consumer manifests are free of concrete host paths and repeated
@@ -107,13 +113,13 @@ Implemented in this workspace:
   process failures, deterministic JSON, and environment redaction.
 - Exact local release lanes for Cairo 1.15.10 and 1.18.4, built from pinned
   source URLs and SHA-256 digests on a pinned Ubuntu base image. Both lanes
-  pass all static gates, 840/840 native tests, 192/192 script tests, and 63/63
+  pass all static gates, 840/840 native tests, 194/194 script tests, and 63/63
   executable documentation tests with the pinned MoonBit
   `0.10.4+4f2e8f7dc-nightly` compiler. In each lane, the source-checkout and
   extracted-publication-zip consumers also pass 1/1 independently. Each lane
   additionally consumes the same unmodified host-generated zip, so
   producer-specific include/library paths cannot be hidden by lane setup. The
-  integrity-checked publication archive contains 643 members, and every
+  integrity-checked publication archive contains 645 members, and every
   discovered package passes ASan/LSan/UBSan. Each pinned lane also runs
   instrumented public-facade coverage and requires the exact linked-version
   ledger profile.
@@ -876,20 +882,20 @@ Implemented in this workspace:
 
 The most recent full local verification passed on 2026-07-19:
 
-- `./scripts/verify.sh` passed 192/192 script tests,
+- `./scripts/verify.sh` passed 194/194 script tests,
   840/840 native tests, 63/63 executable documentation tests, formatting,
   project layout, source-size, Cairo build-protocol/generated-constant, FFI
   ownership, exact external-owner/finalizer/stress evidence, API inventory,
   pycairo parity, public documentation, reliability-ledger, vector-scene,
   native type including warning 73, and generated-interface gates. The
   isolated consumer passed 1/1 against both the checkout and the
-  integrity-tested extracted 643-member publication zip. Host ASan/UBSan
+  integrity-tested extracted 645-member publication zip. Host ASan/UBSan
   passed every discovered package;
   authoritative Linux LSan coverage is supplied by both exact-Cairo lanes.
 - `./scripts/test-cairo-matrix.sh cairo-1.15.10` and
-  `./scripts/test-cairo-matrix.sh cairo-1.18.4` passed the same 192 script,
+  `./scripts/test-cairo-matrix.sh cairo-1.18.4` passed the same 194 script,
   840 native, and 63 documentation tests, both 1/1 consumer paths, the
-  unmodified host-archive consumer, all 643 publication members, and every
+  unmodified host-archive consumer, all 645 publication members, and every
   discovered package under ASan/LSan/UBSan.
   Intentional signed-overflow and leak preflights passed in both lanes. The
   constrained vector suppression accounted for 16 allocations/7424 bytes on

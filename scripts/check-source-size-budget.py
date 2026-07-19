@@ -9,7 +9,9 @@ import sys
 
 REPO_ROOT = pathlib.Path(__file__).resolve().parents[1]
 MAX_SOURCE_LINES = 850
+MAX_C_SOURCE_LINES = 600
 SOURCE_SUFFIXES = (".mbt", ".mbt.md", ".c", ".h", ".py", ".sh")
+C_SOURCE_SUFFIXES = (".c", ".h")
 SEARCH_ROOTS = (
     REPO_ROOT / "src",
     REPO_ROOT / "scripts",
@@ -27,8 +29,26 @@ def line_count(path: pathlib.Path) -> int:
     return len(path.read_text(encoding="utf-8").splitlines())
 
 
+def source_line_budget(path: pathlib.Path) -> int:
+    if path.name.endswith(C_SOURCE_SUFFIXES):
+        return MAX_C_SOURCE_LINES
+    return MAX_SOURCE_LINES
+
+
+def source_size_violation(
+    path: pathlib.Path,
+    lines: int | None = None,
+) -> tuple[int, int] | None:
+    if lines is None:
+        lines = line_count(path)
+    budget = source_line_budget(path)
+    if lines > budget:
+        return lines, budget
+    return None
+
+
 def main() -> int:
-    oversized: list[tuple[int, pathlib.Path]] = []
+    oversized: list[tuple[int, int, pathlib.Path]] = []
     checked = 0
     largest: tuple[int, pathlib.Path] | None = None
 
@@ -42,14 +62,15 @@ def main() -> int:
             lines = line_count(path)
             if largest is None or lines > largest[0]:
                 largest = (lines, path)
-            if lines > MAX_SOURCE_LINES:
-                oversized.append((lines, path))
+            violation = source_size_violation(path, lines)
+            if violation is not None:
+                oversized.append((*violation, path))
 
     if oversized:
-        for lines, path in oversized:
+        for lines, budget, path in oversized:
             rel = path.relative_to(REPO_ROOT)
             print(
-                f"{rel}: {lines} lines exceeds the {MAX_SOURCE_LINES}-line source budget",
+                f"{rel}: {lines} lines exceeds the {budget}-line source budget",
                 file=sys.stderr,
             )
         return 1
@@ -58,7 +79,9 @@ def main() -> int:
     if largest is not None:
         largest_text = f"{largest[1].relative_to(REPO_ROOT)} ({largest[0]} lines)"
     print(
-        f"Source size budget ok; {checked} source files checked; largest {largest_text}"
+        f"Source size budget ok; {checked} source files checked; "
+        f"limits are {MAX_C_SOURCE_LINES} C/header and {MAX_SOURCE_LINES} general lines; "
+        f"largest {largest_text}"
     )
     return 0
 

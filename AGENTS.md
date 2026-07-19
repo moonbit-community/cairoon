@@ -471,8 +471,11 @@ constants probes in `cairoon_test_constants.c`, scaled-font direct-C probes in
 `cairoon_test_image.c`, base pattern scene helpers in
 `cairoon_test_pattern_scenes.c`, pattern extend/filter/matrix combinations in
 `cairoon_test_pattern_combo_scenes.c`, pattern stack/mesh/mask combinations in
-`cairoon_test_pattern_stack_scenes.c`, raster-source and basic mesh pattern
-scenes in `cairoon_test_pattern_special_scenes.c`, common drawing helpers in
+`cairoon_test_pattern_stack_scenes.c`, Overlay/SoftLight/Difference blend
+combinations in `cairoon_test_pattern_blend_operator_scenes.c`, remaining
+operator combinations in `cairoon_test_pattern_operator_scenes.c`, and
+raster-source/basic mesh scenes in
+`cairoon_test_pattern_special_scenes.c`, common drawing helpers in
 `cairoon_test_common.c`, normalized file comparison helpers in
 `cairoon_test_file.c`, vector-output
 exports in `cairoon_test_vector.c`, shared vector scene ids and prototypes in
@@ -599,7 +602,8 @@ must live beside `src/native/moon.pkg`; test-only oracle C files must live
 beside `src/tests/oracle/native/moon.pkg`. Keep files small enough to review as
 a coherent object-family binding. If a file grows past the scale of pycairo's
 corresponding file without a concrete reason, split it before adding more API
-surface.
+surface. `scripts/check-source-size-budget.py` enforces a 600-line ceiling for
+C sources and headers and an 850-line ceiling for other checked source files.
 
 ## Public API Policy
 

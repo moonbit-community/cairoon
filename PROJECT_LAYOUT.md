@@ -80,7 +80,7 @@ silently return later.
 - 0 white-box `*_wbtest.mbt` files in `src/`.
 - 34 public C implementation files owned by `src/native/moon.pkg`.
 - 1 public C header in `src/native/`.
-- 50 oracle C implementation files in `src/tests/oracle/native/`.
+- 51 oracle C implementation files in `src/tests/oracle/native/`.
 - 2 oracle C headers in `src/tests/oracle/native/`.
 - 1 executable `.mbt.md` doc in `src/`.
 
@@ -481,7 +481,7 @@ MoonBit package shape without weakening the public interface.
 | Public package | `src/` | Owns the stable `CAIMEOX/cairoon` interface and public external object types until a facade proof proves otherwise. |
 | Pure support packages | `src/core/` | May hold pure values/helpers only after their public names can be preserved or intentionally re-exported. `src/core/glyph` is the first accepted seam: the public package exposes `pub type Glyph = @glyph.Glyph`, owns `@glyph.field_arrays` for glyph-array marshaling preparation, and tests prove `@cairoon.Glyph::new`, field access, dot-method syntax, and glyph-array FFI paths still work through the facade. `src/core/constants` is the second accepted seam: it owns generated primitive Cairo constants, while the facade preserves `@cairoon.CAIRO_VERSION`, `@cairoon.HAS_*`, `@cairoon.MIME_TYPE_*`, tag constants, `PDF_OUTLINE_ROOT`, and `COLOR_PALETTE_DEFAULT` through `pub const` aliases. |
 | Internal implementation packages | `src/internal/<family>/` | May own native-gated externs and helpers when the public `CAIMEOX/cairoon` facade remains unchanged. Version, format, status, PDF, PS, SVG, stream, and C-string helpers keep public enums, errors, and object wrappers in the facade. Region, FontOptions, FontFace, Path, Device, ScaledFont, Pattern, Context, and Surface are facade-owned object seams: each child owns the sole GC-managed raw handle and uses raw `Int` status/enum values; checked public methods alone wrap or unwrap it. The ScaledFont child additionally owns private `RawTextToGlyphs`, whose arrays are copied into public pure values. Cross-family child calls exchange only raw handles. Context owns 109 externs across seven C-matched families, Device owns 17, Pattern owns 45, and Surface owns 84; the public root owns no C FFI. Native linking propagates from `CAIMEOX/cairoon/native`; no child repeats host flags, and each still links independently. Producer-only children such as Path are tested through real external producers, not test-only C constructors. Callback-owning Pattern, Device, and Surface children must prove owned-closure cleanup and retained-object safety under ASan/LSan/UBSan. |
-| Native stubs | `src/native/` | Owns public C glue compilation through `src/native/moon.pkg`. Every `.c` file beside that package file must be listed by bare filename in its `native-stub` list; `src/moon.pkg` imports `CAIMEOX/cairoon/native` and must not own `native-stub` entries. Headers in `src/native/` are private to those stubs. All 34 production stubs and all 50 oracle stubs compile with the exact `"${build.CAIRO_CFLAGS} -std=c11 -Wall -Wextra -Wpedantic -Werror"` string; the module build script propagates Cairo linking from the production package. |
+| Native stubs | `src/native/` | Owns public C glue compilation through `src/native/moon.pkg`. Every `.c` file beside that package file must be listed by bare filename in its `native-stub` list; `src/moon.pkg` imports `CAIMEOX/cairoon/native` and must not own `native-stub` entries. Headers in `src/native/` are private to those stubs. All 34 production stubs and all 51 oracle stubs compile with the exact `"${build.CAIRO_CFLAGS} -std=c11 -Wall -Wextra -Wpedantic -Werror"` string; the module build script propagates Cairo linking from the production package. |
 | Black-box tests | `src/tests/<family>/` | Import `CAIMEOX/cairoon`; assert only public behavior. They must not repeat compiler or linker flags because `CAIMEOX/cairoon/native` propagates the native configuration. |
 | White-box oracles | `src/tests/oracle/<family>/` plus shared C support in `src/tests/oracle/native/` | Import `CAIMEOX/cairoon` for the public API and declare test-only direct-C oracle externs locally; public binding wrappers must never import oracle packages. Test-only C symbols are provided by the oracle-native support package, not `src/moon.pkg`. |
 | Documentation | `src/docs/`, `src/README.mbt.md`, and repository `docs/` | Narrative docs live outside source packages; the public package README stays at `src/README.mbt.md` for `moon.mod`, and family executable reference docs live in the external `src/docs` package so they compile like downstream user code through `CAIMEOX/cairoon`. |
@@ -700,9 +700,10 @@ before MoonBit compilation. The layout check proves:
   package root cannot grow while family packages are being extracted;
 - the root and public-package-root allowlists are exact ledgers with no stale
   names left behind after a migration slice moves files into child packages;
-- `scripts/check-source-size-budget.py` keeps source, test, script, native
-  glue, and executable-doc files under the 850-line review budget so large
-  oracles and glue families are split deliberately instead of growing in place;
+- `scripts/check-source-size-budget.py` keeps C sources and headers under a
+  600-line review budget and other source, test, script, and executable-doc
+  files under an 850-line budget, so large oracles and glue families are split
+  deliberately instead of growing in place;
 - `src/moon.pkg`, `src/pkg.generated.mbti`, and `moon.mod source = "src"`
   are present;
 - `moon.mod` declares native as both the preferred and sole supported target,

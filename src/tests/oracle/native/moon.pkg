@@ -11,6 +11,7 @@ options(
     "cairoon_test_pattern_scenes.c",
     "cairoon_test_pattern_combo_scenes.c",
     "cairoon_test_pattern_stack_scenes.c",
+    "cairoon_test_pattern_blend_operator_scenes.c",
     "cairoon_test_pattern_operator_scenes.c",
     "cairoon_test_pattern_special_scenes.c",
     "cairoon_test_image.c",
