@@ -4,12 +4,21 @@
 
 Implemented in this workspace:
 
+- The 800-line reliability-ledger test module is split by rule domain into
+  384-line downstream/verify/workflow, 329-line current-release-evidence, and
+  140-line exact-local-matrix suites. All 29 existing ledger regressions remain
+  discovered; release-evidence count normalization now handles Markdown line
+  wrapping. The source-size gate adds a 600-line Python-test ceiling and a
+  third boundary regression while retaining 600-line C/header and 850-line
+  general budgets. The current tree has 442 checked source files, 198 script
+  tests, and 657 publication members.
 - The 750-line project-layout checker is split into a 258-line path assembly,
   compatibility-wrapper, ordering, and CLI entry point plus focused common
   parsing, executable-counter, metadata/docs/consumer, and native/package
   modules of at most 276 lines. Eighteen layout tests retain the seventeen
   behavior checks and pin all eleven root-aware delegations. The current tree
-  has 440 checked source files, 197 script tests, and 655 publication members.
+  That slice brought the tree to 440 checked source files, 197 script tests,
+  and 655 publication members.
 - The 827-line FFI ownership checker is split into a 336-line declaration,
   facade, export-parity, and CLI entry point plus focused shared-source,
   Device, Surface, and mapped-image cleanup modules of at most 279 lines.
@@ -127,13 +136,13 @@ Implemented in this workspace:
   process failures, deterministic JSON, and environment redaction.
 - Exact local release lanes for Cairo 1.15.10 and 1.18.4, built from pinned
   source URLs and SHA-256 digests on a pinned Ubuntu base image. Both lanes
-  pass all static gates, 840/840 native tests, 197/197 script tests, and 63/63
+  pass all static gates, 840/840 native tests, 198/198 script tests, and 63/63
   executable documentation tests with the pinned MoonBit
   `0.10.4+4f2e8f7dc-nightly` compiler. In each lane, the source-checkout and
   extracted-publication-zip consumers also pass 1/1 independently. Each lane
   additionally consumes the same unmodified host-generated zip, so
   producer-specific include/library paths cannot be hidden by lane setup. The
-  integrity-checked publication archive contains 655 members, and every
+  integrity-checked publication archive contains 657 members, and every
   discovered package passes ASan/LSan/UBSan. Each pinned lane also runs
   instrumented public-facade coverage and requires the exact linked-version
   ledger profile.
@@ -896,20 +905,20 @@ Implemented in this workspace:
 
 The most recent full local verification passed on 2026-07-19:
 
-- `./scripts/verify.sh` passed 197/197 script tests,
+- `./scripts/verify.sh` passed 198/198 script tests,
   840/840 native tests, 63/63 executable documentation tests, formatting,
   project layout, source-size, Cairo build-protocol/generated-constant, FFI
   ownership, exact external-owner/finalizer/stress evidence, API inventory,
   pycairo parity, public documentation, reliability-ledger, vector-scene,
   native type including warning 73, and generated-interface gates. The
   isolated consumer passed 1/1 against both the checkout and the
-  integrity-tested extracted 655-member publication zip. Host ASan/UBSan
+  integrity-tested extracted 657-member publication zip. Host ASan/UBSan
   passed every discovered package;
   authoritative Linux LSan coverage is supplied by both exact-Cairo lanes.
 - `./scripts/test-cairo-matrix.sh cairo-1.15.10` and
-  `./scripts/test-cairo-matrix.sh cairo-1.18.4` passed the same 197 script,
+  `./scripts/test-cairo-matrix.sh cairo-1.18.4` passed the same 198 script,
   840 native, and 63 documentation tests, both 1/1 consumer paths, the
-  unmodified host-archive consumer, all 655 publication members, and every
+  unmodified host-archive consumer, all 657 publication members, and every
   discovered package under ASan/LSan/UBSan.
   Intentional signed-overflow and leak preflights passed in both lanes. The
   constrained vector suppression accounted for 16 allocations/7424 bytes on

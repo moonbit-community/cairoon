@@ -64,6 +64,19 @@ class SourceSizeBudgetTests(unittest.TestCase):
         )
         self.assertIsNone(self.budget.source_size_violation(ordinary))
 
+    def test_python_test_budget_rejects_601_lines_but_accepts_600(self) -> None:
+        at_limit = self.write_lines("test_at_limit.py", 600)
+        over_limit = self.write_lines("test_over_limit.py", 601)
+        ordinary = self.write_lines("checker.py", 601)
+
+        self.assertEqual(self.budget.source_line_budget(at_limit), 600)
+        self.assertIsNone(self.budget.source_size_violation(at_limit))
+        self.assertEqual(
+            self.budget.source_size_violation(over_limit),
+            (601, 600),
+        )
+        self.assertIsNone(self.budget.source_size_violation(ordinary))
+
 
 if __name__ == "__main__":
     unittest.main()

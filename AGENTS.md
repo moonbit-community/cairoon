@@ -615,7 +615,8 @@ beside `src/tests/oracle/native/moon.pkg`. Keep files small enough to review as
 a coherent object-family binding. If a file grows past the scale of pycairo's
 corresponding file without a concrete reason, split it before adding more API
 surface. `scripts/check-source-size-budget.py` enforces a 600-line ceiling for
-C sources and headers and an 850-line ceiling for other checked source files.
+C sources, headers, and Python `test_*.py` modules, plus an 850-line ceiling
+for other checked source files.
 
 ## Public API Policy
 
@@ -1115,6 +1116,11 @@ MoonBit reliability requirements and remaining work:
   jobs at 60 minutes. `scripts/check-reliability-ledger.py` and its negative
   mutations must reject a broader concurrency group, disabled cancellation,
   removed timeout, conditional gate, or failure masking.
+- Keep reliability-ledger tests split by rule domain:
+  `test_reliability_ledger.py` owns downstream/verify/hosted-workflow gates,
+  `test_reliability_ledger_evidence.py` owns inventory and release-document
+  evidence, and `test_reliability_ledger_matrix.py` owns exact local-matrix
+  wiring. Do not merge these classes back into one mixed test module.
 
 ## Reliability Evaluation Plan
 

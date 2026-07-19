@@ -177,6 +177,9 @@ cairoon/
     tests/
       test_external_owners.py
       test_pycairo_test_parity.py
+      test_reliability_ledger.py
+      test_reliability_ledger_evidence.py
+      test_reliability_ledger_matrix.py
       test_sanitizer_policy.py
     test-cairo-matrix.sh
   src/
@@ -712,10 +715,10 @@ before MoonBit compilation. The layout check proves:
   package root cannot grow while family packages are being extracted;
 - the root and public-package-root allowlists are exact ledgers with no stale
   names left behind after a migration slice moves files into child packages;
-- `scripts/check-source-size-budget.py` keeps C sources and headers under a
-  600-line review budget and other source, test, script, and executable-doc
-  files under an 850-line budget, so large oracles and glue families are split
-  deliberately instead of growing in place;
+- `scripts/check-source-size-budget.py` keeps C sources, headers, and Python
+  test modules under a 600-line review budget and other source, script, and
+  executable-doc files under an 850-line budget, so large oracles, test domains,
+  and glue families are split deliberately instead of growing in place;
 - `src/moon.pkg`, `src/pkg.generated.mbti`, and `moon.mod source = "src"`
   are present;
 - `moon.mod` declares native as both the preferred and sole supported target,
