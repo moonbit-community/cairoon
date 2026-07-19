@@ -4,6 +4,17 @@
 
 Implemented in this workspace:
 
+- The release consumer is no longer a one-operation smoke package. Its
+  separately named `integration/consumer/src/contract` package has six
+  responsibility-split public-only workflows for deterministic image/path/
+  pattern drawing, `MappedImageSurface::with_unmapped`, Matrix/Region values,
+  structured `CairoError` matching, PNG read/write callbacks, and PDF stream
+  finalization. Source and extracted 664-member publication runs pass 6/6.
+  Archive mode copies an explicit six-file list; the reliability checker pins
+  that exact order, exact source set, and all six names. Three negative tests
+  reject manifest, file, or workflow loss, raising the script suite to 212/212.
+  The tree now has 451 checked source files. Public signatures, the 841-test
+  native suite, production C glue, and archive membership are unchanged.
 - The Ubuntu 24.04 system-Cairo replay is now the named local release lane
   `./scripts/test-cairo-matrix.sh ubuntu-24.04-system`. The Dockerfile separates
   `matrix-base`, `lane-runner`, `system-cairo`, and `exact-cairo`; the system
@@ -976,21 +987,21 @@ Implemented in this workspace:
 
 The most recent full local verification passed on 2026-07-19:
 
-- `CAIROON_VERIFY_ASAN=0 ./scripts/verify.sh` passed 209/209 script tests,
+- `CAIROON_VERIFY_ASAN=0 ./scripts/verify.sh` passed 212/212 script tests,
   841/841 native tests, 63/63 executable documentation tests, formatting,
   project layout, source-size, Cairo build-protocol/generated-constant, FFI
   ownership, exact external-owner/finalizer/stress evidence, API inventory,
   pycairo parity, public documentation, reliability-ledger, vector-scene,
   native type including warning 73, and generated-interface gates. The
-  isolated consumer passed 1/1 against both the checkout and the
+  isolated consumer passed 6/6 against both the checkout and the
   integrity-tested extracted 664-member publication zip. A targeted host
   ASan/UBSan run passed the finalizer-only `RawTextToGlyphs` package;
   authoritative whole-workspace ASan/LSan/UBSan coverage is supplied by the
   Linux lanes below.
 - `./scripts/test-cairo-matrix.sh cairo-1.15.10` and
-  `./scripts/test-cairo-matrix.sh cairo-1.18.4` passed the same 209 script,
-  841 native, and 63 documentation tests, both 1/1 consumer paths, the
-  unmodified host-archive consumer, all 664 publication members, and every
+  `./scripts/test-cairo-matrix.sh cairo-1.18.4` passed the same 212 script,
+  841 native, and 63 documentation tests, all three 6/6 consumer modes, all
+  664 publication members, and every
   discovered package under ASan/LSan/UBSan.
   Intentional signed-overflow and leak preflights passed in both lanes. The
   constrained vector suppression accounted for 16 allocations/7424 bytes on
@@ -998,9 +1009,9 @@ The most recent full local verification passed on 2026-07-19:
   accounted for 9 allocations/988 bytes and 14/2352 respectively. Every other
   package remained unsuppressed.
 - `./scripts/test-cairo-matrix.sh ubuntu-24.04-system` passed with Ubuntu
-  24.04's unmodified system Cairo 1.18.0: 209/209 script tests, 841/841 native
-  tests, 63/63 executable docs,
-  both downstream consumer paths, all 664 publication members, and every
+  24.04's unmodified system Cairo 1.18.0: 212/212 script tests, 841/841 native
+  tests, 63/63 executable docs, all three 6/6 consumer modes, all 664
+  publication members, and every
   discovered package under ASan/LSan/UBSan. Its stripped recording path used
   exactly 16 suppressions/9344 bytes at `cairo_restore` on arm64; the stripped
   PDF path used exactly 10/2284 at
@@ -3816,9 +3827,10 @@ under `integration/consumer`. Its versioned dependency is resolved through
 `integration/moon.work`, while its test package imports only
 `CAIMEOX/cairoon` and carries no Cairo compiler or linker flags. MoonBit runs
 the trusted module pre-build script for the dependency, then propagates the
-native package's resolved linker flags to the consumer executable. The smoke
-test creates an ARGB32 surface, paints through `Context`, reads pixels through
-the public API, and passes 1/1.
+native package's resolved linker flags to the consumer executable. Six split
+tests cover deterministic image/path/pattern drawing, scoped mapped-image
+ownership, Matrix/Region values, typed status errors, PNG callback round-trip,
+and finished PDF stream output. The source package passes 6/6.
 
 `moon package --list` confirms that the integration fixture is absent from the
 release archive. The gate integrity-checks that exact zip, extracts it into a
@@ -3826,10 +3838,10 @@ fresh workspace, and reruns the consumer against the packaged module. The two
 exact Linux Cairo lanes additionally consume the same host-generated zip
 without rewriting its manifests or running the repository constants updater.
 This catches producer-specific include and library paths that source-copy lane
-setup would otherwise hide. The current 640-member archive also contains the
-declared dual-license notice and complete license texts; source,
-freshly extracted, and unmodified cross-host archive paths all pass against
-Cairo 1.15.10 and 1.18.4.
+setup would otherwise hide. The current 664-member archive also contains the
+declared dual-license notice and complete license texts; source, freshly
+extracted, and unmodified cross-host archive modes each pass 6/6 against Cairo
+1.15.10, Ubuntu system Cairo 1.18.0, and Cairo 1.18.4.
 
 ## Known Gaps
 

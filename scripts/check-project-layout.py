@@ -63,9 +63,19 @@ INTEGRATION_ROOT = REPO_ROOT / "integration"
 INTEGRATION_WORKSPACE = INTEGRATION_ROOT / "moon.work"
 CONSUMER_ROOT = INTEGRATION_ROOT / "consumer"
 CONSUMER_MODULE = CONSUMER_ROOT / "moon.mod"
-CONSUMER_PACKAGE = CONSUMER_ROOT / "src" / "smoke"
+CONSUMER_PACKAGE = CONSUMER_ROOT / "src" / "contract"
 CONSUMER_PACKAGE_CONFIG = CONSUMER_PACKAGE / "moon.pkg"
-CONSUMER_TEST = CONSUMER_PACKAGE / "consumer_smoke_test.mbt"
+CONSUMER_SOURCES = tuple(
+    CONSUMER_PACKAGE / name
+    for name in (
+        "image_render_test.mbt",
+        "mapped_lifecycle_test.mbt",
+        "value_error_test.mbt",
+        "stream_helpers_test.mbt",
+        "png_stream_test.mbt",
+        "pdf_stream_test.mbt",
+    )
+)
 NATIVE_PACKAGE_DIR = PACKAGE_ROOT / "native"
 NATIVE_PACKAGE_CONFIG = NATIVE_PACKAGE_DIR / "moon.pkg"
 CAIRO_BUILD_SCRIPT = REPO_ROOT / "scripts" / "build" / "cairo_config.py"
@@ -119,7 +129,7 @@ def check_integration_fixture() -> list[str]:
         INTEGRATION_WORKSPACE,
         CONSUMER_MODULE,
         CONSUMER_PACKAGE_CONFIG,
-        CONSUMER_TEST,
+        CONSUMER_SOURCES,
     )
 
 

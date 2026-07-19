@@ -233,6 +233,20 @@ workflow. The pre-build config API is explicitly experimental, so its protocol,
 archive inclusion, source consumer, extracted consumer, and cross-host matrix
 behavior are executable release contracts while cairoon remains unstable.
 
+The independent downstream module lives in
+`integration/consumer/src/contract`, not in a product or oracle package. Keep
+its six workflows split by responsibility: deterministic image/path/pattern
+rendering, scoped mapped-image ownership, Matrix/Region values plus typed
+errors, PNG callback round-trip, and finished PDF-stream output. Its `moon.pkg`
+may import only the public `CAIMEOX/cairoon` package from this module and normal
+MoonBit test support; it must not import cairoon implementation packages or
+repeat Cairo flags. `scripts/check-downstream-consumer.sh` must name and copy
+every fixture source explicitly. `scripts/reliability/gates.py` must reject a
+missing, extra, reordered, or renamed source and any missing named workflow.
+Every source, extracted-package, and unmodified cross-host archive run must
+execute all six tests; a one-operation link smoke is not sufficient release
+evidence.
+
 Link to the system Cairo installation. Do not vendor Cairo into this repository
 for the initial binding. `moon.mod` must register
 `scripts/build/cairo_config.py` as `--moonbit-unstable-prebuild`. The script must
@@ -1147,7 +1161,8 @@ MoonBit reliability requirements and remaining work:
   a shared pinned base and runner. The system target must reject any Cairo
   version other than 1.18.0 and must not build a replacement Cairo. Each exact
   target must verify its source digest and linked version. Every lane must run
-  public coverage analysis, both consumer modes, the unmodified host archive,
+  public coverage analysis, the source, extracted, and unmodified-host 6/6
+  consumer modes,
   the full native/doc suites, and every discovered package under
   ASan/LSan/UBSan.
 

@@ -44,7 +44,7 @@ experimental MoonBit dependency mechanism is part of cairoon's temporary
 instability contract and is covered by unit, extracted-archive, and exact-Cairo
 matrix tests.
 
-## Downstream Consumer Smoke Test
+## Downstream Consumer Contract
 
 Before relying on a local checkout from another MoonBit project, verify both
 module resolution and native Cairo linking from the consumer package.
@@ -57,11 +57,13 @@ The repository carries an isolated consumer module under
 ./scripts/check-downstream-consumer.sh
 ```
 
-The gate checks formatting and native compilation only for the consumer smoke
-package and renders and reads back a 2x2 image through the published API. It
-runs that test twice: first against the source checkout through the committed
-`moon.work`, then against the exact zip emitted by `moon package --list` after
-extracting it into a fresh temporary workspace. The zip is integrity-tested,
+The gate checks formatting and native compilation only for the consumer
+contract package. Its six split workflows cover deterministic image/path/
+pattern rendering, mapped-image scoped ownership, Matrix/Region values, typed
+errors, PNG callback round-trip, and a finished PDF stream. It runs all 6/6
+workflows first against the source checkout through the committed `moon.work`,
+then against the exact zip emitted by `moon package --list` after extracting it
+into a fresh temporary workspace. The zip is integrity-tested,
 must exclude the entire integration fixture, and must contain everything
 needed to compile and link the public module. Temporary files are always
 removed. `scripts/check-publication-archive.py` checks every member's CRC,
@@ -120,16 +122,16 @@ test "consumer can draw through cairoon" {
 }
 ```
 
-Run that consumer package itself. In this repository the equivalent package is
-`integration/consumer/src/smoke`:
+Run that consumer package itself. In this repository the broader six-workflow
+package is `integration/consumer/src/contract`:
 
 ```sh
-moon test . --target native --deny-warn -v
+moon test src/contract --target native --deny-warn -v
 ```
 
 In a workspace, plain `moon test --target native` may also run cairoon's own
 test packages. That is useful for release verification, but it is not the
-fastest downstream smoke test.
+fastest downstream contract check.
 
 ## Local Reliability Gate
 
@@ -143,9 +145,10 @@ The gate runs formatting, Cairo build-protocol and generated-constant checks,
 static FFI ownership linting, exact external-owner/finalizer/stress evidence,
 top-level pycairo API inventory linting, exact public doc-comment debt linting,
 all 20 pinned pycairo test-file families (288 tests), the isolated downstream
-import/link/render test against both source and extracted publication zip,
-archive integrity and fixture exclusion checks, native type checking, targeted
-image/scaled-font/vector/pattern oracle tests, the full native test suite,
+six-workflow public consumer contract against both source and extracted
+publication zip, archive integrity and fixture exclusion checks, native type
+checking, targeted image/scaled-font/vector/pattern oracle tests, the full
+native test suite,
 `moon info --target native`, and package-isolated ASan/LSan/UBSan tests when a
 sanitizer-capable `clang` is available. A detected pycairo checkout must have
 exactly one ledger for every `tests/test_*.py` source file.
@@ -216,9 +219,9 @@ unsuppressed.
    `*.mbt.md` reference file.
 11. Run both pinned Cairo matrix lanes and record their exact versions and test
    counts in `AUDIT.md`.
-12. Run `./scripts/check-downstream-consumer.sh`; it must pass against both the
-   source checkout and extracted publication zip, and keep `integration/` out
-   of the archive.
+12. Run `./scripts/check-downstream-consumer.sh`; all six workflows must pass
+   against both the source checkout and extracted publication zip, and
+   `integration/` must remain outside the archive.
 13. Commit the release state and tag it from a clean worktree.
 
 ## CI Guidance

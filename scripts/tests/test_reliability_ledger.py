@@ -12,6 +12,26 @@ from unittest import mock
 
 CHECKER = pathlib.Path(__file__).resolve().parents[1] / "check-reliability-ledger.py"
 
+CONSUMER_CONTRACT_TESTS = {
+    "image_render_test.mbt": (
+        "consumer renders paths and patterns",
+    ),
+    "mapped_lifecycle_test.mbt": (
+        "consumer maps and unmaps image data with scoped ownership",
+    ),
+    "value_error_test.mbt": (
+        "consumer composes matrix and region values",
+        "consumer matches typed cairo errors",
+    ),
+    "stream_helpers_test.mbt": (),
+    "png_stream_test.mbt": (
+        "consumer round trips PNG stream callbacks",
+    ),
+    "pdf_stream_test.mbt": (
+        "consumer finishes PDF stream callbacks",
+    ),
+}
+
 
 
 def load_checker():
@@ -45,7 +65,10 @@ class ReliabilityGateDelegationTests(unittest.TestCase):
                 self.checker.check_downstream_consumer_gate(),
                 ["consumer"],
             )
-        check_consumer.assert_called_once_with(self.checker.DOWNSTREAM_CONSUMER)
+        check_consumer.assert_called_once_with(
+            self.checker.DOWNSTREAM_CONSUMER,
+            self.checker.DOWNSTREAM_CONSUMER_PACKAGE,
+        )
 
         workflow = self.checker.CI.read_text(encoding="utf-8")
         with mock.patch.object(
@@ -62,6 +85,8 @@ class DownstreamConsumerGateTests(unittest.TestCase):
         self.checker = load_checker()
         self.temp_dir = tempfile.TemporaryDirectory()
         self.script = pathlib.Path(self.temp_dir.name) / "consumer.sh"
+        self.consumer_package = pathlib.Path(self.temp_dir.name) / "contract"
+        self.consumer_package.mkdir()
 
     def tearDown(self) -> None:
         self.temp_dir.cleanup()
@@ -70,14 +95,49 @@ class DownstreamConsumerGateTests(unittest.TestCase):
         self,
         omitted: str | None = None,
         commented: str | None = None,
+        omitted_source: str | None = None,
+        missing_file: str | None = None,
+        missing_test: str | None = None,
     ) -> list[str]:
         markers = [
             f"# {line}" if line == commented else line
             for line in self.checker.DOWNSTREAM_GATE_LINES
             if line != omitted
         ]
-        self.script.write_text("\n".join(markers), encoding="utf-8")
-        with mock.patch.object(self.checker, "DOWNSTREAM_CONSUMER", self.script):
+        sources = [
+            source
+            for source in CONSUMER_CONTRACT_TESTS
+            if source != omitted_source
+        ]
+        script_lines = [
+            'consumer_package="src/contract"',
+            "consumer_sources=(",
+            *(f'  "{source}"' for source in sources),
+            ")",
+            *markers,
+        ]
+        self.script.write_text("\n".join(script_lines), encoding="utf-8")
+        for source, tests in CONSUMER_CONTRACT_TESTS.items():
+            path = self.consumer_package / source
+            if source == missing_file:
+                if path.exists():
+                    path.unlink()
+                continue
+            declarations = [
+                f'test "{name}" {{}}'
+                for name in tests
+                if name != missing_test
+            ]
+            path.write_text("\n".join(declarations), encoding="utf-8")
+        with (
+            mock.patch.object(self.checker, "DOWNSTREAM_CONSUMER", self.script),
+            mock.patch.object(
+                self.checker,
+                "DOWNSTREAM_CONSUMER_PACKAGE",
+                self.consumer_package,
+                create=True,
+            ),
+        ):
             return self.checker.check_downstream_consumer_gate()
 
     def test_complete_artifact_gate_passes(self) -> None:
@@ -118,6 +178,17 @@ class DownstreamConsumerGateTests(unittest.TestCase):
             "--target native --deny-warn -v"
         )
         self.assertTrue(self.check(commented=marker))
+
+    def test_consumer_source_manifest_must_be_complete(self) -> None:
+        self.assertTrue(self.check(omitted_source="png_stream_test.mbt"))
+
+    def test_missing_consumer_contract_source_fails(self) -> None:
+        self.assertTrue(self.check(missing_file="mapped_lifecycle_test.mbt"))
+
+    def test_missing_named_consumer_workflow_fails(self) -> None:
+        self.assertTrue(
+            self.check(missing_test="consumer matches typed cairo errors")
+        )
 
 
 class VerifyGateTests(unittest.TestCase):

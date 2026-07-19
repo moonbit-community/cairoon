@@ -115,9 +115,14 @@ cairoon/
     consumer/
       moon.mod
       src/
-        smoke/
+        contract/
           moon.pkg
-          consumer_smoke_test.mbt
+          image_render_test.mbt
+          mapped_lifecycle_test.mbt
+          value_error_test.mbt
+          stream_helpers_test.mbt
+          png_stream_test.mbt
+          pdf_stream_test.mbt
   scripts/
     api/
       attribute_mappings.py
@@ -508,7 +513,7 @@ MoonBit package shape without weakening the public interface.
 | Black-box tests | `src/tests/<family>/` | Import `CAIMEOX/cairoon`; assert only public behavior. They must not repeat compiler or linker flags because `CAIMEOX/cairoon/native` propagates the native configuration. |
 | White-box oracles | `src/tests/oracle/<family>/` plus shared C support in `src/tests/oracle/native/` | Import `CAIMEOX/cairoon` for the public API and declare test-only direct-C oracle externs locally; public binding wrappers must never import oracle packages. Test-only C symbols are provided by the oracle-native support package, not `src/moon.pkg`. |
 | Documentation | `src/docs/`, `src/README.mbt.md`, and repository `docs/` | Narrative docs live outside source packages; the public package README stays at `src/README.mbt.md` for `moon.mod`, and family executable reference docs live in the external `src/docs` package so they compile like downstream user code through `CAIMEOX/cairoon`. |
-| Downstream integration | `integration/moon.work` and `integration/consumer/` | The consumer must remain a separately named MoonBit module with a versioned dependency on `CAIMEOX/cairoon`; its test package imports only the public package, carries no Cairo flags, and proves propagated native drawing/readback against the source checkout, an extracted publication zip, and the same unmodified host archive inside both exact-Cairo Linux lanes. Root `moon.mod` must exclude `integration/` from publication. |
+| Downstream integration | `integration/moon.work` and `integration/consumer/src/contract/` | The consumer remains a separately named MoonBit module with a versioned dependency on `CAIMEOX/cairoon`; six responsibility-split workflows import only the public package, carry no Cairo flags, and prove propagated native core rendering, scoped mapped-image ownership, values/errors, PNG callbacks, and PDF streams against the source checkout, an extracted publication zip, and the same unmodified host archive in every Linux lane. The shell copy manifest, source filenames, and named workflows are exact reliability contracts. Root `moon.mod` must exclude `integration/` from publication. |
 | Release verification tooling | `scripts/ffi_ownership/`, `scripts/project_layout/`, `scripts/reliability/`, `scripts/matrix/`, and `scripts/sanitizers/` | FFI declaration/export orchestration stays in `scripts/check-ffi-ownership.py`, while shared source extraction and Device/Surface/mapped-image cleanup rules stay under `scripts/ffi_ownership/`. Project-layout CLI/path assembly stays in `scripts/check-project-layout.py`; shared parsing, metadata/docs/consumer, native/package, and executable-count rules stay in their matching `scripts/project_layout/` modules. Reliability path assembly and output stay in `scripts/check-reliability-ledger.py`; visible-Markdown parsing, canonical release evidence, shell/matrix gates, and hosted-workflow policy stay in their matching `scripts/reliability/` modules. Pinned Cairo build lanes and ASan/LSan/UBSan policy stay outside MoonBit packages. Standalone C diagnostics live only in `scripts/sanitizers/probes/`, end in `_probe.c`, compile directly with `pkg-config`, and must not be referenced by any `native-stub` list. |
 
 Do not split a family across packages until the type names, method call syntax,

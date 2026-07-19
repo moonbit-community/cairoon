@@ -3,9 +3,36 @@
 from __future__ import annotations
 
 import pathlib
+import re
 import shlex
 
 
+DOWNSTREAM_CONSUMER_CONTRACT = (
+    (
+        "image_render_test.mbt",
+        ("consumer renders paths and patterns",),
+    ),
+    (
+        "mapped_lifecycle_test.mbt",
+        ("consumer maps and unmaps image data with scoped ownership",),
+    ),
+    (
+        "value_error_test.mbt",
+        (
+            "consumer composes matrix and region values",
+            "consumer matches typed cairo errors",
+        ),
+    ),
+    ("stream_helpers_test.mbt", ()),
+    (
+        "png_stream_test.mbt",
+        ("consumer round trips PNG stream callbacks",),
+    ),
+    (
+        "pdf_stream_test.mbt",
+        ("consumer finishes PDF stream callbacks",),
+    ),
+)
 DOWNSTREAM_GATE_LINES = (
     'if [[ "$#" == 2 && "$1" == "--archive" ]]; then',
     'archive_path="$2"',
@@ -18,6 +45,11 @@ DOWNSTREAM_GATE_LINES = (
         '"${temp_root%/}/cairoon-package-consumer.XXXXXX")"'
     ),
     "trap cleanup EXIT",
+    'for source in "${consumer_sources[@]}"; do',
+    (
+        'run cp "$consumer_root/$consumer_package/$source" '
+        '"$artifact_consumer_root/$consumer_package/"'
+    ),
     "'  \"./published\",' \\",
     "'  \"./consumer\",' \\",
     'run moon -C "$artifact_consumer_root" fmt --check "$consumer_package"',
@@ -29,7 +61,11 @@ DOWNSTREAM_GATE_LINES = (
         'run moon -C "$artifact_consumer_root" test "$consumer_package" '
         "--target native --deny-warn -v"
     ),
-    "printf 'Published archive passes the isolated consumer test.\\n'",
+    "printf 'Published archive passes all six isolated consumer workflows.\\n'",
+)
+MOONBIT_NAMED_TEST = re.compile(
+    r'^[ \t]*test[ \t]+"([^"\n]+)"[ \t]*\{',
+    re.MULTILINE,
 )
 VERIFY_COMMANDS = (
     "moon fmt --check",
@@ -101,6 +137,7 @@ def check_verify_gate(verify: pathlib.Path) -> list[str]:
 
 def check_downstream_consumer_gate(
     downstream_consumer: pathlib.Path,
+    consumer_package: pathlib.Path,
 ) -> list[str]:
     text = downstream_consumer.read_text(encoding="utf-8")
     active_lines = {
@@ -108,11 +145,67 @@ def check_downstream_consumer_gate(
         for line in text.splitlines()
         if (stripped := line.strip()) and not stripped.startswith("#")
     }
-    return [
+    errors = [
         f"{downstream_consumer}: downstream gate is missing active line {line!r}"
         for line in DOWNSTREAM_GATE_LINES
         if line not in active_lines
     ]
+
+    expected_sources = tuple(source for source, _ in DOWNSTREAM_CONSUMER_CONTRACT)
+    source_match = re.search(
+        r"^consumer_sources=\([ \t]*\n(?P<body>.*?)^\)[ \t]*$",
+        text,
+        re.MULTILINE | re.DOTALL,
+    )
+    manifest_sources: tuple[str, ...] | None = None
+    if source_match is not None:
+        parsed_sources: list[str] = []
+        valid_manifest = True
+        for line in source_match.group("body").splitlines():
+            try:
+                tokens = shlex.split(line, comments=True, posix=True)
+            except ValueError:
+                valid_manifest = False
+                break
+            if not tokens:
+                continue
+            if len(tokens) != 1:
+                valid_manifest = False
+                break
+            parsed_sources.append(tokens[0])
+        if valid_manifest:
+            manifest_sources = tuple(parsed_sources)
+    if manifest_sources != expected_sources:
+        errors.append(
+            f"{downstream_consumer}: consumer_sources must list the exact "
+            f"downstream contract sources in order: {expected_sources!r}"
+        )
+
+    if not consumer_package.is_dir():
+        errors.append(f"{consumer_package}: downstream contract package is missing")
+        return errors
+
+    actual_sources = tuple(
+        sorted(path.name for path in consumer_package.glob("*.mbt"))
+    )
+    if actual_sources != tuple(sorted(expected_sources)):
+        errors.append(
+            f"{consumer_package}: expected exact downstream contract sources "
+            f"{tuple(sorted(expected_sources))!r}; found {actual_sources!r}"
+        )
+
+    for source, expected_tests in DOWNSTREAM_CONSUMER_CONTRACT:
+        path = consumer_package / source
+        if not path.is_file():
+            continue
+        source_text = path.read_text(encoding="utf-8")
+        actual_tests = tuple(MOONBIT_NAMED_TEST.findall(source_text))
+        if actual_tests != expected_tests:
+            errors.append(
+                f"{path}: expected named consumer workflows {expected_tests!r}; "
+                f"found {actual_tests!r}"
+            )
+    return errors
 
 
 def check_local_matrix(

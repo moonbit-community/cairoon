@@ -105,16 +105,18 @@ fn draw_example() -> Unit raise @cairoon.CairoError {
 ## Current Stability
 
 cairoon is suitable for light native use when the required inventory rows are
-marked `Done`, the automated downstream consumer smoke test passes, and the
-project is pinned. The complete portable API scope and all 20 pinned pycairo
-test-source families are covered, and all 579 published declarations have
-substantive API documentation. Raw text-to-glyph result fallback is exercised
-by a 1000-iteration finalizer-only stress package whose ledger forbids explicit
-release. The sole global `Partial` inventory row is test/release-platform
-evidence: GitHub Actions run `29678818105` passed macOS native but failed both
-Ubuntu jobs on the prior release commit. The diagnosed Cairo 1.18.0 PNG and
-stripped-symbol sanitizer fixes now pass 209 script tests, all 841 native tests,
-and every package under ASan/LSan/UBSan in the first-class Ubuntu 24.04
+marked `Done`, the automated six-workflow downstream contract passes, and the
+project is pinned. The contract exercises image/path/pattern rendering, scoped
+mapped images, Matrix/Region values, typed errors, PNG callbacks, and a PDF
+stream against both source and extracted archives. The complete portable API
+scope and all 20 pinned pycairo test-source families are covered, and all 579
+published declarations have substantive API documentation. Raw text-to-glyph
+result fallback is exercised by a 1000-iteration finalizer-only stress package
+whose ledger forbids explicit release. The sole global `Partial` inventory row
+is test/release-platform evidence: GitHub Actions run `29678818105` passed
+macOS native but failed both Ubuntu jobs on the prior release commit. The local
+fixes and expanded consumer contract now pass 212 script tests, all 841 native
+tests, and every package under ASan/LSan/UBSan in the first-class Ubuntu 24.04
 system-Cairo lane. That fix commit still needs passing Ubuntu and macOS native
 jobs plus the Ubuntu ASan/LSan/UBSan job.
 Platform-specific backends remain out of scope, and no source-compatibility

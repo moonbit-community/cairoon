@@ -43,7 +43,7 @@ TESTS_EVIDENCE_MARKERS = (
     "579/579 documented public declarations",
     OWNER_EVIDENCE_MARKER,
     "349-local-plus-two-direct production FFI boundary",
-    "source and extracted consumers plus the unmodified cross-host archive consumer",
+    "6/6 source, extracted, and unmodified cross-host archive consumer runs",
     PUBLICATION_MARKER,
     "ASan/LSan/UBSan",
     "Remaining gap:",
@@ -92,8 +92,8 @@ def expected_tests_evidence(repo_root: pathlib.Path) -> str:
         f"{NATIVE_TEST_MARKER}, 63/63 executable docs, 288 upstream pycairo "
         "tests across 20 families, 579/579 documented public declarations, "
         f"{OWNER_EVIDENCE_MARKER}, the 349-local-plus-two-direct production "
-        "FFI boundary, source and "
-        "extracted consumers plus the unmodified cross-host archive consumer, "
+        "FFI boundary, 6/6 source, extracted, and unmodified cross-host "
+        "archive consumer runs, "
         f"all {PUBLICATION_MARKER}, and every "
         "discovered package under ASan/LSan/UBSan. Ubuntu 24.04 system Cairo "
         f"1.18.0 independently passes {NATIVE_TEST_MARKER} and every discovered "
@@ -112,8 +112,8 @@ def current_stability_markers(repo_root: pathlib.Path) -> tuple[str, ...]:
             "Local release-candidate matrices on exact Cairo 1.15.10 and "
             f"1.18.4 pass {script_test_evidence_marker(repo_root)}, "
             f"{NATIVE_TEST_MARKER}, 63/63 executable docs, "
-            f"{OWNER_EVIDENCE_MARKER}, source and extracted consumers plus "
-            "the unmodified cross-host archive consumer, all "
+            f"{OWNER_EVIDENCE_MARKER}, 6/6 source, extracted, and unmodified "
+            "cross-host archive consumer runs, all "
             f"{PUBLICATION_MARKER}, and every package under "
             "ASan/LSan/UBSan."
         ),
@@ -137,8 +137,8 @@ def expected_current_stability_evidence(repo_root: pathlib.Path) -> str:
     return (
         "Local release-candidate matrices on exact Cairo 1.15.10 and 1.18.4 "
         f"pass {script_test_evidence_marker(repo_root)}, {NATIVE_TEST_MARKER}, "
-        f"63/63 executable docs, {OWNER_EVIDENCE_MARKER}, source and extracted "
-        "consumers plus the unmodified cross-host archive consumer, all "
+        f"63/63 executable docs, {OWNER_EVIDENCE_MARKER}, 6/6 source, "
+        "extracted, and unmodified cross-host archive consumer runs, all "
         f"{PUBLICATION_MARKER}, and every "
         "package under ASan/LSan/UBSan. Ubuntu 24.04 system Cairo 1.18.0 "
         f"independently passes {NATIVE_TEST_MARKER} and every package under "

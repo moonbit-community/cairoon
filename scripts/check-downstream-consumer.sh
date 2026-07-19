@@ -3,7 +3,15 @@ set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 consumer_root="$repo_root/integration/consumer"
-consumer_package="src/smoke"
+consumer_package="src/contract"
+consumer_sources=(
+  "image_render_test.mbt"
+  "mapped_lifecycle_test.mbt"
+  "value_error_test.mbt"
+  "stream_helpers_test.mbt"
+  "png_stream_test.mbt"
+  "pdf_stream_test.mbt"
+)
 artifact_workspace=""
 archive_path=""
 test_source=1
@@ -81,13 +89,15 @@ temp_root="${TMPDIR:-/tmp}"
 artifact_workspace="$(mktemp -d "${temp_root%/}/cairoon-package-consumer.XXXXXX")"
 published_root="$artifact_workspace/published"
 artifact_consumer_root="$artifact_workspace/consumer"
-run mkdir -p "$published_root" "$artifact_consumer_root/src/smoke"
+run mkdir -p "$published_root" "$artifact_consumer_root/$consumer_package"
 run python3 -m zipfile -e "$archive_path" "$published_root"
 run cp "$consumer_root/moon.mod" "$artifact_consumer_root/moon.mod"
 run cp \
-  "$consumer_root/src/smoke/moon.pkg" \
-  "$consumer_root/src/smoke/consumer_smoke_test.mbt" \
-  "$artifact_consumer_root/src/smoke/"
+  "$consumer_root/$consumer_package/moon.pkg" \
+  "$artifact_consumer_root/$consumer_package/"
+for source in "${consumer_sources[@]}"; do
+  run cp "$consumer_root/$consumer_package/$source" "$artifact_consumer_root/$consumer_package/"
+done
 printf '%s\n' \
   'members = [' \
   '  "./published",' \
@@ -97,4 +107,4 @@ printf '%s\n' \
 run moon -C "$artifact_consumer_root" fmt --check "$consumer_package"
 run moon -C "$artifact_consumer_root" check "$consumer_package" --target native --deny-warn
 run moon -C "$artifact_consumer_root" test "$consumer_package" --target native --deny-warn -v
-printf 'Published archive passes the isolated consumer test.\n'
+printf 'Published archive passes all six isolated consumer workflows.\n'

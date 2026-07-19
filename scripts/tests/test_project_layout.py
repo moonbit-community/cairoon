@@ -218,7 +218,7 @@ class NativeBuildConfigurationLayoutTests(unittest.TestCase):
         self.root = pathlib.Path(self.temp_dir.name)
         self.source = self.root / "src"
         self.native = self.source / "native"
-        self.consumer = self.root / "integration" / "consumer" / "src" / "smoke"
+        self.consumer = self.root / "integration" / "consumer" / "src" / "contract"
         self.build_script = self.root / "scripts" / "build" / "cairo_config.py"
         self.native.mkdir(parents=True)
         self.consumer.mkdir(parents=True)
@@ -377,7 +377,7 @@ class ProjectLayoutModuleBoundaryTests(unittest.TestCase):
                     checker.INTEGRATION_WORKSPACE,
                     checker.CONSUMER_MODULE,
                     checker.CONSUMER_PACKAGE_CONFIG,
-                    checker.CONSUMER_TEST,
+                    checker.CONSUMER_SOURCES,
                 ),
                 (),
             ),

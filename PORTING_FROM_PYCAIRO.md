@@ -42,17 +42,17 @@ development package through `pkg-config`, and propagates native linking from
 `CAIMEOX/cairoon/native`. Python 3, `pkg-config`, and Cairo 1.15.10 or newer must
 therefore be available when the consumer builds.
 
-After wiring the package, run a consumer-only smoke test with:
+After wiring the package, run a consumer-only contract test with:
 
 ```sh
-moon test . --target native --deny-warn -v
+moon test src/contract --target native --deny-warn -v
 ```
 
 This repository includes that setup as an executable example. From the
 cairoon checkout, `./scripts/check-downstream-consumer.sh` verifies local
-workspace resolution, native linking, rendering/readback, publication
-exclusion, and the same consumer flow against the extracted `moon package`
-archive using `integration/consumer`.
+workspace resolution, native linking, six representative rendering/lifetime/
+value/error/stream workflows, publication exclusion, and the same 6/6 flow
+against the extracted `moon package` archive using `integration/consumer`.
 
 Plain `moon test --target native` from a workspace can run every workspace
 member, including cairoon's full test suite. Use that when you want full local

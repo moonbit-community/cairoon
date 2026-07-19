@@ -193,14 +193,14 @@ def check_integration_fixture(
     integration_workspace: pathlib.Path,
     consumer_module: pathlib.Path,
     consumer_package_config: pathlib.Path,
-    consumer_test: pathlib.Path,
+    consumer_sources: tuple[pathlib.Path, ...],
 ) -> list[str]:
     errors: list[str] = []
     required_files = (
         integration_workspace,
         consumer_module,
         consumer_package_config,
-        consumer_test,
+        *consumer_sources,
     )
     for path in required_files:
         if not path.exists():
@@ -249,9 +249,10 @@ def check_integration_fixture(
         )
 
     consumer_package = consumer_package_config.read_text(encoding="utf-8")
+    consumer_package_label = consumer_package_config.relative_to(repo_root)
     if '"CAIMEOX/cairoon"' not in consumer_package:
         errors.append(
-            "integration/consumer/src/smoke/moon.pkg: must import the public "
+            f"{consumer_package_label}: must import the public "
             "CAIMEOX/cairoon package"
         )
     cairoon_imports = set(
@@ -259,17 +260,17 @@ def check_integration_fixture(
     )
     if cairoon_imports != {"CAIMEOX/cairoon"}:
         errors.append(
-            "integration/consumer/src/smoke/moon.pkg: must use only the public "
+            f"{consumer_package_label}: must use only the public "
             "CAIMEOX/cairoon package, not implementation subpackages"
         )
     if 'for "test"' not in consumer_package:
         errors.append(
-            "integration/consumer/src/smoke/moon.pkg: the fixture import must "
+            f"{consumer_package_label}: the fixture import must "
             "remain test-scoped"
         )
     if '"cc-link-flags"' in consumer_package:
         errors.append(
-            "integration/consumer/src/smoke/moon.pkg: consumer must rely on "
+            f"{consumer_package_label}: consumer must rely on "
             "cairoon's propagated native link configuration, not repeat "
             "cc-link-flags"
         )

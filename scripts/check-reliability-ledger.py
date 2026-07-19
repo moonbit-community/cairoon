@@ -62,6 +62,9 @@ CI = REPO_ROOT / ".github" / "workflows" / "ci.yml"
 MATRIX = REPO_ROOT / "scripts" / "test-cairo-matrix.sh"
 SANITIZER = REPO_ROOT / "scripts" / "sanitizers" / "run.py"
 DOWNSTREAM_CONSUMER = REPO_ROOT / "scripts" / "check-downstream-consumer.sh"
+DOWNSTREAM_CONSUMER_PACKAGE = (
+    REPO_ROOT / "integration" / "consumer" / "src" / "contract"
+)
 
 
 def inventory_rows(
@@ -99,7 +102,10 @@ def check_verify_gate() -> list[str]:
 
 
 def check_downstream_consumer_gate() -> list[str]:
-    return _check_downstream_consumer_gate(DOWNSTREAM_CONSUMER)
+    return _check_downstream_consumer_gate(
+        DOWNSTREAM_CONSUMER,
+        DOWNSTREAM_CONSUMER_PACKAGE,
+    )
 
 
 def check_ci_gate() -> list[str]:
