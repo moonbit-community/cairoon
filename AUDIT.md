@@ -13,10 +13,12 @@ Implemented in this workspace:
   Publication validation derives name/version from the archived `moon.mod` and
   rejects version drift plus missing repository, native-only, dependency,
   pre-build, or fixture-exclusion metadata. A strict dry-run wrapper accepts
-  Moon CLI's current status 255 only with an exact 202/no-change response, two
-  successful package checks, and matching identity. Twelve focused regressions
-  bring the script suite to 224/224; all 23 publication and 6 dry-run parser
-  tests pass, producing an integrity-checked 667-member archive across 453
+  Moon CLI's current status 255 only with one complete exact 202/no-change
+  response, two successful package checks, matching identity, and the exact
+  trailing failure banner; status 0 forbids an error banner. Twelve focused
+  regressions bring the script suite to 224/224; all 23 publication and 6
+  dry-run parser tests pass, producing an integrity-checked 667-member archive
+  across 453
   source-size-checked files. The pycairo source snapshot remains current at
   upstream `80ea3348`, and the current public interface and production FFI
   symbols are unchanged by this release-preparation slice.

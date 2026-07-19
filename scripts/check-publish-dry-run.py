@@ -14,9 +14,10 @@ from collections.abc import Sequence
 REPO_ROOT = pathlib.Path(__file__).resolve().parents[1]
 MODULE_NAME_RE = re.compile(r'^name\s*=\s*"([^"]+)"\s*$', re.MULTILINE)
 MODULE_VERSION_RE = re.compile(r'^version\s*=\s*"([^"]+)"\s*$', re.MULTILINE)
-SERVER_STATUS_RE = re.compile(r"^Server status: ([^,\n]+)", re.MULTILINE)
+SERVER_STATUS_PREFIX = "Server status: "
 EXTRACTED_CHECK_MARKER = "running moon check on extracted package"
 SUCCESS_DETAIL = "Dry run completed successfully. No changes were made."
+PUBLISH_FAILURE_BANNER = "Error: `moon publish` failed"
 KNOWN_SUCCESS_EXIT_CODES = {0, 255}
 
 
@@ -38,30 +39,48 @@ def validate_publish_output(
     module_version: str,
 ) -> list[str]:
     errors: list[str] = []
+    lines = output.splitlines()
     if returncode not in KNOWN_SUCCESS_EXIT_CODES:
         errors.append(f"moon publish --dry-run returned unexpected status {returncode}")
-    if output.count("Check passed") < 2:
-        errors.append("publish dry-run did not pass both source and extracted checks")
-    if EXTRACTED_CHECK_MARKER not in output:
-        errors.append("publish dry-run did not check the extracted package")
+    elif returncode == 255:
+        error_lines = [line for line in lines if line.startswith("Error:")]
+        if error_lines != [PUBLISH_FAILURE_BANNER] or not output.rstrip().endswith(
+            PUBLISH_FAILURE_BANNER
+        ):
+            errors.append(
+                "moon status 255 is accepted only with its exact trailing "
+                "publish-failure banner"
+            )
+    elif any(line.startswith("Error:") for line in lines):
+        errors.append("moon status 0 must not include an error banner")
+
+    check_count = lines.count("Check passed")
+    if check_count != 2:
+        errors.append(
+            "publish dry-run must pass exactly the source and extracted checks; "
+            f"found {check_count} successful checks"
+        )
+    extracted_check_count = lines.count(EXTRACTED_CHECK_MARKER)
+    if extracted_check_count != 1:
+        errors.append(
+            "publish dry-run must check the extracted package exactly once; "
+            f"found {extracted_check_count} markers"
+        )
     if "moon check failed" in output:
         errors.append("publish dry-run reported a failed Moon check")
 
-    statuses = SERVER_STATUS_RE.findall(output)
-    if statuses != ["202 Accepted"]:
-        errors.append(
-            "publish dry-run must report exactly one '202 Accepted' server status; "
-            f"found {statuses!r}"
-        )
-    if SUCCESS_DETAIL not in output:
-        errors.append("publish dry-run did not confirm that no changes were made")
     expected_package = (
         f"The dry-run was made for package {module_name} version {module_version}."
     )
-    if expected_package not in output:
+    expected_response = (
+        f"{SERVER_STATUS_PREFIX}202 Accepted, detail: {SUCCESS_DETAIL} "
+        f"{expected_package}"
+    )
+    server_lines = [line for line in lines if line.startswith(SERVER_STATUS_PREFIX)]
+    if server_lines != [expected_response]:
         errors.append(
-            "publish dry-run response does not match the packaged module identity: "
-            f"expected {expected_package!r}"
+            "publish dry-run must report one exact 202/no-change response for the "
+            f"packaged module; found {server_lines!r}"
         )
     return errors
 

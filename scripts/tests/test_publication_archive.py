@@ -78,6 +78,9 @@ VALID_MEMBERS = {
     "scripts/check-publish-dry-run.py": (
         REPO_ROOT / "scripts" / "check-publish-dry-run.py"
     ).read_bytes(),
+    "scripts/tests/test_publish_dry_run.py": (
+        REPO_ROOT / "scripts" / "tests" / "test_publish_dry_run.py"
+    ).read_bytes(),
     "scripts/check-external-owners.py": (
         REPO_ROOT / "scripts" / "check-external-owners.py"
     ).read_bytes(),
@@ -273,31 +276,40 @@ class PublicationArchiveCheckerTests(unittest.TestCase):
 
         self.assertTrue(any("scripts/build/cairo_config.py" in error for error in errors), errors)
 
-    def test_missing_publish_dry_run_checker_fails(self) -> None:
-        members = dict(VALID_MEMBERS)
-        del members["scripts/check-publish-dry-run.py"]
-        self.write_archive(members, include_required=False)
+    def test_missing_publish_dry_run_tooling_fails(self) -> None:
+        for member_name in (
+            "scripts/check-publish-dry-run.py",
+            "scripts/tests/test_publish_dry_run.py",
+        ):
+            with self.subTest(member_name=member_name):
+                members = dict(VALID_MEMBERS)
+                del members[member_name]
+                self.write_archive(members, include_required=False)
 
-        errors, _ = self.check()
+                errors, _ = self.check()
 
-        self.assertTrue(
-            any("scripts/check-publish-dry-run.py" in error for error in errors),
-            errors,
-        )
+                self.assertTrue(
+                    any(member_name in error for error in errors),
+                    errors,
+                )
 
-    def test_altered_publish_dry_run_checker_fails(self) -> None:
-        self.write_archive({"scripts/check-publish-dry-run.py": b"# altered\n"})
+    def test_altered_publish_dry_run_tooling_fails(self) -> None:
+        for member_name in (
+            "scripts/check-publish-dry-run.py",
+            "scripts/tests/test_publish_dry_run.py",
+        ):
+            with self.subTest(member_name=member_name):
+                self.write_archive({member_name: b"# altered\n"})
 
-        errors, _ = self.check()
+                errors, _ = self.check()
 
-        self.assertTrue(
-            any(
-                "scripts/check-publish-dry-run.py" in error
-                and "does not match" in error
-                for error in errors
-            ),
-            errors,
-        )
+                self.assertTrue(
+                    any(
+                        member_name in error and "does not match" in error
+                        for error in errors
+                    ),
+                    errors,
+                )
 
     def test_missing_api_snapshot_fails(self) -> None:
         members = dict(VALID_MEMBERS)

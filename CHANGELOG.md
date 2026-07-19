@@ -21,8 +21,10 @@ first version intended for light downstream Cairo use.
   public-only rendering, lifetime, value, error, PNG, and PDF-stream workflows.
 - Exact Cairo 1.15.10, Ubuntu system Cairo 1.18.0, and Cairo 1.18.4 local
   compatibility lanes with package-isolated ASan, LSan, and UBSan checks.
-- A strict non-uploading publish dry-run gate that validates both package
-  checks, the registry's exact 202/no-change response, and package identity.
+- A strict non-uploading publish dry-run gate that fixes the subprocess
+  arguments, validates both package checks plus one complete registry
+  202/no-change response, enforces exit/error-banner consistency, and ships its
+  parser tests byte-for-byte in the publication archive.
 
 ### Changed
 

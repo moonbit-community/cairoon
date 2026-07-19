@@ -233,9 +233,10 @@ unsuppressed.
    `integration/` must remain outside the archive.
 13. Run `python3 scripts/check-publish-dry-run.py`. The wrapper internally fixes
     the command to `moon publish --dry-run` and requires both package checks,
-    exact registry status 202, matching package identity, and the no-change
-    confirmation. Current Moon may return status 255 after that successful
-    response; no other nonzero status or incomplete response is accepted.
+    one complete exact registry status-202/no-change line, and matching package
+    identity. Current Moon may return status 255 only with its exact trailing
+    publish-failure banner; status 0 must have no error banner. No other nonzero
+    status, separated response fragments, or incomplete response is accepted.
 14. Commit the release state. Tag and upload it only from a clean worktree after
     the hosted Ubuntu/macOS release jobs pass on that exact commit.
 

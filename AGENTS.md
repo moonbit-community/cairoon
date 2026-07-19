@@ -242,10 +242,13 @@ changelog, or missing repository/native/dependency/pre-build/exclusion marker.
 The published `0.1.0` preview predates dependency pre-build/link propagation;
 the next line is `0.2.0`. `scripts/check-publish-dry-run.py` is the local online
 release gate and must invoke only `moon publish --dry-run`; it may normalize
-Moon CLI's observed status 255 only after exact 202/no-change, two-check, and
-matching-identity evidence. The script and its parser tests must ship in the
-archive. An actual upload is forbidden while the canonical Tests inventory row
-remains `Partial` for hosted release-commit evidence.
+Moon CLI's observed status 255 only after one complete, exact 202/no-change
+response line, exactly two successful checks, matching identity, and the exact
+trailing publish-failure banner. Status 0 must contain the same success response
+and no error banner. Separated response fragments must never satisfy the gate.
+The script and its parser tests must ship byte-for-byte in the archive. An
+actual upload is forbidden while the canonical Tests inventory row remains
+`Partial` for hosted release-commit evidence.
 
 The independent downstream module lives in
 `integration/consumer/src/contract`, not in a product or oracle package. Keep

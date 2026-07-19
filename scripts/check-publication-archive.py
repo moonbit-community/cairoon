@@ -68,6 +68,7 @@ REQUIRED_MEMBERS = frozenset(
         "scripts/check-external-owners.py",
         "scripts/check-publish-dry-run.py",
         "scripts/lifetime/owners.json",
+        "scripts/tests/test_publish_dry_run.py",
         "src/README.mbt.md",
         "src/moon.pkg",
         "src/pkg.generated.mbti",
@@ -127,6 +128,7 @@ SOURCE_IDENTICAL_MEMBERS = frozenset(
         "scripts/check-external-owners.py",
         "scripts/check-publish-dry-run.py",
         "scripts/lifetime/owners.json",
+        "scripts/tests/test_publish_dry_run.py",
     }
 ) | FFI_OWNERSHIP_SUPPORT | RELIABILITY_SUPPORT | SANITIZER_SUPPORT
 MODULE_NAME_RE = re.compile(r'^name\s*=\s*"([^"]+)"\s*$', re.MULTILINE)
