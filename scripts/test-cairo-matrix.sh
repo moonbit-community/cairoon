@@ -9,7 +9,7 @@ release_archive_path=""
 
 usage() {
   cat <<'EOF'
-Usage: scripts/test-cairo-matrix.sh [all|host|cairo-1.15.10|cairo-1.18.4] [--no-cache]
+Usage: scripts/test-cairo-matrix.sh [all|host|ubuntu-24.04-system|cairo-1.15.10|cairo-1.18.4] [--no-cache]
 
 Runs release evidence locally. The Docker lane mounts the checkout read-only
 and tests a disposable copy, so generated constants cannot modify host files.
@@ -18,7 +18,7 @@ EOF
 
 for argument in "$@"; do
   case "$argument" in
-    all|host|cairo-1.15.10|cairo-1.18.4)
+    all|host|ubuntu-24.04-system|cairo-1.15.10|cairo-1.18.4)
       lane="$argument"
       ;;
     --no-cache)
@@ -65,22 +65,16 @@ prepare_release_archive() {
   fi
 }
 
-run_cairo_lane() {
-  local version="$1"
-  local url="$2"
-  local sha256="$3"
-  local image="cairoon-local:cairo-${version}-moon-0.10.4-4f2e8f7dc"
-
-  printf '\n==> Linux Cairo %s lane\n' "$version"
+run_matrix_image() {
+  local image="$1"
+  shift
   prepare_release_archive
   local build=(
     docker build
     --file "$matrix_dir/Dockerfile"
     --tag "$image"
-    --build-arg "CAIRO_VERSION=$version"
-    --build-arg "CAIRO_URL=$url"
-    --build-arg "CAIRO_SHA256=$sha256"
   )
+  build+=("$@")
   if [[ "$no_cache" == 1 ]]; then
     build+=(--no-cache)
   fi
@@ -91,6 +85,27 @@ run_cairo_lane() {
     --mount "type=bind,src=$repo_root,dst=/source,readonly" \
     --mount "type=bind,src=$release_archive_path,dst=/artifact/cairoon.zip,readonly" \
     "$image"
+}
+
+run_cairo_lane() {
+  local version="$1"
+  local url="$2"
+  local sha256="$3"
+  local image="cairoon-local:cairo-${version}-moon-0.10.4-4f2e8f7dc"
+
+  printf '\n==> Linux Cairo %s lane\n' "$version"
+  run_matrix_image \
+    "$image" \
+    --build-arg "CAIRO_VERSION=$version" \
+    --build-arg "CAIRO_URL=$url" \
+    --build-arg "CAIRO_SHA256=$sha256"
+}
+
+run_ubuntu_24_04_system() {
+  local image="cairoon-local:ubuntu-24.04-system-cairo-moon-0.10.4-4f2e8f7dc"
+
+  printf '\n==> Ubuntu 24.04 system Cairo lane\n'
+  run_matrix_image "$image" --target system-cairo
 }
 
 run_cairo_1_15_10() {
@@ -111,6 +126,7 @@ case "$lane" in
   all)
     run_host
     run_cairo_1_15_10
+    run_ubuntu_24_04_system
     run_cairo_1_18_4
     ;;
   host)
@@ -118,6 +134,9 @@ case "$lane" in
     ;;
   cairo-1.15.10)
     run_cairo_1_15_10
+    ;;
+  ubuntu-24.04-system)
+    run_ubuntu_24_04_system
     ;;
   cairo-1.18.4)
     run_cairo_1_18_4

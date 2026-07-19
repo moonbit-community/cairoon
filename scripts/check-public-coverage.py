@@ -31,7 +31,10 @@ ALLOWED_CATEGORIES = {
     "platform-backend",
     "platform-status",
 }
-SCOPE_RE = re.compile(r"^cairo(>=|<)(\d+)\.(\d+)\.(\d+)$")
+SCOPE_TERM_RE = re.compile(r"^cairo(>=|==|!=|<)(\d+)\.(\d+)\.(\d+)$")
+Version = tuple[int, int, int]
+ScopeTerm = tuple[str, Version]
+ScopeExpression = tuple[tuple[ScopeTerm, ...], ...]
 
 
 class CoverageKey(NamedTuple):
@@ -174,25 +177,41 @@ def source_anchor_count(key: CoverageKey, root: pathlib.Path) -> int:
     return count
 
 
-def parse_scope(scope: str) -> tuple[str, tuple[int, int, int]] | None:
+def parse_scope(scope: str) -> ScopeExpression | None:
     if scope == "all":
         return None
-    match = SCOPE_RE.fullmatch(scope)
-    if match is None:
-        raise ValueError(f"unknown version scope {scope!r}")
-    operator = match.group(1)
-    version = tuple(int(component) for component in match.groups()[1:])
-    return operator, version
+    alternatives: list[tuple[ScopeTerm, ...]] = []
+    for clause in scope.split("|"):
+        terms: list[ScopeTerm] = []
+        for term in clause.split(","):
+            match = SCOPE_TERM_RE.fullmatch(term)
+            if match is None:
+                raise ValueError(f"unknown version scope {scope!r}")
+            operator = match.group(1)
+            version: Version = tuple(
+                int(component) for component in match.groups()[1:]
+            )
+            terms.append((operator, version))
+        alternatives.append(tuple(terms))
+    return tuple(alternatives)
 
 
 def scope_applies(scope: str, cairo_version: tuple[int, int, int]) -> bool:
     parsed = parse_scope(scope)
     if parsed is None:
         return True
-    operator, threshold = parsed
-    if operator == "<":
-        return cairo_version < threshold
-    return cairo_version >= threshold
+
+    def term_applies(term: ScopeTerm) -> bool:
+        operator, threshold = term
+        if operator == "<":
+            return cairo_version < threshold
+        if operator == ">=":
+            return cairo_version >= threshold
+        if operator == "==":
+            return cairo_version == threshold
+        return cairo_version != threshold
+
+    return any(all(term_applies(term) for term in clause) for clause in parsed)
 
 
 def check_ledger(

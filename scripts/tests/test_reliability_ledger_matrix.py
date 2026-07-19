@@ -45,6 +45,7 @@ class LocalMatrixGateTests(unittest.TestCase):
         self.root = pathlib.Path(self.temp_dir.name)
         self.matrix = self.root / "scripts" / "test-cairo-matrix.sh"
         self.lane = self.root / "scripts" / "matrix" / "run-lane.sh"
+        self.dockerfile = self.root / "scripts" / "matrix" / "Dockerfile"
         self.sanitizer = self.root / "scripts" / "sanitizers" / "run.py"
         self.sanitizer_toolchain = self.sanitizer.with_name("toolchain.py")
         self.sanitizer_leak_probes = self.sanitizer.with_name("leak_probes.py")
@@ -53,9 +54,21 @@ class LocalMatrixGateTests(unittest.TestCase):
         self.matrix.write_text(
             "cairo-1.15.10\n"
             "cairo-1.18.4\n"
+            "ubuntu-24.04-system\n"
+            "--target system-cairo\n"
             "CAIROON_SANITIZER_LEAKS=on\n"
             "moon package --list\n"
             "dst=/artifact/cairoon.zip,readonly\n",
+            encoding="utf-8",
+        )
+        self.dockerfile.write_text(
+            "FROM ubuntu:24.04 AS matrix-base\n"
+            "FROM matrix-base AS lane-runner\n"
+            "FROM lane-runner AS system-cairo\n"
+            'ENV CAIROON_MATRIX_CAIRO_VERSION="1.18.0"\n'
+            'RUN test "$(pkg-config --modversion cairo)" = '
+            '"${CAIROON_MATRIX_CAIRO_VERSION}"\n'
+            "FROM matrix-base AS exact-cairo\n",
             encoding="utf-8",
         )
         self.sanitizer.write_text(
@@ -112,6 +125,46 @@ class LocalMatrixGateTests(unittest.TestCase):
             "./scripts/verify.sh\n"
         )
         self.assertTrue(any("--analyze" in error for error in errors))
+
+    def test_matrix_requires_ubuntu_system_cairo_lane_contract(self) -> None:
+        lane_text = (
+            "./scripts/check-downstream-consumer.sh --archive "
+            "/artifact/cairoon.zip\n"
+            "python3 ./scripts/check-public-coverage.py --analyze\n"
+            "./scripts/verify.sh\n"
+        )
+        mutations = (
+            (self.matrix, "ubuntu-24.04-system"),
+            (self.matrix, "--target system-cairo"),
+            (self.dockerfile, "AS matrix-base"),
+            (self.dockerfile, "FROM lane-runner AS system-cairo"),
+            (self.dockerfile, "FROM matrix-base AS exact-cairo"),
+            (
+                self.dockerfile,
+                'CAIROON_MATRIX_CAIRO_VERSION="1.18.0"',
+            ),
+            (
+                self.dockerfile,
+                'RUN test "$(pkg-config --modversion cairo)" = '
+                '"${CAIROON_MATRIX_CAIRO_VERSION}"',
+            ),
+        )
+        for path, anchor in mutations:
+            with self.subTest(path=path.name, anchor=anchor):
+                original = path.read_text(encoding="utf-8")
+                self.assertIn(anchor, original)
+                path.write_text(
+                    original.replace(anchor, "", 1),
+                    encoding="utf-8",
+                )
+
+                errors = self.check(lane_text)
+
+                self.assertTrue(
+                    any("Ubuntu system Cairo" in error for error in errors),
+                    errors,
+                )
+                path.write_text(original, encoding="utf-8")
 
     def test_matrix_lane_accepts_active_instrumented_public_coverage(self) -> None:
         errors = self.check(

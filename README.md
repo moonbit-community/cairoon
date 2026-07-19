@@ -25,9 +25,10 @@ preferred and sole supported target, so WebAssembly, WasmGC, JavaScript, and
 LLVM builds stop at the module boundary instead of compiling partial FFI
 packages. The binding depends on Cairo C FFI.
 
-The local release matrix compiles against exact Cairo 1.15.10 and 1.18.4
-sources. APIs introduced after the lower bound are compile-time feature-gated;
-availability still depends on the Cairo library installed by the consumer.
+The local release matrix covers exact Cairo 1.15.10 and 1.18.4 source builds
+plus Ubuntu 24.04's stock Cairo 1.18.0. APIs introduced after the lower bound
+are compile-time feature-gated; availability still depends on the Cairo
+library installed by the consumer.
 
 ## Quick Start
 
@@ -112,10 +113,10 @@ by a 1000-iteration finalizer-only stress package whose ledger forbids explicit
 release. The sole global `Partial` inventory row is test/release-platform
 evidence: GitHub Actions run `29678818105` passed macOS native but failed both
 Ubuntu jobs on the prior release commit. The diagnosed Cairo 1.18.0 PNG and
-stripped-symbol sanitizer fixes now pass all 841 native tests and every package
-under ASan/LSan/UBSan in an isolated Ubuntu 24.04 system-Cairo replay. That fix
-commit still needs passing Ubuntu and macOS native jobs plus the Ubuntu
-ASan/LSan/UBSan job.
+stripped-symbol sanitizer fixes now pass 209 script tests, all 841 native tests,
+and every package under ASan/LSan/UBSan in the first-class Ubuntu 24.04
+system-Cairo lane. That fix commit still needs passing Ubuntu and macOS native
+jobs plus the Ubuntu ASan/LSan/UBSan job.
 Platform-specific backends remain out of scope, and no source-compatibility
 promise exists before `1.0`.
 
@@ -189,16 +190,18 @@ python3 ./scripts/check-public-coverage.py --analyze
 ```
 
 It queries the linked Cairo version, selects exact semver-scoped exceptions,
-and rejects newly uncovered public-facade branches or stale exceptions. Every
+and rejects newly uncovered public-facade branches or stale exceptions. Scopes
+use `<`, `>=`, `==`, and `!=`, comma for AND, and `|` for OR. Every
 remaining linked-version, platform, native-invariant, and defensive branch
-requires an exact entry in `scripts/public-coverage-exceptions.tsv`. Both
-pinned local Cairo lanes below run this instrumented analysis automatically.
+requires an exact entry in `scripts/public-coverage-exceptions.tsv`. All three
+local Cairo lanes below run this instrumented analysis automatically.
 Each lane also consumes the same unmodified host-generated publication zip, so
 host-specific include or library paths cannot hide in a release artifact.
 
-Before a release candidate, run both pinned Linux compatibility lanes locally:
+Before a release candidate, run all Linux compatibility lanes locally:
 
 ```sh
+./scripts/test-cairo-matrix.sh ubuntu-24.04-system
 ./scripts/test-cairo-matrix.sh cairo-1.15.10
 ./scripts/test-cairo-matrix.sh cairo-1.18.4
 ```

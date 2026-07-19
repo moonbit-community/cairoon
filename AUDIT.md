@@ -4,6 +4,18 @@
 
 Implemented in this workspace:
 
+- The Ubuntu 24.04 system-Cairo replay is now the named local release lane
+  `./scripts/test-cairo-matrix.sh ubuntu-24.04-system`. The Dockerfile separates
+  `matrix-base`, `lane-runner`, `system-cairo`, and `exact-cairo`; the system
+  target requires Cairo 1.18.0, while source lanes still require their pinned
+  URL, SHA-256, prefix, and exact linked version. Coverage scopes now express
+  the 1.18.0 status profile exactly with `<`, `>=`, `==`, `!=`, comma-AND, and
+  `|`-OR terms. The system lane plus exact 1.15.10 and 1.18.4 lanes each pass
+  209/209 script tests, 841/841 native tests, 63/63 docs, both downstream
+  consumers, the unmodified 664-member host archive, and every package under
+  ASan/LSan/UBSan. Publication integrity requires all three matrix support
+  files byte-for-byte. Public signatures and the production FFI boundary are
+  unchanged.
 - GitHub Actions run `29678818105` passed macOS native but exposed two Ubuntu
   compatibility gaps. The native job stopped on Cairo 1.18.0's upstream
   malformed-PNG error-surface bug, which reports `NoMemory` until Cairo 1.18.2
@@ -188,7 +200,7 @@ Implemented in this workspace:
   process failures, deterministic JSON, and environment redaction.
 - Exact local release lanes for Cairo 1.15.10 and 1.18.4, built from pinned
   source URLs and SHA-256 digests on a pinned Ubuntu base image. Both lanes
-  pass all static gates, 841/841 native tests, 208/208 script tests, and 63/63
+  pass all static gates, 841/841 native tests, 209/209 script tests, and 63/63
   executable documentation tests with the pinned MoonBit
   `0.10.4+4f2e8f7dc-nightly` compiler. In each lane, the source-checkout and
   extracted-publication-zip consumers also pass 1/1 independently. Each lane
@@ -272,8 +284,9 @@ Implemented in this workspace:
   `scripts/check-reliability-ledger.py`, wired into `scripts/verify.sh`, so
   migration status rows use accepted statuses, `Partial` rows state remaining
   gaps explicitly, and the current Tests evidence stays below 1200 characters
-  while naming both pinned Cairo lanes, exact suite/archive/API counts, local
-  sanitizer coverage, and the shipped-CI gap. The checker derives the script
+  while naming both source-pinned Cairo lanes, the Ubuntu system-Cairo lane,
+  exact suite/archive/API counts, local sanitizer coverage, and the shipped-CI
+  gap. The checker derives the script
   count from `unittest` discovery, scopes sanitizer policy to TESTING Tier 3,
   scopes the package stability claim to its current section, and confirms CI
   continues to run native and ASan/LSan/UBSan verify gates.
@@ -938,7 +951,7 @@ Implemented in this workspace:
   no release closure. Black-box raster-source tests also cover the pycairo
   acquire pattern that creates a compatible image from target/extents and
   applies the extents device offset.
-  Both pinned Linux Cairo lanes run every discovered package in a separate
+  All three Linux Cairo lanes run every discovered package in a separate
   ASan/LSan/UBSan process. Intentional signed-overflow and leak probes prove the
   runtimes are active, and the only suppressions are constrained by standalone
   C reproductions and exact allocation counts. Earlier macOS
@@ -963,7 +976,7 @@ Implemented in this workspace:
 
 The most recent full local verification passed on 2026-07-19:
 
-- `CAIROON_VERIFY_ASAN=0 ./scripts/verify.sh` passed 208/208 script tests,
+- `CAIROON_VERIFY_ASAN=0 ./scripts/verify.sh` passed 209/209 script tests,
   841/841 native tests, 63/63 executable documentation tests, formatting,
   project layout, source-size, Cairo build-protocol/generated-constant, FFI
   ownership, exact external-owner/finalizer/stress evidence, API inventory,
@@ -975,7 +988,7 @@ The most recent full local verification passed on 2026-07-19:
   authoritative whole-workspace ASan/LSan/UBSan coverage is supplied by the
   Linux lanes below.
 - `./scripts/test-cairo-matrix.sh cairo-1.15.10` and
-  `./scripts/test-cairo-matrix.sh cairo-1.18.4` passed the same 208 script,
+  `./scripts/test-cairo-matrix.sh cairo-1.18.4` passed the same 209 script,
   841 native, and 63 documentation tests, both 1/1 consumer paths, the
   unmodified host-archive consumer, all 664 publication members, and every
   discovered package under ASan/LSan/UBSan.
@@ -984,8 +997,9 @@ The most recent full local verification passed on 2026-07-19:
   1.15.10 and 16/9344 on 1.18.4; the constrained PDF/JBIG2 suppressions
   accounted for 9 allocations/988 bytes and 14/2352 respectively. Every other
   package remained unsuppressed.
-- An isolated Ubuntu 24.04 replay with its unmodified system Cairo 1.18.0
-  passed 208/208 script tests, 841/841 native tests, 63/63 executable docs,
+- `./scripts/test-cairo-matrix.sh ubuntu-24.04-system` passed with Ubuntu
+  24.04's unmodified system Cairo 1.18.0: 209/209 script tests, 841/841 native
+  tests, 63/63 executable docs,
   both downstream consumer paths, all 664 publication members, and every
   discovered package under ASan/LSan/UBSan. Its stripped recording path used
   exactly 16 suppressions/9344 bytes at `cairo_restore` on arm64; the stripped

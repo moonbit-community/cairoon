@@ -250,26 +250,59 @@ class PublicCoverageTests(unittest.TestCase):
             "Cairo 1.16 and newer retain this native value branch.",
             "cairo>=1.16.0",
         )
+        png_profiles = self.checker.CoverageException(
+            self.checker.CoverageKey(
+                "src/sample.mbt",
+                "sample_status",
+                "3 => 3",
+            ),
+            "linked-cairo-version",
+            "PNG status coverage is absent before 1.16 and on system 1.18.0.",
+            "cairo<1.16.0|cairo==1.18.0",
+        )
+        freetype_profiles = self.checker.CoverageException(
+            self.checker.CoverageKey(
+                "src/sample.mbt",
+                "sample_status",
+                "4 => 4",
+            ),
+            "linked-cairo-version",
+            "FreeType status coverage is absent except on system 1.18.0.",
+            "cairo>=1.16.0,cairo!=1.18.0",
+        )
+        entries = [
+            common,
+            legacy,
+            modern,
+            pre_116,
+            since_116,
+            png_profiles,
+            freetype_profiles,
+        ]
         self.assertEqual(
             self.checker.active_exceptions(
-                [common, legacy, modern, pre_116, since_116],
+                entries,
                 (1, 15, 10),
             ),
-            [common, legacy, pre_116],
+            [common, legacy, pre_116, png_profiles],
         )
         self.assertEqual(
             self.checker.active_exceptions(
-                [common, legacy, modern, pre_116, since_116],
+                entries,
                 (1, 16, 0),
             ),
-            [common, legacy, since_116],
+            [common, legacy, since_116, freetype_profiles],
+        )
+        self.assertEqual(
+            self.checker.active_exceptions(entries, (1, 18, 0)),
+            [common, modern, since_116, png_profiles],
         )
         self.assertEqual(
             self.checker.active_exceptions(
-                [common, legacy, modern, pre_116, since_116],
+                entries,
                 (1, 18, 4),
             ),
-            [common, modern, since_116],
+            [common, modern, since_116, freetype_profiles],
         )
 
     def test_cairo_version_parser_accepts_pkg_config_versions(self) -> None:
@@ -282,18 +315,30 @@ class PublicCoverageTests(unittest.TestCase):
 
     def test_ledger_rejects_unknown_version_scope(self) -> None:
         self.write_source()
-        entry = self.checker.CoverageException(
-            self.checker.CoverageKey(
-                "src/sample.mbt",
-                "sample_status",
-                "_ => 6",
-            ),
-            "defensive-native-value",
-            "The native API contract excludes unknown status integers.",
+        invalid_scopes = (
             "cairo=1.18",
+            "cairo>1.18.0",
+            "|cairo==1.18.0",
+            "cairo==1.18.0|",
+            "cairo>=1.16.0,,cairo!=1.18.0",
+            "cairo>=1.16.0, cairo!=1.18.0",
         )
-        errors = self.checker.check_ledger([entry], self.root)
-        self.assertTrue(any("unknown version scope" in error for error in errors))
+        for scope in invalid_scopes:
+            with self.subTest(scope=scope):
+                entry = self.checker.CoverageException(
+                    self.checker.CoverageKey(
+                        "src/sample.mbt",
+                        "sample_status",
+                        "_ => 6",
+                    ),
+                    "defensive-native-value",
+                    "The native API contract excludes unknown status integers.",
+                    scope,
+                )
+                errors = self.checker.check_ledger([entry], self.root)
+                self.assertTrue(
+                    any("unknown version scope" in error for error in errors)
+                )
 
 
 if __name__ == "__main__":

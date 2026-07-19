@@ -79,10 +79,10 @@ Evaluate each slice with this scorecard:
 | Rendering parity | Deterministic image pixels or normalized PDF/PS/SVG bytes match direct C Cairo output | Strong for the portable migration scope. Scene 66 closes Cairo 1.18's finite tag-attribute contract across URI, multi-rectangle, destination, page-position, external-file, content, and content-reference cases; it joins the enumerated image and vector fixtures with file/stream/direct-C comparisons and stable positive or negative backend markers |
 | Lifetime safety | External-object ownership, borrowed returns, callback retention, integer/pointer operations, and error exits run under ASan/LSan/UBSan or stress tests | Strong for the current portable scope: all 12 raw owners have an exact C finalizer/release mapping and a top-level 1000-iteration allocation path in a separately packaged lifetime test. The `RawTextToGlyphs` path covers clustered, glyph-only, and invalid-font result objects while schema-v2 owner evidence forbids explicit release in its stress helper. Linux runs every MoonBit package in a separate ASan/LSan/UBSan process; stream constructors retain callback state until partial native producers are destroyed on failure, and saved raster getter closures survive replacement, clearing, and their original local bindings leaving scope. Two upstream Cairo paths have pure-C-probe-verified, exact-count LSan suppressions isolated to the vector-oracle and PDF backend packages; every other package remains unsuppressed. |
 | Callback safety | C-held MoonBit callbacks and callback arguments are retained across the callback invocation and released deterministically | Strong for stream writers/readers and raster-source callbacks covered by current stress/fuzz tests; reentrant raster registration changes are deferred until the old acquire/release pairs finish, with ASan and retained-owner regressions for clear from both callback directions |
-| Portability | Required backends pass on each supported platform, or unsupported APIs have explicit `Decision` rows | Strong local evidence at the exact Cairo 1.15.10 compatibility floor and recommended 1.18.4 release, plus the host lane. Module metadata declares native as the sole supported backend, and layout/archive regressions reject drift; unsupported targets stop before native FFI checking. Both Linux lanes consume the same unmodified host-generated zip through module-level `pkg-config` discovery. GitHub runs are grouped by workflow and ref with stale-run cancellation and 60-minute native/sanitizer ceilings, all enforced by negative workflow mutations; still Partial until the release commit's shipped Ubuntu/macOS CI jobs pass |
+| Portability | Required backends pass on each supported platform, or unsupported APIs have explicit `Decision` rows | Strong local evidence at the exact Cairo 1.15.10 compatibility floor, Ubuntu 24.04's stock Cairo 1.18.0, the recommended exact 1.18.4 release, and the host lane. Module metadata declares native as the sole supported backend, and layout/archive regressions reject drift; unsupported targets stop before native FFI checking. All three Linux lanes consume the same unmodified host-generated zip through module-level `pkg-config` discovery. GitHub runs are grouped by workflow and ref with stale-run cancellation and 60-minute native/sanitizer ceilings, all enforced by negative workflow mutations; still Partial until the release commit's shipped Ubuntu/macOS CI jobs pass |
 | Documentation | Public declarations have substantive MoonBit `///` comments, family workflows have executable examples where practical, and `scripts/check-public-docs.py` reports zero debt | Done: all 579 public declarations have substantive comments, the exact grandfather ledger is empty, executable downstream-style family notes include complete PDF/PS/SVG workflows, and new undocumented APIs or ledger drift fail the gate |
-| Downstream consumption | A separately named MoonBit module resolves the versioned local dependency, imports only `CAIMEOX/cairoon`, carries no native flags, receives propagated Cairo linking, renders through the public API against checkout and extracted publication zip, and stays outside that archive | Strong local evidence through `integration/consumer` and `scripts/check-downstream-consumer.sh`; the zip is integrity-tested and recompiled in a fresh temporary workspace, and `--archive` mode recompiles the producer-host zip unchanged in both exact-Cairo lanes |
-| Publication integrity | The zip contains the declared dual-license notice and full texts, native-only module metadata, package README/interface, dependency pre-build script, complete source-identical pycairo API audit toolchain, source-identical external-owner checker/ledger, and the complete modular FFI ownership, reliability-ledger, and sanitizer toolchains; canonical paths are unique, safe, CRC-valid, and exclude integration fixtures | Done locally: `scripts/check-publication-archive.py` checks all 664 members, and seventeen focused tests cover valid archives plus missing/incorrect license data, metadata/target mismatch, missing or altered build/API/owner/FFI/reliability/sanitizer support, duplicate names, unsafe paths, fixture leakage, emptiness, and corruption |
+| Downstream consumption | A separately named MoonBit module resolves the versioned local dependency, imports only `CAIMEOX/cairoon`, carries no native flags, receives propagated Cairo linking, renders through the public API against checkout and extracted publication zip, and stays outside that archive | Strong local evidence through `integration/consumer` and `scripts/check-downstream-consumer.sh`; the zip is integrity-tested and recompiled in a fresh temporary workspace, and `--archive` mode recompiles the producer-host zip unchanged in all three Linux lanes |
+| Publication integrity | The zip contains the declared dual-license notice and full texts, native-only module metadata, package README/interface, dependency pre-build script, complete source-identical pycairo API audit toolchain, source-identical external-owner checker/ledger, the local matrix Dockerfile/runner/entry point, and the complete modular FFI ownership, reliability-ledger, and sanitizer toolchains; canonical paths are unique, safe, CRC-valid, and exclude integration fixtures | Done locally: `scripts/check-publication-archive.py` checks all 664 members, and seventeen focused tests cover valid archives plus missing/incorrect license data, metadata/target mismatch, missing or altered build/API/owner/FFI/reliability/matrix/sanitizer support, duplicate names, unsafe paths, fixture leakage, emptiness, and corruption |
 
 The practical release rule is simple: a feature can be trusted when its
 inventory row is `Done`, its reference docs are executable where practical,
@@ -132,12 +132,13 @@ to the named MoonBit function and source branch. Before a release candidate or
 after public implementation/test changes, run
 `scripts/check-public-coverage.py --analyze`; it instruments every test package
 and fails on either a newly uncovered branch or a stale exception. It obtains
-the linked Cairo version from `pkg-config` and applies strict `cairo<semver` or
-`cairo>=semver` scopes. The 53 ledger anchors activate as 50 exceptions on
-Cairo 1.15.10 and 43 on Cairo 1.18.4; they are limited to linked-version
+the linked Cairo version from `pkg-config`. Scope expressions admit only `<`,
+`>=`, `==`, and `!=`; comma joins AND terms and `|` joins OR alternatives.
+The 53 ledger anchors activate as 50 exceptions on Cairo 1.15.10 and 43 on
+both Cairo 1.18.0 and 1.18.4; they are limited to linked-version
 boundaries, defensive native-value guards, backend-dependent output,
 native-result invariants, platform backends, and platform-only statuses. Run
-both pinned local matrix commands to reproduce those exact profiles; each lane
+all three local matrix commands to reproduce those exact profiles; each lane
 invokes `--analyze` before its ordinary and sanitizer suites. Run
 `scripts/check-pycairo-test-parity.py` whenever a tracked pycairo test file,
 its family black-box tests, or a generated family signature changes. Each
@@ -285,16 +286,19 @@ The current local gate is executable as:
 ./scripts/verify.sh
 ```
 
-Release candidates additionally run both pinned Linux Cairo lanes:
+Release candidates additionally run all three Linux Cairo lanes:
 
 ```sh
+./scripts/test-cairo-matrix.sh ubuntu-24.04-system
 ./scripts/test-cairo-matrix.sh cairo-1.15.10
 ./scripts/test-cairo-matrix.sh cairo-1.18.4
 ```
 
-These lanes pin the Ubuntu base image, MoonBit toolchain, Cairo source URL,
-and Cairo archive SHA-256. The checkout is mounted read-only and tested from a
-disposable copy, so platform link-flag configuration cannot modify host files.
+All lanes pin the Ubuntu base image and MoonBit toolchain. The system target
+requires Ubuntu's Cairo package to resolve exactly to 1.18.0; exact targets pin
+the Cairo source URL, archive SHA-256, install prefix, and linked version. The
+checkout is mounted read-only and tested from a disposable copy, so platform
+link-flag configuration cannot modify host files.
 
 It runs `moon fmt --check`, the checker unit tests under `scripts/tests`,
 `scripts/check-project-layout.py`,
@@ -4613,17 +4617,18 @@ error-surface bug: that release reports `NoMemory`, while Cairo 1.18.2+ reports
 `PngError`. Path and stream tests now assert those exact version contracts.
 Ubuntu sanitizer observed the known recording-snapshot leak as two 576-byte
 allocations on x86_64; the classifier accepts that size only under the existing
-two-direct-leak, stack, and total-byte constraints. An isolated Ubuntu 24.04
-system-Cairo replay then exercised the stripped PDF/JBIG2 path, whose package
-run used exactly 10 allocations/2284 bytes at the PDF stream constructor and
-4/68 at Surface finish. That replay now passes 841/841 native tests and every
-discovered package under ASan/LSan/UBSan; its arm64 stripped recording path
-uses exactly 16 suppressions/9344 bytes at `cairo_restore`, while a regression
-pins the failed x86_64 probe's 576-byte layout. The CI workflow also uses
-`actions/checkout@v6`, and a negative workflow mutation rejects a return to the
-Node-20-based v4 action.
+two-direct-leak, stack, and total-byte constraints. The first-class
+`ubuntu-24.04-system` lane then exercised the stripped PDF/JBIG2 path, whose
+package run used exactly 10 allocations/2284 bytes at the PDF stream constructor
+and 4/68 at Surface finish. That lane now passes 209/209 script tests, 841/841
+native tests, 63/63 docs, both consumer paths, the unmodified 664-member host
+archive, and every discovered package under ASan/LSan/UBSan; its arm64 stripped
+recording path uses exactly 16 suppressions/9344 bytes at `cairo_restore`, while
+a regression pins the failed x86_64 probe's 576-byte layout. The CI workflow
+also uses `actions/checkout@v6`, and a negative workflow mutation rejects a
+return to the Node-20-based v4 action.
 
-Exact Linux Cairo 1.15.10 and 1.18.4 each pass 841/841 native tests, 208/208
+Exact Linux Cairo 1.15.10 and 1.18.4 each pass 841/841 native tests, 209/209
 script tests, 63/63 executable docs, the source and extracted 1/1 downstream
 consumers, the same unmodified host-generated archive consumer, publication
 archive integrity for 664 members, and every discovered package under

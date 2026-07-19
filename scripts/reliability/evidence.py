@@ -36,6 +36,7 @@ OWNER_EVIDENCE_MARKER = (
 TESTS_EVIDENCE_MARKERS = (
     "Cairo 1.15.10",
     "Cairo 1.18.4",
+    "Ubuntu 24.04 system Cairo 1.18.0",
     NATIVE_TEST_MARKER,
     "63/63 executable docs",
     "288 upstream pycairo tests across 20 families",
@@ -94,7 +95,9 @@ def expected_tests_evidence(repo_root: pathlib.Path) -> str:
         "FFI boundary, source and "
         "extracted consumers plus the unmodified cross-host archive consumer, "
         f"all {PUBLICATION_MARKER}, and every "
-        "discovered package under ASan/LSan/UBSan. Remaining gap: GitHub run "
+        "discovered package under ASan/LSan/UBSan. Ubuntu 24.04 system Cairo "
+        f"1.18.0 independently passes {NATIVE_TEST_MARKER} and every discovered "
+        "package under ASan/LSan/UBSan. Remaining gap: GitHub run "
         "29678818105 passed macOS native but failed both Ubuntu jobs on the "
         "prior release commit. The local fix commit still needs passing Ubuntu "
         "and macOS native jobs plus the Ubuntu combined ASan/LSan/UBSan job. "
@@ -113,6 +116,10 @@ def current_stability_markers(repo_root: pathlib.Path) -> tuple[str, ...]:
             "the unmodified cross-host archive consumer, all "
             f"{PUBLICATION_MARKER}, and every package under "
             "ASan/LSan/UBSan."
+        ),
+        (
+            "Ubuntu 24.04 system Cairo 1.18.0 independently passes "
+            f"{NATIVE_TEST_MARKER} and every package under ASan/LSan/UBSan"
         ),
         "The sole global `Partial` row is shipped test/release-platform evidence",
         (
@@ -133,7 +140,9 @@ def expected_current_stability_evidence(repo_root: pathlib.Path) -> str:
         f"63/63 executable docs, {OWNER_EVIDENCE_MARKER}, source and extracted "
         "consumers plus the unmodified cross-host archive consumer, all "
         f"{PUBLICATION_MARKER}, and every "
-        "package under ASan/LSan/UBSan. The sole global `Partial` row is "
+        "package under ASan/LSan/UBSan. Ubuntu 24.04 system Cairo 1.18.0 "
+        f"independently passes {NATIVE_TEST_MARKER} and every package under "
+        "ASan/LSan/UBSan. The sole global `Partial` row is "
         "shipped test/release-platform evidence: GitHub run 29678818105 passed "
         "macOS native but failed both Ubuntu jobs on the prior release commit. "
         "The local fix commit still needs passing Ubuntu and macOS native jobs "

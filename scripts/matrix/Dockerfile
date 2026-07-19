@@ -1,4 +1,4 @@
-FROM ubuntu:24.04@sha256:4fbb8e6a8395de5a7550b33509421a2bafbc0aab6c06ba2cef9ebffbc7092d90
+FROM ubuntu:24.04@sha256:4fbb8e6a8395de5a7550b33509421a2bafbc0aab6c06ba2cef9ebffbc7092d90 AS matrix-base
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -25,6 +25,32 @@ RUN apt-get update \
         xz-utils \
         zlib1g-dev \
     && rm -rf /var/lib/apt/lists/*
+
+ARG MOONBIT_INSTALL_VERSION=0.10.4+4f2e8f7dc-nightly
+
+RUN curl -fsSL https://cli.moonbitlang.com/install/unix.sh -o /tmp/moonbit-install.sh \
+    && MOONBIT_INSTALL_VERSION="${MOONBIT_INSTALL_VERSION}" \
+        bash /tmp/moonbit-install.sh \
+    && rm /tmp/moonbit-install.sh
+
+ENV PATH="/root/.moon/bin:${PATH}"
+
+FROM matrix-base AS lane-runner
+
+COPY run-lane.sh /usr/local/bin/cairoon-matrix-lane
+
+RUN chmod +x /usr/local/bin/cairoon-matrix-lane
+
+WORKDIR /work
+ENTRYPOINT ["/usr/local/bin/cairoon-matrix-lane"]
+
+FROM lane-runner AS system-cairo
+
+ENV CAIROON_MATRIX_CAIRO_VERSION="1.18.0"
+
+RUN test "$(pkg-config --modversion cairo)" = "${CAIROON_MATRIX_CAIRO_VERSION}"
+
+FROM matrix-base AS exact-cairo
 
 ARG CAIRO_VERSION
 ARG CAIRO_URL
@@ -78,22 +104,15 @@ RUN curl -fsSL "${CAIRO_URL}" -o /tmp/cairo.tar.xz \
        fi \
     && rm -rf /tmp/cairo.tar.xz /tmp/cairo-source /tmp/cairo-build
 
-ARG MOONBIT_INSTALL_VERSION=0.10.4+4f2e8f7dc-nightly
-
-RUN curl -fsSL https://cli.moonbitlang.com/install/unix.sh -o /tmp/moonbit-install.sh \
-    && MOONBIT_INSTALL_VERSION="${MOONBIT_INSTALL_VERSION}" \
-        bash /tmp/moonbit-install.sh \
-    && rm /tmp/moonbit-install.sh
-
-ENV PATH="/root/.moon/bin:${PATH}"
 ENV PKG_CONFIG_PATH="/opt/cairo-${CAIRO_VERSION}/lib/pkgconfig"
 ENV LD_LIBRARY_PATH="/opt/cairo-${CAIRO_VERSION}/lib"
 ENV CAIROON_MATRIX_CAIRO_VERSION="${CAIRO_VERSION}"
 
-COPY run-lane.sh /usr/local/bin/cairoon-matrix-lane
+COPY --from=lane-runner \
+    /usr/local/bin/cairoon-matrix-lane \
+    /usr/local/bin/cairoon-matrix-lane
 
-RUN chmod +x /usr/local/bin/cairoon-matrix-lane \
-    && test "$(pkg-config --modversion cairo)" = "${CAIRO_VERSION}"
+RUN test "$(pkg-config --modversion cairo)" = "${CAIRO_VERSION}"
 
 WORKDIR /work
 ENTRYPOINT ["/usr/local/bin/cairoon-matrix-lane"]

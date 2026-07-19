@@ -124,6 +124,10 @@ def check_local_matrix(
     lane_text = (repo_root / "scripts" / "matrix" / "run-lane.sh").read_text(
         encoding="utf-8"
     )
+    dockerfile = repo_root / "scripts" / "matrix" / "Dockerfile"
+    dockerfile_text = (
+        dockerfile.read_text(encoding="utf-8") if dockerfile.is_file() else ""
+    )
     errors: list[str] = []
     matrix_markers = (
         "cairo-1.15.10",
@@ -135,6 +139,30 @@ def check_local_matrix(
     for marker in matrix_markers:
         if marker not in matrix_text and marker not in lane_text:
             errors.append(f"{matrix}: local release matrix is missing {marker!r}")
+
+    system_cairo_contract = (
+        (matrix, matrix_text, "ubuntu-24.04-system"),
+        (matrix, matrix_text, "--target system-cairo"),
+        (dockerfile, dockerfile_text, "AS matrix-base"),
+        (dockerfile, dockerfile_text, "FROM lane-runner AS system-cairo"),
+        (dockerfile, dockerfile_text, "FROM matrix-base AS exact-cairo"),
+        (
+            dockerfile,
+            dockerfile_text,
+            'CAIROON_MATRIX_CAIRO_VERSION="1.18.0"',
+        ),
+        (
+            dockerfile,
+            dockerfile_text,
+            'RUN test "$(pkg-config --modversion cairo)" = '
+            '"${CAIROON_MATRIX_CAIRO_VERSION}"',
+        ),
+    )
+    for path, source, marker in system_cairo_contract:
+        if marker not in source:
+            errors.append(
+                f"{path}: Ubuntu system Cairo lane is missing {marker!r}"
+            )
 
     coverage_command = "python3 ./scripts/check-public-coverage.py --analyze"
     if shlex.split(coverage_command) not in shell_token_lines(lane_text):

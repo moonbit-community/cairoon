@@ -29,6 +29,9 @@ EXPECTED_RELIABILITY_SUPPORT = frozenset(
         "scripts/reliability/evidence.py",
         "scripts/reliability/gates.py",
         "scripts/reliability/markdown.py",
+        "scripts/matrix/Dockerfile",
+        "scripts/matrix/run-lane.sh",
+        "scripts/test-cairo-matrix.sh",
     }
 )
 EXPECTED_SANITIZER_SUPPORT = frozenset(

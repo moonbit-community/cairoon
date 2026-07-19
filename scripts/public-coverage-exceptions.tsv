@@ -39,8 +39,8 @@ src/status.mbt	status_from_raw	17 => InvalidVisual	platform-status	all	InvalidVi
 src/status.mbt	status_from_raw	23 => TempFileError	platform-status	all	TempFileError requires an operating-system temporary-file fault that deterministic portable tests do not inject.
 src/status.mbt	status_from_raw	25 => FontTypeMismatch	defensive-native-value	all	Typed font face and scaled font wrappers preserve their Cairo subtype and cannot form a mismatched native font pair.
 src/status.mbt	status_from_raw	33 => UserFontNotImplemented	platform-status	all	Cairoon does not expose a user-font callback constructor that could deliberately leave a required backend callback absent.
-src/status.mbt	status_from_raw	39 => PngError	linked-cairo-version	cairo<1.16.0	Cairo before 1.16 predates the PNG-specific status value, so no native operation in that profile can return raw status 39.
-src/status.mbt	status_from_raw	40 => FreetypeError	platform-status	cairo>=1.16.0	Cairoon exposes no external FreeType-face constructor, so public inputs cannot deliberately induce this backend-specific failure.
+src/status.mbt	status_from_raw	39 => PngError	linked-cairo-version	cairo<1.16.0|cairo==1.18.0	Cairo before 1.16 predates raw status 39, while Cairo 1.18.0's malformed-PNG bug returns NoMemory instead of PngError.
+src/status.mbt	status_from_raw	40 => FreetypeError	platform-status	cairo>=1.16.0,cairo!=1.18.0	Cairoon exposes no external FreeType face; only the Ubuntu system-Cairo 1.18.0 profile reaches this backend status indirectly.
 src/status.mbt	status_from_raw	43 => DwriteError	platform-status	cairo>=1.18.0	DwriteError is defined in the Cairo 1.18 status range but cannot occur on the Linux and macOS release lanes.
 src/surface.mbt	surface_status_from_raw	_ => InvalidStatus	defensive-native-value	all	Cairo status accessors return declared cairo_status_t values; the typed public API cannot inject an unknown integer.
 src/surface.mbt	surface_type_from_raw	3 => SurfaceTypeXlib	platform-backend	all	Xlib surfaces require a live X display and are not constructible in the portable headless release matrix.

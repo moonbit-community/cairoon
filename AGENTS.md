@@ -1115,8 +1115,10 @@ MoonBit reliability requirements and remaining work:
   replace these with assertions derived from the implementation under test.
 - Fuzz tests for invalid enum/status/string/buffer/stride inputs.
 - Explicit callback error-propagation tests.
-- Cross-platform CI across Linux and macOS, with Cairo 1.15.10 and a current
-  Cairo 1.18.x build.
+- Cross-platform CI across Linux and macOS. The local release matrix must run
+  the host verify gate, Ubuntu 24.04's stock Cairo 1.18.0, exact source-built
+  Cairo 1.15.10, and exact source-built Cairo 1.18.4. A release claim may not
+  substitute one lane for another.
 - Keep CI capacity bounded without weakening release evidence. The workflow
   must group runs by workflow and Git ref, cancel an older in-progress run only
   when a newer run supersedes that same ref, and cap both native and sanitizer
@@ -1136,7 +1138,18 @@ MoonBit reliability requirements and remaining work:
   its current path globals explicitly so isolated tests can replace them.
   `scripts/check-publication-archive.py` must require the root checker and all
   five support-package files byte-for-byte; a missing or altered dependency is
-  a publication failure.
+  a publication failure. It must also require `scripts/matrix/Dockerfile`,
+  `scripts/matrix/run-lane.sh`, and `scripts/test-cairo-matrix.sh` byte-for-byte
+  so an extracted publication can reproduce every local Linux lane.
+- `scripts/test-cairo-matrix.sh all` must include the host lane plus the named
+  `ubuntu-24.04-system`, `cairo-1.15.10`, and `cairo-1.18.4` lanes. The
+  Dockerfile must expose separate `system-cairo` and `exact-cairo` targets over
+  a shared pinned base and runner. The system target must reject any Cairo
+  version other than 1.18.0 and must not build a replacement Cairo. Each exact
+  target must verify its source digest and linked version. Every lane must run
+  public coverage analysis, both consumer modes, the unmodified host archive,
+  the full native/doc suites, and every discovered package under
+  ASan/LSan/UBSan.
 
 ## Reliability Evaluation Plan
 
@@ -1276,7 +1289,8 @@ A migrated API is done only when:
   variant.
 - Every publication archive contains `COPYING`, the complete LGPL-2.1 and
   MPL-1.1 texts declared by `moon.mod`, the package README/interface, and the
-  dependency pre-build script plus the pinned pycairo API snapshot; duplicate,
+  dependency pre-build script plus the pinned pycairo API snapshot and the
+  source-identical local-matrix Dockerfile, runner, and entry point; duplicate,
   unsafe, corrupt, or integration members fail
   `scripts/check-publication-archive.py`.
 - The API inventory marks the item as `Done` with a test reference.
