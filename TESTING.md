@@ -82,7 +82,7 @@ Evaluate each slice with this scorecard:
 | Portability | Required backends pass on each supported platform, or unsupported APIs have explicit `Decision` rows | Strong local evidence at the exact Cairo 1.15.10 compatibility floor, Ubuntu 24.04's stock Cairo 1.18.0, the recommended exact 1.18.4 release, and the host lane. Module metadata declares native as the sole supported backend, and layout/archive regressions reject drift; unsupported targets stop before native FFI checking. All three Linux lanes consume the same unmodified host-generated zip through module-level `pkg-config` discovery. GitHub runs are grouped by workflow and ref with stale-run cancellation and 60-minute native/sanitizer ceilings, all enforced by negative workflow mutations; still Partial until the release commit's shipped Ubuntu/macOS CI jobs pass |
 | Documentation | Public declarations have substantive MoonBit `///` comments, family workflows have executable examples where practical, and `scripts/check-public-docs.py` reports zero debt | Done: all 579 public declarations have substantive comments, the exact grandfather ledger is empty, executable downstream-style family notes include complete PDF/PS/SVG workflows, and new undocumented APIs or ledger drift fail the gate |
 | Downstream consumption | A separately named MoonBit module resolves the versioned local dependency, imports only public `CAIMEOX/cairoon`, carries no native flags, receives propagated Cairo linking, exercises representative core, lifetime, value/error, PNG, and PDF-stream workflows against checkout and extracted publication zip, and stays outside that archive | Strong local evidence through six split workflows in `integration/consumer/src/contract` and `scripts/check-downstream-consumer.sh`; source and extracted runs pass 6/6, `--archive` recompiles the producer-host zip unchanged in all three Linux lanes, and the reliability gate rejects a missing manifest file or named workflow |
-| Publication integrity | The zip contains the declared dual-license notice and full texts, native-only module metadata, package README/interface, dependency pre-build script, complete source-identical pycairo API audit toolchain, source-identical external-owner checker/ledger, the local matrix Dockerfile/runner/entry point, and the complete modular FFI ownership, reliability-ledger, and sanitizer toolchains; canonical paths are unique, safe, CRC-valid, and exclude integration fixtures | Done locally: `scripts/check-publication-archive.py` checks all 664 members, and seventeen focused tests cover valid archives plus missing/incorrect license data, metadata/target mismatch, missing or altered build/API/owner/FFI/reliability/matrix/sanitizer support, duplicate names, unsafe paths, fixture leakage, emptiness, and corruption |
+| Publication integrity | The zip contains the declared dual-license notice and full texts, a versioned changelog, version-matched install docs, native-only module metadata, dependency pre-build script, complete source-identical pycairo API audit toolchain, source-identical external-owner checker/ledger, the local matrix Dockerfile/runner/entry point, strict publish-dry-run tooling, and the complete modular FFI ownership, reliability-ledger, and sanitizer toolchains; canonical paths are unique, safe, CRC-valid, and exclude integration fixtures | Done locally: `scripts/check-publication-archive.py` checks all 667 members, dynamically matches packaged name/version across `moon.mod`, changelog, and both READMEs, requires the dependency/pre-build/native/repository/exclusion contract, and has 23 focused tests covering valid archives plus missing/incorrect release, license, build/API/owner/FFI/reliability/matrix/sanitizer data, duplicate names, unsafe paths, fixture leakage, emptiness, and corruption. Six dry-run parser tests require exact 202/no-change and matching-identity evidence while rejecting duplicate versions, missing extracted checks, and unexpected exit status |
 
 The practical release rule is simple: a feature can be trusted when its
 inventory row is `Done`, its reference docs are executable where practical,
@@ -4620,18 +4620,18 @@ allocations on x86_64; the classifier accepts that size only under the existing
 two-direct-leak, stack, and total-byte constraints. The first-class
 `ubuntu-24.04-system` lane then exercised the stripped PDF/JBIG2 path, whose
 package run used exactly 10 allocations/2284 bytes at the PDF stream constructor
-and 4/68 at Surface finish. That lane now passes 212/212 script tests, 841/841
-native tests, 63/63 docs, all three 6/6 consumer modes, the unmodified 664-member host
+and 4/68 at Surface finish. That lane now passes 224/224 script tests, 841/841
+native tests, 63/63 docs, all three 6/6 consumer modes, the unmodified 667-member host
 archive, and every discovered package under ASan/LSan/UBSan; its arm64 stripped
 recording path uses exactly 16 suppressions/9344 bytes at `cairo_restore`, while
 a regression pins the failed x86_64 probe's 576-byte layout. The CI workflow
 also uses `actions/checkout@v6`, and a negative workflow mutation rejects a
 return to the Node-20-based v4 action.
 
-Exact Linux Cairo 1.15.10 and 1.18.4 each pass 841/841 native tests, 212/212
+Exact Linux Cairo 1.15.10 and 1.18.4 each pass 841/841 native tests, 224/224
 script tests, 63/63 executable docs, the source, extracted, and unmodified
 host-archive consumer modes at 6/6, publication
-archive integrity for 664 members, and every discovered package under
+archive integrity for 667 members, and every discovered package under
 ASan/LSan/UBSan. The pure-C recording-snapshot probe still limits the vector
 package to 16 suppressions/7424 bytes on Cairo 1.15.10 and 16/9344 on Cairo
 1.18.4. The pure-C PDF/JBIG2 probe limits the PDF package to two rows totaling
@@ -4639,6 +4639,20 @@ package to 16 suppressions/7424 bytes on Cairo 1.15.10 and 16/9344 on Cairo
 is unsuppressed. Documentation reaches 579 of 579 declarations with zero debt,
 so the Documentation inventory row is Done. Public signatures and the
 349-local-plus-two-direct-symbol production FFI boundary remain unchanged.
+
+The release-version replay found that Mooncakes already holds `0.1.0`, while
+that preview lacks the dependency pre-build/link contract now required for
+downstream use and has a different generated public interface. The unreleased
+line is therefore `0.2.0`. Twenty-three publication-validator tests now include
+six negative release-tooling cases: missing changelog, changelog version
+drift, install-command version drift, and missing dependency pre-build wiring.
+The dry-run checker itself must also be present and source-identical. Six parser
+tests pin exact 202/no-change, extracted-check, identity, and exit-status
+semantics. The packaged name/version is parsed from the archive itself, not
+duplicated in the checker. The resulting 667-member zip passes extraction and
+native checking through Moon's official publish dry-run path; an actual
+registry upload remains forbidden until the hosted release-commit evidence
+closes the Tests row.
 
 The sanitizer runner is split by responsibility: `run.py` owns CLI and
 per-package orchestration, `toolchain.py` owns compiler discovery, runtime

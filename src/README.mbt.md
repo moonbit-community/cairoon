@@ -23,6 +23,12 @@ WebAssembly, WasmGC, JavaScript, and LLVM backends are not supported.
 - `pkg-config` that can resolve `cairo`.
 - Python 3 for native pre-build configuration and repository verification.
 
+## Installation
+
+After publication, pin it with `moon add CAIMEOX/cairoon@0.2.0`. The published
+`0.1.0` preview predates dependency-side Cairo discovery and is not recommended;
+until `0.2.0` is uploaded, use this exact checkout or commit in a workspace.
+
 ## Native Link Configuration
 
 `moon.mod` registers `scripts/build/cairo_config.py` with MoonBit's experimental
@@ -78,11 +84,11 @@ version or commit is pinned. The complete portable API scope and all 20 pinned
 pycairo test families are covered, and all 579 published declarations have
 substantive API documentation.
 
-Local release-candidate matrices on exact Cairo 1.15.10 and 1.18.4 pass 212/212
+Local release-candidate matrices on exact Cairo 1.15.10 and 1.18.4 pass 224/224
 script tests, 841/841 native tests, 63/63 executable docs, 12/12 raw external
 owners with exact finalizer and 1000-iteration stress evidence, including one
 raw-result stress path that bans explicit release, 6/6 source, extracted, and
-unmodified cross-host archive consumer runs, all 664 publication members, and
+unmodified cross-host archive consumer runs, all 667 publication members, and
 every package under ASan/LSan/UBSan. Ubuntu 24.04 system Cairo 1.18.0
 independently passes 841/841 native tests and every package under
 ASan/LSan/UBSan. The sole global `Partial` row is shipped test/release-platform

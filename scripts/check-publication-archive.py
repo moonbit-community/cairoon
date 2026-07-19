@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import pathlib
+import re
 import sys
 import zipfile
 
@@ -54,6 +55,7 @@ REQUIRED_MEMBERS = frozenset(
         "COPYING-LGPL-2.1",
         "COPYING-MPL-1.1",
         "API_INVENTORY.md",
+        "CHANGELOG.md",
         "README.md",
         "moon.mod",
         "scripts/api/attribute_mappings.py",
@@ -64,6 +66,7 @@ REQUIRED_MEMBERS = frozenset(
         "scripts/build/cairo_config.py",
         "scripts/check-api-inventory.py",
         "scripts/check-external-owners.py",
+        "scripts/check-publish-dry-run.py",
         "scripts/lifetime/owners.json",
         "src/README.mbt.md",
         "src/moon.pkg",
@@ -85,10 +88,18 @@ REQUIRED_TEXT_MARKERS = {
         "Version 1.1",
     ),
     "moon.mod": (
+        'name = "CAIMEOX/cairoon"',
         'license = "LGPL-2.1-only OR MPL-1.1"',
+        'repository = "https://github.com/moonbit-community/cairoon"',
         'preferred_target = "native"',
         'supported_targets = "native"',
+        '"moonbitlang/x@',
+        '"--moonbit-unstable-prebuild": "scripts/build/cairo_config.py"',
+        'exclude: [ "integration" ]',
     ),
+    "CHANGELOG.md": ("# Changelog",),
+    "README.md": ("temporarily unstable",),
+    "src/README.mbt.md": ("temporarily unstable",),
     "scripts/api/pycairo-api-snapshot.json": (
         '"schema_version": 2',
         '"path": "cairo/__init__.pyi"',
@@ -114,9 +125,59 @@ SOURCE_IDENTICAL_MEMBERS = frozenset(
         "scripts/api/snapshot.py",
         "scripts/check-api-inventory.py",
         "scripts/check-external-owners.py",
+        "scripts/check-publish-dry-run.py",
         "scripts/lifetime/owners.json",
     }
 ) | FFI_OWNERSHIP_SUPPORT | RELIABILITY_SUPPORT | SANITIZER_SUPPORT
+MODULE_NAME_RE = re.compile(r'^name\s*=\s*"([^"]+)"\s*$', re.MULTILINE)
+MODULE_VERSION_RE = re.compile(r'^version\s*=\s*"([^"]+)"\s*$', re.MULTILINE)
+
+
+def check_release_contract(
+    texts: dict[str, str],
+    archive_path: pathlib.Path,
+) -> list[str]:
+    module_text = texts.get("moon.mod")
+    if module_text is None:
+        return []
+
+    name_matches = MODULE_NAME_RE.findall(module_text)
+    version_matches = MODULE_VERSION_RE.findall(module_text)
+    errors: list[str] = []
+    if len(name_matches) != 1:
+        errors.append(
+            f"{archive_path}: moon.mod must declare exactly one module name"
+        )
+    if len(version_matches) != 1:
+        errors.append(
+            f"{archive_path}: moon.mod must declare exactly one module version"
+        )
+    if len(name_matches) != 1 or len(version_matches) != 1:
+        return errors
+
+    module_name = name_matches[0]
+    module_version = version_matches[0]
+    changelog = texts.get("CHANGELOG.md")
+    if changelog is not None:
+        heading = re.compile(
+            rf"^## \[?{re.escape(module_version)}\]? - ",
+            re.MULTILINE,
+        )
+        if heading.search(changelog) is None:
+            errors.append(
+                f"{archive_path}: CHANGELOG.md must contain a release heading "
+                f"for {module_version}"
+            )
+
+    install_command = f"moon add {module_name}@{module_version}"
+    for readme in ("README.md", "src/README.mbt.md"):
+        readme_text = texts.get(readme)
+        if readme_text is not None and install_command not in readme_text:
+            errors.append(
+                f"{archive_path}: {readme} must install the packaged version "
+                f"with {install_command!r}"
+            )
+    return errors
 
 
 def check_archive(path: pathlib.Path) -> tuple[list[str], int]:
@@ -126,6 +187,7 @@ def check_archive(path: pathlib.Path) -> tuple[list[str], int]:
             members = archive.infolist()
             bad_member = archive.testzip()
             canonical_members: dict[str, zipfile.ZipInfo] = {}
+            required_texts: dict[str, str] = {}
 
             for member in members:
                 normalized = member.filename.replace("\\", "/")
@@ -161,6 +223,7 @@ def check_archive(path: pathlib.Path) -> tuple[list[str], int]:
                 except (OSError, RuntimeError, UnicodeDecodeError) as exc:
                     errors.append(f"{path}: cannot read required member {member_name!r}: {exc}")
                     continue
+                required_texts[member_name] = text
                 for marker in markers:
                     if marker not in text:
                         errors.append(
@@ -175,6 +238,8 @@ def check_archive(path: pathlib.Path) -> tuple[list[str], int]:
                             f"{path}: required member {member_name!r} has SHA-256 "
                             f"{actual_digest}, expected {expected_digest}"
                         )
+
+            errors.extend(check_release_contract(required_texts, path))
 
             for member_name in SOURCE_IDENTICAL_MEMBERS:
                 member = canonical_members.get(member_name)

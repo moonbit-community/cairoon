@@ -233,6 +233,20 @@ workflow. The pre-build config API is explicitly experimental, so its protocol,
 archive inclusion, source consumer, extracted consumer, and cross-host matrix
 behavior are executable release contracts while cairoon remains unstable.
 
+Every release-version change must update root `moon.mod`, the leading matching
+section in `CHANGELOG.md`, the exact `moon add CAIMEOX/cairoon@<version>` command
+in both `README.md` and `src/README.mbt.md`, and the isolated consumer's root
+dependency. `scripts/check-publication-archive.py` must derive the packaged
+name/version from the archive's own `moon.mod` and reject any mismatch, missing
+changelog, or missing repository/native/dependency/pre-build/exclusion marker.
+The published `0.1.0` preview predates dependency pre-build/link propagation;
+the next line is `0.2.0`. `scripts/check-publish-dry-run.py` is the local online
+release gate and must invoke only `moon publish --dry-run`; it may normalize
+Moon CLI's observed status 255 only after exact 202/no-change, two-check, and
+matching-identity evidence. The script and its parser tests must ship in the
+archive. An actual upload is forbidden while the canonical Tests inventory row
+remains `Partial` for hosted release-commit evidence.
+
 The independent downstream module lives in
 `integration/consumer/src/contract`, not in a product or oracle package. Keep
 its six workflows split by responsibility: deterministic image/path/pattern

@@ -4,6 +4,22 @@
 
 Implemented in this workspace:
 
+- The registry release line is now explicit. Mooncakes already contains the
+  July 6 `0.1.0` preview, whose manifest omits dependency-side Cairo discovery
+  and whose generated public interface differs from the current tree. The
+  unreleased candidate is therefore `0.2.0`. A new changelog records the
+  compatibility and reliability delta, both package READMEs pin the matching
+  `moon add` command, and the integration consumer depends on the same version.
+  Publication validation derives name/version from the archived `moon.mod` and
+  rejects version drift plus missing repository, native-only, dependency,
+  pre-build, or fixture-exclusion metadata. A strict dry-run wrapper accepts
+  Moon CLI's current status 255 only with an exact 202/no-change response, two
+  successful package checks, and matching identity. Twelve focused regressions
+  bring the script suite to 224/224; all 23 publication and 6 dry-run parser
+  tests pass, producing an integrity-checked 667-member archive across 453
+  source-size-checked files. The pycairo source snapshot remains current at
+  upstream `80ea3348`, and the current public interface and production FFI
+  symbols are unchanged by this release-preparation slice.
 - The release consumer is no longer a one-operation smoke package. Its
   separately named `integration/consumer/src/contract` package has six
   responsibility-split public-only workflows for deterministic image/path/
@@ -987,32 +1003,32 @@ Implemented in this workspace:
 
 The most recent full local verification passed on 2026-07-19:
 
-- `CAIROON_VERIFY_ASAN=0 ./scripts/verify.sh` passed 212/212 script tests,
+- `CAIROON_VERIFY_ASAN=0 ./scripts/verify.sh` passed 224/224 script tests,
   841/841 native tests, 63/63 executable documentation tests, formatting,
   project layout, source-size, Cairo build-protocol/generated-constant, FFI
   ownership, exact external-owner/finalizer/stress evidence, API inventory,
   pycairo parity, public documentation, reliability-ledger, vector-scene,
   native type including warning 73, and generated-interface gates. The
   isolated consumer passed 6/6 against both the checkout and the
-  integrity-tested extracted 664-member publication zip. A targeted host
+  integrity-tested extracted 667-member publication zip. A targeted host
   ASan/UBSan run passed the finalizer-only `RawTextToGlyphs` package;
   authoritative whole-workspace ASan/LSan/UBSan coverage is supplied by the
   Linux lanes below.
 - `./scripts/test-cairo-matrix.sh cairo-1.15.10` and
-  `./scripts/test-cairo-matrix.sh cairo-1.18.4` passed the same 212 script,
+  `./scripts/test-cairo-matrix.sh cairo-1.18.4` passed the same 224 script,
   841 native, and 63 documentation tests, all three 6/6 consumer modes, all
-  664 publication members, and every
-  discovered package under ASan/LSan/UBSan.
+  667 publication members, and every discovered package under
+  ASan/LSan/UBSan.
   Intentional signed-overflow and leak preflights passed in both lanes. The
   constrained vector suppression accounted for 16 allocations/7424 bytes on
   1.15.10 and 16/9344 on 1.18.4; the constrained PDF/JBIG2 suppressions
   accounted for 9 allocations/988 bytes and 14/2352 respectively. Every other
   package remained unsuppressed.
 - `./scripts/test-cairo-matrix.sh ubuntu-24.04-system` passed with Ubuntu
-  24.04's unmodified system Cairo 1.18.0: 212/212 script tests, 841/841 native
-  tests, 63/63 executable docs, all three 6/6 consumer modes, all 664
-  publication members, and every
-  discovered package under ASan/LSan/UBSan. Its stripped recording path used
+  24.04's unmodified system Cairo 1.18.0: 224/224 script tests, 841/841 native
+  tests, 63/63 executable docs, all three 6/6 consumer modes, all 667
+  publication members, and every discovered package under ASan/LSan/UBSan.
+  Its stripped recording path used
   exactly 16 suppressions/9344 bytes at `cairo_restore` on arm64; the stripped
   PDF path used exactly 10/2284 at
   `cairoon_pdf_surface_create_for_stream` plus 4/68 at
@@ -3838,13 +3854,18 @@ fresh workspace, and reruns the consumer against the packaged module. The two
 exact Linux Cairo lanes additionally consume the same host-generated zip
 without rewriting its manifests or running the repository constants updater.
 This catches producer-specific include and library paths that source-copy lane
-setup would otherwise hide. The current 664-member archive also contains the
-declared dual-license notice and complete license texts; source, freshly
+setup would otherwise hide. The current 667-member archive also contains the
+declared dual-license notice, complete license texts, and version-matched
+changelog/install metadata; source, freshly
 extracted, and unmodified cross-host archive modes each pass 6/6 against Cairo
 1.15.10, Ubuntu system Cairo 1.18.0, and Cairo 1.18.4.
 
 ## Known Gaps
 
+- Mooncakes `0.1.0` is an historical preview and is not the current release
+  candidate: its archive lacks dependency pre-build/link propagation. Version
+  `0.2.0` is prepared and passes local package validation but must not be
+  uploaded until the hosted release-commit evidence below is green.
 - Current tests are strong enough for the `Done` inventory rows when
   `./scripts/verify.sh` passes on the target platform, but they are not enough
   for a full pycairo migration claim. The public documentation ledger is

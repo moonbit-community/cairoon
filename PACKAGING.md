@@ -4,6 +4,12 @@
 must build against the local Cairo installation and must keep the generated
 public interface, audit files, and reliability gate in sync.
 
+The Mooncakes registry already contains the initial `0.1.0` preview. That
+archive predates cairoon's dependency pre-build/link propagation and is not
+recommended for downstream use. The current tree is the unreleased `0.2.0`
+candidate. A dry run is allowed for validation; do not upload it until the
+remaining hosted Ubuntu/macOS release evidence is green.
+
 ## Native Dependencies
 
 Required:
@@ -93,7 +99,7 @@ The consumer module must declare the versioned dependency in `moon.mod`:
 
 ```moonbit
 import {
-  "CAIMEOX/cairoon@0.1.0",
+  "CAIMEOX/cairoon@0.2.0",
 }
 ```
 
@@ -193,8 +199,11 @@ unsuppressed.
 
 ## Release Checklist
 
-1. Update `version` in `moon.mod`.
-2. Ensure `repository`, `license`, `keywords`, `description`,
+1. Update `version` in `moon.mod`, the top release heading in `CHANGELOG.md`,
+   both README `moon add` commands, and the integration consumer dependency.
+   The publication validator must reject any mismatch.
+2. Ensure `repository`, `license`, `keywords`, `description`, dependency
+   import, experimental pre-build registration,
    `preferred_target = "native"`, and `supported_targets = "native"` are
    correct in `moon.mod`.
 3. Confirm `COPYING`, `COPYING-LGPL-2.1`, and `COPYING-MPL-1.1` are present and
@@ -217,12 +226,18 @@ unsuppressed.
    and verification state.
 10. Confirm new public APIs have executable docs in the appropriate
    `*.mbt.md` reference file.
-11. Run both pinned Cairo matrix lanes and record their exact versions and test
-   counts in `AUDIT.md`.
+11. Run the Ubuntu 24.04 system-Cairo lane and both pinned source-built Cairo
+   lanes, then record their exact versions and test counts in `AUDIT.md`.
 12. Run `./scripts/check-downstream-consumer.sh`; all six workflows must pass
    against both the source checkout and extracted publication zip, and
    `integration/` must remain outside the archive.
-13. Commit the release state and tag it from a clean worktree.
+13. Run `python3 scripts/check-publish-dry-run.py`. The wrapper internally fixes
+    the command to `moon publish --dry-run` and requires both package checks,
+    exact registry status 202, matching package identity, and the no-change
+    confirmation. Current Moon may return status 255 after that successful
+    response; no other nonzero status or incomplete response is accepted.
+14. Commit the release state. Tag and upload it only from a clean worktree after
+    the hosted Ubuntu/macOS release jobs pass on that exact commit.
 
 ## CI Guidance
 

@@ -30,6 +30,21 @@ plus Ubuntu 24.04's stock Cairo 1.18.0. APIs introduced after the lower bound
 are compile-time feature-gated; availability still depends on the Cairo
 library installed by the consumer.
 
+## Installation
+
+Install and pin the current release candidate from Mooncakes after it is
+published:
+
+```sh
+moon add CAIMEOX/cairoon@0.2.0
+```
+
+The published `0.1.0` preview predates dependency-side Cairo discovery and is
+not recommended for downstream use. Until `0.2.0` is uploaded, depend on this
+exact checkout or commit through a MoonBit workspace. Do not run
+`moon publish`; the repository release checklist requires the remaining hosted
+CI evidence first.
+
 ## Quick Start
 
 For a local checkout:
@@ -115,9 +130,10 @@ result fallback is exercised by a 1000-iteration finalizer-only stress package
 whose ledger forbids explicit release. The sole global `Partial` inventory row
 is test/release-platform evidence: GitHub Actions run `29678818105` passed
 macOS native but failed both Ubuntu jobs on the prior release commit. The local
-fixes and expanded consumer contract now pass 212 script tests, all 841 native
-tests, and every package under ASan/LSan/UBSan in the first-class Ubuntu 24.04
-system-Cairo lane. That fix commit still needs passing Ubuntu and macOS native
+fixes and expanded consumer contract now pass 224 script tests, all 841 native
+tests, the 667-member publication contract, and every package under
+ASan/LSan/UBSan in the first-class Ubuntu 24.04 system-Cairo lane. That fix
+commit still needs passing Ubuntu and macOS native
 jobs plus the Ubuntu ASan/LSan/UBSan job.
 Platform-specific backends remain out of scope, and no source-compatibility
 promise exists before `1.0`.
@@ -159,6 +175,7 @@ of the MoonBit API.
 - `PORTING_FROM_PYCAIRO.md`: pycairo migration notes.
 - `TESTING.md`: reliability strategy and test tiers.
 - `PACKAGING.md`: native dependency and release checklist.
+- `CHANGELOG.md`: versioned release and compatibility notes.
 
 ## Testing
 
@@ -175,9 +192,9 @@ external-owner/finalizer/stress ledger, complete pycairo API-shape inventory,
 and public-documentation coverage, the
 reliability and public-coverage ledgers, native type checking, all 20 pinned
 pycairo test-file families (288 upstream tests), the complete in-module MoonBit
-native suite, one
-isolated downstream-module import/link/render test against both the checkout
-and extracted publication zip, publication-archive isolation, executable docs,
+native suite, six isolated downstream-module public workflows against both the
+checkout and extracted publication zip, publication-archive isolation,
+version/changelog/install consistency, executable docs,
 direct C Cairo oracle tests, `moon info`, and ASan/LSan/UBSan when a
 sanitizer-capable compiler is available. Exact counts for the current audited revision are
 recorded in `API_INVENTORY.md`, `AUDIT.md`, and `TESTING.md`.

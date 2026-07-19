@@ -53,12 +53,9 @@ VALID_MEMBERS = {
     "COPYING-LGPL-2.1": (REPO_ROOT / "COPYING-LGPL-2.1").read_bytes(),
     "COPYING-MPL-1.1": (REPO_ROOT / "COPYING-MPL-1.1").read_bytes(),
     "API_INVENTORY.md": (REPO_ROOT / "API_INVENTORY.md").read_bytes(),
-    "README.md": b"# example\n",
-    "moon.mod": (
-        b'license = "LGPL-2.1-only OR MPL-1.1"\n'
-        b'preferred_target = "native"\n'
-        b'supported_targets = "native"\n'
-    ),
+    "CHANGELOG.md": (REPO_ROOT / "CHANGELOG.md").read_bytes(),
+    "README.md": (REPO_ROOT / "README.md").read_bytes(),
+    "moon.mod": (REPO_ROOT / "moon.mod").read_bytes(),
     "scripts/api/attribute_mappings.py": (
         REPO_ROOT / "scripts" / "api" / "attribute_mappings.py"
     ).read_bytes(),
@@ -78,13 +75,16 @@ VALID_MEMBERS = {
     "scripts/check-api-inventory.py": (
         REPO_ROOT / "scripts" / "check-api-inventory.py"
     ).read_bytes(),
+    "scripts/check-publish-dry-run.py": (
+        REPO_ROOT / "scripts" / "check-publish-dry-run.py"
+    ).read_bytes(),
     "scripts/check-external-owners.py": (
         REPO_ROOT / "scripts" / "check-external-owners.py"
     ).read_bytes(),
     "scripts/lifetime/owners.json": (
         REPO_ROOT / "scripts" / "lifetime" / "owners.json"
     ).read_bytes(),
-    "src/README.mbt.md": b"# example\n",
+    "src/README.mbt.md": (REPO_ROOT / "src" / "README.mbt.md").read_bytes(),
     "src/moon.pkg": b"",
     "src/pkg.generated.mbti": b"package example\n",
 } | {
@@ -186,6 +186,84 @@ class PublicationArchiveCheckerTests(unittest.TestCase):
 
         self.assertTrue(any("supported_targets" in error for error in errors), errors)
 
+    def test_missing_changelog_fails(self) -> None:
+        members = dict(VALID_MEMBERS)
+        del members["CHANGELOG.md"]
+        self.write_archive(members, include_required=False)
+
+        errors, _ = self.check()
+
+        self.assertTrue(any("CHANGELOG.md" in error for error in errors), errors)
+
+    def test_release_version_must_match_changelog(self) -> None:
+        self.write_archive(
+            {
+                "moon.mod": (
+                    b'name = "CAIMEOX/cairoon"\n'
+                    b'version = "0.2.0"\n'
+                    b'license = "LGPL-2.1-only OR MPL-1.1"\n'
+                    b'preferred_target = "native"\n'
+                    b'supported_targets = "native"\n'
+                ),
+                "CHANGELOG.md": b"## 0.1.0 - Initial preview\n",
+                "README.md": b"moon add CAIMEOX/cairoon@0.2.0\n",
+                "src/README.mbt.md": b"moon add CAIMEOX/cairoon@0.2.0\n",
+            }
+        )
+
+        errors, _ = self.check()
+
+        self.assertTrue(
+            any("CHANGELOG.md" in error and "0.2.0" in error for error in errors),
+            errors,
+        )
+
+    def test_release_version_must_match_install_docs(self) -> None:
+        self.write_archive(
+            {
+                "moon.mod": (
+                    b'name = "CAIMEOX/cairoon"\n'
+                    b'version = "0.2.0"\n'
+                    b'license = "LGPL-2.1-only OR MPL-1.1"\n'
+                    b'preferred_target = "native"\n'
+                    b'supported_targets = "native"\n'
+                ),
+                "CHANGELOG.md": b"## 0.2.0 - Unreleased\n",
+                "README.md": b"moon add CAIMEOX/cairoon@0.1.0\n",
+                "src/README.mbt.md": b"moon add CAIMEOX/cairoon@0.2.0\n",
+            }
+        )
+
+        errors, _ = self.check()
+
+        self.assertTrue(
+            any("README.md" in error and "0.2.0" in error for error in errors),
+            errors,
+        )
+
+    def test_module_dependency_prebuild_contract_is_required(self) -> None:
+        self.write_archive(
+            {
+                "moon.mod": (
+                    b'name = "CAIMEOX/cairoon"\n'
+                    b'version = "0.2.0"\n'
+                    b'license = "LGPL-2.1-only OR MPL-1.1"\n'
+                    b'preferred_target = "native"\n'
+                    b'supported_targets = "native"\n'
+                ),
+                "CHANGELOG.md": b"## 0.2.0 - Unreleased\n",
+                "README.md": b"moon add CAIMEOX/cairoon@0.2.0\n",
+                "src/README.mbt.md": b"moon add CAIMEOX/cairoon@0.2.0\n",
+            }
+        )
+
+        errors, _ = self.check()
+
+        self.assertTrue(
+            any("--moonbit-unstable-prebuild" in error for error in errors),
+            errors,
+        )
+
     def test_missing_prebuild_script_fails(self) -> None:
         members = dict(VALID_MEMBERS)
         del members["scripts/build/cairo_config.py"]
@@ -194,6 +272,32 @@ class PublicationArchiveCheckerTests(unittest.TestCase):
         errors, _ = self.check()
 
         self.assertTrue(any("scripts/build/cairo_config.py" in error for error in errors), errors)
+
+    def test_missing_publish_dry_run_checker_fails(self) -> None:
+        members = dict(VALID_MEMBERS)
+        del members["scripts/check-publish-dry-run.py"]
+        self.write_archive(members, include_required=False)
+
+        errors, _ = self.check()
+
+        self.assertTrue(
+            any("scripts/check-publish-dry-run.py" in error for error in errors),
+            errors,
+        )
+
+    def test_altered_publish_dry_run_checker_fails(self) -> None:
+        self.write_archive({"scripts/check-publish-dry-run.py": b"# altered\n"})
+
+        errors, _ = self.check()
+
+        self.assertTrue(
+            any(
+                "scripts/check-publish-dry-run.py" in error
+                and "does not match" in error
+                for error in errors
+            ),
+            errors,
+        )
 
     def test_missing_api_snapshot_fails(self) -> None:
         members = dict(VALID_MEMBERS)

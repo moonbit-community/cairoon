@@ -16,9 +16,14 @@ instead of a registry download:
 
 ```moonbit
 import {
-  "CAIMEOX/cairoon@0.1.0",
+  "CAIMEOX/cairoon@0.2.0",
 }
 ```
+
+The registry's `0.1.0` preview predates dependency-side Cairo discovery and is
+not recommended. Version `0.2.0` is currently an unreleased candidate, so use
+the workspace form below until its hosted release checks pass and it appears on
+Mooncakes.
 
 When using a local checkout, create a workspace that contains both modules:
 
