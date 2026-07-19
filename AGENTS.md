@@ -215,6 +215,18 @@ dependents. `scripts/check-project-layout.py` and the build-script unit tests
 enforce these rules; concrete host paths and package-local `cc-link-flags` are
 forbidden in every checked-in `moon.pkg`.
 
+Keep the project-layout audit split by responsibility.
+`scripts/check-project-layout.py` owns repository path assembly, thin
+compatibility wrappers, CLI ordering, and output. Shared source/package-config
+parsing lives in `scripts/project_layout/common.py`; repository metadata,
+reference-document, and downstream-fixture rules live in `metadata.py`;
+native-package, FFI-target, generated-interface, and C-stub ownership rules
+live in `native.py`; executable `PROJECT_LAYOUT.md` counts live in
+`counters.py`. These rule implementations must not be inlined back into the
+entry point. A regression test must patch and verify all eleven root-aware
+delegations so tests that replace entry-point path constants continue to audit
+their temporary trees.
+
 The legacy `moon.mod.json` format is deprecated by MoonBit. This workspace uses
 the current `moon.mod`/`moon.pkg` DSL and pins the CI toolchain declared in the
 workflow. The pre-build config API is explicitly experimental, so its protocol,

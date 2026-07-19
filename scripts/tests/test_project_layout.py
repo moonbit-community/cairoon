@@ -334,5 +334,128 @@ class NativeBuildConfigurationLayoutTests(unittest.TestCase):
         )
 
 
+class ProjectLayoutModuleBoundaryTests(unittest.TestCase):
+    def test_cli_wrappers_delegate_with_current_layout_inputs(self) -> None:
+        checker = load_checker()
+        marker = {"marker"}
+        cases = (
+            (
+                "check_root_freeze",
+                "_check_root_freeze",
+                (checker.REPO_ROOT, marker),
+                (marker,),
+            ),
+            (
+                "check_public_package_root_freeze",
+                "_check_public_package_root_freeze",
+                (checker.PACKAGE_ROOT, marker),
+                (marker,),
+            ),
+            (
+                "check_source_root",
+                "_check_source_root",
+                (checker.REPO_ROOT, checker.PACKAGE_ROOT, checker.MOON_MOD),
+                (),
+            ),
+            (
+                "check_reference_docs",
+                "_check_reference_docs",
+                (
+                    checker.DOC_PACKAGE_DIR,
+                    checker.ROOT_README,
+                    checker.PUBLIC_README,
+                    checker.REQUIRED_REFERENCE_DOCS,
+                ),
+                (),
+            ),
+            (
+                "check_integration_fixture",
+                "_check_integration_fixture",
+                (
+                    checker.REPO_ROOT,
+                    checker.MOON_MOD,
+                    checker.INTEGRATION_WORKSPACE,
+                    checker.CONSUMER_MODULE,
+                    checker.CONSUMER_PACKAGE_CONFIG,
+                    checker.CONSUMER_TEST,
+                ),
+                (),
+            ),
+            (
+                "check_native_package",
+                "_check_native_package",
+                (checker.PACKAGE_ROOT, checker.NATIVE_PACKAGE_CONFIG),
+                (),
+            ),
+            (
+                "check_native_build_configuration",
+                "_check_native_build_configuration",
+                (
+                    checker.REPO_ROOT,
+                    checker.PACKAGE_ROOT,
+                    checker.MOON_MOD,
+                    checker.CAIRO_BUILD_SCRIPT,
+                    checker.CONSUMER_PACKAGE_CONFIG,
+                    checker.STRICT_STUB_CFLAGS,
+                ),
+                (),
+            ),
+            (
+                "check_nested_packages",
+                "_check_nested_packages",
+                (checker.REPO_ROOT, checker.PACKAGE_ROOT),
+                (),
+            ),
+            (
+                "check_ffi_native_targets",
+                "_check_ffi_native_targets",
+                (
+                    checker.REPO_ROOT,
+                    checker.PACKAGE_ROOT,
+                    checker.TEST_PACKAGE_ROOT,
+                    checker.NATIVE_TARGETS,
+                ),
+                (),
+            ),
+            (
+                "check_layout_counters",
+                "_check_layout_counters",
+                (
+                    checker.REPO_ROOT,
+                    checker.PACKAGE_ROOT,
+                    checker.DOC_PACKAGE_DIR,
+                    checker.TEST_PACKAGE_ROOT,
+                    checker.NATIVE_PACKAGE_DIR,
+                    checker.LAYOUT_DOC,
+                    checker.COUNTED_PACKAGE_ROOTS,
+                ),
+                (),
+            ),
+            (
+                "check_nested_c_files",
+                "_check_nested_c_files",
+                (
+                    checker.REPO_ROOT,
+                    checker.NATIVE_PACKAGE_DIR,
+                    checker.NATIVE_PACKAGE_CONFIG,
+                    checker.SANITIZER_PROBE_ROOT,
+                ),
+                (),
+            ),
+        )
+
+        for wrapper_name, delegate_name, expected_args, call_args in cases:
+            with self.subTest(wrapper=wrapper_name):
+                sentinel = [wrapper_name]
+                with mock.patch.object(
+                    checker,
+                    delegate_name,
+                    return_value=sentinel,
+                ) as delegate:
+                    wrapper = getattr(checker, wrapper_name)
+                    self.assertIs(wrapper(*call_args), sentinel)
+                    delegate.assert_called_once_with(*expected_args)
+
+
 if __name__ == "__main__":
     unittest.main()

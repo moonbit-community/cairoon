@@ -133,6 +133,12 @@ cairoon/
       surface_cleanup.py
     lifetime/
       owners.json
+    project_layout/
+      __init__.py
+      common.py
+      counters.py
+      metadata.py
+      native.py
     matrix/
       Dockerfile
       run-lane.sh
@@ -492,7 +498,7 @@ MoonBit package shape without weakening the public interface.
 | White-box oracles | `src/tests/oracle/<family>/` plus shared C support in `src/tests/oracle/native/` | Import `CAIMEOX/cairoon` for the public API and declare test-only direct-C oracle externs locally; public binding wrappers must never import oracle packages. Test-only C symbols are provided by the oracle-native support package, not `src/moon.pkg`. |
 | Documentation | `src/docs/`, `src/README.mbt.md`, and repository `docs/` | Narrative docs live outside source packages; the public package README stays at `src/README.mbt.md` for `moon.mod`, and family executable reference docs live in the external `src/docs` package so they compile like downstream user code through `CAIMEOX/cairoon`. |
 | Downstream integration | `integration/moon.work` and `integration/consumer/` | The consumer must remain a separately named MoonBit module with a versioned dependency on `CAIMEOX/cairoon`; its test package imports only the public package, carries no Cairo flags, and proves propagated native drawing/readback against the source checkout, an extracted publication zip, and the same unmodified host archive inside both exact-Cairo Linux lanes. Root `moon.mod` must exclude `integration/` from publication. |
-| Release verification tooling | `scripts/ffi_ownership/`, `scripts/matrix/`, and `scripts/sanitizers/` | FFI declaration/export orchestration stays in `scripts/check-ffi-ownership.py`, while shared source extraction and Device/Surface/mapped-image cleanup rules stay in the family modules under `scripts/ffi_ownership/`. Pinned Cairo build lanes and ASan/LSan/UBSan policy stay outside MoonBit packages. Standalone C diagnostics live only in `scripts/sanitizers/probes/`, end in `_probe.c`, compile directly with `pkg-config`, and must not be referenced by any `native-stub` list. |
+| Release verification tooling | `scripts/ffi_ownership/`, `scripts/project_layout/`, `scripts/matrix/`, and `scripts/sanitizers/` | FFI declaration/export orchestration stays in `scripts/check-ffi-ownership.py`, while shared source extraction and Device/Surface/mapped-image cleanup rules stay under `scripts/ffi_ownership/`. Project-layout CLI/path assembly stays in `scripts/check-project-layout.py`; shared parsing, metadata/docs/consumer, native/package, and executable-count rules stay in their matching `scripts/project_layout/` modules. Pinned Cairo build lanes and ASan/LSan/UBSan policy stay outside MoonBit packages. Standalone C diagnostics live only in `scripts/sanitizers/probes/`, end in `_probe.c`, compile directly with `pkg-config`, and must not be referenced by any `native-stub` list. |
 
 Do not split a family across packages until the type names, method call syntax,
 generated `.mbti`, and `moon test --target native` behavior are proven in a

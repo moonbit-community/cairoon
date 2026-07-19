@@ -14,6 +14,15 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 
 ## Recent Audit Deltas
 
+- 2026-07-19: The project-layout audit is no longer a 750-line mixed-domain
+  checker. A 258-line CLI now owns path assembly, compatibility wrappers,
+  ordering, and output; common parsing, executable counters, metadata/docs/
+  consumer rules, and native/package rules live in five focused
+  `scripts/project_layout/` files of 1-276 lines. An eighteenth layout test
+  pins all eleven root-aware delegations while retaining the prior seventeen
+  positive and negative behavior tests. The current tree checks 440 source
+  files, runs 197/197 script tests, and validates 655 publication members
+  without changing public signatures, native behavior, or package policy.
 - 2026-07-19: The executable FFI ownership audit is no longer an 827-line
   mixed-responsibility script. Its 336-line CLI owns declaration annotations,
   facade/export parity, and compatibility wrappers; shared source extraction
@@ -22,8 +31,8 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
   pins all six root-aware delegations. Publication validation now requires the
   complete six-file FFI audit toolchain byte-for-byte, with a fifteenth
   positive/negative archive test covering every missing and altered member.
-  The current tree checks 435 source files, runs 196/196 script tests, and
-  validates 650 publication members without changing public signatures,
+  That slice checked 435 source files, ran 196/196 script tests, and validated
+  650 publication members without changing public signatures,
   native behavior, or the production FFI symbol boundary.
 - 2026-07-19: C architecture now has a stricter executable size contract.
   Overlay, SoftLight, and Difference image-oracle scenes moved from the
@@ -690,7 +699,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 | Scaled fonts | Done | External object, constructor, matrices/options/font-face getters, returned font-face/options lifetime after the source scaled-font scope exits, sheared font/CTM scale-matrix combination coverage, font/text/glyph extents including embedded-NUL validation, empty, single/multi/spaced ASCII, precomposed/decomposed Latin, CJK, Arabic RTL, and emoji UTF-8 text-to-glyph string/coordinate cases with direct C Cairo oracle coverage, targeted normal/ASan gate coverage, executable Font reference docs for matrices/options/metrics/text-to-glyphs/errors, and Context get/set |
 | Python buffer protocol / NumPy / pygame adapters | Decision | Python's buffer protocol and optional NumPy/pygame object adapters are host-runtime integrations, not Cairo APIs. Cairoon exposes checked `FixedArray[Byte]`-backed image construction plus retained `ImageData` access; exact shared-storage, mutable pixel, byte-layout, lifetime, and bounds behavior is tested without adding Python package dependencies or an unsafe unscoped raw-pointer API |
 | Docs | Done | README smoke examples, AGENTS lifecycle/error specifications, package/release/porting guides, and executable family reference notes are present. `scripts/check-public-docs.py` proves substantive MoonBit `///` documentation for all 579 public declarations across the facade and intentionally published support packages, with zero entries in `scripts/public-docs-debt.txt`; executable downstream-style docs cover every API family, including complete PDF/PS/SVG backend workflows and checked errors. New undocumented APIs or ledger drift fail the local and CI verification gate |
-| Tests | Partial | Local portable-scope evidence is complete: exact Cairo 1.15.10 and Cairo 1.18.4 lanes pass 196/196 script tests, 840/840 native tests, 63/63 executable docs, 288 upstream pycairo tests across 20 families, 579/579 documented public declarations, 12/12 raw external owners with exact finalizer and 1000-iteration stress evidence, the 349-local-plus-two-direct production FFI boundary, source and extracted consumers plus the unmodified cross-host archive consumer, all 650 publication members, and every discovered package under ASan/LSan/UBSan. Remaining gap: the unpushed release commit lacks shipped GitHub evidence for Ubuntu and macOS native jobs plus the Ubuntu combined ASan/LSan/UBSan job. Do not close this row until those exact jobs pass on the release commit; local evidence alone cannot close it. |
+| Tests | Partial | Local portable-scope evidence is complete: exact Cairo 1.15.10 and Cairo 1.18.4 lanes pass 197/197 script tests, 840/840 native tests, 63/63 executable docs, 288 upstream pycairo tests across 20 families, 579/579 documented public declarations, 12/12 raw external owners with exact finalizer and 1000-iteration stress evidence, the 349-local-plus-two-direct production FFI boundary, source and extracted consumers plus the unmodified cross-host archive consumer, all 655 publication members, and every discovered package under ASan/LSan/UBSan. Remaining gap: the unpushed release commit lacks shipped GitHub evidence for Ubuntu and macOS native jobs plus the Ubuntu combined ASan/LSan/UBSan job. Do not close this row until those exact jobs pass on the release commit; local evidence alone cannot close it. |
 
 ## Recent Reliability Slices
 
