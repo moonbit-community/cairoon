@@ -8,6 +8,24 @@ import re
 import sys
 
 
+SCRIPT_ROOT = pathlib.Path(__file__).resolve().parent
+if str(SCRIPT_ROOT) not in sys.path:
+    sys.path.insert(0, str(SCRIPT_ROOT))
+
+from ffi_ownership.device_cleanup import (
+    check_device_cleanup_order as _check_device_cleanup_order,
+    check_device_scope_cleanup as _check_device_scope_cleanup,
+)
+from ffi_ownership.mapped_cleanup import (
+    check_mapped_image_cleanup_order as _check_mapped_image_cleanup_order,
+    check_mapped_image_scope_cleanup as _check_mapped_image_scope_cleanup,
+)
+from ffi_ownership.surface_cleanup import (
+    check_surface_cleanup_order as _check_surface_cleanup_order,
+    check_surface_scope_cleanup as _check_surface_scope_cleanup,
+)
+
+
 REPO_ROOT = pathlib.Path(__file__).resolve().parents[1]
 PACKAGE_ROOT = REPO_ROOT / "src"
 TEST_PACKAGE_ROOT = PACKAGE_ROOT / "tests"
@@ -40,10 +58,6 @@ RAW_OBJECT_TYPES = {
     "RawSurface",
     "RawTextToGlyphs",
 }
-DEVICE_CLEANUP_CALLS = {
-    "cairoon_device_finish": "cairo_device_finish",
-    "cairoon_device_release": "cairo_device_release",
-}
 
 
 def split_top_level(text: str) -> list[str]:
@@ -72,7 +86,7 @@ def split_top_level(text: str) -> list[str]:
 
 
 def parameter_list(signature: str) -> str:
-    match = re.search(r'\bfn\s+[A-Za-z0-9_]+\s*\(', signature)
+    match = re.search(r"\bfn\s+[A-Za-z0-9_]+\s*\(", signature)
     if match is None:
         raise ValueError("cannot find extern function parameter list")
     start = signature.find("(", match.start())
@@ -215,533 +229,28 @@ def native_export_symbols() -> dict[str, list[str]]:
     return exports
 
 
-def braced_body(text: str, start: int) -> str | None:
-    depth = 0
-    for index in range(start, len(text)):
-        char = text[index]
-        if char == "{":
-            depth += 1
-        elif char == "}":
-            depth -= 1
-            if depth == 0:
-                return text[start + 1 : index]
-    return None
-
-
-def c_function_body(text: str, symbol: str) -> str | None:
-    match = re.search(rf"\b{re.escape(symbol)}\s*\([^{{]*\)\s*{{", text)
-    if match is None:
-        return None
-    return braced_body(text, text.find("{", match.start()))
-
-
-def mbt_method_body(text: str, symbol: str) -> str | None:
-    match = re.search(
-        rf"^\s*pub\s+fn(?:\[[^]]+\])?\s+{re.escape(symbol)}\s*\(",
-        text,
-        re.MULTILINE,
-    )
-    if match is None:
-        return None
-    start = text.find("{", match.end())
-    if start < 0:
-        return None
-    return braced_body(text, start)
-
-
-def mbt_handler_body(text: str, binding: str) -> str | None:
-    match = re.search(rf"\b{re.escape(binding)}\s*=>\s*\{{", text)
-    if match is None:
-        return None
-    return braced_body(text, text.find("{", match.start()))
-
-
-def c_statement_is_unconditional(body: str, match: re.Match[str]) -> bool:
-    """Return whether a matched statement is at function-body top level."""
-    before = body[: match.start()]
-    if before.count("{") != before.count("}"):
-        return False
-    boundary = max(
-        before.rfind(";"),
-        before.rfind("{"),
-        before.rfind("}"),
-    )
-    return before[boundary + 1 :].strip() == ""
-
-
 def check_device_cleanup_order() -> list[str]:
-    path = NATIVE_ROOT / "cairoon_device.c"
-    text = path.read_text(encoding="utf-8")
-    errors: list[str] = []
-    for wrapper, cleanup in DEVICE_CLEANUP_CALLS.items():
-        body = c_function_body(text, wrapper)
-        if body is None:
-            errors.append(f"{path}: cannot find complete body for '{wrapper}'")
-            continue
-        cleanup_match = re.search(
-            rf"\b{re.escape(cleanup)}\s*\(\s*device->ptr\s*\)\s*;", body
-        )
-        if cleanup_match is None:
-            errors.append(
-                f"{path}: '{wrapper}' must call {cleanup}(device->ptr)"
-            )
-            continue
-        before_cleanup = body[: cleanup_match.start()]
-        after_cleanup = body[cleanup_match.end() :]
-        if not re.search(
-            r"if\s*\(\s*device\s*==\s*NULL\s*\|\|\s*"
-            r"device->ptr\s*==\s*NULL\s*\)\s*\{\s*"
-            r"return\s+CAIRO_STATUS_NULL_POINTER\s*;\s*\}",
-            before_cleanup,
-        ):
-            errors.append(
-                f"{path}: '{wrapper}' must reject a null wrapper or pointer "
-                "before cleanup"
-            )
-        if len(re.findall(r"\breturn\b", before_cleanup)) != 1:
-            errors.append(
-                f"{path}: '{wrapper}' may only return for a null pointer "
-                "before cleanup"
-            )
-        if re.search(r"\bcairo(?:on)?_device_status\s*\(", before_cleanup):
-            errors.append(
-                f"{path}: '{wrapper}' must not let sticky device status skip "
-                f"{cleanup}(device->ptr)"
-            )
-        if not re.search(
-            r"return\s+cairo_device_status\s*\(\s*device->ptr\s*\)\s*;",
-            after_cleanup,
-        ):
-            errors.append(
-                f"{path}: '{wrapper}' must report device status after cleanup"
-            )
-    return errors
+    return _check_device_cleanup_order(NATIVE_ROOT)
 
 
 def check_device_scope_cleanup() -> list[str]:
-    path = PACKAGE_ROOT / "device.mbt"
-    text = path.read_text(encoding="utf-8")
-    errors: list[str] = []
-    methods = {
-        "Device::with_acquired": ("release_raw", "release"),
-        "Device::with_finished": ("finish_raw", "finish"),
-    }
-    for method, (raw_cleanup, checked_cleanup) in methods.items():
-        body = mbt_method_body(text, method)
-        if body is None:
-            errors.append(f"{path}: cannot find complete body for '{method}'")
-            continue
-        parts = body.split("} noraise {", maxsplit=1)
-        if len(parts) != 2:
-            errors.append(f"{path}: '{method}' must have catch and noraise paths")
-            continue
-        error_path, success_path = parts
-        raw_match = re.search(
-            rf"let\s+_\s*=\s*@device_impl\.{raw_cleanup}\s*\(\s*"
-            r"self\.to_raw\s*\(\s*\)\s*\)",
-            error_path,
-        )
-        raise_match = re.search(r"\braise\s+err\b", error_path)
-        if raw_match is None:
-            errors.append(
-                f"{path}: '{method}' error path must attempt "
-                f"@device_impl.{raw_cleanup} and ignore cleanup status"
-            )
-        if re.search(
-            rf"\bself\.{checked_cleanup}\s*\(\s*\)", error_path
-        ):
-            errors.append(
-                f"{path}: '{method}' error path must not let checked "
-                f"{checked_cleanup} replace the closure error"
-            )
-        if raw_match is not None and (
-            raise_match is None or raw_match.start() > raise_match.start()
-        ):
-            errors.append(
-                f"{path}: '{method}' must attempt cleanup before re-raising "
-                "the closure error"
-            )
-        if not re.search(
-            rf"\bself\.{checked_cleanup}\s*\(\s*\)", success_path
-        ):
-            errors.append(
-                f"{path}: '{method}' success path must report checked "
-                f"{checked_cleanup} failures"
-            )
-    return errors
+    return _check_device_scope_cleanup(PACKAGE_ROOT)
 
 
 def check_surface_cleanup_order() -> list[str]:
-    path = NATIVE_ROOT / "cairoon_surface.c"
-    text = path.read_text(encoding="utf-8")
-    wrapper = "cairoon_surface_finish"
-    body = c_function_body(text, wrapper)
-    if body is None:
-        return [f"{path}: cannot find complete body for '{wrapper}'"]
-
-    errors: list[str] = []
-    original_pattern = re.compile(
-        r"^[ \t]*cairo_status_t\s+original_status\s*=\s*"
-        r"cairo_surface_status\s*\(\s*surface->ptr\s*\)\s*;[ \t]*$",
-        re.MULTILINE,
-    )
-    marker_pattern = re.compile(
-        r"^[ \t]*cairo_status_t\s+marker_status\s*=\s*"
-        r"CAIRO_STATUS_SUCCESS\s*;[ \t]*$",
-        re.MULTILINE,
-    )
-    finish_pattern = re.compile(
-        r"^[ \t]*cairo_surface_finish\s*\(\s*surface->ptr\s*\)\s*;[ \t]*$",
-        re.MULTILINE,
-    )
-    finish_status_pattern = re.compile(
-        r"^[ \t]*cairo_status_t\s+finish_status\s*=\s*"
-        r"cairo_surface_status\s*\(\s*surface->ptr\s*\)\s*;[ \t]*$",
-        re.MULTILINE,
-    )
-    release_pattern = re.compile(
-        r"^[ \t]*(?:(?:cairo_status_t\s+)?data_status\s*=\s*)?"
-        r"cairoon_image_surface_release_data\s*\(\s*surface->ptr\s*\)\s*;"
-        r"[ \t]*$",
-        re.MULTILINE,
-    )
-
-    statement_specs = (
-        ("original status capture", original_pattern),
-        ("marker status initialization", marker_pattern),
-        ("cairo_surface_finish(surface->ptr)", finish_pattern),
-        ("finish status capture", finish_status_pattern),
-        ("retained image-data release", release_pattern),
-    )
-    matches: dict[str, re.Match[str]] = {}
-    for description, pattern in statement_specs:
-        found = list(pattern.finditer(body))
-        if len(found) != 1:
-            errors.append(
-                f"{path}: '{wrapper}' must contain exactly one top-level "
-                f"candidate for {description}"
-            )
-            continue
-        matches[description] = found[0]
-        if not c_statement_is_unconditional(body, found[0]):
-            errors.append(
-                f"{path}: '{wrapper}' must execute {description} "
-                "unconditionally at function-body top level"
-            )
-
-    finish_match = matches.get("cairo_surface_finish(surface->ptr)")
-    if finish_match is None:
-        return [
-            *errors,
-            f"{path}: '{wrapper}' must call cairo_surface_finish(surface->ptr)",
-        ]
-
-    before_finish = body[: finish_match.start()]
-    null_guard_pattern = (
-        r"if\s*\(\s*surface\s*==\s*NULL\s*\|\|\s*"
-        r"surface->ptr\s*==\s*NULL\s*\)\s*\{\s*"
-        r"return\s+CAIRO_STATUS_NULL_POINTER\s*;\s*\}"
-    )
-    if not re.search(null_guard_pattern, before_finish):
-        errors.append(
-            f"{path}: '{wrapper}' must reject a null wrapper or pointer "
-            "before cleanup"
-        )
-    if len(re.findall(r"\breturn\b", before_finish)) != 1:
-        errors.append(
-            f"{path}: '{wrapper}' may only return for a null pointer before "
-            "cairo_surface_finish(surface->ptr)"
-        )
-    status_match = matches.get("original status capture")
-    if status_match is None:
-        errors.append(
-            f"{path}: '{wrapper}' must capture sticky status before finish"
-        )
-    elif re.search(r"\breturn\b", before_finish[status_match.start() :]):
-        errors.append(
-            f"{path}: '{wrapper}' must not let sticky status skip "
-            "cairo_surface_finish(surface->ptr)"
-        )
-
-    release_match = matches.get("retained image-data release")
-    if release_match is None:
-        errors.append(
-            f"{path}: '{wrapper}' must release retained image data after finish"
-        )
-    else:
-        exact_release = re.fullmatch(
-            r"[ \t]*cairo_status_t\s+data_status\s*=\s*"
-            r"cairoon_image_surface_release_data\s*\(\s*surface->ptr\s*\)\s*;"
-            r"[ \t]*",
-            release_match.group(0),
-        )
-        if exact_release is None:
-            errors.append(
-                f"{path}: '{wrapper}' must capture retained image-data release "
-                "status in data_status"
-            )
-        if release_match.start() > finish_match.end() and re.search(
-            r"\breturn\b", body[finish_match.end() : release_match.start()]
-        ):
-            errors.append(
-                f"{path}: '{wrapper}' must not return before releasing retained "
-                "image data"
-            )
-
-        ordered_names = (
-            "original status capture",
-            "marker status initialization",
-            "cairo_surface_finish(surface->ptr)",
-            "finish status capture",
-            "retained image-data release",
-        )
-        if all(name in matches for name in ordered_names):
-            ordered = [matches[name] for name in ordered_names]
-            order_is_valid = not any(
-                current.start() >= following.start()
-                for current, following in zip(ordered, ordered[1:])
-            )
-            if not order_is_valid:
-                errors.append(
-                    f"{path}: '{wrapper}' must capture statuses and perform "
-                    "cleanup in order: original, marker, finish, finish status, "
-                    "retained-data release"
-                )
-            else:
-                original_match = matches["original status capture"]
-                marker_match = matches["marker status initialization"]
-                finish_status_match = matches["finish status capture"]
-                if re.fullmatch(
-                    rf"\s*{null_guard_pattern}\s*",
-                    body[: original_match.start()],
-                ) is None:
-                    errors.append(
-                        f"{path}: '{wrapper}' must begin with only the null "
-                        "guard before original status capture"
-                    )
-                if body[original_match.end() : marker_match.start()].strip():
-                    errors.append(
-                        f"{path}: '{wrapper}' must initialize marker status "
-                        "immediately after original status capture"
-                    )
-                marker_block = body[marker_match.end() : finish_match.start()]
-                if re.fullmatch(
-                    r"\s*if\s*\(\s*!\s*cairoon_surface_is_finished\s*\(\s*"
-                    r"surface->ptr\s*\)\s*\)\s*\{\s*"
-                    r"marker_status\s*=\s*cairo_surface_set_user_data\s*\(\s*"
-                    r"surface->ptr\s*,\s*&cairoon_surface_finished_key\s*,\s*"
-                    r"\(\s*void\s*\*\s*\)\s*"
-                    r"&cairoon_surface_finished_sentinel\s*,\s*NULL\s*\)\s*;"
-                    r"\s*\}\s*",
-                    marker_block,
-                ) is None:
-                    errors.append(
-                        f"{path}: '{wrapper}' must install the finished marker "
-                        "with the exact guarded user-data block before cleanup"
-                    )
-                if body[finish_match.end() : finish_status_match.start()].strip():
-                    errors.append(
-                        f"{path}: '{wrapper}' must capture finish status "
-                        "immediately after cairo_surface_finish"
-                    )
-                if body[finish_status_match.end() : release_match.start()].strip():
-                    errors.append(
-                        f"{path}: '{wrapper}' must release retained image data "
-                        "immediately after finish status capture"
-                    )
-
-        if re.search(r"\b(?:goto|break|continue)\b", body[: release_match.start()]):
-            errors.append(
-                f"{path}: '{wrapper}' must not use control transfer before "
-                "retained image-data release"
-            )
-
-        precedence = body[release_match.end() :]
-        if not re.fullmatch(
-            r"\s*"
-            r"if\s*\(\s*original_status\s*!=\s*CAIRO_STATUS_SUCCESS\s*\)\s*"
-            r"\{\s*return\s+original_status\s*;\s*\}\s*"
-            r"if\s*\(\s*marker_status\s*!=\s*CAIRO_STATUS_SUCCESS\s*\)\s*"
-            r"\{\s*return\s+marker_status\s*;\s*\}\s*"
-            r"return\s+finish_status\s*==\s*CAIRO_STATUS_SUCCESS\s*\?\s*"
-            r"data_status\s*:\s*finish_status\s*;\s*",
-            precedence,
-        ):
-            errors.append(
-                f"{path}: '{wrapper}' must preserve status precedence: "
-                "original, marker, finish, then retained-data release"
-            )
-    return errors
+    return _check_surface_cleanup_order(NATIVE_ROOT)
 
 
 def check_surface_scope_cleanup() -> list[str]:
-    path = PACKAGE_ROOT / "surface.mbt"
-    text = path.read_text(encoding="utf-8")
-    method = "Surface::with_finished"
-    body = mbt_method_body(text, method)
-    if body is None:
-        return [f"{path}: cannot find complete body for '{method}'"]
-    parts = body.split("} noraise {", maxsplit=1)
-    if len(parts) != 2:
-        return [f"{path}: '{method}' must have catch and noraise paths"]
-
-    error_path, success_path = parts
-    catch_body = mbt_handler_body(error_path, "err")
-    success_body = mbt_handler_body(success_path, "value")
-    if catch_body is None or success_body is None:
-        return [f"{path}: '{method}' must have err and value handler blocks"]
-
-    errors: list[str] = []
-    raw_match = re.search(
-        r"let\s+_\s*=\s*@surface_impl\.finish_raw\s*\(\s*"
-        r"self\.to_raw\s*\(\s*\)\s*\)",
-        catch_body,
-    )
-    raise_match = re.search(r"\braise\s+err\b", catch_body)
-    if raw_match is None:
-        errors.append(
-            f"{path}: '{method}' error path must attempt raw finish and ignore "
-            "cleanup status"
-        )
-    if re.search(r"\bself\.finish\s*\(\s*\)", catch_body):
-        errors.append(
-            f"{path}: '{method}' error path must not let checked finish replace "
-            "the closure error"
-        )
-    if raw_match is not None and (
-        raise_match is None or raw_match.start() > raise_match.start()
-    ):
-        errors.append(
-            f"{path}: '{method}' must attempt finish before re-raising the "
-            "closure error"
-        )
-    if re.fullmatch(
-        r"\s*let\s+_\s*=\s*@surface_impl\.finish_raw\s*\(\s*"
-        r"self\.to_raw\s*\(\s*\)\s*\)\s*raise\s+err\s*",
-        catch_body,
-    ) is None:
-        errors.append(
-            f"{path}: '{method}' error path must unconditionally execute raw "
-            "finish first and then re-raise the closure error"
-        )
-    if re.search(r"\bself\.finish\s*\(\s*\)", success_body) is None:
-        errors.append(
-            f"{path}: '{method}' success path must report checked finish failures"
-        )
-    if re.fullmatch(
-        r"\s*self\.finish\s*\(\s*\)\s*value\s*",
-        success_body,
-    ) is None:
-        errors.append(
-            f"{path}: '{method}' success path must unconditionally execute "
-            "checked finish before returning the closure value"
-        )
-    return errors
+    return _check_surface_scope_cleanup(PACKAGE_ROOT)
 
 
 def check_mapped_image_cleanup_order() -> list[str]:
-    path = NATIVE_ROOT / "cairoon_mapped_image_surface.c"
-    text = path.read_text(encoding="utf-8")
-    errors: list[str] = []
-    helper = "cairoon_mapped_image_surface_unmap_internal"
-    body = c_function_body(text, helper)
-    if body is None:
-        return [f"{path}: cannot find complete body for '{helper}'"]
-
-    unmap_match = re.search(
-        r"\bcairo_surface_unmap_image\s*\(\s*base\s*,\s*image\s*\)\s*;",
-        body,
-    )
-    if unmap_match is None:
-        errors.append(
-            f"{path}: '{helper}' must unmap the captured base/image pair"
-        )
-        return errors
-
-    before_unmap = body[: unmap_match.start()]
-    first_status = re.search(r"\bcairo_surface_status\s*\(", before_unmap)
-    if first_status is None:
-        errors.append(
-            f"{path}: '{helper}' must capture sticky statuses before cleanup"
-        )
-    elif re.search(r"\breturn\b", before_unmap[first_status.start() :]):
-        errors.append(
-            f"{path}: '{helper}' must not let sticky status skip unmap"
-        )
-
-    after_unmap = body[unmap_match.end() :]
-    clear_base = re.search(r"\bmapped->base\s*=\s*NULL\s*;", after_unmap)
-    clear_image = re.search(r"\bmapped->mapped\s*=\s*NULL\s*;", after_unmap)
-    decref = re.search(r"\bmoonbit_decref\s*\(\s*mapped->base_object\s*\)", after_unmap)
-    if clear_base is None or clear_image is None or decref is None:
-        errors.append(
-            f"{path}: '{helper}' must clear both handles and release base_object "
-            "after unmap"
-        )
-
-    wrappers = {
-        "cairoon_surface_unmap_image": r"return\s+" + helper
-        + r"\s*\(\s*mapped\s*,\s*surface->ptr\s*\)\s*;",
-        "cairoon_mapped_image_surface_unmap": r"return\s+" + helper
-        + r"\s*\(\s*mapped\s*,\s*NULL\s*\)\s*;",
-    }
-    for wrapper, call_pattern in wrappers.items():
-        wrapper_body = c_function_body(text, wrapper)
-        if wrapper_body is None:
-            errors.append(f"{path}: cannot find complete body for '{wrapper}'")
-            continue
-        if re.search(call_pattern, wrapper_body) is None:
-            errors.append(
-                f"{path}: '{wrapper}' must delegate exact-once cleanup to '{helper}'"
-            )
-        if re.search(r"\bcairoon_(?:surface|mapped_image_surface)_status\s*\(", wrapper_body):
-            errors.append(
-                f"{path}: '{wrapper}' must not let a status precheck skip cleanup"
-            )
-    return errors
+    return _check_mapped_image_cleanup_order(NATIVE_ROOT)
 
 
 def check_mapped_image_scope_cleanup() -> list[str]:
-    path = PACKAGE_ROOT / "mapped_image_surface.mbt"
-    text = path.read_text(encoding="utf-8")
-    method = "MappedImageSurface::with_unmapped"
-    body = mbt_method_body(text, method)
-    if body is None:
-        return [f"{path}: cannot find complete body for '{method}'"]
-    parts = body.split("} noraise {", maxsplit=1)
-    if len(parts) != 2:
-        return [f"{path}: '{method}' must have catch and noraise paths"]
-
-    errors: list[str] = []
-    error_path, success_path = parts
-    raw_match = re.search(
-        r"let\s+_\s*=\s*@surface_impl\.mapped_unmap_raw\s*\(\s*"
-        r"self\.to_raw\s*\(\s*\)\s*\)",
-        error_path,
-    )
-    raise_match = re.search(r"\braise\s+err\b", error_path)
-    if raw_match is None:
-        errors.append(
-            f"{path}: '{method}' error path must attempt raw unmap and ignore "
-            "cleanup status"
-        )
-    if re.search(r"\bself\.unmap\s*\(\s*\)", error_path):
-        errors.append(
-            f"{path}: '{method}' error path must not let checked unmap replace "
-            "the closure error"
-        )
-    if raw_match is not None and (
-        raise_match is None or raw_match.start() > raise_match.start()
-    ):
-        errors.append(
-            f"{path}: '{method}' must attempt unmap before re-raising the "
-            "closure error"
-        )
-    if re.search(r"\bself\.unmap\s*\(\s*\)", success_path) is None:
-        errors.append(
-            f"{path}: '{method}' success path must report checked unmap failures"
-        )
-    return errors
+    return _check_mapped_image_scope_cleanup(PACKAGE_ROOT)
 
 
 def main() -> int:

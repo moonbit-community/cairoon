@@ -13,6 +13,14 @@ import zipfile
 
 CHECKER = pathlib.Path(__file__).resolve().parents[1] / "check-publication-archive.py"
 REPO_ROOT = CHECKER.parents[1]
+FFI_OWNERSHIP_SUPPORT = (
+    "scripts/check-ffi-ownership.py",
+    "scripts/ffi_ownership/__init__.py",
+    "scripts/ffi_ownership/device_cleanup.py",
+    "scripts/ffi_ownership/mapped_cleanup.py",
+    "scripts/ffi_ownership/source.py",
+    "scripts/ffi_ownership/surface_cleanup.py",
+)
 VALID_MEMBERS = {
     "COPYING": (REPO_ROOT / "COPYING").read_bytes(),
     "COPYING-LGPL-2.1": (REPO_ROOT / "COPYING-LGPL-2.1").read_bytes(),
@@ -52,6 +60,9 @@ VALID_MEMBERS = {
     "src/README.mbt.md": b"# example\n",
     "src/moon.pkg": b"",
     "src/pkg.generated.mbti": b"package example\n",
+} | {
+    member_name: (REPO_ROOT / member_name).read_bytes()
+    for member_name in FFI_OWNERSHIP_SUPPORT
 }
 
 
@@ -210,6 +221,31 @@ class PublicationArchiveCheckerTests(unittest.TestCase):
             any("does not match the verified source file" in error for error in errors),
             errors,
         )
+
+    def test_ffi_ownership_support_is_required_and_exact(self) -> None:
+        for member_name in FFI_OWNERSHIP_SUPPORT:
+            with self.subTest(member_name=member_name, mutation="missing"):
+                members = dict(VALID_MEMBERS)
+                del members[member_name]
+                self.write_archive(members, include_required=False)
+
+                errors, _ = self.check()
+
+                self.assertTrue(any(member_name in error for error in errors), errors)
+
+            with self.subTest(member_name=member_name, mutation="altered"):
+                self.write_archive({member_name: b"# altered\n"})
+
+                errors, _ = self.check()
+
+                self.assertTrue(
+                    any(
+                        member_name in error
+                        and "does not match the verified source file" in error
+                        for error in errors
+                    ),
+                    errors,
+                )
 
     def test_duplicate_canonical_member_fails(self) -> None:
         self.write_archive({})

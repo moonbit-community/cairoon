@@ -310,5 +310,37 @@ class SurfaceCleanupGuardTests(unittest.TestCase):
                 self.assertTrue(any(expected in error for error in errors), errors)
 
 
+class CleanupModuleBoundaryTests(unittest.TestCase):
+    def test_cli_wrappers_delegate_with_the_owning_source_root(self) -> None:
+        checker = load_checker()
+        cases = (
+            ("check_device_cleanup_order", "_check_device_cleanup_order", "NATIVE_ROOT"),
+            ("check_device_scope_cleanup", "_check_device_scope_cleanup", "PACKAGE_ROOT"),
+            ("check_surface_cleanup_order", "_check_surface_cleanup_order", "NATIVE_ROOT"),
+            ("check_surface_scope_cleanup", "_check_surface_scope_cleanup", "PACKAGE_ROOT"),
+            (
+                "check_mapped_image_cleanup_order",
+                "_check_mapped_image_cleanup_order",
+                "NATIVE_ROOT",
+            ),
+            (
+                "check_mapped_image_scope_cleanup",
+                "_check_mapped_image_scope_cleanup",
+                "PACKAGE_ROOT",
+            ),
+        )
+        for wrapper_name, delegate_name, root_name in cases:
+            with self.subTest(wrapper=wrapper_name):
+                sentinel = [wrapper_name]
+                with mock.patch.object(
+                    checker,
+                    delegate_name,
+                    return_value=sentinel,
+                ) as delegate:
+                    wrapper = getattr(checker, wrapper_name)
+                    self.assertIs(wrapper(), sentinel)
+                    delegate.assert_called_once_with(getattr(checker, root_name))
+
+
 if __name__ == "__main__":
     unittest.main()

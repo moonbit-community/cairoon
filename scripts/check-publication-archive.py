@@ -11,6 +11,16 @@ import zipfile
 
 
 REPO_ROOT = pathlib.Path(__file__).resolve().parents[1]
+FFI_OWNERSHIP_SUPPORT = frozenset(
+    {
+        "scripts/check-ffi-ownership.py",
+        "scripts/ffi_ownership/__init__.py",
+        "scripts/ffi_ownership/device_cleanup.py",
+        "scripts/ffi_ownership/mapped_cleanup.py",
+        "scripts/ffi_ownership/source.py",
+        "scripts/ffi_ownership/surface_cleanup.py",
+    }
+)
 REQUIRED_MEMBERS = frozenset(
     {
         "COPYING",
@@ -32,7 +42,7 @@ REQUIRED_MEMBERS = frozenset(
         "src/moon.pkg",
         "src/pkg.generated.mbti",
     }
-)
+) | FFI_OWNERSHIP_SUPPORT
 REQUIRED_TEXT_MARKERS = {
     "COPYING": (
         "COPYING-LGPL-2.1",
@@ -79,7 +89,7 @@ SOURCE_IDENTICAL_MEMBERS = frozenset(
         "scripts/check-external-owners.py",
         "scripts/lifetime/owners.json",
     }
-)
+) | FFI_OWNERSHIP_SUPPORT
 
 
 def check_archive(path: pathlib.Path) -> tuple[list[str], int]:

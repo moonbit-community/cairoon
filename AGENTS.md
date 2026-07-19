@@ -832,6 +832,18 @@ facade enum or `Ref[Status]`, because clean native compilation would otherwise
 emit incompatible generated-C prototypes. Test-only MoonBit-callable C probes
 must be exported by `src/tests/oracle/native`, never by `src/native`.
 
+Keep the executable ownership audit split by responsibility.
+`scripts/check-ffi-ownership.py` owns declaration annotation parsing, facade
+boundary checks, export parity, CLI output, and thin no-argument compatibility
+wrappers. Shared C/MoonBit body extraction lives in
+`scripts/ffi_ownership/source.py`; Device, Surface, and mapped-image cleanup
+rules live in their matching `*_cleanup.py` modules. Family cleanup rules must
+not be inlined back into the CLI. Each compatibility wrapper must pass the
+production `PACKAGE_ROOT` or `NATIVE_ROOT` explicitly, and a regression test
+must cover all six delegations. The publication archive must contain the entry
+point and every `scripts/ffi_ownership/` dependency byte-for-byte identical to
+the verified source checkout.
+
 Use these annotation defaults:
 
 - Borrow all object handles for ordinary methods:
