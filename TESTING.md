@@ -157,7 +157,9 @@ ledger for every `tests/test_*.py` file. Run
 `scripts/check-project-layout.py` whenever package structure, root source files,
 or `PROJECT_LAYOUT.md` changes. Run `scripts/check-source-size-budget.py`
 whenever a source, script, test, native glue, or executable-doc file is added
-or substantially expanded. Run
+or substantially expanded. It enforces 600 lines for C sources, headers,
+MoonBit `.mbt`/`.mbt.md` files, and Python `test_*.py` modules, with an
+850-line review budget for other checked source and script files. Run
 `scripts/check-reliability-ledger.py` whenever migration status, scorecard, or
 CI/verify gate text changes. Run `scripts/check-vector-backend-scenes.py`
 whenever backend oracle scene ids, native oracle stubs, stream-oracle wiring,
@@ -4590,7 +4592,7 @@ real producers; PDF/PS/SVG prove destroy-time writes cannot outlive the closure,
 and ScriptDevice state release is checked without assuming a callback count.
 The package passes normally and under ASan/LSan/UBSan on both exact Cairo lanes.
 
-Exact Linux Cairo 1.15.10 and 1.18.4 each pass 840/840 native tests, 202/202
+Exact Linux Cairo 1.15.10 and 1.18.4 each pass 840/840 native tests, 203/203
 script tests, 63/63 executable docs, the source and extracted 1/1 downstream
 consumers, the same unmodified host-generated archive consumer, publication
 archive integrity for 660 members, and every discovered package under

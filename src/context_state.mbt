@@ -398,24 +398,6 @@ pub fn Context::set_antialias(
 }
 
 ///|
-fn antialias_from_raw(raw : Int) -> Antialias raise CairoError {
-  match raw {
-    0 => AntialiasDefault
-    1 => AntialiasNone
-    2 => AntialiasGray
-    3 => AntialiasSubpixel
-    4 => AntialiasFast
-    5 => AntialiasGood
-    6 => AntialiasBest
-    _ =>
-      raise CairoInvalidArgument(
-        InvalidStatus,
-        "unknown cairo antialias: \{raw}",
-      )
-  }
-}
-
-///|
 /// Return the current typed shape-antialiasing mode.
 ///
 /// An unknown value installed through the raw API raises

@@ -11,6 +11,37 @@ pub(all) enum Antialias {
 } derive(Eq, Debug)
 
 ///|
+fn antialias_from_raw(raw : Int) -> Antialias raise CairoError {
+  match raw {
+    0 => AntialiasDefault
+    1 => AntialiasNone
+    2 => AntialiasGray
+    3 => AntialiasSubpixel
+    4 => AntialiasFast
+    5 => AntialiasGood
+    6 => AntialiasBest
+    _ =>
+      raise CairoInvalidArgument(
+        InvalidStatus,
+        "unknown cairo antialias: \{raw}",
+      )
+  }
+}
+
+///|
+fn antialias_to_raw(antialias : Antialias) -> Int {
+  match antialias {
+    AntialiasDefault => 0
+    AntialiasNone => 1
+    AntialiasGray => 2
+    AntialiasSubpixel => 3
+    AntialiasFast => 4
+    AntialiasGood => 5
+    AntialiasBest => 6
+  }
+}
+
+///|
 /// Describes which color and alpha channels a surface stores.
 pub(all) enum Content {
   ContentColor = 0x1000
@@ -80,6 +111,29 @@ pub(all) enum HintMetrics {
 } derive(Eq, Debug)
 
 ///|
+fn hint_metrics_from_raw(raw : Int) -> HintMetrics raise CairoError {
+  match raw {
+    0 => HintMetricsDefault
+    1 => HintMetricsOff
+    2 => HintMetricsOn
+    _ =>
+      raise CairoInvalidArgument(
+        InvalidStatus,
+        "unknown cairo hint metrics: \{raw}",
+      )
+  }
+}
+
+///|
+fn hint_metrics_to_raw(hint_metrics : HintMetrics) -> Int {
+  match hint_metrics {
+    HintMetricsDefault => 0
+    HintMetricsOff => 1
+    HintMetricsOn => 2
+  }
+}
+
+///|
 /// Controls whether color glyph data may be rendered.
 ///
 /// Color-mode support requires Cairo 1.18 or newer.
@@ -88,6 +142,29 @@ pub(all) enum ColorMode {
   ColorModeNoColor = 1
   ColorModeColor = 2
 } derive(Eq, Debug)
+
+///|
+fn color_mode_from_raw(raw : Int) -> ColorMode raise CairoError {
+  match raw {
+    0 => ColorModeDefault
+    1 => ColorModeNoColor
+    2 => ColorModeColor
+    _ =>
+      raise CairoInvalidArgument(
+        InvalidStatus,
+        "unknown cairo color mode: \{raw}",
+      )
+  }
+}
+
+///|
+fn color_mode_to_raw(color_mode : ColorMode) -> Int {
+  match color_mode {
+    ColorModeDefault => 0
+    ColorModeNoColor => 1
+    ColorModeColor => 2
+  }
+}
 
 ///|
 /// Selects the quality/performance tradeoff for pattern dithering.
@@ -112,6 +189,33 @@ pub(all) enum HintStyle {
 } derive(Eq, Debug)
 
 ///|
+fn hint_style_from_raw(raw : Int) -> HintStyle raise CairoError {
+  match raw {
+    0 => HintStyleDefault
+    1 => HintStyleNone
+    2 => HintStyleSlight
+    3 => HintStyleMedium
+    4 => HintStyleFull
+    _ =>
+      raise CairoInvalidArgument(
+        InvalidStatus,
+        "unknown cairo hint style: \{raw}",
+      )
+  }
+}
+
+///|
+fn hint_style_to_raw(hint_style : HintStyle) -> Int {
+  match hint_style {
+    HintStyleDefault => 0
+    HintStyleNone => 1
+    HintStyleSlight => 2
+    HintStyleMedium => 3
+    HintStyleFull => 4
+  }
+}
+
+///|
 /// Describes the physical order of subpixels on a display.
 pub(all) enum SubpixelOrder {
   SubpixelDefault = 0
@@ -120,6 +224,33 @@ pub(all) enum SubpixelOrder {
   SubpixelVrgb = 3
   SubpixelVbgr = 4
 } derive(Eq, Debug)
+
+///|
+fn subpixel_order_from_raw(raw : Int) -> SubpixelOrder raise CairoError {
+  match raw {
+    0 => SubpixelDefault
+    1 => SubpixelRgb
+    2 => SubpixelBgr
+    3 => SubpixelVrgb
+    4 => SubpixelVbgr
+    _ =>
+      raise CairoInvalidArgument(
+        InvalidStatus,
+        "unknown cairo subpixel order: \{raw}",
+      )
+  }
+}
+
+///|
+fn subpixel_order_to_raw(subpixel_order : SubpixelOrder) -> Int {
+  match subpixel_order {
+    SubpixelDefault => 0
+    SubpixelRgb => 1
+    SubpixelBgr => 2
+    SubpixelVrgb => 3
+    SubpixelVbgr => 4
+  }
+}
 
 ///|
 /// Selects the shape drawn at the end of an open stroked subpath.

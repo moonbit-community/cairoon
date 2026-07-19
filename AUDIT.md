@@ -4,6 +4,15 @@
 
 Implemented in this workspace:
 
+- Font-option enum representation helpers now live with the existing
+  `Antialias`, `SubpixelOrder`, `HintStyle`, `HintMetrics`, and `ColorMode`
+  owners in `src/enums.mbt`, rather than inflating family facades. The move is
+  line-for-line: `enums.mbt`, `context_state.mbt`, and `font_options.mbt` are
+  now 440, 527, and 518 lines while their aggregate remains 1,485 lines. The
+  source-size gate adds a 600-line ceiling for every `.mbt` and `.mbt.md` file;
+  a fourth boundary regression rejects line 601. The current tree has 445
+  checked source files, 203 script tests, and 660 publication members without
+  changing public signatures, native behavior, or release policy.
 - The 601-line reliability-ledger checker is split into a 134-line CLI and
   path-assembly layer plus 158-line visible-Markdown parsing, 274-line
   canonical release-evidence, and 158-line shell/matrix gate modules under
@@ -11,7 +20,7 @@ Implemented in this workspace:
   three root-aware delegation tests pin the new boundaries. Publication
   validation now requires all six checker/support files byte-for-byte, and its
   sixteenth regression rejects every missing or altered dependency. The
-  current tree has 445 checked source files, 202 script tests, and 660
+  slice checked 445 source files, ran 202 script tests, and validated 660
   publication members.
 - The 800-line reliability-ledger test module is split by rule domain into
   384-line downstream/verify/workflow, 329-line current-release-evidence, and
@@ -145,7 +154,7 @@ Implemented in this workspace:
   process failures, deterministic JSON, and environment redaction.
 - Exact local release lanes for Cairo 1.15.10 and 1.18.4, built from pinned
   source URLs and SHA-256 digests on a pinned Ubuntu base image. Both lanes
-  pass all static gates, 840/840 native tests, 202/202 script tests, and 63/63
+  pass all static gates, 840/840 native tests, 203/203 script tests, and 63/63
   executable documentation tests with the pinned MoonBit
   `0.10.4+4f2e8f7dc-nightly` compiler. In each lane, the source-checkout and
   extracted-publication-zip consumers also pass 1/1 independently. Each lane
@@ -914,7 +923,7 @@ Implemented in this workspace:
 
 The most recent full local verification passed on 2026-07-19:
 
-- `./scripts/verify.sh` passed 202/202 script tests,
+- `./scripts/verify.sh` passed 203/203 script tests,
   840/840 native tests, 63/63 executable documentation tests, formatting,
   project layout, source-size, Cairo build-protocol/generated-constant, FFI
   ownership, exact external-owner/finalizer/stress evidence, API inventory,
@@ -925,7 +934,7 @@ The most recent full local verification passed on 2026-07-19:
   passed every discovered package;
   authoritative Linux LSan coverage is supplied by both exact-Cairo lanes.
 - `./scripts/test-cairo-matrix.sh cairo-1.15.10` and
-  `./scripts/test-cairo-matrix.sh cairo-1.18.4` passed the same 202 script,
+  `./scripts/test-cairo-matrix.sh cairo-1.18.4` passed the same 203 script,
   840 native, and 63 documentation tests, both 1/1 consumer paths, the
   unmodified host-archive consumer, all 660 publication members, and every
   discovered package under ASan/LSan/UBSan.

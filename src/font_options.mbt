@@ -104,19 +104,6 @@ pub impl Eq for FontOptions with fn equal(self, other) {
 }
 
 ///|
-fn antialias_to_raw(antialias : Antialias) -> Int {
-  match antialias {
-    AntialiasDefault => 0
-    AntialiasNone => 1
-    AntialiasGray => 2
-    AntialiasSubpixel => 3
-    AntialiasFast => 4
-    AntialiasGood => 5
-    AntialiasBest => 6
-  }
-}
-
-///|
 /// Return the typed antialiasing mode used for text rendering.
 ///
 /// Raises the object's checked status, or
@@ -168,33 +155,6 @@ pub fn FontOptions::set_antialias_raw(
   check_font_options_status_raw(
     @font_options_impl.set_antialias_raw(self.to_raw(), antialias),
   )
-}
-
-///|
-fn subpixel_order_from_raw(raw : Int) -> SubpixelOrder raise CairoError {
-  match raw {
-    0 => SubpixelDefault
-    1 => SubpixelRgb
-    2 => SubpixelBgr
-    3 => SubpixelVrgb
-    4 => SubpixelVbgr
-    _ =>
-      raise CairoInvalidArgument(
-        InvalidStatus,
-        "unknown cairo subpixel order: \{raw}",
-      )
-  }
-}
-
-///|
-fn subpixel_order_to_raw(subpixel_order : SubpixelOrder) -> Int {
-  match subpixel_order {
-    SubpixelDefault => 0
-    SubpixelRgb => 1
-    SubpixelBgr => 2
-    SubpixelVrgb => 3
-    SubpixelVbgr => 4
-  }
 }
 
 ///|
@@ -252,33 +212,6 @@ pub fn FontOptions::set_subpixel_order_raw(
 }
 
 ///|
-fn hint_style_from_raw(raw : Int) -> HintStyle raise CairoError {
-  match raw {
-    0 => HintStyleDefault
-    1 => HintStyleNone
-    2 => HintStyleSlight
-    3 => HintStyleMedium
-    4 => HintStyleFull
-    _ =>
-      raise CairoInvalidArgument(
-        InvalidStatus,
-        "unknown cairo hint style: \{raw}",
-      )
-  }
-}
-
-///|
-fn hint_style_to_raw(hint_style : HintStyle) -> Int {
-  match hint_style {
-    HintStyleDefault => 0
-    HintStyleNone => 1
-    HintStyleSlight => 2
-    HintStyleMedium => 3
-    HintStyleFull => 4
-  }
-}
-
-///|
 /// Return the typed strength of font-outline pixel-grid fitting.
 ///
 /// Raises the object's checked status, or
@@ -330,29 +263,6 @@ pub fn FontOptions::set_hint_style_raw(
   check_font_options_status_raw(
     @font_options_impl.set_hint_style_raw(self.to_raw(), hint_style),
   )
-}
-
-///|
-fn hint_metrics_from_raw(raw : Int) -> HintMetrics raise CairoError {
-  match raw {
-    0 => HintMetricsDefault
-    1 => HintMetricsOff
-    2 => HintMetricsOn
-    _ =>
-      raise CairoInvalidArgument(
-        InvalidStatus,
-        "unknown cairo hint metrics: \{raw}",
-      )
-  }
-}
-
-///|
-fn hint_metrics_to_raw(hint_metrics : HintMetrics) -> Int {
-  match hint_metrics {
-    HintMetricsDefault => 0
-    HintMetricsOff => 1
-    HintMetricsOn => 2
-  }
 }
 
 ///|
@@ -476,29 +386,6 @@ pub fn FontOptions::get_color_mode(
   self : FontOptions,
 ) -> ColorMode raise CairoError {
   color_mode_from_raw(self.get_color_mode_raw())
-}
-
-///|
-fn color_mode_from_raw(raw : Int) -> ColorMode raise CairoError {
-  match raw {
-    0 => ColorModeDefault
-    1 => ColorModeNoColor
-    2 => ColorModeColor
-    _ =>
-      raise CairoInvalidArgument(
-        InvalidStatus,
-        "unknown cairo color mode: \{raw}",
-      )
-  }
-}
-
-///|
-fn color_mode_to_raw(color_mode : ColorMode) -> Int {
-  match color_mode {
-    ColorModeDefault => 0
-    ColorModeNoColor => 1
-    ColorModeColor => 2
-  }
 }
 
 ///|

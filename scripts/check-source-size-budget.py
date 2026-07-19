@@ -10,9 +10,11 @@ import sys
 REPO_ROOT = pathlib.Path(__file__).resolve().parents[1]
 MAX_SOURCE_LINES = 850
 MAX_C_SOURCE_LINES = 600
+MAX_MOONBIT_SOURCE_LINES = 600
 MAX_PYTHON_TEST_LINES = 600
 SOURCE_SUFFIXES = (".mbt", ".mbt.md", ".c", ".h", ".py", ".sh")
 C_SOURCE_SUFFIXES = (".c", ".h")
+MOONBIT_SOURCE_SUFFIXES = (".mbt", ".mbt.md")
 SEARCH_ROOTS = (
     REPO_ROOT / "src",
     REPO_ROOT / "scripts",
@@ -33,6 +35,8 @@ def line_count(path: pathlib.Path) -> int:
 def source_line_budget(path: pathlib.Path) -> int:
     if path.name.endswith(C_SOURCE_SUFFIXES):
         return MAX_C_SOURCE_LINES
+    if path.name.endswith(MOONBIT_SOURCE_SUFFIXES):
+        return MAX_MOONBIT_SOURCE_LINES
     if path.name.startswith("test_") and path.suffix == ".py":
         return MAX_PYTHON_TEST_LINES
     return MAX_SOURCE_LINES
@@ -84,6 +88,7 @@ def main() -> int:
     print(
         f"Source size budget ok; {checked} source files checked; "
         f"limits are {MAX_C_SOURCE_LINES} C/header, "
+        f"{MAX_MOONBIT_SOURCE_LINES} MoonBit, "
         f"{MAX_PYTHON_TEST_LINES} Python test, and "
         f"{MAX_SOURCE_LINES} general lines; "
         f"largest {largest_text}"
