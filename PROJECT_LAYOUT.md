@@ -559,9 +559,12 @@ Follow this order. Each step gets its own commit and must pass
    import the public facade. Direct `Status`/`CairoError` facade extraction is
    currently blocked by MoonBit constructor re-export semantics: `pub type`
    aliases do not expose enum variants or suberror constructors as
-   `@cairoon.<Constructor>`. A facade alias also cannot grow extra facade-local
-   methods for the child type, so a type should move only when its full public
-   method set can move with it or when a wrapper/seam design has been proven.
+   `@cairoon.<Constructor>`. The pinned compiler's `pub using` can re-export
+   functions, types, and traits, but treats listed enum or suberror constructors
+   as missing types/traits, so it does not preserve that syntax either. A facade
+   alias also cannot grow extra facade-local methods for the child type, so a
+   type should move only when its full public method set can move with it or
+   when a wrapper/seam design has been proven.
    `src/internal/version` is the first implementation-package seam: the raw
    version externs and UTF-8 decoding moved out of the public package, while
    `@cairoon.cairo_version()` and `@cairoon.cairo_version_string()` remain
@@ -721,11 +724,11 @@ before MoonBit compilation. The layout check proves:
   package root cannot grow while family packages are being extracted;
 - the root and public-package-root allowlists are exact ledgers with no stale
   names left behind after a migration slice moves files into child packages;
-- `scripts/check-source-size-budget.py` keeps C sources, headers, every MoonBit
-  source/executable-doc module, and Python test modules under a 600-line review
-  budget and other source and script files under an 850-line budget, so large
-  oracles, facade files, test domains, and glue families are split or
-  re-owned deliberately instead of growing in place;
+- `scripts/check-source-size-budget.py` keeps every checked MoonBit source or
+  executable-doc module, C source/header, Python module, and shell script under
+  one 600-line review budget, so large oracles, facade files, test domains,
+  audits, and glue families are split or re-owned deliberately instead of
+  growing in place;
 - `src/moon.pkg`, `src/pkg.generated.mbti`, and `moon.mod source = "src"`
   are present;
 - `moon.mod` declares native as both the preferred and sole supported target,

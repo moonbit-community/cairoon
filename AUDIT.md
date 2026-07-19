@@ -4,14 +4,24 @@
 
 Implemented in this workspace:
 
+- The source-size gate now applies one 600-line ceiling to every checked
+  MoonBit source/executable-doc module, C source/header, Python module, and
+  shell script; no 850-line general-source allowance remains. Four focused
+  regressions pin representative suffixes and reject line 601 for C, ordinary
+  and test Python, MoonBit, executable docs, and shell sources. A pinned-
+  compiler seam probe separately confirms that `pub using` cannot preserve
+  facade-qualified ordinary enum or suberror constructors, so direct `src/`
+  facade types remain frozen instead of changing public syntax. The current
+  tree has 445 checked source files, 203 script tests, and 660 publication
+  members.
 - Font-option enum representation helpers now live with the existing
   `Antialias`, `SubpixelOrder`, `HintStyle`, `HintMetrics`, and `ColorMode`
   owners in `src/enums.mbt`, rather than inflating family facades. The move is
   line-for-line: `enums.mbt`, `context_state.mbt`, and `font_options.mbt` are
   now 440, 527, and 518 lines while their aggregate remains 1,485 lines. The
   source-size gate adds a 600-line ceiling for every `.mbt` and `.mbt.md` file;
-  a fourth boundary regression rejects line 601. The current tree has 445
-  checked source files, 203 script tests, and 660 publication members without
+  a fourth boundary regression rejects line 601. That slice checked 445 source
+  files, ran 203 script tests, and validated 660 publication members without
   changing public signatures, native behavior, or release policy.
 - The 601-line reliability-ledger checker is split into a 134-line CLI and
   path-assembly layer plus 158-line visible-Markdown parsing, 274-line

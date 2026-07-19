@@ -614,11 +614,11 @@ must live beside `src/native/moon.pkg`; test-only oracle C files must live
 beside `src/tests/oracle/native/moon.pkg`. Keep files small enough to review as
 a coherent object-family binding. If a file grows past the scale of pycairo's
 corresponding file without a concrete reason, split it before adding more API
-surface. `scripts/check-source-size-budget.py` enforces a 600-line ceiling for
-C sources, headers, all MoonBit `.mbt`/`.mbt.md` files, and Python `test_*.py`
-modules, plus an 850-line ceiling for other checked source files. Keep shared
-raw enum conversions with their existing enum owner in `src/enums.mbt`; do not
-grow a family facade or add another grandfathered `src/` file for them.
+surface. `scripts/check-source-size-budget.py` enforces one 600-line ceiling
+for every checked MoonBit, C, header, Python, and shell source file. There is
+no larger general-source exception. Keep shared raw enum conversions with
+their existing enum owner in `src/enums.mbt`; do not grow a family facade or
+add another grandfathered `src/` file for them.
 
 ## Public API Policy
 

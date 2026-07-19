@@ -14,16 +14,25 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 
 ## Recent Audit Deltas
 
+- 2026-07-19: The source-size gate now applies one 600-line ceiling to every
+  checked MoonBit source/executable-doc module, C source/header, Python module,
+  and shell script; the former 850-line general-source allowance is closed.
+  Four focused regressions pin representative suffixes and reject line 601 for
+  C, ordinary and test Python, MoonBit, executable docs, and shell sources. A
+  current-toolchain seam probe also confirms that `pub using` cannot re-export
+  ordinary enum or suberror constructors under facade-qualified names, so the
+  remaining direct `src/` facade types stay frozen rather than breaking
+  `@cairoon.<Constructor>` syntax. The current tree checks 445 source files,
+  runs 203/203 script tests, and validates 660 publication members.
 - 2026-07-19: Font-option enum representation helpers now live with their
   existing Antialias, SubpixelOrder, HintStyle, HintMetrics, and ColorMode
   owners in `src/enums.mbt`, rather than inflating family facades. The move is
   line-for-line: `enums.mbt`, `context_state.mbt`, and `font_options.mbt` are
   now 440, 527, and 518 lines while their aggregate stays 1,485 lines. The
   source-size gate adds a 600-line ceiling for every `.mbt` and `.mbt.md` file;
-  a fourth boundary regression rejects line 601. The current tree checks 445
-  source files, runs 203/203 script tests, and validates 660 publication
-  members without changing public signatures, native behavior, or release
-  policy.
+  a fourth boundary regression rejects line 601. That slice checked 445 source
+  files, ran 203/203 script tests, and validated 660 publication members
+  without changing public signatures, native behavior, or release policy.
 - 2026-07-19: The 601-line reliability-ledger checker is now a 134-line CLI
   and path-assembly layer over focused Markdown, release-evidence, and gate
   modules of 158, 274, and 158 lines under `scripts/reliability/`. Three new
@@ -822,7 +831,7 @@ binding. Treat `cairo/__init__.pyi`, `docs/reference/*.rst`, and
 | Object trait facade colocation | Done | Moves external-object `Eq`/`Hash`/`Compare` impls from the grandfathered `src/traits.mbt` file into their owning facade wrapper files, deletes the old root file, and preserves the public trait surface through existing object black-box tests |
 | FFI native target layout lint | Done | Extends `scripts/check-project-layout.py` so every production `src/**/ffi*.mbt` file outside `src/tests/` must be listed in the adjacent `moon.pkg` `targets` map as `[ "native" ]`, and stale native target entries for moved raw FFI files are rejected before MoonBit compilation |
 | FFI ownership annotation lint | Done | Wires `scripts/check-ffi-ownership.py` into `scripts/verify.sh`, so every non-primitive raw C FFI parameter in production `src/**/ffi*.mbt` files, including internal helper packages, must be covered by `#borrow` or `#owned`; the thin CLI also enforces facade/export parity while `scripts/ffi_ownership/{source,device_cleanup,surface_cleanup,mapped_cleanup}.py` own shared parsing and family cleanup-order rules. Seven focused tests include six root-aware delegation checks, and the publication contract requires the complete modular checker byte-for-byte. |
-| Source size budget lint | Done | Splits oversized C oracles and Python test/audit modules by responsibility, and re-owns shared font enum conversions in the existing `src/enums.mbt` facade owner. `scripts/check-source-size-budget.py` caps C sources, headers, every MoonBit `.mbt`/`.mbt.md` file, and Python `test_*.py` files at 600 lines while other checked source, script, and downstream-fixture files retain the 850-line review budget. Four focused tests pin all boundaries. |
+| Source size budget lint | Done | Splits oversized C oracles and Python test/audit modules by responsibility, and re-owns shared font enum conversions in the existing `src/enums.mbt` facade owner. `scripts/check-source-size-budget.py` applies one 600-line ceiling to every checked MoonBit `.mbt`/`.mbt.md`, C source/header, Python module, and shell script, including downstream fixtures. Four focused tests pin representative suffixes and every 600/601 boundary. |
 | Publication licensing and archive contract | Done | Ships `COPYING` plus the complete LGPL-2.1 and MPL-1.1 texts named by the module's SPDX expression; `scripts/check-publication-archive.py` requires the legal files, module metadata, package README/interface, pre-build script, API snapshot/mappings, external-owner evidence, and complete modular FFI ownership and reliability-ledger audits byte-for-byte. It rejects duplicate canonical paths alongside unsafe/fixture/CRC failures, with sixteen focused positive and negative regressions. |
 | Self-contained pycairo API snapshot | Done | Adds a strict generated JSON snapshot under `scripts/api/` with pinned source commit/digest and exact API sets; source checkouts must match it byte-for-byte at the stub level, standalone archives use it instead of collapsing constant coverage to zero, seven focused tests reject drift, truncation, duplicates, and nondeterministic ordering, and the publication checker requires the snapshot |
 | Reliability ledger lint | Done | Wires the 134-line `scripts/check-reliability-ledger.py` CLI into `scripts/verify.sh`; focused `scripts/reliability/{markdown,evidence,gates,ci_workflow}.py` modules own visible-Markdown parsing, canonical release evidence, shell/matrix wiring, and hosted-workflow policy. Its 29 behavior regressions remain split by downstream/workflow, current release-evidence, and exact local-matrix responsibilities, while three root-aware delegation tests pin the CLI boundary. The publication contract requires the complete modular checker byte-for-byte. |

@@ -157,9 +157,8 @@ ledger for every `tests/test_*.py` file. Run
 `scripts/check-project-layout.py` whenever package structure, root source files,
 or `PROJECT_LAYOUT.md` changes. Run `scripts/check-source-size-budget.py`
 whenever a source, script, test, native glue, or executable-doc file is added
-or substantially expanded. It enforces 600 lines for C sources, headers,
-MoonBit `.mbt`/`.mbt.md` files, and Python `test_*.py` modules, with an
-850-line review budget for other checked source and script files. Run
+or substantially expanded. It enforces one 600-line ceiling for every checked
+MoonBit, C, header, Python, and shell source file. Run
 `scripts/check-reliability-ledger.py` whenever migration status, scorecard, or
 CI/verify gate text changes. Run `scripts/check-vector-backend-scenes.py`
 whenever backend oracle scene ids, native oracle stubs, stream-oracle wiring,
@@ -3566,9 +3565,10 @@ Verified on 2026-07-02, 2026-07-03, 2026-07-04, 2026-07-05, 2026-07-06, 2026-07-
   and added `scripts/check-source-size-budget.py` to the local verify gate.
   This keeps the expected full native suite at 635 tests while making future
   source/test/script/native-glue files above 850 lines fail local verification
-  until they are split deliberately. The later C architecture gate tightens
-  `.c` and `.h` files to 600 lines and pins the 600/601 boundary with focused
-  unit tests.
+  until they are split deliberately. The later C architecture gate tightened
+  `.c` and `.h` files to 600 lines, followed by Python-test and MoonBit gates.
+  The current universal gate closes the final 850-line allowance: every checked
+  source kind now rejects line 601 in four focused boundary tests.
   A later PNG path/stream pycairo parity slice added a black-box fixture that
   writes one ARGB32 image through both `Surface::write_to_png` and
   `Surface::write_to_png_stream`, compares exact PNG bytes, and compares the

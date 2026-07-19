@@ -38,19 +38,21 @@ class SourceSizeBudgetTests(unittest.TestCase):
         path.write_text("line\n" * count, encoding="utf-8")
         return path
 
-    def test_c_sources_have_a_stricter_budget(self) -> None:
-        self.assertEqual(
-            self.budget.source_line_budget(self.root / "scene.c"),
-            600,
-        )
-        self.assertEqual(
-            self.budget.source_line_budget(self.root / "private.h"),
-            600,
-        )
-        self.assertEqual(
-            self.budget.source_line_budget(self.root / "checker.py"),
-            850,
-        )
+    def test_every_checked_source_uses_the_600_line_budget(self) -> None:
+        for name in (
+            "scene.c",
+            "private.h",
+            "facade.mbt",
+            "guide.mbt.md",
+            "checker.py",
+            "test_checker.py",
+            "verify.sh",
+        ):
+            with self.subTest(name=name):
+                self.assertEqual(
+                    self.budget.source_line_budget(self.root / name),
+                    600,
+                )
 
     def test_c_budget_rejects_601_lines_but_accepts_600(self) -> None:
         at_limit = self.write_lines("at_limit.c", 600)
@@ -62,9 +64,12 @@ class SourceSizeBudgetTests(unittest.TestCase):
             self.budget.source_size_violation(over_limit),
             (601, 600),
         )
-        self.assertIsNone(self.budget.source_size_violation(ordinary))
+        self.assertEqual(
+            self.budget.source_size_violation(ordinary),
+            (601, 600),
+        )
 
-    def test_python_test_budget_rejects_601_lines_but_accepts_600(self) -> None:
+    def test_python_budget_rejects_601_lines_but_accepts_600(self) -> None:
         at_limit = self.write_lines("test_at_limit.py", 600)
         over_limit = self.write_lines("test_over_limit.py", 601)
         ordinary = self.write_lines("checker.py", 601)
@@ -75,13 +80,16 @@ class SourceSizeBudgetTests(unittest.TestCase):
             self.budget.source_size_violation(over_limit),
             (601, 600),
         )
-        self.assertIsNone(self.budget.source_size_violation(ordinary))
+        self.assertEqual(
+            self.budget.source_size_violation(ordinary),
+            (601, 600),
+        )
 
     def test_moonbit_budget_rejects_601_lines_but_accepts_600(self) -> None:
         at_limit = self.write_lines("at_limit.mbt", 600)
         over_limit = self.write_lines("over_limit.mbt", 601)
         doc_over_limit = self.write_lines("guide.mbt.md", 601)
-        ordinary = self.write_lines("checker.py", 601)
+        script_over_limit = self.write_lines("verify.sh", 601)
 
         self.assertEqual(self.budget.source_line_budget(at_limit), 600)
         self.assertIsNone(self.budget.source_size_violation(at_limit))
@@ -93,7 +101,10 @@ class SourceSizeBudgetTests(unittest.TestCase):
             self.budget.source_size_violation(doc_over_limit),
             (601, 600),
         )
-        self.assertIsNone(self.budget.source_size_violation(ordinary))
+        self.assertEqual(
+            self.budget.source_size_violation(script_over_limit),
+            (601, 600),
+        )
 
 
 if __name__ == "__main__":
