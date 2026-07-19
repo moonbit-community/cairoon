@@ -239,6 +239,14 @@ in both `README.md` and `src/README.mbt.md`, and the isolated consumer's root
 dependency. `scripts/check-publication-archive.py` must derive the packaged
 name/version from the archive's own `moon.mod` and reject any mismatch, missing
 changelog, or missing repository/native/dependency/pre-build/exclusion marker.
+It must also derive the complete publishable file set from the verified
+checkout: every regular non-hidden file except `_build`, `integration`, Python
+bytecode caches, and hidden tool/dependency roots must appear exactly once and
+match byte-for-byte. Directory-only archive entries are forbidden because they
+have no verified source-file identity. Missing, extra, or altered product
+source, C glue, tests, documentation, or release tooling is a release failure.
+The archive checker, its behavior tests, and their split fixture support are
+explicit required members.
 The published `0.1.0` preview predates dependency pre-build/link propagation;
 the next line is `0.2.0`. `scripts/check-publish-dry-run.py` is the local online
 release gate and must invoke only `moon publish --dry-run`; it may normalize

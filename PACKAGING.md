@@ -228,16 +228,21 @@ unsuppressed.
    `*.mbt.md` reference file.
 11. Run the Ubuntu 24.04 system-Cairo lane and both pinned source-built Cairo
    lanes, then record their exact versions and test counts in `AUDIT.md`.
-12. Run `./scripts/check-downstream-consumer.sh`; all six workflows must pass
+12. Run `moon package`, then
+    `python3 scripts/check-publication-archive.py <archive>`. The canonical
+    member set must exactly match every publishable non-hidden checkout file,
+    and every member must be byte-identical; missing, altered, or extra members,
+    including directory-only entries, are forbidden.
+13. Run `./scripts/check-downstream-consumer.sh`; all six workflows must pass
    against both the source checkout and extracted publication zip, and
    `integration/` must remain outside the archive.
-13. Run `python3 scripts/check-publish-dry-run.py`. The wrapper internally fixes
+14. Run `python3 scripts/check-publish-dry-run.py`. The wrapper internally fixes
     the command to `moon publish --dry-run` and requires both package checks,
     one complete exact registry status-202/no-change line, and matching package
     identity. Current Moon may return status 255 only with its exact trailing
     publish-failure banner; status 0 must have no error banner. No other nonzero
     status, separated response fragments, or incomplete response is accepted.
-14. Commit the release state. Tag and upload it only from a clean worktree after
+15. Commit the release state. Tag and upload it only from a clean worktree after
     the hosted Ubuntu/macOS release jobs pass on that exact commit.
 
 ## CI Guidance

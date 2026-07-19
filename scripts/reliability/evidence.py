@@ -28,7 +28,7 @@ PARTIAL_GAP_MARKERS = (
 )
 TESTS_EVIDENCE_MAX_CHARS = 1200
 NATIVE_TEST_MARKER = "841/841 native tests"
-PUBLICATION_MARKER = "667 publication members"
+PUBLICATION_MARKER = "668 byte-identical publication members"
 OWNER_EVIDENCE_MARKER = (
     "12/12 raw external owners with exact finalizer and 1000-iteration stress "
     "evidence, including one raw-result stress path that bans explicit release"

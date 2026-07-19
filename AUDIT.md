@@ -4,6 +4,18 @@
 
 Implemented in this workspace:
 
+- Publication archive integrity now covers the complete release payload rather
+  than a selected tooling whitelist. The checker derives every publishable
+  non-hidden checkout file, rejects missing or unverified-extra canonical file
+  or directory members, and compares all MoonBit, C, test, documentation, and
+  tooling bytes. Its own checker/test/fixture trio is explicitly required. One
+  fail-first regression covers altered MoonBit, missing C/support, and extra-source
+  mutations; all 24 publication tests and the 225-test script suite pass. The
+  split checker, fixtures, and behavior tests are 325, 124, and 474 lines, and
+  the resulting archive has 668 byte-identical members across 454 checked
+  source files. A fresh `origin/main` fetch confirms pycairo remains pinned to
+  its current upstream head `80ea3348`; public API and production FFI are
+  unchanged.
 - The registry release line is now explicit. Mooncakes already contains the
   July 6 `0.1.0` preview, whose manifest omits dependency-side Cairo discovery
   and whose generated public interface differs from the current tree. The
@@ -1005,21 +1017,21 @@ Implemented in this workspace:
 
 The most recent full local verification passed on 2026-07-19:
 
-- `CAIROON_VERIFY_ASAN=0 ./scripts/verify.sh` passed 224/224 script tests,
+- `CAIROON_VERIFY_ASAN=0 ./scripts/verify.sh` passed 225/225 script tests,
   841/841 native tests, 63/63 executable documentation tests, formatting,
   project layout, source-size, Cairo build-protocol/generated-constant, FFI
   ownership, exact external-owner/finalizer/stress evidence, API inventory,
   pycairo parity, public documentation, reliability-ledger, vector-scene,
   native type including warning 73, and generated-interface gates. The
   isolated consumer passed 6/6 against both the checkout and the
-  integrity-tested extracted 667-member publication zip. A targeted host
+  integrity-tested extracted 668-member publication zip. A targeted host
   ASan/UBSan run passed the finalizer-only `RawTextToGlyphs` package;
   authoritative whole-workspace ASan/LSan/UBSan coverage is supplied by the
   Linux lanes below.
 - `./scripts/test-cairo-matrix.sh cairo-1.15.10` and
-  `./scripts/test-cairo-matrix.sh cairo-1.18.4` passed the same 224 script,
+  `./scripts/test-cairo-matrix.sh cairo-1.18.4` passed the same 225 script,
   841 native, and 63 documentation tests, all three 6/6 consumer modes, all
-  667 publication members, and every discovered package under
+  668 byte-identical publication members, and every discovered package under
   ASan/LSan/UBSan.
   Intentional signed-overflow and leak preflights passed in both lanes. The
   constrained vector suppression accounted for 16 allocations/7424 bytes on
@@ -1027,9 +1039,10 @@ The most recent full local verification passed on 2026-07-19:
   accounted for 9 allocations/988 bytes and 14/2352 respectively. Every other
   package remained unsuppressed.
 - `./scripts/test-cairo-matrix.sh ubuntu-24.04-system` passed with Ubuntu
-  24.04's unmodified system Cairo 1.18.0: 224/224 script tests, 841/841 native
-  tests, 63/63 executable docs, all three 6/6 consumer modes, all 667
-  publication members, and every discovered package under ASan/LSan/UBSan.
+  24.04's unmodified system Cairo 1.18.0: 225/225 script tests, 841/841 native
+  tests, 63/63 executable docs, all three 6/6 consumer modes, all 668
+  byte-identical publication members, and every discovered package under
+  ASan/LSan/UBSan.
   Its stripped recording path used
   exactly 16 suppressions/9344 bytes at `cairo_restore` on arm64; the stripped
   PDF path used exactly 10/2284 at
@@ -3856,7 +3869,8 @@ fresh workspace, and reruns the consumer against the packaged module. The two
 exact Linux Cairo lanes additionally consume the same host-generated zip
 without rewriting its manifests or running the repository constants updater.
 This catches producer-specific include and library paths that source-copy lane
-setup would otherwise hide. The current 667-member archive also contains the
+setup would otherwise hide. The current 668-member archive is an exact
+byte-for-byte image of the publishable checkout set and also contains the
 declared dual-license notice, complete license texts, and version-matched
 changelog/install metadata; source, freshly
 extracted, and unmodified cross-host archive modes each pass 6/6 against Cairo

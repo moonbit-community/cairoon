@@ -25,6 +25,9 @@ first version intended for light downstream Cairo use.
   arguments, validates both package checks plus one complete registry
   202/no-change response, enforces exit/error-banner consistency, and ships its
   parser tests byte-for-byte in the publication archive.
+- An exact publication-source gate that rejects every missing, unverified, or
+  byte-altered archive member, including MoonBit code, C glue, tests,
+  documentation, and release tooling.
 
 ### Changed
 

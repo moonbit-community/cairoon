@@ -66,8 +66,11 @@ REQUIRED_MEMBERS = frozenset(
         "scripts/build/cairo_config.py",
         "scripts/check-api-inventory.py",
         "scripts/check-external-owners.py",
+        "scripts/check-publication-archive.py",
         "scripts/check-publish-dry-run.py",
         "scripts/lifetime/owners.json",
+        "scripts/tests/publication_archive_support.py",
+        "scripts/tests/test_publication_archive.py",
         "scripts/tests/test_publish_dry_run.py",
         "src/README.mbt.md",
         "src/moon.pkg",
@@ -116,23 +119,34 @@ REQUIRED_SHA256 = {
         "53692a2ed6c6a2c6ec9b32dd0b820dfae91e0a1fcdf625ca9ed0bdf8705fcc4f"
     ),
 }
-SOURCE_IDENTICAL_MEMBERS = frozenset(
-    {
-        "API_INVENTORY.md",
-        "scripts/api/attribute_mappings.py",
-        "scripts/api/method_mappings.py",
-        "scripts/api/protocol_mappings.py",
-        "scripts/api/pycairo-api-snapshot.json",
-        "scripts/api/snapshot.py",
-        "scripts/check-api-inventory.py",
-        "scripts/check-external-owners.py",
-        "scripts/check-publish-dry-run.py",
-        "scripts/lifetime/owners.json",
-        "scripts/tests/test_publish_dry_run.py",
-    }
-) | FFI_OWNERSHIP_SUPPORT | RELIABILITY_SUPPORT | SANITIZER_SUPPORT
+EXCLUDED_PUBLICATION_ROOTS = frozenset({"_build", "integration"})
+EXCLUDED_PUBLICATION_PARTS = frozenset({"__pycache__"})
 MODULE_NAME_RE = re.compile(r'^name\s*=\s*"([^"]+)"\s*$', re.MULTILINE)
 MODULE_VERSION_RE = re.compile(r'^version\s*=\s*"([^"]+)"\s*$', re.MULTILINE)
+
+
+def expected_publication_members(
+    repo_root: pathlib.Path,
+) -> dict[str, pathlib.Path]:
+    expected: dict[str, pathlib.Path] = {}
+    for top_level in repo_root.iterdir():
+        if (
+            top_level.name.startswith(".")
+            or top_level.name in EXCLUDED_PUBLICATION_ROOTS
+        ):
+            continue
+        candidates = (top_level,) if top_level.is_file() else top_level.rglob("*")
+        for source in candidates:
+            if not source.is_file():
+                continue
+            relative = source.relative_to(repo_root)
+            if source.suffix == ".pyc" or any(
+                part.startswith(".") or part in EXCLUDED_PUBLICATION_PARTS
+                for part in relative.parts
+            ):
+                continue
+            expected[relative.as_posix()] = source
+    return expected
 
 
 def check_release_contract(
@@ -182,7 +196,10 @@ def check_release_contract(
     return errors
 
 
-def check_archive(path: pathlib.Path) -> tuple[list[str], int]:
+def check_archive(
+    path: pathlib.Path,
+    repo_root: pathlib.Path = REPO_ROOT,
+) -> tuple[list[str], int]:
     errors: list[str] = []
     try:
         with zipfile.ZipFile(path) as archive:
@@ -211,6 +228,22 @@ def check_archive(path: pathlib.Path) -> tuple[list[str], int]:
             missing = sorted(REQUIRED_MEMBERS - set(canonical_members))
             for member_name in missing:
                 errors.append(f"{path}: missing required publication member {member_name!r}")
+
+            source_members = expected_publication_members(repo_root)
+            archive_files = {
+                name: member
+                for name, member in canonical_members.items()
+                if not member.is_dir()
+            }
+            for member_name in sorted(set(source_members) - set(archive_files)):
+                errors.append(
+                    f"{path}: missing verified source member {member_name!r}"
+                )
+            for member_name in sorted(set(canonical_members) - set(source_members)):
+                errors.append(
+                    f"{path}: archive member {member_name!r} has no verified "
+                    "source file"
+                )
 
             for member_name, markers in REQUIRED_TEXT_MARKERS.items():
                 member = canonical_members.get(member_name)
@@ -243,27 +276,20 @@ def check_archive(path: pathlib.Path) -> tuple[list[str], int]:
 
             errors.extend(check_release_contract(required_texts, path))
 
-            for member_name in SOURCE_IDENTICAL_MEMBERS:
-                member = canonical_members.get(member_name)
-                if member is None:
-                    continue
-                if member.is_dir():
-                    errors.append(
-                        f"{path}: required member {member_name!r} is a directory"
-                    )
-                    continue
+            for member_name in sorted(set(archive_files) & set(source_members)):
+                member = archive_files[member_name]
                 try:
                     archive_payload = archive.read(member)
-                    source_payload = (REPO_ROOT / member_name).read_bytes()
+                    source_payload = source_members[member_name].read_bytes()
                 except (OSError, RuntimeError) as exc:
                     errors.append(
-                        f"{path}: cannot compare required member "
+                        f"{path}: cannot compare publication member "
                         f"{member_name!r}: {exc}"
                     )
                     continue
                 if archive_payload != source_payload:
                     errors.append(
-                        f"{path}: required member {member_name!r} does not match "
+                        f"{path}: publication member {member_name!r} does not match "
                         "the verified source file"
                     )
     except (OSError, RuntimeError, zipfile.BadZipFile) as exc:

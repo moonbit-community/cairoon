@@ -84,13 +84,13 @@ version or commit is pinned. The complete portable API scope and all 20 pinned
 pycairo test families are covered, and all 579 published declarations have
 substantive API documentation.
 
-Local release-candidate matrices on exact Cairo 1.15.10 and 1.18.4 pass 224/224
+Local release-candidate matrices on exact Cairo 1.15.10 and 1.18.4 pass 225/225
 script tests, 841/841 native tests, 63/63 executable docs, 12/12 raw external
 owners with exact finalizer and 1000-iteration stress evidence, including one
 raw-result stress path that bans explicit release, 6/6 source, extracted, and
-unmodified cross-host archive consumer runs, all 667 publication members, and
-every package under ASan/LSan/UBSan. Ubuntu 24.04 system Cairo 1.18.0
-independently passes 841/841 native tests and every package under
+unmodified cross-host archive consumer runs, all 668 byte-identical
+publication members, and every package under ASan/LSan/UBSan. Ubuntu 24.04
+system Cairo 1.18.0 independently passes 841/841 native tests and every package under
 ASan/LSan/UBSan. The sole global `Partial` row is shipped test/release-platform
 evidence: GitHub run 29678818105 passed macOS native but failed both Ubuntu jobs
 on the prior release commit. The local fix commit still needs passing Ubuntu

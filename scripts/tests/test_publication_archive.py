@@ -3,146 +3,41 @@
 
 from __future__ import annotations
 
-import importlib.util
-import pathlib
-import tempfile
 import unittest
 import warnings
 import zipfile
 
-
-CHECKER = pathlib.Path(__file__).resolve().parents[1] / "check-publication-archive.py"
-REPO_ROOT = CHECKER.parents[1]
-FFI_OWNERSHIP_SUPPORT = (
-    "scripts/check-ffi-ownership.py",
-    "scripts/ffi_ownership/__init__.py",
-    "scripts/ffi_ownership/device_cleanup.py",
-    "scripts/ffi_ownership/mapped_cleanup.py",
-    "scripts/ffi_ownership/source.py",
-    "scripts/ffi_ownership/surface_cleanup.py",
-)
-EXPECTED_RELIABILITY_SUPPORT = frozenset(
-    {
-        "scripts/check-reliability-ledger.py",
-        "scripts/reliability/__init__.py",
-        "scripts/reliability/ci_workflow.py",
-        "scripts/reliability/evidence.py",
-        "scripts/reliability/gates.py",
-        "scripts/reliability/markdown.py",
-        "scripts/matrix/Dockerfile",
-        "scripts/matrix/run-lane.sh",
-        "scripts/test-cairo-matrix.sh",
-    }
-)
-EXPECTED_SANITIZER_SUPPORT = frozenset(
-    {
-        "scripts/sanitizers/leak_probes.py",
-        "scripts/sanitizers/lsan-cairo-pdf-jbig2-missing-stripped.supp",
-        "scripts/sanitizers/lsan-cairo-pdf-jbig2-missing.supp",
-        "scripts/sanitizers/lsan-cairo-recording-snapshot-stripped.supp",
-        "scripts/sanitizers/lsan-cairo-recording-snapshot.supp",
-        "scripts/sanitizers/policy.py",
-        "scripts/sanitizers/probes/cairo_pdf_jbig2_missing_probe.c",
-        "scripts/sanitizers/probes/cairo_recording_snapshot_probe.c",
-        "scripts/sanitizers/run.py",
-        "scripts/sanitizers/toolchain.py",
-    }
-)
-VALID_MEMBERS = {
-    "COPYING": (REPO_ROOT / "COPYING").read_bytes(),
-    "COPYING-LGPL-2.1": (REPO_ROOT / "COPYING-LGPL-2.1").read_bytes(),
-    "COPYING-MPL-1.1": (REPO_ROOT / "COPYING-MPL-1.1").read_bytes(),
-    "API_INVENTORY.md": (REPO_ROOT / "API_INVENTORY.md").read_bytes(),
-    "CHANGELOG.md": (REPO_ROOT / "CHANGELOG.md").read_bytes(),
-    "README.md": (REPO_ROOT / "README.md").read_bytes(),
-    "moon.mod": (REPO_ROOT / "moon.mod").read_bytes(),
-    "scripts/api/attribute_mappings.py": (
-        REPO_ROOT / "scripts" / "api" / "attribute_mappings.py"
-    ).read_bytes(),
-    "scripts/api/method_mappings.py": (
-        REPO_ROOT / "scripts" / "api" / "method_mappings.py"
-    ).read_bytes(),
-    "scripts/api/protocol_mappings.py": (
-        REPO_ROOT / "scripts" / "api" / "protocol_mappings.py"
-    ).read_bytes(),
-    "scripts/api/pycairo-api-snapshot.json": (
-        REPO_ROOT / "scripts" / "api" / "pycairo-api-snapshot.json"
-    ).read_bytes(),
-    "scripts/api/snapshot.py": (
-        REPO_ROOT / "scripts" / "api" / "snapshot.py"
-    ).read_bytes(),
-    "scripts/build/cairo_config.py": b"# build config\n",
-    "scripts/check-api-inventory.py": (
-        REPO_ROOT / "scripts" / "check-api-inventory.py"
-    ).read_bytes(),
-    "scripts/check-publish-dry-run.py": (
-        REPO_ROOT / "scripts" / "check-publish-dry-run.py"
-    ).read_bytes(),
-    "scripts/tests/test_publish_dry_run.py": (
-        REPO_ROOT / "scripts" / "tests" / "test_publish_dry_run.py"
-    ).read_bytes(),
-    "scripts/check-external-owners.py": (
-        REPO_ROOT / "scripts" / "check-external-owners.py"
-    ).read_bytes(),
-    "scripts/lifetime/owners.json": (
-        REPO_ROOT / "scripts" / "lifetime" / "owners.json"
-    ).read_bytes(),
-    "src/README.mbt.md": (REPO_ROOT / "src" / "README.mbt.md").read_bytes(),
-    "src/moon.pkg": b"",
-    "src/pkg.generated.mbti": b"package example\n",
-} | {
-    member_name: (REPO_ROOT / member_name).read_bytes()
-    for member_name in FFI_OWNERSHIP_SUPPORT
-} | {
-    member_name: (REPO_ROOT / member_name).read_bytes()
-    for member_name in EXPECTED_RELIABILITY_SUPPORT
-} | {
-    member_name: (REPO_ROOT / member_name).read_bytes()
-    for member_name in EXPECTED_SANITIZER_SUPPORT
-}
+if __package__:
+    from . import publication_archive_support as support
+else:
+    import publication_archive_support as support
 
 
-def load_checker():
-    spec = importlib.util.spec_from_file_location("check_publication_archive", CHECKER)
-    if spec is None or spec.loader is None:
-        raise RuntimeError(f"cannot load {CHECKER}")
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    return module
+FFI_OWNERSHIP_SUPPORT = support.FFI_OWNERSHIP_SUPPORT
+EXPECTED_RELIABILITY_SUPPORT = support.EXPECTED_RELIABILITY_SUPPORT
+EXPECTED_SANITIZER_SUPPORT = support.EXPECTED_SANITIZER_SUPPORT
+VALID_MEMBERS = support.VALID_MEMBERS
 
 
-class PublicationArchiveCheckerTests(unittest.TestCase):
-    def setUp(self) -> None:
-        self.checker = load_checker()
-        self.temp_dir = tempfile.TemporaryDirectory()
-        self.root = pathlib.Path(self.temp_dir.name)
-        self.archive = self.root / "publication.zip"
-
-    def tearDown(self) -> None:
-        self.temp_dir.cleanup()
-
-    def write_archive(
-        self,
-        members: dict[str, bytes],
-        *,
-        include_required: bool = True,
-    ) -> None:
-        payloads = dict(VALID_MEMBERS) if include_required else {}
-        payloads.update(members)
-        with zipfile.ZipFile(self.archive, "w", zipfile.ZIP_STORED) as archive:
-            for name, data in payloads.items():
-                archive.writestr(name, data)
-
-    def check(self) -> tuple[list[str], int]:
-        return self.checker.check_archive(self.archive)
+class PublicationArchiveCheckerTests(support.PublicationArchiveTestCase):
 
     def test_valid_archive_passes(self) -> None:
-        self.write_archive({"src/a.mbt": b""})
+        for relative in (
+            ".github/workflows/ci.yml",
+            ".mooncakes/cache/entry",
+            "_build/native/object.o",
+            "integration/consumer/moon.mod",
+            "scripts/__pycache__/checker.pyc",
+        ):
+            ignored = self.source_root / relative
+            ignored.parent.mkdir(parents=True, exist_ok=True)
+            ignored.write_bytes(b"not publishable\n")
+        self.write_archive({})
 
         errors, member_count = self.check()
 
         self.assertEqual(errors, [])
-        self.assertEqual(member_count, len(VALID_MEMBERS) + 1)
+        self.assertEqual(member_count, len(VALID_MEMBERS))
 
     def test_missing_license_file_fails(self) -> None:
         members = dict(VALID_MEMBERS)
@@ -310,6 +205,71 @@ class PublicationArchiveCheckerTests(unittest.TestCase):
                     ),
                     errors,
                 )
+
+    def test_product_source_set_and_payload_must_match(self) -> None:
+        with self.subTest(mutation="altered MoonBit source"):
+            self.write_archive({"src/matrix.mbt": b"// altered product source\n"})
+            errors, _ = self.check()
+            self.assertTrue(
+                any(
+                    "src/matrix.mbt" in error
+                    and "does not match the verified source file" in error
+                    for error in errors
+                ),
+                errors,
+            )
+
+        with self.subTest(mutation="missing C source"):
+            members = dict(VALID_MEMBERS)
+            del members["src/native/cairoon_objects.c"]
+            self.write_archive(members, include_required=False)
+            errors, _ = self.check()
+            self.assertTrue(
+                any(
+                    "src/native/cairoon_objects.c" in error
+                    and "missing verified source member" in error
+                    for error in errors
+                ),
+                errors,
+            )
+
+        with self.subTest(mutation="missing archive validator support"):
+            members = dict(VALID_MEMBERS)
+            del members["scripts/tests/publication_archive_support.py"]
+            self.write_archive(members, include_required=False)
+            errors, _ = self.check()
+            self.assertTrue(
+                any(
+                    "scripts/tests/publication_archive_support.py" in error
+                    and "missing required publication member" in error
+                    for error in errors
+                ),
+                errors,
+            )
+
+        with self.subTest(mutation="unverified extra source"):
+            self.write_archive({"src/not-in-checkout.mbt": b"test only\n"})
+            errors, _ = self.check()
+            self.assertTrue(
+                any(
+                    "src/not-in-checkout.mbt" in error
+                    and "has no verified source file" in error
+                    for error in errors
+                ),
+                errors,
+            )
+
+        with self.subTest(mutation="unverified extra directory"):
+            self.write_archive({"src/not-in-checkout/": b""})
+            errors, _ = self.check()
+            self.assertTrue(
+                any(
+                    "src/not-in-checkout" in error
+                    and "has no verified source file" in error
+                    for error in errors
+                ),
+                errors,
+            )
 
     def test_missing_api_snapshot_fails(self) -> None:
         members = dict(VALID_MEMBERS)

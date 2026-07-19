@@ -130,9 +130,9 @@ result fallback is exercised by a 1000-iteration finalizer-only stress package
 whose ledger forbids explicit release. The sole global `Partial` inventory row
 is test/release-platform evidence: GitHub Actions run `29678818105` passed
 macOS native but failed both Ubuntu jobs on the prior release commit. The local
-fixes and expanded consumer contract now pass 224 script tests, all 841 native
-tests, the 667-member publication contract, and every package under
-ASan/LSan/UBSan in the first-class Ubuntu 24.04 system-Cairo lane. That fix
+fixes and expanded consumer contract now pass 225 script tests, all 841 native
+tests, the byte-identical 668-member publication contract, and every package
+under ASan/LSan/UBSan in the first-class Ubuntu 24.04 system-Cairo lane. That fix
 commit still needs passing Ubuntu and macOS native
 jobs plus the Ubuntu ASan/LSan/UBSan job.
 Platform-specific backends remain out of scope, and no source-compatibility
