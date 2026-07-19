@@ -23,6 +23,40 @@ def load_checker():
     return module
 
 
+class ReliabilityGateDelegationTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.checker = load_checker()
+
+    def test_gate_wrappers_delegate_current_paths(self) -> None:
+        with mock.patch.object(
+            self.checker,
+            "_check_verify_gate",
+            return_value=["verify"],
+        ) as check_verify:
+            self.assertEqual(self.checker.check_verify_gate(), ["verify"])
+        check_verify.assert_called_once_with(self.checker.VERIFY)
+
+        with mock.patch.object(
+            self.checker,
+            "_check_downstream_consumer_gate",
+            return_value=["consumer"],
+        ) as check_consumer:
+            self.assertEqual(
+                self.checker.check_downstream_consumer_gate(),
+                ["consumer"],
+            )
+        check_consumer.assert_called_once_with(self.checker.DOWNSTREAM_CONSUMER)
+
+        workflow = self.checker.CI.read_text(encoding="utf-8")
+        with mock.patch.object(
+            self.checker,
+            "_check_ci_workflow",
+            return_value=["ci"],
+        ) as check_ci:
+            self.assertEqual(self.checker.check_ci_gate(), ["ci"])
+        check_ci.assert_called_once_with(workflow, self.checker.CI)
+
+
 class DownstreamConsumerGateTests(unittest.TestCase):
     def setUp(self) -> None:
         self.checker = load_checker()

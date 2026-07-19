@@ -22,6 +22,22 @@ def load_checker():
     return module
 
 
+class ReliabilityMatrixDelegationTests(unittest.TestCase):
+    def test_matrix_wrapper_delegates_current_paths(self) -> None:
+        checker = load_checker()
+        with mock.patch.object(
+            checker,
+            "_check_local_matrix",
+            return_value=["matrix"],
+        ) as check_matrix:
+            self.assertEqual(checker.check_local_matrix(), ["matrix"])
+        check_matrix.assert_called_once_with(
+            checker.REPO_ROOT,
+            checker.MATRIX,
+            checker.SANITIZER,
+        )
+
+
 class LocalMatrixGateTests(unittest.TestCase):
     def setUp(self) -> None:
         self.checker = load_checker()

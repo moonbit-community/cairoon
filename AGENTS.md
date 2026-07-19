@@ -1121,6 +1121,15 @@ MoonBit reliability requirements and remaining work:
   `test_reliability_ledger_evidence.py` owns inventory and release-document
   evidence, and `test_reliability_ledger_matrix.py` owns exact local-matrix
   wiring. Do not merge these classes back into one mixed test module.
+- Keep `scripts/check-reliability-ledger.py` as path assembly, compatibility
+  wrappers, CLI ordering, and output only. `scripts/reliability/markdown.py`
+  owns visible-Markdown parsing, `evidence.py` owns inventory/release-document
+  policy, `gates.py` owns verify/downstream/local-matrix wiring, and
+  `ci_workflow.py` owns hosted-workflow parsing. Every root wrapper must pass
+  its current path globals explicitly so isolated tests can replace them.
+  `scripts/check-publication-archive.py` must require the root checker and all
+  five support-package files byte-for-byte; a missing or altered dependency is
+  a publication failure.
 
 ## Reliability Evaluation Plan
 

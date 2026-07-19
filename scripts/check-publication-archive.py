@@ -21,6 +21,16 @@ FFI_OWNERSHIP_SUPPORT = frozenset(
         "scripts/ffi_ownership/surface_cleanup.py",
     }
 )
+RELIABILITY_SUPPORT = frozenset(
+    {
+        "scripts/check-reliability-ledger.py",
+        "scripts/reliability/__init__.py",
+        "scripts/reliability/ci_workflow.py",
+        "scripts/reliability/evidence.py",
+        "scripts/reliability/gates.py",
+        "scripts/reliability/markdown.py",
+    }
+)
 REQUIRED_MEMBERS = frozenset(
     {
         "COPYING",
@@ -42,7 +52,7 @@ REQUIRED_MEMBERS = frozenset(
         "src/moon.pkg",
         "src/pkg.generated.mbti",
     }
-) | FFI_OWNERSHIP_SUPPORT
+) | FFI_OWNERSHIP_SUPPORT | RELIABILITY_SUPPORT
 REQUIRED_TEXT_MARKERS = {
     "COPYING": (
         "COPYING-LGPL-2.1",
@@ -89,7 +99,7 @@ SOURCE_IDENTICAL_MEMBERS = frozenset(
         "scripts/check-external-owners.py",
         "scripts/lifetime/owners.json",
     }
-) | FFI_OWNERSHIP_SUPPORT
+) | FFI_OWNERSHIP_SUPPORT | RELIABILITY_SUPPORT
 
 
 def check_archive(path: pathlib.Path) -> tuple[list[str], int]:

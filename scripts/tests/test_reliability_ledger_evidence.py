@@ -32,6 +32,58 @@ def load_checker():
     return module
 
 
+class ReliabilityEvidenceDelegationTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.checker = load_checker()
+
+    def test_evidence_wrappers_delegate_current_paths(self) -> None:
+        rows = [(7, "Tests", "Partial", "remaining")]
+        with mock.patch.object(
+            self.checker,
+            "_inventory_rows",
+            return_value=iter(rows),
+        ) as inventory_rows:
+            self.assertEqual(
+                list(self.checker.inventory_rows("## Current Coverage Snapshot")),
+                rows,
+            )
+        inventory_rows.assert_called_once_with(
+            self.checker.API_INVENTORY,
+            "## Current Coverage Snapshot",
+        )
+
+        with mock.patch.object(
+            self.checker,
+            "_script_test_evidence_marker",
+            return_value="marker",
+        ) as script_marker:
+            self.assertEqual(self.checker.script_test_evidence_marker(), "marker")
+        script_marker.assert_called_once_with(self.checker.REPO_ROOT)
+
+        with mock.patch.object(
+            self.checker,
+            "_check_inventory",
+            return_value=["inventory"],
+        ) as check_inventory:
+            self.assertEqual(self.checker.check_inventory(), ["inventory"])
+        check_inventory.assert_called_once_with(
+            self.checker.API_INVENTORY,
+            self.checker.REPO_ROOT,
+        )
+
+        with mock.patch.object(
+            self.checker,
+            "_check_testing_doc",
+            return_value=["testing"],
+        ) as check_testing:
+            self.assertEqual(self.checker.check_testing_doc(), ["testing"])
+        check_testing.assert_called_once_with(
+            self.checker.TESTING,
+            self.checker.PACKAGE_README,
+            self.checker.REPO_ROOT,
+        )
+
+
 class CurrentReleaseEvidenceTests(unittest.TestCase):
     def setUp(self) -> None:
         self.checker = load_checker()

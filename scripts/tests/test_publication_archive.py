@@ -21,6 +21,16 @@ FFI_OWNERSHIP_SUPPORT = (
     "scripts/ffi_ownership/source.py",
     "scripts/ffi_ownership/surface_cleanup.py",
 )
+EXPECTED_RELIABILITY_SUPPORT = frozenset(
+    {
+        "scripts/check-reliability-ledger.py",
+        "scripts/reliability/__init__.py",
+        "scripts/reliability/ci_workflow.py",
+        "scripts/reliability/evidence.py",
+        "scripts/reliability/gates.py",
+        "scripts/reliability/markdown.py",
+    }
+)
 VALID_MEMBERS = {
     "COPYING": (REPO_ROOT / "COPYING").read_bytes(),
     "COPYING-LGPL-2.1": (REPO_ROOT / "COPYING-LGPL-2.1").read_bytes(),
@@ -63,6 +73,9 @@ VALID_MEMBERS = {
 } | {
     member_name: (REPO_ROOT / member_name).read_bytes()
     for member_name in FFI_OWNERSHIP_SUPPORT
+} | {
+    member_name: (REPO_ROOT / member_name).read_bytes()
+    for member_name in EXPECTED_RELIABILITY_SUPPORT
 }
 
 
@@ -224,6 +237,38 @@ class PublicationArchiveCheckerTests(unittest.TestCase):
 
     def test_ffi_ownership_support_is_required_and_exact(self) -> None:
         for member_name in FFI_OWNERSHIP_SUPPORT:
+            with self.subTest(member_name=member_name, mutation="missing"):
+                members = dict(VALID_MEMBERS)
+                del members[member_name]
+                self.write_archive(members, include_required=False)
+
+                errors, _ = self.check()
+
+                self.assertTrue(
+                    any(member_name in error for error in errors),
+                    errors,
+                )
+
+            with self.subTest(member_name=member_name, mutation="altered"):
+                self.write_archive({member_name: b"# altered\n"})
+
+                errors, _ = self.check()
+
+                self.assertTrue(
+                    any(
+                        member_name in error
+                        and "does not match the verified source file" in error
+                        for error in errors
+                    ),
+                    errors,
+                )
+
+    def test_reliability_support_contract_is_declared(self) -> None:
+        self.assertEqual(
+            self.checker.RELIABILITY_SUPPORT,
+            EXPECTED_RELIABILITY_SUPPORT,
+        )
+        for member_name in EXPECTED_RELIABILITY_SUPPORT:
             with self.subTest(member_name=member_name, mutation="missing"):
                 members = dict(VALID_MEMBERS)
                 del members[member_name]
