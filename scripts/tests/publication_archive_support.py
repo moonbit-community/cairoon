@@ -48,12 +48,28 @@ EXPECTED_SANITIZER_SUPPORT = frozenset(
         "scripts/sanitizers/toolchain.py",
     }
 )
+EXPECTED_DOCUMENTATION_SUPPORT = (
+    frozenset(
+        {
+            "API_INVENTORY.md",
+            "AUDIT.md",
+            "TESTING.md",
+            "docs/api-audit/README.md",
+            "docs/audit/README.md",
+            "docs/testing/README.md",
+            "scripts/check-source-size-budget.py",
+            "scripts/tests/test_source_size_budget.py",
+        }
+    )
+    | frozenset(f"docs/api-audit/history-{index:02d}.md" for index in range(1, 3))
+    | frozenset(f"docs/audit/history-{index:02d}.md" for index in range(1, 9))
+    | frozenset(f"docs/testing/history-{index:02d}.md" for index in range(1, 10))
+)
 VALID_MEMBER_NAMES = frozenset(
     {
         "COPYING",
         "COPYING-LGPL-2.1",
         "COPYING-MPL-1.1",
-        "API_INVENTORY.md",
         "CHANGELOG.md",
         "README.md",
         "moon.mod",
@@ -77,7 +93,7 @@ VALID_MEMBER_NAMES = frozenset(
         "src/native/cairoon_objects.c",
         "src/pkg.generated.mbti",
     }
-) | FFI_OWNERSHIP_SUPPORT | EXPECTED_RELIABILITY_SUPPORT | EXPECTED_SANITIZER_SUPPORT
+) | FFI_OWNERSHIP_SUPPORT | EXPECTED_RELIABILITY_SUPPORT | EXPECTED_SANITIZER_SUPPORT | EXPECTED_DOCUMENTATION_SUPPORT
 VALID_MEMBERS = {
     member_name: (REPO_ROOT / member_name).read_bytes()
     for member_name in VALID_MEMBER_NAMES

@@ -131,7 +131,7 @@ whose ledger forbids explicit release. The sole global `Partial` inventory row
 is test/release-platform evidence: GitHub Actions run `29678818105` passed
 macOS native but failed both Ubuntu jobs on the prior release commit. The local
 fixes and expanded consumer contract now pass 225 script tests, all 841 native
-tests, the byte-identical 668-member publication contract, and every package
+tests, the byte-identical 690-member publication contract, and every package
 under ASan/LSan/UBSan in the first-class Ubuntu 24.04 system-Cairo lane on both
 local arm64 and Rosetta-backed x86_64. That fix commit still needs passing Ubuntu
 and macOS native jobs plus the Ubuntu ASan/LSan/UBSan job.
@@ -173,7 +173,12 @@ of the MoonBit API.
 - `src/docs/path.mbt.md`, `src/docs/pattern.mbt.md`, and
   `src/docs/region.mbt.md`: the remaining public API families.
 - `PORTING_FROM_PYCAIRO.md`: pycairo migration notes.
-- `TESTING.md`: reliability strategy and test tiers.
+- `API_INVENTORY.md`: authoritative API and product status ledger.
+- `AUDIT.md`: concise current architecture, product, and release audit.
+- `TESTING.md`: current reliability strategy, test tiers, and evidence summary.
+- `docs/api-audit/README.md`, `docs/audit/README.md`, and
+  `docs/testing/README.md`: bounded historical reports; old counts there are
+  traceability records, not current release claims.
 - `PACKAGING.md`: native dependency and release checklist.
 - `CHANGELOG.md`: versioned release and compatibility notes.
 
@@ -196,8 +201,9 @@ native suite, six isolated downstream-module public workflows against both the
 checkout and extracted publication zip, publication-archive isolation,
 version/changelog/install consistency, executable docs,
 direct C Cairo oracle tests, `moon info`, and ASan/LSan/UBSan when a
-sanitizer-capable compiler is available. Exact counts for the current audited revision are
-recorded in `API_INVENTORY.md`, `AUDIT.md`, and `TESTING.md`.
+sanitizer-capable compiler is available. Exact counts for the current audited
+revision are recorded in `API_INVENTORY.md`, `AUDIT.md`, and `TESTING.md`;
+older per-slice transcripts are indexed under `docs/`.
 The parity gate rejects an unclaimed or multiply claimed upstream
 `tests/test_*.py` file.
 

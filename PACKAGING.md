@@ -235,8 +235,10 @@ unsuppressed.
 7. Run `./scripts/verify.sh`; the release cannot proceed if this fails.
 8. Run `git diff -- pkg.generated.mbti` after `moon info --target native`.
    Public API changes must be intentional and documented.
-9. Update `API_INVENTORY.md`, `AUDIT.md`, and `TESTING.md` with the exact API
-   and verification state.
+9. Update the concise current ledgers in `API_INVENTORY.md`, `AUDIT.md`, and
+   `TESTING.md` with the exact API and verification state. Move superseded
+   per-slice transcripts into bounded history volumes under `docs/`; do not
+   append stale counts to a root "current" section.
 10. Confirm new public APIs have executable docs in the appropriate
    `*.mbt.md` reference file.
 11. Run the Ubuntu 24.04 system-Cairo lane and both pinned source-built Cairo

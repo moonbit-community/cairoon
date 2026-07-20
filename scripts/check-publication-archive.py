@@ -49,12 +49,28 @@ SANITIZER_SUPPORT = frozenset(
         "scripts/sanitizers/toolchain.py",
     }
 )
+DOCUMENTATION_SUPPORT = (
+    frozenset(
+        {
+            "API_INVENTORY.md",
+            "AUDIT.md",
+            "TESTING.md",
+            "docs/api-audit/README.md",
+            "docs/audit/README.md",
+            "docs/testing/README.md",
+            "scripts/check-source-size-budget.py",
+            "scripts/tests/test_source_size_budget.py",
+        }
+    )
+    | frozenset(f"docs/api-audit/history-{index:02d}.md" for index in range(1, 3))
+    | frozenset(f"docs/audit/history-{index:02d}.md" for index in range(1, 9))
+    | frozenset(f"docs/testing/history-{index:02d}.md" for index in range(1, 10))
+)
 REQUIRED_MEMBERS = frozenset(
     {
         "COPYING",
         "COPYING-LGPL-2.1",
         "COPYING-MPL-1.1",
-        "API_INVENTORY.md",
         "CHANGELOG.md",
         "README.md",
         "moon.mod",
@@ -76,7 +92,7 @@ REQUIRED_MEMBERS = frozenset(
         "src/moon.pkg",
         "src/pkg.generated.mbti",
     }
-) | FFI_OWNERSHIP_SUPPORT | RELIABILITY_SUPPORT | SANITIZER_SUPPORT
+) | FFI_OWNERSHIP_SUPPORT | RELIABILITY_SUPPORT | SANITIZER_SUPPORT | DOCUMENTATION_SUPPORT
 REQUIRED_TEXT_MARKERS = {
     "COPYING": (
         "COPYING-LGPL-2.1",

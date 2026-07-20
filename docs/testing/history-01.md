@@ -1,3 +1,8 @@
+# Testing Evidence History, Part 1
+
+Historical snapshot of `TESTING.md` lines 1-392 before the 2026-07-20 documentation split.
+It is retained for traceability; a part may continue a long original list item at a sentence boundary.
+
 # cairoon Testing And Reliability Strategy
 
 This document defines how cairoon evaluates migration reliability. The pycairo
@@ -62,10 +67,11 @@ For the full-product claim, there must be no `Todo` or `Partial` rows left in
 
 ## Current Sufficiency Verdict
 
-The current test set is sufficient to protect the implemented portable
-migration, provided `./scripts/verify.sh` passes on the target platform. It is
-not sufficient to qualify a release because one row is intentionally still
-`Partial`: evidence from the shipped CI jobs.
+The current test set is sufficient to protect the migrated slices that are
+listed as `Done` in `API_INVENTORY.md`, provided `./scripts/verify.sh` passes
+on the target platform. It is not sufficient to claim a complete pycairo
+migration because one row is intentionally still `Partial`: release evidence
+from the shipped CI jobs.
 
 Evaluate each slice with this scorecard:
 
@@ -81,14 +87,14 @@ Evaluate each slice with this scorecard:
 | Portability | Required backends pass on each supported platform, or unsupported APIs have explicit `Decision` rows | Strong local evidence at the exact Cairo 1.15.10 compatibility floor, Ubuntu 24.04's stock Cairo 1.18.0, the recommended exact 1.18.4 release, and the host lane. Module metadata declares native as the sole supported backend, and layout/archive regressions reject drift; unsupported targets stop before native FFI checking. All three Linux lanes consume the same unmodified host-generated zip through module-level `pkg-config` discovery. GitHub runs are grouped by workflow and ref with stale-run cancellation and 60-minute native/sanitizer ceilings, all enforced by negative workflow mutations; still Partial until the release commit's shipped Ubuntu/macOS CI jobs pass |
 | Documentation | Public declarations have substantive MoonBit `///` comments, family workflows have executable examples where practical, and `scripts/check-public-docs.py` reports zero debt | Done: all 579 public declarations have substantive comments, the exact grandfather ledger is empty, executable downstream-style family notes include complete PDF/PS/SVG workflows, and new undocumented APIs or ledger drift fail the gate |
 | Downstream consumption | A separately named MoonBit module resolves the versioned local dependency, imports only public `CAIMEOX/cairoon`, carries no native flags, receives propagated Cairo linking, exercises representative core, lifetime, value/error, PNG, and PDF-stream workflows against checkout and extracted publication zip, and stays outside that archive | Strong local evidence through six split workflows in `integration/consumer/src/contract` and `scripts/check-downstream-consumer.sh`; source and extracted runs pass 6/6, `--archive` recompiles the producer-host zip unchanged in all three Linux lanes, and the reliability gate rejects a missing manifest file or named workflow |
-| Publication integrity | The zip contains the declared dual-license notice and full texts, version-matched release metadata, native dependency/pre-build configuration, the complete MoonBit/C product and test tree, docs, and release tooling; its canonical file set exactly matches every publishable non-hidden checkout file, every payload is byte-identical, paths are unique and safe, CRCs pass, and excluded integration/build/dependency fixtures remain absent | Done locally: `scripts/check-publication-archive.py` checks all 690 members, derives the exact checkout member set, compares every payload, and retains focused metadata/license/API/owner/FFI/reliability/matrix/sanitizer/dry-run/document-history requirements. Its 24 tests cover valid and excluded-source cases plus missing, extra, altered, duplicate, unsafe, fixture-leaking, empty, corrupt, or release-inconsistent archives. Six separate dry-run tests pin the fixed non-uploading argv, one complete exact 202/no-change response, status-0/status-255 error-banner consistency, extracted checks, and identity; both validators and their split tests/support are required archive members |
+| Publication integrity | The zip contains the declared dual-license notice and full texts, version-matched release metadata, native dependency/pre-build configuration, the complete MoonBit/C product and test tree, docs, and release tooling; its canonical file set exactly matches every publishable non-hidden checkout file, every payload is byte-identical, paths are unique and safe, CRCs pass, and excluded integration/build/dependency fixtures remain absent | Done locally: `scripts/check-publication-archive.py` checks all 668 members, derives the exact checkout member set, compares every payload, and retains focused metadata/license/API/owner/FFI/reliability/matrix/sanitizer/dry-run requirements. Its 24 tests cover valid and excluded-source cases plus missing, extra, altered, duplicate, unsafe, fixture-leaking, empty, corrupt, or release-inconsistent archives. Six separate dry-run tests pin the fixed non-uploading argv, one complete exact 202/no-change response, status-0/status-255 error-banner consistency, extracted checks, and identity; both validators and their split tests/support are required archive members |
 
 The practical release rule is simple: a feature can be trusted when its
 inventory row is `Done`, its reference docs are executable where practical,
 and the verify gate passes locally and in CI for every supported platform.
 Until the remaining `Partial` row is closed or converted to an explicit
-`Decision` row, cairoon is a locally verified portable binding rather than a
-release-qualified product.
+`Decision` row, the project is a reliable partial binding rather than a
+complete pycairo migration.
 
 ## Test Tiers
 
@@ -158,11 +164,7 @@ ledger for every `tests/test_*.py` file. Run
 or `PROJECT_LAYOUT.md` changes. Run `scripts/check-source-size-budget.py`
 whenever a source, script, test, native glue, or executable-doc file is added
 or substantially expanded. It enforces one 600-line ceiling for every checked
-MoonBit, C, header, Python, and shell source file. It also rejects a history
-volume over 600 lines, an ordinary hand-written Markdown file over 1000 lines,
-or the centralized `AGENTS.md` specification over 1500 lines. Root audit and
-testing files contain current contracts; append-only reports are indexed under
-`docs/`. Run
+MoonBit, C, header, Python, and shell source file. Run
 `scripts/check-reliability-ledger.py` whenever migration status, scorecard, or
 CI/verify gate text changes. Run `scripts/check-vector-backend-scenes.py`
 whenever backend oracle scene ids, native oracle stubs, stream-oracle wiring,
@@ -392,40 +394,4 @@ Set `CAIROON_VERIFY_ASAN=0` to skip the sanitizer portion intentionally.
 Set `CAIROON_ASAN_CC` and `CAIROON_ASAN_AR` to choose the compiler pair for that
 sanitizer pass without changing the ordinary full native gate.
 
-
 ## Current Status
-
-As of 2026-07-20, the portable pycairo migration scope is implemented,
-documented, and locally verified. The authoritative product ledger is
-`API_INVENTORY.md`; historical per-slice test reports are indexed under
-`docs/testing/README.md` and are not current-count claims.
-
-- 225/225 repository script tests pass.
-- 841/841 native MoonBit tests and 63/63 executable documentation tests pass.
-- All 288 upstream pycairo tests in 20 source families have an exact runtime,
-  static, or product-decision mapping.
-- All 579 published declarations have substantive API documentation.
-- All 12 raw external owners have exact finalizer and 1000-iteration stress
-  evidence; every discovered package passes ASan/LSan/UBSan locally.
-- Source, extracted-archive, and unmodified cross-host consumers each pass all
-  six public workflows; all 690 publication members match source bytes.
-- Exact Cairo 1.15.10 and 1.18.4 lanes pass. Ubuntu 24.04 Cairo 1.18.0
-  additionally passes on local arm64 and Rosetta-backed x86_64.
-- The sole remaining `Partial` is hosted release-commit evidence: the local
-  candidate has deliberately not been pushed merely to consume GitHub CI.
-
-## Porting pycairo Tests
-
-When translating a pycairo test:
-
-- Preserve Cairo behavior and numeric expectations.
-- Replace Python type errors with cairoon `CairoInvalidArgument` where the
-  public MoonBit API can express the invalid input.
-- Replace Python inheritance checks with opaque-owner API checks.
-- Replace Python buffer protocol cases with explicit MoonBit buffer ownership
-  tests.
-- Keep Python-specific tests out of cairoon unless they reveal a Cairo semantic
-  that still applies.
-
-Every translated test should name the pycairo source file and behavior in the
-test name or nearby comment when the connection is not obvious.

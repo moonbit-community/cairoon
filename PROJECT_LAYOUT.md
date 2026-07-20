@@ -111,6 +111,16 @@ cairoon/
   PACKAGING.md
   PORTING_FROM_PYCAIRO.md
   moon.mod
+  docs/
+    api-audit/
+      README.md
+      history-NN.md
+    audit/
+      README.md
+      history-NN.md
+    testing/
+      README.md
+      history-NN.md
   integration/
     moon.work
     consumer/

@@ -655,9 +655,14 @@ a coherent object-family binding. If a file grows past the scale of pycairo's
 corresponding file without a concrete reason, split it before adding more API
 surface. `scripts/check-source-size-budget.py` enforces one 600-line ceiling
 for every checked MoonBit, C, header, Python, and shell source file. There is
-no larger general-source exception. Keep shared raw enum conversions with
-their existing enum owner in `src/enums.mbt`; do not grow a family facade or
-add another grandfathered `src/` file for them.
+no larger general-source exception. It also caps append-only Markdown under
+`docs/` at 600 lines per history volume, ordinary hand-written Markdown at
+1000 lines, and this centralized engineering specification at 1500 lines.
+Root `AUDIT.md`, `TESTING.md`, and `API_INVENTORY.md` must state only current
+contracts and evidence; old per-slice reports belong in bounded, indexed
+history volumes and may not masquerade as current counts. Keep shared raw enum
+conversions with their existing enum owner in `src/enums.mbt`; do not grow a
+family facade or add another grandfathered `src/` file for them.
 
 ## Public API Policy
 
@@ -1083,8 +1088,9 @@ excluded.
 `scripts/public-docs-debt.txt` is an exact, sorted grandfather list: it may only
 shrink, and documenting a declaration must remove its entry in the same commit.
 New public declarations must be documented when introduced and must never be
-added to the debt ledger. The Docs inventory row remains `Partial` until the
-checker reports zero debt entries.
+added to the debt ledger. The Docs inventory row must be `Partial` whenever the
+checker reports any debt and may become `Done` only when the checker reports
+exactly zero debt entries.
 
 ## Test Suite Assessment
 

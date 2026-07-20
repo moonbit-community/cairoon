@@ -16,6 +16,7 @@ else:
 FFI_OWNERSHIP_SUPPORT = support.FFI_OWNERSHIP_SUPPORT
 EXPECTED_RELIABILITY_SUPPORT = support.EXPECTED_RELIABILITY_SUPPORT
 EXPECTED_SANITIZER_SUPPORT = support.EXPECTED_SANITIZER_SUPPORT
+EXPECTED_DOCUMENTATION_SUPPORT = support.EXPECTED_DOCUMENTATION_SUPPORT
 VALID_MEMBERS = support.VALID_MEMBERS
 
 
@@ -359,7 +360,7 @@ class PublicationArchiveCheckerTests(support.PublicationArchiveTestCase):
                     errors,
                 )
 
-    def test_reliability_support_contract_is_declared(self) -> None:
+    def test_reliability_and_documentation_support_is_required(self) -> None:
         self.assertEqual(
             self.checker.RELIABILITY_SUPPORT,
             EXPECTED_RELIABILITY_SUPPORT,
@@ -375,6 +376,41 @@ class PublicationArchiveCheckerTests(support.PublicationArchiveTestCase):
                 self.assertTrue(any(member_name in error for error in errors), errors)
 
             with self.subTest(member_name=member_name, mutation="altered"):
+                self.write_archive({member_name: b"# altered\n"})
+
+                errors, _ = self.check()
+
+                self.assertTrue(
+                    any(
+                        member_name in error
+                        and "does not match the verified source file" in error
+                        for error in errors
+                    ),
+                    errors,
+                )
+
+        self.assertEqual(
+            self.checker.DOCUMENTATION_SUPPORT,
+            EXPECTED_DOCUMENTATION_SUPPORT,
+        )
+        for member_name in EXPECTED_DOCUMENTATION_SUPPORT:
+            with self.subTest(member_name=member_name, mutation="missing documentation"):
+                members = dict(VALID_MEMBERS)
+                del members[member_name]
+                self.write_archive(members, include_required=False)
+
+                errors, _ = self.check()
+
+                self.assertTrue(
+                    any(
+                        member_name in error
+                        and "missing required publication member" in error
+                        for error in errors
+                    ),
+                    errors,
+                )
+
+            with self.subTest(member_name=member_name, mutation="altered documentation"):
                 self.write_archive({member_name: b"# altered\n"})
 
                 errors, _ = self.check()

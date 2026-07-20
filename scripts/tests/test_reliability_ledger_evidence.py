@@ -267,6 +267,13 @@ class CurrentReleaseEvidenceTests(unittest.TestCase):
 
     def test_current_release_docs_pass(self) -> None:
         self.assertEqual(self.check_docs(), [])
+        errors = self.check_docs(
+            testing_text=self.testing_text.replace(
+                "locally verified portable binding",
+                "release-qualified binding",
+            )
+        )
+        self.assertTrue(any("locally verified portable binding" in error for error in errors))
         section = self.checker.markdown_section(
             "### Current\ninside\n### Next\noutside\n",
             "### Current",

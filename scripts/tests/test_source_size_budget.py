@@ -105,6 +105,32 @@ class SourceSizeBudgetTests(unittest.TestCase):
             self.budget.source_size_violation(script_over_limit),
             (601, 600),
         )
+        ordinary = self.root / "README.md"
+        history = self.root / "docs" / "audit" / "history-01.md"
+        agents = self.root / "AGENTS.md"
+
+        self.assertEqual(self.budget.document_line_budget(ordinary), 1000)
+        self.assertEqual(self.budget.document_line_budget(history), 600)
+        self.assertEqual(self.budget.document_line_budget(agents), 1500)
+        ordinary = self.write_lines("README.md", 1001)
+        agents = self.write_lines("AGENTS.md", 1501)
+        history_dir = self.root / "docs" / "audit"
+        history_dir.mkdir(parents=True)
+        oversized_history = history_dir / "history.md"
+        oversized_history.write_text("line\n" * 601, encoding="utf-8")
+
+        self.assertEqual(
+            self.budget.document_size_violation(ordinary),
+            (1001, 1000),
+        )
+        self.assertEqual(
+            self.budget.document_size_violation(oversized_history),
+            (601, 600),
+        )
+        self.assertEqual(
+            self.budget.document_size_violation(agents),
+            (1501, 1500),
+        )
 
 
 if __name__ == "__main__":

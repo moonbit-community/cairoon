@@ -28,7 +28,7 @@ PARTIAL_GAP_MARKERS = (
 )
 TESTS_EVIDENCE_MAX_CHARS = 1200
 NATIVE_TEST_MARKER = "841/841 native tests"
-PUBLICATION_MARKER = "668 byte-identical publication members"
+PUBLICATION_MARKER = "690 byte-identical publication members"
 OWNER_EVIDENCE_MARKER = (
     "12/12 raw external owners with exact finalizer and 1000-iteration stress "
     "evidence, including one raw-result stress path that bans explicit release"
@@ -247,7 +247,8 @@ def check_testing_doc(
 
     required_phrases = (
         "For the full-product claim, there must be no `Todo` or `Partial` rows left",
-        "reliable partial binding rather than a complete pycairo migration",
+        "cairoon is a locally verified portable binding rather than a "
+        "release-qualified product",
         "scripts/check-reliability-ledger.py",
         "scripts/check-public-docs.py",
         "scripts/check-public-coverage.py --analyze",

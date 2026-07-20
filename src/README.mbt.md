@@ -88,7 +88,7 @@ Local release-candidate matrices on exact Cairo 1.15.10 and 1.18.4 pass 225/225
 script tests, 841/841 native tests, 63/63 executable docs, 12/12 raw external
 owners with exact finalizer and 1000-iteration stress evidence, including one
 raw-result stress path that bans explicit release, 6/6 source, extracted, and
-unmodified cross-host archive consumer runs, all 668 byte-identical
+unmodified cross-host archive consumer runs, all 690 byte-identical
 publication members, and every package under ASan/LSan/UBSan. Ubuntu 24.04
 system Cairo 1.18.0 independently passes 841/841 native tests and every package under
 ASan/LSan/UBSan on both local arm64 and Rosetta-backed x86_64. The sole global
