@@ -148,7 +148,8 @@ Use:
 ```
 
 The gate runs formatting, Cairo build-protocol and generated-constant checks,
-static FFI ownership linting, exact external-owner/finalizer/stress evidence,
+static FFI ownership linting including exact borrowed-return references,
+call-site inventory, and dead-branch rejection, exact external-owner/finalizer/stress evidence,
 top-level pycairo API inventory linting, exact public doc-comment debt linting,
 all 20 pinned pycairo test-file families (288 tests), the isolated downstream
 six-workflow public consumer contract against both source and extracted

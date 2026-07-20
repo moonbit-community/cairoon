@@ -130,8 +130,8 @@ result fallback is exercised by a 1000-iteration finalizer-only stress package
 whose ledger forbids explicit release. The sole global `Partial` inventory row
 is test/release-platform evidence: GitHub Actions run `29678818105` passed
 macOS native but failed both Ubuntu jobs on the prior release commit. The local
-fixes and expanded consumer contract now pass 225 script tests, all 841 native
-tests, the byte-identical 690-member publication contract, and every package
+fixes and expanded consumer contract now pass 226 script tests, all 841 native
+tests, the byte-identical 691-member publication contract, and every package
 under ASan/LSan/UBSan in the first-class Ubuntu 24.04 system-Cairo lane on both
 local arm64 and Rosetta-backed x86_64. That fix commit still needs passing Ubuntu
 and macOS native jobs plus the Ubuntu ASan/LSan/UBSan job.
@@ -192,8 +192,9 @@ release:
 ```
 
 The gate checks formatting, generated Cairo-constant drift, the pre-build
-configuration protocol, project layout, FFI ownership annotations, the exact
-external-owner/finalizer/stress ledger, complete pycairo API-shape inventory,
+configuration protocol, project layout, FFI ownership annotations and borrowed
+return references, the exact external-owner/finalizer/stress ledger, complete
+pycairo API-shape inventory,
 and public-documentation coverage, the
 reliability and public-coverage ledgers, native type checking, all 20 pinned
 pycairo test-file families (288 upstream tests), the complete in-module MoonBit

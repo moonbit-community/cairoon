@@ -46,6 +46,9 @@ first version intended for light downstream Cairo use.
   pre-build protocol, including propagated native linker flags.
 - Corrected callback reference balancing, external-object cleanup, mapped-image
   unmapping, stream-constructor error cleanup, and surface buffer release.
+- Added a fail-closed ledger for all borrowed Cairo object returns, including
+  exact producer paths, matching reference helpers, retained base owners,
+  callback ingress, and dead-branch rejection.
 - Made the publication archive self-contained, license-complete, independently
   consumable, and reproducible across the supported Cairo matrix.
 - Hardened Ubuntu Cairo 1.18.0 compatibility and sanitizer classification for

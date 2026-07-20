@@ -19,6 +19,9 @@ not override the current release ledger in `API_INVENTORY.md`.
 - Production owns 349 local FFI symbols plus two deliberate direct libcairo
   symbols. All 12 raw external-object owners have allocator, finalizer,
   release-action, and 1000-iteration stress evidence.
+- All six borrowed-reference helpers and nine borrowed object producer paths
+  are pinned to exact reference functions, wrappers, retained base owners, and
+  top-level success statements; the raster callback ingress is also accounted.
 
 ## Architecture Audit
 
@@ -43,19 +46,19 @@ not override the current release ledger in `API_INVENTORY.md`.
 - Errors map Cairo statuses into typed MoonBit `CairoError` suberrors. Object
   ownership, borrowed/owned returns, callbacks, stream state, finish/unmap
   cleanup, and finalizer fallbacks have package-local and sanitizer evidence.
-- The release archive is reproduced from the checkout and verifies all 690
+- The release archive is reproduced from the checkout and verifies all 691
   members byte-for-byte, including build, audit, matrix, and test tooling.
 
 ## Latest Local Evidence
 
-- `./scripts/verify.sh` passes 225 script tests, 841 native tests, 63 executable
+- `./scripts/verify.sh` passes 226 script tests, 841 native tests, 63 executable
   docs, all six downstream workflows in every source/archive mode, and every
   discovered package under ASan/LSan/UBSan.
 - Exact Cairo 1.15.10 and Cairo 1.18.4 source lanes pass the same release gate.
 - Ubuntu 24.04 system Cairo 1.18.0 passes on local arm64 and Rosetta-backed
   x86_64. The x86_64 recording signature is exactly 16 allocations/9216 bytes;
   arm64 is 16/9344. PDF suppressions remain exactly 10/2284 plus 4/68.
-- The documentation-split candidate packages successfully and all 690 archive
+- The current candidate packages successfully and all 691 archive
   members match their verified source bytes.
 
 ## Gate Verdict

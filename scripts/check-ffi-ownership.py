@@ -12,6 +12,9 @@ SCRIPT_ROOT = pathlib.Path(__file__).resolve().parent
 if str(SCRIPT_ROOT) not in sys.path:
     sys.path.insert(0, str(SCRIPT_ROOT))
 
+from ffi_ownership.borrowed_returns import (
+    check_borrowed_returns as _check_borrowed_returns,
+)
 from ffi_ownership.device_cleanup import (
     check_device_cleanup_order as _check_device_cleanup_order,
     check_device_scope_cleanup as _check_device_scope_cleanup,
@@ -253,6 +256,10 @@ def check_mapped_image_scope_cleanup() -> list[str]:
     return _check_mapped_image_scope_cleanup(PACKAGE_ROOT)
 
 
+def check_borrowed_returns() -> list[str]:
+    return _check_borrowed_returns(NATIVE_ROOT)
+
+
 def main() -> int:
     errors: list[str] = []
     errors.extend(check_device_cleanup_order())
@@ -261,6 +268,7 @@ def main() -> int:
     errors.extend(check_surface_scope_cleanup())
     errors.extend(check_mapped_image_cleanup_order())
     errors.extend(check_mapped_image_scope_cleanup())
+    errors.extend(check_borrowed_returns())
     files = iter_production_ffi_files()
     declarations: dict[str, list[str]] = {}
     for path in files:

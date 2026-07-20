@@ -742,6 +742,22 @@ action, or replacement stress path must update the registry in the same commit.
 `scripts/check-external-owners.py` must reject missing, duplicate, and stale
 rows rather than inferring that a broad sanitizer run probably covered them.
 
+Borrowed Cairo object returns have a separate executable ledger in
+`scripts/ffi_ownership/borrowed_returns.py`. It must cover every bound Cairo
+producer that returns an object owned elsewhere, every `cairoon_*_wrap_borrowed`
+helper, and the exact base-owner expression where a facade object must remain
+alive. The semantic helper/producer sets, per-path contracts, and every
+production occurrence of a borrowed wrapper must agree exactly; callback ingress
+that wraps a borrowed object must have its own call-site contract.
+`scripts/check-ffi-ownership.py` must strip comments and literals before
+analysis, reject literal `#if 0` ownership evidence, require each claimed
+producer exactly once, require each producer/wrapper success statement at
+function-body top level, and prove that each helper calls the matching
+`cairo_*_reference` under a top-level non-null guard before transferring the
+pointer to an owned external-object wrapper. A new borrowed producer, helper, or
+call site must update the semantic set, path ledger, and a negative mutation in
+the same commit.
+
 Subtype-specific surface methods, such as recording/PDF/SVG/PS helpers, must
 first check `cairo_surface_status`, then check `cairo_surface_get_type` in the C
 stub. A valid surface of the wrong subtype must return
@@ -1335,7 +1351,10 @@ A migrated API is done only when:
   any finalizer-only fallback claim also bans every explicit release anchor
   from that stress helper.
 - Every borrowed Cairo return that escapes to MoonBit is referenced before
-  wrapping.
+  wrapping; `scripts/check-ffi-ownership.py` rejects a missing helper reference,
+  a missing or extra ledgered producer/wrapper occurrence, the wrong base owner,
+  an owned wrapper, or comment, literal, preprocessor-disabled, or nested
+  dead-branch evidence on a borrowed success path.
 - Every public failing operation raises `CairoError` or a documented suberror
   variant.
 - Every publication archive contains `COPYING`, the complete LGPL-2.1 and

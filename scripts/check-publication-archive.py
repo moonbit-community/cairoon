@@ -16,6 +16,7 @@ FFI_OWNERSHIP_SUPPORT = frozenset(
     {
         "scripts/check-ffi-ownership.py",
         "scripts/ffi_ownership/__init__.py",
+        "scripts/ffi_ownership/borrowed_returns.py",
         "scripts/ffi_ownership/device_cleanup.py",
         "scripts/ffi_ownership/mapped_cleanup.py",
         "scripts/ffi_ownership/source.py",

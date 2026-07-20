@@ -14,6 +14,7 @@ if str(SCRIPT_ROOT) not in sys.path:
 
 from reliability.ci_workflow import check_ci_workflow as _check_ci_workflow
 from reliability.evidence import (
+    BORROWED_RETURN_MARKER,
     NATIVE_TEST_MARKER,
     OWNER_EVIDENCE_MARKER,
     PARTIAL_GAP_MARKERS,

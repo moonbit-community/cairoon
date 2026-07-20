@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import importlib.util
 import pathlib
+import shutil
 import tempfile
 import unittest
 from unittest import mock
@@ -310,6 +311,104 @@ class SurfaceCleanupGuardTests(unittest.TestCase):
                 self.assertTrue(any(expected in error for error in errors), errors)
 
 
+class BorrowedReturnGuardTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.checker = load_checker()
+        self.temp_dir = tempfile.TemporaryDirectory()
+        self.root = pathlib.Path(self.temp_dir.name)
+        self.native_root = self.root / "native"
+        shutil.copytree(self.checker.NATIVE_ROOT, self.native_root)
+
+    def tearDown(self) -> None:
+        self.temp_dir.cleanup()
+
+    def check(self) -> list[str]:
+        self.assertTrue(
+            hasattr(self.checker, "check_borrowed_returns"),
+            "FFI checker must expose the borrowed-return ownership gate",
+        )
+        with mock.patch.object(self.checker, "NATIVE_ROOT", self.native_root):
+            return self.checker.check_borrowed_returns()
+
+    def test_borrowed_return_contract_passes_and_rejects_drift(self) -> None:
+        self.assertEqual(self.check(), [])
+        cases = (
+            (
+                "cairoon_objects.c",
+                "    cairo_surface_reference(ptr);\n",
+                "",
+                "cairo_surface_reference(ptr)",
+            ),
+            (
+                "cairoon_context.c",
+                "return cairoon_surface_wrap_borrowed_with_base("
+                "surface, ctx->target_surface);",
+                "return cairoon_surface_wrap_owned_with_base("
+                "surface, ctx->target_surface);",
+                "borrowed wrapper",
+            ),
+            (
+                "cairoon_context.c",
+                "cairo_surface_t *surface = cairo_get_target(ctx->ptr);",
+                "cairo_surface_t *surface = cairo_get_target(ctx->ptr);\n"
+                "  (void)cairo_get_target(ctx->ptr);",
+                "exactly once",
+            ),
+            (
+                "cairoon_context.c",
+                "cairo_surface_t *surface = cairo_get_target(ctx->ptr);",
+                "cairo_surface_t *surface = NULL;\n"
+                "  /* cairo_surface_t *surface = cairo_get_target(ctx->ptr); */",
+                "producer call",
+            ),
+            (
+                "cairoon_context.c",
+                "cairo_surface_t *surface = cairo_get_target(ctx->ptr);",
+                "#if 0\n"
+                "  cairo_surface_t *surface = cairo_get_target(ctx->ptr);\n"
+                "#endif",
+                "disabled preprocessor branch",
+            ),
+            (
+                "cairoon_context.c",
+                "return cairoon_surface_wrap_borrowed_with_base("
+                "surface, ctx->target_surface);",
+                "if (0) {\n"
+                "    return cairoon_surface_wrap_borrowed_with_base("
+                "surface, ctx->target_surface);\n"
+                "  }\n"
+                "  return cairoon_surface_wrap_owned_with_base("
+                "surface, ctx->target_surface);",
+                "top-level",
+            ),
+        )
+        for filename, old, new, expected in cases:
+            with self.subTest(filename=filename, expected=expected):
+                path = self.native_root / filename
+                original = path.read_text(encoding="utf-8")
+                self.assertIn(old, original)
+                path.write_text(original.replace(old, new, 1), encoding="utf-8")
+                try:
+                    errors = self.check()
+                finally:
+                    path.write_text(original, encoding="utf-8")
+                self.assertTrue(any(expected in error for error in errors), errors)
+
+        checker_globals = self.checker._check_borrowed_returns.__globals__
+        for contract_name in ("BORROWED_WRAPPERS", "BORROWED_RETURNS"):
+            with self.subTest(missing_contract=contract_name):
+                contracts = checker_globals[contract_name]
+                with mock.patch.dict(
+                    checker_globals,
+                    {contract_name: contracts[:-1]},
+                ):
+                    errors = self.check()
+                self.assertTrue(
+                    any("contract inventory" in error for error in errors),
+                    errors,
+                )
+
+
 class CleanupModuleBoundaryTests(unittest.TestCase):
     def test_cli_wrappers_delegate_with_the_owning_source_root(self) -> None:
         checker = load_checker()
@@ -328,6 +427,11 @@ class CleanupModuleBoundaryTests(unittest.TestCase):
                 "_check_mapped_image_scope_cleanup",
                 "PACKAGE_ROOT",
             ),
+            (
+                "check_borrowed_returns",
+                "_check_borrowed_returns",
+                "NATIVE_ROOT",
+            ),
         )
         for wrapper_name, delegate_name, root_name in cases:
             with self.subTest(wrapper=wrapper_name):
@@ -340,6 +444,23 @@ class CleanupModuleBoundaryTests(unittest.TestCase):
                     wrapper = getattr(checker, wrapper_name)
                     self.assertIs(wrapper(), sentinel)
                     delegate.assert_called_once_with(getattr(checker, root_name))
+
+        with (
+            mock.patch.object(
+                checker,
+                "check_borrowed_returns",
+                return_value=["borrowed-return sentinel"],
+            ) as borrowed_returns,
+            mock.patch.object(checker, "iter_production_ffi_files", return_value=[]),
+            mock.patch.object(checker, "native_export_symbols", return_value={}),
+            mock.patch.object(checker, "DIRECT_CAIRO_SYMBOLS", set()),
+            mock.patch("builtins.print") as print_,
+        ):
+            self.assertEqual(checker.main(), 1)
+        borrowed_returns.assert_called_once_with()
+        self.assertTrue(
+            any("borrowed-return sentinel" in str(call) for call in print_.call_args_list)
+        )
 
 
 if __name__ == "__main__":

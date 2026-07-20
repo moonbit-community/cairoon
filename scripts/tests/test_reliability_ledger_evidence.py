@@ -99,6 +99,7 @@ class CurrentReleaseEvidenceTests(unittest.TestCase):
         self.native_test_marker = self.checker.NATIVE_TEST_MARKER
         self.publication_marker = self.checker.PUBLICATION_MARKER
         self.owner_evidence_marker = self.checker.OWNER_EVIDENCE_MARKER
+        self.borrowed_return_marker = self.checker.BORROWED_RETURN_MARKER
         package_readme_text = (
             CHECKER.parents[1] / "src" / "README.mbt.md"
         ).read_text(encoding="utf-8")
@@ -111,8 +112,9 @@ class CurrentReleaseEvidenceTests(unittest.TestCase):
         self.current_stability_evidence = (
             "Local release-candidate matrices on exact Cairo 1.15.10 and 1.18.4 "
             f"pass {self.script_test_marker}, {self.native_test_marker}, 63/63 "
-            f"executable docs, {self.owner_evidence_marker}, 6/6 source, "
-            "extracted, and unmodified cross-host archive consumer runs, all "
+            f"executable docs, {self.owner_evidence_marker}, "
+            f"{self.borrowed_return_marker}, 6/6 source, extracted, and "
+            "unmodified cross-host archive consumer runs, all "
             f"{self.publication_marker}, and every package under "
             "ASan/LSan/UBSan. Ubuntu 24.04 system Cairo 1.18.0 independently "
             f"passes {self.native_test_marker} and every package under "
@@ -141,7 +143,8 @@ class CurrentReleaseEvidenceTests(unittest.TestCase):
             f"Cairo 1.18.4 lanes pass {self.script_test_marker}, "
             f"{self.native_test_marker}, 63/63 executable docs, 288 upstream pycairo "
             "tests across 20 families, 579/579 documented public declarations, "
-            f"{self.owner_evidence_marker}, the 349-local-plus-two-direct production "
+            f"{self.owner_evidence_marker}, {self.borrowed_return_marker}, the "
+            "349-local-plus-two-direct production "
             "FFI boundary, 6/6 source, extracted, and unmodified cross-host "
             f"archive consumer runs, all {self.publication_marker}, "
             "and every discovered package under ASan/LSan/UBSan. Ubuntu 24.04 "
@@ -320,6 +323,12 @@ class CurrentReleaseEvidenceTests(unittest.TestCase):
         notes = self.tests_evidence.replace("lanes pass", "lanes do not pass")
         errors = self.check_inventory(notes)
         self.assertTrue(any("canonical release evidence" in error for error in errors))
+        notes = self.tests_evidence.replace(
+            self.borrowed_return_marker,
+            "borrowed returns",
+        )
+        errors = self.check_inventory(notes)
+        self.assertTrue(any(self.borrowed_return_marker in error for error in errors))
 
     def test_tests_evidence_has_a_size_budget(self) -> None:
         errors = self.check_inventory(self.tests_evidence + " detail" * 300)
@@ -338,6 +347,14 @@ class CurrentReleaseEvidenceTests(unittest.TestCase):
         )
         errors = self.check_docs(package_readme_text=readme)
         self.assertTrue(any(self.native_test_marker in error for error in errors))
+        readme = re.sub(
+            r"6/6\s+borrowed-reference\s+helpers\s+and\s+9/9\s+"
+            r"borrowed\s+producer\s+paths",
+            "borrowed returns",
+            self.package_readme_text,
+        )
+        errors = self.check_docs(package_readme_text=readme)
+        self.assertTrue(any(self.borrowed_return_marker in error for error in errors))
 
     def test_current_stability_requires_one_exact_visible_paragraph(self) -> None:
         mutations = {
