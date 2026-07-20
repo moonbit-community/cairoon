@@ -26,8 +26,8 @@ jobs:
       fail-fast: false
       matrix:
         os:
-          - ubuntu-latest
-          - macos-latest
+          - ubuntu-24.04
+          - macos-15
 
     steps:
       - name: Checkout
@@ -68,7 +68,7 @@ jobs:
 
   asan:
     name: asan (ubuntu)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 60
 
     steps:

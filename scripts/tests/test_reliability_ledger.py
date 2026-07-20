@@ -299,20 +299,20 @@ class VerifyGateTests(unittest.TestCase):
             "    timeout-minutes: 60\n"
         )
         asan_timeout_anchor = (
-            "    runs-on: ubuntu-latest\n"
+            "    runs-on: ubuntu-24.04\n"
             "    timeout-minutes: 60\n"
         )
         self.assertEqual(workflow.count(concurrency_anchor), 1)
         self.assertEqual(workflow.count(native_timeout_anchor), 1)
         self.assertEqual(workflow.count(asan_timeout_anchor), 1)
-        job_anchor = "    runs-on: ubuntu-latest\n"
+        job_anchor = "    runs-on: ubuntu-24.04\n"
         step_anchor = "      - name: Run ASan, LSan, and UBSan package gate\n"
         run_anchor = "        run: python3 ./scripts/sanitizers/run.py"
         jobs_anchor = "jobs:\n"
         matrix_anchor = (
             "        os:\n"
-            "          - ubuntu-latest\n"
-            "          - macos-latest\n"
+            "          - ubuntu-24.04\n"
+            "          - macos-15\n"
         )
         push_branches_anchor = "    branches:\n      - main\n"
         global_env_anchor = (
@@ -344,7 +344,19 @@ class VerifyGateTests(unittest.TestCase):
             (
                 "sanitizer timeout removed",
                 asan_timeout_anchor,
+                "    runs-on: ubuntu-24.04\n",
+            ),
+            (
+                "sanitizer runner drifts to moving alias",
+                job_anchor,
                 "    runs-on: ubuntu-latest\n",
+            ),
+            (
+                "native runners drift to moving aliases",
+                matrix_anchor,
+                "        os:\n"
+                "          - ubuntu-latest\n"
+                "          - macos-latest\n",
             ),
             (
                 "workflow default shell masks failures",
@@ -357,7 +369,7 @@ class VerifyGateTests(unittest.TestCase):
             (
                 "matrix excludes macOS",
                 matrix_anchor,
-                matrix_anchor + "        exclude:\n          - os: macos-latest\n",
+                matrix_anchor + "        exclude:\n          - os: macos-15\n",
             ),
             (
                 "push trigger ignores every path",
@@ -444,6 +456,86 @@ class VerifyGateTests(unittest.TestCase):
                 errors = self.check_ci(mutated)
                 self.assertTrue(errors)
 
+        setup_mutations = (
+            (
+                "native cairo headers omitted",
+                "sudo apt-get install -y pkg-config libcairo2-dev build-essential",
+                "sudo apt-get install -y pkg-config libcairo2 build-essential",
+            ),
+            (
+                "sanitizer compiler omitted",
+                "sudo apt-get install -y pkg-config libcairo2-dev "
+                "libfontconfig1-dev clang llvm build-essential",
+                "sudo apt-get install -y pkg-config libcairo2-dev "
+                "libfontconfig1-dev llvm build-essential",
+            ),
+            (
+                "registry update skipped",
+                "        run: moon update",
+                "        run: moon version",
+            ),
+            (
+                "generated constants skipped",
+                "        run: scripts/configure-cairo-constants.sh",
+                "        run: true",
+            ),
+            (
+                "installer source changed",
+                "curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash",
+                "curl -fsSL https://example.invalid/install.sh | bash",
+            ),
+            (
+                "setup commands use folded scalar",
+                "        if: runner.os == 'Linux'\n        run: |",
+                "        if: runner.os == 'Linux'\n        run: >",
+            ),
+            (
+                "setup step renamed",
+                "      - name: Update MoonBit registry\n",
+                "      - name: Update package registry\n",
+            ),
+            (
+                "unverified setup step inserted",
+                step_anchor,
+                "      - name: Unverified setup\n"
+                "        run: true\n\n"
+                + step_anchor,
+            ),
+        )
+        for label, anchor, replacement in setup_mutations:
+            with self.subTest(label=label):
+                self.assertIn(anchor, workflow)
+                mutated = workflow.replace(anchor, replacement, 1)
+                self.assertNotEqual(mutated, workflow)
+                self.assertTrue(self.check_ci(mutated))
+
+        with self.subTest(label="complete setup steps reordered"):
+            first = workflow.index("      - name: Update MoonBit registry\n")
+            second = workflow.index("      - name: Show tool versions\n", first)
+            third = workflow.index(
+                "      - name: Configure generated Cairo constants\n",
+                second,
+            )
+            reordered = (
+                workflow[:first]
+                + workflow[second:third]
+                + workflow[first:second]
+                + workflow[third:]
+            )
+            self.assertTrue(self.check_ci(reordered))
+
+        continuation_mutations = (
+            ("checkout scalar continuation", "        uses: actions/checkout@v6", "|| true"),
+            ("condition scalar continuation", "        if: runner.os == 'Linux'", "&& false"),
+            ("run scalar continuation", "        run: scripts/configure-cairo-constants.sh", "|| true"),
+            ("parser-shaped run continuation", "        run: scripts/configure-cairo-constants.sh", "x:|| true"),
+            ("gate sequence continuation", "        run: python3 ./scripts/sanitizers/run.py", "- || true"),
+        )
+        for label, anchor, continuation in continuation_mutations:
+            with self.subTest(label=label):
+                mutated = workflow.replace(anchor, anchor + "\n          " + continuation, 1)
+                self.assertTrue(self.check_ci(mutated))
+
         checkout_anchor = "        uses: actions/checkout@v6"
         self.assertEqual(workflow.count(checkout_anchor), 2)
         with self.subTest(label="deprecated checkout runtime"):
@@ -456,6 +548,14 @@ class VerifyGateTests(unittest.TestCase):
 
         permissions_anchor = "permissions:\n  contents: read\n"
         self.assertEqual(workflow.count(permissions_anchor), 1)
+        with self.subTest(label="workflow permissions broadened"):
+            broadened = workflow.replace(
+                permissions_anchor,
+                "permissions:\n  contents: write\n",
+                1,
+            )
+            self.assertTrue(self.check_ci(broadened))
+
         jobs_prefix, jobs_separator, jobs_body = workflow.partition("jobs:\n")
         self.assertEqual(jobs_separator, "jobs:\n")
         self.assertTrue(jobs_body.strip())

@@ -1176,16 +1176,28 @@ MoonBit reliability requirements and remaining work:
   replace these with assertions derived from the implementation under test.
 - Fuzz tests for invalid enum/status/string/buffer/stride inputs.
 - Explicit callback error-propagation tests.
-- Cross-platform CI across Linux and macOS. The local release matrix must run
-  the host verify gate, Ubuntu 24.04's stock Cairo 1.18.0, exact source-built
-  Cairo 1.15.10, and exact source-built Cairo 1.18.4. A release claim may not
-  substitute one lane for another.
+- Cross-platform CI across Linux and macOS. Hosted jobs must use the exact
+  `ubuntu-24.04` and `macos-15` runner labels; moving `*-latest` aliases are not
+  release evidence. The local release matrix must run the host verify gate,
+  Ubuntu 24.04's stock Cairo 1.18.0, exact source-built Cairo 1.15.10, and exact
+  source-built Cairo 1.18.4. A release claim may not substitute one lane for
+  another.
 - Keep CI capacity bounded without weakening release evidence. The workflow
   must group runs by workflow and Git ref, cancel an older in-progress run only
   when a newer run supersedes that same ref, and cap both native and sanitizer
   jobs at 60 minutes. `scripts/check-reliability-ledger.py` and its negative
   mutations must reject a broader concurrency group, disabled cancellation,
-  removed timeout, conditional gate, or failure masking.
+  removed timeout, conditional gate, failure masking, moving runner aliases,
+  broadened workflow permissions, missing setup dependencies or commands,
+  reordered or renamed steps, and any inserted unverified step. Workflow
+  permissions must remain exactly `contents: read`. Each job must keep this
+  exact order: checkout with
+  `actions/checkout@v6`; platform dependencies; the MoonBit installer using
+  `https://cli.moonbitlang.com/install/unix.sh`; `moon update`; tool versions;
+  `scripts/configure-cairo-constants.sh`; then its reliability gate. The Ubuntu
+  native dependency command must install `pkg-config libcairo2-dev
+  build-essential`; the Ubuntu sanitizer command must additionally install
+  `libfontconfig1-dev clang llvm`; macOS must install `cairo pkg-config`.
 - Keep reliability-ledger tests split by rule domain:
   `test_reliability_ledger.py` owns downstream/verify/hosted-workflow gates,
   `test_reliability_ledger_evidence.py` owns inventory and release-document

@@ -60,6 +60,9 @@ not override the current release ledger in `API_INVENTORY.md`.
   arm64 is 16/9344. PDF suppressions remain exactly 10/2284 plus 4/68.
 - The current candidate packages successfully and all 691 archive
   members match their verified source bytes.
+- The hosted workflow is pinned to `ubuntu-24.04` and `macos-15`; local
+  reliability mutations reject moving aliases, dependency/setup drift,
+  reordered or inserted steps, and weakened gate commands before any push.
 
 ## Gate Verdict
 

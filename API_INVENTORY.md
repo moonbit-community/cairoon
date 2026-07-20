@@ -18,6 +18,17 @@ The complete chronological delta log is archived under
 `docs/api-audit/README.md`; entries below are the active release-candidate
 context.
 
+- 2026-07-20: Hosted-workflow setup is now an exact fail-closed release
+  contract. Native jobs are pinned to `ubuntu-24.04` and `macos-15`; the
+  sanitizer job is pinned to `ubuntu-24.04`. The checker requires the complete
+  ordered setup sequence, exact system dependencies, MoonBit installer source,
+  registry update, version probes, generated-constant configuration, and final
+  gate with no extra steps, while workflow permissions remain `contents: read`.
+  Negative mutations cover moving runner aliases, broadened permissions,
+  omitted Cairo headers or Clang, skipped setup commands, scalar-continuation
+  failure masking, installer-source drift, and inserted unverified setup. This
+  consumes no hosted CI capacity and does not change the remaining
+  release-commit evidence gap.
 - 2026-07-20: Borrowed Cairo object returns are now a fail-closed static
   ownership contract. A focused FFI module strips comments/literals, verifies
   all six `cairoon_*_wrap_borrowed` helpers call their matching reference
@@ -78,6 +89,7 @@ context.
 
 | Slice | Status | Notes |
 |---|---|---|
+| Pinned hosted runner and setup gate | Done | Pins native CI to `ubuntu-24.04` and `macos-15` and sanitizer CI to `ubuntu-24.04`; keeps workflow permissions at `contents: read`; requires each job's exact ordered checkout, dependency, MoonBit install/update, version, generated-constant, and reliability-gate steps; and rejects moving aliases, broadened permissions, missing dependencies or commands, scalar continuations, installer drift, and extra setup through focused negative mutations. Hosted release-commit execution remains the sole `Partial` evidence row. |
 | Borrowed object return ownership gate | Done | Adds a focused ledger for all 6 borrowed-wrapper helpers and 9 bound Cairo object producers mirrored from pycairo, plus the raster callback's borrowed ingress wrapper. The checker strips comments and literals, rejects `#if 0` evidence, cross-checks semantic sets against every production borrowed-wrapper occurrence, requires key success statements at function-body top level, verifies the expected base owner, and proves each helper references before wrapping. Eight negative mutations plus a CLI wiring assertion make removed contracts, missing references, owned-wrapper substitution, duplicate producers, comment-only evidence, dead branches, and disconnected orchestration fail closed. |
 | Stream/raster callback fuzz distribution closure | Done | Replaces aggregate nonzero coverage in four fixed-seed/fixed-step callback suites with exact operation-by-status, outcome-by-color, mode-by-color, and manual-acquire-by-mode distributions. Stream writer outcomes are pinned at 22 success, 47 write failure, and 26 invalid-status fallback cases; raster tests pin every selected failure, dynamic/static source, callback-state, and manual acquire/release class while leaving Cairo-controlled callback invocation multiplicity version-tolerant. No production code, public signature, or test count changes. |
 | Finalizer fuzz scenario closure | Done | Finds the five intended font-size variants had collapsed to one because operation and scenario both used modulo five; routes the quotient to every operation; and adds an exact distribution probe for all five operations plus surface, mapped-image, font, region, raster-source, and stream scenario classes. |

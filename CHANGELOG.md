@@ -53,6 +53,9 @@ first version intended for light downstream Cairo use.
   consumable, and reproducible across the supported Cairo matrix.
 - Hardened Ubuntu Cairo 1.18.0 compatibility and sanitizer classification for
   known upstream Cairo recording/PDF error-path leaks.
+- Pinned hosted runners to Ubuntu 24.04 and macOS 15, and made every dependency,
+  toolchain, generated-constant, and gate step an exact fail-closed workflow
+  contract so setup drift is caught locally without spending hosted CI capacity.
 
 ### Release status
 
