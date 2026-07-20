@@ -33,6 +33,8 @@ first version intended for light downstream Cairo use.
 
 - Reorganized the MoonBit package tree and C glue by object family while
   preserving `CAIMEOX/cairoon` as the public import path.
+- Split hosted-workflow policy, restricted YAML parsing, and their mutation
+  tests into focused modules before any file reached the source-size ceiling.
 - Added indexing aliases and multiplication for `Matrix`, indexing aliases for
   tuple-like value types, and `Hash` for immutable extent/value records.
 - Removed `Hash` from mutable `FontOptions`; hashing an object whose equality

@@ -31,9 +31,14 @@ RELIABILITY_SUPPORT = frozenset(
         "scripts/reliability/evidence.py",
         "scripts/reliability/gates.py",
         "scripts/reliability/markdown.py",
+        "scripts/reliability/yaml_subset.py",
         "scripts/matrix/Dockerfile",
         "scripts/matrix/run-lane.sh",
         "scripts/test-cairo-matrix.sh",
+        "scripts/tests/test_ci_workflow.py",
+        "scripts/tests/test_reliability_ledger.py",
+        "scripts/tests/test_reliability_ledger_evidence.py",
+        "scripts/tests/test_reliability_ledger_matrix.py",
     }
 )
 SANITIZER_SUPPORT = frozenset(

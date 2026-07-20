@@ -89,7 +89,7 @@ script tests, 841/841 native tests, 63/63 executable docs, 12/12 raw external
 owners with exact finalizer and 1000-iteration stress evidence, including one
 raw-result stress path that bans explicit release, 6/6 borrowed-reference helpers
 and 9/9 borrowed producer paths, 6/6 source, extracted, and unmodified cross-host
-archive consumer runs, all 691 byte-identical publication members, and every
+archive consumer runs, all 693 byte-identical publication members, and every
 package under ASan/LSan/UBSan. Ubuntu 24.04 system Cairo 1.18.0 independently
 passes 841/841 native tests and every package under ASan/LSan/UBSan on both local
 arm64 and Rosetta-backed x86_64. The sole global

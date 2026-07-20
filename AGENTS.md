@@ -1199,19 +1199,22 @@ MoonBit reliability requirements and remaining work:
   build-essential`; the Ubuntu sanitizer command must additionally install
   `libfontconfig1-dev clang llvm`; macOS must install `cairo pkg-config`.
 - Keep reliability-ledger tests split by rule domain:
-  `test_reliability_ledger.py` owns downstream/verify/hosted-workflow gates,
+  `test_reliability_ledger.py` owns downstream/verify gates,
+  `test_ci_workflow.py` owns hosted-workflow structure and mutation attacks,
   `test_reliability_ledger_evidence.py` owns inventory and release-document
   evidence, and `test_reliability_ledger_matrix.py` owns exact local-matrix
   wiring. Do not merge these classes back into one mixed test module.
 - Keep `scripts/check-reliability-ledger.py` as path assembly, compatibility
   wrappers, CLI ordering, and output only. `scripts/reliability/markdown.py`
   owns visible-Markdown parsing, `evidence.py` owns inventory/release-document
-  policy, `gates.py` owns verify/downstream/local-matrix wiring, and
-  `ci_workflow.py` owns hosted-workflow parsing. Every root wrapper must pass
+  policy, `gates.py` owns verify/downstream/local-matrix wiring,
+  `ci_workflow.py` owns hosted-workflow policy, and `yaml_subset.py` owns the
+  restricted fail-closed YAML parser. Every root wrapper must pass
   its current path globals explicitly so isolated tests can replace them.
   `scripts/check-publication-archive.py` must require the root checker and all
-  five support-package files byte-for-byte; a missing or altered dependency is
-  a publication failure. It must also require `scripts/matrix/Dockerfile`,
+  six support-package files plus all four focused reliability test modules
+  byte-for-byte; a missing or altered dependency is a publication failure. It
+  must also require `scripts/matrix/Dockerfile`,
   `scripts/matrix/run-lane.sh`, and `scripts/test-cairo-matrix.sh` byte-for-byte
   so an extracted publication can reproduce every local Linux lane.
 - `scripts/test-cairo-matrix.sh all` must include the host lane plus the named
