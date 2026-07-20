@@ -542,6 +542,14 @@ focused files such as `cairoon_test_backend_combo.c`,
 PDF/PS/SVG vector files. Public binding C exports must not be added to this
 oracle-native package.
 
+Keep the MoonBit image-oracle scene dispatcher in
+`image_oracle_pattern_stack_scenes_test.mbt` routing-only. Pattern-stack scene
+bodies 34-36 belong in
+`image_oracle_pattern_stack_scenes_34_36_test.mbt`; scene bodies 37-41 belong
+in `image_oracle_pattern_stack_scenes_37_41_test.mbt`. Future scene ranges must
+use focused sibling files, preserve stable scene ids, and continue comparing
+the same scene against the direct C oracle and both image-surface storage paths.
+
 ## Package Seam Rules
 
 Pure support packages may live under `src/core/<family>/` after a focused seam

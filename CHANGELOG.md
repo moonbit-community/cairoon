@@ -35,6 +35,8 @@ first version intended for light downstream Cairo use.
   preserving `CAIMEOX/cairoon` as the public import path.
 - Split hosted-workflow policy, restricted YAML parsing, and their mutation
   tests into focused modules before any file reached the source-size ceiling.
+- Split the MoonBit image pattern-stack oracle dispatcher from scene ranges
+  34-36 and 37-41 while preserving stable direct-C comparison coverage.
 - Added indexing aliases and multiplication for `Matrix`, indexing aliases for
   tuple-like value types, and `Hash` for immutable extent/value records.
 - Removed `Hash` from mutable `FontOptions`; hashing an object whose equality

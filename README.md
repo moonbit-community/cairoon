@@ -131,7 +131,7 @@ whose ledger forbids explicit release. The sole global `Partial` inventory row
 is test/release-platform evidence: GitHub Actions run `29678818105` passed
 macOS native but failed both Ubuntu jobs on the prior release commit. The local
 fixes and expanded consumer contract now pass 226 script tests, all 841 native
-tests, the byte-identical 693-member publication contract, and every package
+tests, the byte-identical 695-member publication contract, and every package
 under ASan/LSan/UBSan in the first-class Ubuntu 24.04 system-Cairo lane on both
 local arm64 and Rosetta-backed x86_64. That fix commit still needs passing Ubuntu
 and macOS native jobs plus the Ubuntu ASan/LSan/UBSan job.

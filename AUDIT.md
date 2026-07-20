@@ -46,7 +46,7 @@ not override the current release ledger in `API_INVENTORY.md`.
 - Errors map Cairo statuses into typed MoonBit `CairoError` suberrors. Object
   ownership, borrowed/owned returns, callbacks, stream state, finish/unmap
   cleanup, and finalizer fallbacks have package-local and sanitizer evidence.
-- The release archive is reproduced from the checkout and verifies all 693
+- The release archive is reproduced from the checkout and verifies all 695
   members byte-for-byte, including build, audit, matrix, and test tooling.
 
 ## Latest Local Evidence
@@ -58,7 +58,7 @@ not override the current release ledger in `API_INVENTORY.md`.
 - Ubuntu 24.04 system Cairo 1.18.0 passes on local arm64 and Rosetta-backed
   x86_64. The x86_64 recording signature is exactly 16 allocations/9216 bytes;
   arm64 is 16/9344. PDF suppressions remain exactly 10/2284 plus 4/68.
-- The current candidate packages successfully and all 693 archive
+- The current candidate packages successfully and all 695 archive
   members match their verified source bytes.
 - The hosted workflow is pinned to `ubuntu-24.04` and `macos-15`; local
   reliability mutations reject moving aliases, dependency/setup drift,
