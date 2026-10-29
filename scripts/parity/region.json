@@ -38,20 +38,20 @@
     },
     "test_get_rectangle": {
       "runtime": ["src/tests/region/pycairo/region_pycairo_parity_test.mbt::pycairo region get_rectangle index fixture"],
-      "static_api": ["pub fn Region::get_rectangle(Self, Int) -> RectangleInt raise CairoError"],
+      "static_api": ["pub fn Region::get_rectangle(Self, Int32) -> RectangleInt raise CairoError"],
       "adaptation": "Out-of-range indexes map to CairoInvalidArgument(InvalidIndex, _); non-integer indexes are rejected statically."
     },
     "test_rectangles_limits": {
       "runtime": ["src/tests/region/pycairo/region_pycairo_parity_test.mbt::pycairo region rectangle int limits and equality fixture"],
       "static_api": [
-        "pub struct RectangleInt {\n  x : Int\n  y : Int\n  width : Int\n  height : Int\n} derive(Eq, @debug.Debug)",
-        "pub fn RectangleInt::new(x? : Int, y? : Int, width? : Int, height? : Int) -> Self"
+        "pub struct RectangleInt {\n  x : Int32\n  y : Int32\n  width : Int32\n  height : Int32\n} derive(Eq, @debug.Debug)",
+        "pub fn RectangleInt::new(x? : Int32, y? : Int32, width? : Int32, height? : Int32) -> Self"
       ],
-      "adaptation": "MoonBit Int is the binding's signed 32-bit cairo int representation, so out-of-range integer literals are compile-time errors while both extrema are runtime tested."
+      "adaptation": "MoonBit Int32 is the binding's signed 32-bit cairo int representation, so out-of-range integer literals are compile-time errors while both extrema are runtime tested."
     },
     "test_contains_point": {
       "runtime": ["src/tests/region/pycairo/region_pycairo_parity_test.mbt::pycairo region contains fixture"],
-      "static_api": ["pub fn Region::contains_point(Self, Int, Int) -> Bool"]
+      "static_api": ["pub fn Region::contains_point(Self, Int32, Int32) -> Bool"]
     },
     "test_intersect": {
       "runtime": [
@@ -95,7 +95,7 @@
     },
     "test_translate": {
       "runtime": ["src/tests/region/pycairo/region_pycairo_parity_test.mbt::pycairo region translate fixture"],
-      "static_api": ["pub fn Region::translate(Self, Int, Int) -> Unit raise CairoError"]
+      "static_api": ["pub fn Region::translate(Self, Int32, Int32) -> Unit raise CairoError"]
     },
     "test_region_contains_rectangle": {
       "runtime": ["src/tests/region/pycairo/region_pycairo_parity_test.mbt::pycairo region contains fixture"],
@@ -108,12 +108,12 @@
       ],
       "static_api": [
         "pub impl Eq for Region",
-        "pub struct RectangleInt {\n  x : Int\n  y : Int\n  width : Int\n  height : Int\n} derive(Eq, @debug.Debug)"
+        "pub struct RectangleInt {\n  x : Int32\n  y : Int32\n  width : Int32\n  height : Int32\n} derive(Eq, @debug.Debug)"
       ],
       "static_absent": [
         "pub impl Hash for Region",
         "pub impl Compare for Region",
-        "pub struct RectangleInt {\n  x : Int\n  y : Int\n  width : Int\n  height : Int\n} derive(Eq, Hash, @debug.Debug)",
+        "pub struct RectangleInt {\n  x : Int32\n  y : Int32\n  width : Int32\n  height : Int32\n} derive(Eq, Hash, @debug.Debug)",
         "pub impl Compare for RectangleInt"
       ],
       "adaptation": "Region and RectangleInt preserve value equality while generic hashing, ordering, and heterogeneous equality are unavailable, matching pycairo's protocol behavior through static rejection."

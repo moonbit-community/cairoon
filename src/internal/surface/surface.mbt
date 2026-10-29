@@ -6,10 +6,10 @@ fn ensure_native() -> Unit {
 ///|
 pub fn create_similar_raw(
   surface : RawSurface,
-  content : Int,
-  width : Int,
-  height : Int,
-  status : Ref[Int],
+  content : Int32,
+  width : Int32,
+  height : Int32,
+  status : Ref[Int32],
 ) -> RawSurface {
   ensure_native()
   surface_create_similar_raw_ffi(surface, content, width, height, status)
@@ -18,10 +18,10 @@ pub fn create_similar_raw(
 ///|
 pub fn create_similar_image_raw(
   surface : RawSurface,
-  format : Int,
-  width : Int,
-  height : Int,
-  status : Ref[Int],
+  format : Int32,
+  width : Int32,
+  height : Int32,
+  status : Ref[Int32],
 ) -> RawSurface {
   ensure_native()
   surface_create_similar_image_raw_ffi(surface, format, width, height, status)
@@ -34,14 +34,14 @@ pub fn create_for_rectangle_raw(
   y : Double,
   width : Double,
   height : Double,
-  status : Ref[Int],
+  status : Ref[Int32],
 ) -> RawSurface {
   ensure_native()
   surface_create_for_rectangle_ffi(surface, x, y, width, height, status)
 }
 
 ///|
-pub fn status_raw(surface : RawSurface) -> Int {
+pub fn status_raw(surface : RawSurface) -> Int32 {
   ensure_native()
   surface_status_ffi(surface)
 }
@@ -59,19 +59,19 @@ pub fn hash_raw(surface : RawSurface) -> UInt64 {
 }
 
 ///|
-pub fn get_content_raw(surface : RawSurface) -> Int {
+pub fn get_content_raw(surface : RawSurface) -> Int32 {
   ensure_native()
   surface_get_content_ffi(surface)
 }
 
 ///|
-pub fn get_type_raw(surface : RawSurface) -> Int {
+pub fn get_type_raw(surface : RawSurface) -> Int32 {
   ensure_native()
   surface_get_type_ffi(surface)
 }
 
 ///|
-pub fn finish_raw(surface : RawSurface) -> Int {
+pub fn finish_raw(surface : RawSurface) -> Int32 {
   ensure_native()
   surface_finish_ffi(surface)
 }

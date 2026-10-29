@@ -5,25 +5,25 @@ pub fn create_mesh_raw() -> RawPattern {
 }
 
 ///|
-pub fn mesh_begin_patch_raw(pattern : RawPattern) -> Int {
+pub fn mesh_begin_patch_raw(pattern : RawPattern) -> Int32 {
   ensure_native()
   mesh_pattern_begin_patch_ffi(pattern)
 }
 
 ///|
-pub fn mesh_end_patch_raw(pattern : RawPattern) -> Int {
+pub fn mesh_end_patch_raw(pattern : RawPattern) -> Int32 {
   ensure_native()
   mesh_pattern_end_patch_ffi(pattern)
 }
 
 ///|
-pub fn mesh_move_to_raw(pattern : RawPattern, x : Double, y : Double) -> Int {
+pub fn mesh_move_to_raw(pattern : RawPattern, x : Double, y : Double) -> Int32 {
   ensure_native()
   mesh_pattern_move_to_ffi(pattern, x, y)
 }
 
 ///|
-pub fn mesh_line_to_raw(pattern : RawPattern, x : Double, y : Double) -> Int {
+pub fn mesh_line_to_raw(pattern : RawPattern, x : Double, y : Double) -> Int32 {
   ensure_native()
   mesh_pattern_line_to_ffi(pattern, x, y)
 }
@@ -37,7 +37,7 @@ pub fn mesh_curve_to_raw(
   y2 : Double,
   x3 : Double,
   y3 : Double,
-) -> Int {
+) -> Int32 {
   ensure_native()
   mesh_pattern_curve_to_ffi(pattern, x1, y1, x2, y2, x3, y3)
 }
@@ -45,10 +45,10 @@ pub fn mesh_curve_to_raw(
 ///|
 pub fn mesh_set_control_point_raw(
   pattern : RawPattern,
-  point_num : Int,
+  point_num : Int32,
   x : Double,
   y : Double,
-) -> Int {
+) -> Int32 {
   ensure_native()
   mesh_pattern_set_control_point_ffi(pattern, point_num, x, y)
 }
@@ -56,11 +56,11 @@ pub fn mesh_set_control_point_raw(
 ///|
 pub fn mesh_set_corner_color_rgb_raw(
   pattern : RawPattern,
-  corner_num : Int,
+  corner_num : Int32,
   red : Double,
   green : Double,
   blue : Double,
-) -> Int {
+) -> Int32 {
   ensure_native()
   mesh_pattern_set_corner_color_rgb_ffi(pattern, corner_num, red, green, blue)
 }
@@ -68,12 +68,12 @@ pub fn mesh_set_corner_color_rgb_raw(
 ///|
 pub fn mesh_set_corner_color_rgba_raw(
   pattern : RawPattern,
-  corner_num : Int,
+  corner_num : Int32,
   red : Double,
   green : Double,
   blue : Double,
   alpha : Double,
-) -> Int {
+) -> Int32 {
   ensure_native()
   mesh_pattern_set_corner_color_rgba_ffi(
     pattern, corner_num, red, green, blue, alpha,
@@ -81,7 +81,10 @@ pub fn mesh_set_corner_color_rgba_raw(
 }
 
 ///|
-pub fn mesh_get_patch_count_raw(pattern : RawPattern, count : Ref[Int]) -> Int {
+pub fn mesh_get_patch_count_raw(
+  pattern : RawPattern,
+  count : Ref[Int32],
+) -> Int32 {
   ensure_native()
   mesh_pattern_get_patch_count_ffi(pattern, count)
 }
@@ -89,8 +92,8 @@ pub fn mesh_get_patch_count_raw(pattern : RawPattern, count : Ref[Int]) -> Int {
 ///|
 pub fn mesh_get_path_raw(
   pattern : RawPattern,
-  patch_num : Int,
-  status : Ref[Int],
+  patch_num : Int32,
+  status : Ref[Int32],
 ) -> @path_impl.RawPath {
   ensure_native()
   mesh_pattern_get_path_ffi(pattern, patch_num, status)
@@ -99,11 +102,11 @@ pub fn mesh_get_path_raw(
 ///|
 pub fn mesh_get_control_point_raw(
   pattern : RawPattern,
-  patch_num : Int,
-  point_num : Int,
+  patch_num : Int32,
+  point_num : Int32,
   x : Ref[Double],
   y : Ref[Double],
-) -> Int {
+) -> Int32 {
   ensure_native()
   mesh_pattern_get_control_point_ffi(pattern, patch_num, point_num, x, y)
 }
@@ -111,13 +114,13 @@ pub fn mesh_get_control_point_raw(
 ///|
 pub fn mesh_get_corner_color_rgba_raw(
   pattern : RawPattern,
-  patch_num : Int,
-  corner_num : Int,
+  patch_num : Int32,
+  corner_num : Int32,
   red : Ref[Double],
   green : Ref[Double],
   blue : Ref[Double],
   alpha : Ref[Double],
-) -> Int {
+) -> Int32 {
   ensure_native()
   mesh_pattern_get_corner_color_rgba_ffi(
     pattern, patch_num, corner_num, red, green, blue, alpha,

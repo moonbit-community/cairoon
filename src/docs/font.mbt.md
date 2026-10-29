@@ -24,9 +24,9 @@ methods raise `CairoError(InvalidStatus, _)` without mutating the options object
 ```mbt check
 ///|
 test "font docs: font options state copy and merge" {
-  let options = FontOptions::new()
+  let options = @docs.FontOptions::new()
   debug_inspect(options.get_antialias(), content="AntialiasDefault")
-  if CAIRO_VERSION >= 11600 {
+  if @docs.CAIRO_VERSION >= 11600 {
     inspect(options.get_variations() is None, content="true")
   }
 
@@ -34,11 +34,11 @@ test "font docs: font options state copy and merge" {
   options.set_subpixel_order(SubpixelVrgb)
   options.set_hint_style(HintStyleSlight)
   options.set_hint_metrics(HintMetricsOff)
-  if CAIRO_VERSION >= 11800 {
+  if @docs.CAIRO_VERSION >= 11800 {
     options.set_color_mode(ColorModeColor)
     options.set_color_palette(42U)
   }
-  if CAIRO_VERSION >= 11600 {
+  if @docs.CAIRO_VERSION >= 11600 {
     options.set_variations(Some("wght=200,wdth=140.5"))
   }
 
@@ -48,22 +48,22 @@ test "font docs: font options state copy and merge" {
   debug_inspect(copied.get_subpixel_order(), content="SubpixelVrgb")
   debug_inspect(copied.get_hint_style(), content="HintStyleSlight")
   debug_inspect(copied.get_hint_metrics(), content="HintMetricsOff")
-  if CAIRO_VERSION >= 11800 {
+  if @docs.CAIRO_VERSION >= 11800 {
     debug_inspect(copied.get_color_mode(), content="ColorModeColor")
     inspect(copied.get_color_palette().reinterpret_as_int(), content="42")
   } else {
-    match run_cairo(() => copied.set_color_mode(ColorModeColor)) {
+    match @docs.run_cairo(() => copied.set_color_mode(ColorModeColor)) {
       Err(CairoError(InvalidStatus, _)) => ()
       _ => @test.fail("expected color options to require Cairo 1.18")
     }
   }
-  if CAIRO_VERSION >= 11600 {
+  if @docs.CAIRO_VERSION >= 11600 {
     match copied.get_variations() {
       Some(variations) => inspect(variations, content="wght=200,wdth=140.5")
       None => fail("expected variations")
     }
   } else {
-    match run_cairo(() => copied.set_variations(Some("wght=200"))) {
+    match @docs.run_cairo(() => copied.set_variations(Some("wght=200"))) {
       Err(CairoError(InvalidStatus, _)) => ()
       _ => @test.fail("expected variations to require Cairo 1.16")
     }
@@ -71,13 +71,13 @@ test "font docs: font options state copy and merge" {
 
   copied.set_hint_style_raw(42)
   inspect(copied.get_hint_style_raw(), content="42")
-  match run_cairo(() => copied.get_hint_style()) {
+  match @docs.run_cairo(() => copied.get_hint_style()) {
     Err(CairoInvalidArgument(InvalidStatus, _)) => ()
     _ => @test.fail("expected unknown raw hint style to stay outside typed API")
   }
   copied.set_hint_style_raw(0)
 
-  let target = FontOptions::new()
+  let target = @docs.FontOptions::new()
   target.merge(options)
   debug_inspect(target.get_antialias(), content="AntialiasGray")
 }
@@ -91,10 +91,10 @@ palette indexes.
 ```mbt check
 ///|
 test "font docs: color palette custom colors" {
-  let options = FontOptions::new()
-  if CAIRO_VERSION >= 11800 {
+  let options = @docs.FontOptions::new()
+  if @docs.CAIRO_VERSION >= 11800 {
     inspect(
-      options.get_color_palette() == COLOR_PALETTE_DEFAULT,
+      options.get_color_palette() == @docs.COLOR_PALETTE_DEFAULT,
       content="true",
     )
     options.set_custom_palette_color(7U, 0.25, 0.5, 0.75, 1.0)
@@ -104,7 +104,9 @@ test "font docs: color palette custom colors" {
     )
   } else {
     match
-      run_cairo(() => options.set_custom_palette_color(7U, 0.25, 0.5, 0.75, 1.0)) {
+      @docs.run_cairo(() => {
+        options.set_custom_palette_color(7U, 0.25, 0.5, 0.75, 1.0)
+      }) {
       Err(CairoError(InvalidStatus, _)) => ()
       _ => @test.fail("expected color palettes to require Cairo 1.18")
     }
@@ -123,7 +125,7 @@ retain and return referenced wrappers for the same Cairo font-face pointer.
 ```mbt check
 ///|
 test "font docs: toy font face and context round trip" {
-  let face = FontFace::toy(
+  let face = @docs.FontFace::toy(
     "serif",
     slant=FontSlantItalic,
     weight=FontWeightBold,
@@ -134,19 +136,19 @@ test "font docs: toy font face and context round trip" {
   inspect(face.get_slant_raw(), content="1")
   inspect(face.get_weight_raw(), content="1")
 
-  let raw_face = FontFace::toy_raw("serif", slant=2, weight=1)
+  let raw_face = @docs.FontFace::toy_raw("serif", slant=2, weight=1)
   inspect(raw_face.get_slant_raw(), content="2")
   inspect(raw_face.get_weight_raw(), content="1")
   match
-    run_cairo(() => {
-      let _ = FontFace::toy_raw("serif", slant=42)
+    @docs.run_cairo(() => {
+      let _ = @docs.FontFace::toy_raw("serif", slant=42)
       ()
     }) {
     Err(CairoError(InvalidSlant, _)) => ()
     _ => @test.fail("expected invalid raw slant to fail")
   }
 
-  let ctx = Context::new(Surface::image(Rgb24, 8, 8))
+  let ctx = @docs.Context::new(@docs.Surface::image(Rgb24, 8, 8))
   ctx.set_font_face(Some(face))
   let returned = ctx.get_font_face()
   inspect(returned.equal(face), content="true")
@@ -166,14 +168,14 @@ font-options object for inspection after `set_font_options`.
 ```mbt check
 ///|
 test "font docs: surface and context font options" {
-  let surface = Surface::image(Rgb24, 4, 4)
+  let surface = @docs.Surface::image(Rgb24, 4, 4)
   inspect(surface.get_font_options().status().is_success(), content="true")
 
-  let options = FontOptions::new()
+  let options = @docs.FontOptions::new()
   options.set_antialias(AntialiasGray)
   options.set_hint_style(HintStyleMedium)
 
-  let ctx = Context::new(surface)
+  let ctx = @docs.Context::new(surface)
   ctx.set_font_options(options)
   let returned = ctx.get_font_options()
   debug_inspect(returned.get_antialias(), content="AntialiasGray")
@@ -193,12 +195,12 @@ matrix and that translation-free CTM.
 ```mbt check
 ///|
 test "font docs: scaled font matrices and metrics" {
-  let face = FontFace::toy("serif", weight=FontWeightBold)
-  let options = FontOptions::new()
+  let face = @docs.FontFace::toy("serif", weight=FontWeightBold)
+  let options = @docs.FontOptions::new()
   options.set_antialias(AntialiasGray)
-  let font_matrix = Matrix::new(xx=12.0, yy=12.0)
-  let ctm = Matrix::new(xx=2.0, yy=3.0, x0=5.0, y0=7.0)
-  let scaled = ScaledFont::new(face, font_matrix, ctm, options)
+  let font_matrix = @docs.Matrix::new(xx=12.0, yy=12.0)
+  let ctm = @docs.Matrix::new(xx=2.0, yy=3.0, x0=5.0, y0=7.0)
+  let scaled = @docs.ScaledFont::new(face, font_matrix, ctm, options)
 
   debug_inspect(
     scaled.get_font_matrix(),
@@ -235,7 +237,7 @@ instead of coercing its index and coordinates to one type.
 ```mbt check
 ///|
 test "font docs: text to glyphs and glyph extents" {
-  let ctx = Context::new(Surface::image(Argb32, 32, 16))
+  let ctx = @docs.Context::new(@docs.Surface::image(Argb32, 32, 16))
   ctx.select_font_face("serif")
   ctx.set_font_size(12.0)
   let scaled = ctx.get_scaled_font()
@@ -266,12 +268,12 @@ Font APIs surface invalid strings and invalid indexes through checked
 ```mbt check
 ///|
 test "font docs: invalid font inputs are checked errors" {
-  let options = FontOptions::new()
-  let palette_result = run_cairo(() => {
+  let options = @docs.FontOptions::new()
+  let palette_result = @docs.run_cairo(() => {
     let _ = options.get_custom_palette_color(99U)
     ()
   })
-  if CAIRO_VERSION >= 11800 {
+  if @docs.CAIRO_VERSION >= 11800 {
     match palette_result {
       Err(CairoInvalidArgument(InvalidIndex, _)) => ()
       _ => @test.fail("expected InvalidIndex")
@@ -283,14 +285,14 @@ test "font docs: invalid font inputs are checked errors" {
     }
   }
 
-  match run_cairo(() => FontFace::toy("bad\u{0}family")) {
+  match @docs.run_cairo(() => @docs.FontFace::toy("bad\u{0}family")) {
     Err(CairoInvalidArgument(InvalidString, _)) => ()
     _ => @test.fail("expected InvalidString")
   }
 
-  let scaled = Context::new(Surface::image(Argb32, 8, 8)).get_scaled_font()
+  let scaled = @docs.Context::new(@docs.Surface::image(Argb32, 8, 8)).get_scaled_font()
   match
-    run_cairo(() => {
+    @docs.run_cairo(() => {
       let _ = scaled.text_to_glyphs(0.0, 0.0, "bad\u{0}text")
       ()
     }) {

@@ -6,7 +6,7 @@ fn init {
 ///|
 #borrow(text)
 extern "C" fn test_scaled_font_extents_oracle_ffi(
-  kind : Int,
+  kind : Int32,
   text : Bytes,
 ) -> FixedArray[Double] = "cairoon_test_scaled_font_extents_oracle"
 
@@ -40,7 +40,7 @@ extern "C" fn test_scaled_font_text_to_glyphs_clusters_oracle_ffi(
   x : Double,
   y : Double,
   text : Bytes,
-) -> FixedArray[Int] = "cairoon_test_scaled_font_text_to_glyphs_clusters_oracle"
+) -> FixedArray[Int32] = "cairoon_test_scaled_font_text_to_glyphs_clusters_oracle"
 
 ///|
 #borrow(text)
@@ -57,7 +57,7 @@ extern "C" fn test_scaled_font_cluster_probe_create_ffi() -> @scaled_font_impl.R
 #borrow(scaled_font)
 extern "C" fn test_scaled_font_cluster_probe_observation_ffi(
   scaled_font : @scaled_font_impl.RawScaledFont,
-) -> Int = "cairoon_test_scaled_font_cluster_probe_observation"
+) -> Int32 = "cairoon_test_scaled_font_cluster_probe_observation"
 
 ///|
 fn text_glyph_run_from_oracle(
@@ -228,7 +228,7 @@ fn scaled_font_oracle_expect_text_to_glyphs(
 ///|
 fn scaled_font_oracle_expect_cluster_widths(
   run : @cairoon.TextGlyphRun,
-  expected : ArrayView[Int],
+  expected : ArrayView[Int32],
 ) -> Unit raise {
   if run.clusters.length() != expected.length() {
     @test.fail("scaled-font oracle text-cluster width count mismatch")

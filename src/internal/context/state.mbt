@@ -1,5 +1,5 @@
 ///|
-pub fn set_line_width_raw(ctx : RawContext, width : Double) -> Int {
+pub fn set_line_width_raw(ctx : RawContext, width : Double) -> Int32 {
   ensure_native()
   context_set_line_width_ffi(ctx, width)
 }
@@ -11,79 +11,79 @@ pub fn get_line_width_raw(ctx : RawContext) -> Double {
 }
 
 ///|
-pub fn set_hairline_raw(ctx : RawContext, set_hairline : Bool) -> Int {
+pub fn set_hairline_raw(ctx : RawContext, set_hairline : Bool) -> Int32 {
   ensure_native()
   context_set_hairline_ffi(ctx, set_hairline)
 }
 
 ///|
-pub fn get_hairline_raw(ctx : RawContext, status : Ref[Int]) -> Bool {
+pub fn get_hairline_raw(ctx : RawContext, status : Ref[Int32]) -> Bool {
   ensure_native()
   context_get_hairline_ffi(ctx, status)
 }
 
 ///|
-pub fn set_line_cap_raw(ctx : RawContext, cap : Int) -> Int {
+pub fn set_line_cap_raw(ctx : RawContext, cap : Int32) -> Int32 {
   ensure_native()
   context_set_line_cap_raw_ffi(ctx, cap)
 }
 
 ///|
-pub fn get_line_cap_raw(ctx : RawContext) -> Int {
+pub fn get_line_cap_raw(ctx : RawContext) -> Int32 {
   ensure_native()
   context_get_line_cap_raw_ffi(ctx)
 }
 
 ///|
-pub fn set_line_join_raw(ctx : RawContext, join : Int) -> Int {
+pub fn set_line_join_raw(ctx : RawContext, join : Int32) -> Int32 {
   ensure_native()
   context_set_line_join_raw_ffi(ctx, join)
 }
 
 ///|
-pub fn get_line_join_raw(ctx : RawContext) -> Int {
+pub fn get_line_join_raw(ctx : RawContext) -> Int32 {
   ensure_native()
   context_get_line_join_raw_ffi(ctx)
 }
 
 ///|
-pub fn set_fill_rule_raw(ctx : RawContext, fill_rule : Int) -> Int {
+pub fn set_fill_rule_raw(ctx : RawContext, fill_rule : Int32) -> Int32 {
   ensure_native()
   context_set_fill_rule_raw_ffi(ctx, fill_rule)
 }
 
 ///|
-pub fn get_fill_rule_raw(ctx : RawContext) -> Int {
+pub fn get_fill_rule_raw(ctx : RawContext) -> Int32 {
   ensure_native()
   context_get_fill_rule_raw_ffi(ctx)
 }
 
 ///|
-pub fn set_operator_raw(ctx : RawContext, operator : Int) -> Int {
+pub fn set_operator_raw(ctx : RawContext, operator : Int32) -> Int32 {
   ensure_native()
   context_set_operator_raw_ffi(ctx, operator)
 }
 
 ///|
-pub fn get_operator_raw(ctx : RawContext) -> Int {
+pub fn get_operator_raw(ctx : RawContext) -> Int32 {
   ensure_native()
   context_get_operator_raw_ffi(ctx)
 }
 
 ///|
-pub fn set_antialias_raw(ctx : RawContext, antialias : Int) -> Int {
+pub fn set_antialias_raw(ctx : RawContext, antialias : Int32) -> Int32 {
   ensure_native()
   context_set_antialias_raw_ffi(ctx, antialias)
 }
 
 ///|
-pub fn get_antialias_raw(ctx : RawContext) -> Int {
+pub fn get_antialias_raw(ctx : RawContext) -> Int32 {
   ensure_native()
   context_get_antialias_raw_ffi(ctx)
 }
 
 ///|
-pub fn set_tolerance_raw(ctx : RawContext, tolerance : Double) -> Int {
+pub fn set_tolerance_raw(ctx : RawContext, tolerance : Double) -> Int32 {
   ensure_native()
   context_set_tolerance_ffi(ctx, tolerance)
 }
@@ -95,7 +95,7 @@ pub fn get_tolerance_raw(ctx : RawContext) -> Double {
 }
 
 ///|
-pub fn set_miter_limit_raw(ctx : RawContext, limit : Double) -> Int {
+pub fn set_miter_limit_raw(ctx : RawContext, limit : Double) -> Int32 {
   ensure_native()
   context_set_miter_limit_ffi(ctx, limit)
 }
@@ -111,13 +111,13 @@ pub fn set_dash_raw(
   ctx : RawContext,
   dashes : FixedArray[Double],
   offset : Double,
-) -> Int {
+) -> Int32 {
   ensure_native()
   context_set_dash_ffi(ctx, dashes, offset)
 }
 
 ///|
-pub fn get_dash_count_raw(ctx : RawContext) -> Int {
+pub fn get_dash_count_raw(ctx : RawContext) -> Int32 {
   ensure_native()
   context_get_dash_count_ffi(ctx)
 }

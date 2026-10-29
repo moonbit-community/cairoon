@@ -29,7 +29,7 @@ pub fn add_color_stop_rgb_raw(
   red : Double,
   green : Double,
   blue : Double,
-) -> Int {
+) -> Int32 {
   ensure_native()
   pattern_add_color_stop_rgb_ffi(pattern, offset, red, green, blue)
 }
@@ -42,13 +42,16 @@ pub fn add_color_stop_rgba_raw(
   green : Double,
   blue : Double,
   alpha : Double,
-) -> Int {
+) -> Int32 {
   ensure_native()
   pattern_add_color_stop_rgba_ffi(pattern, offset, red, green, blue, alpha)
 }
 
 ///|
-pub fn get_color_stop_count_raw(pattern : RawPattern, count : Ref[Int]) -> Int {
+pub fn get_color_stop_count_raw(
+  pattern : RawPattern,
+  count : Ref[Int32],
+) -> Int32 {
   ensure_native()
   pattern_get_color_stop_count_ffi(pattern, count)
 }
@@ -56,13 +59,13 @@ pub fn get_color_stop_count_raw(pattern : RawPattern, count : Ref[Int]) -> Int {
 ///|
 pub fn get_color_stop_rgba_raw(
   pattern : RawPattern,
-  index : Int,
+  index : Int32,
   offset : Ref[Double],
   red : Ref[Double],
   green : Ref[Double],
   blue : Ref[Double],
   alpha : Ref[Double],
-) -> Int {
+) -> Int32 {
   ensure_native()
   pattern_get_color_stop_rgba_ffi(
     pattern, index, offset, red, green, blue, alpha,
@@ -76,7 +79,7 @@ pub fn get_linear_points_raw(
   y0 : Ref[Double],
   x1 : Ref[Double],
   y1 : Ref[Double],
-) -> Int {
+) -> Int32 {
   ensure_native()
   pattern_get_linear_points_ffi(pattern, x0, y0, x1, y1)
 }
@@ -90,7 +93,7 @@ pub fn get_radial_circles_raw(
   cx1 : Ref[Double],
   cy1 : Ref[Double],
   radius1 : Ref[Double],
-) -> Int {
+) -> Int32 {
   ensure_native()
   pattern_get_radial_circles_ffi(pattern, cx0, cy0, radius0, cx1, cy1, radius1)
 }

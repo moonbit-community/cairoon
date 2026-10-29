@@ -11,14 +11,14 @@ extern "C" fn pattern_create_for_surface_ffi(
 #borrow(pattern, status)
 extern "C" fn pattern_get_surface_ffi(
   pattern : RawPattern,
-  status : Ref[Int],
+  status : Ref[Int32],
 ) -> @surface_impl.RawSurface = "cairoon_pattern_get_surface"
 
 ///|
 extern "C" fn pattern_create_raster_source_ffi(
-  content : Int,
-  width : Int,
-  height : Int,
+  content : Int32,
+  width : Int32,
+  height : Int32,
 ) -> RawPattern = "cairoon_pattern_create_raster_source"
 
 ///|
@@ -56,7 +56,7 @@ extern "C" fn pattern_create_radial_ffi(
 
 ///|
 #borrow(pattern)
-extern "C" fn pattern_status_ffi(pattern : RawPattern) -> Int = "cairoon_pattern_status"
+extern "C" fn pattern_status_ffi(pattern : RawPattern) -> Int32 = "cairoon_pattern_status"
 
 ///|
 #borrow(pattern, other)
@@ -71,39 +71,39 @@ extern "C" fn pattern_hash_ffi(pattern : RawPattern) -> UInt64 = "cairoon_patter
 
 ///|
 #borrow(pattern)
-extern "C" fn pattern_get_extend_raw_ffi(pattern : RawPattern) -> Int = "cairoon_pattern_get_extend_raw"
+extern "C" fn pattern_get_extend_raw_ffi(pattern : RawPattern) -> Int32 = "cairoon_pattern_get_extend_raw"
 
 ///|
 #borrow(pattern)
 extern "C" fn pattern_set_extend_raw_ffi(
   pattern : RawPattern,
-  extend_mode : Int,
-) -> Int = "cairoon_pattern_set_extend_raw"
+  extend_mode : Int32,
+) -> Int32 = "cairoon_pattern_set_extend_raw"
 
 ///|
 #borrow(pattern)
-extern "C" fn pattern_get_filter_raw_ffi(pattern : RawPattern) -> Int = "cairoon_pattern_get_filter_raw"
+extern "C" fn pattern_get_filter_raw_ffi(pattern : RawPattern) -> Int32 = "cairoon_pattern_get_filter_raw"
 
 ///|
 #borrow(pattern)
 extern "C" fn pattern_set_filter_raw_ffi(
   pattern : RawPattern,
-  filter : Int,
-) -> Int = "cairoon_pattern_set_filter_raw"
+  filter : Int32,
+) -> Int32 = "cairoon_pattern_set_filter_raw"
 
 ///|
 #borrow(pattern, status)
 extern "C" fn pattern_get_dither_raw_ffi(
   pattern : RawPattern,
-  status : Ref[Int],
-) -> Int = "cairoon_pattern_get_dither_raw"
+  status : Ref[Int32],
+) -> Int32 = "cairoon_pattern_get_dither_raw"
 
 ///|
 #borrow(pattern)
 extern "C" fn pattern_set_dither_raw_ffi(
   pattern : RawPattern,
-  dither : Int,
-) -> Int = "cairoon_pattern_set_dither_raw"
+  dither : Int32,
+) -> Int32 = "cairoon_pattern_set_dither_raw"
 
 ///|
 #borrow(pattern, xx, yx, xy, yy, x0, y0)
@@ -115,7 +115,7 @@ extern "C" fn pattern_get_matrix_ffi(
   yy : Ref[Double],
   x0 : Ref[Double],
   y0 : Ref[Double],
-) -> Int = "cairoon_pattern_get_matrix"
+) -> Int32 = "cairoon_pattern_get_matrix"
 
 ///|
 #borrow(pattern)
@@ -127,7 +127,7 @@ extern "C" fn pattern_set_matrix_ffi(
   yy : Double,
   x0 : Double,
   y0 : Double,
-) -> Int = "cairoon_pattern_set_matrix"
+) -> Int32 = "cairoon_pattern_set_matrix"
 
 ///|
 #borrow(pattern, red, green, blue, alpha)
@@ -137,7 +137,7 @@ extern "C" fn pattern_get_rgba_ffi(
   green : Ref[Double],
   blue : Ref[Double],
   alpha : Ref[Double],
-) -> Int = "cairoon_pattern_get_rgba"
+) -> Int32 = "cairoon_pattern_get_rgba"
 
 ///|
 #borrow(pattern)
@@ -147,7 +147,7 @@ extern "C" fn pattern_add_color_stop_rgb_ffi(
   red : Double,
   green : Double,
   blue : Double,
-) -> Int = "cairoon_pattern_add_color_stop_rgb"
+) -> Int32 = "cairoon_pattern_add_color_stop_rgb"
 
 ///|
 #borrow(pattern)
@@ -158,26 +158,26 @@ extern "C" fn pattern_add_color_stop_rgba_ffi(
   green : Double,
   blue : Double,
   alpha : Double,
-) -> Int = "cairoon_pattern_add_color_stop_rgba"
+) -> Int32 = "cairoon_pattern_add_color_stop_rgba"
 
 ///|
 #borrow(pattern, count)
 extern "C" fn pattern_get_color_stop_count_ffi(
   pattern : RawPattern,
-  count : Ref[Int],
-) -> Int = "cairoon_pattern_get_color_stop_count"
+  count : Ref[Int32],
+) -> Int32 = "cairoon_pattern_get_color_stop_count"
 
 ///|
 #borrow(pattern, offset, red, green, blue, alpha)
 extern "C" fn pattern_get_color_stop_rgba_ffi(
   pattern : RawPattern,
-  index : Int,
+  index : Int32,
   offset : Ref[Double],
   red : Ref[Double],
   green : Ref[Double],
   blue : Ref[Double],
   alpha : Ref[Double],
-) -> Int = "cairoon_pattern_get_color_stop_rgba"
+) -> Int32 = "cairoon_pattern_get_color_stop_rgba"
 
 ///|
 #borrow(pattern, x0, y0, x1, y1)
@@ -187,7 +187,7 @@ extern "C" fn pattern_get_linear_points_ffi(
   y0 : Ref[Double],
   x1 : Ref[Double],
   y1 : Ref[Double],
-) -> Int = "cairoon_pattern_get_linear_points"
+) -> Int32 = "cairoon_pattern_get_linear_points"
 
 ///|
 #borrow(pattern, cx0, cy0, radius0, cx1, cy1, radius1)
@@ -199,4 +199,4 @@ extern "C" fn pattern_get_radial_circles_ffi(
   cx1 : Ref[Double],
   cy1 : Ref[Double],
   radius1 : Ref[Double],
-) -> Int = "cairoon_pattern_get_radial_circles"
+) -> Int32 = "cairoon_pattern_get_radial_circles"

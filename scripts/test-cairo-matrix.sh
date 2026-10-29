@@ -158,7 +158,7 @@ run_cairo_lane() {
   local version="$1"
   local url="$2"
   local sha256="$3"
-  local image="cairoon-local:cairo-${version}-moon-0.10.4-4f2e8f7dc${platform_image_suffix}"
+  local image="cairoon-local:cairo-${version}-moon-0.10.18-6c83a7f62${platform_image_suffix}"
 
   printf '\n==> Linux Cairo %s lane\n' "$version"
   run_matrix_image \
@@ -169,7 +169,7 @@ run_cairo_lane() {
 }
 
 run_ubuntu_24_04_system() {
-  local image="cairoon-local:ubuntu-24.04-system-cairo-moon-0.10.4-4f2e8f7dc${platform_image_suffix}"
+  local image="cairoon-local:ubuntu-24.04-system-cairo-moon-0.10.18-6c83a7f62${platform_image_suffix}"
 
   printf '\n==> Ubuntu 24.04 system Cairo lane\n'
   run_matrix_image "$image" --target system-cairo

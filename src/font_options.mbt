@@ -21,14 +21,14 @@ fn FontOptions::to_raw(self : FontOptions) -> @font_options_impl.RawFontOptions 
 }
 
 ///|
-fn font_options_status_from_raw(raw : Int) -> Status {
+fn font_options_status_from_raw(raw : Int32) -> Status {
   status_from_raw(raw) catch {
     _ => InvalidStatus
   }
 }
 
 ///|
-fn check_font_options_status_raw(raw : Int) -> Unit raise CairoError {
+fn check_font_options_status_raw(raw : Int32) -> Unit raise CairoError {
   check_status(status_from_raw(raw))
 }
 
@@ -121,7 +121,7 @@ pub fn FontOptions::get_antialias(
 /// the object's checked `CairoError` status before reading the value.
 pub fn FontOptions::get_antialias_raw(
   self : FontOptions,
-) -> Int raise CairoError {
+) -> Int32 raise CairoError {
   check_font_options_status_raw(@font_options_impl.status_raw(self.to_raw()))
   @font_options_impl.get_antialias_raw(self.to_raw())
 }
@@ -150,7 +150,7 @@ pub fn FontOptions::set_antialias(
 /// Raises the object's checked status on failure.
 pub fn FontOptions::set_antialias_raw(
   self : FontOptions,
-  antialias : Int,
+  antialias : Int32,
 ) -> Unit raise CairoError {
   check_font_options_status_raw(
     @font_options_impl.set_antialias_raw(self.to_raw(), antialias),
@@ -175,7 +175,7 @@ pub fn FontOptions::get_subpixel_order(
 /// the object's checked `CairoError` status before reading the value.
 pub fn FontOptions::get_subpixel_order_raw(
   self : FontOptions,
-) -> Int raise CairoError {
+) -> Int32 raise CairoError {
   check_font_options_status_raw(@font_options_impl.status_raw(self.to_raw()))
   @font_options_impl.get_subpixel_order_raw(self.to_raw())
 }
@@ -204,7 +204,7 @@ pub fn FontOptions::set_subpixel_order(
 /// Raises the object's checked status on failure.
 pub fn FontOptions::set_subpixel_order_raw(
   self : FontOptions,
-  subpixel_order : Int,
+  subpixel_order : Int32,
 ) -> Unit raise CairoError {
   check_font_options_status_raw(
     @font_options_impl.set_subpixel_order_raw(self.to_raw(), subpixel_order),
@@ -229,7 +229,7 @@ pub fn FontOptions::get_hint_style(
 /// the object's checked `CairoError` status before reading the value.
 pub fn FontOptions::get_hint_style_raw(
   self : FontOptions,
-) -> Int raise CairoError {
+) -> Int32 raise CairoError {
   check_font_options_status_raw(@font_options_impl.status_raw(self.to_raw()))
   @font_options_impl.get_hint_style_raw(self.to_raw())
 }
@@ -258,7 +258,7 @@ pub fn FontOptions::set_hint_style(
 /// Raises the object's checked status on failure.
 pub fn FontOptions::set_hint_style_raw(
   self : FontOptions,
-  hint_style : Int,
+  hint_style : Int32,
 ) -> Unit raise CairoError {
   check_font_options_status_raw(
     @font_options_impl.set_hint_style_raw(self.to_raw(), hint_style),
@@ -283,7 +283,7 @@ pub fn FontOptions::get_hint_metrics(
 /// the object's checked `CairoError` status before reading the value.
 pub fn FontOptions::get_hint_metrics_raw(
   self : FontOptions,
-) -> Int raise CairoError {
+) -> Int32 raise CairoError {
   check_font_options_status_raw(@font_options_impl.status_raw(self.to_raw()))
   @font_options_impl.get_hint_metrics_raw(self.to_raw())
 }
@@ -312,7 +312,7 @@ pub fn FontOptions::set_hint_metrics(
 /// Raises the object's checked status on failure.
 pub fn FontOptions::set_hint_metrics_raw(
   self : FontOptions,
-  hint_metrics : Int,
+  hint_metrics : Int32,
 ) -> Unit raise CairoError {
   check_font_options_status_raw(
     @font_options_impl.set_hint_metrics_raw(self.to_raw(), hint_metrics),
@@ -395,7 +395,7 @@ pub fn FontOptions::get_color_mode(
 /// Cairo 1.18 or newer; older versions raise `CairoError(InvalidStatus, _)`.
 pub fn FontOptions::get_color_mode_raw(
   self : FontOptions,
-) -> Int raise CairoError {
+) -> Int32 raise CairoError {
   let status = Ref(0)
   let color_mode = @font_options_impl.get_color_mode_raw(self.to_raw(), status)
   check_font_options_status_raw(status.val)
@@ -427,7 +427,7 @@ pub fn FontOptions::set_color_mode(
 /// `CairoError(InvalidStatus, _)` without mutating this object.
 pub fn FontOptions::set_color_mode_raw(
   self : FontOptions,
-  color_mode : Int,
+  color_mode : Int32,
 ) -> Unit raise CairoError {
   check_font_options_status_raw(
     @font_options_impl.set_color_mode_raw(self.to_raw(), color_mode),
@@ -441,7 +441,7 @@ pub fn FontOptions::set_color_mode_raw(
 /// older versions raise `CairoError(InvalidStatus, _)`.
 pub fn FontOptions::get_color_palette(
   self : FontOptions,
-) -> UInt raise CairoError {
+) -> UInt32 raise CairoError {
   let status = Ref(0)
   let palette = @font_options_impl.get_color_palette_raw(self.to_raw(), status)
   check_font_options_status_raw(status.val)
@@ -456,7 +456,7 @@ pub fn FontOptions::get_color_palette(
 /// Cairo 1.18 or newer, otherwise raises `CairoError(InvalidStatus, _)`.
 pub fn FontOptions::set_color_palette(
   self : FontOptions,
-  palette_index : UInt,
+  palette_index : UInt32,
 ) -> Unit raise CairoError {
   check_font_options_status_raw(
     @font_options_impl.set_color_palette_raw(self.to_raw(), palette_index),
@@ -471,7 +471,7 @@ pub fn FontOptions::set_color_palette(
 /// Cairo 1.18 or newer, otherwise raises `CairoError(InvalidStatus, _)`.
 pub fn FontOptions::set_custom_palette_color(
   self : FontOptions,
-  index : UInt,
+  index : UInt32,
   red : Double,
   green : Double,
   blue : Double,
@@ -498,7 +498,7 @@ pub fn FontOptions::set_custom_palette_color(
 /// `CairoError(InvalidStatus, _)`.
 pub fn FontOptions::get_custom_palette_color(
   self : FontOptions,
-  index : UInt,
+  index : UInt32,
 ) -> (Double, Double, Double, Double) raise CairoError {
   let red = Ref(0.0)
   let green = Ref(0.0)
@@ -516,3 +516,6 @@ pub fn FontOptions::get_custom_palette_color(
   )
   (red.val, green.val, blue.val, alpha.val)
 }
+
+///|
+pub extend FontOptions with Eq::{not_equal}

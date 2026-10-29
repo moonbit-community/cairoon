@@ -1,6 +1,6 @@
 ///|
 fn expect_pdf_tag_stream_markers(
-  scene : Int,
+  scene : Int32,
   markers : Array[String],
 ) -> Unit raise {
   let chunks : Array[Bytes] = []

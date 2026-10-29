@@ -6,21 +6,25 @@ fn ensure_native() -> Unit {
 ///|
 pub fn toy_create_value_raw(
   family : Bytes,
-  slant : Int,
-  weight : Int,
+  slant : Int32,
+  weight : Int32,
 ) -> RawFontFace {
   ensure_native()
   toy_font_face_create_ffi(family, slant, weight)
 }
 
 ///|
-pub fn toy_create_raw(family : Bytes, slant : Int, weight : Int) -> RawFontFace {
+pub fn toy_create_raw(
+  family : Bytes,
+  slant : Int32,
+  weight : Int32,
+) -> RawFontFace {
   ensure_native()
   toy_font_face_create_raw_ffi(family, slant, weight)
 }
 
 ///|
-pub fn status_raw(font_face : RawFontFace) -> Int {
+pub fn status_raw(font_face : RawFontFace) -> Int32 {
   ensure_native()
   font_face_status_ffi(font_face)
 }
@@ -38,19 +42,19 @@ pub fn hash_raw(font_face : RawFontFace) -> UInt64 {
 }
 
 ///|
-pub fn get_family_raw(font_face : RawFontFace, status : Ref[Int]) -> Bytes {
+pub fn get_family_raw(font_face : RawFontFace, status : Ref[Int32]) -> Bytes {
   ensure_native()
   toy_font_face_get_family_ffi(font_face, status)
 }
 
 ///|
-pub fn get_slant_raw(font_face : RawFontFace, status : Ref[Int]) -> Int {
+pub fn get_slant_raw(font_face : RawFontFace, status : Ref[Int32]) -> Int32 {
   ensure_native()
   toy_font_face_get_slant_raw_ffi(font_face, status)
 }
 
 ///|
-pub fn get_weight_raw(font_face : RawFontFace, status : Ref[Int]) -> Int {
+pub fn get_weight_raw(font_face : RawFontFace, status : Ref[Int32]) -> Int32 {
   ensure_native()
   toy_font_face_get_weight_raw_ffi(font_face, status)
 }

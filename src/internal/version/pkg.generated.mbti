@@ -2,7 +2,7 @@
 package "CAIMEOX/cairoon/internal/version"
 
 // Values
-pub fn cairo_version() -> Int
+pub fn cairo_version() -> Int32
 
 pub fn cairo_version_string() -> String
 

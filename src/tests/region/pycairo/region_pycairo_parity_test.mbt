@@ -11,7 +11,7 @@ fn[T] expect_region_invalid_index(
 ///|
 fn expect_region_rectangle(
   region : @cairoon.Region,
-  index : Int,
+  index : Int32,
   expected : @cairoon.RectangleInt,
 ) -> Unit raise {
   inspect(region.get_rectangle(index) == expected, content="true")

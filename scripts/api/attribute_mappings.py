@@ -268,10 +268,10 @@ PUBLIC_ATTRIBUTE_MEMBERS: dict[str, dict[str, PublicMember]] = {
     "RectangleInt": field_members(
         "RectangleInt",
         (
-            ("height", "height : Int"),
-            ("width", "width : Int"),
-            ("x", "x : Int"),
-            ("y", "y : Int"),
+            ("height", "height : Int32"),
+            ("width", "width : Int32"),
+            ("x", "x : Int32"),
+            ("y", "y : Int32"),
         ),
     ),
     "RegionOverlap": enum_members(
@@ -382,8 +382,8 @@ PUBLIC_ATTRIBUTE_MEMBERS: dict[str, dict[str, PublicMember]] = {
     "TextCluster": field_members(
         "TextCluster",
         (
-            ("num_bytes", "num_bytes : Int"),
-            ("num_glyphs", "num_glyphs : Int"),
+            ("num_bytes", "num_bytes : Int32"),
+            ("num_glyphs", "num_glyphs : Int32"),
         ),
     ),
     "TextClusterFlags": enum_members(

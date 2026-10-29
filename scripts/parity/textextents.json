@@ -18,7 +18,7 @@
         "pub struct TextExtents {\n  x_bearing : Double\n  y_bearing : Double\n  width : Double\n  height : Double\n  x_advance : Double\n  y_advance : Double\n} derive(Eq, Hash, @debug.Debug)",
         "pub fn TextExtents::new(Double, Double, Double, Double, Double, Double) -> Self",
         "pub fn TextExtents::components(Self) -> (Double, Double, Double, Double, Double, Double)",
-        "pub fn TextExtents::at(Self, Int) -> Double raise CairoError"
+        "pub fn TextExtents::at(Self, Int32) -> Double raise CairoError"
       ],
       "adaptation": "TextExtents is a closed MoonBit struct rather than a Python tuple subclass. Fields, components, equality, hashing, and checked index syntax preserve the useful value protocol."
     },

@@ -17,9 +17,13 @@ pub struct Glyph {
   y : Double
 } derive(Eq, Hash, @debug.Debug)
 pub fn Glyph::components(Self) -> (UInt64, Double, Double)
+pub fn Glyph::equal(Self, Self) -> Bool
+pub fn Glyph::hash(Self) -> Int32
+pub fn Glyph::hash_combine(Self, Hasher) -> Unit
 pub fn Glyph::new(UInt64, Double, Double) -> Self
+pub fn Glyph::not_equal(Self, Self) -> Bool
+pub fn Glyph::to_repr(Self) -> @debug.Repr
 
 // Type aliases
 
 // Traits
-

@@ -22,8 +22,8 @@ fn expect_lifetime_write_error(
 ///|
 fn lifetime_record_stream_chunk(
   chunk : Bytes,
-  chunk_count : Ref[Int],
-  byte_count : Ref[Int],
+  chunk_count : Ref[Int32],
+  byte_count : Ref[Int32],
 ) -> @cairoon.Status {
   chunk_count.val += 1
   byte_count.val += chunk.length()
@@ -33,8 +33,8 @@ fn lifetime_record_stream_chunk(
 ///|
 fn lifetime_record_stream_chunk_with_status(
   chunk : Bytes,
-  chunk_count : Ref[Int],
-  byte_count : Ref[Int],
+  chunk_count : Ref[Int32],
+  byte_count : Ref[Int32],
   status : @cairoon.Status,
 ) -> @cairoon.Status {
   chunk_count.val += 1
@@ -48,7 +48,7 @@ fn lifetime_png_bytes() -> Bytes raise @cairoon.CairoError {
   let ctx = @cairoon.Context::new(surface)
   ctx.set_source_rgba(0.0, 1.0, 0.0, 1.0)
   ctx.paint()
-  let mut output = Bytes::default()
+  let mut output = Default::default()
   surface.write_to_png_stream(fn(chunk) {
     output = output + chunk
     Success
@@ -57,12 +57,12 @@ fn lifetime_png_bytes() -> Bytes raise @cairoon.CairoError {
 }
 
 ///|
-fn lifetime_bytes_slice(bytes : Bytes, offset : Int, length : Int) -> Bytes {
+fn lifetime_bytes_slice(bytes : Bytes, offset : Int32, length : Int32) -> Bytes {
   Bytes::makei(length, fn(i) { bytes[offset + i] })
 }
 
 ///|
-fn next_lifetime_stream_fuzz_seed(seed : Ref[Int]) -> Int {
+fn next_lifetime_stream_fuzz_seed(seed : Ref[Int32]) -> Int32 {
   seed.val = (seed.val * 131 + 71) % 7919
   seed.val
 }
@@ -70,8 +70,8 @@ fn next_lifetime_stream_fuzz_seed(seed : Ref[Int]) -> Int {
 ///|
 fn expect_lifetime_stream_fuzz_success(
   result : Result[Unit, @cairoon.CairoError],
-  chunk_count : Int,
-  byte_count : Int,
+  chunk_count : Int32,
+  byte_count : Int32,
 ) -> Unit raise {
   match result {
     Ok(_) => ()
@@ -84,7 +84,7 @@ fn expect_lifetime_stream_fuzz_success(
 ///|
 fn expect_lifetime_stream_fuzz_write_error(
   result : Result[Unit, @cairoon.CairoError],
-  chunk_count : Int,
+  chunk_count : Int32,
 ) -> Unit raise {
   inspect(chunk_count > 0, content="true")
   match result {
@@ -96,7 +96,7 @@ fn expect_lifetime_stream_fuzz_write_error(
 ///|
 fn expect_lifetime_stream_fuzz_read_error(
   result : Result[Unit, @cairoon.CairoError],
-  chunk_count : Int,
+  chunk_count : Int32,
 ) -> Unit raise {
   inspect(chunk_count > 0, content="true")
   match result {
@@ -107,9 +107,9 @@ fn expect_lifetime_stream_fuzz_read_error(
 
 ///|
 fn lifetime_stream_fuzz_vector_writer(
-  kind : Int,
+  kind : Int32,
   status : @cairoon.Status,
-) -> (Result[Unit, @cairoon.CairoError], Int, Int) raise @cairoon.CairoError {
+) -> (Result[Unit, @cairoon.CairoError], Int32, Int32) raise @cairoon.CairoError {
   let chunk_count = Ref(0)
   let byte_count = Ref(0)
   let surface = match kind {
@@ -139,7 +139,7 @@ fn lifetime_stream_fuzz_vector_writer(
 ///|
 fn lifetime_stream_fuzz_png_writer(
   status : @cairoon.Status,
-) -> (Result[Unit, @cairoon.CairoError], Int, Int) raise @cairoon.CairoError {
+) -> (Result[Unit, @cairoon.CairoError], Int32, Int32) raise @cairoon.CairoError {
   let image = @cairoon.Surface::image(Argb32, 2, 2)
   let ctx = @cairoon.Context::new(image)
   ctx.set_source_rgba(0.2, 0.5, 0.8, 1.0)
@@ -160,7 +160,7 @@ fn lifetime_stream_fuzz_png_writer(
 ///|
 fn lifetime_stream_fuzz_script_writer(
   status : @cairoon.Status,
-) -> (Result[Unit, @cairoon.CairoError], Int, Int) raise @cairoon.CairoError {
+) -> (Result[Unit, @cairoon.CairoError], Int32, Int32) raise @cairoon.CairoError {
   let chunk_count = Ref(0)
   let byte_count = Ref(0)
   let device = @cairoon.Device::script_stream(fn(chunk) {
@@ -182,7 +182,7 @@ fn lifetime_stream_fuzz_script_writer(
 ///|
 fn lifetime_stream_fuzz_png_reader(
   short_read : Bool,
-) -> (Result[Unit, @cairoon.CairoError], Int, Int, Int, Int) raise @cairoon.CairoError {
+) -> (Result[Unit, @cairoon.CairoError], Int32, Int32, Int32, Int32) raise @cairoon.CairoError {
   let input = lifetime_png_bytes()
   let offset = Ref(0)
   let chunk_count = Ref(0)
@@ -207,7 +207,7 @@ fn lifetime_stream_fuzz_png_reader(
 }
 
 ///|
-fn lifetime_stream_fuzz_status(value : Int) -> @cairoon.Status {
+fn lifetime_stream_fuzz_status(value : Int32) -> @cairoon.Status {
   match value % 3 {
     0 => Success
     1 => WriteError

@@ -12,7 +12,7 @@ pub struct Glyph {
 ///|
 /// Construct a glyph from its unsigned font index and user-space origin.
 pub fn Glyph::new(index : UInt64, x : Double, y : Double) -> Glyph {
-  { index, x, y }
+  { index, x, y, }
 }
 
 ///|
@@ -35,3 +35,12 @@ pub fn field_arrays(
     FixedArray::makei(count, index => glyphs[index].y),
   )
 }
+
+///|
+pub extend Glyph with Eq::{not_equal, equal}
+
+///|
+pub extend Glyph with Hash::{hash, hash_combine}
+
+///|
+pub extend Glyph with @debug.Debug::{to_repr}

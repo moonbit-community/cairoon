@@ -18,7 +18,7 @@
         "pub struct Rectangle {\n  x : Double\n  y : Double\n  width : Double\n  height : Double\n} derive(Eq, Hash, @debug.Debug)",
         "pub fn Rectangle::new(Double, Double, Double, Double) -> Self",
         "pub fn Rectangle::components(Self) -> (Double, Double, Double, Double)",
-        "pub fn Rectangle::at(Self, Int) -> Double raise CairoError"
+        "pub fn Rectangle::at(Self, Int32) -> Double raise CairoError"
       ],
       "adaptation": "Rectangle is a closed MoonBit struct rather than a Python tuple subclass. Fields, components, equality, hashing, checked index syntax, and derived Debug preserve the useful value protocol; missing constructor arguments, unknown fields, and heterogeneous tuple equality are rejected statically."
     },

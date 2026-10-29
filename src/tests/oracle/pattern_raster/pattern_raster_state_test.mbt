@@ -1,6 +1,6 @@
 ///|
 fn make_raster_state_color_source(
-  color : Int,
+  color : Int32,
 ) -> @cairoon.Surface raise @cairoon.CairoError {
   let surface = @cairoon.Surface::image(Argb32, 3, 3)
   let ctx = @cairoon.Context::new(surface)
@@ -14,7 +14,7 @@ fn make_raster_state_color_source(
 }
 
 ///|
-fn expect_raster_state_first_pixel(data : Bytes, color : Int) -> Unit raise {
+fn expect_raster_state_first_pixel(data : Bytes, color : Int32) -> Unit raise {
   let expected = match color {
     0 => [0, 0, 255, 255]
     1 => [0, 255, 0, 255]
@@ -27,8 +27,8 @@ fn expect_raster_state_first_pixel(data : Bytes, color : Int) -> Unit raise {
 
 ///|
 fn expect_raster_state_distribution(
-  actual : FixedArray[Int],
-  expected : Array[Int],
+  actual : FixedArray[Int32],
+  expected : Array[Int32],
 ) -> Unit raise {
   inspect(actual.length(), content="\{expected.length()}")
   for index in 0..<expected.length() {
@@ -48,7 +48,7 @@ fn expect_raster_state_owner_counts_zero(
 }
 
 ///|
-fn next_raster_state_seed(seed : Ref[Int]) -> Int {
+fn next_raster_state_seed(seed : Ref[Int32]) -> Int32 {
   seed.val = (seed.val * 73 + 41) % 997
   seed.val
 }

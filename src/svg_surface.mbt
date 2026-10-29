@@ -9,7 +9,7 @@
 pub fn Surface::svg(
   width_in_points : Double,
   height_in_points : Double,
-  path? : String? = None,
+  path~ : String? = None,
 ) -> Surface raise CairoError {
   let status = Ref(0)
   let (has_filename, filename) = match path {
@@ -60,7 +60,7 @@ pub fn SVGVersion::supported() -> Array[SVGVersion] raise CairoError {
   let status = Ref(0)
   let count = @svg_impl.get_version_count_raw(status)
   check_status(status_from_raw(status.val))
-  let versions : Array[SVGVersion] = Array::new(capacity=count)
+  let versions : Array[SVGVersion] = Array(capacity=count)
   for index in 0..<count {
     let version = svg_version_from_raw(@svg_impl.get_version_raw(index, status))
     check_status(status_from_raw(status.val))
@@ -87,7 +87,7 @@ pub fn SVGVersion::to_string(self : SVGVersion) -> String raise CairoError {
 /// Portable values are `0` (SVG 1.1) and `1` (SVG 1.2). Unknown positive or
 /// negative integers raise `CairoError(InvalidStatus, _)`; the returned string
 /// is copied into MoonBit-owned storage.
-pub fn SVGVersion::to_string_raw(version : Int) -> String raise CairoError {
+pub fn SVGVersion::to_string_raw(version : Int32) -> String raise CairoError {
   let status = Ref(0)
   let text = @svg_impl.version_to_string_raw(version, status)
   check_status(status_from_raw(status.val))
@@ -95,7 +95,7 @@ pub fn SVGVersion::to_string_raw(version : Int) -> String raise CairoError {
 }
 
 ///|
-fn SVGVersion::to_raw(self : SVGVersion) -> Int {
+fn SVGVersion::to_raw(self : SVGVersion) -> Int32 {
   match self {
     SvgVersion1_1 => 0
     SvgVersion1_2 => 1
@@ -103,7 +103,7 @@ fn SVGVersion::to_raw(self : SVGVersion) -> Int {
 }
 
 ///|
-fn svg_version_from_raw(raw : Int) -> SVGVersion raise CairoError {
+fn svg_version_from_raw(raw : Int32) -> SVGVersion raise CairoError {
   match raw {
     0 => SvgVersion1_1
     1 => SvgVersion1_2
@@ -116,7 +116,7 @@ fn svg_version_from_raw(raw : Int) -> SVGVersion raise CairoError {
 }
 
 ///|
-fn svg_unit_from_raw(raw : Int) -> SVGUnit raise CairoError {
+fn svg_unit_from_raw(raw : Int32) -> SVGUnit raise CairoError {
   match raw {
     0 => SvgUnitUser
     1 => SvgUnitEm
@@ -137,7 +137,7 @@ fn svg_unit_from_raw(raw : Int) -> SVGUnit raise CairoError {
 }
 
 ///|
-fn SVGUnit::to_raw(self : SVGUnit) -> Int {
+fn SVGUnit::to_raw(self : SVGUnit) -> Int32 {
   match self {
     SvgUnitUser => 0
     SvgUnitEm => 1
@@ -178,7 +178,7 @@ pub fn Surface::svg_restrict_to_version(
 /// checked receiver errors apply.
 pub fn Surface::svg_restrict_to_version_raw(
   self : Surface,
-  version : Int,
+  version : Int32,
 ) -> Unit raise CairoError {
   check_surface_status_raw(
     @surface_impl.svg_restrict_to_version_raw(self.to_raw(), version),
@@ -206,7 +206,7 @@ pub fn Surface::svg_get_document_unit(
 /// checked receiver behavior as `svg_get_document_unit`.
 pub fn Surface::svg_get_document_unit_raw(
   self : Surface,
-) -> Int raise CairoError {
+) -> Int32 raise CairoError {
   let status = Ref(0)
   let unit = @surface_impl.svg_get_document_unit_raw(self.to_raw(), status)
   check_surface_status_raw(status.val)
@@ -239,7 +239,7 @@ pub fn Surface::svg_set_document_unit(
 /// `svg_set_document_unit`.
 pub fn Surface::svg_set_document_unit_raw(
   self : Surface,
-  unit : Int,
+  unit : Int32,
 ) -> Unit raise CairoError {
   check_surface_status_raw(
     @surface_impl.svg_set_document_unit_raw(self.to_raw(), unit),

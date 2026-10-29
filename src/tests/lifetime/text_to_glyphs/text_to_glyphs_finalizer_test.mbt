@@ -1,6 +1,6 @@
 ///|
 fn make_finalizer_fallback_scaled_font(
-  slant : Int,
+  slant : Int32,
 ) -> @scaled_font_impl.RawScaledFont {
   let face = @font_face_impl.toy_create_raw(b"serif", slant, 0)
   let options = @font_options_impl.create_raw()
@@ -13,7 +13,7 @@ fn make_finalizer_fallback_scaled_font(
 fn lifetime_stress_text_to_glyphs_finalizer(
   valid : @scaled_font_impl.RawScaledFont,
   invalid : @scaled_font_impl.RawScaledFont,
-  index : Int,
+  index : Int32,
 ) -> Unit raise {
   let mode = index % 3
   let scaled_font = if mode == 2 { invalid } else { valid }
@@ -54,7 +54,7 @@ test "raw text-to-glyph results rely on finalizer fallback stress" {
   let invalid = make_finalizer_fallback_scaled_font(42)
   inspect(@scaled_font_impl.status_raw(valid), content="0")
   inspect(@scaled_font_impl.status_raw(invalid), content="30")
-  let mode_counts : FixedArray[Int] = FixedArray::make(3, 0)
+  let mode_counts : FixedArray[Int32] = FixedArray::make(3, 0)
   for index in 0..<1000 {
     let mode = index % 3
     mode_counts[mode] = mode_counts[mode] + 1

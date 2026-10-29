@@ -3,10 +3,6 @@ import {
   "moonbitlang/core/encoding/utf8",
 }
 
-import {
-  "moonbitlang/core/test",
-} for "test"
-
 options(
   targets: { "ffi.mbt": [ "native" ] },
 )

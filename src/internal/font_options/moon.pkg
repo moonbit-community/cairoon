@@ -2,10 +2,6 @@ import {
   "CAIMEOX/cairoon/native",
 }
 
-import {
-  "moonbitlang/core/test",
-} for "test"
-
 options(
   targets: { "ffi.mbt": [ "native" ] },
 )

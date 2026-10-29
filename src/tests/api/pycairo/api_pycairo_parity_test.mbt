@@ -9,7 +9,7 @@ fn has_nonzero_byte(bytes : Bytes) -> Bool {
 }
 
 ///|
-fn bytes_all_value(bytes : Bytes, value : Int) -> Bool {
+fn bytes_all_value(bytes : Bytes, value : Int32) -> Bool {
   for index in 0..<bytes.length() {
     if bytes[index].to_int() != value {
       return false

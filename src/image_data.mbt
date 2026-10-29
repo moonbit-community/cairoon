@@ -68,7 +68,7 @@ pub fn ImageData::status(self : ImageData) -> Status {
 /// The length is `height * stride`, so it includes row padding and can be zero
 /// for an empty image. The owner is checked before the stored length is
 /// returned; a finished surface or consumed mapping raises `SurfaceFinished`.
-pub fn ImageData::length(self : ImageData) -> Int raise CairoError {
+pub fn ImageData::length(self : ImageData) -> Int32 raise CairoError {
   check_surface_status_raw(@surface_impl.data_status_raw(self.to_raw()))
   @surface_impl.data_length_raw(self.to_raw())
 }
@@ -79,7 +79,7 @@ pub fn ImageData::length(self : ImageData) -> Int raise CairoError {
 /// Valid indices are `0 <= index < length()`. A negative or out-of-range index
 /// raises `CairoInvalidArgument(InvalidIndex, _)`; an invalidated owner raises
 /// its checked surface error first.
-pub fn ImageData::get(self : ImageData, index : Int) -> Byte raise CairoError {
+pub fn ImageData::get(self : ImageData, index : Int32) -> Byte raise CairoError {
   let status = Ref(0)
   let value = @surface_impl.data_get_raw(self.to_raw(), index, status)
   check_surface_status_raw(status.val)
@@ -96,7 +96,7 @@ pub fn ImageData::get(self : ImageData, index : Int) -> Byte raise CairoError {
 /// checked surface error without writing.
 pub fn ImageData::set(
   self : ImageData,
-  index : Int,
+  index : Int32,
   value : Byte,
 ) -> Unit raise CairoError {
   check_surface_status_raw(

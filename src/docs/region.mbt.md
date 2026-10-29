@@ -17,9 +17,9 @@ unhashable and non-orderable protocol behavior.
 ```mbt check
 ///|
 test "region docs: construct and query rectangles" {
-  let region = Region::from_rectangles([
-    RectangleInt::new(x=0, y=0, width=4, height=4),
-    RectangleInt::new(x=10, y=0, width=2, height=4),
+  let region = @docs.Region::from_rectangles([
+    @docs.RectangleInt::new(x=0, y=0, width=4, height=4),
+    @docs.RectangleInt::new(x=10, y=0, width=2, height=4),
   ])
 
   inspect(region.is_empty(), content="false")
@@ -31,7 +31,9 @@ test "region docs: construct and query rectangles" {
   inspect(region.contains_point(1, 1), content="true")
   inspect(region.contains_point(8, 1), content="false")
   debug_inspect(
-    region.contains_rectangle(RectangleInt::new(x=0, y=0, width=12, height=4)),
+    region.contains_rectangle(
+      @docs.RectangleInt::new(x=0, y=0, width=12, height=4),
+    ),
     content="RegionOverlapPart",
   )
 }
@@ -46,12 +48,12 @@ requiring a temporary `Region` allocation in user code.
 ```mbt check
 ///|
 test "region docs: boolean rectangle operations" {
-  let region = Region::from_rectangle(
-    RectangleInt::new(x=0, y=0, width=10, height=10),
+  let region = @docs.Region::from_rectangle(
+    @docs.RectangleInt::new(x=0, y=0, width=10, height=10),
   )
 
   let chained = region.intersect_rectangle(
-    RectangleInt::new(x=5, y=0, width=10, height=10),
+    @docs.RectangleInt::new(x=5, y=0, width=10, height=10),
   )
   inspect(chained.equal(region), content="true")
   debug_inspect(
@@ -60,7 +62,7 @@ test "region docs: boolean rectangle operations" {
   )
 
   let _ = chained.union_rectangle(
-    RectangleInt::new(x=0, y=0, width=5, height=10),
+    @docs.RectangleInt::new(x=0, y=0, width=5, height=10),
   )
   debug_inspect(
     region.get_extents(),
@@ -68,10 +70,12 @@ test "region docs: boolean rectangle operations" {
   )
 
   let _ = chained.xor_rectangle(
-    RectangleInt::new(x=5, y=0, width=10, height=10),
+    @docs.RectangleInt::new(x=5, y=0, width=10, height=10),
   )
   debug_inspect(
-    region.contains_rectangle(RectangleInt::new(x=5, y=0, width=5, height=10)),
+    region.contains_rectangle(
+      @docs.RectangleInt::new(x=5, y=0, width=5, height=10),
+    ),
     content="RegionOverlapOut",
   )
 }
@@ -86,8 +90,8 @@ out-of-range index to `CairoInvalidArgument(InvalidIndex, _)`.
 ```mbt check
 ///|
 test "region docs: invalid rectangle index is checked" {
-  let region = Region::new()
-  let result = run_cairo(() => region.get_rectangle(0))
+  let region = @docs.Region::new()
+  let result = @docs.run_cairo(() => region.get_rectangle(0))
   match result {
     Err(CairoInvalidArgument(InvalidIndex, _)) => ()
     _ => @test.fail("expected InvalidIndex")

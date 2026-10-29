@@ -5,9 +5,9 @@ fn init {
 
 ///|
 extern "C" fn test_argb32_scene_oracle_ffi(
-  scene : Int,
-  width : Int,
-  height : Int,
+  scene : Int32,
+  width : Int32,
+  height : Int32,
 ) -> Bytes = "cairoon_test_argb32_scene_oracle"
 
 ///|
@@ -52,7 +52,7 @@ fn paint_image_oracle_quad_surface(
 ///|
 fn draw_image_oracle_scene(
   ctx : @cairoon.Context,
-  scene : Int,
+  scene : Int32,
 ) -> Unit raise @cairoon.CairoError {
   if scene < 19 {
     draw_image_oracle_basic_scene(ctx, scene)
@@ -66,7 +66,7 @@ fn draw_image_oracle_scene(
 }
 
 ///|
-fn render_image_oracle_scene(scene : Int) -> Bytes raise @cairoon.CairoError {
+fn render_image_oracle_scene(scene : Int32) -> Bytes raise @cairoon.CairoError {
   let surface = @cairoon.Surface::image(Argb32, 16, 16)
   let ctx = @cairoon.Context::new(surface)
   draw_image_oracle_scene(ctx, scene)
@@ -75,7 +75,7 @@ fn render_image_oracle_scene(scene : Int) -> Bytes raise @cairoon.CairoError {
 
 ///|
 fn render_buffered_image_oracle_scene(
-  scene : Int,
+  scene : Int32,
 ) -> (Bytes, Bytes) raise @cairoon.CairoError {
   let width = 16
   let height = 16

@@ -12,29 +12,29 @@ pub fn create_raw(@font_face.RawFontFace, Double, Double, Double, Double, Double
 
 pub fn equal_raw(RawScaledFont, RawScaledFont) -> Bool
 
-pub fn extents_raw(RawScaledFont, @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double]) -> Int
+pub fn extents_raw(RawScaledFont, @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double]) -> Int32
 
-pub fn get_ctm_raw(RawScaledFont, @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double]) -> Int
+pub fn get_ctm_raw(RawScaledFont, @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double]) -> Int32
 
-pub fn get_font_face_raw(RawScaledFont, @ref.Ref[Int]) -> @font_face.RawFontFace
+pub fn get_font_face_raw(RawScaledFont, @ref.Ref[Int32]) -> @font_face.RawFontFace
 
-pub fn get_font_matrix_raw(RawScaledFont, @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double]) -> Int
+pub fn get_font_matrix_raw(RawScaledFont, @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double]) -> Int32
 
-pub fn get_font_options_raw(RawScaledFont, @ref.Ref[Int]) -> @font_options.RawFontOptions
+pub fn get_font_options_raw(RawScaledFont, @ref.Ref[Int32]) -> @font_options.RawFontOptions
 
-pub fn get_scale_matrix_raw(RawScaledFont, @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double]) -> Int
+pub fn get_scale_matrix_raw(RawScaledFont, @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double]) -> Int32
 
-pub fn glyph_extents_raw(RawScaledFont, FixedArray[UInt64], FixedArray[Double], FixedArray[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double]) -> Int
+pub fn glyph_extents_raw(RawScaledFont, FixedArray[UInt64], FixedArray[Double], FixedArray[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double]) -> Int32
 
 pub fn hash_raw(RawScaledFont) -> UInt64
 
-pub fn status_raw(RawScaledFont) -> Int
+pub fn status_raw(RawScaledFont) -> Int32
 
-pub fn text_extents_raw(RawScaledFont, Bytes, @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double]) -> Int
+pub fn text_extents_raw(RawScaledFont, Bytes, @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double]) -> Int32
 
-pub fn text_to_glyphs_clusters_raw(RawTextToGlyphs) -> FixedArray[Int]
+pub fn text_to_glyphs_clusters_raw(RawTextToGlyphs) -> FixedArray[Int32]
 
-pub fn text_to_glyphs_flags_raw(RawTextToGlyphs) -> Int
+pub fn text_to_glyphs_flags_raw(RawTextToGlyphs) -> Int32
 
 pub fn text_to_glyphs_indices_raw(RawTextToGlyphs) -> FixedArray[UInt64]
 
@@ -44,7 +44,7 @@ pub fn text_to_glyphs_raw(RawScaledFont, Double, Double, Bytes, Bool) -> RawText
 
 pub fn text_to_glyphs_release_raw(RawTextToGlyphs) -> Unit
 
-pub fn text_to_glyphs_status_raw(RawTextToGlyphs) -> Int
+pub fn text_to_glyphs_status_raw(RawTextToGlyphs) -> Int32
 
 // Errors
 

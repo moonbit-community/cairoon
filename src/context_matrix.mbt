@@ -96,7 +96,7 @@ fn matrix_from_context_output(
     Ref[Double],
     Ref[Double],
     Ref[Double],
-  ) -> Int,
+  ) -> Int32,
 ) -> Matrix raise CairoError {
   let xx = Ref(0.0)
   let yx = Ref(0.0)
@@ -132,7 +132,7 @@ pub fn Context::identity_matrix(self : Context) -> Unit raise CairoError {
 
 ///|
 fn point_from_context_output(
-  f : (Ref[Double], Ref[Double]) -> Int,
+  f : (Ref[Double], Ref[Double]) -> Int32,
 ) -> (Double, Double) raise CairoError {
   let x = Ref(0.0)
   let y = Ref(0.0)

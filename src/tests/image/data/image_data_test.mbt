@@ -1,5 +1,5 @@
 ///|
-fn inspect_rgb24_bytes(bytes : Bytes, expected : Array[Int]) -> Unit raise {
+fn inspect_rgb24_bytes(bytes : Bytes, expected : Array[Int32]) -> Unit raise {
   inspect(bytes.length(), content="\{expected.length()}")
   for i in 0..<expected.length() {
     inspect(bytes[i].to_int(), content="\{expected[i]}")

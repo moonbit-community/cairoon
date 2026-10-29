@@ -1,6 +1,6 @@
 ///|
 fn make_vector_oracle_stream_surface(
-  kind : Int,
+  kind : Int32,
   chunks : Array[Bytes],
 ) -> @cairoon.Surface raise @cairoon.CairoError {
   match kind {
@@ -31,8 +31,8 @@ fn make_vector_oracle_stream_surface(
 
 ///|
 fn render_vector_oracle_stream_scene(
-  scene : Int,
-  kind : Int,
+  scene : Int32,
+  kind : Int32,
   chunks : Array[Bytes],
 ) -> Unit raise @cairoon.CairoError {
   let surface = make_vector_oracle_stream_surface(kind, chunks)
@@ -41,8 +41,8 @@ fn render_vector_oracle_stream_scene(
 
 ///|
 fn render_backend_oracle_stream_scene(
-  scene : Int,
-  kind : Int,
+  scene : Int32,
+  kind : Int32,
   chunks : Array[Bytes],
 ) -> Unit raise @cairoon.CairoError {
   match scene {

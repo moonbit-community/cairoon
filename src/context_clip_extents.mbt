@@ -46,7 +46,7 @@ pub fn Context::clip_extents(
 
 ///|
 fn context_extents_from_output(
-  f : (Ref[Double], Ref[Double], Ref[Double], Ref[Double]) -> Int,
+  f : (Ref[Double], Ref[Double], Ref[Double], Ref[Double]) -> Int32,
 ) -> (Double, Double, Double, Double) raise CairoError {
   let x1 = Ref(0.0)
   let y1 = Ref(0.0)
@@ -142,7 +142,9 @@ pub fn Context::path_extents(
 }
 
 ///|
-fn context_hit_test_from_output(f : (Ref[Int]) -> Int) -> Bool raise CairoError {
+fn context_hit_test_from_output(
+  f : (Ref[Int32]) -> Int32,
+) -> Bool raise CairoError {
   let result = Ref(0)
   check_context_status_raw(f(result))
   result.val != 0

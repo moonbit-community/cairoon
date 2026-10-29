@@ -1,6 +1,6 @@
 ///|
 /// Cairo's raw sentinel for an invalid image format.
-pub const FORMAT_INVALID : Int = -1
+pub const FORMAT_INVALID : Int32 = -1
 
 ///|
 /// The memory layout of pixels in an image surface.
@@ -19,7 +19,7 @@ pub(all) enum Format {
 } derive(Eq, Debug)
 
 ///|
-fn format_from_raw(raw : Int) -> Format raise CairoError {
+fn format_from_raw(raw : Int32) -> Format raise CairoError {
   match raw {
     0 => Argb32
     1 => Rgb24
@@ -35,7 +35,7 @@ fn format_from_raw(raw : Int) -> Format raise CairoError {
 }
 
 ///|
-fn Format::to_raw(self : Format) -> Int {
+fn Format::to_raw(self : Format) -> Int32 {
   match self {
     Argb32 => 0
     Rgb24 => 1
@@ -52,7 +52,7 @@ fn Format::to_raw(self : Format) -> Int {
 /// Return Cairo's required byte stride for rows of this format and width.
 ///
 /// Cairo returns `-1` when the format or width cannot produce a valid stride.
-pub fn Format::stride_for_width(self : Format, width : Int) -> Int {
+pub fn Format::stride_for_width(self : Format, width : Int32) -> Int32 {
   @format_impl.stride_for_width_raw(self.to_raw(), width)
 }
 
@@ -61,6 +61,12 @@ pub fn Format::stride_for_width(self : Format, width : Int) -> Int {
 ///
 /// This compatibility entry point preserves pycairo's C-integer boundary and
 /// returns `-1` for invalid input.
-pub fn Format::stride_for_width_raw(format : Int, width : Int) -> Int {
+pub fn Format::stride_for_width_raw(format : Int32, width : Int32) -> Int32 {
   @format_impl.stride_for_width_raw(format, width)
 }
+
+///|
+pub extend Format with Eq::{not_equal, equal}
+
+///|
+pub extend Format with @debug.Debug::{to_repr}

@@ -13,7 +13,7 @@ needs the pycairo-like data/type split.
 ```mbt check
 ///|
 test "path docs: copy path exposes typed segments" {
-  let ctx = Context::new(Surface::image(Argb32, 16, 16))
+  let ctx = @docs.Context::new(@docs.Surface::image(Argb32, 16, 16))
   ctx.move_to(1.0, 2.0)
   ctx.line_to(5.0, 2.0)
   ctx.curve_to(6.0, 3.0, 7.0, 4.0, 8.0, 5.0)
@@ -41,7 +41,7 @@ for debugging and for parity checks, but program logic should prefer
 ```mbt check
 ///|
 test "path docs: string form mirrors pycairo formatting" {
-  let ctx = Context::new(Surface::image(Argb32, 16, 16))
+  let ctx = @docs.Context::new(@docs.Surface::image(Argb32, 16, 16))
   ctx.line_to(1.0, 2.0)
   ctx.line_to(2.0, 3.0)
 
@@ -60,7 +60,7 @@ an owned Cairo path object and can be appended to any compatible context.
 ```mbt check
 ///|
 test "path docs: flattened paths append without curve segments" {
-  let source = Context::new(Surface::image(Argb32, 24, 24))
+  let source = @docs.Context::new(@docs.Surface::image(Argb32, 24, 24))
   source.move_to(1.0, 1.0)
   source.curve_to(2.0, 3.0, 4.0, 5.0, 6.0, 7.0)
 
@@ -80,7 +80,7 @@ test "path docs: flattened paths append without curve segments" {
     content="true",
   )
 
-  let target = Context::new(Surface::image(Argb32, 24, 24))
+  let target = @docs.Context::new(@docs.Surface::image(Argb32, 24, 24))
   target.append_path(flat)
   let appended = target.copy_path()
   inspect(appended.length() > 1, content="true")
@@ -100,23 +100,24 @@ integers.
 ```mbt check
 ///|
 test "path docs: copied paths are independent and errors are checked" {
-  let source = Context::new(Surface::image(Argb32, 20, 20))
+  let source = @docs.Context::new(@docs.Surface::image(Argb32, 20, 20))
   source.rectangle(2.0, 3.0, 4.0, 5.0)
   let path = source.copy_path()
   source.new_path()
   debug_inspect(source.path_extents(), content="(0, 0, 0, 0)")
 
-  let target = Context::new(Surface::image(Argb32, 20, 20))
+  let target = @docs.Context::new(@docs.Surface::image(Argb32, 20, 20))
   target.append_path(path)
   debug_inspect(target.path_extents(), content="(2, 3, 6, 8)")
 
-  let broken = Context::new(Surface::image(Argb32, 20, 20))
-  match run_cairo(() => broken.set_matrix(Matrix::new(xx=0.0, yy=0.0))) {
+  let broken = @docs.Context::new(@docs.Surface::image(Argb32, 20, 20))
+  match
+    @docs.run_cairo(() => broken.set_matrix(@docs.Matrix::new(xx=0.0, yy=0.0))) {
     Err(CairoInvalidArgument(InvalidMatrix, _)) => ()
     _ => @test.fail("expected InvalidMatrix from set_matrix")
   }
 
-  let copy_result = run_cairo(() => {
+  let copy_result = @docs.run_cairo(() => {
     let _ = broken.copy_path()
     ()
   })
@@ -125,7 +126,7 @@ test "path docs: copied paths are independent and errors are checked" {
     _ => @test.fail("expected InvalidMatrix from copy_path")
   }
 
-  match run_cairo(() => broken.append_path(path)) {
+  match @docs.run_cairo(() => broken.append_path(path)) {
     Err(CairoInvalidArgument(InvalidMatrix, _)) => ()
     _ => @test.fail("expected InvalidMatrix from append_path")
   }

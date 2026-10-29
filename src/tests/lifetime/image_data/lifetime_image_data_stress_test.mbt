@@ -29,7 +29,7 @@ fn expect_lifetime_image_data_mapped_finished(
 }
 
 ///|
-fn lifetime_stress_image_data_views(index : Int) -> Unit raise {
+fn lifetime_stress_image_data_views(index : Int32) -> Unit raise {
   let first : Byte = if index % 2 == 0 { b'\x11' } else { b'\x22' }
   let second : Byte = if index % 2 == 0 { b'\x33' } else { b'\x44' }
 

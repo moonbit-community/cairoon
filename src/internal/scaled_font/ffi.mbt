@@ -22,7 +22,7 @@ extern "C" fn scaled_font_create_ffi(
 
 ///|
 #borrow(scaled_font)
-extern "C" fn scaled_font_status_ffi(scaled_font : RawScaledFont) -> Int = "cairoon_scaled_font_status"
+extern "C" fn scaled_font_status_ffi(scaled_font : RawScaledFont) -> Int32 = "cairoon_scaled_font_status"
 
 ///|
 #borrow(scaled_font, other)
@@ -39,14 +39,14 @@ extern "C" fn scaled_font_hash_ffi(scaled_font : RawScaledFont) -> UInt64 = "cai
 #borrow(scaled_font, status)
 extern "C" fn scaled_font_get_font_face_ffi(
   scaled_font : RawScaledFont,
-  status : Ref[Int],
+  status : Ref[Int32],
 ) -> @font_face_impl.RawFontFace = "cairoon_scaled_font_get_font_face"
 
 ///|
 #borrow(scaled_font, status)
 extern "C" fn scaled_font_get_font_options_ffi(
   scaled_font : RawScaledFont,
-  status : Ref[Int],
+  status : Ref[Int32],
 ) -> @font_options_impl.RawFontOptions = "cairoon_scaled_font_get_font_options"
 
 ///|
@@ -59,7 +59,7 @@ extern "C" fn scaled_font_get_font_matrix_ffi(
   yy : Ref[Double],
   x0 : Ref[Double],
   y0 : Ref[Double],
-) -> Int = "cairoon_scaled_font_get_font_matrix"
+) -> Int32 = "cairoon_scaled_font_get_font_matrix"
 
 ///|
 #borrow(scaled_font, xx, yx, xy, yy, x0, y0)
@@ -71,7 +71,7 @@ extern "C" fn scaled_font_get_ctm_ffi(
   yy : Ref[Double],
   x0 : Ref[Double],
   y0 : Ref[Double],
-) -> Int = "cairoon_scaled_font_get_ctm"
+) -> Int32 = "cairoon_scaled_font_get_ctm"
 
 ///|
 #borrow(scaled_font, xx, yx, xy, yy, x0, y0)
@@ -83,7 +83,7 @@ extern "C" fn scaled_font_get_scale_matrix_ffi(
   yy : Ref[Double],
   x0 : Ref[Double],
   y0 : Ref[Double],
-) -> Int = "cairoon_scaled_font_get_scale_matrix"
+) -> Int32 = "cairoon_scaled_font_get_scale_matrix"
 
 ///|
 #borrow(scaled_font, ascent, descent, height, max_x_advance, max_y_advance)
@@ -94,7 +94,7 @@ extern "C" fn scaled_font_extents_ffi(
   height : Ref[Double],
   max_x_advance : Ref[Double],
   max_y_advance : Ref[Double],
-) -> Int = "cairoon_scaled_font_extents"
+) -> Int32 = "cairoon_scaled_font_extents"
 
 ///|
 #borrow(scaled_font, text, x_bearing, y_bearing, width, height, x_advance, y_advance)
@@ -107,7 +107,7 @@ extern "C" fn scaled_font_text_extents_ffi(
   height : Ref[Double],
   x_advance : Ref[Double],
   y_advance : Ref[Double],
-) -> Int = "cairoon_scaled_font_text_extents"
+) -> Int32 = "cairoon_scaled_font_text_extents"
 
 ///|
 #borrow(scaled_font, indices, xs, ys, x_bearing, y_bearing, width, height, x_advance, y_advance)
@@ -122,4 +122,4 @@ extern "C" fn scaled_font_glyph_extents_ffi(
   height : Ref[Double],
   x_advance : Ref[Double],
   y_advance : Ref[Double],
-) -> Int = "cairoon_scaled_font_glyph_extents"
+) -> Int32 = "cairoon_scaled_font_glyph_extents"

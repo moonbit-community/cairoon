@@ -2,7 +2,7 @@
 #borrow(ctx, status)
 extern "C" fn context_get_font_options_ffi(
   ctx : RawContext,
-  status : Ref[Int],
+  status : Ref[Int32],
 ) -> @font_options_impl.RawFontOptions = "cairoon_context_get_font_options"
 
 ///|
@@ -10,13 +10,13 @@ extern "C" fn context_get_font_options_ffi(
 extern "C" fn context_set_font_options_ffi(
   ctx : RawContext,
   options : @font_options_impl.RawFontOptions,
-) -> Int = "cairoon_context_set_font_options"
+) -> Int32 = "cairoon_context_set_font_options"
 
 ///|
 #borrow(ctx, status)
 extern "C" fn context_get_font_face_ffi(
   ctx : RawContext,
-  status : Ref[Int],
+  status : Ref[Int32],
 ) -> @font_face_impl.RawFontFace = "cairoon_context_get_font_face"
 
 ///|
@@ -24,20 +24,20 @@ extern "C" fn context_get_font_face_ffi(
 extern "C" fn context_set_font_face_ffi(
   ctx : RawContext,
   font_face : @font_face_impl.RawFontFace,
-) -> Int = "cairoon_context_set_font_face"
+) -> Int32 = "cairoon_context_set_font_face"
 
 ///|
 #borrow(ctx)
-extern "C" fn context_set_font_face_default_ffi(ctx : RawContext) -> Int = "cairoon_context_set_font_face_default"
+extern "C" fn context_set_font_face_default_ffi(ctx : RawContext) -> Int32 = "cairoon_context_set_font_face_default"
 
 ///|
 #borrow(ctx, family)
 extern "C" fn context_select_font_face_raw_ffi(
   ctx : RawContext,
   family : Bytes,
-  slant : Int,
-  weight : Int,
-) -> Int = "cairoon_context_select_font_face_raw"
+  slant : Int32,
+  weight : Int32,
+) -> Int32 = "cairoon_context_select_font_face_raw"
 
 ///|
 #borrow(ctx)
@@ -49,7 +49,7 @@ extern "C" fn context_set_font_matrix_ffi(
   yy : Double,
   x0 : Double,
   y0 : Double,
-) -> Int = "cairoon_context_set_font_matrix"
+) -> Int32 = "cairoon_context_set_font_matrix"
 
 ///|
 #borrow(ctx, xx, yx, xy, yy, x0, y0)
@@ -61,11 +61,14 @@ extern "C" fn context_get_font_matrix_ffi(
   yy : Ref[Double],
   x0 : Ref[Double],
   y0 : Ref[Double],
-) -> Int = "cairoon_context_get_font_matrix"
+) -> Int32 = "cairoon_context_get_font_matrix"
 
 ///|
 #borrow(ctx)
-extern "C" fn context_set_font_size_ffi(ctx : RawContext, size : Double) -> Int = "cairoon_context_set_font_size"
+extern "C" fn context_set_font_size_ffi(
+  ctx : RawContext,
+  size : Double,
+) -> Int32 = "cairoon_context_set_font_size"
 
 ///|
 #borrow(ctx, ascent, descent, height, max_x_advance, max_y_advance)
@@ -76,11 +79,11 @@ extern "C" fn context_font_extents_ffi(
   height : Ref[Double],
   max_x_advance : Ref[Double],
   max_y_advance : Ref[Double],
-) -> Int = "cairoon_context_font_extents"
+) -> Int32 = "cairoon_context_font_extents"
 
 ///|
 #borrow(ctx, text)
-extern "C" fn context_show_text_ffi(ctx : RawContext, text : Bytes) -> Int = "cairoon_context_show_text"
+extern "C" fn context_show_text_ffi(ctx : RawContext, text : Bytes) -> Int32 = "cairoon_context_show_text"
 
 ///|
 #borrow(ctx, text, x_bearing, y_bearing, width, height, x_advance, y_advance)
@@ -93,11 +96,11 @@ extern "C" fn context_text_extents_ffi(
   height : Ref[Double],
   x_advance : Ref[Double],
   y_advance : Ref[Double],
-) -> Int = "cairoon_context_text_extents"
+) -> Int32 = "cairoon_context_text_extents"
 
 ///|
 #borrow(ctx, text)
-extern "C" fn context_text_path_ffi(ctx : RawContext, text : Bytes) -> Int = "cairoon_context_text_path"
+extern "C" fn context_text_path_ffi(ctx : RawContext, text : Bytes) -> Int32 = "cairoon_context_text_path"
 
 ///|
 #borrow(ctx, indices, xs, ys, x_bearing, y_bearing, width, height, x_advance, y_advance)
@@ -112,7 +115,7 @@ extern "C" fn context_glyph_extents_ffi(
   height : Ref[Double],
   x_advance : Ref[Double],
   y_advance : Ref[Double],
-) -> Int = "cairoon_context_glyph_extents"
+) -> Int32 = "cairoon_context_glyph_extents"
 
 ///|
 #borrow(ctx, indices, xs, ys)
@@ -121,7 +124,7 @@ extern "C" fn context_glyph_path_ffi(
   indices : FixedArray[UInt64],
   xs : FixedArray[Double],
   ys : FixedArray[Double],
-) -> Int = "cairoon_context_glyph_path"
+) -> Int32 = "cairoon_context_glyph_path"
 
 ///|
 #borrow(ctx, indices, xs, ys)
@@ -130,7 +133,7 @@ extern "C" fn context_show_glyphs_ffi(
   indices : FixedArray[UInt64],
   xs : FixedArray[Double],
   ys : FixedArray[Double],
-) -> Int = "cairoon_context_show_glyphs"
+) -> Int32 = "cairoon_context_show_glyphs"
 
 ///|
 #borrow(ctx, text, indices, xs, ys, cluster_num_bytes, cluster_num_glyphs)
@@ -140,16 +143,16 @@ extern "C" fn context_show_text_glyphs_ffi(
   indices : FixedArray[UInt64],
   xs : FixedArray[Double],
   ys : FixedArray[Double],
-  cluster_num_bytes : FixedArray[Int],
-  cluster_num_glyphs : FixedArray[Int],
-  flags : Int,
-) -> Int = "cairoon_context_show_text_glyphs"
+  cluster_num_bytes : FixedArray[Int32],
+  cluster_num_glyphs : FixedArray[Int32],
+  flags : Int32,
+) -> Int32 = "cairoon_context_show_text_glyphs"
 
 ///|
 #borrow(ctx, status)
 extern "C" fn context_get_scaled_font_ffi(
   ctx : RawContext,
-  status : Ref[Int],
+  status : Ref[Int32],
 ) -> @scaled_font_impl.RawScaledFont = "cairoon_context_get_scaled_font"
 
 ///|
@@ -157,4 +160,4 @@ extern "C" fn context_get_scaled_font_ffi(
 extern "C" fn context_set_scaled_font_ffi(
   ctx : RawContext,
   scaled_font : @scaled_font_impl.RawScaledFont,
-) -> Int = "cairoon_context_set_scaled_font"
+) -> Int32 = "cairoon_context_set_scaled_font"

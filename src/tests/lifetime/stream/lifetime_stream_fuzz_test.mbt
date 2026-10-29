@@ -1,7 +1,7 @@
 ///|
 fn expect_lifetime_stream_fuzz_distribution(
-  actual : FixedArray[Int],
-  expected : Array[Int],
+  actual : FixedArray[Int32],
+  expected : Array[Int32],
 ) -> Unit raise {
   inspect(actual.length(), content="\{expected.length()}")
   for index in 0..<expected.length() {

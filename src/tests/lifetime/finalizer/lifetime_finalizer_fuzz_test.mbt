@@ -1,23 +1,23 @@
 ///|
-fn finalizer_fuzz_next(seed : Ref[Int]) -> Int {
+fn finalizer_fuzz_next(seed : Ref[Int32]) -> Int32 {
   seed.val = (seed.val * 257 + 173) % 65521
   seed.val
 }
 
 ///|
 struct FinalizerFuzzCoverage {
-  operation_counts : FixedArray[Int]
-  surface_red : Ref[Int]
-  surface_blue : Ref[Int]
-  mapped_error : Ref[Int]
-  mapped_explicit_unmap : Ref[Int]
-  mapped_implicit_unmap : Ref[Int]
-  font_size_counts : FixedArray[Int]
-  region_width_counts : FixedArray[Int]
-  raster_successes : Ref[Int]
-  raster_failures : Ref[Int]
-  stream_successes : Ref[Int]
-  stream_failures : Ref[Int]
+  operation_counts : FixedArray[Int32]
+  surface_red : Ref[Int32]
+  surface_blue : Ref[Int32]
+  mapped_error : Ref[Int32]
+  mapped_explicit_unmap : Ref[Int32]
+  mapped_implicit_unmap : Ref[Int32]
+  font_size_counts : FixedArray[Int32]
+  region_width_counts : FixedArray[Int32]
+  raster_successes : Ref[Int32]
+  raster_failures : Ref[Int32]
+  stream_successes : Ref[Int32]
+  stream_failures : Ref[Int32]
 }
 
 ///|
@@ -39,9 +39,9 @@ fn FinalizerFuzzCoverage::new() -> FinalizerFuzzCoverage {
 }
 
 ///|
-fn finalizer_fuzz_pressure(value : Int) -> Int {
+fn finalizer_fuzz_pressure(value : Int32) -> Int32 {
   let bytes = Bytes::make(64 + value % 64, b'\x5a')
-  let ints : FixedArray[Int] = FixedArray::make(16 + value % 16, value)
+  let ints : FixedArray[Int32] = FixedArray::make(16 + value % 16, value)
   bytes.length() + ints.length()
 }
 
@@ -75,7 +75,7 @@ fn finalizer_fuzz_expect_status(
 ///|
 fn finalizer_fuzz_expect_argb32(
   data : Bytes,
-  expected : Array[Int],
+  expected : Array[Int32],
 ) -> Unit raise {
   if data.length() < expected.length() {
     @test.fail("short ARGB32 data in finalizer fuzz path")
@@ -89,7 +89,7 @@ fn finalizer_fuzz_expect_argb32(
 
 ///|
 fn finalizer_fuzz_surface_graph(
-  value : Int,
+  value : Int32,
   coverage : FinalizerFuzzCoverage,
 ) -> Unit raise {
   let backing : FixedArray[Byte] = FixedArray::make(16, b'\x00')
@@ -135,7 +135,7 @@ fn finalizer_fuzz_surface_graph(
 
 ///|
 fn finalizer_fuzz_mapped_edge(
-  value : Int,
+  value : Int32,
   coverage : FinalizerFuzzCoverage,
 ) -> Unit raise {
   let base = @cairoon.Surface::image(Rgb24, 2, 1)
@@ -178,7 +178,7 @@ fn finalizer_fuzz_mapped_edge(
 
 ///|
 fn finalizer_fuzz_font_path_region(
-  value : Int,
+  value : Int32,
   coverage : FinalizerFuzzCoverage,
 ) -> Unit raise {
   let surface = @cairoon.Surface::image(Argb32, 4, 4)
@@ -235,7 +235,7 @@ fn finalizer_fuzz_font_path_region(
 
 ///|
 fn finalizer_fuzz_raster_edge(
-  value : Int,
+  value : Int32,
   coverage : FinalizerFuzzCoverage,
 ) -> Unit raise {
   let source = @cairoon.Surface::image(Argb32, 2, 2)
@@ -289,7 +289,7 @@ fn finalizer_fuzz_raster_edge(
 
 ///|
 fn finalizer_fuzz_stream_device_edge(
-  value : Int,
+  value : Int32,
   coverage : FinalizerFuzzCoverage,
 ) -> Unit raise {
   let chunk_count = Ref(0)
@@ -327,7 +327,7 @@ fn finalizer_fuzz_stream_device_edge(
 
 ///|
 fn finalizer_fuzz_step(
-  value : Int,
+  value : Int32,
   coverage : FinalizerFuzzCoverage,
 ) -> Unit raise {
   let operation = value % 5

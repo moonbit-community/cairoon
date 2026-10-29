@@ -77,8 +77,8 @@ pub fn Context::set_font_face(
 pub fn Context::select_font_face(
   self : Context,
   family : String,
-  slant? : FontSlant = FontSlantNormal,
-  weight? : FontWeight = FontWeightNormal,
+  slant~ : FontSlant = FontSlantNormal,
+  weight~ : FontWeight = FontWeightNormal,
 ) -> Unit raise CairoError {
   let bytes = @utf8.encode(family)
   check_no_embedded_nul(bytes)
@@ -102,8 +102,8 @@ pub fn Context::select_font_face(
 pub fn Context::select_font_face_raw(
   self : Context,
   family : String,
-  slant? : Int = 0,
-  weight? : Int = 0,
+  slant~ : Int32 = 0,
+  weight~ : Int32 = 0,
 ) -> Unit raise CairoError {
   let bytes = @utf8.encode(family)
   check_no_embedded_nul(bytes)
@@ -340,7 +340,7 @@ pub fn Context::show_text_glyphs(
   text : String,
   glyphs : ArrayView[Glyph],
   clusters : ArrayView[TextCluster],
-  flags? : TextClusterFlags = TextClusterNone,
+  flags~ : TextClusterFlags = TextClusterNone,
 ) -> Unit raise CairoError {
   let (indices, xs, ys) = @glyph.field_arrays(glyphs)
   let (cluster_num_bytes, cluster_num_glyphs) = text_cluster_field_arrays(
@@ -361,7 +361,7 @@ pub fn Context::show_text_glyphs(
 }
 
 ///|
-fn text_cluster_flags_to_raw(flags : TextClusterFlags) -> Int {
+fn text_cluster_flags_to_raw(flags : TextClusterFlags) -> Int32 {
   match flags {
     TextClusterNone => 0
     TextClusterBackward => 1

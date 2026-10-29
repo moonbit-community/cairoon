@@ -33,7 +33,7 @@ fn MappedImageSurface::to_raw(
 /// raised through `CairoError`.
 pub fn Surface::map_to_image(
   self : Surface,
-  extents? : RectangleInt? = None,
+  extents~ : RectangleInt? = None,
 ) -> MappedImageSurface raise CairoError {
   let status = Ref(0)
   let raw = match extents {
@@ -108,17 +108,12 @@ pub fn[T] MappedImageSurface::with_unmapped(
   self : MappedImageSurface,
   f : () -> T raise CairoError,
 ) -> T raise CairoError {
-  try f() catch {
-    err => {
-      let _ = @surface_impl.mapped_unmap_raw(self.to_raw())
-      raise err
-    }
-  } noraise {
-    value => {
-      self.unmap()
-      value
-    }
+  let value = {
+    errdefer ignore(@surface_impl.mapped_unmap_raw(self.to_raw()))
+    f()
   }
+  self.unmap()
+  value
 }
 
 ///|
@@ -139,7 +134,7 @@ pub fn MappedImageSurface::flush(
 /// errored mapping raises its checked `CairoError`.
 pub fn MappedImageSurface::get_width(
   self : MappedImageSurface,
-) -> Int raise CairoError {
+) -> Int32 raise CairoError {
   check_surface_status_raw(@surface_impl.mapped_status_raw(self.to_raw()))
   @surface_impl.mapped_get_width_raw(self.to_raw())
 }
@@ -151,7 +146,7 @@ pub fn MappedImageSurface::get_width(
 /// errored mapping raises its checked `CairoError`.
 pub fn MappedImageSurface::get_height(
   self : MappedImageSurface,
-) -> Int raise CairoError {
+) -> Int32 raise CairoError {
   check_surface_status_raw(@surface_impl.mapped_status_raw(self.to_raw()))
   @surface_impl.mapped_get_height_raw(self.to_raw())
 }
@@ -164,7 +159,7 @@ pub fn MappedImageSurface::get_height(
 /// `CairoError`.
 pub fn MappedImageSurface::get_stride(
   self : MappedImageSurface,
-) -> Int raise CairoError {
+) -> Int32 raise CairoError {
   check_surface_status_raw(@surface_impl.mapped_status_raw(self.to_raw()))
   @surface_impl.mapped_get_stride_raw(self.to_raw())
 }
@@ -188,7 +183,7 @@ pub fn MappedImageSurface::get_format(
 /// errored mapping raises its checked `CairoError`.
 pub fn MappedImageSurface::get_format_raw(
   self : MappedImageSurface,
-) -> Int raise CairoError {
+) -> Int32 raise CairoError {
   check_surface_status_raw(@surface_impl.mapped_status_raw(self.to_raw()))
   @surface_impl.mapped_get_format_raw(self.to_raw())
 }

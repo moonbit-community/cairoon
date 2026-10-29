@@ -4,26 +4,26 @@ fn init {
 }
 
 ///|
-extern "C" fn compile_feature_flag_ffi(feature : Int) -> Bool = "cairoon_compile_feature_flag"
+extern "C" fn compile_feature_flag_ffi(feature : Int32) -> Bool = "cairoon_compile_feature_flag"
 
 ///|
-extern "C" fn compile_int_constant_ffi(constant : Int) -> Int = "cairoon_compile_int_constant"
+extern "C" fn compile_int_constant_ffi(constant : Int32) -> Int32 = "cairoon_compile_int_constant"
 
 ///|
-extern "C" fn compile_string_constant_ffi(constant : Int) -> Bytes = "cairoon_compile_string_constant"
+extern "C" fn compile_string_constant_ffi(constant : Int32) -> Bytes = "cairoon_compile_string_constant"
 
 ///|
-fn compile_string_constant(id : Int) -> String {
+fn compile_string_constant(id : Int32) -> String {
   @utf8.decode_lossy(compile_string_constant_ffi(id))
 }
 
 ///|
-fn expect_feature_constant(actual : Bool, id : Int) -> Unit raise {
+fn expect_feature_constant(actual : Bool, id : Int32) -> Unit raise {
   inspect(actual == compile_feature_flag_ffi(id), content="true")
 }
 
 ///|
-fn expect_string_constant(actual : String, id : Int) -> Unit raise {
+fn expect_string_constant(actual : String, id : Int32) -> Unit raise {
   inspect(actual == compile_string_constant(id), content="true")
 }
 

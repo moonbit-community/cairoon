@@ -29,10 +29,10 @@ pub fn Surface::mark_dirty(self : Surface) -> Unit raise CairoError {
 /// finished or failed surfaces raise `CairoError`.
 pub fn Surface::mark_dirty_rectangle(
   self : Surface,
-  x : Int,
-  y : Int,
-  width : Int,
-  height : Int,
+  x : Int32,
+  y : Int32,
+  width : Int32,
+  height : Int32,
 ) -> Unit raise CairoError {
   check_surface_status_raw(
     @surface_impl.mark_dirty_rectangle_raw(self.to_raw(), x, y, width, height),
@@ -182,3 +182,21 @@ pub fn Surface::copy_page(self : Surface) -> Unit raise CairoError {
 pub fn Surface::show_page(self : Surface) -> Unit raise CairoError {
   check_surface_status_raw(@surface_impl.show_page_raw(self.to_raw()))
 }
+
+///|
+pub extend Content with Eq::{not_equal, equal}
+
+///|
+pub extend Content with @debug.Debug::{to_repr}
+
+///|
+pub extend SurfaceType with Eq::{not_equal, equal}
+
+///|
+pub extend SurfaceType with @debug.Debug::{to_repr}
+
+///|
+pub extend SurfaceObserverMode with Eq::{not_equal, equal}
+
+///|
+pub extend SurfaceObserverMode with @debug.Debug::{to_repr}

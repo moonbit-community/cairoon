@@ -13,7 +13,7 @@ extern "C" fn scaled_font_text_to_glyphs_ffi(
 
 ///|
 #borrow(result)
-extern "C" fn text_to_glyphs_status_ffi(result : RawTextToGlyphs) -> Int = "cairoon_text_to_glyphs_status"
+extern "C" fn text_to_glyphs_status_ffi(result : RawTextToGlyphs) -> Int32 = "cairoon_text_to_glyphs_status"
 
 ///|
 #borrow(result)
@@ -31,11 +31,11 @@ extern "C" fn text_to_glyphs_positions_ffi(
 #borrow(result)
 extern "C" fn text_to_glyphs_clusters_ffi(
   result : RawTextToGlyphs,
-) -> FixedArray[Int] = "cairoon_text_to_glyphs_clusters"
+) -> FixedArray[Int32] = "cairoon_text_to_glyphs_clusters"
 
 ///|
 #borrow(result)
-extern "C" fn text_to_glyphs_flags_ffi(result : RawTextToGlyphs) -> Int = "cairoon_text_to_glyphs_flags"
+extern "C" fn text_to_glyphs_flags_ffi(result : RawTextToGlyphs) -> Int32 = "cairoon_text_to_glyphs_flags"
 
 ///|
 #borrow(result)

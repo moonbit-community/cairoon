@@ -2,7 +2,7 @@
 fn expect_operator_raw(
   ctx : @cairoon.Context,
   operator : @cairoon.Operator,
-  expected : Int,
+  expected : Int32,
 ) -> Unit raise {
   ctx.set_operator(operator)
   inspect(ctx.get_operator_raw(), content="\{expected}")

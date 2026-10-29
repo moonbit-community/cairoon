@@ -5,7 +5,7 @@ from __future__ import annotations
 import pathlib
 import re
 
-from .source import c_function_body, mbt_method_body
+from .source import check_errdefer_scope, c_function_body, mbt_method_body
 
 
 DEVICE_CLEANUP_CALLS = {
@@ -73,6 +73,13 @@ def check_device_scope_cleanup(package_root: pathlib.Path) -> list[str]:
         body = mbt_method_body(text, method)
         if body is None:
             errors.append(f"{path}: cannot find complete body for '{method}'")
+            continue
+        if "errdefer" in body:
+            if not check_errdefer_scope(
+                body, f"@device_impl.{raw_cleanup}", checked_cleanup,
+                acquire=method == "Device::with_acquired",
+            ):
+                errors.append(f"{path}: '{method}' must scope raw errdefer to f() and report checked {checked_cleanup} afterward")
             continue
         parts = body.split("} noraise {", maxsplit=1)
         if len(parts) != 2:

@@ -9,7 +9,7 @@
 pub fn Surface::ps(
   width_in_points : Double,
   height_in_points : Double,
-  path? : String? = None,
+  path~ : String? = None,
 ) -> Surface raise CairoError {
   let status = Ref(0)
   let (has_filename, filename) = match path {
@@ -59,7 +59,7 @@ pub fn PSLevel::supported() -> Array[PSLevel] raise CairoError {
   let status = Ref(0)
   let count = @ps_impl.get_level_count_raw(status)
   check_status(status_from_raw(status.val))
-  let levels : Array[PSLevel] = Array::new(capacity=count)
+  let levels : Array[PSLevel] = Array(capacity=count)
   for index in 0..<count {
     let level = ps_level_from_raw(@ps_impl.get_level_raw(index, status))
     check_status(status_from_raw(status.val))
@@ -86,7 +86,7 @@ pub fn PSLevel::to_string(self : PSLevel) -> String raise CairoError {
 /// Portable values are `0` (Level 2) and `1` (Level 3). Negative and other
 /// unknown values raise `CairoError(InvalidStatus, _)`; the returned string is
 /// copied into MoonBit-owned storage.
-pub fn PSLevel::to_string_raw(level : Int) -> String raise CairoError {
+pub fn PSLevel::to_string_raw(level : Int32) -> String raise CairoError {
   let status = Ref(0)
   let text = @ps_impl.level_to_string_raw(level, status)
   check_status(status_from_raw(status.val))
@@ -94,7 +94,7 @@ pub fn PSLevel::to_string_raw(level : Int) -> String raise CairoError {
 }
 
 ///|
-fn PSLevel::to_raw(self : PSLevel) -> Int {
+fn PSLevel::to_raw(self : PSLevel) -> Int32 {
   match self {
     PsLevel2 => 0
     PsLevel3 => 1
@@ -102,7 +102,7 @@ fn PSLevel::to_raw(self : PSLevel) -> Int {
 }
 
 ///|
-fn ps_level_from_raw(raw : Int) -> PSLevel raise CairoError {
+fn ps_level_from_raw(raw : Int32) -> PSLevel raise CairoError {
   match raw {
     0 => PsLevel2
     1 => PsLevel3
@@ -140,7 +140,7 @@ pub fn Surface::ps_restrict_to_level(
 /// `ps_restrict_to_level`.
 pub fn Surface::ps_restrict_to_level_raw(
   self : Surface,
-  level : Int,
+  level : Int32,
 ) -> Unit raise CairoError {
   check_surface_status_raw(
     @surface_impl.ps_restrict_to_level_raw(self.to_raw(), level),

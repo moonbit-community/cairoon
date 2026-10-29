@@ -10,7 +10,7 @@
 /// failures raise their checked `CairoError` values.
 pub fn Surface::recording(
   content : Content,
-  extents? : Rectangle? = None,
+  extents~ : Rectangle? = None,
 ) -> Surface raise CairoError {
   let status = Ref(0)
   let raw_content = content.to_raw()
@@ -43,8 +43,8 @@ pub fn Surface::recording(
 /// `0x3000` are accepted; any other value raises
 /// `CairoInvalidArgument(InvalidContent, _)` before entering Cairo.
 pub fn Surface::recording_raw(
-  content : Int,
-  extents? : Rectangle? = None,
+  content : Int32,
+  extents~ : Rectangle? = None,
 ) -> Surface raise CairoError {
   let status = Ref(0)
   let checked_content = checked_content_raw(content)

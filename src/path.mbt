@@ -62,19 +62,19 @@ fn Path::to_raw(self : Path) -> @path_impl.RawPath {
 }
 
 ///|
-fn path_status_from_raw(raw : Int) -> Status {
+fn path_status_from_raw(raw : Int32) -> Status {
   status_from_raw(raw) catch {
     _ => InvalidStatus
   }
 }
 
 ///|
-fn check_path_status_raw(raw : Int) -> Unit raise CairoError {
+fn check_path_status_raw(raw : Int32) -> Unit raise CairoError {
   check_status(status_from_raw(raw))
 }
 
 ///|
-fn path_data_type_from_raw(raw : Int) -> PathDataType raise CairoError {
+fn path_data_type_from_raw(raw : Int32) -> PathDataType raise CairoError {
   match raw {
     0 => PathMoveTo
     1 => PathLineTo
@@ -135,7 +135,7 @@ pub impl Hash for Path with fn hash_combine(self, hasher) {
 ///
 /// Cairo may insert an explicit move segment after close-path; it counts as a
 /// segment. Raises the path's checked `CairoError` status if it is invalid.
-pub fn Path::length(self : Path) -> Int raise CairoError {
+pub fn Path::length(self : Path) -> Int32 raise CairoError {
   let status = Ref(0)
   let count = @path_impl.num_segments_raw(self.to_raw(), status)
   check_path_status_raw(status.val)
@@ -152,7 +152,7 @@ pub fn Path::segments(self : Path) -> Array[PathSegment] raise CairoError {
   check_path_status_raw(status.val)
   let segment_count = @path_impl.num_segments_raw(self.to_raw(), status)
   check_path_status_raw(status.val)
-  let segments : Array[PathSegment] = Array::new(capacity=segment_count)
+  let segments : Array[PathSegment] = Array(capacity=segment_count)
   for data_index = 0; data_index < data_count; {
     let type_ = Ref(3)
     let length = Ref(0)
@@ -210,3 +210,18 @@ pub fn Path::to_string(self : Path) -> String raise CairoError {
   check_path_status_raw(status.val)
   @utf8.decode_lossy(bytes)
 }
+
+///|
+pub extend PathSegment with Eq::{not_equal, equal}
+
+///|
+pub extend PathSegment with @debug.Debug::{to_repr}
+
+///|
+pub extend Path with Eq::{not_equal}
+
+///|
+pub extend Path with Compare::{op_lt, op_le, op_ge, compare, op_gt}
+
+///|
+pub extend Path with Hash::{hash_combine}

@@ -11,7 +11,7 @@ pub fn text_to_glyphs_raw(
 }
 
 ///|
-pub fn text_to_glyphs_status_raw(result : RawTextToGlyphs) -> Int {
+pub fn text_to_glyphs_status_raw(result : RawTextToGlyphs) -> Int32 {
   ensure_native()
   text_to_glyphs_status_ffi(result)
 }
@@ -33,13 +33,15 @@ pub fn text_to_glyphs_positions_raw(
 }
 
 ///|
-pub fn text_to_glyphs_clusters_raw(result : RawTextToGlyphs) -> FixedArray[Int] {
+pub fn text_to_glyphs_clusters_raw(
+  result : RawTextToGlyphs,
+) -> FixedArray[Int32] {
   ensure_native()
   text_to_glyphs_clusters_ffi(result)
 }
 
 ///|
-pub fn text_to_glyphs_flags_raw(result : RawTextToGlyphs) -> Int {
+pub fn text_to_glyphs_flags_raw(result : RawTextToGlyphs) -> Int32 {
   ensure_native()
   text_to_glyphs_flags_ffi(result)
 }

@@ -6,6 +6,7 @@ import pathlib
 import re
 
 from .source import (
+    check_errdefer_scope,
     c_function_body,
     c_statement_is_unconditional,
     mbt_handler_body,
@@ -221,6 +222,10 @@ def check_surface_scope_cleanup(package_root: pathlib.Path) -> list[str]:
     body = mbt_method_body(text, method)
     if body is None:
         return [f"{path}: cannot find complete body for '{method}'"]
+    if "errdefer" in body:
+        if check_errdefer_scope(body, "@surface_impl.finish_raw", "finish"):
+            return []
+        return [f"{path}: '{method}' must scope raw errdefer to f() and report checked finish afterward"]
     parts = body.split("} noraise {", maxsplit=1)
     if len(parts) != 2:
         return [f"{path}: '{method}' must have catch and noraise paths"]

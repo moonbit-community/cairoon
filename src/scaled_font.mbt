@@ -18,19 +18,21 @@ fn ScaledFont::to_raw(self : ScaledFont) -> @scaled_font_impl.RawScaledFont {
 }
 
 ///|
-fn scaled_font_status_from_raw(raw : Int) -> Status {
+fn scaled_font_status_from_raw(raw : Int32) -> Status {
   status_from_raw(raw) catch {
     _ => InvalidStatus
   }
 }
 
 ///|
-fn check_scaled_font_status_raw(raw : Int) -> Unit raise CairoError {
+fn check_scaled_font_status_raw(raw : Int32) -> Unit raise CairoError {
   check_status(status_from_raw(raw))
 }
 
 ///|
-fn text_cluster_flags_from_raw(raw : Int) -> TextClusterFlags raise CairoError {
+fn text_cluster_flags_from_raw(
+  raw : Int32,
+) -> TextClusterFlags raise CairoError {
   match raw {
     0 => TextClusterNone
     1 => TextClusterBackward
@@ -161,7 +163,7 @@ fn matrix_from_scaled_font_output(
     Ref[Double],
     Ref[Double],
     Ref[Double],
-  ) -> Int,
+  ) -> Int32,
 ) -> Matrix raise CairoError {
   let xx = Ref(0.0)
   let yx = Ref(0.0)
@@ -413,17 +415,8 @@ fn[T] with_released_text_to_glyphs_result(
   result : @scaled_font_impl.RawTextToGlyphs,
   decode : (@scaled_font_impl.RawTextToGlyphs) -> T raise CairoError,
 ) -> T raise CairoError {
-  try decode(result) catch {
-    err => {
-      @scaled_font_impl.text_to_glyphs_release_raw(result)
-      raise err
-    }
-  } noraise {
-    value => {
-      @scaled_font_impl.text_to_glyphs_release_raw(result)
-      value
-    }
-  }
+  defer @scaled_font_impl.text_to_glyphs_release_raw(result)
+  decode(result)
 }
 
 ///|
@@ -478,3 +471,9 @@ pub fn ScaledFont::text_to_glyphs_only(
     glyphs_from_native,
   )
 }
+
+///|
+pub extend ScaledFont with Eq::{not_equal}
+
+///|
+pub extend ScaledFont with Hash::{hash_combine}

@@ -91,7 +91,7 @@ pub fn Pattern::add_color_stop_rgba(
 ///
 /// Raises `PatternTypeMismatch` for non-gradient patterns and propagates an
 /// existing sticky pattern error.
-pub fn Pattern::get_color_stop_count(self : Pattern) -> Int raise CairoError {
+pub fn Pattern::get_color_stop_count(self : Pattern) -> Int32 raise CairoError {
   let count = Ref(0)
   check_pattern_status_raw(
     @pattern_impl.get_color_stop_count_raw(self.to_raw(), count),
@@ -107,7 +107,7 @@ pub fn Pattern::get_color_stop_count(self : Pattern) -> Int raise CairoError {
 /// outside `0..<get_color_stop_count()` or `PatternTypeMismatch` otherwise.
 pub fn Pattern::get_color_stop_rgba(
   self : Pattern,
-  index : Int,
+  index : Int32,
 ) -> (Double, Double, Double, Double, Double) raise CairoError {
   let offset = Ref(0.0)
   let red = Ref(0.0)

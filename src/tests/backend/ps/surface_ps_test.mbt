@@ -21,7 +21,7 @@ fn expect_ps_surface_finished(
 }
 
 ///|
-fn ps_dsc_comment_with_byte_length(length : Int) -> String {
+fn ps_dsc_comment_with_byte_length(length : Int32) -> String {
   let builder = StringBuilder()
   builder.write_string("%")
   for _ in 1..<length {
@@ -40,7 +40,7 @@ fn expect_invalid_ps_dsc_comment(comment : String) -> Unit raise {
 }
 
 ///|
-fn ps_bytes_find(haystack : Bytes, needle : Bytes) -> Int {
+fn ps_bytes_find(haystack : Bytes, needle : Bytes) -> Int32 {
   if needle.length() == 0 {
     return 0
   }

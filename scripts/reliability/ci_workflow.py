@@ -116,7 +116,7 @@ SETUP_STEP_SPECS = {
             "Install system dependencies (macOS)",
             ("if", "run"),
             lines=("if: runner.os == 'macOS'", "run: |"),
-            commands=("brew update", "brew install cairo pkg-config"),
+            commands=("HOMEBREW_NO_AUTO_UPDATE=1 brew install cairo pkg-config",),
         ),
         INSTALL_MOONBIT_STEP,
         UPDATE_REGISTRY_STEP,
@@ -361,7 +361,7 @@ def check_workflow_shape(text: str, source: pathlib.Path) -> list[str]:
     global_env = yaml_mapping_section(text, 0, "env")
     if active_yaml_lines(global_env) != {
         "env:",
-        "MOONBIT_INSTALL_VERSION: 0.10.4+4f2e8f7dc-nightly",
+        "MOONBIT_INSTALL_VERSION: 0.10.18+6c83a7f62",
     }:
         errors.append(f"{source}: CI global environment must remain canonical")
     return errors

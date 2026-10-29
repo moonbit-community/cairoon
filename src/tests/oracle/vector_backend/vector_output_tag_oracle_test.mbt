@@ -124,7 +124,7 @@ test "tagged show_text_glyphs vector scene matches direct cairo C oracle" {
 }
 
 ///|
-fn expect_grouped_glyph_tag_oracle(kind : Int) -> Unit raise {
+fn expect_grouped_glyph_tag_oracle(kind : Int32) -> Unit raise {
   let ext = vector_output_extension(kind)
   let cairoon_path = "/tmp/cairoon_vector_grouped_glyph_tag_\{kind}.\{ext}"
   let oracle_path = "/tmp/cairoon_vector_grouped_glyph_tag_\{kind}_oracle.\{ext}"

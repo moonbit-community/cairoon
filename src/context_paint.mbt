@@ -60,8 +60,8 @@ pub fn Context::set_source(
 pub fn Context::set_source_surface(
   self : Context,
   surface : Surface,
-  x? : Double = 0.0,
-  y? : Double = 0.0,
+  x~ : Double = 0.0,
+  y~ : Double = 0.0,
 ) -> Unit raise CairoError {
   check_context_status_raw(
     @context_impl.set_source_surface_raw(self.to_raw(), surface.to_raw(), x, y),
@@ -117,8 +117,8 @@ pub fn Context::mask(
 pub fn Context::mask_surface(
   self : Context,
   surface : Surface,
-  x? : Double = 0.0,
-  y? : Double = 0.0,
+  x~ : Double = 0.0,
+  y~ : Double = 0.0,
 ) -> Unit raise CairoError {
   check_context_status_raw(
     @context_impl.mask_surface_raw(self.to_raw(), surface.to_raw(), x, y),

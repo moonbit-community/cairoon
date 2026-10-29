@@ -1,6 +1,6 @@
 ///|
 /// The release-source Cairo version encoded as `major * 10000 + minor * 100 + micro`.
-pub const CAIRO_VERSION : Int = @constants_impl.CAIRO_VERSION
+pub const CAIRO_VERSION : Int32 = @constants_impl.CAIRO_VERSION
 
 ///|
 /// The release-source Cairo version in `major.minor.micro` form.
@@ -8,15 +8,15 @@ pub const CAIRO_VERSION_STRING : String = @constants_impl.CAIRO_VERSION_STRING
 
 ///|
 /// The release-source Cairo major version.
-pub const CAIRO_VERSION_MAJOR : Int = @constants_impl.CAIRO_VERSION_MAJOR
+pub const CAIRO_VERSION_MAJOR : Int32 = @constants_impl.CAIRO_VERSION_MAJOR
 
 ///|
 /// The release-source Cairo minor version.
-pub const CAIRO_VERSION_MINOR : Int = @constants_impl.CAIRO_VERSION_MINOR
+pub const CAIRO_VERSION_MINOR : Int32 = @constants_impl.CAIRO_VERSION_MINOR
 
 ///|
 /// The release-source Cairo micro version.
-pub const CAIRO_VERSION_MICRO : Int = @constants_impl.CAIRO_VERSION_MICRO
+pub const CAIRO_VERSION_MICRO : Int32 = @constants_impl.CAIRO_VERSION_MICRO
 
 ///|
 /// Whether the release-source Cairo headers enable the legacy ATSUI font backend.
@@ -160,15 +160,15 @@ pub const TAG_CONTENT_REF : String = @constants_impl.TAG_CONTENT_REF
 
 ///|
 /// The root outline identifier accepted by Cairo's PDF outline API.
-pub const PDF_OUTLINE_ROOT : Int = @constants_impl.PDF_OUTLINE_ROOT
+pub const PDF_OUTLINE_ROOT : Int32 = @constants_impl.PDF_OUTLINE_ROOT
 
 ///|
 /// The default color-palette identifier used by Cairo font options.
-pub const COLOR_PALETTE_DEFAULT : UInt = @constants_impl.COLOR_PALETTE_DEFAULT
+pub const COLOR_PALETTE_DEFAULT : UInt32 = @constants_impl.COLOR_PALETTE_DEFAULT
 
 ///|
 /// Return the runtime Cairo library version in encoded integer form.
-pub fn cairo_version() -> Int {
+pub fn cairo_version() -> Int32 {
   ignore(@native.native_anchor())
   @version_impl.cairo_version()
 }

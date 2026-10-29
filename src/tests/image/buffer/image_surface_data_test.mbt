@@ -14,15 +14,15 @@ extern "C" fn image_surface_has_data_user_data_ffi(
 #borrow(surface)
 extern "C" fn surface_poison_with_invalid_fallback_ffi(
   surface : @cairoon.Surface,
-) -> Int = "cairoon_test_surface_poison_with_invalid_fallback"
+) -> Int32 = "cairoon_test_surface_poison_with_invalid_fallback"
 
 ///|
 fn set_argb32_pixel(
   data : FixedArray[Byte],
-  stride : Int,
-  x : Int,
-  y : Int,
-  alpha : Int,
+  stride : Int32,
+  x : Int32,
+  y : Int32,
+  alpha : Int32,
 ) -> Unit {
   let offset = y * stride + x * 4
   let blue = x * alpha / 31

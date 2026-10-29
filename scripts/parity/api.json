@@ -20,9 +20,9 @@
     "test_version": {
       "runtime": ["src/tests/api/version/version_test.mbt::cairo version is available"],
       "static_api": [
-        "pub const CAIRO_VERSION : Int",
+        "pub const CAIRO_VERSION : Int32",
         "pub const CAIRO_VERSION_STRING : String",
-        "pub fn cairo_version() -> Int",
+        "pub fn cairo_version() -> Int32",
         "pub fn cairo_version_string() -> String"
       ]
     },
@@ -56,7 +56,7 @@
     "test_surface": {
       "runtime": ["src/tests/api/pycairo/api_pycairo_parity_test.mbt::pycairo surface constructor smoke fixture"],
       "static_api": [
-        "pub fn Surface::image(Format, Int, Int) -> Self raise CairoError",
+        "pub fn Surface::image(Format, Int32, Int32) -> Self raise CairoError",
         "pub fn Surface::pdf_stream(Double, Double, (Bytes) -> Status) -> Self raise CairoError",
         "pub fn Surface::ps_stream(Double, Double, (Bytes) -> Status) -> Self raise CairoError",
         "pub fn Surface::recording(Content, extents? : Rectangle?) -> Self raise CairoError",
@@ -83,8 +83,8 @@
       "runtime": ["src/tests/image/data/image_data_test.mbt::pycairo image surface get_data mutable view fixture"],
       "static_api": [
         "pub fn Surface::get_data(Self) -> ImageData raise CairoError",
-        "pub fn ImageData::get(Self, Int) -> Byte raise CairoError",
-        "pub fn ImageData::set(Self, Int, Byte) -> Unit raise CairoError"
+        "pub fn ImageData::get(Self, Int32) -> Byte raise CairoError",
+        "pub fn ImageData::set(Self, Int32, Byte) -> Unit raise CairoError"
       ],
       "adaptation": "ImageData is a checked mutable view retaining its Surface owner. Byte get/set and copy replace Python's memoryview protocol while preserving live pixel updates."
     },
@@ -108,7 +108,7 @@
         "pub impl Eq for Region"
       ],
       "static_absent": [
-        "pub struct RectangleInt {\n  x : Int\n  y : Int\n  width : Int\n  height : Int\n} derive(Eq, Hash, @debug.Debug)",
+        "pub struct RectangleInt {\n  x : Int32\n  y : Int32\n  width : Int32\n  height : Int32\n} derive(Eq, Hash, @debug.Debug)",
         "pub impl Hash for RectangleInt"
       ],
       "adaptation": "Region construction and boolean operations use explicit typed methods. RectangleInt retains value equality/debug output but deliberately has no Hash implementation, so hash use is rejected statically."

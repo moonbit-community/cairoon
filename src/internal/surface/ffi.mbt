@@ -5,20 +5,20 @@ type RawSurface
 #borrow(surface, status)
 extern "C" fn surface_create_similar_raw_ffi(
   surface : RawSurface,
-  content : Int,
-  width : Int,
-  height : Int,
-  status : Ref[Int],
+  content : Int32,
+  width : Int32,
+  height : Int32,
+  status : Ref[Int32],
 ) -> RawSurface = "cairoon_surface_create_similar"
 
 ///|
 #borrow(surface, status)
 extern "C" fn surface_create_similar_image_raw_ffi(
   surface : RawSurface,
-  format : Int,
-  width : Int,
-  height : Int,
-  status : Ref[Int],
+  format : Int32,
+  width : Int32,
+  height : Int32,
+  status : Ref[Int32],
 ) -> RawSurface = "cairoon_surface_create_similar_image"
 
 ///|
@@ -29,12 +29,12 @@ extern "C" fn surface_create_for_rectangle_ffi(
   y : Double,
   width : Double,
   height : Double,
-  status : Ref[Int],
+  status : Ref[Int32],
 ) -> RawSurface = "cairoon_surface_create_for_rectangle"
 
 ///|
 #borrow(surface)
-extern "C" fn surface_status_ffi(surface : RawSurface) -> Int = "cairoon_surface_status"
+extern "C" fn surface_status_ffi(surface : RawSurface) -> Int32 = "cairoon_surface_status"
 
 ///|
 #borrow(surface, other)
@@ -49,12 +49,12 @@ extern "C" fn surface_hash_ffi(surface : RawSurface) -> UInt64 = "cairoon_surfac
 
 ///|
 #borrow(surface)
-extern "C" fn surface_get_content_ffi(surface : RawSurface) -> Int = "cairoon_surface_get_content"
+extern "C" fn surface_get_content_ffi(surface : RawSurface) -> Int32 = "cairoon_surface_get_content"
 
 ///|
 #borrow(surface)
-extern "C" fn surface_get_type_ffi(surface : RawSurface) -> Int = "cairoon_surface_get_type"
+extern "C" fn surface_get_type_ffi(surface : RawSurface) -> Int32 = "cairoon_surface_get_type"
 
 ///|
 #borrow(surface)
-extern "C" fn surface_finish_ffi(surface : RawSurface) -> Int = "cairoon_surface_finish"
+extern "C" fn surface_finish_ffi(surface : RawSurface) -> Int32 = "cairoon_surface_finish"

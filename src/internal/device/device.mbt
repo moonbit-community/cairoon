@@ -6,8 +6,8 @@ fn ensure_native() -> Unit {
 ///|
 pub fn surface_get_device_raw(
   surface : @surface_impl.RawSurface,
-  has_device : Ref[Int],
-  status : Ref[Int],
+  has_device : Ref[Int32],
+  status : Ref[Int32],
 ) -> RawDevice {
   ensure_native()
   surface_get_device_ffi(surface, has_device, status)
@@ -17,7 +17,7 @@ pub fn surface_get_device_raw(
 pub fn script_from_recording_surface_raw(
   device : RawDevice,
   surface : @surface_impl.RawSurface,
-) -> Int {
+) -> Int32 {
   ensure_native()
   script_device_from_recording_surface_ffi(device, surface)
 }
@@ -25,10 +25,10 @@ pub fn script_from_recording_surface_raw(
 ///|
 pub fn script_surface_create_raw(
   device : RawDevice,
-  content : Int,
+  content : Int32,
   width : Double,
   height : Double,
-  status : Ref[Int],
+  status : Ref[Int32],
 ) -> @surface_impl.RawSurface {
   ensure_native()
   script_surface_create_ffi(device, content, width, height, status)
@@ -38,22 +38,25 @@ pub fn script_surface_create_raw(
 pub fn script_surface_create_for_target_raw(
   device : RawDevice,
   target : @surface_impl.RawSurface,
-  status : Ref[Int],
+  status : Ref[Int32],
 ) -> @surface_impl.RawSurface {
   ensure_native()
   script_surface_create_for_target_ffi(device, target, status)
 }
 
 ///|
-pub fn script_create_path_raw(filename : Bytes, status : Ref[Int]) -> RawDevice {
+pub fn script_create_path_raw(
+  filename : Bytes,
+  status : Ref[Int32],
+) -> RawDevice {
   ensure_native()
   script_device_create_ffi(filename, status)
 }
 
 ///|
 pub fn script_create_stream_raw(
-  writer : (Bytes) -> Int,
-  status : Ref[Int],
+  writer : (Bytes) -> Int32,
+  status : Ref[Int32],
 ) -> RawDevice {
   ensure_native()
   script_device_create_for_stream_ffi(
@@ -64,7 +67,7 @@ pub fn script_create_stream_raw(
 }
 
 ///|
-pub fn status_raw(device : RawDevice) -> Int {
+pub fn status_raw(device : RawDevice) -> Int32 {
   ensure_native()
   device_status_ffi(device)
 }
@@ -82,49 +85,49 @@ pub fn hash_raw(device : RawDevice) -> UInt64 {
 }
 
 ///|
-pub fn get_type_raw(device : RawDevice, status : Ref[Int]) -> Int {
+pub fn get_type_raw(device : RawDevice, status : Ref[Int32]) -> Int32 {
   ensure_native()
   device_get_type_ffi(device, status)
 }
 
 ///|
-pub fn finish_raw(device : RawDevice) -> Int {
+pub fn finish_raw(device : RawDevice) -> Int32 {
   ensure_native()
   device_finish_ffi(device)
 }
 
 ///|
-pub fn flush_raw(device : RawDevice) -> Int {
+pub fn flush_raw(device : RawDevice) -> Int32 {
   ensure_native()
   device_flush_ffi(device)
 }
 
 ///|
-pub fn acquire_raw(device : RawDevice) -> Int {
+pub fn acquire_raw(device : RawDevice) -> Int32 {
   ensure_native()
   device_acquire_ffi(device)
 }
 
 ///|
-pub fn release_raw(device : RawDevice) -> Int {
+pub fn release_raw(device : RawDevice) -> Int32 {
   ensure_native()
   device_release_ffi(device)
 }
 
 ///|
-pub fn script_get_mode_raw(device : RawDevice, status : Ref[Int]) -> Int {
+pub fn script_get_mode_raw(device : RawDevice, status : Ref[Int32]) -> Int32 {
   ensure_native()
   script_device_get_mode_ffi(device, status)
 }
 
 ///|
-pub fn script_set_mode_raw(device : RawDevice, mode : Int) -> Int {
+pub fn script_set_mode_raw(device : RawDevice, mode : Int32) -> Int32 {
   ensure_native()
   script_device_set_mode_ffi(device, mode)
 }
 
 ///|
-pub fn script_write_comment_raw(device : RawDevice, comment : Bytes) -> Int {
+pub fn script_write_comment_raw(device : RawDevice, comment : Bytes) -> Int32 {
   ensure_native()
   script_device_write_comment_ffi(device, comment)
 }

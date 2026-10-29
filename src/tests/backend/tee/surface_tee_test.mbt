@@ -1,5 +1,5 @@
 ///|
-fn inspect_tee_pixel(bytes : Bytes, expected : Array[Int]) -> Unit raise {
+fn inspect_tee_pixel(bytes : Bytes, expected : Array[Int32]) -> Unit raise {
   inspect(bytes.length(), content="\{expected.length()}")
   for index in 0..<expected.length() {
     inspect(bytes[index].to_int(), content="\{expected[index]}")

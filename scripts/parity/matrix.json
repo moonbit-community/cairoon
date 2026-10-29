@@ -55,7 +55,7 @@
     },
     "test_get_item": {
       "runtime": ["src/tests/matrix/pycairo/matrix_pycairo_parity_test.mbt::pycairo matrix index operator fixture"],
-      "static_api": ["#alias(\"_[_]\")\npub fn Matrix::at(Self, Int) -> Double raise CairoError"],
+      "static_api": ["#alias(\"_[_]\")\npub fn Matrix::at(Self, Int32) -> Double raise CairoError"],
       "adaptation": "MoonBit matrix indexing preserves pycairo component order and maps out-of-range indexes to CairoInvalidArgument(InvalidIndex, _) under the checked error policy."
     },
     "test_multiply": {

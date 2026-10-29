@@ -2,7 +2,7 @@
 package "CAIMEOX/cairoon/internal/status"
 
 // Values
-pub fn status_message_raw(Int) -> String
+pub fn status_message_raw(Int32) -> String
 
 // Errors
 

@@ -18,19 +18,19 @@ fn Region::to_raw(self : Region) -> @region_impl.RawRegion {
 }
 
 ///|
-fn region_status_from_raw(raw : Int) -> Status {
+fn region_status_from_raw(raw : Int32) -> Status {
   status_from_raw(raw) catch {
     _ => InvalidStatus
   }
 }
 
 ///|
-fn check_region_status_raw(raw : Int) -> Unit raise CairoError {
+fn check_region_status_raw(raw : Int32) -> Unit raise CairoError {
   check_status(status_from_raw(raw))
 }
 
 ///|
-fn region_overlap_from_raw(raw : Int) -> RegionOverlap {
+fn region_overlap_from_raw(raw : Int32) -> RegionOverlap {
   match raw {
     0 => RegionOverlapIn
     1 => RegionOverlapOut
@@ -113,7 +113,7 @@ pub fn Region::status(self : Region) -> Status {
 
 ///|
 fn rectangle_int_from_region_output(
-  f : (Ref[Int], Ref[Int], Ref[Int], Ref[Int]) -> Int,
+  f : (Ref[Int32], Ref[Int32], Ref[Int32], Ref[Int32]) -> Int32,
 ) -> RectangleInt raise CairoError {
   let x = Ref(0)
   let y = Ref(0)
@@ -138,7 +138,7 @@ pub fn Region::get_extents(self : Region) -> RectangleInt raise CairoError {
 /// Return the number of rectangles in Cairo's normalized decomposition.
 ///
 /// The result need not equal the number passed to `from_rectangles`.
-pub fn Region::num_rectangles(self : Region) -> Int {
+pub fn Region::num_rectangles(self : Region) -> Int32 {
   @region_impl.num_rectangles_raw(self.to_raw())
 }
 
@@ -150,7 +150,7 @@ pub fn Region::num_rectangles(self : Region) -> Int {
 /// negative or out-of-range index, or the region's checked status on failure.
 pub fn Region::get_rectangle(
   self : Region,
-  index : Int,
+  index : Int32,
 ) -> RectangleInt raise CairoError {
   if index < 0 || index >= self.num_rectangles() {
     raise CairoInvalidArgument(InvalidIndex, InvalidIndex.message())
@@ -168,7 +168,7 @@ pub fn Region::is_empty(self : Region) -> Bool {
 
 ///|
 /// Return whether the integer point `(x, y)` lies inside this region.
-pub fn Region::contains_point(self : Region, x : Int, y : Int) -> Bool {
+pub fn Region::contains_point(self : Region, x : Int32, y : Int32) -> Bool {
   @region_impl.contains_point_raw(self.to_raw(), x, y)
 }
 
@@ -213,8 +213,8 @@ pub impl Eq for Region with fn equal(self, other) {
 /// after the mutation.
 pub fn Region::translate(
   self : Region,
-  dx : Int,
-  dy : Int,
+  dx : Int32,
+  dy : Int32,
 ) -> Unit raise CairoError {
   check_region_status_raw(@region_impl.translate_raw(self.to_raw(), dx, dy))
 }
@@ -357,3 +357,6 @@ pub fn Region::xor_rectangle(
   )
   self
 }
+
+///|
+pub extend Region with Eq::{not_equal}

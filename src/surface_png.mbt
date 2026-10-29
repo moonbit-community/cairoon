@@ -29,7 +29,7 @@ pub fn Surface::image_from_png(path : String) -> Surface raise CairoError {
 /// `CairoIOError(PngError, _)`; Cairo 1.16 through 1.18.0 can surface the
 /// upstream error-surface bug as `CairoMemoryError(NoMemory, _)`.
 pub fn Surface::image_from_png_stream(
-  reader : (Int) -> Bytes,
+  reader : (Int32) -> Bytes,
 ) -> Surface raise CairoError {
   let status = Ref(0)
   let raw = @surface_impl.image_create_from_png_stream_raw(reader, status)

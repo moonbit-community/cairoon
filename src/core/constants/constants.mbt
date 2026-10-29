@@ -1,22 +1,22 @@
 ///|
 /// The configured Cairo version encoded as `major * 10000 + minor * 100 + micro`.
-pub const CAIRO_VERSION : Int = 11804
+pub const CAIRO_VERSION : Int32 = 11806
 
 ///|
 /// The configured Cairo version in `major.minor.micro` form.
-pub const CAIRO_VERSION_STRING : String = "1.18.4"
+pub const CAIRO_VERSION_STRING : String = "1.18.6"
 
 ///|
 /// The configured Cairo major version.
-pub const CAIRO_VERSION_MAJOR : Int = 1
+pub const CAIRO_VERSION_MAJOR : Int32 = 1
 
 ///|
 /// The configured Cairo minor version.
-pub const CAIRO_VERSION_MINOR : Int = 18
+pub const CAIRO_VERSION_MINOR : Int32 = 18
 
 ///|
 /// The configured Cairo micro version.
-pub const CAIRO_VERSION_MICRO : Int = 4
+pub const CAIRO_VERSION_MICRO : Int32 = 6
 
 ///|
 /// Whether the configured Cairo headers enable the legacy ATSUI font backend.
@@ -160,8 +160,8 @@ pub const TAG_CONTENT_REF : String = "cairo.content_ref"
 
 ///|
 /// The root outline identifier accepted by Cairo's PDF outline API.
-pub const PDF_OUTLINE_ROOT : Int = 0
+pub const PDF_OUTLINE_ROOT : Int32 = 0
 
 ///|
 /// The default color-palette identifier used by Cairo font options.
-pub const COLOR_PALETTE_DEFAULT : UInt = 0U
+pub const COLOR_PALETTE_DEFAULT : UInt32 = 0U

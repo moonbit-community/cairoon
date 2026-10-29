@@ -10,7 +10,7 @@ fn rectangle_property_expect_double_index_error(
 
 ///|
 fn rectangle_property_expect_int_index_error(
-  result : Result[Int, @cairoon.CairoError],
+  result : Result[Int32, @cairoon.CairoError],
 ) -> Unit raise {
   match result {
     Err(CairoInvalidArgument(InvalidIndex, _)) => ()
