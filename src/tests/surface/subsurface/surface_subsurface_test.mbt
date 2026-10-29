@@ -1,5 +1,5 @@
 ///|
-fn expect_argb32_red_pixel(data : Bytes, offset : Int) -> Unit raise {
+fn expect_argb32_red_pixel(data : Bytes, offset : Int32) -> Unit raise {
   inspect(data[offset].to_int(), content="0")
   inspect(data[offset + 1].to_int(), content="0")
   inspect(data[offset + 2].to_int(), content="255")
@@ -7,7 +7,7 @@ fn expect_argb32_red_pixel(data : Bytes, offset : Int) -> Unit raise {
 }
 
 ///|
-fn expect_argb32_transparent_pixel(data : Bytes, offset : Int) -> Unit raise {
+fn expect_argb32_transparent_pixel(data : Bytes, offset : Int32) -> Unit raise {
   inspect(data[offset].to_int(), content="0")
   inspect(data[offset + 1].to_int(), content="0")
   inspect(data[offset + 2].to_int(), content="0")

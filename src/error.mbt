@@ -34,6 +34,7 @@ pub fn check_status(status : Status) -> Unit raise CairoError {
 
 ///|
 /// Run a checked Cairo operation and capture its raised error as a `Result`.
+#warnings("-result_error_return")
 pub fn[T] run_cairo(f : () -> T raise CairoError) -> Result[T, CairoError] {
   try f() catch {
     err => Err(err)
@@ -41,3 +42,6 @@ pub fn[T] run_cairo(f : () -> T raise CairoError) -> Result[T, CairoError] {
     value => Ok(value)
   }
 }
+
+///|
+pub extend CairoError with @debug.Debug::{to_repr}

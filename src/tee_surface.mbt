@@ -59,7 +59,7 @@ pub fn Surface::tee_remove(
 /// receivers are checked before indexing.
 pub fn Surface::tee_index(
   self : Surface,
-  index : Int,
+  index : Int32,
 ) -> Surface raise CairoError {
   let status = Ref(0)
   let raw = @surface_impl.tee_index_raw(self.to_raw(), index, status)

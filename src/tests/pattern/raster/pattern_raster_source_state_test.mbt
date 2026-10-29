@@ -44,12 +44,12 @@ test "raster source get_acquire returns current callbacks" {
 
 ///|
 fn saved_raster_callbacks_from_local_pattern(
-  acquire_calls : Ref[Int],
-  release_calls : Ref[Int],
-  replacement_calls : Ref[Int],
-  target_width : Ref[Int],
-  extent_x : Ref[Int],
-  released_width : Ref[Int],
+  acquire_calls : Ref[Int32],
+  release_calls : Ref[Int32],
+  replacement_calls : Ref[Int32],
+  target_width : Ref[Int32],
+  extent_x : Ref[Int32],
+  released_width : Ref[Int32],
 ) -> (
   ((@cairoon.Surface, @cairoon.RectangleInt) -> @cairoon.Surface)?,
   ((@cairoon.Surface) -> Unit)?,

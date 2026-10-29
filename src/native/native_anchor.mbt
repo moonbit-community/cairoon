@@ -4,6 +4,6 @@
 /// This is an implementation anchor for cairoon's internal packages.
 /// Application code should import `CAIMEOX/cairoon` instead of calling it
 /// directly.
-pub fn native_anchor() -> Int {
+pub fn native_anchor() -> Int32 {
   0
 }

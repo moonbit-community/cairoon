@@ -1,6 +1,6 @@
 ///|
 fn make_stream_navigation_map_file_surface(
-  kind : Int,
+  kind : Int32,
   path : String,
 ) -> @cairoon.Surface raise @cairoon.CairoError {
   let surface = match kind {
@@ -15,7 +15,7 @@ fn make_stream_navigation_map_file_surface(
 
 ///|
 fn make_stream_navigation_map_stream_surface(
-  kind : Int,
+  kind : Int32,
   chunks : Array[Bytes],
 ) -> @cairoon.Surface raise @cairoon.CairoError {
   let surface = match kind {
@@ -42,7 +42,7 @@ fn make_stream_navigation_map_stream_surface(
 
 ///|
 fn configure_stream_navigation_map_backend(
-  kind : Int,
+  kind : Int32,
   surface : @cairoon.Surface,
 ) -> Unit raise @cairoon.CairoError {
   match kind {
@@ -81,7 +81,7 @@ fn configure_stream_navigation_map_backend(
 
 ///|
 fn resize_stream_navigation_map_surface(
-  kind : Int,
+  kind : Int32,
   surface : @cairoon.Surface,
   width : Double,
   height : Double,
@@ -130,7 +130,7 @@ fn draw_stream_navigation_map_detail(
 
 ///|
 fn render_stream_navigation_map_scene(
-  kind : Int,
+  kind : Int32,
   surface : @cairoon.Surface,
 ) -> Unit raise @cairoon.CairoError {
   let ctx = @cairoon.Context::new(surface)

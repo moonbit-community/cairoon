@@ -1,5 +1,5 @@
 ///|
-fn stream_equivalence_extension(kind : Int) -> String {
+fn stream_equivalence_extension(kind : Int32) -> String {
   match kind {
     0 => "pdf"
     1 => "ps"
@@ -21,7 +21,7 @@ fn configure_stream_equivalence_pdf_surface(
 
 ///|
 fn make_stream_equivalence_file_surface(
-  kind : Int,
+  kind : Int32,
   path : String,
 ) -> @cairoon.Surface raise @cairoon.CairoError {
   match kind {
@@ -43,7 +43,7 @@ fn make_stream_equivalence_file_surface(
 
 ///|
 fn make_stream_equivalence_stream_surface(
-  kind : Int,
+  kind : Int32,
   chunks : Array[Bytes],
 ) -> @cairoon.Surface raise @cairoon.CairoError {
   match kind {
@@ -75,7 +75,7 @@ fn make_stream_equivalence_stream_surface(
 
 ///|
 fn make_stream_document_feature_file_surface(
-  kind : Int,
+  kind : Int32,
   path : String,
 ) -> @cairoon.Surface raise @cairoon.CairoError {
   match kind {
@@ -88,7 +88,7 @@ fn make_stream_document_feature_file_surface(
 
 ///|
 fn make_stream_document_feature_stream_surface(
-  kind : Int,
+  kind : Int32,
   chunks : Array[Bytes],
 ) -> @cairoon.Surface raise @cairoon.CairoError {
   match kind {
@@ -155,7 +155,7 @@ fn render_stream_surface_show_page_cleared_scene(
 ///|
 fn render_stream_glyph_vector_scene(
   surface : @cairoon.Surface,
-  scene : Int,
+  scene : Int32,
 ) -> Unit raise @cairoon.CairoError {
   let ctx = @cairoon.Context::new(surface)
   draw_vector_oracle_scene(ctx, scene)
@@ -243,7 +243,7 @@ fn render_stream_layered_multipage_scene(
 
 ///|
 fn render_stream_document_feature_scene(
-  kind : Int,
+  kind : Int32,
   surface : @cairoon.Surface,
 ) -> Unit raise @cairoon.CairoError {
   match kind {
@@ -256,7 +256,7 @@ fn render_stream_document_feature_scene(
 
 ///|
 fn stream_equivalence_chunks_to_bytes(chunks : Array[Bytes]) -> Bytes {
-  let mut bytes = Bytes::default()
+  let mut bytes = Default::default()
   for chunk in chunks {
     bytes = bytes + chunk
   }
@@ -277,9 +277,9 @@ fn expect_stream_output_markers(
 
 ///|
 fn expect_stream_output_markers_since(
-  kind : Int,
+  kind : Int32,
   chunks : Array[Bytes],
-  pdf_markers_since : Int,
+  pdf_markers_since : Int32,
   markers : Array[String],
 ) -> Unit raise {
   if kind != 0 || @cairoon.CAIRO_VERSION >= pdf_markers_since {

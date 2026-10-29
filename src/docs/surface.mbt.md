@@ -18,7 +18,7 @@ error.
 ```mbt check
 ///|
 test "surface docs: scoped finish" {
-  let surface = Surface::image(Argb32, 1, 1)
+  let surface = @docs.Surface::image(Argb32, 1, 1)
   let len = surface.with_finished(() => surface.copy_data().length())
   inspect(len, content="4")
   debug_inspect(surface.status(), content="SurfaceFinished")
@@ -35,19 +35,19 @@ C-int `Format` parsing for ported code.
 ```mbt check
 ///|
 test "surface docs: image surface properties and copied bytes" {
-  let surface = Surface::image(Argb32, 2, 1)
+  let surface = @docs.Surface::image(Argb32, 2, 1)
   debug_inspect(surface.get_type(), content="SurfaceTypeImage")
   debug_inspect(surface.get_content(), content="ContentColorAlpha")
   debug_inspect(surface.get_format(), content="Argb32")
   inspect(surface.get_format_raw(), content="0")
-  let raw = Surface::image_raw(1, 1, 1)
+  let raw = @docs.Surface::image_raw(1, 1, 1)
   debug_inspect(raw.get_format(), content="Rgb24")
-  inspect(Format::stride_for_width_raw(1, 1), content="4")
+  inspect(@docs.Format::stride_for_width_raw(1, 1), content="4")
   inspect(surface.get_width(), content="2")
   inspect(surface.get_height(), content="1")
   inspect(surface.get_stride(), content="8")
 
-  let ctx = Context::new(surface)
+  let ctx = @docs.Context::new(surface)
   ctx.set_source_rgba(1.0, 0.0, 0.0, 1.0)
   ctx.paint()
 
@@ -70,9 +70,9 @@ that MoonBit buffer until the surface is finalized.
 ```mbt check
 ///|
 test "surface docs: buffer backed image data shares storage" {
-  let stride = Format::stride_for_width(Argb32, 1)
+  let stride = @docs.Format::stride_for_width(Argb32, 1)
   let pixels : FixedArray[Byte] = FixedArray::make(stride, b'\x00')
-  let surface = Surface::image_for_data_raw(pixels, 0, 1, 1, stride~)
+  let surface = @docs.Surface::image_for_data_raw(pixels, 0, 1, 1, stride~)
   inspect(surface.get_format_raw(), content="0")
 
   let data = surface.get_data()
@@ -103,7 +103,7 @@ the child can reference it.
 ```mbt check
 ///|
 test "surface docs: similar images and rectangular child surfaces" {
-  let parent = Surface::image(Argb32, 4, 4)
+  let parent = @docs.Surface::image(Argb32, 4, 4)
 
   let similar = parent.create_similar(ContentColor, 2, 2)
   debug_inspect(similar.get_content(), content="ContentColor")
@@ -121,7 +121,7 @@ test "surface docs: similar images and rectangular child surfaces" {
   debug_inspect(raw_image.get_format(), content="Rgb30")
 
   let child = parent.create_for_rectangle(1.0, 1.0, 2.0, 2.0)
-  let ctx = Context::new(child)
+  let ctx = @docs.Context::new(child)
   ctx.set_source_rgba(0.0, 0.0, 1.0, 1.0)
   ctx.paint()
   child.flush()
@@ -147,11 +147,11 @@ manager and unmaps after success or Cairo errors.
 ```mbt check
 ///|
 test "surface docs: mapped image extents update selected pixels" {
-  let surface = Surface::image(Rgb24, 2, 1)
+  let surface = @docs.Surface::image(Rgb24, 2, 1)
   let mapped = surface.map_to_image(
-    extents=Some(RectangleInt::new(x=0, y=0, width=1, height=1)),
+    extents=Some(@docs.RectangleInt::new(x=0, y=0, width=1, height=1)),
   )
-  let ctx = Context::new_for_mapped_image(mapped)
+  let ctx = @docs.Context::new_for_mapped_image(mapped)
   ctx.set_source_rgb(1.0, 1.0, 1.0)
   ctx.paint()
   mapped.unmap()
@@ -170,10 +170,10 @@ test "surface docs: mapped image extents update selected pixels" {
 ```mbt check
 ///|
 test "surface docs: scoped mapped-image unmap" {
-  let surface = Surface::image(Rgb24, 1, 1)
+  let surface = @docs.Surface::image(Rgb24, 1, 1)
   let mapped = surface.map_to_image()
   mapped.with_unmapped(() => {
-    let ctx = Context::new_for_mapped_image(mapped)
+    let ctx = @docs.Context::new_for_mapped_image(mapped)
     ctx.set_source_rgb(1.0, 1.0, 1.0)
     ctx.paint()
   })
@@ -197,25 +197,25 @@ storage on set and copied back into MoonBit-owned `Bytes` on get.
 ///|
 test "surface docs: png roundtrip and mime bytes" {
   let path = "/tmp/cairoon_surface_docs_roundtrip.png"
-  let surface = Surface::image(Argb32, 1, 1)
-  let ctx = Context::new(surface)
+  let surface = @docs.Surface::image(Argb32, 1, 1)
+  let ctx = @docs.Context::new(surface)
   ctx.set_source_rgba(0.0, 1.0, 0.0, 1.0)
   ctx.paint()
   surface.write_to_png(path)
 
-  let loaded = Surface::image_from_png(path)
+  let loaded = @docs.Surface::image_from_png(path)
   inspect(loaded.get_width(), content="1")
   inspect(loaded.get_height(), content="1")
   inspect(loaded.copy_data() == surface.copy_data(), content="true")
 
   let jpeg = @utf8.encode("encoded-jpeg-bytes")
-  surface.set_mime_data(MIME_TYPE_JPEG, Some(jpeg))
-  match surface.get_mime_data(MIME_TYPE_JPEG) {
+  surface.set_mime_data(@docs.MIME_TYPE_JPEG, Some(jpeg))
+  match surface.get_mime_data(@docs.MIME_TYPE_JPEG) {
     Some(bytes) => inspect(bytes == jpeg, content="true")
     None => fail("expected MIME data")
   }
-  surface.set_mime_data(MIME_TYPE_JPEG, None)
-  inspect(surface.get_mime_data(MIME_TYPE_JPEG) is None, content="true")
+  surface.set_mime_data(@docs.MIME_TYPE_JPEG, None)
+  inspect(surface.get_mime_data(@docs.MIME_TYPE_JPEG) is None, content="true")
 }
 ```
 
@@ -227,19 +227,20 @@ leaving callers to inspect `status()` after the fact.
 ```mbt check
 ///|
 test "surface docs: invalid inputs raise checked cairo errors" {
-  let surface = Surface::image(Argb32, 2, 2)
+  let surface = @docs.Surface::image(Argb32, 2, 2)
 
-  match run_cairo(() => surface.create_similar(ContentColor, -1, 1)) {
+  match @docs.run_cairo(() => surface.create_similar(ContentColor, -1, 1)) {
     Err(CairoInvalidArgument(InvalidSize, _)) => ()
     _ => @test.fail("expected InvalidSize")
   }
 
-  match run_cairo(() => surface.set_device_scale(0.0, 1.0)) {
+  match @docs.run_cairo(() => surface.set_device_scale(0.0, 1.0)) {
     Err(CairoInvalidArgument(InvalidMatrix, _)) => ()
     _ => @test.fail("expected InvalidMatrix")
   }
 
-  match run_cairo(() => surface.write_to_png("/tmp/cairoon\u{0}bad.png")) {
+  match
+    @docs.run_cairo(() => surface.write_to_png("/tmp/cairoon\u{0}bad.png")) {
     Err(CairoInvalidArgument(InvalidString, _)) => ()
     _ => @test.fail("expected InvalidString")
   }

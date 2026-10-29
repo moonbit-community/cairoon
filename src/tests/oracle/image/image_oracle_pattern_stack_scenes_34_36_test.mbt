@@ -1,7 +1,7 @@
 ///|
 fn draw_image_oracle_pattern_stack_scene_34_36(
   ctx : @cairoon.Context,
-  scene : Int,
+  scene : Int32,
 ) -> Unit raise @cairoon.CairoError {
   match scene {
     34 => {

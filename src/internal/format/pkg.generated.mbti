@@ -2,7 +2,7 @@
 package "CAIMEOX/cairoon/internal/format"
 
 // Values
-pub fn stride_for_width_raw(Int, Int) -> Int
+pub fn stride_for_width_raw(Int32, Int32) -> Int32
 
 // Errors
 

@@ -1,7 +1,7 @@
 ///|
 fn paint_pattern_color(
   ctx : @cairoon.Context,
-  color : Int,
+  color : Int32,
 ) -> Unit raise @cairoon.CairoError {
   match color {
     0 => ctx.set_source_rgba(1.0, 0.0, 0.0, 1.0)
@@ -13,9 +13,9 @@ fn paint_pattern_color(
 
 ///|
 fn make_pattern_color_surface(
-  color : Int,
-  width : Int,
-  height : Int,
+  color : Int32,
+  width : Int32,
+  height : Int32,
 ) -> @cairoon.Surface raise @cairoon.CairoError {
   let surface = @cairoon.Surface::image(Argb32, width, height)
   paint_pattern_color(@cairoon.Context::new(surface), color)
@@ -23,7 +23,7 @@ fn make_pattern_color_surface(
 }
 
 ///|
-fn expect_pattern_first_pixel(bytes : Bytes, color : Int) -> Unit raise {
+fn expect_pattern_first_pixel(bytes : Bytes, color : Int32) -> Unit raise {
   let expected = match color {
     0 => [0, 0, 255, 255]
     1 => [0, 255, 0, 255]
@@ -36,8 +36,8 @@ fn expect_pattern_first_pixel(bytes : Bytes, color : Int) -> Unit raise {
 
 ///|
 fn expect_pattern_fuzz_distribution(
-  actual : FixedArray[Int],
-  expected : Array[Int],
+  actual : FixedArray[Int32],
+  expected : Array[Int32],
 ) -> Unit raise {
   inspect(actual.length(), content="\{expected.length()}")
   for index in 0..<expected.length() {

@@ -18,19 +18,19 @@ fn Surface::to_raw(self : Surface) -> @surface_impl.RawSurface {
 }
 
 ///|
-fn surface_status_from_raw(raw : Int) -> Status {
+fn surface_status_from_raw(raw : Int32) -> Status {
   status_from_raw(raw) catch {
     _ => InvalidStatus
   }
 }
 
 ///|
-fn check_surface_status_raw(raw : Int) -> Unit raise CairoError {
+fn check_surface_status_raw(raw : Int32) -> Unit raise CairoError {
   check_status(status_from_raw(raw))
 }
 
 ///|
-fn surface_type_from_raw(raw : Int) -> SurfaceType raise CairoError {
+fn surface_type_from_raw(raw : Int32) -> SurfaceType raise CairoError {
   match raw {
     0 => SurfaceTypeImage
     1 => SurfaceTypePdf
@@ -87,8 +87,8 @@ fn checked_path_bytes(path : String) -> Bytes raise CairoError {
 pub fn Surface::create_similar(
   self : Surface,
   content : Content,
-  width : Int,
-  height : Int,
+  width : Int32,
+  height : Int32,
 ) -> Surface raise CairoError {
   let status = Ref(0)
   let raw = @surface_impl.create_similar_raw(
@@ -112,9 +112,9 @@ pub fn Surface::create_similar(
 /// the same checked behavior as `create_similar()`.
 pub fn Surface::create_similar_raw(
   self : Surface,
-  content : Int,
-  width : Int,
-  height : Int,
+  content : Int32,
+  width : Int32,
+  height : Int32,
 ) -> Surface raise CairoError {
   let status = Ref(0)
   let raw = @surface_impl.create_similar_raw(
@@ -139,8 +139,8 @@ pub fn Surface::create_similar_raw(
 pub fn Surface::create_similar_image(
   self : Surface,
   format : Format,
-  width : Int,
-  height : Int,
+  width : Int32,
+  height : Int32,
 ) -> Surface raise CairoError {
   let status = Ref(0)
   let raw = @surface_impl.create_similar_image_raw(
@@ -164,9 +164,9 @@ pub fn Surface::create_similar_image(
 /// `CairoInvalidArgument(InvalidFormat, _)`.
 pub fn Surface::create_similar_image_raw(
   self : Surface,
-  format : Int,
-  width : Int,
-  height : Int,
+  format : Int32,
+  width : Int32,
+  height : Int32,
 ) -> Surface raise CairoError {
   let status = Ref(0)
   let raw = @surface_impl.create_similar_image_raw(
@@ -255,7 +255,7 @@ pub impl Hash for Surface with fn hash_combine(self, hasher) {
 }
 
 ///|
-fn content_from_raw(raw : Int) -> Content raise CairoError {
+fn content_from_raw(raw : Int32) -> Content raise CairoError {
   match raw {
     0x1000 => ContentColor
     0x2000 => ContentAlpha
@@ -266,7 +266,7 @@ fn content_from_raw(raw : Int) -> Content raise CairoError {
 }
 
 ///|
-fn Content::to_raw(self : Content) -> Int {
+fn Content::to_raw(self : Content) -> Int32 {
   match self {
     ContentColor => 0x1000
     ContentAlpha => 0x2000
@@ -275,7 +275,7 @@ fn Content::to_raw(self : Content) -> Int {
 }
 
 ///|
-fn checked_content_raw(raw : Int) -> Int raise CairoError {
+fn checked_content_raw(raw : Int32) -> Int32 raise CairoError {
   match raw {
     0x1000 | 0x2000 | 0x3000 => raw
     _ => raise CairoInvalidArgument(InvalidContent, InvalidContent.message())
@@ -296,7 +296,7 @@ pub fn Surface::get_content(self : Surface) -> Content raise CairoError {
 ///
 /// Successful values are the exact Cairo ABI constants `0x1000`, `0x2000`, or
 /// `0x3000`. Surface failures are checked before the integer is returned.
-pub fn Surface::get_content_raw(self : Surface) -> Int raise CairoError {
+pub fn Surface::get_content_raw(self : Surface) -> Int32 raise CairoError {
   check_surface_status_raw(@surface_impl.status_raw(self.to_raw()))
   @surface_impl.get_content_raw(self.to_raw())
 }
@@ -360,15 +360,16 @@ pub fn[T] Surface::with_finished(
   self : Surface,
   f : () -> T raise CairoError,
 ) -> T raise CairoError {
-  try f() catch {
-    err => {
-      let _ = @surface_impl.finish_raw(self.to_raw())
-      raise err
-    }
-  } noraise {
-    value => {
-      self.finish()
-      value
-    }
+  let value = {
+    errdefer ignore(@surface_impl.finish_raw(self.to_raw()))
+    f()
   }
+  self.finish()
+  value
 }
+
+///|
+pub extend Surface with Eq::{not_equal}
+
+///|
+pub extend Surface with Hash::{hash_combine}

@@ -14,7 +14,7 @@
   "tests": {
     "test_create_image_surface": {
       "runtime": ["src/tests/api/pycairo/api_pycairo_parity_test.mbt::pycairo surface constructor smoke fixture"],
-      "static_api": ["pub fn Surface::image(Format, Int, Int) -> Self raise CairoError"],
+      "static_api": ["pub fn Surface::image(Format, Int32, Int32) -> Self raise CairoError"],
       "adaptation": "A native MoonBit Surface wrapper replaces PycairoSurface_FromSurface while preserving checked image creation and owned Cairo lifetime."
     },
     "test_create_context": {

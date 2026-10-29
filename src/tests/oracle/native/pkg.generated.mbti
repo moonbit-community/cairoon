@@ -2,7 +2,7 @@
 package "CAIMEOX/cairoon/tests/oracle/native"
 
 // Values
-pub fn oracle_native_anchor() -> Int
+pub fn oracle_native_anchor() -> Int32
 
 // Errors
 
@@ -11,4 +11,3 @@ pub fn oracle_native_anchor() -> Int
 // Type aliases
 
 // Traits
-

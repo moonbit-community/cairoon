@@ -1,6 +1,6 @@
 ///|
 fn make_stream_lifecycle_file_surface(
-  kind : Int,
+  kind : Int32,
   path : String,
 ) -> @cairoon.Surface raise @cairoon.CairoError {
   let surface = match kind {
@@ -15,7 +15,7 @@ fn make_stream_lifecycle_file_surface(
 
 ///|
 fn make_stream_lifecycle_stream_surface(
-  kind : Int,
+  kind : Int32,
   chunks : Array[Bytes],
 ) -> @cairoon.Surface raise @cairoon.CairoError {
   let surface = match kind {
@@ -42,7 +42,7 @@ fn make_stream_lifecycle_stream_surface(
 
 ///|
 fn configure_stream_lifecycle_backend(
-  kind : Int,
+  kind : Int32,
   surface : @cairoon.Surface,
 ) -> Unit raise @cairoon.CairoError {
   match kind {
@@ -84,7 +84,7 @@ fn configure_stream_lifecycle_backend(
 
 ///|
 fn resize_stream_lifecycle_surface(
-  kind : Int,
+  kind : Int32,
   surface : @cairoon.Surface,
   width : Double,
   height : Double,
@@ -98,7 +98,7 @@ fn resize_stream_lifecycle_surface(
 
 ///|
 fn render_stream_lifecycle_scene(
-  kind : Int,
+  kind : Int32,
   surface : @cairoon.Surface,
 ) -> Unit raise @cairoon.CairoError {
   let ctx = @cairoon.Context::new(surface)

@@ -1,7 +1,7 @@
 ///|
 fn draw_vector_oracle_scene(
   ctx : @cairoon.Context,
-  scene : Int,
+  scene : Int32,
 ) -> Unit raise @cairoon.CairoError {
   match scene {
     0 => {
@@ -135,8 +135,8 @@ fn draw_vector_oracle_scene(
 
 ///|
 fn render_vector_oracle_scene(
-  kind : Int,
-  scene : Int,
+  kind : Int32,
+  scene : Int32,
   path : String,
 ) -> Unit raise @cairoon.CairoError {
   let surface = vector_oracle_surface(kind, path)
@@ -162,7 +162,7 @@ fn draw_surface_page_retained_scene(
 
 ///|
 fn render_surface_page_retained_scene(
-  kind : Int,
+  kind : Int32,
   path : String,
 ) -> Unit raise @cairoon.CairoError {
   let surface = vector_oracle_surface(kind, path)
@@ -187,7 +187,7 @@ fn draw_surface_show_page_cleared_scene(
 
 ///|
 fn render_surface_show_page_cleared_scene(
-  kind : Int,
+  kind : Int32,
   path : String,
 ) -> Unit raise @cairoon.CairoError {
   let surface = vector_oracle_surface(kind, path)
@@ -268,7 +268,7 @@ fn render_pdf_document_feature_scene(
 ///|
 fn render_pdf_text_document_feature_surface(
   surface : @cairoon.Surface,
-) -> (Int, Int) raise @cairoon.CairoError {
+) -> (Int32, Int32) raise @cairoon.CairoError {
   surface.pdf_restrict_to_version(PdfVersion1_4)
   surface.pdf_set_metadata(PdfMetadataTitle, "Cairoon Combined")
   surface.pdf_set_metadata(PdfMetadataCreator, "cairoon combined test")
@@ -319,7 +319,7 @@ fn render_pdf_text_document_feature_surface(
 ///|
 fn render_pdf_text_document_feature_scene(
   path : String,
-) -> (Int, Int) raise @cairoon.CairoError {
+) -> (Int32, Int32) raise @cairoon.CairoError {
   let surface = @cairoon.Surface::pdf(100.0, 100.0, path=Some(path))
   render_pdf_text_document_feature_surface(surface)
 }

@@ -7,8 +7,8 @@
 /// `InvalidContent`, allocation failure, or another creation status.
 pub fn Pattern::raster_source(
   content : Content,
-  width : Int,
-  height : Int,
+  width : Int32,
+  height : Int32,
 ) -> Pattern raise CairoError {
   let raw = @pattern_impl.create_raster_source_raw(
     content.to_raw(),
@@ -27,9 +27,9 @@ pub fn Pattern::raster_source(
 /// `CairoInvalidArgument(InvalidContent, _)` before C; dimensions and Cairo
 /// 1.12 requirements match `raster_source()`.
 pub fn Pattern::raster_source_raw(
-  content : Int,
-  width : Int,
-  height : Int,
+  content : Int32,
+  width : Int32,
+  height : Int32,
 ) -> Pattern raise CairoError {
   let raw = @pattern_impl.create_raster_source_raw(
     checked_content_raw(content),
@@ -51,7 +51,7 @@ pub fn Pattern::raster_source_raw(
 pub fn Pattern::raster_set_acquire(
   self : Pattern,
   acquire : (Surface, RectangleInt) -> Surface,
-  release? : ((Surface) -> Unit)? = None,
+  release~ : ((Surface) -> Unit)? = None,
 ) -> Unit raise CairoError {
   self.raster_set_callbacks(acquire=Some(acquire), release~)
 }
@@ -73,8 +73,8 @@ pub fn Pattern::raster_set_acquire(
 /// non-raster pattern or another checked registration status.
 pub fn Pattern::raster_set_callbacks(
   self : Pattern,
-  acquire? : ((Surface, RectangleInt) -> Surface)? = None,
-  release? : ((Surface) -> Unit)? = None,
+  acquire~ : ((Surface, RectangleInt) -> Surface)? = None,
+  release~ : ((Surface) -> Unit)? = None,
 ) -> Unit raise CairoError {
   let raw_acquire = match acquire {
     None => None

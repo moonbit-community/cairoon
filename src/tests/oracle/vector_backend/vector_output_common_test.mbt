@@ -12,9 +12,9 @@ fn expect_vector_output(path : String, markers : Array[String]) -> Unit raise {
 
 ///|
 fn expect_backend_output_markers(
-  kind : Int,
+  kind : Int32,
   path : String,
-  pdf_markers_since : Int,
+  pdf_markers_since : Int32,
   markers : Array[String],
 ) -> Unit raise {
   if kind != 0 || @cairoon.CAIRO_VERSION >= pdf_markers_since {
@@ -104,7 +104,7 @@ fn tiny_jpeg_payload() -> Bytes {
 }
 
 ///|
-fn vector_output_extension(kind : Int) -> String {
+fn vector_output_extension(kind : Int32) -> String {
   match kind {
     0 => "pdf"
     1 => "ps"
@@ -115,7 +115,7 @@ fn vector_output_extension(kind : Int) -> String {
 
 ///|
 fn expect_vector_outputs_equal(
-  kind : Int,
+  kind : Int32,
   left_path : String,
   right_path : String,
 ) -> Unit raise {
@@ -131,8 +131,8 @@ fn expect_vector_outputs_equal(
 
 ///|
 fn expect_vector_oracle_match(
-  kind : Int,
-  scene : Int,
+  kind : Int32,
+  scene : Int32,
   cairoon_path : String,
   oracle_path : String,
 ) -> Unit raise {
@@ -155,7 +155,7 @@ fn expect_vector_oracle_match(
 
 ///|
 fn vector_oracle_surface(
-  kind : Int,
+  kind : Int32,
   path : String,
 ) -> @cairoon.Surface raise @cairoon.CairoError {
   match kind {

@@ -10,7 +10,7 @@
 pub fn Surface::pdf(
   width_in_points : Double,
   height_in_points : Double,
-  path? : String? = None,
+  path~ : String? = None,
 ) -> Surface raise CairoError {
   let status = Ref(0)
   let (has_filename, filename) = match path {
@@ -62,7 +62,7 @@ pub fn PDFVersion::supported() -> Array[PDFVersion] raise CairoError {
   let status = Ref(0)
   let count = @pdf_impl.get_version_count_raw(status)
   check_status(status_from_raw(status.val))
-  let versions : Array[PDFVersion] = Array::new(capacity=count)
+  let versions : Array[PDFVersion] = Array(capacity=count)
   for index in 0..<count {
     let version = pdf_version_from_raw(@pdf_impl.get_version_raw(index, status))
     check_status(status_from_raw(status.val))
@@ -91,7 +91,7 @@ pub fn PDFVersion::to_string(self : PDFVersion) -> String raise CairoError {
 /// valid only when present in `PDFVersion::supported()`. Negative, unavailable,
 /// and other unknown values raise `CairoError(InvalidStatus, _)`; the returned
 /// string is copied into MoonBit-owned storage.
-pub fn PDFVersion::to_string_raw(version : Int) -> String raise CairoError {
+pub fn PDFVersion::to_string_raw(version : Int32) -> String raise CairoError {
   let status = Ref(0)
   let text = @pdf_impl.version_to_string_raw(version, status)
   check_status(status_from_raw(status.val))
@@ -99,7 +99,7 @@ pub fn PDFVersion::to_string_raw(version : Int) -> String raise CairoError {
 }
 
 ///|
-fn PDFVersion::to_raw(self : PDFVersion) -> Int {
+fn PDFVersion::to_raw(self : PDFVersion) -> Int32 {
   match self {
     PdfVersion1_4 => 0
     PdfVersion1_5 => 1
@@ -109,7 +109,7 @@ fn PDFVersion::to_raw(self : PDFVersion) -> Int {
 }
 
 ///|
-fn PDFMetadata::to_raw(self : PDFMetadata) -> Int {
+fn PDFMetadata::to_raw(self : PDFMetadata) -> Int32 {
   match self {
     PdfMetadataTitle => 0
     PdfMetadataAuthor => 1
@@ -122,7 +122,7 @@ fn PDFMetadata::to_raw(self : PDFMetadata) -> Int {
 }
 
 ///|
-fn pdf_version_from_raw(raw : Int) -> PDFVersion raise CairoError {
+fn pdf_version_from_raw(raw : Int32) -> PDFVersion raise CairoError {
   match raw {
     0 => PdfVersion1_4
     1 => PdfVersion1_5
@@ -143,12 +143,12 @@ fn pdf_version_from_raw(raw : Int) -> PDFVersion raise CairoError {
 /// bits. `from_bits` preserves an exact pycairo-compatible integer for ported
 /// code; bits outside the known `0x07` mask have no portable Cairo semantics.
 pub struct PDFOutlineFlagSet {
-  bits : Int
+  bits : Int32
 } derive(Eq, @debug.Debug)
 
 ///|
 /// Return this flag's Cairo bit: Open=`0x01`, Bold=`0x02`, Italic=`0x04`.
-pub fn PDFOutlineFlags::bits(self : PDFOutlineFlags) -> Int {
+pub fn PDFOutlineFlags::bits(self : PDFOutlineFlags) -> Int32 {
   match self {
     PdfOutlineOpen => 0x01
     PdfOutlineBold => 0x02
@@ -159,13 +159,13 @@ pub fn PDFOutlineFlags::bits(self : PDFOutlineFlags) -> Int {
 ///|
 /// Return an empty outline flag set with raw value zero.
 pub fn PDFOutlineFlagSet::none() -> PDFOutlineFlagSet {
-  { bits: 0 }
+  { bits: 0, }
 }
 
 ///|
 /// Create a set containing exactly one typed outline flag.
 pub fn PDFOutlineFlagSet::of(flag : PDFOutlineFlags) -> PDFOutlineFlagSet {
-  { bits: flag.bits() }
+  { bits: flag.bits(), }
 }
 
 ///|
@@ -174,7 +174,7 @@ pub fn PDFOutlineFlagSet::of(flag : PDFOutlineFlags) -> PDFOutlineFlagSet {
 /// Known portable bits occupy mask `0x07`. Other bits are retained by
 /// `bits()` and passed unchanged by raw outline APIs, but their PDF rendering
 /// behavior is unsupported.
-pub fn PDFOutlineFlagSet::from_bits(bits : Int) -> PDFOutlineFlagSet {
+pub fn PDFOutlineFlagSet::from_bits(bits : Int32) -> PDFOutlineFlagSet {
   { bits, }
 }
 
@@ -199,7 +199,7 @@ pub fn PDFOutlineFlagSet::add(
   self : PDFOutlineFlagSet,
   flag : PDFOutlineFlags,
 ) -> PDFOutlineFlagSet {
-  { bits: self.bits.lor(flag.bits()) }
+  { bits: self.bits.lor(flag.bits()), }
 }
 
 ///|
@@ -213,7 +213,7 @@ pub fn PDFOutlineFlagSet::contains(
 
 ///|
 /// Return the exact stored C-compatible bitset.
-pub fn PDFOutlineFlagSet::bits(self : PDFOutlineFlagSet) -> Int {
+pub fn PDFOutlineFlagSet::bits(self : PDFOutlineFlagSet) -> Int32 {
   self.bits
 }
 
@@ -244,7 +244,7 @@ pub fn Surface::pdf_restrict_to_version(
 /// Timing and receiver errors match `pdf_restrict_to_version`.
 pub fn Surface::pdf_restrict_to_version_raw(
   self : Surface,
-  version : Int,
+  version : Int32,
 ) -> Unit raise CairoError {
   check_surface_status_raw(
     @surface_impl.pdf_restrict_to_version_raw(self.to_raw(), version),
@@ -304,7 +304,7 @@ pub fn Surface::pdf_set_metadata(
 /// match `pdf_set_metadata`.
 pub fn Surface::pdf_set_metadata_raw(
   self : Surface,
-  metadata : Int,
+  metadata : Int32,
   value : String,
 ) -> Unit raise CairoError {
   check_surface_status_raw(
@@ -371,8 +371,8 @@ pub fn Surface::pdf_set_page_label(
 /// non-PDF surfaces raise checked Surface errors.
 pub fn Surface::pdf_set_thumbnail_size(
   self : Surface,
-  width : Int,
-  height : Int,
+  width : Int32,
+  height : Int32,
 ) -> Unit raise CairoError {
   check_surface_status_raw(
     @surface_impl.pdf_set_thumbnail_size_raw(self.to_raw(), width, height),
@@ -390,11 +390,11 @@ pub fn Surface::pdf_set_thumbnail_size(
 /// `pdf_add_outline_with_flags` to combine display flags.
 pub fn Surface::pdf_add_outline(
   self : Surface,
-  parent_id : Int,
+  parent_id : Int32,
   title : String,
   link_attributes : String,
   flags : PDFOutlineFlags,
-) -> Int raise CairoError {
+) -> Int32 raise CairoError {
   self.pdf_add_outline_with_flags(
     parent_id,
     title,
@@ -412,11 +412,11 @@ pub fn Surface::pdf_add_outline(
 /// documents the stable API since 1.16.
 pub fn Surface::pdf_add_outline_with_flags(
   self : Surface,
-  parent_id : Int,
+  parent_id : Int32,
   title : String,
   link_attributes : String,
   flags : PDFOutlineFlagSet,
-) -> Int raise CairoError {
+) -> Int32 raise CairoError {
   let status = Ref(0)
   let id = @surface_impl.pdf_add_outline_bits_raw(
     self.to_raw(),
@@ -439,11 +439,11 @@ pub fn Surface::pdf_add_outline_with_flags(
 /// match `pdf_add_outline_with_flags`.
 pub fn Surface::pdf_add_outline_raw(
   self : Surface,
-  parent_id : Int,
+  parent_id : Int32,
   title : String,
   link_attributes : String,
-  flags : Int,
-) -> Int raise CairoError {
+  flags : Int32,
+) -> Int32 raise CairoError {
   let status = Ref(0)
   let id = @surface_impl.pdf_add_outline_bits_raw(
     self.to_raw(),
@@ -456,3 +456,9 @@ pub fn Surface::pdf_add_outline_raw(
   check_surface_status_raw(status.val)
   id
 }
+
+///|
+pub extend PDFOutlineFlagSet with Eq::{not_equal, equal}
+
+///|
+pub extend PDFOutlineFlagSet with @debug.Debug::{to_repr}

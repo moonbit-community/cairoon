@@ -53,7 +53,7 @@ pub fn Context::get_hairline(self : Context) -> Bool raise CairoError {
 }
 
 ///|
-fn line_cap_from_raw(raw : Int) -> LineCap raise CairoError {
+fn line_cap_from_raw(raw : Int32) -> LineCap raise CairoError {
   match raw {
     0 => LineCapButt
     1 => LineCapRound
@@ -67,7 +67,7 @@ fn line_cap_from_raw(raw : Int) -> LineCap raise CairoError {
 }
 
 ///|
-fn line_cap_to_raw(cap : LineCap) -> Int {
+fn line_cap_to_raw(cap : LineCap) -> Int32 {
   match cap {
     LineCapButt => 0
     LineCapRound => 1
@@ -106,7 +106,7 @@ pub fn Context::get_line_cap(self : Context) -> LineCap raise CairoError {
 /// Raises the checked context status.
 pub fn Context::set_line_cap_raw(
   self : Context,
-  cap : Int,
+  cap : Int32,
 ) -> Unit raise CairoError {
   check_context_status_raw(@context_impl.set_line_cap_raw(self.to_raw(), cap))
 }
@@ -116,13 +116,13 @@ pub fn Context::set_line_cap_raw(
 ///
 /// Unlike `get_line_cap`, this preserves unknown values. Raises the checked
 /// context status before reading the value.
-pub fn Context::get_line_cap_raw(self : Context) -> Int raise CairoError {
+pub fn Context::get_line_cap_raw(self : Context) -> Int32 raise CairoError {
   check_context_status_raw(@context_impl.status_raw(self.to_raw()))
   @context_impl.get_line_cap_raw(self.to_raw())
 }
 
 ///|
-fn line_join_from_raw(raw : Int) -> LineJoin raise CairoError {
+fn line_join_from_raw(raw : Int32) -> LineJoin raise CairoError {
   match raw {
     0 => LineJoinMiter
     1 => LineJoinRound
@@ -136,7 +136,7 @@ fn line_join_from_raw(raw : Int) -> LineJoin raise CairoError {
 }
 
 ///|
-fn line_join_to_raw(join : LineJoin) -> Int {
+fn line_join_to_raw(join : LineJoin) -> Int32 {
   match join {
     LineJoinMiter => 0
     LineJoinRound => 1
@@ -175,7 +175,7 @@ pub fn Context::get_line_join(self : Context) -> LineJoin raise CairoError {
 /// the checked context status.
 pub fn Context::set_line_join_raw(
   self : Context,
-  join : Int,
+  join : Int32,
 ) -> Unit raise CairoError {
   check_context_status_raw(@context_impl.set_line_join_raw(self.to_raw(), join))
 }
@@ -185,13 +185,13 @@ pub fn Context::set_line_join_raw(
 ///
 /// Unlike `get_line_join`, this preserves unknown values. Raises the checked
 /// context status before reading the value.
-pub fn Context::get_line_join_raw(self : Context) -> Int raise CairoError {
+pub fn Context::get_line_join_raw(self : Context) -> Int32 raise CairoError {
   check_context_status_raw(@context_impl.status_raw(self.to_raw()))
   @context_impl.get_line_join_raw(self.to_raw())
 }
 
 ///|
-fn fill_rule_from_raw(raw : Int) -> FillRule raise CairoError {
+fn fill_rule_from_raw(raw : Int32) -> FillRule raise CairoError {
   match raw {
     0 => FillWinding
     1 => FillEvenOdd
@@ -204,7 +204,7 @@ fn fill_rule_from_raw(raw : Int) -> FillRule raise CairoError {
 }
 
 ///|
-fn fill_rule_to_raw(fill_rule : FillRule) -> Int {
+fn fill_rule_to_raw(fill_rule : FillRule) -> Int32 {
   match fill_rule {
     FillWinding => 0
     FillEvenOdd => 1
@@ -242,7 +242,7 @@ pub fn Context::get_fill_rule(self : Context) -> FillRule raise CairoError {
 /// the checked context status.
 pub fn Context::set_fill_rule_raw(
   self : Context,
-  fill_rule : Int,
+  fill_rule : Int32,
 ) -> Unit raise CairoError {
   check_context_status_raw(
     @context_impl.set_fill_rule_raw(self.to_raw(), fill_rule),
@@ -254,7 +254,7 @@ pub fn Context::set_fill_rule_raw(
 ///
 /// Unlike `get_fill_rule`, this preserves unknown values. Raises the checked
 /// context status before reading the value.
-pub fn Context::get_fill_rule_raw(self : Context) -> Int raise CairoError {
+pub fn Context::get_fill_rule_raw(self : Context) -> Int32 raise CairoError {
   check_context_status_raw(@context_impl.status_raw(self.to_raw()))
   @context_impl.get_fill_rule_raw(self.to_raw())
 }
@@ -274,7 +274,7 @@ pub fn Context::set_operator(
 }
 
 ///|
-fn operator_to_raw(operator : Operator) -> Int {
+fn operator_to_raw(operator : Operator) -> Int32 {
   match operator {
     OperatorClear => 0
     OperatorSource => 1
@@ -309,7 +309,7 @@ fn operator_to_raw(operator : Operator) -> Int {
 }
 
 ///|
-fn operator_from_raw(raw : Int) -> Operator raise CairoError {
+fn operator_from_raw(raw : Int32) -> Operator raise CairoError {
   match raw {
     0 => OperatorClear
     1 => OperatorSource
@@ -365,7 +365,7 @@ pub fn Context::get_operator(self : Context) -> Operator raise CairoError {
 /// the checked context status.
 pub fn Context::set_operator_raw(
   self : Context,
-  operator : Int,
+  operator : Int32,
 ) -> Unit raise CairoError {
   check_context_status_raw(
     @context_impl.set_operator_raw(self.to_raw(), operator),
@@ -377,7 +377,7 @@ pub fn Context::set_operator_raw(
 ///
 /// Unlike `get_operator`, this preserves unknown values. Raises the checked
 /// context status before reading the value.
-pub fn Context::get_operator_raw(self : Context) -> Int raise CairoError {
+pub fn Context::get_operator_raw(self : Context) -> Int32 raise CairoError {
   check_context_status_raw(@context_impl.status_raw(self.to_raw()))
   @context_impl.get_operator_raw(self.to_raw())
 }
@@ -414,7 +414,7 @@ pub fn Context::get_antialias(self : Context) -> Antialias raise CairoError {
 /// the checked context status.
 pub fn Context::set_antialias_raw(
   self : Context,
-  antialias : Int,
+  antialias : Int32,
 ) -> Unit raise CairoError {
   check_context_status_raw(
     @context_impl.set_antialias_raw(self.to_raw(), antialias),
@@ -426,7 +426,7 @@ pub fn Context::set_antialias_raw(
 ///
 /// Unlike `get_antialias`, this preserves unknown values. Raises the checked
 /// context status before reading the value.
-pub fn Context::get_antialias_raw(self : Context) -> Int raise CairoError {
+pub fn Context::get_antialias_raw(self : Context) -> Int32 raise CairoError {
   check_context_status_raw(@context_impl.status_raw(self.to_raw()))
   @context_impl.get_antialias_raw(self.to_raw())
 }
@@ -491,7 +491,7 @@ pub fn Context::get_miter_limit(self : Context) -> Double raise CairoError {
 pub fn Context::set_dash(
   self : Context,
   dashes : ArrayView[Double],
-  offset? : Double = 0.0,
+  offset~ : Double = 0.0,
 ) -> Unit raise CairoError {
   check_context_status_raw(
     @context_impl.set_dash_raw(
@@ -506,7 +506,7 @@ pub fn Context::set_dash(
 /// Return the number of entries in the current dash pattern.
 ///
 /// Returns zero when dashing is disabled. Raises the checked context status.
-pub fn Context::get_dash_count(self : Context) -> Int raise CairoError {
+pub fn Context::get_dash_count(self : Context) -> Int32 raise CairoError {
   check_context_status_raw(@context_impl.status_raw(self.to_raw()))
   @context_impl.get_dash_count_raw(self.to_raw())
 }

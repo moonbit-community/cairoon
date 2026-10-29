@@ -7,10 +7,10 @@ fn init {
 #borrow(surface)
 extern "C" fn test_raster_surface_owner_count_ffi(
   surface : @cairoon.Surface,
-) -> Int = "cairoon_test_raster_surface_owner_count"
+) -> Int32 = "cairoon_test_raster_surface_owner_count"
 
 ///|
 #borrow(surface)
 extern "C" fn test_surface_reference_count_ffi(
   surface : @cairoon.Surface,
-) -> Int = "cairoon_test_surface_reference_count"
+) -> Int32 = "cairoon_test_surface_reference_count"

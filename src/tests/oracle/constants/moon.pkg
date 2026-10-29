@@ -2,5 +2,4 @@ import {
   "CAIMEOX/cairoon",
   "CAIMEOX/cairoon/tests/oracle/native",
   "moonbitlang/core/encoding/utf8",
-  "moonbitlang/core/test",
 } for "test"

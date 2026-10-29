@@ -26,7 +26,7 @@
     },
     "test_format_methods": {
       "runtime": ["src/tests/api/enums/enums_test.mbt::format stride_for_width delegates to cairo"],
-      "static_api": ["pub fn Format::stride_for_width(Self, Int) -> Int"],
+      "static_api": ["pub fn Format::stride_for_width(Self, Int32) -> Int32"],
       "adaptation": "MoonBit method syntax is statically dispatched; Python's unbound class-call spelling is not a separate API."
     },
     "test_text_cluster_flags": {

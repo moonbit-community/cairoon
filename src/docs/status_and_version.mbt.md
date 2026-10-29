@@ -16,13 +16,13 @@ decisions in downstream code.
 ```mbt check
 ///|
 test "status docs: compile-time and runtime versions are well formed" {
-  let encoded = CAIRO_VERSION_MAJOR * 10000 +
-    CAIRO_VERSION_MINOR * 100 +
-    CAIRO_VERSION_MICRO
-  inspect(CAIRO_VERSION == encoded, content="true")
-  inspect(cairo_version() > 0, content="true")
-  inspect(cairo_version_string().contains("."), content="true")
-  inspect(CAIRO_VERSION_STRING.contains("."), content="true")
+  let encoded = @docs.CAIRO_VERSION_MAJOR * 10000 +
+    @docs.CAIRO_VERSION_MINOR * 100 +
+    @docs.CAIRO_VERSION_MICRO
+  inspect(@docs.CAIRO_VERSION == encoded, content="true")
+  inspect(@docs.cairo_version() > 0, content="true")
+  inspect(@docs.cairo_version_string().contains("."), content="true")
+  inspect(@docs.CAIRO_VERSION_STRING.contains("."), content="true")
 }
 ```
 
@@ -35,8 +35,8 @@ Cairo object.
 ```mbt check
 ///|
 test "status docs: status predicates and messages" {
-  let success : Status = Success
-  let invalid : Status = InvalidMatrix
+  let success : @docs.Status = Success
+  let invalid : @docs.Status = InvalidMatrix
   inspect(success.is_success(), content="true")
   inspect(invalid.is_success(), content="false")
   inspect(success.message().length() > 0, content="true")
@@ -54,19 +54,19 @@ remain `CairoError`.
 ```mbt check
 ///|
 test "status docs: status values map to typed suberrors" {
-  match run_cairo(() => check_status(NoMemory)) {
+  match @docs.run_cairo(() => @docs.check_status(NoMemory)) {
     Err(CairoMemoryError(NoMemory, _)) => ()
     _ => @test.fail("expected CairoMemoryError")
   }
-  match run_cairo(() => check_status(WriteError)) {
+  match @docs.run_cairo(() => @docs.check_status(WriteError)) {
     Err(CairoIOError(WriteError, _)) => ()
     _ => @test.fail("expected CairoIOError")
   }
-  match run_cairo(() => check_status(InvalidMatrix)) {
+  match @docs.run_cairo(() => @docs.check_status(InvalidMatrix)) {
     Err(CairoInvalidArgument(InvalidMatrix, _)) => ()
     _ => @test.fail("expected CairoInvalidArgument")
   }
-  match run_cairo(() => check_status(SurfaceFinished)) {
+  match @docs.run_cairo(() => @docs.check_status(SurfaceFinished)) {
     Err(CairoError(SurfaceFinished, _)) => ()
     _ => @test.fail("expected CairoError")
   }
@@ -79,8 +79,8 @@ an explicit `Result`.
 ```mbt check
 ///|
 test "status docs: run_cairo preserves success and errors" {
-  debug_inspect(run_cairo(() => 42), content="Ok(42)")
-  match run_cairo(() => check_status(ReadError)) {
+  debug_inspect(@docs.run_cairo(() => 42), content="Ok(42)")
+  match @docs.run_cairo(() => @docs.check_status(ReadError)) {
     Err(CairoIOError(ReadError, message)) =>
       inspect(message.length() > 0, content="true")
     _ => @test.fail("expected checked read error")
@@ -97,12 +97,12 @@ public constants and can be passed directly to the corresponding checked API.
 ```mbt check
 ///|
 test "status docs: portable feature and protocol constants" {
-  inspect(HAS_IMAGE_SURFACE, content="true")
-  inspect(MIME_TYPE_JPEG, content="image/jpeg")
-  inspect(MIME_TYPE_PNG, content="image/png")
-  inspect(PDF_OUTLINE_ROOT, content="0")
-  inspect(TAG_DEST, content="cairo.dest")
-  inspect(TAG_LINK, content="Link")
-  inspect(TAG_CONTENT, content="cairo.content")
+  inspect(@docs.HAS_IMAGE_SURFACE, content="true")
+  inspect(@docs.MIME_TYPE_JPEG, content="image/jpeg")
+  inspect(@docs.MIME_TYPE_PNG, content="image/png")
+  inspect(@docs.PDF_OUTLINE_ROOT, content="0")
+  inspect(@docs.TAG_DEST, content="cairo.dest")
+  inspect(@docs.TAG_LINK, content="Link")
+  inspect(@docs.TAG_CONTENT, content="cairo.content")
 }
 ```

@@ -1,5 +1,4 @@
 import {
   "CAIMEOX/cairoon",
   "CAIMEOX/cairoon/tests/oracle/native" @oracle_native,
-  "moonbitlang/core/test",
 } for "test"

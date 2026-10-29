@@ -1,7 +1,7 @@
 ///|
 fn render_pdf_page_operation_document_feature_surface(
   surface : @cairoon.Surface,
-) -> (Int, Int) raise @cairoon.CairoError {
+) -> (Int32, Int32) raise @cairoon.CairoError {
   surface.pdf_restrict_to_version(PdfVersion1_4)
   surface.pdf_set_metadata(PdfMetadataTitle, "Cairoon Page Ops")
   surface.pdf_set_metadata(PdfMetadataCreator, "cairoon page ops test")
@@ -57,7 +57,7 @@ fn render_pdf_page_operation_document_feature_surface(
 ///|
 fn render_pdf_page_operation_document_feature_scene(
   path : String,
-) -> (Int, Int) raise @cairoon.CairoError {
+) -> (Int32, Int32) raise @cairoon.CairoError {
   let surface = @cairoon.Surface::pdf(100.0, 100.0, path=Some(path))
   render_pdf_page_operation_document_feature_surface(surface)
 }

@@ -8,9 +8,9 @@ import {
 }
 
 // Values
-pub fn add_color_stop_rgb_raw(RawPattern, Double, Double, Double, Double) -> Int
+pub fn add_color_stop_rgb_raw(RawPattern, Double, Double, Double, Double) -> Int32
 
-pub fn add_color_stop_rgba_raw(RawPattern, Double, Double, Double, Double, Double) -> Int
+pub fn add_color_stop_rgba_raw(RawPattern, Double, Double, Double, Double, Double) -> Int32
 
 pub fn create_for_surface_raw(@surface.RawSurface) -> RawPattern
 
@@ -20,7 +20,7 @@ pub fn create_mesh_raw() -> RawPattern
 
 pub fn create_radial_raw(Double, Double, Double, Double, Double, Double) -> RawPattern
 
-pub fn create_raster_source_raw(Int, Int, Int) -> RawPattern
+pub fn create_raster_source_raw(Int32, Int32, Int32) -> RawPattern
 
 pub fn create_rgb_raw(Double, Double, Double) -> RawPattern
 
@@ -28,71 +28,71 @@ pub fn create_rgba_raw(Double, Double, Double, Double) -> RawPattern
 
 pub fn equal_raw(RawPattern, RawPattern) -> Bool
 
-pub fn get_color_stop_count_raw(RawPattern, @ref.Ref[Int]) -> Int
+pub fn get_color_stop_count_raw(RawPattern, @ref.Ref[Int32]) -> Int32
 
-pub fn get_color_stop_rgba_raw(RawPattern, Int, @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double]) -> Int
+pub fn get_color_stop_rgba_raw(RawPattern, Int32, @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double]) -> Int32
 
-pub fn get_dither_raw(RawPattern, @ref.Ref[Int]) -> Int
+pub fn get_dither_raw(RawPattern, @ref.Ref[Int32]) -> Int32
 
-pub fn get_extend_raw(RawPattern) -> Int
+pub fn get_extend_raw(RawPattern) -> Int32
 
-pub fn get_filter_raw(RawPattern) -> Int
+pub fn get_filter_raw(RawPattern) -> Int32
 
-pub fn get_linear_points_raw(RawPattern, @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double]) -> Int
+pub fn get_linear_points_raw(RawPattern, @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double]) -> Int32
 
-pub fn get_matrix_raw(RawPattern, @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double]) -> Int
+pub fn get_matrix_raw(RawPattern, @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double]) -> Int32
 
-pub fn get_radial_circles_raw(RawPattern, @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double]) -> Int
+pub fn get_radial_circles_raw(RawPattern, @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double]) -> Int32
 
-pub fn get_rgba_raw(RawPattern, @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double]) -> Int
+pub fn get_rgba_raw(RawPattern, @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double]) -> Int32
 
-pub fn get_surface_raw(RawPattern, @ref.Ref[Int]) -> @surface.RawSurface
+pub fn get_surface_raw(RawPattern, @ref.Ref[Int32]) -> @surface.RawSurface
 
 pub fn hash_raw(RawPattern) -> UInt64
 
-pub fn mesh_begin_patch_raw(RawPattern) -> Int
+pub fn mesh_begin_patch_raw(RawPattern) -> Int32
 
-pub fn mesh_curve_to_raw(RawPattern, Double, Double, Double, Double, Double, Double) -> Int
+pub fn mesh_curve_to_raw(RawPattern, Double, Double, Double, Double, Double, Double) -> Int32
 
-pub fn mesh_end_patch_raw(RawPattern) -> Int
+pub fn mesh_end_patch_raw(RawPattern) -> Int32
 
-pub fn mesh_get_control_point_raw(RawPattern, Int, Int, @ref.Ref[Double], @ref.Ref[Double]) -> Int
+pub fn mesh_get_control_point_raw(RawPattern, Int32, Int32, @ref.Ref[Double], @ref.Ref[Double]) -> Int32
 
-pub fn mesh_get_corner_color_rgba_raw(RawPattern, Int, Int, @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double]) -> Int
+pub fn mesh_get_corner_color_rgba_raw(RawPattern, Int32, Int32, @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double], @ref.Ref[Double]) -> Int32
 
-pub fn mesh_get_patch_count_raw(RawPattern, @ref.Ref[Int]) -> Int
+pub fn mesh_get_patch_count_raw(RawPattern, @ref.Ref[Int32]) -> Int32
 
-pub fn mesh_get_path_raw(RawPattern, Int, @ref.Ref[Int]) -> @path.RawPath
+pub fn mesh_get_path_raw(RawPattern, Int32, @ref.Ref[Int32]) -> @path.RawPath
 
-pub fn mesh_line_to_raw(RawPattern, Double, Double) -> Int
+pub fn mesh_line_to_raw(RawPattern, Double, Double) -> Int32
 
-pub fn mesh_move_to_raw(RawPattern, Double, Double) -> Int
+pub fn mesh_move_to_raw(RawPattern, Double, Double) -> Int32
 
-pub fn mesh_set_control_point_raw(RawPattern, Int, Double, Double) -> Int
+pub fn mesh_set_control_point_raw(RawPattern, Int32, Double, Double) -> Int32
 
-pub fn mesh_set_corner_color_rgb_raw(RawPattern, Int, Double, Double, Double) -> Int
+pub fn mesh_set_corner_color_rgb_raw(RawPattern, Int32, Double, Double, Double) -> Int32
 
-pub fn mesh_set_corner_color_rgba_raw(RawPattern, Int, Double, Double, Double, Double) -> Int
+pub fn mesh_set_corner_color_rgba_raw(RawPattern, Int32, Double, Double, Double, Double) -> Int32
 
-pub fn raster_clear_callbacks_raw(RawPattern) -> Int
+pub fn raster_clear_callbacks_raw(RawPattern) -> Int32
 
-pub fn raster_get_acquire_raw(RawPattern, @ref.Ref[Int]) -> (@surface.RawSurface, Int, Int, Int, Int) -> @surface.RawSurface
+pub fn raster_get_acquire_raw(RawPattern, @ref.Ref[Int32]) -> (@surface.RawSurface, Int32, Int32, Int32, Int32) -> @surface.RawSurface
 
-pub fn raster_get_release_raw(RawPattern, @ref.Ref[Int]) -> (@surface.RawSurface) -> Unit
+pub fn raster_get_release_raw(RawPattern, @ref.Ref[Int32]) -> (@surface.RawSurface) -> Unit
 
-pub fn raster_has_callbacks_raw(RawPattern, @ref.Ref[Int], @ref.Ref[Int], @ref.Ref[Int]) -> Bool
+pub fn raster_has_callbacks_raw(RawPattern, @ref.Ref[Int32], @ref.Ref[Int32], @ref.Ref[Int32]) -> Bool
 
-pub fn raster_set_callbacks_raw(RawPattern, acquire? : ((@surface.RawSurface, Int, Int, Int, Int) -> @surface.RawSurface)?, release? : ((@surface.RawSurface) -> Unit)?) -> Int
+pub fn raster_set_callbacks_raw(RawPattern, acquire? : ((@surface.RawSurface, Int32, Int32, Int32, Int32) -> @surface.RawSurface)?, release? : ((@surface.RawSurface) -> Unit)?) -> Int32
 
-pub fn set_dither_raw(RawPattern, Int) -> Int
+pub fn set_dither_raw(RawPattern, Int32) -> Int32
 
-pub fn set_extend_raw(RawPattern, Int) -> Int
+pub fn set_extend_raw(RawPattern, Int32) -> Int32
 
-pub fn set_filter_raw(RawPattern, Int) -> Int
+pub fn set_filter_raw(RawPattern, Int32) -> Int32
 
-pub fn set_matrix_raw(RawPattern, Double, Double, Double, Double, Double, Double) -> Int
+pub fn set_matrix_raw(RawPattern, Double, Double, Double, Double, Double, Double) -> Int32
 
-pub fn status_raw(RawPattern) -> Int
+pub fn status_raw(RawPattern) -> Int32
 
 // Errors
 

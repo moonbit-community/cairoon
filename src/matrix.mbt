@@ -18,14 +18,14 @@ pub struct Matrix {
 ///
 /// Omitted components produce the identity matrix.
 pub fn Matrix::new(
-  xx? : Double = 1.0,
-  yx? : Double = 0.0,
-  xy? : Double = 0.0,
-  yy? : Double = 1.0,
-  x0? : Double = 0.0,
-  y0? : Double = 0.0,
+  xx~ : Double = 1.0,
+  yx~ : Double = 0.0,
+  xy~ : Double = 0.0,
+  yy~ : Double = 1.0,
+  x0~ : Double = 0.0,
+  y0~ : Double = 0.0,
 ) -> Matrix {
-  { xx, yx, xy, yy, x0, y0 }
+  { xx, yx, xy, yy, x0, y0, }
 }
 
 ///|
@@ -36,7 +36,7 @@ pub fn Matrix::new(
 pub fn Matrix::init_rotate(radians : Double) -> Matrix {
   let s = @math.sin(radians)
   let c = @math.cos(radians)
-  { xx: c, yx: s, xy: -s, yy: c, x0: 0.0, y0: 0.0 }
+  { xx: c, yx: s, xy: -s, yy: c, x0: 0.0, y0: 0.0, }
 }
 
 ///|
@@ -51,7 +51,10 @@ pub fn Matrix::components(
 /// Return the component at index `0..5` in Cairo/pycairo order.
 ///
 /// Raises `CairoInvalidArgument(InvalidIndex, _)` for any other index.
-pub fn Matrix::component(self : Matrix, index : Int) -> Double raise CairoError {
+pub fn Matrix::component(
+  self : Matrix,
+  index : Int32,
+) -> Double raise CairoError {
   match index {
     0 => self.xx
     1 => self.yx
@@ -68,7 +71,7 @@ pub fn Matrix::component(self : Matrix, index : Int) -> Double raise CairoError 
 ///
 /// Raises `CairoInvalidArgument(InvalidIndex, _)` outside `0..5`.
 #alias("_[_]")
-pub fn Matrix::at(self : Matrix, index : Int) -> Double raise CairoError {
+pub fn Matrix::at(self : Matrix, index : Int32) -> Double raise CairoError {
   self.component(index)
 }
 
@@ -169,3 +172,12 @@ pub fn Matrix::transform_distance(
 ) -> (Double, Double) {
   (self.xx * dx + self.xy * dy, self.yx * dx + self.yy * dy)
 }
+
+///|
+pub extend Matrix with Eq::{not_equal, equal}
+
+///|
+pub extend Matrix with @debug.Debug::{to_repr}
+
+///|
+pub extend Matrix with Mul::{mul}

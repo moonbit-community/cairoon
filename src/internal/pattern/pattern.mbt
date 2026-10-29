@@ -12,7 +12,7 @@ pub fn create_for_surface_raw(surface : @surface_impl.RawSurface) -> RawPattern 
 ///|
 pub fn get_surface_raw(
   pattern : RawPattern,
-  status : Ref[Int],
+  status : Ref[Int32],
 ) -> @surface_impl.RawSurface {
   ensure_native()
   pattern_get_surface_ffi(pattern, status)
@@ -20,9 +20,9 @@ pub fn get_surface_raw(
 
 ///|
 pub fn create_raster_source_raw(
-  content : Int,
-  width : Int,
-  height : Int,
+  content : Int32,
+  width : Int32,
+  height : Int32,
 ) -> RawPattern {
   ensure_native()
   pattern_create_raster_source_ffi(content, width, height)
@@ -50,7 +50,7 @@ pub fn create_rgba_raw(
 }
 
 ///|
-pub fn status_raw(pattern : RawPattern) -> Int {
+pub fn status_raw(pattern : RawPattern) -> Int32 {
   ensure_native()
   pattern_status_ffi(pattern)
 }
@@ -68,37 +68,37 @@ pub fn hash_raw(pattern : RawPattern) -> UInt64 {
 }
 
 ///|
-pub fn get_extend_raw(pattern : RawPattern) -> Int {
+pub fn get_extend_raw(pattern : RawPattern) -> Int32 {
   ensure_native()
   pattern_get_extend_raw_ffi(pattern)
 }
 
 ///|
-pub fn set_extend_raw(pattern : RawPattern, extend_mode : Int) -> Int {
+pub fn set_extend_raw(pattern : RawPattern, extend_mode : Int32) -> Int32 {
   ensure_native()
   pattern_set_extend_raw_ffi(pattern, extend_mode)
 }
 
 ///|
-pub fn get_filter_raw(pattern : RawPattern) -> Int {
+pub fn get_filter_raw(pattern : RawPattern) -> Int32 {
   ensure_native()
   pattern_get_filter_raw_ffi(pattern)
 }
 
 ///|
-pub fn set_filter_raw(pattern : RawPattern, filter : Int) -> Int {
+pub fn set_filter_raw(pattern : RawPattern, filter : Int32) -> Int32 {
   ensure_native()
   pattern_set_filter_raw_ffi(pattern, filter)
 }
 
 ///|
-pub fn get_dither_raw(pattern : RawPattern, status : Ref[Int]) -> Int {
+pub fn get_dither_raw(pattern : RawPattern, status : Ref[Int32]) -> Int32 {
   ensure_native()
   pattern_get_dither_raw_ffi(pattern, status)
 }
 
 ///|
-pub fn set_dither_raw(pattern : RawPattern, dither : Int) -> Int {
+pub fn set_dither_raw(pattern : RawPattern, dither : Int32) -> Int32 {
   ensure_native()
   pattern_set_dither_raw_ffi(pattern, dither)
 }
@@ -112,7 +112,7 @@ pub fn get_matrix_raw(
   yy : Ref[Double],
   x0 : Ref[Double],
   y0 : Ref[Double],
-) -> Int {
+) -> Int32 {
   ensure_native()
   pattern_get_matrix_ffi(pattern, xx, yx, xy, yy, x0, y0)
 }
@@ -126,7 +126,7 @@ pub fn set_matrix_raw(
   yy : Double,
   x0 : Double,
   y0 : Double,
-) -> Int {
+) -> Int32 {
   ensure_native()
   pattern_set_matrix_ffi(pattern, xx, yx, xy, yy, x0, y0)
 }
@@ -138,7 +138,7 @@ pub fn get_rgba_raw(
   green : Ref[Double],
   blue : Ref[Double],
   alpha : Ref[Double],
-) -> Int {
+) -> Int32 {
   ensure_native()
   pattern_get_rgba_ffi(pattern, red, green, blue, alpha)
 }

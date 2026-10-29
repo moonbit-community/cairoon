@@ -8,19 +8,19 @@ import {
 // Values
 pub fn equal_raw(RawFontFace, RawFontFace) -> Bool
 
-pub fn get_family_raw(RawFontFace, @ref.Ref[Int]) -> Bytes
+pub fn get_family_raw(RawFontFace, @ref.Ref[Int32]) -> Bytes
 
-pub fn get_slant_raw(RawFontFace, @ref.Ref[Int]) -> Int
+pub fn get_slant_raw(RawFontFace, @ref.Ref[Int32]) -> Int32
 
-pub fn get_weight_raw(RawFontFace, @ref.Ref[Int]) -> Int
+pub fn get_weight_raw(RawFontFace, @ref.Ref[Int32]) -> Int32
 
 pub fn hash_raw(RawFontFace) -> UInt64
 
-pub fn status_raw(RawFontFace) -> Int
+pub fn status_raw(RawFontFace) -> Int32
 
-pub fn toy_create_raw(Bytes, Int, Int) -> RawFontFace
+pub fn toy_create_raw(Bytes, Int32, Int32) -> RawFontFace
 
-pub fn toy_create_value_raw(Bytes, Int, Int) -> RawFontFace
+pub fn toy_create_value_raw(Bytes, Int32, Int32) -> RawFontFace
 
 // Errors
 

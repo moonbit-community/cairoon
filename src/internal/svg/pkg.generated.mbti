@@ -6,11 +6,11 @@ import {
 }
 
 // Values
-pub fn get_version_count_raw(@ref.Ref[Int]) -> Int
+pub fn get_version_count_raw(@ref.Ref[Int32]) -> Int32
 
-pub fn get_version_raw(Int, @ref.Ref[Int]) -> Int
+pub fn get_version_raw(Int32, @ref.Ref[Int32]) -> Int32
 
-pub fn version_to_string_raw(Int, @ref.Ref[Int]) -> String
+pub fn version_to_string_raw(Int32, @ref.Ref[Int32]) -> String
 
 // Errors
 

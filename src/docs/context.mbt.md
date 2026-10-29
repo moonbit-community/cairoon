@@ -22,8 +22,8 @@ report it but the typed getter raises `CairoInvalidArgument(InvalidStatus, _)`.
 ```mbt check
 ///|
 test "context docs: construction state save restore and dash" {
-  let surface = Surface::image(Argb32, 8, 8)
-  let ctx = Context::new(surface)
+  let surface = @docs.Surface::image(Argb32, 8, 8)
+  let ctx = @docs.Context::new(surface)
   inspect(ctx.get_target().equal(surface), content="true")
   debug_inspect(ctx.get_operator(), content="OperatorOver")
   debug_inspect(ctx.get_line_cap(), content="LineCapButt")
@@ -34,7 +34,7 @@ test "context docs: construction state save restore and dash" {
   inspect(ctx.get_operator_raw(), content="1")
   ctx.set_line_cap_raw(42)
   inspect(ctx.get_line_cap_raw(), content="42")
-  match run_cairo(() => ctx.get_line_cap()) {
+  match @docs.run_cairo(() => ctx.get_line_cap()) {
     Err(CairoInvalidArgument(InvalidStatus, _)) => ()
     _ => @test.fail("expected unknown raw line cap to stay outside typed API")
   }
@@ -66,7 +66,7 @@ conversion helpers expose the same Cairo user/device mapping pycairo exposes.
 ```mbt check
 ///|
 test "context docs: transforms and coordinate conversion" {
-  let ctx = Context::new(Surface::image(Argb32, 16, 16))
+  let ctx = @docs.Context::new(@docs.Surface::image(Argb32, 16, 16))
   ctx.translate(5.0, 7.0)
   ctx.scale(2.0, 3.0)
   debug_inspect(ctx.user_to_device(1.0, 1.0), content="(7, 10)")
@@ -77,7 +77,7 @@ test "context docs: transforms and coordinate conversion" {
   ctx.identity_matrix()
   debug_inspect(ctx.user_to_device(1.0, 1.0), content="(1, 1)")
 
-  ctx.transform(Matrix::new(xx=2.0, yy=2.0, x0=3.0, y0=4.0))
+  ctx.transform(@docs.Matrix::new(xx=2.0, yy=2.0, x0=3.0, y0=4.0))
   debug_inspect(
     ctx.get_matrix(),
     content="{ xx: 2, yx: 0, xy: 0, yy: 2, x0: 3, y0: 4 }",
@@ -94,7 +94,7 @@ appended to another context.
 ```mbt check
 ///|
 test "context docs: path construction copy append and extents" {
-  let source = Context::new(Surface::image(Argb32, 16, 16))
+  let source = @docs.Context::new(@docs.Surface::image(Argb32, 16, 16))
   inspect(source.has_current_point(), content="false")
   source.move_to(2.0, 3.0)
   source.rel_line_to(4.0, 0.0)
@@ -108,7 +108,7 @@ test "context docs: path construction copy append and extents" {
   source.new_path()
   debug_inspect(source.path_extents(), content="(0, 0, 0, 0)")
 
-  let target = Context::new(Surface::image(Argb32, 16, 16))
+  let target = @docs.Context::new(@docs.Surface::image(Argb32, 16, 16))
   target.append_path(path)
   debug_inspect(target.path_extents(), content="(2, 3, 6, 8)")
   inspect(target.in_fill(3.0, 4.0), content="true")
@@ -123,8 +123,8 @@ path unless the `_preserve` variant is used.
 ```mbt check
 ///|
 test "context docs: paint fill preserve stroke and pixel output" {
-  let surface = Surface::image(Argb32, 4, 4)
-  let ctx = Context::new(surface)
+  let surface = @docs.Surface::image(Argb32, 4, 4)
+  let ctx = @docs.Context::new(surface)
   ctx.set_source_rgba(1.0, 0.0, 0.0, 1.0)
   ctx.rectangle(1.0, 1.0, 2.0, 2.0)
   debug_inspect(ctx.fill_extents(), content="(1, 1, 3, 3)")
@@ -156,7 +156,7 @@ pycairo tuple order: x, y, width, then height.
 ```mbt check
 ///|
 test "context docs: clip extents rectangle lists and reset" {
-  let ctx = Context::new(Surface::image(Argb32, 20, 20))
+  let ctx = @docs.Context::new(@docs.Surface::image(Argb32, 20, 20))
   debug_inspect(ctx.clip_extents(), content="(0, 0, 20, 20)")
   ctx.rectangle(2.0, 3.0, 5.0, 7.0)
   ctx.clip_preserve()
@@ -184,8 +184,8 @@ argument for ported code.
 ```mbt check
 ///|
 test "context docs: group output becomes a reusable source pattern" {
-  let target = Surface::image(Argb32, 1, 1)
-  let ctx = Context::new(target)
+  let target = @docs.Surface::image(Argb32, 1, 1)
+  let ctx = @docs.Context::new(target)
   ctx.push_group()
   ctx.set_source_rgba(0.0, 1.0, 0.0, 1.0)
   ctx.paint()
@@ -213,8 +213,8 @@ NUL bytes. Glyph APIs accept pure `Glyph` arrays.
 ```mbt check
 ///|
 test "context docs: text extents paths glyphs and scaled font" {
-  let surface = Surface::image(Argb32, 48, 24)
-  let ctx = Context::new(surface)
+  let surface = @docs.Surface::image(Argb32, 48, 24)
+  let ctx = @docs.Context::new(surface)
   ctx.select_font_face("serif")
   ctx.set_font_size(16.0)
   ctx.move_to(2.0, 18.0)
@@ -225,7 +225,7 @@ test "context docs: text extents paths glyphs and scaled font" {
   inspect(x > 2.0, content="true")
   inspect(y, content="18")
 
-  let glyphs = [Glyph::new(0UL, 2.0, 18.0)]
+  let glyphs = [@docs.Glyph::new(0UL, 2.0, 18.0)]
   inspect(
     ctx.glyph_extents(glyphs) == ctx.get_scaled_font().glyph_extents(glyphs),
     content="true",
@@ -262,12 +262,12 @@ enforce that later validation contract.
 ```mbt check
 ///|
 test "context docs: PDF links destinations and content references" {
-  let surface = Surface::pdf(96.0, 72.0)
-  let ctx = Context::new(surface)
+  let surface = @docs.Surface::pdf(96.0, 72.0)
+  let ctx = @docs.Context::new(surface)
   ctx.select_font_face("sans")
   ctx.set_font_size(8.0)
 
-  if CAIRO_VERSION >= 11800 {
+  if @docs.CAIRO_VERSION >= 11800 {
     ctx.tag_begin(@cairoon.TAG_CONTENT, "tag_name='H1' id='heading'")
     ctx.move_to(8.0, 12.0)
     ctx.show_text("Tagged heading")
@@ -287,7 +287,7 @@ test "context docs: PDF links destinations and content references" {
   ctx.show_text("next page")
   ctx.tag_end(@cairoon.TAG_LINK)
 
-  if CAIRO_VERSION >= 11800 {
+  if @docs.CAIRO_VERSION >= 11800 {
     ctx.tag_begin("Document", "")
     ctx.tag_begin("H1", "")
     ctx.tag_begin(@cairoon.TAG_CONTENT_REF, "ref='heading'")
@@ -305,10 +305,10 @@ test "context docs: PDF links destinations and content references" {
   surface.finish()
   debug_inspect(surface.status(), content="SurfaceFinished")
 
-  if CAIRO_VERSION >= 11600 {
-    let invalid = Context::new(Surface::pdf(16.0, 16.0))
+  if @docs.CAIRO_VERSION >= 11600 {
+    let invalid = @docs.Context::new(@docs.Surface::pdf(16.0, 16.0))
     match
-      run_cairo(() => {
+      @docs.run_cairo(() => {
         invalid.tag_begin(@cairoon.TAG_DEST, "x=1 y=2")
         invalid.show_page()
       }) {
@@ -327,21 +327,21 @@ when a test or caller wants the `Result` form.
 ```mbt check
 ///|
 test "context docs: invalid context operations are checked errors" {
-  let ctx = Context::new(Surface::image(Argb32, 8, 8))
+  let ctx = @docs.Context::new(@docs.Surface::image(Argb32, 8, 8))
 
-  match run_cairo(() => ctx.restore()) {
+  match @docs.run_cairo(() => ctx.restore()) {
     Err(CairoError(InvalidRestore, _)) => ()
     _ => @test.fail("expected InvalidRestore")
   }
 
-  let no_point = Context::new(Surface::image(Argb32, 8, 8))
-  match run_cairo(() => no_point.rel_line_to(1.0, 1.0)) {
+  let no_point = @docs.Context::new(@docs.Surface::image(Argb32, 8, 8))
+  match @docs.run_cairo(() => no_point.rel_line_to(1.0, 1.0)) {
     Err(CairoError(NoCurrentPoint, _)) => ()
     _ => @test.fail("expected NoCurrentPoint")
   }
 
-  let text_ctx = Context::new(Surface::image(Argb32, 8, 8))
-  match run_cairo(() => text_ctx.show_text("bad\u{0}text")) {
+  let text_ctx = @docs.Context::new(@docs.Surface::image(Argb32, 8, 8))
+  match @docs.run_cairo(() => text_ctx.show_text("bad\u{0}text")) {
     Err(CairoInvalidArgument(InvalidString, _)) => ()
     _ => @test.fail("expected InvalidString")
   }

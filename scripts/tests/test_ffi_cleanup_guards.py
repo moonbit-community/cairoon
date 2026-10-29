@@ -215,7 +215,29 @@ class SurfaceCleanupGuardTests(unittest.TestCase):
                 errors = self.check_native(body)
                 self.assertTrue(any(expected in error for error in errors), errors)
 
+    def check_errdefer_scope_cleanup(self) -> None:
+        valid = """
+  let value = {
+    errdefer ignore(@surface_impl.finish_raw(self.to_raw()))
+    f()
+  }
+  self.finish()
+  value
+"""
+        self.assertEqual(self.check_scope(valid), [])
+        invalid = [
+            valid.replace("errdefer ignore(@surface_impl.finish_raw(self.to_raw()))", "errdefer self.finish()"),
+            valid.replace("    f()", "    self.finish()\n    f()"),
+            valid.replace("  self.finish()\n", ""),
+            valid.replace("errdefer", "defer"),
+            valid.replace("    f()", "    f()\n    f()"),
+        ]
+        for body in invalid:
+            with self.subTest(body=body):
+                self.assertTrue(self.check_scope(body))
+
     def test_scoped_cleanup_order_passes(self) -> None:
+        self.check_errdefer_scope_cleanup()
         errors = self.check_scope(
             """
   try f() catch {

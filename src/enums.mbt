@@ -11,7 +11,7 @@ pub(all) enum Antialias {
 } derive(Eq, Debug)
 
 ///|
-fn antialias_from_raw(raw : Int) -> Antialias raise CairoError {
+fn antialias_from_raw(raw : Int32) -> Antialias raise CairoError {
   match raw {
     0 => AntialiasDefault
     1 => AntialiasNone
@@ -29,7 +29,7 @@ fn antialias_from_raw(raw : Int) -> Antialias raise CairoError {
 }
 
 ///|
-fn antialias_to_raw(antialias : Antialias) -> Int {
+fn antialias_to_raw(antialias : Antialias) -> Int32 {
   match antialias {
     AntialiasDefault => 0
     AntialiasNone => 1
@@ -111,7 +111,7 @@ pub(all) enum HintMetrics {
 } derive(Eq, Debug)
 
 ///|
-fn hint_metrics_from_raw(raw : Int) -> HintMetrics raise CairoError {
+fn hint_metrics_from_raw(raw : Int32) -> HintMetrics raise CairoError {
   match raw {
     0 => HintMetricsDefault
     1 => HintMetricsOff
@@ -125,7 +125,7 @@ fn hint_metrics_from_raw(raw : Int) -> HintMetrics raise CairoError {
 }
 
 ///|
-fn hint_metrics_to_raw(hint_metrics : HintMetrics) -> Int {
+fn hint_metrics_to_raw(hint_metrics : HintMetrics) -> Int32 {
   match hint_metrics {
     HintMetricsDefault => 0
     HintMetricsOff => 1
@@ -144,7 +144,7 @@ pub(all) enum ColorMode {
 } derive(Eq, Debug)
 
 ///|
-fn color_mode_from_raw(raw : Int) -> ColorMode raise CairoError {
+fn color_mode_from_raw(raw : Int32) -> ColorMode raise CairoError {
   match raw {
     0 => ColorModeDefault
     1 => ColorModeNoColor
@@ -158,7 +158,7 @@ fn color_mode_from_raw(raw : Int) -> ColorMode raise CairoError {
 }
 
 ///|
-fn color_mode_to_raw(color_mode : ColorMode) -> Int {
+fn color_mode_to_raw(color_mode : ColorMode) -> Int32 {
   match color_mode {
     ColorModeDefault => 0
     ColorModeNoColor => 1
@@ -189,7 +189,7 @@ pub(all) enum HintStyle {
 } derive(Eq, Debug)
 
 ///|
-fn hint_style_from_raw(raw : Int) -> HintStyle raise CairoError {
+fn hint_style_from_raw(raw : Int32) -> HintStyle raise CairoError {
   match raw {
     0 => HintStyleDefault
     1 => HintStyleNone
@@ -205,7 +205,7 @@ fn hint_style_from_raw(raw : Int) -> HintStyle raise CairoError {
 }
 
 ///|
-fn hint_style_to_raw(hint_style : HintStyle) -> Int {
+fn hint_style_to_raw(hint_style : HintStyle) -> Int32 {
   match hint_style {
     HintStyleDefault => 0
     HintStyleNone => 1
@@ -226,7 +226,7 @@ pub(all) enum SubpixelOrder {
 } derive(Eq, Debug)
 
 ///|
-fn subpixel_order_from_raw(raw : Int) -> SubpixelOrder raise CairoError {
+fn subpixel_order_from_raw(raw : Int32) -> SubpixelOrder raise CairoError {
   match raw {
     0 => SubpixelDefault
     1 => SubpixelRgb
@@ -242,7 +242,7 @@ fn subpixel_order_from_raw(raw : Int) -> SubpixelOrder raise CairoError {
 }
 
 ///|
-fn subpixel_order_to_raw(subpixel_order : SubpixelOrder) -> Int {
+fn subpixel_order_to_raw(subpixel_order : SubpixelOrder) -> Int32 {
   match subpixel_order {
     SubpixelDefault => 0
     SubpixelRgb => 1
@@ -438,3 +438,153 @@ pub(all) enum SurfaceObserverMode {
   SurfaceObserverNormal = 0
   SurfaceObserverRecordOperations = 0x1
 } derive(Eq, Debug)
+
+///|
+pub extend Antialias with Eq::{not_equal, equal}
+
+///|
+pub extend Antialias with @debug.Debug::{to_repr}
+
+///|
+pub extend DeviceType with Eq::{not_equal, equal}
+
+///|
+pub extend DeviceType with @debug.Debug::{to_repr}
+
+///|
+pub extend FillRule with Eq::{not_equal, equal}
+
+///|
+pub extend FillRule with @debug.Debug::{to_repr}
+
+///|
+pub extend HintMetrics with Eq::{not_equal, equal}
+
+///|
+pub extend HintMetrics with @debug.Debug::{to_repr}
+
+///|
+pub extend ColorMode with Eq::{not_equal, equal}
+
+///|
+pub extend ColorMode with @debug.Debug::{to_repr}
+
+///|
+pub extend Dither with Eq::{not_equal, equal}
+
+///|
+pub extend Dither with @debug.Debug::{to_repr}
+
+///|
+pub extend HintStyle with Eq::{not_equal, equal}
+
+///|
+pub extend HintStyle with @debug.Debug::{to_repr}
+
+///|
+pub extend SubpixelOrder with Eq::{not_equal, equal}
+
+///|
+pub extend SubpixelOrder with @debug.Debug::{to_repr}
+
+///|
+pub extend LineCap with Eq::{not_equal, equal}
+
+///|
+pub extend LineCap with @debug.Debug::{to_repr}
+
+///|
+pub extend LineJoin with Eq::{not_equal, equal}
+
+///|
+pub extend LineJoin with @debug.Debug::{to_repr}
+
+///|
+pub extend Filter with Eq::{not_equal, equal}
+
+///|
+pub extend Filter with @debug.Debug::{to_repr}
+
+///|
+pub extend Operator with Eq::{not_equal, equal}
+
+///|
+pub extend Operator with @debug.Debug::{to_repr}
+
+///|
+pub extend Extend with Eq::{not_equal, equal}
+
+///|
+pub extend Extend with @debug.Debug::{to_repr}
+
+///|
+pub extend FontSlant with Eq::{not_equal, equal}
+
+///|
+pub extend FontSlant with @debug.Debug::{to_repr}
+
+///|
+pub extend FontWeight with Eq::{not_equal, equal}
+
+///|
+pub extend FontWeight with @debug.Debug::{to_repr}
+
+///|
+pub extend PDFVersion with Eq::{not_equal, equal}
+
+///|
+pub extend PDFVersion with @debug.Debug::{to_repr}
+
+///|
+pub extend PSLevel with Eq::{not_equal, equal}
+
+///|
+pub extend PSLevel with @debug.Debug::{to_repr}
+
+///|
+pub extend PathDataType with Eq::{not_equal, equal}
+
+///|
+pub extend PathDataType with @debug.Debug::{to_repr}
+
+///|
+pub extend RegionOverlap with Eq::{not_equal, equal}
+
+///|
+pub extend RegionOverlap with @debug.Debug::{to_repr}
+
+///|
+pub extend SVGVersion with Eq::{not_equal, equal}
+
+///|
+pub extend SVGVersion with @debug.Debug::{to_repr}
+
+///|
+pub extend SVGUnit with Eq::{not_equal, equal}
+
+///|
+pub extend SVGUnit with @debug.Debug::{to_repr}
+
+///|
+pub extend PDFMetadata with Eq::{not_equal, equal}
+
+///|
+pub extend PDFMetadata with @debug.Debug::{to_repr}
+
+///|
+pub extend PDFOutlineFlags with Eq::{not_equal, equal}
+
+///|
+pub extend PDFOutlineFlags with @debug.Debug::{to_repr}
+
+///|
+pub extend ScriptMode with Eq::{not_equal, equal}
+
+///|
+pub extend ScriptMode with @debug.Debug::{to_repr}
+
+///|
+pub extend TextClusterFlags with Eq::{not_equal, equal}
+
+///|
+pub extend TextClusterFlags with @debug.Debug::{to_repr}

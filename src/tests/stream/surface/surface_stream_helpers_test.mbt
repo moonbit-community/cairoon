@@ -14,7 +14,7 @@ fn stream_chunks_contain(chunks : Array[Bytes], marker : String) -> Bool {
 
 ///|
 fn chunks_to_bytes(chunks : Array[Bytes]) -> Bytes {
-  let mut bytes = Bytes::default()
+  let mut bytes = Default::default()
   for chunk in chunks {
     bytes = bytes + chunk
   }
@@ -22,7 +22,7 @@ fn chunks_to_bytes(chunks : Array[Bytes]) -> Bytes {
 }
 
 ///|
-fn pressure_stream_chunk_storage() -> Int {
+fn pressure_stream_chunk_storage() -> Int32 {
   let mut total = 0
   for _ in 0..<256 {
     total += Bytes::makei(257, fn(index) { index.to_byte() }).length()
@@ -31,7 +31,7 @@ fn pressure_stream_chunk_storage() -> Int {
 }
 
 ///|
-fn bytes_slice(bytes : Bytes, offset : Int, length : Int) -> Bytes {
+fn bytes_slice(bytes : Bytes, offset : Int32, length : Int32) -> Bytes {
   Bytes::makei(length, fn(i) { bytes[offset + i] })
 }
 
@@ -80,7 +80,7 @@ fn paint_stream_surface(
 
 ///|
 fn make_vector_stream_surface_returning_status(
-  kind : Int,
+  kind : Int32,
   status : @cairoon.Status,
 ) -> @cairoon.Surface raise @cairoon.CairoError {
   match kind {
@@ -92,7 +92,7 @@ fn make_vector_stream_surface_returning_status(
 
 ///|
 fn make_vector_stream_surface_with_close_flag(
-  kind : Int,
+  kind : Int32,
   closed : Ref[Bool],
 ) -> @cairoon.Surface raise @cairoon.CairoError {
   match kind {
@@ -125,7 +125,7 @@ fn make_vector_stream_surface_with_close_flag(
 
 ///|
 fn expect_vector_stream_write_error(
-  kind : Int,
+  kind : Int32,
   status : @cairoon.Status,
 ) -> Unit raise {
   let result = @cairoon.run_cairo(() => {
@@ -139,7 +139,7 @@ fn expect_vector_stream_write_error(
 }
 
 ///|
-fn expect_vector_stream_closed_before_finish_error(kind : Int) -> Unit raise {
+fn expect_vector_stream_closed_before_finish_error(kind : Int32) -> Unit raise {
   let closed = Ref(false)
   let surface = make_vector_stream_surface_with_close_flag(kind, closed)
   closed.val = true

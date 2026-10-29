@@ -29,8 +29,8 @@ the enum's C integer value is correct.
 ```mbt check
 ///|
 test "enum docs: typed context state round trips" {
-  let surface = Surface::image(Argb32, 2, 2)
-  let context = Context::new(surface)
+  let surface = @docs.Surface::image(Argb32, 2, 2)
+  let context = @docs.Context::new(surface)
 
   context.set_antialias(AntialiasBest)
   context.set_fill_rule(FillEvenOdd)
@@ -55,10 +55,10 @@ when needed; `get_type` intentionally exposes only the typed result.
 ```mbt check
 ///|
 test "enum docs: image surface format content and type" {
-  let format : Format = Argb32
+  let format : @docs.Format = Argb32
   inspect(format.stride_for_width(3), content="12")
 
-  let surface = Surface::image(format, 3, 2)
+  let surface = @docs.Surface::image(format, 3, 2)
   debug_inspect(surface.get_format(), content="Argb32")
   debug_inspect(surface.get_content(), content="ContentColorAlpha")
   debug_inspect(surface.get_type(), content="SurfaceTypeImage")
@@ -74,18 +74,18 @@ compatibility floor, checked dither methods raise `InvalidStatus`.
 ```mbt check
 ///|
 test "enum docs: typed pattern state round trips" {
-  let pattern = Pattern::linear(0.0, 0.0, 1.0, 0.0)
+  let pattern = @docs.Pattern::linear(0.0, 0.0, 1.0, 0.0)
   pattern.set_extend(Repeat)
   pattern.set_filter(Nearest)
 
   debug_inspect(pattern.get_extend(), content="Repeat")
   debug_inspect(pattern.get_filter(), content="Nearest")
 
-  if CAIRO_VERSION >= 11800 {
+  if @docs.CAIRO_VERSION >= 11800 {
     pattern.set_dither(DitherGood)
     debug_inspect(pattern.get_dither(), content="DitherGood")
   } else {
-    match run_cairo(() => pattern.set_dither(DitherGood)) {
+    match @docs.run_cairo(() => pattern.set_dither(DitherGood)) {
       Err(CairoError(InvalidStatus, _)) => ()
       _ => @test.fail("expected InvalidStatus on Cairo before 1.18")
     }

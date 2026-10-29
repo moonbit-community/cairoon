@@ -88,7 +88,7 @@ pub fn Pattern::mesh_curve_to(
 /// `InvalidMeshConstruction`, `PatternTypeMismatch`, or another sticky status.
 pub fn Pattern::mesh_set_control_point(
   self : Pattern,
-  point_num : Int,
+  point_num : Int32,
   x : Double,
   y : Double,
 ) -> Unit raise CairoError {
@@ -105,7 +105,7 @@ pub fn Pattern::mesh_set_control_point(
 /// Raises `InvalidIndex`, `InvalidMeshConstruction`, or `PatternTypeMismatch`.
 pub fn Pattern::mesh_set_corner_color_rgb(
   self : Pattern,
-  corner_num : Int,
+  corner_num : Int32,
   red : Double,
   green : Double,
   blue : Double,
@@ -129,7 +129,7 @@ pub fn Pattern::mesh_set_corner_color_rgb(
 /// another sticky pattern status.
 pub fn Pattern::mesh_set_corner_color_rgba(
   self : Pattern,
-  corner_num : Int,
+  corner_num : Int32,
   red : Double,
   green : Double,
   blue : Double,
@@ -152,7 +152,7 @@ pub fn Pattern::mesh_set_corner_color_rgba(
 ///
 /// The currently open patch is not a drawable completed patch. Raises
 /// `PatternTypeMismatch` on another subtype and propagates sticky errors.
-pub fn Pattern::mesh_get_patch_count(self : Pattern) -> Int raise CairoError {
+pub fn Pattern::mesh_get_patch_count(self : Pattern) -> Int32 raise CairoError {
   let count = Ref(0)
   check_pattern_status_raw(
     @pattern_impl.mesh_get_patch_count_raw(self.to_raw(), count),
@@ -168,7 +168,7 @@ pub fn Pattern::mesh_get_patch_count(self : Pattern) -> Int raise CairoError {
 /// `PatternTypeMismatch` for a non-mesh, or a path/allocation status.
 pub fn Pattern::mesh_get_path(
   self : Pattern,
-  patch_num : Int,
+  patch_num : Int32,
 ) -> Path raise CairoError {
   let status = Ref(0)
   let raw = @pattern_impl.mesh_get_path_raw(self.to_raw(), patch_num, status)
@@ -185,8 +185,8 @@ pub fn Pattern::mesh_get_path(
 /// `PatternTypeMismatch`, or an existing sticky error.
 pub fn Pattern::mesh_get_control_point(
   self : Pattern,
-  patch_num : Int,
-  point_num : Int,
+  patch_num : Int32,
+  point_num : Int32,
 ) -> (Double, Double) raise CairoError {
   let x = Ref(0.0)
   let y = Ref(0.0)
@@ -210,8 +210,8 @@ pub fn Pattern::mesh_get_control_point(
 /// sticky pattern error.
 pub fn Pattern::mesh_get_corner_color_rgba(
   self : Pattern,
-  patch_num : Int,
-  corner_num : Int,
+  patch_num : Int32,
+  corner_num : Int32,
 ) -> (Double, Double, Double, Double) raise CairoError {
   let red = Ref(0.0)
   let green = Ref(0.0)

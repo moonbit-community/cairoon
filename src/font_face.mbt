@@ -18,19 +18,19 @@ fn FontFace::to_raw(self : FontFace) -> @font_face_impl.RawFontFace {
 }
 
 ///|
-fn font_face_status_from_raw(raw : Int) -> Status {
+fn font_face_status_from_raw(raw : Int32) -> Status {
   status_from_raw(raw) catch {
     _ => InvalidStatus
   }
 }
 
 ///|
-fn check_font_face_status_raw(raw : Int) -> Unit raise CairoError {
+fn check_font_face_status_raw(raw : Int32) -> Unit raise CairoError {
   check_status(status_from_raw(raw))
 }
 
 ///|
-fn font_slant_to_raw(slant : FontSlant) -> Int {
+fn font_slant_to_raw(slant : FontSlant) -> Int32 {
   match slant {
     FontSlantNormal => 0
     FontSlantItalic => 1
@@ -39,7 +39,7 @@ fn font_slant_to_raw(slant : FontSlant) -> Int {
 }
 
 ///|
-fn font_weight_to_raw(weight : FontWeight) -> Int {
+fn font_weight_to_raw(weight : FontWeight) -> Int32 {
   match weight {
     FontWeightNormal => 0
     FontWeightBold => 1
@@ -57,8 +57,8 @@ fn font_weight_to_raw(weight : FontWeight) -> Int {
 /// use the checked `CairoError` hierarchy.
 pub fn FontFace::toy(
   family : String,
-  slant? : FontSlant = FontSlantNormal,
-  weight? : FontWeight = FontWeightNormal,
+  slant~ : FontSlant = FontSlantNormal,
+  weight~ : FontWeight = FontWeightNormal,
 ) -> FontFace raise CairoError {
   let bytes = @utf8.encode(family)
   check_no_embedded_nul(bytes)
@@ -81,8 +81,8 @@ pub fn FontFace::toy(
 /// `FontFace::toy()`.
 pub fn FontFace::toy_raw(
   family : String,
-  slant? : Int = 0,
-  weight? : Int = 0,
+  slant~ : Int32 = 0,
+  weight~ : Int32 = 0,
 ) -> FontFace raise CairoError {
   let bytes = @utf8.encode(family)
   check_no_embedded_nul(bytes)
@@ -149,7 +149,7 @@ pub fn FontFace::get_family(self : FontFace) -> String raise CairoError {
 }
 
 ///|
-fn font_slant_from_raw(raw : Int) -> FontSlant raise CairoError {
+fn font_slant_from_raw(raw : Int32) -> FontSlant raise CairoError {
   match raw {
     0 => FontSlantNormal
     1 => FontSlantItalic
@@ -163,7 +163,7 @@ fn font_slant_from_raw(raw : Int) -> FontSlant raise CairoError {
 }
 
 ///|
-fn font_weight_from_raw(raw : Int) -> FontWeight raise CairoError {
+fn font_weight_from_raw(raw : Int32) -> FontWeight raise CairoError {
   match raw {
     0 => FontWeightNormal
     1 => FontWeightBold
@@ -191,7 +191,7 @@ pub fn FontFace::get_slant(self : FontFace) -> FontSlant raise CairoError {
 /// This pycairo compatibility entry point preserves the raw value. Prefer
 /// `get_slant()` when exhaustive typed handling is desired. A non-toy face or
 /// errored object raises its checked `CairoError`.
-pub fn FontFace::get_slant_raw(self : FontFace) -> Int raise CairoError {
+pub fn FontFace::get_slant_raw(self : FontFace) -> Int32 raise CairoError {
   let status = Ref(0)
   let slant = @font_face_impl.get_slant_raw(self.to_raw(), status)
   check_font_face_status_raw(status.val)
@@ -214,9 +214,15 @@ pub fn FontFace::get_weight(self : FontFace) -> FontWeight raise CairoError {
 /// This pycairo compatibility entry point preserves the raw value. Prefer
 /// `get_weight()` for typed code. A non-toy face or errored object raises its
 /// checked `CairoError`.
-pub fn FontFace::get_weight_raw(self : FontFace) -> Int raise CairoError {
+pub fn FontFace::get_weight_raw(self : FontFace) -> Int32 raise CairoError {
   let status = Ref(0)
   let weight = @font_face_impl.get_weight_raw(self.to_raw(), status)
   check_font_face_status_raw(status.val)
   weight
 }
+
+///|
+pub extend FontFace with Eq::{not_equal}
+
+///|
+pub extend FontFace with Hash::{hash_combine}

@@ -19,7 +19,7 @@ pub fn Rectangle::new(
   width : Double,
   height : Double,
 ) -> Rectangle {
-  { x, y, width, height }
+  { x, y, width, height, }
 }
 
 ///|
@@ -36,7 +36,7 @@ pub fn Rectangle::components(
 /// Raises `CairoInvalidArgument(InvalidIndex, _)` for any other index.
 pub fn Rectangle::component(
   self : Rectangle,
-  index : Int,
+  index : Int32,
 ) -> Double raise CairoError {
   match index {
     0 => self.x
@@ -52,7 +52,10 @@ pub fn Rectangle::component(
 ///
 /// Raises `CairoInvalidArgument(InvalidIndex, _)` outside `0..3`.
 #alias("_[_]")
-pub fn Rectangle::at(self : Rectangle, index : Int) -> Double raise CairoError {
+pub fn Rectangle::at(
+  self : Rectangle,
+  index : Int32,
+) -> Double raise CairoError {
   self.component(index)
 }
 
@@ -62,10 +65,10 @@ pub fn Rectangle::at(self : Rectangle, index : Int) -> Double raise CairoError {
 /// `x` and `y` locate the left and top edges; `width` and `height` give its
 /// size in the coordinate space of the consuming API.
 pub struct RectangleInt {
-  x : Int
-  y : Int
-  width : Int
-  height : Int
+  x : Int32
+  y : Int32
+  width : Int32
+  height : Int32
 } derive(Eq, Debug)
 
 ///|
@@ -73,17 +76,19 @@ pub struct RectangleInt {
 ///
 /// Construction does not validate dimensions.
 pub fn RectangleInt::new(
-  x? : Int = 0,
-  y? : Int = 0,
-  width? : Int = 0,
-  height? : Int = 0,
+  x~ : Int32 = 0,
+  y~ : Int32 = 0,
+  width~ : Int32 = 0,
+  height~ : Int32 = 0,
 ) -> RectangleInt {
-  { x, y, width, height }
+  { x, y, width, height, }
 }
 
 ///|
 /// Return `(x, y, width, height)`.
-pub fn RectangleInt::components(self : RectangleInt) -> (Int, Int, Int, Int) {
+pub fn RectangleInt::components(
+  self : RectangleInt,
+) -> (Int32, Int32, Int32, Int32) {
   (self.x, self.y, self.width, self.height)
 }
 
@@ -93,8 +98,8 @@ pub fn RectangleInt::components(self : RectangleInt) -> (Int, Int, Int, Int) {
 /// Raises `CairoInvalidArgument(InvalidIndex, _)` for any other index.
 pub fn RectangleInt::component(
   self : RectangleInt,
-  index : Int,
-) -> Int raise CairoError {
+  index : Int32,
+) -> Int32 raise CairoError {
   match index {
     0 => self.x
     1 => self.y
@@ -117,26 +122,26 @@ pub type Glyph = @glyph.Glyph
 /// nonzero when the value is consumed by a text-cluster API. This pure value
 /// preserves the supplied counts; construction itself performs no validation.
 pub struct TextCluster {
-  num_bytes : Int
-  num_glyphs : Int
+  num_bytes : Int32
+  num_glyphs : Int32
 } derive(Eq, Hash, Debug)
 
 ///|
 /// Construct a text cluster from its UTF-8 byte and glyph counts.
-pub fn TextCluster::new(num_bytes : Int, num_glyphs : Int) -> TextCluster {
-  { num_bytes, num_glyphs }
+pub fn TextCluster::new(num_bytes : Int32, num_glyphs : Int32) -> TextCluster {
+  { num_bytes, num_glyphs, }
 }
 
 ///|
 /// Return `(num_bytes, num_glyphs)` in pycairo tuple order.
-pub fn TextCluster::components(self : TextCluster) -> (Int, Int) {
+pub fn TextCluster::components(self : TextCluster) -> (Int32, Int32) {
   (self.num_bytes, self.num_glyphs)
 }
 
 ///|
 fn text_cluster_field_arrays(
   clusters : ArrayView[TextCluster],
-) -> (FixedArray[Int], FixedArray[Int]) {
+) -> (FixedArray[Int32], FixedArray[Int32]) {
   let count = clusters.length()
   (
     FixedArray::makei(count, index => clusters[index].num_bytes),
@@ -150,8 +155,8 @@ fn text_cluster_field_arrays(
 /// Raises `CairoInvalidArgument(InvalidIndex, _)` for any other index.
 pub fn TextCluster::component(
   self : TextCluster,
-  index : Int,
-) -> Int raise CairoError {
+  index : Int32,
+) -> Int32 raise CairoError {
   match index {
     0 => self.num_bytes
     1 => self.num_glyphs
@@ -164,7 +169,10 @@ pub fn TextCluster::component(
 ///
 /// Raises `CairoInvalidArgument(InvalidIndex, _)` outside `0..1`.
 #alias("_[_]")
-pub fn TextCluster::at(self : TextCluster, index : Int) -> Int raise CairoError {
+pub fn TextCluster::at(
+  self : TextCluster,
+  index : Int32,
+) -> Int32 raise CairoError {
   self.component(index)
 }
 
@@ -195,7 +203,7 @@ pub fn TextExtents::new(
   x_advance : Double,
   y_advance : Double,
 ) -> TextExtents {
-  { x_bearing, y_bearing, width, height, x_advance, y_advance }
+  { x_bearing, y_bearing, width, height, x_advance, y_advance, }
 }
 
 ///|
@@ -219,7 +227,7 @@ pub fn TextExtents::components(
 /// Raises `CairoInvalidArgument(InvalidIndex, _)` for any other index.
 pub fn TextExtents::component(
   self : TextExtents,
-  index : Int,
+  index : Int32,
 ) -> Double raise CairoError {
   match index {
     0 => self.x_bearing
@@ -239,7 +247,7 @@ pub fn TextExtents::component(
 #alias("_[_]")
 pub fn TextExtents::at(
   self : TextExtents,
-  index : Int,
+  index : Int32,
 ) -> Double raise CairoError {
   self.component(index)
 }
@@ -265,7 +273,7 @@ pub fn TextGlyphRun::new(
   clusters : Array[TextCluster],
   flags : TextClusterFlags,
 ) -> TextGlyphRun {
-  { glyphs, clusters, flags }
+  { glyphs, clusters, flags, }
 }
 
 ///|
@@ -302,7 +310,7 @@ pub fn FontExtents::new(
   max_x_advance : Double,
   max_y_advance : Double,
 ) -> FontExtents {
-  { ascent, descent, height, max_x_advance, max_y_advance }
+  { ascent, descent, height, max_x_advance, max_y_advance, }
 }
 
 ///|
@@ -325,7 +333,7 @@ pub fn FontExtents::components(
 /// Raises `CairoInvalidArgument(InvalidIndex, _)` for any other index.
 pub fn FontExtents::component(
   self : FontExtents,
-  index : Int,
+  index : Int32,
 ) -> Double raise CairoError {
   match index {
     0 => self.ascent
@@ -336,3 +344,51 @@ pub fn FontExtents::component(
     _ => raise CairoInvalidArgument(InvalidIndex, InvalidIndex.message())
   }
 }
+
+///|
+pub extend Rectangle with Eq::{not_equal, equal}
+
+///|
+pub extend Rectangle with Hash::{hash, hash_combine}
+
+///|
+pub extend Rectangle with @debug.Debug::{to_repr}
+
+///|
+pub extend RectangleInt with Eq::{not_equal, equal}
+
+///|
+pub extend RectangleInt with @debug.Debug::{to_repr}
+
+///|
+pub extend TextCluster with Eq::{not_equal, equal}
+
+///|
+pub extend TextCluster with Hash::{hash, hash_combine}
+
+///|
+pub extend TextCluster with @debug.Debug::{to_repr}
+
+///|
+pub extend TextExtents with Eq::{not_equal, equal}
+
+///|
+pub extend TextExtents with Hash::{hash, hash_combine}
+
+///|
+pub extend TextExtents with @debug.Debug::{to_repr}
+
+///|
+pub extend TextGlyphRun with Eq::{not_equal, equal}
+
+///|
+pub extend TextGlyphRun with @debug.Debug::{to_repr}
+
+///|
+pub extend FontExtents with Eq::{not_equal, equal}
+
+///|
+pub extend FontExtents with Hash::{hash, hash_combine}
+
+///|
+pub extend FontExtents with @debug.Debug::{to_repr}

@@ -1,7 +1,7 @@
 ///|
 fn pycairo_context_surface(
-  width : Int,
-  height : Int,
+  width : Int32,
+  height : Int32,
 ) -> @cairoon.Surface raise @cairoon.CairoError {
   @cairoon.Surface::image(Argb32, width, height)
 }
@@ -56,7 +56,7 @@ fn assert_pycairo_context_matrix_close(
 ///|
 fn assert_pycairo_context_argb32_pixel(
   surface : @cairoon.Surface,
-  expected : Array[Int],
+  expected : Array[Int32],
 ) -> Unit raise {
   let data = surface.copy_data()
   inspect(data.length(), content="4")
@@ -68,9 +68,9 @@ fn assert_pycairo_context_argb32_pixel(
 ///|
 fn assert_pycairo_context_argb32_pixel_at(
   surface : @cairoon.Surface,
-  x : Int,
-  y : Int,
-  expected : Array[Int],
+  x : Int32,
+  y : Int32,
+  expected : Array[Int32],
 ) -> Unit raise {
   let data = surface.copy_data()
   let offset = y * surface.get_stride() + x * 4

@@ -2,18 +2,18 @@
 #borrow(call_writer)
 #owned(writer)
 extern "C" fn test_stream_surface_attach_failure_ffi(
-  kind : Int,
-  call_writer : FuncRef[(Bytes, (Bytes) -> Int) -> Int],
-  writer : (Bytes) -> Int,
-) -> Int = "cairoon_test_stream_surface_attach_failure"
+  kind : Int32,
+  call_writer : FuncRef[(Bytes, (Bytes) -> Int32) -> Int32],
+  writer : (Bytes) -> Int32,
+) -> Int32 = "cairoon_test_stream_surface_attach_failure"
 
 ///|
 #borrow(call_writer)
 #owned(writer)
 extern "C" fn test_stream_device_attach_failure_ffi(
-  call_writer : FuncRef[(Bytes, (Bytes) -> Int) -> Int],
-  writer : (Bytes) -> Int,
-) -> Int = "cairoon_test_stream_device_attach_failure"
+  call_writer : FuncRef[(Bytes, (Bytes) -> Int32) -> Int32],
+  writer : (Bytes) -> Int32,
+) -> Int32 = "cairoon_test_stream_device_attach_failure"
 
 ///|
 fn link_production_stream_support() -> Unit raise @cairoon.CairoError {

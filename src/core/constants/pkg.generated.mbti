@@ -2,17 +2,17 @@
 package "CAIMEOX/cairoon/core/constants"
 
 // Values
-pub const CAIRO_VERSION : Int = 11804
+pub const CAIRO_VERSION : Int32 = 11806
 
-pub const CAIRO_VERSION_MAJOR : Int = 1
+pub const CAIRO_VERSION_MAJOR : Int32 = 1
 
-pub const CAIRO_VERSION_MICRO : Int = 4
+pub const CAIRO_VERSION_MICRO : Int32 = 6
 
-pub const CAIRO_VERSION_MINOR : Int = 18
+pub const CAIRO_VERSION_MINOR : Int32 = 18
 
-pub const CAIRO_VERSION_STRING : String = "1.18.4"
+pub const CAIRO_VERSION_STRING : String = "1.18.6"
 
-pub const COLOR_PALETTE_DEFAULT : UInt = 0
+pub const COLOR_PALETTE_DEFAULT : UInt32 = 0
 
 pub const HAS_ATSUI_FONT : Bool = false
 
@@ -76,7 +76,7 @@ pub const MIME_TYPE_UNIQUE_ID : String = "application/x-cairo.uuid"
 
 pub const MIME_TYPE_URI : String = "text/x-uri"
 
-pub const PDF_OUTLINE_ROOT : Int = 0
+pub const PDF_OUTLINE_ROOT : Int32 = 0
 
 pub const TAG_CONTENT : String = "cairo.content"
 
@@ -93,4 +93,3 @@ pub const TAG_LINK : String = "Link"
 // Type aliases
 
 // Traits
-

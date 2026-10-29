@@ -53,7 +53,7 @@ pub(all) enum Status {
 } derive(Eq, Debug)
 
 ///|
-fn Status::to_raw(self : Status) -> Int {
+fn Status::to_raw(self : Status) -> Int32 {
   match self {
     Success => 0
     NoMemory => 1
@@ -105,7 +105,7 @@ fn Status::to_raw(self : Status) -> Int {
 }
 
 ///|
-fn status_from_raw(raw : Int) -> Status raise CairoError {
+fn status_from_raw(raw : Int32) -> Status raise CairoError {
   match raw {
     0 => Success
     1 => NoMemory
@@ -168,3 +168,9 @@ pub fn Status::message(self : Status) -> String {
 pub fn Status::is_success(self : Status) -> Bool {
   self == Success
 }
+
+///|
+pub extend Status with Eq::{not_equal, equal}
+
+///|
+pub extend Status with @debug.Debug::{to_repr}

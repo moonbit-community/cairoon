@@ -1,8 +1,8 @@
 ///|
 fn assert_painting_byte_between(
   actual : Byte,
-  low : Int,
-  high : Int,
+  low : Int32,
+  high : Int32,
 ) -> Unit raise {
   let value = actual.to_int()
   if value < low || value > high {

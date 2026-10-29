@@ -19,14 +19,14 @@ fn Context::to_raw(self : Context) -> @context_impl.RawContext {
 }
 
 ///|
-fn context_status_from_raw(raw : Int) -> Status {
+fn context_status_from_raw(raw : Int32) -> Status {
   status_from_raw(raw) catch {
     _ => InvalidStatus
   }
 }
 
 ///|
-fn check_context_status_raw(raw : Int) -> Unit raise CairoError {
+fn check_context_status_raw(raw : Int32) -> Unit raise CairoError {
   check_status(status_from_raw(raw))
 }
 
@@ -237,7 +237,7 @@ pub fn Context::push_group_with_content(
 /// `CairoInvalidArgument(InvalidContent, _)` before entering Cairo.
 pub fn Context::push_group_with_content_raw(
   self : Context,
-  content : Int,
+  content : Int32,
 ) -> Unit raise CairoError {
   check_context_status_raw(
     @context_impl.push_group_with_content_raw(
@@ -271,3 +271,9 @@ pub fn Context::pop_group(self : Context) -> Pattern raise CairoError {
 pub fn Context::pop_group_to_source(self : Context) -> Unit raise CairoError {
   check_context_status_raw(@context_impl.pop_group_to_source_raw(self.to_raw()))
 }
+
+///|
+pub extend Context with Eq::{not_equal}
+
+///|
+pub extend Context with Hash::{hash_combine}

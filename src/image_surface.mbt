@@ -7,8 +7,8 @@
 /// failure, and other native errors use the checked `CairoError` hierarchy.
 pub fn Surface::image(
   format : Format,
-  width : Int,
-  height : Int,
+  width : Int32,
+  height : Int32,
 ) -> Surface raise CairoError {
   let raw = @surface_impl.image_create_raw(format.to_raw(), width, height)
   check_surface_status_raw(@surface_impl.status_raw(raw))
@@ -22,9 +22,9 @@ pub fn Surface::image(
 /// zero-initialization and dimension rules; an unknown or unavailable value
 /// raises `CairoInvalidArgument(InvalidFormat, _)`.
 pub fn Surface::image_raw(
-  format : Int,
-  width : Int,
-  height : Int,
+  format : Int32,
+  width : Int32,
+  height : Int32,
 ) -> Surface raise CairoError {
   let raw = @surface_impl.image_create_raw(format, width, height)
   check_surface_status_raw(@surface_impl.status_raw(raw))
@@ -49,9 +49,9 @@ pub fn Surface::image_raw(
 pub fn Surface::image_for_data(
   data : FixedArray[Byte],
   format : Format,
-  width : Int,
-  height : Int,
-  stride? : Int = Format::stride_for_width(format, width),
+  width : Int32,
+  height : Int32,
+  stride~ : Int32 = Format::stride_for_width(format, width),
 ) -> Surface raise CairoError {
   let status = Ref(0)
   let raw = @surface_impl.image_create_for_data_raw(
@@ -77,10 +77,10 @@ pub fn Surface::image_for_data(
 /// all other errors match the typed form.
 pub fn Surface::image_for_data_raw(
   data : FixedArray[Byte],
-  format : Int,
-  width : Int,
-  height : Int,
-  stride? : Int,
+  format : Int32,
+  width : Int32,
+  height : Int32,
+  stride? : Int32,
 ) -> Surface raise CairoError {
   let actual_stride = match stride {
     Some(stride) => stride
@@ -107,7 +107,7 @@ pub fn Surface::image_for_data_raw(
 /// Calling the image-specific getter on another surface subtype raises
 /// `CairoError(SurfaceTypeMismatch, _)`; a finished surface raises
 /// `CairoError(SurfaceFinished, _)`.
-pub fn Surface::get_width(self : Surface) -> Int raise CairoError {
+pub fn Surface::get_width(self : Surface) -> Int32 raise CairoError {
   let status = Ref(0)
   let width = @surface_impl.image_get_width_raw(self.to_raw(), status)
   check_surface_status_raw(status.val)
@@ -120,7 +120,7 @@ pub fn Surface::get_width(self : Surface) -> Int raise CairoError {
 /// Calling the image-specific getter on another surface subtype raises
 /// `CairoError(SurfaceTypeMismatch, _)`; a finished surface raises
 /// `CairoError(SurfaceFinished, _)`.
-pub fn Surface::get_height(self : Surface) -> Int raise CairoError {
+pub fn Surface::get_height(self : Surface) -> Int32 raise CairoError {
   let status = Ref(0)
   let height = @surface_impl.image_get_height_raw(self.to_raw(), status)
   check_surface_status_raw(status.val)
@@ -133,7 +133,7 @@ pub fn Surface::get_height(self : Surface) -> Int raise CairoError {
 /// The stride can exceed `width * bytes_per_pixel` because Cairo requires row
 /// alignment. Non-image and finished surfaces raise `SurfaceTypeMismatch` and
 /// `SurfaceFinished`, respectively, through `CairoError`.
-pub fn Surface::get_stride(self : Surface) -> Int raise CairoError {
+pub fn Surface::get_stride(self : Surface) -> Int32 raise CairoError {
   let status = Ref(0)
   let stride = @surface_impl.image_get_stride_raw(self.to_raw(), status)
   check_surface_status_raw(status.val)
@@ -156,7 +156,7 @@ pub fn Surface::get_format(self : Surface) -> Format raise CairoError {
 /// This compatibility entry point preserves values that a future Cairo may
 /// add. Calling it on a non-image or finished surface raises the corresponding
 /// checked `CairoError`.
-pub fn Surface::get_format_raw(self : Surface) -> Int raise CairoError {
+pub fn Surface::get_format_raw(self : Surface) -> Int32 raise CairoError {
   let status = Ref(0)
   let format = @surface_impl.image_get_format_raw(self.to_raw(), status)
   check_surface_status_raw(status.val)

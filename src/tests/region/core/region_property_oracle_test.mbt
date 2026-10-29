@@ -28,23 +28,23 @@ fn region_property_overlap_name(overlap : @cairoon.RegionOverlap) -> String {
 }
 
 ///|
-fn region_property_grid_min() -> Int {
+fn region_property_grid_min() -> Int32 {
   -8
 }
 
 ///|
-fn region_property_grid_side() -> Int {
+fn region_property_grid_side() -> Int32 {
   16
 }
 
 ///|
-fn region_property_grid_index(x : Int, y : Int) -> Int {
+fn region_property_grid_index(x : Int32, y : Int32) -> Int32 {
   let offset = region_property_grid_min()
   (y - offset) * region_property_grid_side() + (x - offset)
 }
 
 ///|
-fn region_property_grid_contains(x : Int, y : Int) -> Bool {
+fn region_property_grid_contains(x : Int32, y : Int32) -> Bool {
   let min = region_property_grid_min()
   let max = min + region_property_grid_side()
   x >= min && x < max && y >= min && y < max
@@ -53,8 +53,8 @@ fn region_property_grid_contains(x : Int, y : Int) -> Bool {
 ///|
 fn region_property_rectangle_contains(
   rectangle : @cairoon.RectangleInt,
-  x : Int,
-  y : Int,
+  x : Int32,
+  y : Int32,
 ) -> Bool {
   rectangle.width > 0 &&
   rectangle.height > 0 &&
@@ -66,8 +66,8 @@ fn region_property_rectangle_contains(
 
 ///|
 fn region_property_rectangles(
-  seed : Int,
-  salt : Int,
+  seed : Int32,
+  salt : Int32,
 ) -> Array[@cairoon.RectangleInt] {
   let rectangles : Array[@cairoon.RectangleInt] = []
   for index in 0..<4 {
@@ -132,8 +132,8 @@ fn region_property_combine_cells(
 ///|
 fn region_property_translate_cells(
   cells : FixedArray[Bool],
-  dx : Int,
-  dy : Int,
+  dx : Int32,
+  dy : Int32,
 ) -> FixedArray[Bool] {
   let result = region_property_empty_cells()
   let min = region_property_grid_min()

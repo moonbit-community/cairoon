@@ -67,7 +67,7 @@ class HostedWorkflowGateTests(unittest.TestCase):
         push_branches_anchor = "    branches:\n      - main\n"
         global_env_anchor = (
             "env:\n"
-            "  MOONBIT_INSTALL_VERSION: 0.10.4+4f2e8f7dc-nightly\n"
+            "  MOONBIT_INSTALL_VERSION: 0.10.18+6c83a7f62\n"
         )
         mutations = (
             (

@@ -10,10 +10,10 @@ enum RasterTransitionMode {
 
 ///|
 struct RasterTransitionProbe {
-  last_acquire_token : Ref[Int]
-  last_release_token : Ref[Int]
-  acquire_calls : Ref[Int]
-  release_calls : Ref[Int]
+  last_acquire_token : Ref[Int32]
+  last_release_token : Ref[Int32]
+  acquire_calls : Ref[Int32]
+  release_calls : Ref[Int32]
 }
 
 ///|
@@ -46,7 +46,7 @@ fn RasterTransitionMode::has_release(self : RasterTransitionMode) -> Bool {
 fn install_raster_transition_mode(
   pattern : @cairoon.Pattern,
   mode : RasterTransitionMode,
-  token : Int,
+  token : Int32,
   source : @cairoon.Surface,
   failed_source : @cairoon.Surface,
   probe : RasterTransitionProbe,
@@ -135,13 +135,13 @@ fn expect_raster_transition_red_pixel(surface : @cairoon.Surface) -> Unit raise 
 fn exercise_raster_transition_mode(
   pattern : @cairoon.Pattern,
   mode : RasterTransitionMode,
-  token : Int,
+  token : Int32,
   source : @cairoon.Surface,
   failed_source : @cairoon.Surface,
   probe : RasterTransitionProbe,
-  successful_paints : Ref[Int],
-  failed_paints : Ref[Int],
-  release_only_calls : Ref[Int],
+  successful_paints : Ref[Int32],
+  failed_paints : Ref[Int32],
+  release_only_calls : Ref[Int32],
 ) -> Unit raise {
   expect_raster_transition_shape(pattern, mode)
   let acquire_calls_before = probe.acquire_calls.val

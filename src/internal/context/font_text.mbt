@@ -1,7 +1,7 @@
 ///|
 pub fn get_font_options_raw(
   ctx : RawContext,
-  status : Ref[Int],
+  status : Ref[Int32],
 ) -> @font_options_impl.RawFontOptions {
   ensure_native()
   context_get_font_options_ffi(ctx, status)
@@ -11,7 +11,7 @@ pub fn get_font_options_raw(
 pub fn set_font_options_raw(
   ctx : RawContext,
   options : @font_options_impl.RawFontOptions,
-) -> Int {
+) -> Int32 {
   ensure_native()
   context_set_font_options_ffi(ctx, options)
 }
@@ -19,7 +19,7 @@ pub fn set_font_options_raw(
 ///|
 pub fn get_font_face_raw(
   ctx : RawContext,
-  status : Ref[Int],
+  status : Ref[Int32],
 ) -> @font_face_impl.RawFontFace {
   ensure_native()
   context_get_font_face_ffi(ctx, status)
@@ -29,13 +29,13 @@ pub fn get_font_face_raw(
 pub fn set_font_face_raw(
   ctx : RawContext,
   font_face : @font_face_impl.RawFontFace,
-) -> Int {
+) -> Int32 {
   ensure_native()
   context_set_font_face_ffi(ctx, font_face)
 }
 
 ///|
-pub fn set_font_face_default_raw(ctx : RawContext) -> Int {
+pub fn set_font_face_default_raw(ctx : RawContext) -> Int32 {
   ensure_native()
   context_set_font_face_default_ffi(ctx)
 }
@@ -44,9 +44,9 @@ pub fn set_font_face_default_raw(ctx : RawContext) -> Int {
 pub fn select_font_face_raw(
   ctx : RawContext,
   family : Bytes,
-  slant : Int,
-  weight : Int,
-) -> Int {
+  slant : Int32,
+  weight : Int32,
+) -> Int32 {
   ensure_native()
   context_select_font_face_raw_ffi(ctx, family, slant, weight)
 }
@@ -60,7 +60,7 @@ pub fn set_font_matrix_raw(
   yy : Double,
   x0 : Double,
   y0 : Double,
-) -> Int {
+) -> Int32 {
   ensure_native()
   context_set_font_matrix_ffi(ctx, xx, yx, xy, yy, x0, y0)
 }
@@ -74,13 +74,13 @@ pub fn get_font_matrix_raw(
   yy : Ref[Double],
   x0 : Ref[Double],
   y0 : Ref[Double],
-) -> Int {
+) -> Int32 {
   ensure_native()
   context_get_font_matrix_ffi(ctx, xx, yx, xy, yy, x0, y0)
 }
 
 ///|
-pub fn set_font_size_raw(ctx : RawContext, size : Double) -> Int {
+pub fn set_font_size_raw(ctx : RawContext, size : Double) -> Int32 {
   ensure_native()
   context_set_font_size_ffi(ctx, size)
 }
@@ -93,7 +93,7 @@ pub fn font_extents_raw(
   height : Ref[Double],
   max_x_advance : Ref[Double],
   max_y_advance : Ref[Double],
-) -> Int {
+) -> Int32 {
   ensure_native()
   context_font_extents_ffi(
     ctx, ascent, descent, height, max_x_advance, max_y_advance,
@@ -101,7 +101,7 @@ pub fn font_extents_raw(
 }
 
 ///|
-pub fn show_text_raw(ctx : RawContext, text : Bytes) -> Int {
+pub fn show_text_raw(ctx : RawContext, text : Bytes) -> Int32 {
   ensure_native()
   context_show_text_ffi(ctx, text)
 }
@@ -116,7 +116,7 @@ pub fn text_extents_raw(
   height : Ref[Double],
   x_advance : Ref[Double],
   y_advance : Ref[Double],
-) -> Int {
+) -> Int32 {
   ensure_native()
   context_text_extents_ffi(
     ctx, text, x_bearing, y_bearing, width, height, x_advance, y_advance,
@@ -124,7 +124,7 @@ pub fn text_extents_raw(
 }
 
 ///|
-pub fn text_path_raw(ctx : RawContext, text : Bytes) -> Int {
+pub fn text_path_raw(ctx : RawContext, text : Bytes) -> Int32 {
   ensure_native()
   context_text_path_ffi(ctx, text)
 }
@@ -141,7 +141,7 @@ pub fn glyph_extents_raw(
   height : Ref[Double],
   x_advance : Ref[Double],
   y_advance : Ref[Double],
-) -> Int {
+) -> Int32 {
   ensure_native()
   context_glyph_extents_ffi(
     ctx, indices, xs, ys, x_bearing, y_bearing, width, height, x_advance, y_advance,
@@ -154,7 +154,7 @@ pub fn glyph_path_raw(
   indices : FixedArray[UInt64],
   xs : FixedArray[Double],
   ys : FixedArray[Double],
-) -> Int {
+) -> Int32 {
   ensure_native()
   context_glyph_path_ffi(ctx, indices, xs, ys)
 }
@@ -165,7 +165,7 @@ pub fn show_glyphs_raw(
   indices : FixedArray[UInt64],
   xs : FixedArray[Double],
   ys : FixedArray[Double],
-) -> Int {
+) -> Int32 {
   ensure_native()
   context_show_glyphs_ffi(ctx, indices, xs, ys)
 }
@@ -177,10 +177,10 @@ pub fn show_text_glyphs_raw(
   indices : FixedArray[UInt64],
   xs : FixedArray[Double],
   ys : FixedArray[Double],
-  cluster_num_bytes : FixedArray[Int],
-  cluster_num_glyphs : FixedArray[Int],
-  flags : Int,
-) -> Int {
+  cluster_num_bytes : FixedArray[Int32],
+  cluster_num_glyphs : FixedArray[Int32],
+  flags : Int32,
+) -> Int32 {
   ensure_native()
   context_show_text_glyphs_ffi(
     ctx, text, indices, xs, ys, cluster_num_bytes, cluster_num_glyphs, flags,
@@ -190,7 +190,7 @@ pub fn show_text_glyphs_raw(
 ///|
 pub fn get_scaled_font_raw(
   ctx : RawContext,
-  status : Ref[Int],
+  status : Ref[Int32],
 ) -> @scaled_font_impl.RawScaledFont {
   ensure_native()
   context_get_scaled_font_ffi(ctx, status)
@@ -200,7 +200,7 @@ pub fn get_scaled_font_raw(
 pub fn set_scaled_font_raw(
   ctx : RawContext,
   scaled_font : @scaled_font_impl.RawScaledFont,
-) -> Int {
+) -> Int32 {
   ensure_native()
   context_set_scaled_font_ffi(ctx, scaled_font)
 }

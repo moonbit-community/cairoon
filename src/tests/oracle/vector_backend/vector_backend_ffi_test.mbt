@@ -16,7 +16,7 @@ fn vector_backend_invalid_surface() -> @cairoon.Surface raise @cairoon.CairoErro
 
 ///|
 #borrow(filename)
-extern "C" fn test_file_size_ffi(filename : Bytes) -> Int = "cairoon_test_file_size"
+extern "C" fn test_file_size_ffi(filename : Bytes) -> Int32 = "cairoon_test_file_size"
 
 ///|
 #borrow(filename, needle)
@@ -25,22 +25,22 @@ extern "C" fn test_file_contains_ffi(filename : Bytes, needle : Bytes) -> Bool =
 ///|
 #borrow(filename)
 extern "C" fn test_render_vector_scene_oracle_ffi(
-  kind : Int,
-  scene : Int,
+  kind : Int32,
+  scene : Int32,
   filename : Bytes,
 ) -> @cairoon.Status = "cairoon_test_render_vector_scene_oracle"
 
 ///|
 #borrow(filename)
 extern "C" fn test_render_surface_page_oracle_ffi(
-  kind : Int,
+  kind : Int32,
   filename : Bytes,
 ) -> @cairoon.Status = "cairoon_test_render_surface_page_oracle"
 
 ///|
 #borrow(filename)
 extern "C" fn test_render_surface_show_page_oracle_ffi(
-  kind : Int,
+  kind : Int32,
   filename : Bytes,
 ) -> @cairoon.Status = "cairoon_test_render_surface_show_page_oracle"
 
@@ -60,7 +60,7 @@ extern "C" fn test_render_pdf_thumbnail_oracle_ffi(
 ///|
 #borrow(left_filename, right_filename)
 extern "C" fn test_vector_files_equal_ffi(
-  kind : Int,
+  kind : Int32,
   left_filename : Bytes,
   right_filename : Bytes,
 ) -> Bool = "cairoon_test_vector_files_equal"
@@ -68,7 +68,7 @@ extern "C" fn test_vector_files_equal_ffi(
 ///|
 #borrow(filename, bytes)
 extern "C" fn test_vector_file_equals_bytes_ffi(
-  kind : Int,
+  kind : Int32,
   filename : Bytes,
   bytes : Bytes,
 ) -> Bool = "cairoon_test_vector_file_equals_bytes"
@@ -76,7 +76,7 @@ extern "C" fn test_vector_file_equals_bytes_ffi(
 ///|
 #borrow(left, right)
 extern "C" fn test_vector_bytes_equal_ffi(
-  kind : Int,
+  kind : Int32,
   left : Bytes,
   right : Bytes,
 ) -> Bool = "cairoon_test_vector_bytes_equal"

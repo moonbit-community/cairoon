@@ -4,7 +4,7 @@ pub fn svg_create_raw(
   filename : Bytes,
   width_in_points : Double,
   height_in_points : Double,
-  status : Ref[Int],
+  status : Ref[Int32],
 ) -> RawSurface {
   ensure_native()
   svg_surface_create_ffi(
@@ -14,10 +14,10 @@ pub fn svg_create_raw(
 
 ///|
 pub fn svg_create_stream_raw(
-  writer : (Bytes) -> Int,
+  writer : (Bytes) -> Int32,
   width_in_points : Double,
   height_in_points : Double,
-  status : Ref[Int],
+  status : Ref[Int32],
 ) -> RawSurface {
   ensure_native()
   svg_surface_create_for_stream_ffi(
@@ -30,7 +30,10 @@ pub fn svg_create_stream_raw(
 }
 
 ///|
-pub fn svg_restrict_to_version_raw(surface : RawSurface, version : Int) -> Int {
+pub fn svg_restrict_to_version_raw(
+  surface : RawSurface,
+  version : Int32,
+) -> Int32 {
   ensure_native()
   svg_surface_restrict_to_version_ffi(surface, version)
 }
@@ -38,14 +41,14 @@ pub fn svg_restrict_to_version_raw(surface : RawSurface, version : Int) -> Int {
 ///|
 pub fn svg_get_document_unit_raw(
   surface : RawSurface,
-  status : Ref[Int],
-) -> Int {
+  status : Ref[Int32],
+) -> Int32 {
   ensure_native()
   svg_surface_get_document_unit_ffi(surface, status)
 }
 
 ///|
-pub fn svg_set_document_unit_raw(surface : RawSurface, unit : Int) -> Int {
+pub fn svg_set_document_unit_raw(surface : RawSurface, unit : Int32) -> Int32 {
   ensure_native()
   svg_surface_set_document_unit_ffi(surface, unit)
 }

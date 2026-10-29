@@ -26,7 +26,7 @@ fn lifetime_mesh_pattern() -> @cairoon.Pattern raise @cairoon.CairoError {
 }
 
 ///|
-fn lifetime_stress_value_wrappers(index : Int) -> Unit raise {
+fn lifetime_stress_value_wrappers(index : Int32) -> Unit raise {
   let surface = @cairoon.Surface::image(Argb32, 4, 4)
   let ctx = @cairoon.Context::new(surface)
   ctx.rectangle(0.0, 0.0, 2.0, 2.0)

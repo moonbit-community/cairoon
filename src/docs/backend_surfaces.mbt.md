@@ -30,9 +30,9 @@ fn backend_docs_chunks_contain(chunks : Array[Bytes], marker : String) -> Bool {
 
 ///|
 fn backend_docs_paint_blue_and_finish(
-  surface : Surface,
-) -> Unit raise CairoError {
-  let ctx = Context::new(surface)
+  surface : @docs.Surface,
+) -> Unit raise @docs.CairoError {
+  let ctx = @docs.Context::new(surface)
   ctx.set_source_rgb(0.0, 0.0, 1.0)
   ctx.paint()
   surface.finish()
@@ -41,7 +41,7 @@ fn backend_docs_paint_blue_and_finish(
 ///|
 test "backend docs: stream vector surfaces write backend output" {
   let pdf_chunks : Array[Bytes] = []
-  let pdf = Surface::pdf_stream(12.0, 12.0, fn(chunk) {
+  let pdf = @docs.Surface::pdf_stream(12.0, 12.0, fn(chunk) {
     pdf_chunks.push(chunk)
     Success
   })
@@ -50,7 +50,7 @@ test "backend docs: stream vector surfaces write backend output" {
   inspect(backend_docs_chunks_contain(pdf_chunks, "%%EOF"), content="true")
 
   let ps_chunks : Array[Bytes] = []
-  let ps = Surface::ps_stream(12.0, 12.0, fn(chunk) {
+  let ps = @docs.Surface::ps_stream(12.0, 12.0, fn(chunk) {
     ps_chunks.push(chunk)
     Success
   })
@@ -59,7 +59,7 @@ test "backend docs: stream vector surfaces write backend output" {
   inspect(backend_docs_chunks_contain(ps_chunks, "%%EOF"), content="true")
 
   let svg_chunks : Array[Bytes] = []
-  let svg = Surface::svg_stream(12.0, 12.0, fn(chunk) {
+  let svg = @docs.Surface::svg_stream(12.0, 12.0, fn(chunk) {
     svg_chunks.push(chunk)
     Success
   })
@@ -70,8 +70,8 @@ test "backend docs: stream vector surfaces write backend output" {
 
 ///|
 test "backend docs: stream writer errors raise CairoIOError" {
-  let surface = Surface::pdf_stream(12.0, 12.0, fn(_) { WriteError })
-  match run_cairo(() => backend_docs_paint_blue_and_finish(surface)) {
+  let surface = @docs.Surface::pdf_stream(12.0, 12.0, fn(_) { WriteError })
+  match @docs.run_cairo(() => backend_docs_paint_blue_and_finish(surface)) {
     Err(CairoIOError(WriteError, _)) => ()
     _ => @test.fail("expected WriteError from PDF stream writer")
   }
@@ -93,18 +93,21 @@ versions raise `CairoError(InvalidStatus, _)`.
 ```mbt check
 ///|
 test "backend docs: PDF metadata page labels and outlines" {
-  let version : PDFVersion = PdfVersion1_4
-  inspect(PDFVersion::supported().any(item => item == version), content="true")
+  let version : @docs.PDFVersion = PdfVersion1_4
+  inspect(
+    @docs.PDFVersion::supported().any(item => item == version),
+    content="true",
+  )
   inspect(version.to_string().contains("PDF"), content="true")
-  inspect(PDFVersion::to_string_raw(0).contains("PDF"), content="true")
-  match run_cairo(() => PDFVersion::to_string_raw(99)) {
+  inspect(@docs.PDFVersion::to_string_raw(0).contains("PDF"), content="true")
+  match @docs.run_cairo(() => @docs.PDFVersion::to_string_raw(99)) {
     Err(CairoError(InvalidStatus, _)) => ()
     _ => @test.fail("expected an unknown PDF version error")
   }
 
-  let surface = Surface::pdf(24.0, 24.0)
+  let surface = @docs.Surface::pdf(24.0, 24.0)
   debug_inspect(surface.get_type(), content="SurfaceTypePdf")
-  match run_cairo(() => surface.pdf_restrict_to_version_raw(99)) {
+  match @docs.run_cairo(() => surface.pdf_restrict_to_version_raw(99)) {
     Err(CairoError(InvalidStatus, _)) => ()
     _ => @test.fail("expected an unsupported PDF restriction error")
   }
@@ -113,19 +116,19 @@ test "backend docs: PDF metadata page labels and outlines" {
   surface.pdf_set_size(30.0, 30.0)
   surface.pdf_set_metadata(PdfMetadataTitle, "cairoon backend docs")
   surface.pdf_set_metadata(PdfMetadataCreateDate, "2026-01-02T03:04:05Z")
-  match run_cairo(() => surface.pdf_set_metadata_raw(7, "unknown")) {
+  match @docs.run_cairo(() => surface.pdf_set_metadata_raw(7, "unknown")) {
     Err(CairoError(InvalidStatus, _)) => ()
     _ => @test.fail("expected an unknown PDF metadata error")
   }
   surface.pdf_set_metadata_raw(4, "cairoon backend docs raw creator")
-  if CAIRO_VERSION >= 11706 {
+  if @docs.CAIRO_VERSION >= 11706 {
     surface.pdf_set_custom_metadata("cairoon-key", Some("cairoon-value"))
     surface.pdf_set_custom_metadata("cairoon-key", Some(""))
     surface.pdf_set_custom_metadata("cairoon-key", Some("replacement"))
     surface.pdf_set_custom_metadata("cairoon-key", None)
   } else {
     match
-      run_cairo(() => {
+      @docs.run_cairo(() => {
         surface.pdf_set_custom_metadata("cairoon-key", Some("cairoon-value"))
       }) {
       Err(CairoError(InvalidStatus, _)) => ()
@@ -137,21 +140,23 @@ test "backend docs: PDF metadata page labels and outlines" {
   surface.pdf_set_thumbnail_size(0, 2)
   surface.pdf_set_thumbnail_size(2, 2)
 
-  let flags = PDFOutlineFlagSet::none().add(PdfOutlineOpen).add(PdfOutlineBold)
-  let single_flag = PDFOutlineFlagSet::of(PdfOutlineItalic)
-  let raw_flags = PDFOutlineFlagSet::from_bits(0x03)
+  let flags = @docs.PDFOutlineFlagSet::none()
+    .add(PdfOutlineOpen)
+    .add(PdfOutlineBold)
+  let single_flag = @docs.PDFOutlineFlagSet::of(PdfOutlineItalic)
+  let raw_flags = @docs.PDFOutlineFlagSet::from_bits(0x03)
   inspect(flags.contains(PdfOutlineOpen), content="true")
   inspect(flags.contains(PdfOutlineItalic), content="false")
   inspect(single_flag.bits(), content="4")
   inspect(raw_flags.bits(), content="3")
 
   let outline_id = surface.pdf_add_outline_with_flags(
-    PDF_OUTLINE_ROOT,
+    @docs.PDF_OUTLINE_ROOT,
     "chapter",
     "page=1 pos=[1 1]",
     flags,
   )
-  inspect(outline_id > PDF_OUTLINE_ROOT, content="true")
+  inspect(outline_id > @docs.PDF_OUTLINE_ROOT, content="true")
   let raw_outline_id = surface.pdf_add_outline_raw(
     outline_id,
     "raw appendix",
@@ -191,12 +196,12 @@ out-of-range SVG restriction/unit integers are unsupported.
 ```mbt check
 ///|
 test "backend docs: PS level EPS DSC and SVG document units" {
-  let level : PSLevel = PsLevel3
-  inspect(PSLevel::supported().any(item => item == level), content="true")
+  let level : @docs.PSLevel = PsLevel3
+  inspect(@docs.PSLevel::supported().any(item => item == level), content="true")
   inspect(level.to_string().contains("PS"), content="true")
-  inspect(PSLevel::to_string_raw(0).contains("PS"), content="true")
+  inspect(@docs.PSLevel::to_string_raw(0).contains("PS"), content="true")
 
-  let ps = Surface::ps(24.0, 24.0)
+  let ps = @docs.Surface::ps(24.0, 24.0)
   debug_inspect(ps.get_type(), content="SurfaceTypePs")
   ps.ps_restrict_to_level_raw(99)
   debug_inspect(ps.status(), content="Success")
@@ -212,12 +217,15 @@ test "backend docs: PS level EPS DSC and SVG document units" {
   ps.ps_dsc_comment("%%IncludeFeature: *PageSize A4")
   backend_docs_paint_blue_and_finish(ps)
 
-  let version : SVGVersion = SvgVersion1_2
-  inspect(SVGVersion::supported().any(item => item == version), content="true")
+  let version : @docs.SVGVersion = SvgVersion1_2
+  inspect(
+    @docs.SVGVersion::supported().any(item => item == version),
+    content="true",
+  )
   inspect(version.to_string().contains("SVG"), content="true")
-  inspect(SVGVersion::to_string_raw(0).contains("SVG"), content="true")
+  inspect(@docs.SVGVersion::to_string_raw(0).contains("SVG"), content="true")
 
-  let svg = Surface::svg(24.0, 24.0)
+  let svg = @docs.Surface::svg(24.0, 24.0)
   debug_inspect(svg.get_type(), content="SurfaceTypeSvg")
   svg.svg_restrict_to_version(version)
   svg.svg_restrict_to_version_raw(1)
@@ -256,7 +264,7 @@ newer).
 ///|
 fn backend_docs_expect_pixel(
   bytes : Bytes,
-  expected : Array[Int],
+  expected : Array[Int32],
 ) -> Unit raise {
   inspect(bytes.length(), content="\{expected.length()}")
   for index in 0..<expected.length() {
@@ -266,9 +274,9 @@ fn backend_docs_expect_pixel(
 
 ///|
 test "backend docs: recording replay and tee fanout" {
-  let recording = Surface::recording_raw(
+  let recording = @docs.Surface::recording_raw(
     0x3000,
-    extents=Some(Rectangle::new(0.0, 0.0, 1.0, 1.0)),
+    extents=Some(@docs.Rectangle::new(0.0, 0.0, 1.0, 1.0)),
   )
   debug_inspect(recording.get_type(), content="SurfaceTypeRecording")
   inspect(recording.get_content_raw(), content="12288")
@@ -276,7 +284,7 @@ test "backend docs: recording replay and tee fanout" {
     Some(rect) => debug_inspect(rect.components(), content="(0, 0, 1, 1)")
     None => @test.fail("expected recording extents")
   }
-  let recorder = Context::new(recording)
+  let recorder = @docs.Context::new(recording)
   recorder.set_source_rgba(1.0, 0.0, 0.0, 1.0)
   recorder.rectangle(0.0, 0.0, 1.0, 1.0)
   recorder.fill()
@@ -285,18 +293,18 @@ test "backend docs: recording replay and tee fanout" {
     content="(0, 0, 1, 1)",
   )
 
-  let replay = Surface::image(Argb32, 1, 1)
-  let replay_ctx = Context::new(replay)
-  replay_ctx.set_source(Pattern::for_surface(recording))
+  let replay = @docs.Surface::image(Argb32, 1, 1)
+  let replay_ctx = @docs.Context::new(replay)
+  replay_ctx.set_source(@docs.Pattern::for_surface(recording))
   replay_ctx.paint()
   backend_docs_expect_pixel(replay.copy_data(), [0, 0, 255, 255])
 
-  let primary = Surface::image(Argb32, 1, 1)
-  let target = Surface::image(Argb32, 1, 1)
-  let tee = Surface::tee(primary)
+  let primary = @docs.Surface::image(Argb32, 1, 1)
+  let target = @docs.Surface::image(Argb32, 1, 1)
+  let tee = @docs.Surface::tee(primary)
   debug_inspect(tee.get_type(), content="SurfaceTypeTee")
   tee.tee_add(target)
-  let tee_ctx = Context::new(tee)
+  let tee_ctx = @docs.Context::new(tee)
   tee_ctx.set_source_rgba(0.0, 1.0, 0.0, 1.0)
   tee_ctx.paint()
   backend_docs_expect_pixel(primary.copy_data(), [0, 255, 0, 255])
@@ -313,7 +321,7 @@ test "backend docs: recording replay and tee fanout" {
   }
 
   tee.finish()
-  match run_cairo(() => tee.tee_index(0)) {
+  match @docs.run_cairo(() => tee.tee_index(0)) {
     Err(CairoError(SurfaceFinished, _)) => ()
     _ => @test.fail("expected finished tee error")
   }
@@ -331,7 +339,7 @@ Script devices are `Device` objects. They can be file-backed or stream-backed.
 ///|
 test "backend docs: script devices retain surfaces and write chunks" {
   let chunks : Array[Bytes] = []
-  let device = Device::script_stream(fn(chunk) {
+  let device = @docs.Device::script_stream(fn(chunk) {
     chunks.push(chunk)
     Success
   })
@@ -342,7 +350,7 @@ test "backend docs: script devices retain surfaces and write chunks" {
   device.script_set_mode(ScriptModeAscii)
   device.script_write_comment("cairoon backend docs")
 
-  let surface = Surface::script_raw(device, 0x3000, 4.0, 4.0)
+  let surface = @docs.Surface::script_raw(device, 0x3000, 4.0, 4.0)
   debug_inspect(surface.get_type(), content="SurfaceTypeScript")
   inspect(surface.get_content_raw(), content="12288")
   match surface.get_device() {
@@ -362,7 +370,7 @@ test "backend docs: script devices retain surfaces and write chunks" {
 ///|
 test "backend docs: script device scoped finish" {
   let chunks : Array[Bytes] = []
-  let device = Device::script_stream(fn(chunk) {
+  let device = @docs.Device::script_stream(fn(chunk) {
     chunks.push(chunk)
     Success
   })
@@ -371,7 +379,7 @@ test "backend docs: script device scoped finish" {
     device.get_type()
   })
   debug_inspect(type_, content="DeviceTypeScript")
-  match run_cairo(() => device.acquire()) {
+  match @docs.run_cairo(() => device.acquire()) {
     Err(CairoError(DeviceFinished, _)) => ()
     _ => @test.fail("expected DeviceFinished")
   }
@@ -385,10 +393,12 @@ test "backend docs: script device scoped finish" {
 
 ///|
 test "backend docs: script_for_target proxies drawing to target" {
-  let device = Device::script("/tmp/cairoon_backend_docs_script_target.cs")
-  let target = Surface::image(Argb32, 1, 1)
-  let surface = Surface::script_for_target(device, target)
-  let ctx = Context::new(surface)
+  let device = @docs.Device::script(
+    "/tmp/cairoon_backend_docs_script_target.cs",
+  )
+  let target = @docs.Surface::image(Argb32, 1, 1)
+  let surface = @docs.Surface::script_for_target(device, target)
+  let ctx = @docs.Context::new(surface)
   ctx.set_source_rgba(1.0, 0.0, 0.0, 1.0)
   ctx.paint()
   surface.finish()
@@ -405,20 +415,21 @@ strings to checked Cairo errors.
 ```mbt check
 ///|
 test "backend docs: backend-specific methods report checked errors" {
-  let image = Surface::image(Argb32, 1, 1)
+  let image = @docs.Surface::image(Argb32, 1, 1)
 
-  match run_cairo(() => image.pdf_set_metadata(PdfMetadataTitle, "nope")) {
+  match
+    @docs.run_cairo(() => image.pdf_set_metadata(PdfMetadataTitle, "nope")) {
     Err(CairoError(SurfaceTypeMismatch, _)) => ()
     _ => @test.fail("expected PDF SurfaceTypeMismatch")
   }
 
-  match run_cairo(() => image.ps_dsc_comment("%%Title: nope")) {
+  match @docs.run_cairo(() => image.ps_dsc_comment("%%Title: nope")) {
     Err(CairoError(SurfaceTypeMismatch, _)) => ()
     _ => @test.fail("expected PS SurfaceTypeMismatch")
   }
 
   match
-    run_cairo(() => {
+    @docs.run_cairo(() => {
       let _ = image.svg_get_document_unit()
       ()
     }) {
@@ -426,13 +437,13 @@ test "backend docs: backend-specific methods report checked errors" {
     _ => @test.fail("expected SVG SurfaceTypeMismatch")
   }
 
-  let tee = Surface::tee(image)
-  match run_cairo(() => tee.tee_index(-1)) {
+  let tee = @docs.Surface::tee(image)
+  match @docs.run_cairo(() => tee.tee_index(-1)) {
     Err(CairoInvalidArgument(InvalidIndex, _)) => ()
     _ => @test.fail("expected tee InvalidIndex")
   }
 
-  match run_cairo(() => Device::script("/tmp/cairoon\u{0}bad.cs")) {
+  match @docs.run_cairo(() => @docs.Device::script("/tmp/cairoon\u{0}bad.cs")) {
     Err(CairoInvalidArgument(InvalidString, _)) => ()
     _ => @test.fail("expected script path InvalidString")
   }

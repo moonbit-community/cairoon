@@ -1,18 +1,18 @@
 ///|
 pub fn raster_set_callbacks_raw(
   pattern : RawPattern,
-  acquire? : ((@surface_impl.RawSurface, Int, Int, Int, Int) -> @surface_impl.RawSurface)? = None,
-  release? : ((@surface_impl.RawSurface) -> Unit)? = None,
-) -> Int {
+  acquire~ : ((@surface_impl.RawSurface, Int32, Int32, Int32, Int32) -> @surface_impl.RawSurface)? = None,
+  release~ : ((@surface_impl.RawSurface) -> Unit)? = None,
+) -> Int32 {
   ensure_native()
   let call_acquire : FuncRef[
     (
       @surface_impl.RawSurface,
-      Int,
-      Int,
-      Int,
-      Int,
-      (@surface_impl.RawSurface, Int, Int, Int, Int) -> @surface_impl.RawSurface,
+      Int32,
+      Int32,
+      Int32,
+      Int32,
+      (@surface_impl.RawSurface, Int32, Int32, Int32, Int32) -> @surface_impl.RawSurface,
     ) -> @surface_impl.RawSurface,
   ] = fn(target, x, y, width, height, acquire) {
     acquire(target, x, y, width, height)
@@ -40,7 +40,7 @@ pub fn raster_set_callbacks_raw(
 }
 
 ///|
-pub fn raster_clear_callbacks_raw(pattern : RawPattern) -> Int {
+pub fn raster_clear_callbacks_raw(pattern : RawPattern) -> Int32 {
   ensure_native()
   raster_source_pattern_clear_acquire_ffi(pattern)
 }
@@ -48,9 +48,9 @@ pub fn raster_clear_callbacks_raw(pattern : RawPattern) -> Int {
 ///|
 pub fn raster_has_callbacks_raw(
   pattern : RawPattern,
-  has_acquire : Ref[Int],
-  has_release : Ref[Int],
-  status : Ref[Int],
+  has_acquire : Ref[Int32],
+  has_release : Ref[Int32],
+  status : Ref[Int32],
 ) -> Bool {
   ensure_native()
   raster_source_pattern_has_callbacks_ffi(
@@ -61,8 +61,8 @@ pub fn raster_has_callbacks_raw(
 ///|
 pub fn raster_get_acquire_raw(
   pattern : RawPattern,
-  status : Ref[Int],
-) -> (@surface_impl.RawSurface, Int, Int, Int, Int) -> @surface_impl.RawSurface {
+  status : Ref[Int32],
+) -> (@surface_impl.RawSurface, Int32, Int32, Int32, Int32) -> @surface_impl.RawSurface {
   ensure_native()
   raster_source_pattern_get_acquire_callback_ffi(pattern, status)
 }
@@ -70,7 +70,7 @@ pub fn raster_get_acquire_raw(
 ///|
 pub fn raster_get_release_raw(
   pattern : RawPattern,
-  status : Ref[Int],
+  status : Ref[Int32],
 ) -> (@surface_impl.RawSurface) -> Unit {
   ensure_native()
   raster_source_pattern_get_release_callback_ffi(pattern, status)

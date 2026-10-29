@@ -92,7 +92,7 @@ test "raster source ignored target wrapper is released after callback" {
 
 ///|
 fn make_raster_owner_color_source(
-  color : Int,
+  color : Int32,
 ) -> @cairoon.Surface raise @cairoon.CairoError {
   let surface = @cairoon.Surface::image(Argb32, 3, 3)
   let ctx = @cairoon.Context::new(surface)
@@ -106,7 +106,7 @@ fn make_raster_owner_color_source(
 }
 
 ///|
-fn expect_raster_owner_first_pixel(bytes : Bytes, color : Int) -> Unit raise {
+fn expect_raster_owner_first_pixel(bytes : Bytes, color : Int32) -> Unit raise {
   let expected = match color {
     0 => [0, 0, 255, 255]
     1 => [0, 255, 0, 255]

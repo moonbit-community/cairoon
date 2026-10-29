@@ -5,7 +5,7 @@ from __future__ import annotations
 import pathlib
 import re
 
-from .source import c_function_body, mbt_method_body
+from .source import check_errdefer_scope, c_function_body, mbt_method_body
 
 
 def check_mapped_image_cleanup_order(native_root: pathlib.Path) -> list[str]:
@@ -78,6 +78,10 @@ def check_mapped_image_scope_cleanup(package_root: pathlib.Path) -> list[str]:
     body = mbt_method_body(text, method)
     if body is None:
         return [f"{path}: cannot find complete body for '{method}'"]
+    if "errdefer" in body:
+        if check_errdefer_scope(body, "@surface_impl.mapped_unmap_raw", "unmap"):
+            return []
+        return [f"{path}: '{method}' must scope raw errdefer to f() and report checked unmap afterward"]
     parts = body.split("} noraise {", maxsplit=1)
     if len(parts) != 2:
         return [f"{path}: '{method}' must have catch and noraise paths"]

@@ -28,7 +28,7 @@ pub fn create_raw(
 }
 
 ///|
-pub fn status_raw(scaled_font : RawScaledFont) -> Int {
+pub fn status_raw(scaled_font : RawScaledFont) -> Int32 {
   ensure_native()
   scaled_font_status_ffi(scaled_font)
 }
@@ -48,7 +48,7 @@ pub fn hash_raw(scaled_font : RawScaledFont) -> UInt64 {
 ///|
 pub fn get_font_face_raw(
   scaled_font : RawScaledFont,
-  status : Ref[Int],
+  status : Ref[Int32],
 ) -> @font_face_impl.RawFontFace {
   ensure_native()
   scaled_font_get_font_face_ffi(scaled_font, status)
@@ -57,7 +57,7 @@ pub fn get_font_face_raw(
 ///|
 pub fn get_font_options_raw(
   scaled_font : RawScaledFont,
-  status : Ref[Int],
+  status : Ref[Int32],
 ) -> @font_options_impl.RawFontOptions {
   ensure_native()
   scaled_font_get_font_options_ffi(scaled_font, status)
@@ -72,7 +72,7 @@ pub fn get_font_matrix_raw(
   yy : Ref[Double],
   x0 : Ref[Double],
   y0 : Ref[Double],
-) -> Int {
+) -> Int32 {
   ensure_native()
   scaled_font_get_font_matrix_ffi(scaled_font, xx, yx, xy, yy, x0, y0)
 }
@@ -86,7 +86,7 @@ pub fn get_ctm_raw(
   yy : Ref[Double],
   x0 : Ref[Double],
   y0 : Ref[Double],
-) -> Int {
+) -> Int32 {
   ensure_native()
   scaled_font_get_ctm_ffi(scaled_font, xx, yx, xy, yy, x0, y0)
 }
@@ -100,7 +100,7 @@ pub fn get_scale_matrix_raw(
   yy : Ref[Double],
   x0 : Ref[Double],
   y0 : Ref[Double],
-) -> Int {
+) -> Int32 {
   ensure_native()
   scaled_font_get_scale_matrix_ffi(scaled_font, xx, yx, xy, yy, x0, y0)
 }
@@ -113,7 +113,7 @@ pub fn extents_raw(
   height : Ref[Double],
   max_x_advance : Ref[Double],
   max_y_advance : Ref[Double],
-) -> Int {
+) -> Int32 {
   ensure_native()
   scaled_font_extents_ffi(
     scaled_font, ascent, descent, height, max_x_advance, max_y_advance,
@@ -130,7 +130,7 @@ pub fn text_extents_raw(
   height : Ref[Double],
   x_advance : Ref[Double],
   y_advance : Ref[Double],
-) -> Int {
+) -> Int32 {
   ensure_native()
   scaled_font_text_extents_ffi(
     scaled_font, text, x_bearing, y_bearing, width, height, x_advance, y_advance,
@@ -149,7 +149,7 @@ pub fn glyph_extents_raw(
   height : Ref[Double],
   x_advance : Ref[Double],
   y_advance : Ref[Double],
-) -> Int {
+) -> Int32 {
   ensure_native()
   scaled_font_glyph_extents_ffi(
     scaled_font, indices, xs, ys, x_bearing, y_bearing, width, height, x_advance,

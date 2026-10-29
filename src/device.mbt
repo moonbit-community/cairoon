@@ -18,19 +18,19 @@ fn Device::to_raw(self : Device) -> @device_impl.RawDevice {
 }
 
 ///|
-fn device_status_from_raw(raw : Int) -> Status {
+fn device_status_from_raw(raw : Int32) -> Status {
   status_from_raw(raw) catch {
     _ => InvalidStatus
   }
 }
 
 ///|
-fn check_device_status_raw(raw : Int) -> Unit raise CairoError {
+fn check_device_status_raw(raw : Int32) -> Unit raise CairoError {
   check_status(status_from_raw(raw))
 }
 
 ///|
-fn device_type_from_raw(raw : Int) -> DeviceType raise CairoError {
+fn device_type_from_raw(raw : Int32) -> DeviceType raise CairoError {
   match raw {
     0 => DeviceTypeDrm
     1 => DeviceTypeGl
@@ -49,7 +49,7 @@ fn device_type_from_raw(raw : Int) -> DeviceType raise CairoError {
 }
 
 ///|
-fn script_mode_to_raw(mode : ScriptMode) -> Int {
+fn script_mode_to_raw(mode : ScriptMode) -> Int32 {
   match mode {
     ScriptModeAscii => 0
     ScriptModeBinary => 1
@@ -57,7 +57,7 @@ fn script_mode_to_raw(mode : ScriptMode) -> Int {
 }
 
 ///|
-fn script_mode_from_raw(raw : Int) -> ScriptMode raise CairoError {
+fn script_mode_from_raw(raw : Int32) -> ScriptMode raise CairoError {
   match raw {
     0 => ScriptModeAscii
     1 => ScriptModeBinary
@@ -193,17 +193,12 @@ pub fn[T] Device::with_finished(
   self : Device,
   f : () -> T raise CairoError,
 ) -> T raise CairoError {
-  try f() catch {
-    err => {
-      let _ = @device_impl.finish_raw(self.to_raw())
-      raise err
-    }
-  } noraise {
-    value => {
-      self.finish()
-      value
-    }
+  let value = {
+    errdefer ignore(@device_impl.finish_raw(self.to_raw()))
+    f()
   }
+  self.finish()
+  value
 }
 
 ///|
@@ -254,17 +249,12 @@ pub fn[T] Device::with_acquired(
   f : () -> T raise CairoError,
 ) -> T raise CairoError {
   self.acquire()
-  try f() catch {
-    err => {
-      let _ = @device_impl.release_raw(self.to_raw())
-      raise err
-    }
-  } noraise {
-    value => {
-      self.release()
-      value
-    }
+  let value = {
+    errdefer ignore(@device_impl.release_raw(self.to_raw()))
+    f()
   }
+  self.release()
+  value
 }
 
 ///|
@@ -370,7 +360,7 @@ pub fn Surface::script(
 /// `Surface::script()`.
 pub fn Surface::script_raw(
   device : Device,
-  content : Int,
+  content : Int32,
   width : Double,
   height : Double,
 ) -> Surface raise CairoError {
@@ -409,3 +399,9 @@ pub fn Surface::script_for_target(
   check_surface_status_raw(@surface_impl.status_raw(raw))
   Surface::from_raw(raw)
 }
+
+///|
+pub extend Device with Eq::{not_equal}
+
+///|
+pub extend Device with Hash::{hash_combine}

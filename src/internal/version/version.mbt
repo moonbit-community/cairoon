@@ -1,5 +1,5 @@
 ///|
-pub fn cairo_version() -> Int {
+pub fn cairo_version() -> Int32 {
   ignore(@native.native_anchor())
   cairo_version_ffi()
 }

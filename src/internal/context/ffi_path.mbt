@@ -4,7 +4,7 @@ extern "C" fn context_move_to_ffi(
   ctx : RawContext,
   x : Double,
   y : Double,
-) -> Int = "cairoon_context_move_to"
+) -> Int32 = "cairoon_context_move_to"
 
 ///|
 #borrow(ctx)
@@ -12,7 +12,7 @@ extern "C" fn context_rel_move_to_ffi(
   ctx : RawContext,
   dx : Double,
   dy : Double,
-) -> Int = "cairoon_context_rel_move_to"
+) -> Int32 = "cairoon_context_rel_move_to"
 
 ///|
 #borrow(ctx)
@@ -20,7 +20,7 @@ extern "C" fn context_line_to_ffi(
   ctx : RawContext,
   x : Double,
   y : Double,
-) -> Int = "cairoon_context_line_to"
+) -> Int32 = "cairoon_context_line_to"
 
 ///|
 #borrow(ctx)
@@ -28,7 +28,7 @@ extern "C" fn context_rel_line_to_ffi(
   ctx : RawContext,
   dx : Double,
   dy : Double,
-) -> Int = "cairoon_context_rel_line_to"
+) -> Int32 = "cairoon_context_rel_line_to"
 
 ///|
 #borrow(ctx)
@@ -40,7 +40,7 @@ extern "C" fn context_curve_to_ffi(
   y2 : Double,
   x3 : Double,
   y3 : Double,
-) -> Int = "cairoon_context_curve_to"
+) -> Int32 = "cairoon_context_curve_to"
 
 ///|
 #borrow(ctx)
@@ -52,7 +52,7 @@ extern "C" fn context_rel_curve_to_ffi(
   dy2 : Double,
   dx3 : Double,
   dy3 : Double,
-) -> Int = "cairoon_context_rel_curve_to"
+) -> Int32 = "cairoon_context_rel_curve_to"
 
 ///|
 #borrow(ctx)
@@ -62,7 +62,7 @@ extern "C" fn context_rectangle_ffi(
   y : Double,
   width : Double,
   height : Double,
-) -> Int = "cairoon_context_rectangle"
+) -> Int32 = "cairoon_context_rectangle"
 
 ///|
 #borrow(ctx)
@@ -73,7 +73,7 @@ extern "C" fn context_arc_ffi(
   radius : Double,
   angle1 : Double,
   angle2 : Double,
-) -> Int = "cairoon_context_arc"
+) -> Int32 = "cairoon_context_arc"
 
 ///|
 #borrow(ctx)
@@ -84,19 +84,19 @@ extern "C" fn context_arc_negative_ffi(
   radius : Double,
   angle1 : Double,
   angle2 : Double,
-) -> Int = "cairoon_context_arc_negative"
+) -> Int32 = "cairoon_context_arc_negative"
 
 ///|
 #borrow(ctx)
-extern "C" fn context_close_path_ffi(ctx : RawContext) -> Int = "cairoon_context_close_path"
+extern "C" fn context_close_path_ffi(ctx : RawContext) -> Int32 = "cairoon_context_close_path"
 
 ///|
 #borrow(ctx)
-extern "C" fn context_new_path_ffi(ctx : RawContext) -> Int = "cairoon_context_new_path"
+extern "C" fn context_new_path_ffi(ctx : RawContext) -> Int32 = "cairoon_context_new_path"
 
 ///|
 #borrow(ctx)
-extern "C" fn context_new_sub_path_ffi(ctx : RawContext) -> Int = "cairoon_context_new_sub_path"
+extern "C" fn context_new_sub_path_ffi(ctx : RawContext) -> Int32 = "cairoon_context_new_sub_path"
 
 ///|
 #borrow(ctx, x, y)
@@ -104,27 +104,27 @@ extern "C" fn context_get_current_point_ffi(
   ctx : RawContext,
   x : Ref[Double],
   y : Ref[Double],
-) -> Int = "cairoon_context_get_current_point"
+) -> Int32 = "cairoon_context_get_current_point"
 
 ///|
 #borrow(ctx, result)
 extern "C" fn context_has_current_point_ffi(
   ctx : RawContext,
-  result : Ref[Int],
-) -> Int = "cairoon_context_has_current_point"
+  result : Ref[Int32],
+) -> Int32 = "cairoon_context_has_current_point"
 
 ///|
 #borrow(ctx, status)
 extern "C" fn context_copy_path_ffi(
   ctx : RawContext,
-  status : Ref[Int],
+  status : Ref[Int32],
 ) -> @path_impl.RawPath = "cairoon_context_copy_path"
 
 ///|
 #borrow(ctx, status)
 extern "C" fn context_copy_path_flat_ffi(
   ctx : RawContext,
-  status : Ref[Int],
+  status : Ref[Int32],
 ) -> @path_impl.RawPath = "cairoon_context_copy_path_flat"
 
 ///|
@@ -132,4 +132,4 @@ extern "C" fn context_copy_path_flat_ffi(
 extern "C" fn context_append_path_ffi(
   ctx : RawContext,
   path : @path_impl.RawPath,
-) -> Int = "cairoon_context_append_path"
+) -> Int32 = "cairoon_context_append_path"

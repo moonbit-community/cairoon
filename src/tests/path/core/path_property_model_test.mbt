@@ -1,5 +1,5 @@
 ///|
-fn path_property_coordinate(seed : Int, step : Int, salt : Int) -> Double {
+fn path_property_coordinate(seed : Int32, step : Int32, salt : Int32) -> Double {
   ((seed * 31 + step * 17 + salt * 13) % 41 - 20).to_double() / 4.0
 }
 
@@ -139,7 +139,7 @@ fn path_property_canonicalize_replay(
 
 ///|
 fn path_property_build_model(
-  seed : Int,
+  seed : Int32,
 ) -> (
   @cairoon.Context,
   @cairoon.Path,

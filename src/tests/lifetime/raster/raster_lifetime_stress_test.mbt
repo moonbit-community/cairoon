@@ -36,8 +36,8 @@ fn raster_stress_expect_green(data : Bytes) -> Unit raise {
 
 ///|
 fn raster_stress_pattern_from_local_source(
-  acquire_calls : Ref[Int],
-  release_calls : Ref[Int],
+  acquire_calls : Ref[Int32],
+  release_calls : Ref[Int32],
 ) -> @cairoon.Pattern raise @cairoon.CairoError {
   let source = raster_stress_paint_source(0.0, 0.0, 1.0)
   let pattern = @cairoon.Pattern::raster_source(ContentColorAlpha, 1, 1)
@@ -68,7 +68,7 @@ fn raster_stress_render(
 }
 
 ///|
-fn raster_stress_one_iteration(index : Int) -> Unit raise {
+fn raster_stress_one_iteration(index : Int32) -> Unit raise {
   let acquire_calls = Ref(0)
   let release_calls = Ref(0)
   let pattern = raster_stress_pattern_from_local_source(

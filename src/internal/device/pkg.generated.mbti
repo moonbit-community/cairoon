@@ -7,39 +7,39 @@ import {
 }
 
 // Values
-pub fn acquire_raw(RawDevice) -> Int
+pub fn acquire_raw(RawDevice) -> Int32
 
 pub fn equal_raw(RawDevice, RawDevice) -> Bool
 
-pub fn finish_raw(RawDevice) -> Int
+pub fn finish_raw(RawDevice) -> Int32
 
-pub fn flush_raw(RawDevice) -> Int
+pub fn flush_raw(RawDevice) -> Int32
 
-pub fn get_type_raw(RawDevice, @ref.Ref[Int]) -> Int
+pub fn get_type_raw(RawDevice, @ref.Ref[Int32]) -> Int32
 
 pub fn hash_raw(RawDevice) -> UInt64
 
-pub fn release_raw(RawDevice) -> Int
+pub fn release_raw(RawDevice) -> Int32
 
-pub fn script_create_path_raw(Bytes, @ref.Ref[Int]) -> RawDevice
+pub fn script_create_path_raw(Bytes, @ref.Ref[Int32]) -> RawDevice
 
-pub fn script_create_stream_raw((Bytes) -> Int, @ref.Ref[Int]) -> RawDevice
+pub fn script_create_stream_raw((Bytes) -> Int32, @ref.Ref[Int32]) -> RawDevice
 
-pub fn script_from_recording_surface_raw(RawDevice, @surface.RawSurface) -> Int
+pub fn script_from_recording_surface_raw(RawDevice, @surface.RawSurface) -> Int32
 
-pub fn script_get_mode_raw(RawDevice, @ref.Ref[Int]) -> Int
+pub fn script_get_mode_raw(RawDevice, @ref.Ref[Int32]) -> Int32
 
-pub fn script_set_mode_raw(RawDevice, Int) -> Int
+pub fn script_set_mode_raw(RawDevice, Int32) -> Int32
 
-pub fn script_surface_create_for_target_raw(RawDevice, @surface.RawSurface, @ref.Ref[Int]) -> @surface.RawSurface
+pub fn script_surface_create_for_target_raw(RawDevice, @surface.RawSurface, @ref.Ref[Int32]) -> @surface.RawSurface
 
-pub fn script_surface_create_raw(RawDevice, Int, Double, Double, @ref.Ref[Int]) -> @surface.RawSurface
+pub fn script_surface_create_raw(RawDevice, Int32, Double, Double, @ref.Ref[Int32]) -> @surface.RawSurface
 
-pub fn script_write_comment_raw(RawDevice, Bytes) -> Int
+pub fn script_write_comment_raw(RawDevice, Bytes) -> Int32
 
-pub fn status_raw(RawDevice) -> Int
+pub fn status_raw(RawDevice) -> Int32
 
-pub fn surface_get_device_raw(@surface.RawSurface, @ref.Ref[Int], @ref.Ref[Int]) -> RawDevice
+pub fn surface_get_device_raw(@surface.RawSurface, @ref.Ref[Int32], @ref.Ref[Int32]) -> RawDevice
 
 // Errors
 

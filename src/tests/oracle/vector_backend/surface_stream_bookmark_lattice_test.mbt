@@ -1,6 +1,6 @@
 ///|
 fn make_stream_bookmark_lattice_file_surface(
-  kind : Int,
+  kind : Int32,
   path : String,
 ) -> @cairoon.Surface raise @cairoon.CairoError {
   let surface = match kind {
@@ -15,7 +15,7 @@ fn make_stream_bookmark_lattice_file_surface(
 
 ///|
 fn make_stream_bookmark_lattice_stream_surface(
-  kind : Int,
+  kind : Int32,
   chunks : Array[Bytes],
 ) -> @cairoon.Surface raise @cairoon.CairoError {
   let surface = match kind {
@@ -42,7 +42,7 @@ fn make_stream_bookmark_lattice_stream_surface(
 
 ///|
 fn configure_stream_bookmark_lattice_backend(
-  kind : Int,
+  kind : Int32,
   surface : @cairoon.Surface,
 ) -> Unit raise @cairoon.CairoError {
   match kind {
@@ -85,7 +85,7 @@ fn configure_stream_bookmark_lattice_backend(
 
 ///|
 fn resize_stream_bookmark_lattice_surface(
-  kind : Int,
+  kind : Int32,
   surface : @cairoon.Surface,
   width : Double,
   height : Double,
@@ -150,7 +150,7 @@ fn draw_stream_bookmark_lattice_appendix(
 
 ///|
 fn render_stream_bookmark_lattice_scene(
-  kind : Int,
+  kind : Int32,
   surface : @cairoon.Surface,
 ) -> Unit raise @cairoon.CairoError {
   let ctx = @cairoon.Context::new(surface)

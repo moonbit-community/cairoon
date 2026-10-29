@@ -24,8 +24,4 @@ import {
   "moonbitlang/core/math",
 }
 
-import {
-  "moonbitlang/core/test",
-} for "test"
-
 warnings = "+unnecessary_annotation"

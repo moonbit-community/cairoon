@@ -18,14 +18,14 @@ fn Pattern::to_raw(self : Pattern) -> @pattern_impl.RawPattern {
 }
 
 ///|
-fn pattern_status_from_raw(raw : Int) -> Status {
+fn pattern_status_from_raw(raw : Int32) -> Status {
   status_from_raw(raw) catch {
     _ => InvalidStatus
   }
 }
 
 ///|
-fn check_pattern_status_raw(raw : Int) -> Unit raise CairoError {
+fn check_pattern_status_raw(raw : Int32) -> Unit raise CairoError {
   check_status(status_from_raw(raw))
 }
 
@@ -129,7 +129,7 @@ pub impl Hash for Pattern with fn hash_combine(self, hasher) {
 }
 
 ///|
-fn extend_from_raw(raw : Int) -> Extend raise CairoError {
+fn extend_from_raw(raw : Int32) -> Extend raise CairoError {
   match raw {
     0 => ExtendNone
     1 => Repeat
@@ -141,7 +141,7 @@ fn extend_from_raw(raw : Int) -> Extend raise CairoError {
 }
 
 ///|
-fn extend_to_raw(extend_mode : Extend) -> Int {
+fn extend_to_raw(extend_mode : Extend) -> Int32 {
   match extend_mode {
     ExtendNone => 0
     Repeat => 1
@@ -151,7 +151,7 @@ fn extend_to_raw(extend_mode : Extend) -> Int {
 }
 
 ///|
-fn filter_from_raw(raw : Int) -> Filter raise CairoError {
+fn filter_from_raw(raw : Int32) -> Filter raise CairoError {
   match raw {
     0 => Fast
     1 => Good
@@ -165,7 +165,7 @@ fn filter_from_raw(raw : Int) -> Filter raise CairoError {
 }
 
 ///|
-fn filter_to_raw(filter : Filter) -> Int {
+fn filter_to_raw(filter : Filter) -> Int32 {
   match filter {
     Fast => 0
     Good => 1
@@ -177,7 +177,7 @@ fn filter_to_raw(filter : Filter) -> Int {
 }
 
 ///|
-fn dither_from_raw(raw : Int) -> Dither raise CairoError {
+fn dither_from_raw(raw : Int32) -> Dither raise CairoError {
   match raw {
     0 => DitherNone
     1 => DitherDefault
@@ -190,7 +190,7 @@ fn dither_from_raw(raw : Int) -> Dither raise CairoError {
 }
 
 ///|
-fn dither_to_raw(dither : Dither) -> Int {
+fn dither_to_raw(dither : Dither) -> Int32 {
   match dither {
     DitherNone => 0
     DitherDefault => 1
@@ -229,7 +229,7 @@ pub fn Pattern::set_extend(
 ///
 /// Known values are `0` through `3`; an arbitrary value previously supplied to
 /// `set_extend_raw()` is returned unchanged. Raises an existing pattern error.
-pub fn Pattern::get_extend_raw(self : Pattern) -> Int raise CairoError {
+pub fn Pattern::get_extend_raw(self : Pattern) -> Int32 raise CairoError {
   check_pattern_status_raw(@pattern_impl.status_raw(self.to_raw()))
   @pattern_impl.get_extend_raw(self.to_raw())
 }
@@ -242,7 +242,7 @@ pub fn Pattern::get_extend_raw(self : Pattern) -> Int raise CairoError {
 /// Raises the checked sticky pattern status.
 pub fn Pattern::set_extend_raw(
   self : Pattern,
-  extend_mode : Int,
+  extend_mode : Int32,
 ) -> Unit raise CairoError {
   check_pattern_status_raw(
     @pattern_impl.set_extend_raw(self.to_raw(), extend_mode),
@@ -277,7 +277,7 @@ pub fn Pattern::set_filter(
 ///
 /// Known values are `0` through `5`; arbitrary values set through the raw API
 /// are preserved. Raises an existing sticky pattern error.
-pub fn Pattern::get_filter_raw(self : Pattern) -> Int raise CairoError {
+pub fn Pattern::get_filter_raw(self : Pattern) -> Int32 raise CairoError {
   check_pattern_status_raw(@pattern_impl.status_raw(self.to_raw()))
   @pattern_impl.get_filter_raw(self.to_raw())
 }
@@ -289,7 +289,7 @@ pub fn Pattern::get_filter_raw(self : Pattern) -> Int raise CairoError {
 /// `InvalidStatus` if Cairo returns a value outside the `Filter` enum.
 pub fn Pattern::set_filter_raw(
   self : Pattern,
-  filter : Int,
+  filter : Int32,
 ) -> Unit raise CairoError {
   check_pattern_status_raw(@pattern_impl.set_filter_raw(self.to_raw(), filter))
 }
@@ -323,7 +323,7 @@ pub fn Pattern::set_dither(
 ///
 /// Requires Cairo 1.18 or newer and otherwise raises `InvalidStatus`. Values
 /// outside the typed enum are returned unchanged.
-pub fn Pattern::get_dither_raw(self : Pattern) -> Int raise CairoError {
+pub fn Pattern::get_dither_raw(self : Pattern) -> Int32 raise CairoError {
   let status = Ref(0)
   let dither = @pattern_impl.get_dither_raw(self.to_raw(), status)
   check_pattern_status_raw(status.val)
@@ -337,7 +337,7 @@ pub fn Pattern::get_dither_raw(self : Pattern) -> Int raise CairoError {
 /// runtimes raise `InvalidStatus`, and the typed getter rejects unknown values.
 pub fn Pattern::set_dither_raw(
   self : Pattern,
-  dither : Int,
+  dither : Int32,
 ) -> Unit raise CairoError {
   check_pattern_status_raw(@pattern_impl.set_dither_raw(self.to_raw(), dither))
 }
@@ -402,3 +402,9 @@ pub fn Pattern::get_rgba(
   )
   (red.val, green.val, blue.val, alpha.val)
 }
+
+///|
+pub extend Pattern with Eq::{not_equal}
+
+///|
+pub extend Pattern with Hash::{hash_combine}

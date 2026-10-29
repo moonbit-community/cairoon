@@ -19,22 +19,22 @@ families. Dither state requires Cairo 1.18; older supported Cairo versions raise
 ```mbt check
 ///|
 test "pattern docs: solid rgba and shared pattern state" {
-  let pattern = Pattern::solid_rgba(0.125, 0.25, 0.5, 0.75)
+  let pattern = @docs.Pattern::solid_rgba(0.125, 0.25, 0.5, 0.75)
   debug_inspect(pattern.get_rgba(), content="(0.125, 0.25, 0.5, 0.75)")
 
   pattern.set_extend(Repeat)
   pattern.set_filter(Nearest)
-  if CAIRO_VERSION >= 11800 {
+  if @docs.CAIRO_VERSION >= 11800 {
     pattern.set_dither(DitherBest)
   }
-  pattern.set_matrix(Matrix::new(xx=0.5, yy=0.25, x0=3.0, y0=5.0))
+  pattern.set_matrix(@docs.Matrix::new(xx=0.5, yy=0.25, x0=3.0, y0=5.0))
 
   debug_inspect(pattern.get_extend(), content="Repeat")
   debug_inspect(pattern.get_filter(), content="Nearest")
-  if CAIRO_VERSION >= 11800 {
+  if @docs.CAIRO_VERSION >= 11800 {
     debug_inspect(pattern.get_dither(), content="DitherBest")
   } else {
-    match run_cairo(() => pattern.set_dither(DitherBest)) {
+    match @docs.run_cairo(() => pattern.set_dither(DitherBest)) {
       Err(CairoError(InvalidStatus, _)) => ()
       _ => @test.fail("expected dither API to require Cairo 1.18")
     }
@@ -54,11 +54,11 @@ instead of manufacturing an enum constructor.
 ```mbt check
 ///|
 test "pattern docs: raw enum compatibility is explicit" {
-  let pattern = Pattern::solid_rgb(1.0, 0.0, 0.0)
+  let pattern = @docs.Pattern::solid_rgb(1.0, 0.0, 0.0)
 
   pattern.set_extend_raw(42)
   inspect(pattern.get_extend_raw(), content="42")
-  match run_cairo(() => pattern.get_extend()) {
+  match @docs.run_cairo(() => pattern.get_extend()) {
     Err(CairoInvalidArgument(InvalidStatus, _)) => ()
     _ => @test.fail("expected unknown raw extend to stay outside typed API")
   }
@@ -67,22 +67,22 @@ test "pattern docs: raw enum compatibility is explicit" {
   debug_inspect(pattern.get_filter(), content="Nearest")
   pattern.set_filter_raw(42)
   inspect(pattern.get_filter_raw(), content="42")
-  match run_cairo(() => pattern.get_filter()) {
+  match @docs.run_cairo(() => pattern.get_filter()) {
     Err(CairoInvalidArgument(InvalidStatus, _)) => ()
     _ => @test.fail("expected unknown raw filter to stay outside typed API")
   }
 
-  if CAIRO_VERSION >= 11800 {
+  if @docs.CAIRO_VERSION >= 11800 {
     pattern.set_dither_raw(4)
     debug_inspect(pattern.get_dither(), content="DitherBest")
     pattern.set_dither_raw(42)
     inspect(pattern.get_dither_raw(), content="42")
-    match run_cairo(() => pattern.get_dither()) {
+    match @docs.run_cairo(() => pattern.get_dither()) {
       Err(CairoInvalidArgument(InvalidStatus, _)) => ()
       _ => @test.fail("expected unknown raw dither to stay outside typed API")
     }
   } else {
-    match run_cairo(() => pattern.set_dither_raw(4)) {
+    match @docs.run_cairo(() => pattern.set_dither_raw(4)) {
       Err(CairoError(InvalidStatus, _)) => ()
       _ => @test.fail("expected raw dither API to require Cairo 1.18")
     }
@@ -99,18 +99,18 @@ wrapper for the same Cairo source.
 ```mbt check
 ///|
 test "pattern docs: surface pattern paints and exposes source surface" {
-  let source = Surface::image(Argb32, 1, 1)
-  let source_ctx = Context::new(source)
+  let source = @docs.Surface::image(Argb32, 1, 1)
+  let source_ctx = @docs.Context::new(source)
   source_ctx.set_source_rgba(1.0, 0.0, 0.0, 1.0)
   source_ctx.paint()
 
-  let pattern = Pattern::for_surface(source)
+  let pattern = @docs.Pattern::for_surface(source)
   let returned = pattern.get_surface()
   inspect(returned.get_width(), content="1")
   inspect(returned.get_height(), content="1")
 
-  let target = Surface::image(Argb32, 1, 1)
-  let ctx = Context::new(target)
+  let target = @docs.Surface::image(Argb32, 1, 1)
+  let ctx = @docs.Context::new(target)
   ctx.set_source(pattern)
   ctx.paint()
 
@@ -130,7 +130,7 @@ Linear and radial gradients store color stops in Cairo order:
 ```mbt check
 ///|
 test "pattern docs: gradients expose geometry and color stops" {
-  let linear = Pattern::linear(1.0, 2.0, 4.0, 5.0)
+  let linear = @docs.Pattern::linear(1.0, 2.0, 4.0, 5.0)
   debug_inspect(linear.get_linear_points(), content="(1, 2, 4, 5)")
   linear.add_color_stop_rgb(0.125, 0.25, 0.5, 0.75)
   linear.add_color_stop_rgba(1.0, 0.75, 0.5, 0.25, 0.125)
@@ -141,7 +141,7 @@ test "pattern docs: gradients expose geometry and color stops" {
     content="[(0.125, 0.25, 0.5, 0.75, 1), (1, 0.75, 0.5, 0.25, 0.125)]",
   )
 
-  let radial = Pattern::radial(1.0, 2.0, 3.0, 4.0, 5.0, 6.0)
+  let radial = @docs.Pattern::radial(1.0, 2.0, 3.0, 4.0, 5.0, 6.0)
   debug_inspect(radial.get_radial_circles(), content="(1, 2, 3, 4, 5, 6)")
 }
 ```
@@ -154,7 +154,7 @@ closed, callers can inspect its path and corner/control values.
 ```mbt check
 ///|
 test "pattern docs: mesh patch exposes path and corner colors" {
-  let pattern = Pattern::mesh()
+  let pattern = @docs.Pattern::mesh()
   inspect(pattern.mesh_get_patch_count(), content="0")
 
   pattern.mesh_begin_patch()
@@ -189,8 +189,8 @@ pycairo's C-int `Content` constructor argument.
 ```mbt check
 ///|
 test "pattern docs: raster source callback paints and releases" {
-  let source = Surface::image(Argb32, 1, 1)
-  let source_ctx = Context::new(source)
+  let source = @docs.Surface::image(Argb32, 1, 1)
+  let source_ctx = @docs.Context::new(source)
   source_ctx.set_source_rgba(0.0, 0.0, 1.0, 1.0)
   source_ctx.paint()
 
@@ -199,8 +199,8 @@ test "pattern docs: raster source callback paints and releases" {
   let extent_width = Ref(0)
   let target_width = Ref(0)
   let released_height = Ref(0)
-  let pattern = Pattern::raster_source(ContentColorAlpha, 1, 1)
-  let raw_pattern = Pattern::raster_source_raw(0x3000, 1, 1)
+  let pattern = @docs.Pattern::raster_source(ContentColorAlpha, 1, 1)
+  let raw_pattern = @docs.Pattern::raster_source_raw(0x3000, 1, 1)
   debug_inspect(raw_pattern.status(), content="Success")
   pattern.raster_set_acquire(
     fn(target, extents) {
@@ -215,8 +215,8 @@ test "pattern docs: raster source callback paints and releases" {
     }),
   )
 
-  let target = Surface::image(Argb32, 1, 1)
-  let ctx = Context::new(target)
+  let target = @docs.Surface::image(Argb32, 1, 1)
+  let ctx = @docs.Context::new(target)
   ctx.set_source(pattern)
   ctx.paint()
 
@@ -242,21 +242,21 @@ suberrors.
 ```mbt check
 ///|
 test "pattern docs: subtype and index errors are checked" {
-  let solid = Pattern::solid_rgb(0.0, 0.0, 0.0)
-  match run_cairo(() => solid.get_color_stop_count()) {
+  let solid = @docs.Pattern::solid_rgb(0.0, 0.0, 0.0)
+  match @docs.run_cairo(() => solid.get_color_stop_count()) {
     Err(CairoError(PatternTypeMismatch, _)) => ()
     _ => @test.fail("expected PatternTypeMismatch")
   }
 
-  let linear = Pattern::linear(0.0, 0.0, 1.0, 1.0)
-  match run_cairo(() => linear.get_color_stop_rgba(0)) {
+  let linear = @docs.Pattern::linear(0.0, 0.0, 1.0, 1.0)
+  match @docs.run_cairo(() => linear.get_color_stop_rgba(0)) {
     Err(CairoInvalidArgument(InvalidIndex, _)) => ()
     _ => @test.fail("expected InvalidIndex")
   }
 
-  let mesh = Pattern::mesh()
+  let mesh = @docs.Pattern::mesh()
   mesh.mesh_begin_patch()
-  match run_cairo(() => mesh.mesh_begin_patch()) {
+  match @docs.run_cairo(() => mesh.mesh_begin_patch()) {
     Err(CairoError(InvalidMeshConstruction, _)) => ()
     _ => @test.fail("expected InvalidMeshConstruction")
   }

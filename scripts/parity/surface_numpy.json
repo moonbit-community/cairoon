@@ -18,7 +18,7 @@
         "src/tests/image/buffer/image_surface_data_test.mbt::pycairo image surface create_for_data array fixture"
       ],
       "static_api": [
-        "pub fn Surface::image_for_data(FixedArray[Byte], Format, Int, Int, stride? : Int) -> Self raise CairoError",
+        "pub fn Surface::image_for_data(FixedArray[Byte], Format, Int32, Int32, stride? : Int32) -> Self raise CairoError",
         "pub fn Surface::copy_data(Self) -> Bytes raise CairoError"
       ],
       "decision": "| Python buffer protocol / NumPy / pygame adapters | Decision |",
@@ -32,8 +32,8 @@
       "static_api": [
         "pub fn Surface::get_data(Self) -> ImageData raise CairoError",
         "pub fn ImageData::copy(Self) -> Bytes raise CairoError",
-        "pub fn ImageData::get(Self, Int) -> Byte raise CairoError",
-        "pub fn ImageData::set(Self, Int, Byte) -> Unit raise CairoError"
+        "pub fn ImageData::get(Self, Int32) -> Byte raise CairoError",
+        "pub fn ImageData::set(Self, Int32, Byte) -> Unit raise CairoError"
       ],
       "decision": "| Python buffer protocol / NumPy / pygame adapters | Decision |",
       "adaptation": "ImageData is a retained, bounds-checked mutable pixel view rather than an unscoped Python buffer export. Runtime tests prove live writes, Cairo repaint visibility, and native ARGB32 byte order."

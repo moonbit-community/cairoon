@@ -25,9 +25,9 @@
         "pub fn Context::show_glyphs(Self, ArrayView[@glyph.Glyph]) -> Unit raise CairoError"
       ],
       "static_absent": [
-        "pub fn Context::glyph_extents(Self, ArrayView[@glyph.Glyph], Int)",
-        "pub fn Context::glyph_path(Self, ArrayView[@glyph.Glyph], Int)",
-        "pub fn Context::show_glyphs(Self, ArrayView[@glyph.Glyph], Int)"
+        "pub fn Context::glyph_extents(Self, ArrayView[@glyph.Glyph], Int32)",
+        "pub fn Context::glyph_path(Self, ArrayView[@glyph.Glyph], Int32)",
+        "pub fn Context::show_glyphs(Self, ArrayView[@glyph.Glyph], Int32)"
       ],
       "adaptation": "ArrayView[Glyph] statically rejects tuple/object elements. Pycairo's deprecated num_glyphs compatibility parameter is deliberately absent because MoonBit arrays carry their length."
     },

@@ -57,3 +57,20 @@ def c_statement_is_unconditional(body: str, match: re.Match[str]) -> bool:
         before.rfind("}"),
     )
     return before[boundary + 1 :].strip() == ""
+
+
+def check_errdefer_scope(body: str, raw: str, checked: str, acquire: bool = False) -> bool:
+    """Require cleanup around exactly f(), with checked cleanup outside its scope.
+
+    Keeping checked cleanup outside errdefer prevents a cleanup failure from
+    triggering cleanup twice. Raw cleanup must ignore status to preserve f's error.
+    """
+    prefix = r"self\.acquire\s*\(\s*\)\s*" if acquire else ""
+    pattern = (
+        r"\s*" + prefix + r"let\s+value\s*=\s*\{\s*"
+        r"errdefer\s+ignore\s*\(\s*" + re.escape(raw) +
+        r"\s*\(\s*self\.to_raw\s*\(\s*\)\s*\)\s*\)\s*"
+        r"f\s*\(\s*\)\s*\}\s*self\." + re.escape(checked) +
+        r"\s*\(\s*\)\s*value\s*"
+    )
+    return re.fullmatch(pattern, body) is not None

@@ -1,7 +1,7 @@
 ///|
 pub fn get_font_options_raw(
   surface : RawSurface,
-  status : Ref[Int],
+  status : Ref[Int32],
 ) -> @font_options_impl.RawFontOptions {
   ensure_native()
   surface_get_font_options_ffi(surface, status)

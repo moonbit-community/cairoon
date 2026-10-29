@@ -7,19 +7,19 @@ import {
 }
 
 // Values
-pub const CAIRO_VERSION : Int = 11804
+pub const CAIRO_VERSION : Int32 = 11806
 
-pub const CAIRO_VERSION_MAJOR : Int = 1
+pub const CAIRO_VERSION_MAJOR : Int32 = 1
 
-pub const CAIRO_VERSION_MICRO : Int = 4
+pub const CAIRO_VERSION_MICRO : Int32 = 6
 
-pub const CAIRO_VERSION_MINOR : Int = 18
+pub const CAIRO_VERSION_MINOR : Int32 = 18
 
-pub const CAIRO_VERSION_STRING : String = "1.18.4"
+pub const CAIRO_VERSION_STRING : String = "1.18.6"
 
-pub const COLOR_PALETTE_DEFAULT : UInt = 0
+pub const COLOR_PALETTE_DEFAULT : UInt32 = 0
 
-pub const FORMAT_INVALID : Int = -1
+pub const FORMAT_INVALID : Int32 = -1
 
 pub const HAS_ATSUI_FONT : Bool = false
 
@@ -83,7 +83,7 @@ pub const MIME_TYPE_UNIQUE_ID : String = "application/x-cairo.uuid"
 
 pub const MIME_TYPE_URI : String = "text/x-uri"
 
-pub const PDF_OUTLINE_ROOT : Int = 0
+pub const PDF_OUTLINE_ROOT : Int32 = 0
 
 pub const TAG_CONTENT : String = "cairo.content"
 
@@ -93,7 +93,7 @@ pub const TAG_DEST : String = "cairo.dest"
 
 pub const TAG_LINK : String = "Link"
 
-pub fn cairo_version() -> Int
+pub fn cairo_version() -> Int32
 
 pub fn cairo_version_string() -> String
 
@@ -108,6 +108,7 @@ pub suberror CairoError {
   CairoIOError(Status, String)
   CairoInvalidArgument(Status, String)
 } derive(@debug.Debug)
+pub fn CairoError::to_repr(Self) -> @debug.Repr
 
 // Types and methods
 pub(all) enum Antialias {
@@ -119,18 +120,27 @@ pub(all) enum Antialias {
   AntialiasGood
   AntialiasBest
 } derive(Eq, @debug.Debug)
+pub fn Antialias::equal(Self, Self) -> Bool
+pub fn Antialias::not_equal(Self, Self) -> Bool
+pub fn Antialias::to_repr(Self) -> @debug.Repr
 
 pub(all) enum ColorMode {
   ColorModeDefault
   ColorModeNoColor
   ColorModeColor
 } derive(Eq, @debug.Debug)
+pub fn ColorMode::equal(Self, Self) -> Bool
+pub fn ColorMode::not_equal(Self, Self) -> Bool
+pub fn ColorMode::to_repr(Self) -> @debug.Repr
 
 pub(all) enum Content {
   ContentColor
   ContentAlpha
   ContentColorAlpha
 } derive(Eq, @debug.Debug)
+pub fn Content::equal(Self, Self) -> Bool
+pub fn Content::not_equal(Self, Self) -> Bool
+pub fn Content::to_repr(Self) -> @debug.Repr
 
 type Context
 pub fn Context::append_path(Self, Path) -> Unit raise CairoError
@@ -153,26 +163,26 @@ pub fn Context::fill_extents(Self) -> (Double, Double, Double, Double) raise Cai
 pub fn Context::fill_preserve(Self) -> Unit raise CairoError
 pub fn Context::font_extents(Self) -> FontExtents raise CairoError
 pub fn Context::get_antialias(Self) -> Antialias raise CairoError
-pub fn Context::get_antialias_raw(Self) -> Int raise CairoError
+pub fn Context::get_antialias_raw(Self) -> Int32 raise CairoError
 pub fn Context::get_current_point(Self) -> (Double, Double) raise CairoError
 pub fn Context::get_dash(Self) -> (Array[Double], Double) raise CairoError
-pub fn Context::get_dash_count(Self) -> Int raise CairoError
+pub fn Context::get_dash_count(Self) -> Int32 raise CairoError
 pub fn Context::get_fill_rule(Self) -> FillRule raise CairoError
-pub fn Context::get_fill_rule_raw(Self) -> Int raise CairoError
+pub fn Context::get_fill_rule_raw(Self) -> Int32 raise CairoError
 pub fn Context::get_font_face(Self) -> FontFace raise CairoError
 pub fn Context::get_font_matrix(Self) -> Matrix raise CairoError
 pub fn Context::get_font_options(Self) -> FontOptions raise CairoError
 pub fn Context::get_group_target(Self) -> Surface raise CairoError
 pub fn Context::get_hairline(Self) -> Bool raise CairoError
 pub fn Context::get_line_cap(Self) -> LineCap raise CairoError
-pub fn Context::get_line_cap_raw(Self) -> Int raise CairoError
+pub fn Context::get_line_cap_raw(Self) -> Int32 raise CairoError
 pub fn Context::get_line_join(Self) -> LineJoin raise CairoError
-pub fn Context::get_line_join_raw(Self) -> Int raise CairoError
+pub fn Context::get_line_join_raw(Self) -> Int32 raise CairoError
 pub fn Context::get_line_width(Self) -> Double raise CairoError
 pub fn Context::get_matrix(Self) -> Matrix raise CairoError
 pub fn Context::get_miter_limit(Self) -> Double raise CairoError
 pub fn Context::get_operator(Self) -> Operator raise CairoError
-pub fn Context::get_operator_raw(Self) -> Int raise CairoError
+pub fn Context::get_operator_raw(Self) -> Int32 raise CairoError
 pub fn Context::get_scaled_font(Self) -> ScaledFont raise CairoError
 pub fn Context::get_source(Self) -> Pattern raise CairoError
 pub fn Context::get_target(Self) -> Surface raise CairoError
@@ -181,6 +191,7 @@ pub fn Context::glyph_extents(Self, ArrayView[@glyph.Glyph]) -> TextExtents rais
 pub fn Context::glyph_path(Self, ArrayView[@glyph.Glyph]) -> Unit raise CairoError
 pub fn Context::has_current_point(Self) -> Bool raise CairoError
 pub fn Context::hash(Self) -> UInt64
+pub fn Context::hash_combine(Self, Hasher) -> Unit
 pub fn Context::identity_matrix(Self) -> Unit raise CairoError
 pub fn Context::in_clip(Self, Double, Double) -> Bool raise CairoError
 pub fn Context::in_fill(Self, Double, Double) -> Bool raise CairoError
@@ -193,6 +204,7 @@ pub fn Context::new(Surface) -> Self raise CairoError
 pub fn Context::new_for_mapped_image(MappedImageSurface) -> Self raise CairoError
 pub fn Context::new_path(Self) -> Unit raise CairoError
 pub fn Context::new_sub_path(Self) -> Unit raise CairoError
+pub fn Context::not_equal(Self, Self) -> Bool
 pub fn Context::paint(Self) -> Unit raise CairoError
 pub fn Context::paint_with_alpha(Self, Double) -> Unit raise CairoError
 pub fn Context::path_extents(Self) -> (Double, Double, Double, Double) raise CairoError
@@ -200,7 +212,7 @@ pub fn Context::pop_group(Self) -> Pattern raise CairoError
 pub fn Context::pop_group_to_source(Self) -> Unit raise CairoError
 pub fn Context::push_group(Self) -> Unit raise CairoError
 pub fn Context::push_group_with_content(Self, Content) -> Unit raise CairoError
-pub fn Context::push_group_with_content_raw(Self, Int) -> Unit raise CairoError
+pub fn Context::push_group_with_content_raw(Self, Int32) -> Unit raise CairoError
 pub fn Context::rectangle(Self, Double, Double, Double, Double) -> Unit raise CairoError
 pub fn Context::rel_curve_to(Self, Double, Double, Double, Double, Double, Double) -> Unit raise CairoError
 pub fn Context::rel_line_to(Self, Double, Double) -> Unit raise CairoError
@@ -211,26 +223,26 @@ pub fn Context::rotate(Self, Double) -> Unit raise CairoError
 pub fn Context::save(Self) -> Unit raise CairoError
 pub fn Context::scale(Self, Double, Double) -> Unit raise CairoError
 pub fn Context::select_font_face(Self, String, slant? : FontSlant, weight? : FontWeight) -> Unit raise CairoError
-pub fn Context::select_font_face_raw(Self, String, slant? : Int, weight? : Int) -> Unit raise CairoError
+pub fn Context::select_font_face_raw(Self, String, slant? : Int32, weight? : Int32) -> Unit raise CairoError
 pub fn Context::set_antialias(Self, Antialias) -> Unit raise CairoError
-pub fn Context::set_antialias_raw(Self, Int) -> Unit raise CairoError
+pub fn Context::set_antialias_raw(Self, Int32) -> Unit raise CairoError
 pub fn Context::set_dash(Self, ArrayView[Double], offset? : Double) -> Unit raise CairoError
 pub fn Context::set_fill_rule(Self, FillRule) -> Unit raise CairoError
-pub fn Context::set_fill_rule_raw(Self, Int) -> Unit raise CairoError
+pub fn Context::set_fill_rule_raw(Self, Int32) -> Unit raise CairoError
 pub fn Context::set_font_face(Self, FontFace?) -> Unit raise CairoError
 pub fn Context::set_font_matrix(Self, Matrix) -> Unit raise CairoError
 pub fn Context::set_font_options(Self, FontOptions) -> Unit raise CairoError
 pub fn Context::set_font_size(Self, Double) -> Unit raise CairoError
 pub fn Context::set_hairline(Self, Bool) -> Unit raise CairoError
 pub fn Context::set_line_cap(Self, LineCap) -> Unit raise CairoError
-pub fn Context::set_line_cap_raw(Self, Int) -> Unit raise CairoError
+pub fn Context::set_line_cap_raw(Self, Int32) -> Unit raise CairoError
 pub fn Context::set_line_join(Self, LineJoin) -> Unit raise CairoError
-pub fn Context::set_line_join_raw(Self, Int) -> Unit raise CairoError
+pub fn Context::set_line_join_raw(Self, Int32) -> Unit raise CairoError
 pub fn Context::set_line_width(Self, Double) -> Unit raise CairoError
 pub fn Context::set_matrix(Self, Matrix) -> Unit raise CairoError
 pub fn Context::set_miter_limit(Self, Double) -> Unit raise CairoError
 pub fn Context::set_operator(Self, Operator) -> Unit raise CairoError
-pub fn Context::set_operator_raw(Self, Int) -> Unit raise CairoError
+pub fn Context::set_operator_raw(Self, Int32) -> Unit raise CairoError
 pub fn Context::set_scaled_font(Self, ScaledFont) -> Unit raise CairoError
 pub fn Context::set_source(Self, Pattern) -> Unit raise CairoError
 pub fn Context::set_source_rgb(Self, Double, Double, Double) -> Unit raise CairoError
@@ -263,6 +275,8 @@ pub fn Device::finish(Self) -> Unit raise CairoError
 pub fn Device::flush(Self) -> Unit raise CairoError
 pub fn Device::get_type(Self) -> DeviceType raise CairoError
 pub fn Device::hash(Self) -> UInt64
+pub fn Device::hash_combine(Self, Hasher) -> Unit
+pub fn Device::not_equal(Self, Self) -> Bool
 pub fn Device::release(Self) -> Unit raise CairoError
 pub fn Device::script(String) -> Self raise CairoError
 pub fn Device::script_from_recording_surface(Self, Surface) -> Unit raise CairoError
@@ -286,6 +300,9 @@ pub(all) enum DeviceType {
   DeviceTypeCogl
   DeviceTypeWin32
 } derive(Eq, @debug.Debug)
+pub fn DeviceType::equal(Self, Self) -> Bool
+pub fn DeviceType::not_equal(Self, Self) -> Bool
+pub fn DeviceType::to_repr(Self) -> @debug.Repr
 
 pub(all) enum Dither {
   DitherNone
@@ -294,6 +311,9 @@ pub(all) enum Dither {
   DitherGood
   DitherBest
 } derive(Eq, @debug.Debug)
+pub fn Dither::equal(Self, Self) -> Bool
+pub fn Dither::not_equal(Self, Self) -> Bool
+pub fn Dither::to_repr(Self) -> @debug.Repr
 
 pub(all) enum Extend {
   ExtendNone
@@ -301,11 +321,17 @@ pub(all) enum Extend {
   Reflect
   Pad
 } derive(Eq, @debug.Debug)
+pub fn Extend::equal(Self, Self) -> Bool
+pub fn Extend::not_equal(Self, Self) -> Bool
+pub fn Extend::to_repr(Self) -> @debug.Repr
 
 pub(all) enum FillRule {
   FillWinding
   FillEvenOdd
 } derive(Eq, @debug.Debug)
+pub fn FillRule::equal(Self, Self) -> Bool
+pub fn FillRule::not_equal(Self, Self) -> Bool
+pub fn FillRule::to_repr(Self) -> @debug.Repr
 
 pub(all) enum Filter {
   Fast
@@ -315,6 +341,9 @@ pub(all) enum Filter {
   Bilinear
   Gaussian
 } derive(Eq, @debug.Debug)
+pub fn Filter::equal(Self, Self) -> Bool
+pub fn Filter::not_equal(Self, Self) -> Bool
+pub fn Filter::to_repr(Self) -> @debug.Repr
 
 pub struct FontExtents {
   ascent : Double
@@ -323,21 +352,28 @@ pub struct FontExtents {
   max_x_advance : Double
   max_y_advance : Double
 } derive(Eq, Hash, @debug.Debug)
-pub fn FontExtents::component(Self, Int) -> Double raise CairoError
+pub fn FontExtents::component(Self, Int32) -> Double raise CairoError
 pub fn FontExtents::components(Self) -> (Double, Double, Double, Double, Double)
+pub fn FontExtents::equal(Self, Self) -> Bool
+pub fn FontExtents::hash(Self) -> Int32
+pub fn FontExtents::hash_combine(Self, Hasher) -> Unit
 pub fn FontExtents::new(Double, Double, Double, Double, Double) -> Self
+pub fn FontExtents::not_equal(Self, Self) -> Bool
+pub fn FontExtents::to_repr(Self) -> @debug.Repr
 
 type FontFace
 pub fn FontFace::equal(Self, Self) -> Bool
 pub fn FontFace::get_family(Self) -> String raise CairoError
 pub fn FontFace::get_slant(Self) -> FontSlant raise CairoError
-pub fn FontFace::get_slant_raw(Self) -> Int raise CairoError
+pub fn FontFace::get_slant_raw(Self) -> Int32 raise CairoError
 pub fn FontFace::get_weight(Self) -> FontWeight raise CairoError
-pub fn FontFace::get_weight_raw(Self) -> Int raise CairoError
+pub fn FontFace::get_weight_raw(Self) -> Int32 raise CairoError
 pub fn FontFace::hash(Self) -> UInt64
+pub fn FontFace::hash_combine(Self, Hasher) -> Unit
+pub fn FontFace::not_equal(Self, Self) -> Bool
 pub fn FontFace::status(Self) -> Status
 pub fn FontFace::toy(String, slant? : FontSlant, weight? : FontWeight) -> Self raise CairoError
-pub fn FontFace::toy_raw(String, slant? : Int, weight? : Int) -> Self raise CairoError
+pub fn FontFace::toy_raw(String, slant? : Int32, weight? : Int32) -> Self raise CairoError
 pub impl Eq for FontFace
 pub impl Hash for FontFace
 
@@ -345,33 +381,34 @@ type FontOptions
 pub fn FontOptions::copy(Self) -> Self raise CairoError
 pub fn FontOptions::equal(Self, Self) -> Bool
 pub fn FontOptions::get_antialias(Self) -> Antialias raise CairoError
-pub fn FontOptions::get_antialias_raw(Self) -> Int raise CairoError
+pub fn FontOptions::get_antialias_raw(Self) -> Int32 raise CairoError
 pub fn FontOptions::get_color_mode(Self) -> ColorMode raise CairoError
-pub fn FontOptions::get_color_mode_raw(Self) -> Int raise CairoError
-pub fn FontOptions::get_color_palette(Self) -> UInt raise CairoError
-pub fn FontOptions::get_custom_palette_color(Self, UInt) -> (Double, Double, Double, Double) raise CairoError
+pub fn FontOptions::get_color_mode_raw(Self) -> Int32 raise CairoError
+pub fn FontOptions::get_color_palette(Self) -> UInt32 raise CairoError
+pub fn FontOptions::get_custom_palette_color(Self, UInt32) -> (Double, Double, Double, Double) raise CairoError
 pub fn FontOptions::get_hint_metrics(Self) -> HintMetrics raise CairoError
-pub fn FontOptions::get_hint_metrics_raw(Self) -> Int raise CairoError
+pub fn FontOptions::get_hint_metrics_raw(Self) -> Int32 raise CairoError
 pub fn FontOptions::get_hint_style(Self) -> HintStyle raise CairoError
-pub fn FontOptions::get_hint_style_raw(Self) -> Int raise CairoError
+pub fn FontOptions::get_hint_style_raw(Self) -> Int32 raise CairoError
 pub fn FontOptions::get_subpixel_order(Self) -> SubpixelOrder raise CairoError
-pub fn FontOptions::get_subpixel_order_raw(Self) -> Int raise CairoError
+pub fn FontOptions::get_subpixel_order_raw(Self) -> Int32 raise CairoError
 pub fn FontOptions::get_variations(Self) -> String? raise CairoError
 pub fn FontOptions::hash(Self) -> UInt64
 pub fn FontOptions::merge(Self, Self) -> Unit raise CairoError
 pub fn FontOptions::new() -> Self raise CairoError
+pub fn FontOptions::not_equal(Self, Self) -> Bool
 pub fn FontOptions::set_antialias(Self, Antialias) -> Unit raise CairoError
-pub fn FontOptions::set_antialias_raw(Self, Int) -> Unit raise CairoError
+pub fn FontOptions::set_antialias_raw(Self, Int32) -> Unit raise CairoError
 pub fn FontOptions::set_color_mode(Self, ColorMode) -> Unit raise CairoError
-pub fn FontOptions::set_color_mode_raw(Self, Int) -> Unit raise CairoError
-pub fn FontOptions::set_color_palette(Self, UInt) -> Unit raise CairoError
-pub fn FontOptions::set_custom_palette_color(Self, UInt, Double, Double, Double, Double) -> Unit raise CairoError
+pub fn FontOptions::set_color_mode_raw(Self, Int32) -> Unit raise CairoError
+pub fn FontOptions::set_color_palette(Self, UInt32) -> Unit raise CairoError
+pub fn FontOptions::set_custom_palette_color(Self, UInt32, Double, Double, Double, Double) -> Unit raise CairoError
 pub fn FontOptions::set_hint_metrics(Self, HintMetrics) -> Unit raise CairoError
-pub fn FontOptions::set_hint_metrics_raw(Self, Int) -> Unit raise CairoError
+pub fn FontOptions::set_hint_metrics_raw(Self, Int32) -> Unit raise CairoError
 pub fn FontOptions::set_hint_style(Self, HintStyle) -> Unit raise CairoError
-pub fn FontOptions::set_hint_style_raw(Self, Int) -> Unit raise CairoError
+pub fn FontOptions::set_hint_style_raw(Self, Int32) -> Unit raise CairoError
 pub fn FontOptions::set_subpixel_order(Self, SubpixelOrder) -> Unit raise CairoError
-pub fn FontOptions::set_subpixel_order_raw(Self, Int) -> Unit raise CairoError
+pub fn FontOptions::set_subpixel_order_raw(Self, Int32) -> Unit raise CairoError
 pub fn FontOptions::set_variations(Self, String?) -> Unit raise CairoError
 pub fn FontOptions::status(Self) -> Status
 pub impl Eq for FontOptions
@@ -381,11 +418,17 @@ pub(all) enum FontSlant {
   FontSlantItalic
   FontSlantOblique
 } derive(Eq, @debug.Debug)
+pub fn FontSlant::equal(Self, Self) -> Bool
+pub fn FontSlant::not_equal(Self, Self) -> Bool
+pub fn FontSlant::to_repr(Self) -> @debug.Repr
 
 pub(all) enum FontWeight {
   FontWeightNormal
   FontWeightBold
 } derive(Eq, @debug.Debug)
+pub fn FontWeight::equal(Self, Self) -> Bool
+pub fn FontWeight::not_equal(Self, Self) -> Bool
+pub fn FontWeight::to_repr(Self) -> @debug.Repr
 
 pub(all) enum Format {
   Argb32
@@ -397,14 +440,20 @@ pub(all) enum Format {
   Rgb96F
   Rgba128F
 } derive(Eq, @debug.Debug)
-pub fn Format::stride_for_width(Self, Int) -> Int
-pub fn Format::stride_for_width_raw(Int, Int) -> Int
+pub fn Format::equal(Self, Self) -> Bool
+pub fn Format::not_equal(Self, Self) -> Bool
+pub fn Format::stride_for_width(Self, Int32) -> Int32
+pub fn Format::stride_for_width_raw(Int32, Int32) -> Int32
+pub fn Format::to_repr(Self) -> @debug.Repr
 
 pub(all) enum HintMetrics {
   HintMetricsDefault
   HintMetricsOff
   HintMetricsOn
 } derive(Eq, @debug.Debug)
+pub fn HintMetrics::equal(Self, Self) -> Bool
+pub fn HintMetrics::not_equal(Self, Self) -> Bool
+pub fn HintMetrics::to_repr(Self) -> @debug.Repr
 
 pub(all) enum HintStyle {
   HintStyleDefault
@@ -413,12 +462,15 @@ pub(all) enum HintStyle {
   HintStyleMedium
   HintStyleFull
 } derive(Eq, @debug.Debug)
+pub fn HintStyle::equal(Self, Self) -> Bool
+pub fn HintStyle::not_equal(Self, Self) -> Bool
+pub fn HintStyle::to_repr(Self) -> @debug.Repr
 
 type ImageData
 pub fn ImageData::copy(Self) -> Bytes raise CairoError
-pub fn ImageData::get(Self, Int) -> Byte raise CairoError
-pub fn ImageData::length(Self) -> Int raise CairoError
-pub fn ImageData::set(Self, Int, Byte) -> Unit raise CairoError
+pub fn ImageData::get(Self, Int32) -> Byte raise CairoError
+pub fn ImageData::length(Self) -> Int32 raise CairoError
+pub fn ImageData::set(Self, Int32, Byte) -> Unit raise CairoError
 pub fn ImageData::status(Self) -> Status
 
 pub(all) enum LineCap {
@@ -426,22 +478,28 @@ pub(all) enum LineCap {
   LineCapRound
   LineCapSquare
 } derive(Eq, @debug.Debug)
+pub fn LineCap::equal(Self, Self) -> Bool
+pub fn LineCap::not_equal(Self, Self) -> Bool
+pub fn LineCap::to_repr(Self) -> @debug.Repr
 
 pub(all) enum LineJoin {
   LineJoinMiter
   LineJoinRound
   LineJoinBevel
 } derive(Eq, @debug.Debug)
+pub fn LineJoin::equal(Self, Self) -> Bool
+pub fn LineJoin::not_equal(Self, Self) -> Bool
+pub fn LineJoin::to_repr(Self) -> @debug.Repr
 
 type MappedImageSurface
 pub fn MappedImageSurface::copy_data(Self) -> Bytes raise CairoError
 pub fn MappedImageSurface::flush(Self) -> Unit raise CairoError
 pub fn MappedImageSurface::get_data(Self) -> ImageData raise CairoError
 pub fn MappedImageSurface::get_format(Self) -> Format raise CairoError
-pub fn MappedImageSurface::get_format_raw(Self) -> Int raise CairoError
-pub fn MappedImageSurface::get_height(Self) -> Int raise CairoError
-pub fn MappedImageSurface::get_stride(Self) -> Int raise CairoError
-pub fn MappedImageSurface::get_width(Self) -> Int raise CairoError
+pub fn MappedImageSurface::get_format_raw(Self) -> Int32 raise CairoError
+pub fn MappedImageSurface::get_height(Self) -> Int32 raise CairoError
+pub fn MappedImageSurface::get_stride(Self) -> Int32 raise CairoError
+pub fn MappedImageSurface::get_width(Self) -> Int32 raise CairoError
 pub fn MappedImageSurface::status(Self) -> Status
 pub fn MappedImageSurface::unmap(Self) -> Unit raise CairoError
 pub fn[T] MappedImageSurface::with_unmapped(Self, () -> T raise CairoError) -> T raise CairoError
@@ -455,15 +513,19 @@ pub struct Matrix {
   y0 : Double
 } derive(Eq, @debug.Debug)
 #alias("_[_]")
-pub fn Matrix::at(Self, Int) -> Double raise CairoError
-pub fn Matrix::component(Self, Int) -> Double raise CairoError
+pub fn Matrix::at(Self, Int32) -> Double raise CairoError
+pub fn Matrix::component(Self, Int32) -> Double raise CairoError
 pub fn Matrix::components(Self) -> (Double, Double, Double, Double, Double, Double)
+pub fn Matrix::equal(Self, Self) -> Bool
 pub fn Matrix::init_rotate(Double) -> Self
 pub fn Matrix::invert(Self) -> Self raise CairoError
+pub fn Matrix::mul(Self, Self) -> Self
 pub fn Matrix::multiply(Self, Self) -> Self
 pub fn Matrix::new(xx? : Double, yx? : Double, xy? : Double, yy? : Double, x0? : Double, y0? : Double) -> Self
+pub fn Matrix::not_equal(Self, Self) -> Bool
 pub fn Matrix::rotate(Self, Double) -> Self
 pub fn Matrix::scale(Self, Double, Double) -> Self
+pub fn Matrix::to_repr(Self) -> @debug.Repr
 pub fn Matrix::transform_distance(Self, Double, Double) -> (Double, Double)
 pub fn Matrix::transform_point(Self, Double, Double) -> (Double, Double)
 pub fn Matrix::translate(Self, Double, Double) -> Self
@@ -500,6 +562,9 @@ pub(all) enum Operator {
   OperatorHslColor
   OperatorHslLuminosity
 } derive(Eq, @debug.Debug)
+pub fn Operator::equal(Self, Self) -> Bool
+pub fn Operator::not_equal(Self, Self) -> Bool
+pub fn Operator::to_repr(Self) -> @debug.Repr
 
 pub(all) enum PDFMetadata {
   PdfMetadataTitle
@@ -510,24 +575,33 @@ pub(all) enum PDFMetadata {
   PdfMetadataCreateDate
   PdfMetadataModDate
 } derive(Eq, @debug.Debug)
+pub fn PDFMetadata::equal(Self, Self) -> Bool
+pub fn PDFMetadata::not_equal(Self, Self) -> Bool
+pub fn PDFMetadata::to_repr(Self) -> @debug.Repr
 
 pub struct PDFOutlineFlagSet {
-  bits : Int
+  bits : Int32
 } derive(Eq, @debug.Debug)
 pub fn PDFOutlineFlagSet::add(Self, PDFOutlineFlags) -> Self
-pub fn PDFOutlineFlagSet::bits(Self) -> Int
+pub fn PDFOutlineFlagSet::bits(Self) -> Int32
 pub fn PDFOutlineFlagSet::combine(ArrayView[PDFOutlineFlags]) -> Self
 pub fn PDFOutlineFlagSet::contains(Self, PDFOutlineFlags) -> Bool
-pub fn PDFOutlineFlagSet::from_bits(Int) -> Self
+pub fn PDFOutlineFlagSet::equal(Self, Self) -> Bool
+pub fn PDFOutlineFlagSet::from_bits(Int32) -> Self
 pub fn PDFOutlineFlagSet::none() -> Self
+pub fn PDFOutlineFlagSet::not_equal(Self, Self) -> Bool
 pub fn PDFOutlineFlagSet::of(PDFOutlineFlags) -> Self
+pub fn PDFOutlineFlagSet::to_repr(Self) -> @debug.Repr
 
 pub(all) enum PDFOutlineFlags {
   PdfOutlineOpen
   PdfOutlineBold
   PdfOutlineItalic
 } derive(Eq, @debug.Debug)
-pub fn PDFOutlineFlags::bits(Self) -> Int
+pub fn PDFOutlineFlags::bits(Self) -> Int32
+pub fn PDFOutlineFlags::equal(Self, Self) -> Bool
+pub fn PDFOutlineFlags::not_equal(Self, Self) -> Bool
+pub fn PDFOutlineFlags::to_repr(Self) -> @debug.Repr
 
 pub(all) enum PDFVersion {
   PdfVersion1_4
@@ -535,23 +609,36 @@ pub(all) enum PDFVersion {
   PdfVersion1_6
   PdfVersion1_7
 } derive(Eq, @debug.Debug)
+pub fn PDFVersion::equal(Self, Self) -> Bool
+pub fn PDFVersion::not_equal(Self, Self) -> Bool
 pub fn PDFVersion::supported() -> Array[Self] raise CairoError
+pub fn PDFVersion::to_repr(Self) -> @debug.Repr
 pub fn PDFVersion::to_string(Self) -> String raise CairoError
-pub fn PDFVersion::to_string_raw(Int) -> String raise CairoError
+pub fn PDFVersion::to_string_raw(Int32) -> String raise CairoError
 
 pub(all) enum PSLevel {
   PsLevel2
   PsLevel3
 } derive(Eq, @debug.Debug)
+pub fn PSLevel::equal(Self, Self) -> Bool
+pub fn PSLevel::not_equal(Self, Self) -> Bool
 pub fn PSLevel::supported() -> Array[Self] raise CairoError
+pub fn PSLevel::to_repr(Self) -> @debug.Repr
 pub fn PSLevel::to_string(Self) -> String raise CairoError
-pub fn PSLevel::to_string_raw(Int) -> String raise CairoError
+pub fn PSLevel::to_string_raw(Int32) -> String raise CairoError
 
 type Path
+pub fn Path::compare(Self, Self) -> Int32
 pub fn Path::equal(Self, Self) -> Bool
 pub fn Path::hash(Self) -> UInt64
+pub fn Path::hash_combine(Self, Hasher) -> Unit
 pub fn Path::iter(Self) -> Iter[PathSegment] raise CairoError
-pub fn Path::length(Self) -> Int raise CairoError
+pub fn Path::length(Self) -> Int32 raise CairoError
+pub fn Path::not_equal(Self, Self) -> Bool
+pub fn Path::op_ge(Self, Self) -> Bool
+pub fn Path::op_gt(Self, Self) -> Bool
+pub fn Path::op_le(Self, Self) -> Bool
+pub fn Path::op_lt(Self, Self) -> Bool
 pub fn Path::segments(Self) -> Array[PathSegment] raise CairoError
 pub fn Path::status(Self) -> Status
 pub fn Path::to_string(Self) -> String raise CairoError
@@ -565,6 +652,9 @@ pub(all) enum PathDataType {
   PathCurveTo
   PathClosePath
 } derive(Eq, @debug.Debug)
+pub fn PathDataType::equal(Self, Self) -> Bool
+pub fn PathDataType::not_equal(Self, Self) -> Bool
+pub fn PathDataType::to_repr(Self) -> @debug.Repr
 
 pub(all) enum PathSegment {
   PathSegmentMoveTo(Double, Double)
@@ -575,41 +665,46 @@ pub(all) enum PathSegment {
 pub fn PathSegment::components(Self) -> (PathDataType, Array[Double])
 pub fn PathSegment::coordinates(Self) -> Array[Double]
 pub fn PathSegment::data_type(Self) -> PathDataType
+pub fn PathSegment::equal(Self, Self) -> Bool
+pub fn PathSegment::not_equal(Self, Self) -> Bool
+pub fn PathSegment::to_repr(Self) -> @debug.Repr
 
 type Pattern
 pub fn Pattern::add_color_stop_rgb(Self, Double, Double, Double, Double) -> Unit raise CairoError
 pub fn Pattern::add_color_stop_rgba(Self, Double, Double, Double, Double, Double) -> Unit raise CairoError
 pub fn Pattern::equal(Self, Self) -> Bool
 pub fn Pattern::for_surface(Surface) -> Self raise CairoError
-pub fn Pattern::get_color_stop_count(Self) -> Int raise CairoError
-pub fn Pattern::get_color_stop_rgba(Self, Int) -> (Double, Double, Double, Double, Double) raise CairoError
+pub fn Pattern::get_color_stop_count(Self) -> Int32 raise CairoError
+pub fn Pattern::get_color_stop_rgba(Self, Int32) -> (Double, Double, Double, Double, Double) raise CairoError
 pub fn Pattern::get_color_stops_rgba(Self) -> Array[(Double, Double, Double, Double, Double)] raise CairoError
 pub fn Pattern::get_dither(Self) -> Dither raise CairoError
-pub fn Pattern::get_dither_raw(Self) -> Int raise CairoError
+pub fn Pattern::get_dither_raw(Self) -> Int32 raise CairoError
 pub fn Pattern::get_extend(Self) -> Extend raise CairoError
-pub fn Pattern::get_extend_raw(Self) -> Int raise CairoError
+pub fn Pattern::get_extend_raw(Self) -> Int32 raise CairoError
 pub fn Pattern::get_filter(Self) -> Filter raise CairoError
-pub fn Pattern::get_filter_raw(Self) -> Int raise CairoError
+pub fn Pattern::get_filter_raw(Self) -> Int32 raise CairoError
 pub fn Pattern::get_linear_points(Self) -> (Double, Double, Double, Double) raise CairoError
 pub fn Pattern::get_matrix(Self) -> Matrix raise CairoError
 pub fn Pattern::get_radial_circles(Self) -> (Double, Double, Double, Double, Double, Double) raise CairoError
 pub fn Pattern::get_rgba(Self) -> (Double, Double, Double, Double) raise CairoError
 pub fn Pattern::get_surface(Self) -> Surface raise CairoError
 pub fn Pattern::hash(Self) -> UInt64
+pub fn Pattern::hash_combine(Self, Hasher) -> Unit
 pub fn Pattern::linear(Double, Double, Double, Double) -> Self raise CairoError
 pub fn Pattern::mesh() -> Self raise CairoError
 pub fn Pattern::mesh_begin_patch(Self) -> Unit raise CairoError
 pub fn Pattern::mesh_curve_to(Self, Double, Double, Double, Double, Double, Double) -> Unit raise CairoError
 pub fn Pattern::mesh_end_patch(Self) -> Unit raise CairoError
-pub fn Pattern::mesh_get_control_point(Self, Int, Int) -> (Double, Double) raise CairoError
-pub fn Pattern::mesh_get_corner_color_rgba(Self, Int, Int) -> (Double, Double, Double, Double) raise CairoError
-pub fn Pattern::mesh_get_patch_count(Self) -> Int raise CairoError
-pub fn Pattern::mesh_get_path(Self, Int) -> Path raise CairoError
+pub fn Pattern::mesh_get_control_point(Self, Int32, Int32) -> (Double, Double) raise CairoError
+pub fn Pattern::mesh_get_corner_color_rgba(Self, Int32, Int32) -> (Double, Double, Double, Double) raise CairoError
+pub fn Pattern::mesh_get_patch_count(Self) -> Int32 raise CairoError
+pub fn Pattern::mesh_get_path(Self, Int32) -> Path raise CairoError
 pub fn Pattern::mesh_line_to(Self, Double, Double) -> Unit raise CairoError
 pub fn Pattern::mesh_move_to(Self, Double, Double) -> Unit raise CairoError
-pub fn Pattern::mesh_set_control_point(Self, Int, Double, Double) -> Unit raise CairoError
-pub fn Pattern::mesh_set_corner_color_rgb(Self, Int, Double, Double, Double) -> Unit raise CairoError
-pub fn Pattern::mesh_set_corner_color_rgba(Self, Int, Double, Double, Double, Double) -> Unit raise CairoError
+pub fn Pattern::mesh_set_control_point(Self, Int32, Double, Double) -> Unit raise CairoError
+pub fn Pattern::mesh_set_corner_color_rgb(Self, Int32, Double, Double, Double) -> Unit raise CairoError
+pub fn Pattern::mesh_set_corner_color_rgba(Self, Int32, Double, Double, Double, Double) -> Unit raise CairoError
+pub fn Pattern::not_equal(Self, Self) -> Bool
 pub fn Pattern::radial(Double, Double, Double, Double, Double, Double) -> Self raise CairoError
 pub fn Pattern::raster_clear_acquire(Self) -> Unit raise CairoError
 pub fn Pattern::raster_clear_callbacks(Self) -> Unit raise CairoError
@@ -617,14 +712,14 @@ pub fn Pattern::raster_get_acquire(Self) -> ((Surface, RectangleInt) -> Surface,
 pub fn Pattern::raster_get_callbacks(Self) -> (((Surface, RectangleInt) -> Surface)?, ((Surface) -> Unit)?) raise CairoError
 pub fn Pattern::raster_set_acquire(Self, (Surface, RectangleInt) -> Surface, release? : ((Surface) -> Unit)?) -> Unit raise CairoError
 pub fn Pattern::raster_set_callbacks(Self, acquire? : ((Surface, RectangleInt) -> Surface)?, release? : ((Surface) -> Unit)?) -> Unit raise CairoError
-pub fn Pattern::raster_source(Content, Int, Int) -> Self raise CairoError
-pub fn Pattern::raster_source_raw(Int, Int, Int) -> Self raise CairoError
+pub fn Pattern::raster_source(Content, Int32, Int32) -> Self raise CairoError
+pub fn Pattern::raster_source_raw(Int32, Int32, Int32) -> Self raise CairoError
 pub fn Pattern::set_dither(Self, Dither) -> Unit raise CairoError
-pub fn Pattern::set_dither_raw(Self, Int) -> Unit raise CairoError
+pub fn Pattern::set_dither_raw(Self, Int32) -> Unit raise CairoError
 pub fn Pattern::set_extend(Self, Extend) -> Unit raise CairoError
-pub fn Pattern::set_extend_raw(Self, Int) -> Unit raise CairoError
+pub fn Pattern::set_extend_raw(Self, Int32) -> Unit raise CairoError
 pub fn Pattern::set_filter(Self, Filter) -> Unit raise CairoError
-pub fn Pattern::set_filter_raw(Self, Int) -> Unit raise CairoError
+pub fn Pattern::set_filter_raw(Self, Int32) -> Unit raise CairoError
 pub fn Pattern::set_matrix(Self, Matrix) -> Unit raise CairoError
 pub fn Pattern::solid_rgb(Double, Double, Double) -> Self raise CairoError
 pub fn Pattern::solid_rgba(Double, Double, Double, Double) -> Self raise CairoError
@@ -639,39 +734,48 @@ pub struct Rectangle {
   height : Double
 } derive(Eq, Hash, @debug.Debug)
 #alias("_[_]")
-pub fn Rectangle::at(Self, Int) -> Double raise CairoError
-pub fn Rectangle::component(Self, Int) -> Double raise CairoError
+pub fn Rectangle::at(Self, Int32) -> Double raise CairoError
+pub fn Rectangle::component(Self, Int32) -> Double raise CairoError
 pub fn Rectangle::components(Self) -> (Double, Double, Double, Double)
+pub fn Rectangle::equal(Self, Self) -> Bool
+pub fn Rectangle::hash(Self) -> Int32
+pub fn Rectangle::hash_combine(Self, Hasher) -> Unit
 pub fn Rectangle::new(Double, Double, Double, Double) -> Self
+pub fn Rectangle::not_equal(Self, Self) -> Bool
+pub fn Rectangle::to_repr(Self) -> @debug.Repr
 
 pub struct RectangleInt {
-  x : Int
-  y : Int
-  width : Int
-  height : Int
+  x : Int32
+  y : Int32
+  width : Int32
+  height : Int32
 } derive(Eq, @debug.Debug)
-pub fn RectangleInt::component(Self, Int) -> Int raise CairoError
-pub fn RectangleInt::components(Self) -> (Int, Int, Int, Int)
-pub fn RectangleInt::new(x? : Int, y? : Int, width? : Int, height? : Int) -> Self
+pub fn RectangleInt::component(Self, Int32) -> Int32 raise CairoError
+pub fn RectangleInt::components(Self) -> (Int32, Int32, Int32, Int32)
+pub fn RectangleInt::equal(Self, Self) -> Bool
+pub fn RectangleInt::new(x? : Int32, y? : Int32, width? : Int32, height? : Int32) -> Self
+pub fn RectangleInt::not_equal(Self, Self) -> Bool
+pub fn RectangleInt::to_repr(Self) -> @debug.Repr
 
 type Region
-pub fn Region::contains_point(Self, Int, Int) -> Bool
+pub fn Region::contains_point(Self, Int32, Int32) -> Bool
 pub fn Region::contains_rectangle(Self, RectangleInt) -> RegionOverlap
 pub fn Region::copy(Self) -> Self raise CairoError
 pub fn Region::equal(Self, Self) -> Bool
 pub fn Region::from_rectangle(RectangleInt) -> Self raise CairoError
 pub fn Region::from_rectangles(ArrayView[RectangleInt]) -> Self raise CairoError
 pub fn Region::get_extents(Self) -> RectangleInt raise CairoError
-pub fn Region::get_rectangle(Self, Int) -> RectangleInt raise CairoError
+pub fn Region::get_rectangle(Self, Int32) -> RectangleInt raise CairoError
 pub fn Region::intersect(Self, Self) -> Self raise CairoError
 pub fn Region::intersect_rectangle(Self, RectangleInt) -> Self raise CairoError
 pub fn Region::is_empty(Self) -> Bool
 pub fn Region::new() -> Self raise CairoError
-pub fn Region::num_rectangles(Self) -> Int
+pub fn Region::not_equal(Self, Self) -> Bool
+pub fn Region::num_rectangles(Self) -> Int32
 pub fn Region::status(Self) -> Status
 pub fn Region::subtract(Self, Self) -> Self raise CairoError
 pub fn Region::subtract_rectangle(Self, RectangleInt) -> Self raise CairoError
-pub fn Region::translate(Self, Int, Int) -> Unit raise CairoError
+pub fn Region::translate(Self, Int32, Int32) -> Unit raise CairoError
 pub fn Region::union(Self, Self) -> Self raise CairoError
 pub fn Region::union_rectangle(Self, RectangleInt) -> Self raise CairoError
 pub fn Region::xor(Self, Self) -> Self raise CairoError
@@ -683,6 +787,9 @@ pub(all) enum RegionOverlap {
   RegionOverlapOut
   RegionOverlapPart
 } derive(Eq, @debug.Debug)
+pub fn RegionOverlap::equal(Self, Self) -> Bool
+pub fn RegionOverlap::not_equal(Self, Self) -> Bool
+pub fn RegionOverlap::to_repr(Self) -> @debug.Repr
 
 pub(all) enum SVGUnit {
   SvgUnitUser
@@ -696,14 +803,20 @@ pub(all) enum SVGUnit {
   SvgUnitPc
   SvgUnitPercent
 } derive(Eq, @debug.Debug)
+pub fn SVGUnit::equal(Self, Self) -> Bool
+pub fn SVGUnit::not_equal(Self, Self) -> Bool
+pub fn SVGUnit::to_repr(Self) -> @debug.Repr
 
 pub(all) enum SVGVersion {
   SvgVersion1_1
   SvgVersion1_2
 } derive(Eq, @debug.Debug)
+pub fn SVGVersion::equal(Self, Self) -> Bool
+pub fn SVGVersion::not_equal(Self, Self) -> Bool
 pub fn SVGVersion::supported() -> Array[Self] raise CairoError
+pub fn SVGVersion::to_repr(Self) -> @debug.Repr
 pub fn SVGVersion::to_string(Self) -> String raise CairoError
-pub fn SVGVersion::to_string_raw(Int) -> String raise CairoError
+pub fn SVGVersion::to_string_raw(Int32) -> String raise CairoError
 
 type ScaledFont
 pub fn ScaledFont::equal(Self, Self) -> Bool
@@ -715,7 +828,9 @@ pub fn ScaledFont::get_font_options(Self) -> FontOptions raise CairoError
 pub fn ScaledFont::get_scale_matrix(Self) -> Matrix raise CairoError
 pub fn ScaledFont::glyph_extents(Self, ArrayView[@glyph.Glyph]) -> TextExtents raise CairoError
 pub fn ScaledFont::hash(Self) -> UInt64
+pub fn ScaledFont::hash_combine(Self, Hasher) -> Unit
 pub fn ScaledFont::new(FontFace, Matrix, Matrix, FontOptions) -> Self raise CairoError
+pub fn ScaledFont::not_equal(Self, Self) -> Bool
 pub fn ScaledFont::status(Self) -> Status
 pub fn ScaledFont::text_extents(Self, String) -> TextExtents raise CairoError
 pub fn ScaledFont::text_to_glyphs(Self, Double, Double, String) -> TextGlyphRun raise CairoError
@@ -727,6 +842,9 @@ pub(all) enum ScriptMode {
   ScriptModeAscii
   ScriptModeBinary
 } derive(Eq, @debug.Debug)
+pub fn ScriptMode::equal(Self, Self) -> Bool
+pub fn ScriptMode::not_equal(Self, Self) -> Bool
+pub fn ScriptMode::to_repr(Self) -> @debug.Repr
 
 pub(all) enum Status {
   Success
@@ -776,8 +894,11 @@ pub(all) enum Status {
   SvgFontError
   LastStatus
 } derive(Eq, @debug.Debug)
+pub fn Status::equal(Self, Self) -> Bool
 pub fn Status::is_success(Self) -> Bool
 pub fn Status::message(Self) -> String
+pub fn Status::not_equal(Self, Self) -> Bool
+pub fn Status::to_repr(Self) -> @debug.Repr
 
 pub(all) enum SubpixelOrder {
   SubpixelDefault
@@ -786,20 +907,23 @@ pub(all) enum SubpixelOrder {
   SubpixelVrgb
   SubpixelVbgr
 } derive(Eq, @debug.Debug)
+pub fn SubpixelOrder::equal(Self, Self) -> Bool
+pub fn SubpixelOrder::not_equal(Self, Self) -> Bool
+pub fn SubpixelOrder::to_repr(Self) -> @debug.Repr
 
 type Surface
 pub fn Surface::copy_data(Self) -> Bytes raise CairoError
 pub fn Surface::copy_page(Self) -> Unit raise CairoError
 pub fn Surface::create_for_rectangle(Self, Double, Double, Double, Double) -> Self raise CairoError
-pub fn Surface::create_similar(Self, Content, Int, Int) -> Self raise CairoError
-pub fn Surface::create_similar_image(Self, Format, Int, Int) -> Self raise CairoError
-pub fn Surface::create_similar_image_raw(Self, Int, Int, Int) -> Self raise CairoError
-pub fn Surface::create_similar_raw(Self, Int, Int, Int) -> Self raise CairoError
+pub fn Surface::create_similar(Self, Content, Int32, Int32) -> Self raise CairoError
+pub fn Surface::create_similar_image(Self, Format, Int32, Int32) -> Self raise CairoError
+pub fn Surface::create_similar_image_raw(Self, Int32, Int32, Int32) -> Self raise CairoError
+pub fn Surface::create_similar_raw(Self, Int32, Int32, Int32) -> Self raise CairoError
 pub fn Surface::equal(Self, Self) -> Bool
 pub fn Surface::finish(Self) -> Unit raise CairoError
 pub fn Surface::flush(Self) -> Unit raise CairoError
 pub fn Surface::get_content(Self) -> Content raise CairoError
-pub fn Surface::get_content_raw(Self) -> Int raise CairoError
+pub fn Surface::get_content_raw(Self) -> Int32 raise CairoError
 pub fn Surface::get_data(Self) -> ImageData raise CairoError
 pub fn Surface::get_device(Self) -> Device? raise CairoError
 pub fn Surface::get_device_offset(Self) -> (Double, Double) raise CairoError
@@ -807,35 +931,37 @@ pub fn Surface::get_device_scale(Self) -> (Double, Double) raise CairoError
 pub fn Surface::get_fallback_resolution(Self) -> (Double, Double) raise CairoError
 pub fn Surface::get_font_options(Self) -> FontOptions raise CairoError
 pub fn Surface::get_format(Self) -> Format raise CairoError
-pub fn Surface::get_format_raw(Self) -> Int raise CairoError
-pub fn Surface::get_height(Self) -> Int raise CairoError
+pub fn Surface::get_format_raw(Self) -> Int32 raise CairoError
+pub fn Surface::get_height(Self) -> Int32 raise CairoError
 pub fn Surface::get_mime_data(Self, String) -> Bytes? raise CairoError
-pub fn Surface::get_stride(Self) -> Int raise CairoError
+pub fn Surface::get_stride(Self) -> Int32 raise CairoError
 pub fn Surface::get_type(Self) -> SurfaceType raise CairoError
-pub fn Surface::get_width(Self) -> Int raise CairoError
+pub fn Surface::get_width(Self) -> Int32 raise CairoError
 pub fn Surface::has_show_text_glyphs(Self) -> Bool raise CairoError
 pub fn Surface::hash(Self) -> UInt64
-pub fn Surface::image(Format, Int, Int) -> Self raise CairoError
-pub fn Surface::image_for_data(FixedArray[Byte], Format, Int, Int, stride? : Int) -> Self raise CairoError
-pub fn Surface::image_for_data_raw(FixedArray[Byte], Int, Int, Int, stride? : Int) -> Self raise CairoError
+pub fn Surface::hash_combine(Self, Hasher) -> Unit
+pub fn Surface::image(Format, Int32, Int32) -> Self raise CairoError
+pub fn Surface::image_for_data(FixedArray[Byte], Format, Int32, Int32, stride? : Int32) -> Self raise CairoError
+pub fn Surface::image_for_data_raw(FixedArray[Byte], Int32, Int32, Int32, stride? : Int32) -> Self raise CairoError
 pub fn Surface::image_from_png(String) -> Self raise CairoError
-pub fn Surface::image_from_png_stream((Int) -> Bytes) -> Self raise CairoError
-pub fn Surface::image_raw(Int, Int, Int) -> Self raise CairoError
+pub fn Surface::image_from_png_stream((Int32) -> Bytes) -> Self raise CairoError
+pub fn Surface::image_raw(Int32, Int32, Int32) -> Self raise CairoError
 pub fn Surface::map_to_image(Self, extents? : RectangleInt?) -> MappedImageSurface raise CairoError
 pub fn Surface::mark_dirty(Self) -> Unit raise CairoError
-pub fn Surface::mark_dirty_rectangle(Self, Int, Int, Int, Int) -> Unit raise CairoError
+pub fn Surface::mark_dirty_rectangle(Self, Int32, Int32, Int32, Int32) -> Unit raise CairoError
+pub fn Surface::not_equal(Self, Self) -> Bool
 pub fn Surface::pdf(Double, Double, path? : String?) -> Self raise CairoError
-pub fn Surface::pdf_add_outline(Self, Int, String, String, PDFOutlineFlags) -> Int raise CairoError
-pub fn Surface::pdf_add_outline_raw(Self, Int, String, String, Int) -> Int raise CairoError
-pub fn Surface::pdf_add_outline_with_flags(Self, Int, String, String, PDFOutlineFlagSet) -> Int raise CairoError
+pub fn Surface::pdf_add_outline(Self, Int32, String, String, PDFOutlineFlags) -> Int32 raise CairoError
+pub fn Surface::pdf_add_outline_raw(Self, Int32, String, String, Int32) -> Int32 raise CairoError
+pub fn Surface::pdf_add_outline_with_flags(Self, Int32, String, String, PDFOutlineFlagSet) -> Int32 raise CairoError
 pub fn Surface::pdf_restrict_to_version(Self, PDFVersion) -> Unit raise CairoError
-pub fn Surface::pdf_restrict_to_version_raw(Self, Int) -> Unit raise CairoError
+pub fn Surface::pdf_restrict_to_version_raw(Self, Int32) -> Unit raise CairoError
 pub fn Surface::pdf_set_custom_metadata(Self, String, String?) -> Unit raise CairoError
 pub fn Surface::pdf_set_metadata(Self, PDFMetadata, String) -> Unit raise CairoError
-pub fn Surface::pdf_set_metadata_raw(Self, Int, String) -> Unit raise CairoError
+pub fn Surface::pdf_set_metadata_raw(Self, Int32, String) -> Unit raise CairoError
 pub fn Surface::pdf_set_page_label(Self, String) -> Unit raise CairoError
 pub fn Surface::pdf_set_size(Self, Double, Double) -> Unit raise CairoError
-pub fn Surface::pdf_set_thumbnail_size(Self, Int, Int) -> Unit raise CairoError
+pub fn Surface::pdf_set_thumbnail_size(Self, Int32, Int32) -> Unit raise CairoError
 pub fn Surface::pdf_stream(Double, Double, (Bytes) -> Status) -> Self raise CairoError
 pub fn Surface::ps(Double, Double, path? : String?) -> Self raise CairoError
 pub fn Surface::ps_dsc_begin_page_setup(Self) -> Unit raise CairoError
@@ -843,17 +969,17 @@ pub fn Surface::ps_dsc_begin_setup(Self) -> Unit raise CairoError
 pub fn Surface::ps_dsc_comment(Self, String) -> Unit raise CairoError
 pub fn Surface::ps_get_eps(Self) -> Bool raise CairoError
 pub fn Surface::ps_restrict_to_level(Self, PSLevel) -> Unit raise CairoError
-pub fn Surface::ps_restrict_to_level_raw(Self, Int) -> Unit raise CairoError
+pub fn Surface::ps_restrict_to_level_raw(Self, Int32) -> Unit raise CairoError
 pub fn Surface::ps_set_eps(Self, Bool) -> Unit raise CairoError
 pub fn Surface::ps_set_size(Self, Double, Double) -> Unit raise CairoError
 pub fn Surface::ps_stream(Double, Double, (Bytes) -> Status) -> Self raise CairoError
 pub fn Surface::recording(Content, extents? : Rectangle?) -> Self raise CairoError
 pub fn Surface::recording_get_extents(Self) -> Rectangle? raise CairoError
 pub fn Surface::recording_ink_extents(Self) -> Rectangle raise CairoError
-pub fn Surface::recording_raw(Int, extents? : Rectangle?) -> Self raise CairoError
+pub fn Surface::recording_raw(Int32, extents? : Rectangle?) -> Self raise CairoError
 pub fn Surface::script(Device, Content, Double, Double) -> Self raise CairoError
 pub fn Surface::script_for_target(Device, Self) -> Self raise CairoError
-pub fn Surface::script_raw(Device, Int, Double, Double) -> Self raise CairoError
+pub fn Surface::script_raw(Device, Int32, Double, Double) -> Self raise CairoError
 pub fn Surface::set_device_offset(Self, Double, Double) -> Unit raise CairoError
 pub fn Surface::set_device_scale(Self, Double, Double) -> Unit raise CairoError
 pub fn Surface::set_fallback_resolution(Self, Double, Double) -> Unit raise CairoError
@@ -863,15 +989,15 @@ pub fn Surface::status(Self) -> Status
 pub fn Surface::supports_mime_type(Self, String) -> Bool raise CairoError
 pub fn Surface::svg(Double, Double, path? : String?) -> Self raise CairoError
 pub fn Surface::svg_get_document_unit(Self) -> SVGUnit raise CairoError
-pub fn Surface::svg_get_document_unit_raw(Self) -> Int raise CairoError
+pub fn Surface::svg_get_document_unit_raw(Self) -> Int32 raise CairoError
 pub fn Surface::svg_restrict_to_version(Self, SVGVersion) -> Unit raise CairoError
-pub fn Surface::svg_restrict_to_version_raw(Self, Int) -> Unit raise CairoError
+pub fn Surface::svg_restrict_to_version_raw(Self, Int32) -> Unit raise CairoError
 pub fn Surface::svg_set_document_unit(Self, SVGUnit) -> Unit raise CairoError
-pub fn Surface::svg_set_document_unit_raw(Self, Int) -> Unit raise CairoError
+pub fn Surface::svg_set_document_unit_raw(Self, Int32) -> Unit raise CairoError
 pub fn Surface::svg_stream(Double, Double, (Bytes) -> Status) -> Self raise CairoError
 pub fn Surface::tee(Self) -> Self raise CairoError
 pub fn Surface::tee_add(Self, Self) -> Unit raise CairoError
-pub fn Surface::tee_index(Self, Int) -> Self raise CairoError
+pub fn Surface::tee_index(Self, Int32) -> Self raise CairoError
 pub fn Surface::tee_remove(Self, Self) -> Unit raise CairoError
 pub fn Surface::unmap_image(Self, MappedImageSurface) -> Unit raise CairoError
 pub fn[T] Surface::with_finished(Self, () -> T raise CairoError) -> T raise CairoError
@@ -884,6 +1010,9 @@ pub(all) enum SurfaceObserverMode {
   SurfaceObserverNormal
   SurfaceObserverRecordOperations
 } derive(Eq, @debug.Debug)
+pub fn SurfaceObserverMode::equal(Self, Self) -> Bool
+pub fn SurfaceObserverMode::not_equal(Self, Self) -> Bool
+pub fn SurfaceObserverMode::to_repr(Self) -> @debug.Repr
 
 pub(all) enum SurfaceType {
   SurfaceTypeImage
@@ -912,21 +1041,32 @@ pub(all) enum SurfaceType {
   SurfaceTypeSubsurface
   SurfaceTypeCogl
 } derive(Eq, @debug.Debug)
+pub fn SurfaceType::equal(Self, Self) -> Bool
+pub fn SurfaceType::not_equal(Self, Self) -> Bool
+pub fn SurfaceType::to_repr(Self) -> @debug.Repr
 
 pub struct TextCluster {
-  num_bytes : Int
-  num_glyphs : Int
+  num_bytes : Int32
+  num_glyphs : Int32
 } derive(Eq, Hash, @debug.Debug)
 #alias("_[_]")
-pub fn TextCluster::at(Self, Int) -> Int raise CairoError
-pub fn TextCluster::component(Self, Int) -> Int raise CairoError
-pub fn TextCluster::components(Self) -> (Int, Int)
-pub fn TextCluster::new(Int, Int) -> Self
+pub fn TextCluster::at(Self, Int32) -> Int32 raise CairoError
+pub fn TextCluster::component(Self, Int32) -> Int32 raise CairoError
+pub fn TextCluster::components(Self) -> (Int32, Int32)
+pub fn TextCluster::equal(Self, Self) -> Bool
+pub fn TextCluster::hash(Self) -> Int32
+pub fn TextCluster::hash_combine(Self, Hasher) -> Unit
+pub fn TextCluster::new(Int32, Int32) -> Self
+pub fn TextCluster::not_equal(Self, Self) -> Bool
+pub fn TextCluster::to_repr(Self) -> @debug.Repr
 
 pub(all) enum TextClusterFlags {
   TextClusterNone
   TextClusterBackward
 } derive(Eq, @debug.Debug)
+pub fn TextClusterFlags::equal(Self, Self) -> Bool
+pub fn TextClusterFlags::not_equal(Self, Self) -> Bool
+pub fn TextClusterFlags::to_repr(Self) -> @debug.Repr
 
 pub struct TextExtents {
   x_bearing : Double
@@ -937,10 +1077,15 @@ pub struct TextExtents {
   y_advance : Double
 } derive(Eq, Hash, @debug.Debug)
 #alias("_[_]")
-pub fn TextExtents::at(Self, Int) -> Double raise CairoError
-pub fn TextExtents::component(Self, Int) -> Double raise CairoError
+pub fn TextExtents::at(Self, Int32) -> Double raise CairoError
+pub fn TextExtents::component(Self, Int32) -> Double raise CairoError
 pub fn TextExtents::components(Self) -> (Double, Double, Double, Double, Double, Double)
+pub fn TextExtents::equal(Self, Self) -> Bool
+pub fn TextExtents::hash(Self) -> Int32
+pub fn TextExtents::hash_combine(Self, Hasher) -> Unit
 pub fn TextExtents::new(Double, Double, Double, Double, Double, Double) -> Self
+pub fn TextExtents::not_equal(Self, Self) -> Bool
+pub fn TextExtents::to_repr(Self) -> @debug.Repr
 
 pub struct TextGlyphRun {
   glyphs : Array[@glyph.Glyph]
@@ -948,7 +1093,10 @@ pub struct TextGlyphRun {
   flags : TextClusterFlags
 } derive(Eq, @debug.Debug)
 pub fn TextGlyphRun::components(Self) -> (Array[@glyph.Glyph], Array[TextCluster], TextClusterFlags)
+pub fn TextGlyphRun::equal(Self, Self) -> Bool
 pub fn TextGlyphRun::new(Array[@glyph.Glyph], Array[TextCluster], TextClusterFlags) -> Self
+pub fn TextGlyphRun::not_equal(Self, Self) -> Bool
+pub fn TextGlyphRun::to_repr(Self) -> @debug.Repr
 
 // Type aliases
 pub using @glyph {type Glyph}

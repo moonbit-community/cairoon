@@ -1,7 +1,7 @@
 ///|
 pub fn image_create_from_png_raw(
   filename : Bytes,
-  status : Ref[Int],
+  status : Ref[Int32],
 ) -> RawSurface {
   ensure_native()
   image_surface_create_from_png_ffi(filename, status)
@@ -9,8 +9,8 @@ pub fn image_create_from_png_raw(
 
 ///|
 pub fn image_create_from_png_stream_raw(
-  reader : (Int) -> Bytes,
-  status : Ref[Int],
+  reader : (Int32) -> Bytes,
+  status : Ref[Int32],
 ) -> RawSurface {
   ensure_native()
   image_surface_create_from_png_stream_ffi(
@@ -21,7 +21,7 @@ pub fn image_create_from_png_stream_raw(
 }
 
 ///|
-pub fn write_to_png_raw(surface : RawSurface, filename : Bytes) -> Int {
+pub fn write_to_png_raw(surface : RawSurface, filename : Bytes) -> Int32 {
   ensure_native()
   surface_write_to_png_ffi(surface, filename)
 }
@@ -29,8 +29,8 @@ pub fn write_to_png_raw(surface : RawSurface, filename : Bytes) -> Int {
 ///|
 pub fn write_to_png_stream_raw(
   surface : RawSurface,
-  writer : (Bytes) -> Int,
-) -> Int {
+  writer : (Bytes) -> Int32,
+) -> Int32 {
   ensure_native()
   surface_write_to_png_stream_ffi(
     surface,

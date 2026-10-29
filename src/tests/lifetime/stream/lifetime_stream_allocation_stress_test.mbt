@@ -1,5 +1,5 @@
 ///|
-fn lifetime_stress_stream_callbacks(index : Int) -> Unit raise {
+fn lifetime_stress_stream_callbacks(index : Int32) -> Unit raise {
   let pdf_chunks = Ref(0)
   let pdf_bytes = Ref(0)
   let pdf = @cairoon.Surface::pdf_stream(4.0, 4.0, fn(chunk) {
