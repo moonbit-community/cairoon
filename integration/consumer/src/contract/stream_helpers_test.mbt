@@ -1,6 +1,6 @@
 ///|
 fn consumer_chunks_to_bytes(chunks : Array[Bytes]) -> Bytes {
-  let mut output = Bytes::default()
+  let mut output : Bytes = Default::default()
   for chunk in chunks {
     output = output + chunk
   }
@@ -8,12 +8,12 @@ fn consumer_chunks_to_bytes(chunks : Array[Bytes]) -> Bytes {
 }
 
 ///|
-fn consumer_bytes_slice(bytes : Bytes, offset : Int, length : Int) -> Bytes {
+fn consumer_bytes_slice(bytes : Bytes, offset : Int32, length : Int32) -> Bytes {
   Bytes::makei(length, fn(index) { bytes[offset + index] })
 }
 
 ///|
-fn consumer_bytes_contain(bytes : Bytes, marker : Array[Int]) -> Bool {
+fn consumer_bytes_contain(bytes : Bytes, marker : Array[Int32]) -> Bool {
   if marker.length() > bytes.length() {
     return false
   }
