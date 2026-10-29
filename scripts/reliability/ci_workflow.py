@@ -116,7 +116,7 @@ SETUP_STEP_SPECS = {
             "Install system dependencies (macOS)",
             ("if", "run"),
             lines=("if: runner.os == 'macOS'", "run: |"),
-            commands=("brew update", "brew install cairo pkg-config"),
+            commands=("HOMEBREW_NO_AUTO_UPDATE=1 brew install cairo pkg-config",),
         ),
         INSTALL_MOONBIT_STEP,
         UPDATE_REGISTRY_STEP,
